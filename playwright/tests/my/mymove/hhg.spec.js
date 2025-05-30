@@ -247,10 +247,10 @@ test.describe('(MultiMove) HHG', () => {
 
     // Fill in form to create HHG shipment
     await customerPage.waitForPage.hhgShipment();
-    await page.getByLabel('Preferred pickup date').fill('29 May 2025');
+    await page.getByLabel('Preferred pickup date').fill('29 Dec 2025');
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('29 May 2025');
+    await page.getByLabel('Preferred delivery date').fill('29 Dec 2025');
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByTestId('remarks').fill('Going to Alaska');
     await customerPage.navigateForward();
