@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -211,6 +211,9 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
 
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
+
     // Saftey option should not be available for non safety moves
     const options = ordersTypeDropdown.querySelectorAll('option');
     const isSafetyOptionPresent = Array.from(options).some((option) => option.value === ORDERS_TYPE.SAFETY);
@@ -241,6 +244,26 @@ describe('CreateMoveCustomerInfo Component', () => {
     });
 
     expect(testProps.onSubmit).not.toHaveBeenCalled();
+  });
+});
+
+describe('AddOrdersForm -  Wounded Warrior FF', () => {
+  it('Does not render Wounded Warrior order option', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText(/orders type/i);
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+
+      expect(hasWoundedWarrior).toBe(false);
+    });
   });
 });
 
