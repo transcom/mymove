@@ -8,7 +8,7 @@ const LABEL = {
   backupMailingAddress: 'Backup Address',
   destinationAddress: 'Delivery Address',
   pickupAddress: 'Pickup Address',
-  residentialAddress: 'Pickup Address',
+  residentialAddress: 'Current Address',
   secondaryDestinationAddress: 'Second Delivery Address',
   secondaryPickupAddress: 'Second Pickup Address',
   tertiaryDestinationAddress: 'Third Delivery Address',

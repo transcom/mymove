@@ -34,8 +34,8 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
 
   const { mutate: deleteEvaluationReportMutation } = useMutation(deleteEvaluationReport, {
     onSuccess: async () => {
-      await queryClient.refetchQueries([COUNSELING_EVALUATION_REPORTS]);
-      await queryClient.refetchQueries(SHIPMENT_EVALUATION_REPORTS);
+      await queryClient.refetchQueries([COUNSELING_EVALUATION_REPORTS], moveCode);
+      await queryClient.refetchQueries([SHIPMENT_EVALUATION_REPORTS], moveCode);
     },
   });
 
@@ -111,7 +111,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
           </div>
         )}
         <Grid row>
-          <h1>Quality assurance reports</h1>
+          <h1>Quality Assurance Reports</h1>
         </Grid>
         <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
           <Grid row>
