@@ -552,7 +552,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
 		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
-		ActualGunSafeWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualGunSafeWeight),
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)

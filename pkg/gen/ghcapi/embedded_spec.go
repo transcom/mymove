@@ -16328,11 +16328,6 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
-        "actualGunSafeWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
         "actualProGearWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -35489,11 +35484,6 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
-        "actualGunSafeWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
         "actualProGearWeight": {
           "type": "integer",
           "x-nullable": true,

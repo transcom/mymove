@@ -15,3 +15,4 @@
 20250409212825_fn_get_counseling_offices_for_conus.up.sql
 20250409212838_fn_get_counseling_offices_for_oconus.up.sql
 20250505143424_fn_get_payment_request_queue.up.sql
+20250529203815_fn_update_actual_gun_safe_weight_totals.up.sql

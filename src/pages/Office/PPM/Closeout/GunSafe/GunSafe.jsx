@@ -95,7 +95,6 @@ const GunSafe = ({ appName }) => {
           id: mtoShipment.ppmShipment.id,
         },
         shipmentType: mtoShipment.shipmentType,
-        actualGunSafeWeight: parseInt(values.weight, 10),
         shipmentLocator: values.shipmentLocator,
         eTag: shipmentResp?.data?.eTag,
       };

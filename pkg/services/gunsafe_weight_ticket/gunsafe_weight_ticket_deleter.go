@@ -73,6 +73,12 @@ func (d *gunsafeWeightTicketDeleter) DeleteGunSafeWeightTicket(appCtx appcontext
 			return err
 		}
 
+		if err := appCtx.DB().
+			RawQuery("SELECT update_actual_gun_safe_weight_totals($1)", ppmID).
+			Exec(); err != nil {
+			return apperror.NewQueryError("update_actual_gunsafe_weight_totals", err, "")
+		}
+
 		return nil
 	})
 

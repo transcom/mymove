@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *GunSafeWeightTicketSuite) TestDeleteGunSafeWeightTicket() {
@@ -116,5 +117,53 @@ func (suite *GunSafeWeightTicketSuite) TestDeleteGunSafeWeightTicket() {
 		err = suite.DB().Find(&dbDocument, originalGunSafeWeightTicket.DocumentID)
 		suite.NoError(err)
 		suite.NotNil(dbDocument.DeletedAt)
+	})
+
+	suite.Run("Successfully deletes and totals sum of tickets and updates mto_shipments actual_gunsafe_weight column", func() {
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{Model: serviceMember, LinkOnly: true},
+		}, nil)
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
+		})
+
+		factoryTickets := []struct {
+			weight unit.Pound
+		}{
+			{weight: 100},
+			{weight: 200},
+			{weight: 50},
+			{weight: 25},
+		}
+
+		var tickets []models.GunSafeWeightTicket
+		for _, ft := range factoryTickets {
+			t := factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+				{Model: serviceMember, LinkOnly: true},
+				{Model: ppmShipment, LinkOnly: true},
+				{Model: document, LinkOnly: true},
+				{
+					Model: models.GunSafeWeightTicket{
+						Weight: models.PoundPointer(ft.weight),
+					},
+				},
+			}, nil)
+			tickets = append(tickets, t)
+		}
+
+		deleter := NewGunSafeWeightTicketDeleter()
+
+		err := deleter.DeleteGunSafeWeightTicket(appCtx, ppmShipment.ID, tickets[3].ID)
+		suite.NoError(err)
+
+		var shipment models.MTOShipment
+		suite.NoError(suite.DB().
+			Q().
+			Find(&shipment, ppmShipment.ShipmentID))
+
+		suite.Equal(350, shipment.ActualGunSafeWeight.Int())
 	})
 }

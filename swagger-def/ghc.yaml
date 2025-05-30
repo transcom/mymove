@@ -7170,10 +7170,6 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
-      actualGunSafeWeight:
-        type: integer
-        x-nullable: true
-        x-omitempty: false
       destinationType:
         $ref: 'definitions/DestinationType.yaml'
       agents:
