@@ -17,6 +17,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 	uploadCreator := upload.NewUploadCreator(fakeFileStorer)
 
 	testFileName := "upload-test.pdf"
+	testFileNameNoExtension := "upload-test"
 	defaultUploader := NewMoveExcessWeightUploader(uploadCreator)
 
 	suite.Run("Success - Excess weight upload is created and move is updated", func() {
@@ -40,9 +41,9 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 		suite.Equal(updatedMove.ExcessWeightUpload.ID, *updatedMove.ExcessWeightUploadID)
 
 		suite.Equal(models.UploadTypeUSER, updatedMove.ExcessWeightUpload.UploadType)
-		suite.Contains(updatedMove.ExcessWeightUpload.Filename, testFileName)
+		suite.Contains(updatedMove.ExcessWeightUpload.Filename, testFileNameNoExtension)
 		suite.Contains(updatedMove.ExcessWeightUpload.Filename, move.ID.String())
-		suite.Contains(updatedMove.ExcessWeightUpload.StorageKey, testFileName)
+		suite.Contains(updatedMove.ExcessWeightUpload.StorageKey, testFileNameNoExtension)
 	})
 
 	suite.Run("Fail - Move not found", func() {
@@ -102,6 +103,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUploadPrime() {
 	uploadCreator := upload.NewUploadCreator(fakeFileStorer)
 
 	testFileName := "upload-test.pdf"
+	testFileNameNoExtension := "upload-test"
 	primeUploader := NewPrimeMoveExcessWeightUploader(uploadCreator)
 
 	suite.Run("Success - Excess weight upload is created for a Prime-available move", func() {
@@ -125,8 +127,8 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUploadPrime() {
 		suite.Equal(updatedMove.ExcessWeightUpload.ID, *updatedMove.ExcessWeightUploadID)
 
 		suite.Equal(models.UploadTypePRIME, updatedMove.ExcessWeightUpload.UploadType)
-		suite.Contains(updatedMove.ExcessWeightUpload.Filename, testFileName)
-		suite.Contains(updatedMove.ExcessWeightUpload.StorageKey, testFileName)
+		suite.Contains(updatedMove.ExcessWeightUpload.Filename, testFileNameNoExtension)
+		suite.Contains(updatedMove.ExcessWeightUpload.StorageKey, testFileNameNoExtension)
 	})
 
 	suite.Run("Fail - Cannot create upload for non-Prime move", func() {
