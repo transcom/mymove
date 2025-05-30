@@ -38,11 +38,7 @@ import {
   useCounselingQueueQueries,
   useUserQueries,
 } from 'hooks/queries';
-import {
-  getServicesCounselingOriginLocations,
-  getServicesCounselingPPMQueue,
-  getCounselingQueue,
-} from 'services/ghcApi';
+import { getServicesCounselingOriginLocations, getPPMCloseoutQueue, getCounselingQueue } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
