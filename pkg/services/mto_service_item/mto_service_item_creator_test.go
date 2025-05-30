@@ -1110,8 +1110,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	// Set up data to use for all Origin SIT Service Item tests
 	var reServiceDOASIT models.ReService
 	var reServiceDOFSIT models.ReService
-	// var reServiceDOPSIT models.ReService
-	// var reServiceDOSFSC models.ReService
+	var reServiceDOPSIT models.ReService
+	var reServiceDOSFSC models.ReService
 
 	setupTestData := func() models.MTOShipment {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1129,8 +1129,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 		reServiceDOASIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 		reServiceDOFSIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-		// reServiceDOPSIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
-		// reServiceDOSFSC = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
+		reServiceDOPSIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
+		reServiceDOSFSC = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
 
 		return mtoShipment
 	}
@@ -1167,111 +1167,111 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
 		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
-	// suite.Run("Failure - 422 Cannot create DOFSIT service item with non-null address.ID", func() {
+	suite.Run("Failure - 422 Cannot create DOFSIT service item with non-null address.ID", func() {
 
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create DOFSIT service item with a non-null address ID
-	// 	// Expected outcome: InvalidInput error returned, no new service items created
-	// 	shipment := setupTestData()
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item with a non-null address ID
+		// Expected outcome: InvalidInput error returned, no new service items created
+		shipment := setupTestData()
 
-	// 	// Create and address where ID != uuid.Nil
-	// 	actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		// Create and address where ID != uuid.Nil
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
-	// 	serviceItemDOFSIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:             shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID:           shipment.MoveTaskOrderID,
-	// 		MTOShipment:               shipment,
-	// 		MTOShipmentID:             &shipment.ID,
-	// 		ReService:                 reServiceDOFSIT,
-	// 		SITEntryDate:              &sitEntryDate,
-	// 		SITPostalCode:             &sitPostalCode,
-	// 		Reason:                    &reason,
-	// 		SITOriginHHGActualAddress: &actualPickupAddress,
-	// 		Status:                    models.MTOServiceItemStatusSubmitted,
-	// 	}
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceDOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
 
-	// 	createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
-	// 	suite.Nil(createdServiceItems)
-	// 	suite.Error(verr)
-	// 	suite.IsType(apperror.InvalidInputError{}, err)
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(verr)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
-	// })
+	})
 
-	// suite.Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT, DOSFSC", func() {
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create DOFSIT service item with a new address
-	// 	// Expected outcome: Success, 4 service items created
+	suite.Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT, DOSFSC", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item with a new address
+		// Expected outcome: Success, 4 service items created
 
-	// 	// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
-	// 	// creating DOFSIT (SIT origin first day).
-	// 	shipment := setupTestData()
+		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
+		// creating DOFSIT (SIT origin first day).
+		shipment := setupTestData()
 
-	// 	// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
-	// 	// via the Prime API, the address will not have a valid database ID. And tests need to ensure
-	// 	// that we properly create the address coming in from the API.
-	// 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-	// 	actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
-	// 	actualPickupAddress.ID = uuid.Nil
-	// 	actualPickupAddress.CountryId = &country.ID
-	// 	actualPickupAddress.Country = &country
+		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
+		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
+		// that we properly create the address coming in from the API.
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress.ID = uuid.Nil
+		actualPickupAddress.CountryId = &country.ID
+		actualPickupAddress.Country = &country
 
-	// 	serviceItemDOFSIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:             shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID:           shipment.MoveTaskOrderID,
-	// 		MTOShipment:               shipment,
-	// 		MTOShipmentID:             &shipment.ID,
-	// 		ReService:                 reServiceDOFSIT,
-	// 		SITEntryDate:              &sitEntryDate,
-	// 		SITPostalCode:             &sitPostalCode,
-	// 		Reason:                    &reason,
-	// 		SITOriginHHGActualAddress: &actualPickupAddress,
-	// 		Status:                    models.MTOServiceItemStatusSubmitted,
-	// 	}
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceDOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
 
-	// 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
-	// 	suite.NotNil(createdServiceItems)
-	// 	suite.NoError(err)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
 
-	// 	createdServiceItemsList := *createdServiceItems
-	// 	suite.Equal(4, len(createdServiceItemsList))
+		createdServiceItemsList := *createdServiceItems
+		suite.Equal(4, len(createdServiceItemsList))
 
-	// 	numDOFSITFound := 0
-	// 	numDOASITFound := 0
-	// 	numDOPSITFound := 0
-	// 	numDOSFSCFound := 0
+		numDOFSITFound := 0
+		numDOASITFound := 0
+		numDOPSITFound := 0
+		numDOSFSCFound := 0
 
-	// 	for _, item := range createdServiceItemsList {
-	// 		suite.Equal(serviceItemDOFSIT.MoveTaskOrderID, item.MoveTaskOrderID)
-	// 		suite.Equal(serviceItemDOFSIT.MTOShipmentID, item.MTOShipmentID)
-	// 		suite.Equal(serviceItemDOFSIT.SITEntryDate, item.SITEntryDate)
-	// 		suite.Equal(serviceItemDOFSIT.Reason, item.Reason)
-	// 		suite.Equal(serviceItemDOFSIT.SITPostalCode, item.SITPostalCode)
-	// 		suite.Equal(actualPickupAddress.StreetAddress1, item.SITOriginHHGActualAddress.StreetAddress1)
-	// 		suite.Equal(actualPickupAddress.ID, *item.SITOriginHHGActualAddressID)
+		for _, item := range createdServiceItemsList {
+			suite.Equal(serviceItemDOFSIT.MoveTaskOrderID, item.MoveTaskOrderID)
+			suite.Equal(serviceItemDOFSIT.MTOShipmentID, item.MTOShipmentID)
+			suite.Equal(serviceItemDOFSIT.SITEntryDate, item.SITEntryDate)
+			suite.Equal(serviceItemDOFSIT.Reason, item.Reason)
+			suite.Equal(serviceItemDOFSIT.SITPostalCode, item.SITPostalCode)
+			suite.Equal(actualPickupAddress.StreetAddress1, item.SITOriginHHGActualAddress.StreetAddress1)
+			suite.Equal(actualPickupAddress.ID, *item.SITOriginHHGActualAddressID)
 
-	// 		if item.ReService.Code == models.ReServiceCodeDOPSIT || item.ReService.Code == models.ReServiceCodeDOSFSC {
-	// 			suite.Equal(*item.SITDeliveryMiles, 400)
-	// 		}
+			if item.ReService.Code == models.ReServiceCodeDOPSIT || item.ReService.Code == models.ReServiceCodeDOSFSC {
+				suite.Equal(*item.SITDeliveryMiles, 400)
+			}
 
-	// 		switch item.ReService.Code {
-	// 		case models.ReServiceCodeDOFSIT:
-	// 			numDOFSITFound++
-	// 		case models.ReServiceCodeDOASIT:
-	// 			numDOASITFound++
-	// 		case models.ReServiceCodeDOPSIT:
-	// 			numDOPSITFound++
-	// 		case models.ReServiceCodeDOSFSC:
-	// 			numDOSFSCFound++
-	// 		}
-	// 	}
+			switch item.ReService.Code {
+			case models.ReServiceCodeDOFSIT:
+				numDOFSITFound++
+			case models.ReServiceCodeDOASIT:
+				numDOASITFound++
+			case models.ReServiceCodeDOPSIT:
+				numDOPSITFound++
+			case models.ReServiceCodeDOSFSC:
+				numDOSFSCFound++
+			}
+		}
 
-	// 	suite.Equal(1, numDOFSITFound)
-	// 	suite.Equal(1, numDOASITFound)
-	// 	suite.Equal(1, numDOPSITFound)
-	// 	suite.Equal(1, numDOSFSCFound)
-	// })
+		suite.Equal(1, numDOFSITFound)
+		suite.Equal(1, numDOASITFound)
+		suite.Equal(1, numDOPSITFound)
+		suite.Equal(1, numDOSFSCFound)
+	})
 
 	setupDOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
 		// Create DOFSIT
@@ -1302,267 +1302,267 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		return creator
 	}
 
-	// suite.Run("Create standalone DOASIT item for shipment if existing DOFSIT", func() {
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create DOFSIT service item successfully
-	// 	//             Create DOASIT item on existing DOFSIT
-	// 	// Expected outcome: Success, DOASIT item created
+	suite.Run("Create standalone DOASIT item for shipment if existing DOFSIT", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item successfully
+		//             Create DOASIT item on existing DOFSIT
+		// Expected outcome: Success, DOASIT item created
 
-	// 	shipment := setupTestData()
-	// 	creator := setupDOFSIT(shipment)
+		shipment := setupTestData()
+		creator := setupDOFSIT(shipment)
 
-	// 	// Create DOASIT
-	// 	serviceItemDOASIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:   shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID: shipment.MoveTaskOrderID,
-	// 		MTOShipment:     shipment,
-	// 		MTOShipmentID:   &shipment.ID,
-	// 		ReService:       reServiceDOASIT,
-	// 		Status:          models.MTOServiceItemStatusSubmitted,
-	// 	}
+		// Create DOASIT
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
 
-	// 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
-	// 	createdDOASITItem := (*createdServiceItems)[0]
-	// 	originalDate, _ := sitEntryDate.MarshalText()
-	// 	returnedDate, _ := createdDOASITItem.SITEntryDate.MarshalText()
+		createdDOASITItem := (*createdServiceItems)[0]
+		originalDate, _ := sitEntryDate.MarshalText()
+		returnedDate, _ := createdDOASITItem.SITEntryDate.MarshalText()
 
-	// 	// Item is created successfully
-	// 	suite.NotNil(createdServiceItems)
-	// 	suite.NoError(err)
-	// 	// Item contains fields copied over from DOFSIT parent
-	// 	suite.EqualValues(originalDate, returnedDate)
-	// 	suite.EqualValues(*createdDOASITItem.Reason, reason)
-	// 	suite.EqualValues(*createdDOASITItem.SITPostalCode, sitPostalCode)
-	// })
+		// Item is created successfully
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+		// Item contains fields copied over from DOFSIT parent
+		suite.EqualValues(originalDate, returnedDate)
+		suite.EqualValues(*createdDOASITItem.Reason, reason)
+		suite.EqualValues(*createdDOASITItem.SITPostalCode, sitPostalCode)
+	})
 
-	// suite.Run("Failure - 422 Create standalone DOASIT item for shipment does not match existing DOFSIT addresses", func() {
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create DOFSIT service item successfully
-	// 	//             Create DOASIT item on existing DOFSIT but with non-matching address
-	// 	// Expected outcome: Invalid input error, no service items created
+	suite.Run("Failure - 422 Create standalone DOASIT item for shipment does not match existing DOFSIT addresses", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item successfully
+		//             Create DOASIT item on existing DOFSIT but with non-matching address
+		// Expected outcome: Invalid input error, no service items created
 
-	// 	shipment := setupTestData()
-	// 	creator := setupDOFSIT(shipment)
+		shipment := setupTestData()
+		creator := setupDOFSIT(shipment)
 
-	// 	// Change pickup address
-	// 	serviceItemDOASIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:   shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID: shipment.MoveTaskOrderID,
-	// 		MTOShipment:     shipment,
-	// 		MTOShipmentID:   &shipment.ID,
-	// 		ReService:       reServiceDOASIT,
-	// 		Status:          models.MTOServiceItemStatusSubmitted,
-	// 	}
+		// Change pickup address
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
 
-	// 	actualPickupAddress2 := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
-	// 	existingServiceItem := &serviceItemDOASIT
-	// 	existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress2
+		actualPickupAddress2 := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		existingServiceItem := &serviceItemDOASIT
+		existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress2
 
-	// 	createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), existingServiceItem)
-	// 	suite.Nil(createdServiceItems)
-	// 	suite.Error(verr)
-	// 	suite.IsType(apperror.InvalidInputError{}, err)
-	// })
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), existingServiceItem)
+		suite.Nil(createdServiceItems)
+		suite.Error(verr)
+		suite.IsType(apperror.InvalidInputError{}, err)
+	})
 
-	// suite.Run("Do not create DOFSIT if one already exists for the shipment", func() {
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create DOFSIT service item successfully
-	// 	//             Create another DOFSIT item on the same shipment
-	// 	// Expected outcome: Conflict error, no new DOFSIT item created
+	suite.Run("Do not create DOFSIT if one already exists for the shipment", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create DOFSIT service item successfully
+		//             Create another DOFSIT item on the same shipment
+		// Expected outcome: Conflict error, no new DOFSIT item created
 
-	// 	shipment := setupTestData()
-	// 	creator := setupDOFSIT(shipment)
+		shipment := setupTestData()
+		creator := setupDOFSIT(shipment)
 
-	// 	serviceItemDOFSIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:   shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID: shipment.MoveTaskOrderID,
-	// 		MTOShipment:     shipment,
-	// 		MTOShipmentID:   &shipment.ID,
-	// 		ReService:       reServiceDOFSIT,
-	// 		SITEntryDate:    &sitEntryDate,
-	// 		SITPostalCode:   &sitPostalCode,
-	// 		Reason:          &reason,
-	// 	}
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOFSIT,
+			SITEntryDate:    &sitEntryDate,
+			SITPostalCode:   &sitPostalCode,
+			Reason:          &reason,
+		}
 
-	// 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
-	// 	suite.Nil(createdServiceItems)
-	// 	suite.Error(err)
-	// 	suite.IsType(apperror.ConflictError{}, err)
-	// })
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+	})
 
-	// suite.Run("Do not create DOFSIT if departure date is after entry date", func() {
-	// 	shipment := setupTestData()
-	// 	originAddress := factory.BuildAddress(suite.DB(), nil, nil)
-	// 	reServiceDOFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-	// 	serviceItemDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
-	// 		{
-	// 			Model: models.MTOServiceItem{
-	// 				SITEntryDate:     models.TimePointer(time.Now().AddDate(0, 0, 1)),
-	// 				SITDepartureDate: models.TimePointer(time.Now()),
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    reServiceDOFSIT,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    shipment,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    originAddress,
-	// 			LinkOnly: true,
-	// 			Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
-	// 		},
-	// 	}, nil)
+	suite.Run("Do not create DOFSIT if departure date is after entry date", func() {
+		shipment := setupTestData()
+		originAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		reServiceDOFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		serviceItemDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     models.TimePointer(time.Now().AddDate(0, 0, 1)),
+					SITDepartureDate: models.TimePointer(time.Now()),
+				},
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
 
-	// 	_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
-	// 	suite.Error(err)
-	// 	expectedError := fmt.Sprintf(
-	// 		"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
-	// 		serviceItemDOFSIT.SITDepartureDate.Format("2006-01-02"),
-	// 		serviceItemDOFSIT.SITEntryDate.Format("2006-01-02"),
-	// 	)
-	// 	suite.Contains(err.Error(), expectedError)
-	// })
+		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItemDOFSIT.SITDepartureDate.Format("2006-01-02"),
+			serviceItemDOFSIT.SITEntryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
 
-	// suite.Run("Do not create DOFSIT if departure date is the same as entry date", func() {
-	// 	today := models.TimePointer(time.Now())
-	// 	shipment := setupTestData()
-	// 	originAddress := factory.BuildAddress(suite.DB(), nil, nil)
-	// 	reServiceDOFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-	// 	serviceItemDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
-	// 		{
-	// 			Model: models.MTOServiceItem{
-	// 				SITEntryDate:     today,
-	// 				SITDepartureDate: today,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    reServiceDOFSIT,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    shipment,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    originAddress,
-	// 			LinkOnly: true,
-	// 			Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
-	// 		},
-	// 	}, nil)
+	suite.Run("Do not create DOFSIT if departure date is the same as entry date", func() {
+		today := models.TimePointer(time.Now())
+		shipment := setupTestData()
+		originAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		reServiceDOFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		serviceItemDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     today,
+					SITDepartureDate: today,
+				},
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
 
-	// 	_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
-	// 	suite.Error(err)
-	// 	expectedError := fmt.Sprintf(
-	// 		"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
-	// 		serviceItemDOFSIT.SITDepartureDate.Format("2006-01-02"),
-	// 		serviceItemDOFSIT.SITEntryDate.Format("2006-01-02"),
-	// 	)
-	// 	suite.Contains(err.Error(), expectedError)
-	// })
+		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItemDOFSIT.SITDepartureDate.Format("2006-01-02"),
+			serviceItemDOFSIT.SITEntryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
 
-	// suite.Run("Do not create standalone DOPSIT service item", func() {
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create a shipment, then create a DOPSIT item on it
-	// 	// Expected outcome: Invalid input error, can't create standalone DOPSIT, no DOPSIT item created
+	suite.Run("Do not create standalone DOPSIT service item", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a DOPSIT item on it
+		// Expected outcome: Invalid input error, can't create standalone DOPSIT, no DOPSIT item created
 
-	// 	shipment := setupTestData()
+		shipment := setupTestData()
 
-	// 	serviceItemDOPSIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:   shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID: shipment.MoveTaskOrderID,
-	// 		MTOShipment:     shipment,
-	// 		MTOShipmentID:   &shipment.ID,
-	// 		ReService:       reServiceDOPSIT,
-	// 	}
+		serviceItemDOPSIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOPSIT,
+		}
 
-	// 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
 
-	// 	suite.Nil(createdServiceItems)
-	// 	suite.Error(err)
-	// 	suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
-	// })
+	})
 
-	// suite.Run("Do not create standalone DOSFSC service item", func() {
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create a shipment, then create a DOSFSC item on it
-	// 	// Expected outcome: Invalid input error, can't create standalone DOSFSC, no DOSFSC item created
+	suite.Run("Do not create standalone DOSFSC service item", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a DOSFSC item on it
+		// Expected outcome: Invalid input error, can't create standalone DOSFSC, no DOSFSC item created
 
-	// 	shipment := setupTestData()
+		shipment := setupTestData()
 
-	// 	serviceItemDOPSIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:   shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID: shipment.MoveTaskOrderID,
-	// 		MTOShipment:     shipment,
-	// 		MTOShipmentID:   &shipment.ID,
-	// 		ReService:       reServiceDOSFSC,
-	// 	}
+		serviceItemDOPSIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOSFSC,
+		}
 
-	// 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
 
-	// 	suite.Nil(createdServiceItems)
-	// 	suite.Error(err)
-	// 	suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 
-	// })
+	})
 
-	// suite.Run("Do not create standalone DOASIT if there is no DOFSIT on shipment", func() {
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create a shipment, then create a DOASIT item on it
-	// 	// Expected outcome: Invalid input error, can't create standalone DOASIT, no DOASIT item created
-	// 	shipment := setupTestData()
+	suite.Run("Do not create standalone DOASIT if there is no DOFSIT on shipment", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a DOASIT item on it
+		// Expected outcome: Invalid input error, can't create standalone DOASIT, no DOASIT item created
+		shipment := setupTestData()
 
-	// 	serviceItemDOASIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:   shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID: shipment.MoveTaskOrderID,
-	// 		MTOShipment:     shipment,
-	// 		MTOShipmentID:   &shipment.ID,
-	// 		ReService:       reServiceDOASIT,
-	// 	}
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceDOASIT,
+		}
 
-	// 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
-	// 	suite.Nil(createdServiceItems)
-	// 	suite.Error(err)
-	// 	suite.IsType(apperror.NotFoundError{}, err)
-	// })
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
 
-	// suite.Run("Do not create DOASIT if the DOFSIT ReService Code is bad", func() {
-	// 	// TESTCASE SCENARIO
-	// 	// Under test: CreateMTOServiceItem function
-	// 	// Set up:     Create a shipment, then create a DOFSIT item on it
-	// 	//             Create a serviceItem with type DOASIT but a bad reServiceCode
-	// 	// Expected outcome: Not found error, can't create DOASIT
-	// 	shipment := setupTestData()
-	// 	creator := setupDOFSIT(shipment)
-	// 	badReService := models.ReService{
-	// 		Code: "bad code",
-	// 	}
+	suite.Run("Do not create DOASIT if the DOFSIT ReService Code is bad", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a DOFSIT item on it
+		//             Create a serviceItem with type DOASIT but a bad reServiceCode
+		// Expected outcome: Not found error, can't create DOASIT
+		shipment := setupTestData()
+		creator := setupDOFSIT(shipment)
+		badReService := models.ReService{
+			Code: "bad code",
+		}
 
-	// 	serviceItemDOASIT := models.MTOServiceItem{
-	// 		MoveTaskOrder:   shipment.MoveTaskOrder,
-	// 		MoveTaskOrderID: shipment.MoveTaskOrderID,
-	// 		MTOShipment:     shipment,
-	// 		MTOShipmentID:   &shipment.ID,
-	// 		ReService:       badReService,
-	// 	}
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       badReService,
+		}
 
-	// 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
-	// 	suite.Nil(createdServiceItems)
-	// 	suite.Error(err)
-	// 	suite.IsType(apperror.NotFoundError{}, err)
-	// })
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
 
 	setupDOFSITWithDepartureDate := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
 		// Create DOFSIT
