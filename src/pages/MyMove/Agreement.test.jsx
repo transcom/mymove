@@ -81,9 +81,6 @@ describe('Agreement page', () => {
     expect(signatureInput).toBeEnabled();
     await userEvent.type(signatureInput, 'Sofia Clark-Nuñez');
 
-    // eslint-disable-next-line no-restricted-globals
-    print(signatureInput.value);
-
     await waitFor(() => {
       expect(completeButton).toBeEnabled();
     });
