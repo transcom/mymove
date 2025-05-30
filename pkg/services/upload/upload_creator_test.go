@@ -1,12 +1,12 @@
 package upload
 
 import (
-	"fmt"
 	"os"
 	"regexp"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 // TestCreateUpload tests uploading a new document
@@ -15,6 +15,7 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 	uploadCreator := NewUploadCreator(fakeFileStorer)
 
 	testFileName := "upload-test.pdf"
+	testFileNameNoExtension := "upload-test"
 	testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
 	suite.Require().NoError(fileErr)
 
@@ -24,8 +25,8 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 		suite.Require().NotNil(upload)
 
 		suite.Equal(models.UploadTypePRIME, upload.UploadType)
-		suite.Contains(upload.Filename, testFileName)
-		suite.Contains(upload.StorageKey, testFileName)
+		suite.Contains(upload.Filename, testFileNameNoExtension)
+		suite.Contains(upload.StorageKey, testFileNameNoExtension)
 		suite.Equal(upload.Filename, upload.StorageKey)
 	})
 
@@ -42,10 +43,10 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 // Test_assembleUploadFilePathName tests assembling the file path for saving in storage
 func (suite *UploadServiceSuite) Test_assembleUploadFilePathName() {
 	filePathName := "move/4b7b7c9b-8023-4843-9c4f-a8185bfb7b11/proof.pdf"
-	resultPattern, err := regexp.Compile(fmt.Sprintf(
-		"move/4b7b7c9b-8023-4843-9c4f-a8185bfb7b11/([\\d]{%d})-proof\\.pdf", len(filenameTimeFormat)))
+	resultPattern, err := regexp.Compile(
+		`move/4b7b7c9b-8023-4843-9c4f-a8185bfb7b11/(proof-\d{14})\.pdf`)
 	suite.Require().NoError(err, "Error compiling regex for test")
 
-	result := assembleUploadFilePathName(filePathName)
-	suite.True(resultPattern.MatchString(result))
+	result := utils.AppendTimestampToFilename(filePathName)
+	suite.True(resultPattern.MatchString(result), "Regex should match filename: %s", result)
 }
