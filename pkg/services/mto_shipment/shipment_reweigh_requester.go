@@ -35,7 +35,7 @@ func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppC
 	reweigh, err := f.createReweigh(appCtx, shipment, requester, checkReweighAllowed())
 
 	/* Don't send emails to BLUEBARK moves */
-	if err == nil && shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
+	if err == nil && shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() && shipment.CanSendReweighEmailForShipmentType() {
 		err := f.Sender.SendNotification(appCtx,
 			notifications.NewReweighRequested(shipment.MoveTaskOrderID, *shipment),
 		)
