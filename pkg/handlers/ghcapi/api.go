@@ -410,7 +410,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmShowAOAPacketHandler = showAOAPacketHandler{handlerConfig, SSWPPMComputer, SSWPPMGenerator, AOAPacketCreator}
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(shipmentRouter)
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf))
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
@@ -661,6 +660,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(shipmentRouter)
 	if err != nil {
 		log.Fatalln(err)
 	}
