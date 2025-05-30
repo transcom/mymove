@@ -393,9 +393,9 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 
 		pickupIsAlaska, _ := latestPickupAddress.IsAddressAlaska()
 		destinationIsAlaska, _ := latestDestinationAddress.IsAddressAlaska()
-		// If we have all the data, calculate RDD
+		// If we have all the necessary data for the shipment type and locations, calculate RDD
 		if latestSchedPickupDate != nil && latestPickupAddress != nil && latestDestinationAddress != nil &&
-			(pickupIsAlaska && destinationIsAlaska ||
+			((pickupIsAlaska && destinationIsAlaska) ||
 				latestEstimatedWeight != nil ||
 				(older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && older.NTSRecordedWeight != nil)) &&
 			older.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
