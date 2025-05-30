@@ -11,7 +11,7 @@ import styles from './EditOrdersForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import {
   civilianTDYUBAllowanceWeightWarning,
   FEATURE_FLAG_KEYS,
@@ -30,13 +30,14 @@ import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/fo
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
+import { formatLabelReportByDate, formatPayGradeOptions, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
-import { showCounselingOffices } from 'services/internalApi';
+import { getPayGradeOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 
 const EditOrdersForm = ({
   createUpload,
@@ -48,6 +49,7 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  affiliation,
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
@@ -92,7 +94,7 @@ const EditOrdersForm = ({
         }),
       )
       .min(1),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    grade: Yup.string().required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation?.provides_services_counseling
       ? Yup.string().required('Required')
@@ -118,8 +120,6 @@ const EditOrdersForm = ({
     const isValuePresent = initialValues.move_status === MOVE_STATUSES.DRAFT;
     return isValuePresent;
   };
-
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   let originMeta;
   let newDutyMeta = '';
@@ -159,6 +159,26 @@ const EditOrdersForm = ({
     };
     fetchCounselingOffices();
   }, [currentDutyLocation.id, officeOptions, setShowLoadingSpinner]);
+
+  const [payGradeOptions, setPayGradeOptions] = useState([]);
+  useEffect(() => {
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      try {
+        const fetchedRanks = await getPayGradeOptions(affiliation);
+        if (fetchedRanks) {
+          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchGradeOptions();
+  }, [affiliation, setShowLoadingSpinner]);
 
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
@@ -654,4 +674,10 @@ const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(EditOrdersForm);
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditOrdersForm);

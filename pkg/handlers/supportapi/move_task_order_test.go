@@ -275,7 +275,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
 		deptIndicator := supportmessages.DeptIndicatorAIRANDSPACEFORCE
 
-		grade := (supportmessages.Rank)("E_6")
+		grade := (supportmessages.Rank)("E-6")
 		mtoPayload := &supportmessages.MoveTaskOrder{
 			PpmType:      "FULL",
 			ContractorID: handlers.FmtUUID(contractor.ID),
@@ -493,12 +493,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// This time we provide customer details to create
 		newCustomerFirstName := "Grace"
+		rank := supportmessages.Rank("ACADEMY_CADET")
 		mtoPayload.Order.Customer = &supportmessages.Customer{
 			FirstName: &newCustomerFirstName,
 			LastName:  models.StringPointer("Griffin"),
 			Agency:    models.StringPointer("Marines"),
 			DodID:     models.StringPointer("1209457894"),
-			Rank:      supportmessages.NewRank("ACADEMY_CADET"),
+			Rank:      &rank,
 		}
 		mtoPayload.Order.CustomerID = nil
 

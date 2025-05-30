@@ -9,6 +9,7 @@ import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const mockOriginDutyLocation = {
   address: {
@@ -102,6 +103,28 @@ jest.mock('services/ghcApi', () => ({
     // Default to no LOA
     return Promise.resolve(undefined);
   },
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const E_1 = 'E-1';
+    const E_6 = 'E-6';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
+
+    return Promise.resolve({
+      body: [
+        {
+          grade: E_1,
+          description: E_1,
+        },
+        {
+          grade: E_6,
+          description: E_6,
+        },
+        {
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
+        },
+      ],
+    });
+  }),
 }));
 
 const useOrdersDocumentQueriesReturnValue = {
@@ -127,7 +150,7 @@ const useOrdersDocumentQueriesReturnValue = {
         totalWeight: 5000,
       },
       first_name: 'Leo',
-      grade: 'E_1',
+      grade: ORDERS_PAY_GRADE_TYPE.E_1,
       id: '1',
       last_name: 'Spacemen',
       order_number: 'ORDER3',
@@ -190,7 +213,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      const errorMessage = await screen.getByText(/Something went wrong./);
+      const errorMessage = screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -208,7 +231,7 @@ describe('Orders page', () => {
       expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('2222');
-      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue('E-1');
+      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue(ORDERS_PAY_GRADE_TYPE.E_1);
       expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
     });
   });
