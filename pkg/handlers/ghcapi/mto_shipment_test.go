@@ -584,6 +584,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
+	tomorrow := time.Now().Add(24 * time.Hour)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -638,6 +639,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 				},
 			},
 		}, nil)
+
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -645,7 +647,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -737,7 +740,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -841,7 +845,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -925,7 +930,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1250,6 +1256,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 // ApproveShipment(s)Handler
 func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
+	tomorrow := time.Now().Add(24 * time.Hour)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -1315,7 +1322,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1327,7 +1335,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1403,7 +1412,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1453,7 +1463,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
+					ID:                  uuid.Must(uuid.NewV4()),
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1501,7 +1512,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
+					ID:                  uuid.Must(uuid.NewV4()),
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1549,7 +1561,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
+					ID:                  uuid.Must(uuid.NewV4()),
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1597,7 +1610,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
+					ID:                  uuid.Must(uuid.NewV4()),
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1680,7 +1694,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
+					ID:                  uuid.Must(uuid.NewV4()),
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1739,7 +1754,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1761,7 +1777,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1773,7 +1790,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1862,7 +1880,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1874,7 +1893,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1886,7 +1906,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1967,7 +1988,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1989,7 +2011,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -2001,7 +2024,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -5287,7 +5311,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	payload := ghcmessages.UpdateShipment{
 		BillableWeightJustification: &billableWeightJustification,
 		BillableWeightCap:           &billableWeightCap,
-		RequestedPickupDate:         &now,
+		RequestedPickupDate:         handlers.FmtDatePtr(originalShipment.RequestedPickupDate),
 		RequestedDeliveryDate:       &now,
 		ShipmentType:                ghcmessages.MTOShipmentTypeHHG,
 		CustomerRemarks:             &customerRemarks,
@@ -5327,6 +5351,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	waf := entitlements.NewWeightAllotmentFetcher()
+	tomorrow := time.Now().Add(24 * time.Hour)
 
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -5371,6 +5396,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 					Diversion:                 true,
 					ActualProGearWeight:       models.PoundPointer(1000),
 					ActualSpouseProGearWeight: models.PoundPointer(253),
+					RequestedPickupDate:       &tomorrow,
 				},
 			},
 		}, nil)
@@ -5856,7 +5882,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)

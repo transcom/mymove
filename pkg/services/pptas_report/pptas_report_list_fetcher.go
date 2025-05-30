@@ -115,7 +115,6 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 				report.WeightAuthorized = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
 			}
 		}
-		totalWeight += unit.Pound(orders.Entitlement.GunSafeWeight)
 
 		report.EntitlementWeight = &totalWeight
 

@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/storage/mocks"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
@@ -824,11 +823,6 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	ubAllowance := 300
 	weightRestriction := 1000
 	ubWeightRestriction := 1200
-	gunSafeWeight := 333
-
-	fetcher := entitlements.NewWeightAllotmentFetcher()
-
-	weightAllotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -837,7 +831,6 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		NonTemporaryStorage:            &nonTemporaryStorage,
 		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
-		GunSafeWeight:                  gunSafeWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		StorageInTransit:               &storageInTransit,
 		TotalDependents:                &totalDependents,
@@ -849,12 +842,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		UBAllowance:                    &ubAllowance,
 		WeightRestriction:              &weightRestriction,
 		UBWeightRestriction:            &ubWeightRestriction,
-		WeightAllotted:                 &weightAllotment,
 	}
-
-	suite.Nil(err)
-
-	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + gunSafeWeight
 
 	returnedEntitlement := Entitlement(entitlement)
 	returnedUBAllowance := entitlement.UBAllowance
@@ -877,7 +865,6 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
 	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
 	suite.Equal(ubWeightRestriction, int(*returnedEntitlement.UbWeightRestriction))
-	suite.Equal(int64(totalWeight), returnedEntitlement.TotalWeight)
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
@@ -2504,4 +2491,78 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 			}
 		}
 	})
+}
+
+func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				Roles: []roles.Role{{RoleType: roles.RoleTypeTOO}},
+			},
+		},
+	}, nil)
+
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{Show: models.BoolPointer(true)},
+		},
+	}, nil)
+
+	d1 := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(2025, time.February, 1, 0, 0, 0, 0, time.UTC)
+	d3 := time.Date(2025, time.March, 1, 0, 0, 0, 0, time.UTC)
+
+	sh3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d3,
+			RequestedDeliveryDate: &d3,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d2,
+			RequestedDeliveryDate: &d2,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d1,
+			RequestedDeliveryDate: &d1,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	// attach them to the move (in reversed order to prove sorting)
+	move.MTOShipments = models.MTOShipments{sh3, sh2, sh1}
+
+	queueMoves := *QueueMoves(
+		models.Moves{move},
+		nil,
+		nil,
+		officeUser,
+		nil,
+		string(roles.RoleTypeTOO),
+		string(models.QueueTypeTaskOrder),
+	)
+
+	suite.Require().Len(queueMoves, 1)
+	q := queueMoves[0]
+
+	// earliest date should be Jan 1 2025
+	expectedDate := strfmt.Date(d1)
+	suite.Equal(expectedDate, *q.RequestedMoveDate)
+
+	// all dates sorted and joined with ", "
+	suite.Require().NotNil(q.RequestedMoveDates)
+	suite.Equal("Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDates)
 }

@@ -128,7 +128,6 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	if *move.Orders.Entitlement.DependentsAuthorized {
 		overallWeightAllowance = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
-	overallWeightAllowance += move.Orders.Entitlement.GunSafeWeight
 
 	civilianTDYUBAllowance := 0
 	if move.Orders.Entitlement.UBAllowance != nil {
@@ -292,7 +291,6 @@ func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move 
 	} else {
 		weightAllowance = weightAllotment.TotalWeightSelf
 	}
-	weightAllowance += e.GunSafeWeight
 	maxWeight := int(math.Round(float64(weightAllowance) * 0.9))
 
 	totalActualWeight := 0
