@@ -294,6 +294,11 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
 
+			maxGunSafeWeightAllowance, err := models.GetMaxGunSafeAllowance(appCtx)
+			if err == nil {
+				weightAllotment.GunSafeWeight = maxGunSafeWeightAllowance
+			}
+
 			var weightRestriction *int
 			var ubWeightRestriction *int
 
@@ -309,6 +314,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
 				WeightRestriction:       weightRestriction,
 				UBWeightRestriction:     ubWeightRestriction,
+				GunSafeWeight:           weightAllotment.GunSafeWeight,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
