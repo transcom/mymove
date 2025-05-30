@@ -324,6 +324,8 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				defaultPermission := models.BackupContactPermissionEDIT
 				backupContact, verrs, err = newServiceMember.CreateBackupContact(appCtx.DB(),
 					*payload.BackupContact.Name,
+					payload.BackupContact.FirstName,
+					payload.BackupContact.LastName,
 					*payload.BackupContact.Email,
 					*payload.BackupContact.Phone,
 					models.BackupContactPermission(defaultPermission))

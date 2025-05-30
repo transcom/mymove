@@ -24,6 +24,12 @@ type BackupContact struct {
 	// Required: true
 	Email *string `json:"email"`
 
+	// first name
+	FirstName string `json:"firstName,omitempty"`
+
+	// last name
+	LastName string `json:"lastName,omitempty"`
+
 	// name
 	// Required: true
 	Name *string `json:"name"`

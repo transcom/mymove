@@ -48,6 +48,8 @@ export const BackupContact = ({ serviceMember, currentBackupContacts, updateServ
 
     const payload = {
       name: `${valueFirstName} ${valueLastName}`.trim(),
+      firstName: valueFirstName,
+      lastName: valueLastName,
       email: values?.email || '',
       telephone: values?.telephone || '',
       permission: values.permission === undefined ? NonePermission : values.permission,

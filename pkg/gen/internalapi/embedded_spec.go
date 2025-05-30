@@ -4170,6 +4170,16 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@exmaple.com"
         },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Smith"
+        },
         "name": {
           "type": "string",
           "title": "Name",
@@ -7376,10 +7386,22 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "Susan"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "name": {
           "type": "string",
@@ -8180,6 +8202,16 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "name": {
           "type": "string",
@@ -13590,6 +13622,16 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@exmaple.com"
         },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Smith"
+        },
         "name": {
           "type": "string",
           "title": "Name",
@@ -16803,10 +16845,22 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "Susan"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "name": {
           "type": "string",
@@ -17608,6 +17662,16 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "name": {
           "type": "string",

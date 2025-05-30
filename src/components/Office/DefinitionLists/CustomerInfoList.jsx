@@ -10,16 +10,12 @@ import { formatCustomerContactFullAddress } from 'utils/formatters';
 import departmentIndicators from 'constants/departmentIndicators';
 
 const CustomerInfoList = ({ customerInfo }) => {
-  let backupContactName = '-';
-  if (customerInfo.backupContact?.name) {
-    const fullName = customerInfo.backupContact?.name;
-    const [firstName = '', lastName = ''] = fullName.split(/ (.+)/).filter(Boolean);
-    if (lastName.length > 0) {
-      backupContactName = `${lastName}, ${firstName}`;
-    } else {
-      backupContactName = firstName;
-    }
-  }
+  const backupFirstName = customerInfo.backupContact?.firstName || '';
+  const backupLastName = customerInfo.backupContact?.lastName || '';
+  const backupContactName =
+    backupFirstName.length > 0 || backupLastName.length > 0
+      ? backupLastName + (backupLastName.length > 0 ? ', ' : '') + backupFirstName
+      : '-';
 
   return (
     <div className={styles.OfficeDefinitionLists}>

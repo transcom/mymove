@@ -95,6 +95,8 @@ export const EditContactInfo = ({
     const backupContactPayload = {
       id: currentBackupContacts[0].id,
       name: backupFullName,
+      firstName: backupFirstName,
+      lastName: backupLastName,
       email: values[backupContactName.toString()]?.email || '',
       telephone: values[backupContactName.toString()]?.telephone || '',
       permission: currentBackupContacts[0].permission,

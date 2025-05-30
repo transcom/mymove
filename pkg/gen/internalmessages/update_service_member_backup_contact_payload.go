@@ -25,6 +25,14 @@ type UpdateServiceMemberBackupContactPayload struct {
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email"`
 
+	// first name
+	// Example: Susan
+	FirstName *string `json:"firstName,omitempty"`
+
+	// last name
+	// Example: Smith
+	LastName *string `json:"lastName,omitempty"`
+
 	// name
 	// Example: Susan Smith
 	// Required: true
