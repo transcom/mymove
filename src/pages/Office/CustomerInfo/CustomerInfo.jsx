@@ -79,6 +79,8 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       middle_name: middleName,
       backup_contact: {
         name: backupFullName,
+        firstName: backupFirstName,
+        lastName: backupLastName,
         email: values[backupContactName.toString()]?.email || '',
         phone: values[backupContactName.toString()]?.telephone || '',
       },
@@ -91,11 +93,8 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
 
-  const initialBackupContactFullName = (customer.backup_contact.name || '').trim();
-  const [initialBackupContactFirstName = '', initialBackupContactLastName = ''] = initialBackupContactFullName
-    .split(/ (.+)/)
-    .map((part) => part?.trim())
-    .filter(Boolean);
+  const initialBackupContactFirstName = customer.backup_contact?.firstName || '';
+  const initialBackupContactLastName = customer.backup_contact?.lastName || '';
 
   const initialValues = {
     firstName: customer.first_name,

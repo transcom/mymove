@@ -594,9 +594,11 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	}
 
 	bc := &ghcmessages.BackupContact{
-		Name:  &backupContact.Name,
-		Email: &backupContact.Email,
-		Phone: &backupContact.Phone,
+		Name:      &backupContact.Name,
+		FirstName: backupContact.FirstName,
+		LastName:  backupContact.LastName,
+		Email:     &backupContact.Email,
+		Phone:     &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
