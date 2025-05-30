@@ -2845,6 +2845,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 				errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
 				suite.Equal("", errResponse, testCase.scenario)
+				suite.Equal("", errResponse.Payload, testCase.scenario)
+				suite.Equal("", errResponse.Payload.Detail, testCase.scenario)
+				suite.Equal("", errResponse.Payload.ClientError, testCase.scenario)
 
 				suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse, testCase.scenario)
 
