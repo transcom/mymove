@@ -219,14 +219,14 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			}
 
 			entitlement.GunSafe = *ppmShipment.HasGunSafe
-			maxGunSafeWeight := 0
+			// maxGunSafeWeight := 0
 
-			maxGunSafeWeight, err = models.GetMaxGunSafeAllowance(appCtx)
-			if err != nil {
-				return err
-			}
+			// maxGunSafeWeight, err = models.GetMaxGunSafeAllowance(appCtx)
+			// if err != nil {
+			// 	return err
+			// }
 
-			entitlement.GunSafeWeight = maxGunSafeWeight
+			// entitlement.GunSafeWeight = maxGunSafeWeight
 
 			verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
 			if verrs != nil && verrs.HasAny() {

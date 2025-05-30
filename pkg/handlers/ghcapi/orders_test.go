@@ -54,6 +54,14 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
 
+	parameterName := "maxGunSafeAllowance"
+	parameterValue := "500"
+	param := models.ApplicationParameters{
+		ParameterName:  &parameterName,
+		ParameterValue: &parameterValue,
+	}
+	suite.MustSave(&param)
+
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -96,7 +104,11 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	okResponse := response.(*orderop.CreateOrderOK)
 	orderID := okResponse.Payload.ID.String()
 	createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
+	var createdEntitlement models.Entitlement
+	err := suite.DB().Find(&createdEntitlement, createdOrder.EntitlementID)
 
+	suite.NoError(err)
+	suite.NotEmpty(createdEntitlement)
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.CustomerID.String())
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrderType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrderNumber)
@@ -108,6 +120,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
 	suite.NotEmpty(createdOrder.MethodOfPayment)
 	suite.NotEmpty(createdOrder.NAICS)
+	suite.Equal(createdEntitlement.GunSafeWeight, 500)
 }
 
 func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {

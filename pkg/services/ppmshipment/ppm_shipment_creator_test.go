@@ -474,18 +474,10 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		suite.Equal(*createdPPMShipment.MaxIncentive, unit.Cents(maxIncentive))
 	})
 
-	suite.Run("Can update entitlement when HasGunSafe value changes", func() {
+	suite.Run("Can update gun safe authorized when HasGunSafe value changes", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
-
-		parameterName := "maxGunSafeAllowance"
-		parameterValue := "500"
-		param := models.ApplicationParameters{
-			ParameterName:  &parameterName,
-			ParameterValue: &parameterValue,
-		}
-		suite.MustSave(&param)
 
 		// Set required fields for PPMShipment
 		subtestData := createSubtestData(models.PPMShipment{
@@ -537,7 +529,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		suite.NoError(err)
 
 		suite.True(updatedEntitlement.GunSafe)
-		suite.Equal(500, updatedEntitlement.GunSafeWeight)
 	})
 
 	suite.Run("Returns QueryError When Entitlement Is Nil", func() {

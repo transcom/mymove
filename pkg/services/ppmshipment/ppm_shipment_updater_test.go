@@ -1610,18 +1610,10 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeMaxIncentive, *updatedPPM.EstimatedIncentive)
 	})
 
-	suite.Run("Can update entitlement when HasGunSafe value changes", func() {
+	suite.Run("Can update gun safe authorized when HasGunSafe value changes", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
-
-		parameterName := "maxGunSafeAllowance"
-		parameterValue := "500"
-		param := models.ApplicationParameters{
-			ParameterName:  &parameterName,
-			ParameterValue: &parameterValue,
-		}
-		suite.MustSave(&param)
 
 		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -1645,7 +1637,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NoError(err)
 
 		suite.True(updatedEntitlement.GunSafe)
-		suite.Equal(500, updatedEntitlement.GunSafeWeight)
 	})
 
 	suite.Run("Returns error if entitlement is nil when updating gun safe", func() {
