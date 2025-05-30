@@ -90,14 +90,14 @@ export const AddressFields = ({
     setFieldValue(`${name}.country.id`, countryID).then(() => {
       setFieldTouched(`${name}.country.id`, false);
     });
-    setFieldValue(`${name}.countryID`, countryID).then(() => {
-      setFieldTouched(`${name}.countryID`, false);
-    });
     setFieldValue(`${name}.country.code`, countryCode).then(() => {
       setFieldTouched(`${name}.country.code`, false);
     });
     setFieldValue(`${name}.country.name`, countryName).then(() => {
-      setFieldTouched(`${name}.country.name`, true);
+      setFieldTouched(`${name}.country.name`, false);
+    });
+    setFieldValue(`${name}.countryID`, countryID).then(() => {
+      setFieldTouched(`${name}.countryID`, true);
     });
   };
 
@@ -216,6 +216,7 @@ AddressFields.propTypes = {
     postalCode: PropTypes.func,
     county: PropTypes.func,
     usPostRegionCitiesID: PropTypes.func,
+    countryID: PropTypes.func,
   }),
   address1LabelHint: PropTypes.string,
   formikProps: shape({

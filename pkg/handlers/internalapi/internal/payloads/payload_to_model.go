@@ -77,7 +77,11 @@ func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress)
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
-	countryID := uuid.FromStringOrNil(address.Country.ID.String())
+	var countryID uuid.UUID
+
+	if address.Country != nil {
+		countryID = uuid.FromStringOrNil(address.Country.ID.String())
+	}
 
 	addressModel := &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),

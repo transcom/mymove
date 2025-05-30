@@ -57,7 +57,13 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(&address.Country.Name)
 	}
-	countryId := uuid.FromStringOrNil(address.Country.ID.String())
+
+	var countryId uuid.UUID
+
+	if address.Country != nil {
+		countryId = uuid.FromStringOrNil(address.Country.ID.String())
+	}
+
 	if countryId != uuid.Nil {
 		modelAddress.CountryId = &countryId
 	}

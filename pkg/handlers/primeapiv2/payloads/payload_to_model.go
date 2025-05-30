@@ -33,6 +33,7 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 	// We should always have ID if the user intends to update an Address,
 	// and StreetAddress1 is a required field on creation. If both are blank, it should be treated as nil.
 	var blankSwaggerID strfmt.UUID
+	var countryId uuid.UUID
 	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
@@ -56,8 +57,8 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 	}
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(&address.Country.Name)
+		countryId = uuid.FromStringOrNil(address.Country.ID.String())
 	}
-	countryId := uuid.FromStringOrNil(address.Country.ID.String())
 	if countryId != uuid.Nil {
 		modelAddress.CountryId = &countryId
 	}
