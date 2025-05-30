@@ -430,6 +430,11 @@ func init() {
           "type": "string",
           "example": "Job"
         },
+        "maxBillableWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "middleInitial": {
           "type": "string",
           "x-nullable": true,
@@ -671,11 +676,6 @@ func init() {
         "loa": {
           "description": "Line of Accounting",
           "type": "string",
-          "x-nullable": true
-        },
-        "maxBillableWeight": {
-          "type": "number",
-          "format": "double",
           "x-nullable": true
         },
         "miles": {
@@ -1334,6 +1334,11 @@ func init() {
           "type": "string",
           "example": "Job"
         },
+        "maxBillableWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "middleInitial": {
           "type": "string",
           "x-nullable": true,
@@ -1575,11 +1580,6 @@ func init() {
         "loa": {
           "description": "Line of Accounting",
           "type": "string",
-          "x-nullable": true
-        },
-        "maxBillableWeight": {
-          "type": "number",
-          "format": "double",
           "x-nullable": true
         },
         "miles": {

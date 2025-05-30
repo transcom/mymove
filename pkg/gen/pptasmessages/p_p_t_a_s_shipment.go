@@ -79,9 +79,6 @@ type PPTASShipment struct {
 	// Line of Accounting
 	Loa *string `json:"loa,omitempty"`
 
-	// max billable weight
-	MaxBillableWeight *float64 `json:"maxBillableWeight,omitempty"`
-
 	// miles
 	Miles int64 `json:"miles,omitempty"`
 
