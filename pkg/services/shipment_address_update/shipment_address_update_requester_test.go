@@ -1661,6 +1661,224 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			}
 		}
 	})
+
+	suite.Run("On delivery address change approval - successfully update estimated pricing on all FSC and DDDSIT service items", func() {
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+
+		estimatedWeight := unit.Pound(5000)
+		newDestUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "22603")
+		suite.NoError(err)
+
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "23435")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Suffolk",
+					State:              "VA",
+					PostalCode:         "23435",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "Quantico",
+					State:              "VA",
+					PostalCode:         "22134",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		now := time.Now()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeEstimatedWeight: models.PoundPointer(4000),
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+					ScheduledPickupDate:  &now,
+					RequestedPickupDate:  &now,
+					MarketCode:           models.MarketCodeDomestic,
+					PrimeActualWeight:    models.PoundPointer(4000),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		sitFinalDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Cold Ave.",
+					City:               "Winchester",
+					State:              "VA",
+					PostalCode:         "22603",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &newDestUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:                    models.TimePointer(time.Now()),
+					SITPostalCode:                   models.StringPointer("22603"),
+					Reason:                          models.StringPointer("New Delivery Address"),
+					SITOriginHHGOriginalAddressID:   &pickupAddress.ID,
+					SITDestinationOriginalAddressID: &destinationAddress.ID,
+					SITDestinationFinalAddressID:    &sitFinalDeliveryAddress.ID,
+					Status:                          models.MTOServiceItemStatusApproved,
+					EstimatedWeight:                 &estimatedWeight,
+					PricingEstimate:                 models.CentPointer(350),
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:                          models.MTOServiceItemStatusApproved,
+					SITEntryDate:                    models.TimePointer(time.Now()),
+					SITPostalCode:                   models.StringPointer("22603"),
+					Reason:                          models.StringPointer("New Delivery Address"),
+					SITOriginHHGOriginalAddressID:   &pickupAddress.ID,
+					SITDestinationOriginalAddressID: &destinationAddress.ID,
+					SITDestinationFinalAddressID:    &sitFinalDeliveryAddress.ID,
+					EstimatedWeight:                 &estimatedWeight,
+					PricingEstimate:                 models.CentPointer(1000),
+				},
+			},
+		}, nil)
+
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"23435",
+			"22134",
+		).Return(300, nil)
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"23435",
+			"22603",
+		).Return(600, nil)
+
+		suite.FatalNoError(err)
+		factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1:     "Cold Ave.",
+					City:               "Winchester",
+					State:              "VA",
+					PostalCode:         "22603",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &newDestUSPRC.ID,
+				},
+				Type: &factory.Addresses.NewAddress,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
+		officeRemarks := "Changing to another CONUS address"
+
+		var completeShipment models.MTOShipment
+		var addressUpdate models.ShipmentAddressUpdate
+		lookupErr := suite.AppContextForTest().DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipment.ID).First(&addressUpdate)
+		suite.NoError(lookupErr)
+		completeShipment = addressUpdate.Shipment
+		suite.Equal(350, completeShipment.MTOServiceItems[0].PricingEstimate.Int())
+		suite.Equal(1000, completeShipment.MTOServiceItems[1].PricingEstimate.Int())
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), shipment.ID, "APPROVED", officeRemarks)
+
+		var completeShipmentPostUpdate models.MTOShipment
+		var postAddressUpdate models.ShipmentAddressUpdate
+		postAddressUpdatelookupErr := suite.AppContextForTest().DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipment.ID).First(&postAddressUpdate)
+		suite.NoError(postAddressUpdatelookupErr)
+		completeShipmentPostUpdate = postAddressUpdate.Shipment
+
+		suite.Equal(5350400, completeShipmentPostUpdate.MTOServiceItems[0].PricingEstimate.Int())
+		suite.Equal(-112, completeShipmentPostUpdate.MTOServiceItems[1].PricingEstimate.Int())
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+
+		// checking out the service items
+		var serviceItems []models.MTOServiceItem
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(2, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			if serviceItems[i].ReService.Code != models.ReServiceCodePOEFSC {
+				suite.NotNil(serviceItems[i].PricingEstimate)
+			} else if serviceItems[i].ReService.Code == models.ReServiceCodePOEFSC {
+				suite.Nil(serviceItems[i].PricingEstimate)
+			}
+		}
+	})
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequestChangedPricing() {
