@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { func, string, bool } from 'prop-types';
 
 import styles from './OrdersDetailForm.module.scss';
@@ -9,7 +9,9 @@ import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
-import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { ORDERS_TYPE, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const OrdersDetailForm = ({
   deptIndicatorOptions,
@@ -44,6 +46,21 @@ const OrdersDetailForm = ({
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
   // The text/placeholder are different if the customer is retiring or separating.
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
+  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      const updatedOptions = isBluebarkEnabled
+        ? ordersTypeOptions
+        : ordersTypeOptions.filter((e) => e.key !== ORDERS_TYPE.BLUEBARK);
+
+      setFilteredOrderTypeOptions(updatedOptions);
+    };
+    fetchData();
+  }, [ordersTypeOptions]);
+
   return (
     <div className={styles.OrdersDetailForm}>
       {requiredAsteriskMessage}
@@ -99,7 +116,7 @@ const OrdersDetailForm = ({
         options={
           formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY_NON_LABEL || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
             ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
-            : ordersTypeOptions
+            : filteredOrderTypeOptions
         }
         onChange={(e) => {
           setFormOrdersType(e.target.value);

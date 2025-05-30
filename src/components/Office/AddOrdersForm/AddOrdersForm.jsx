@@ -15,7 +15,7 @@ import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/fo
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -164,7 +164,7 @@ const AddOrdersForm = ({
 
       const updatedOptions = isBluebarkEnabled
         ? optionsBasedOnAlaska
-        : optionsBasedOnAlaska.filter((e) => e.key !== ORDERS_TYPE_OPTIONS.BLUEBARK);
+        : optionsBasedOnAlaska.filter((e) => e.key !== ORDERS_TYPE.BLUEBARK);
 
       setFilteredOrderTypeOptions(updatedOptions);
     };
