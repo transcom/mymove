@@ -17,8 +17,10 @@ const DetailsPanel = ({ title, tag, editButton, reviewButton, children, classNam
             </Tag>
           )}
         </h2>
-        {reviewButton && <div>{reviewButton}</div>}
-        {editButton && <div>{editButton}</div>}
+        <div className="button-row">
+          {reviewButton && <div>{reviewButton}</div>}
+          {editButton && <div>{editButton}</div>}
+        </div>
       </div>
       {children}
     </div>

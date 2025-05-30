@@ -556,8 +556,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 		SubmittedAt:                  handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                   handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                   handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		ActualPickupPostalCode:       ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:  ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                  ppmShipment.SITExpected,
 		SitEstimatedWeight:           handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
 		SitEstimatedEntryDate:        handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
@@ -886,10 +884,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primemessages.MTOServiceItemDomesticShuttle{
-			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:          mtoServiceItem.Reason,
-			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
-			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
 
 	case models.ReServiceCodePOEFSC:

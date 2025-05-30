@@ -9,7 +9,7 @@ import styles from './AboutForm.module.scss';
 
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import closingPageStyles from 'components/Shared/PPM/Closeout/Closeout.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Hint from 'components/Hint';
@@ -21,6 +21,7 @@ import { requiredW2AddressSchema, requiredAddressSchema } from 'utils/validation
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
 import { APP_NAME } from 'constants/apps';
+import { PPM_TYPES } from 'shared/constants';
 
 const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
   const isCustomerPage = appName === APP_NAME.MYMOVE;
@@ -48,6 +49,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
   const {
+    ppmType,
     pickupAddress,
     secondaryPickupAddress,
     destinationAddress,
@@ -61,8 +63,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
 
   const initialValues = {
     actualMoveDate: actualMoveDate || '',
-    actualPickupPostalCode: '',
-    actualDestinationPostalCode: '',
     pickupAddress,
     secondaryPickupAddress: hasSecondaryPickupAddress ? secondaryPickupAddress : {},
     destinationAddress,
@@ -115,26 +115,34 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
             <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
               <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
                 <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                  <h2>Departure date</h2>
+                  <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped Date' : 'Departure date'}</h2>
                   <DatePickerInput
                     disabledDays={{ after: today }}
                     className={classnames(styles.actualMoveDate, 'usa-input')}
                     name="actualMoveDate"
-                    label="When did you leave your origin?"
+                    label={
+                      ppmType === PPM_TYPES.SMALL_PACKAGE
+                        ? 'When did you ship your package?'
+                        : 'When did you leave your origin?'
+                    }
+                    required
                   />
                   <Hint className={ppmStyles.hint}>
-                    If it took you more than one day to move out, use the first day.
+                    {ppmType === PPM_TYPES.SMALL_PACKAGE
+                      ? 'If you shipped multiple packages, use the first day.'
+                      : 'If it took you more than one day to move out, use the first day.'}
                   </Hint>
                   <h2>Locations</h2>
-                  <p>
-                    If you picked things up or dropped things off from other places a long way from your start or end
-                    ZIPs, ask your counselor if you should add another PPM shipment.
-                  </p>
+                  {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                    <p>
+                      If you picked things up or dropped things off from other places a long way from your start or end
+                      ZIPs, ask your counselor if you should add another PPM shipment.
+                    </p>
+                  )}
                   <AddressFields
                     name="pickupAddress"
-                    legend="Pickup Address"
+                    legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                     className={styles.AddressFieldSet}
                     render={(fields) => (
@@ -170,27 +178,21 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                           </div>
                         </FormGroup>
                         {values.hasSecondaryPickupAddress === 'true' && (
-                          <AddressFields
-                            name="secondaryPickupAddress"
-                            labelHint="Required"
-                            locationLookup
-                            formikProps={formikProps}
-                          />
+                          <AddressFields name="secondaryPickupAddress" labelHint="Required" formikProps={formikProps} />
                         )}
                       </>
                     )}
                   />
                   <AddressFields
                     name="destinationAddress"
-                    legend="Delivery Address"
+                    legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                     className={styles.AddressFieldSet}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                     render={(fields) => (
                       <>
                         {fields}
-                        <h4>Second Delivery Address</h4>
+                        <h4>Second {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination' : 'Delivery'} Address</h4>
                         <FormGroup>
                           <p>
                             Will you deliver any belongings to a second address? (Must be near the delivery address.
@@ -223,7 +225,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                           <AddressFields
                             name="secondaryDestinationAddress"
                             labelHint="Required"
-                            locationLookup
                             formikProps={formikProps}
                           />
                         )}
@@ -278,7 +279,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     name={formFieldsName}
                     className={styles.AddressFieldSet}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                   />
                 </SectionWrapper>

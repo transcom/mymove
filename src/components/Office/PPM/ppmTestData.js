@@ -1,8 +1,6 @@
 export default {
   expectedDepartureDate: '2022-04-05',
   actualMoveDate: '2022-04-30',
-  actualPickupPostalCode: '90210',
-  actualDestinationPostalCode: '94611',
   hasReceivedAdvance: true,
   advanceAmountReceived: 60000,
   miles: 1358,

@@ -496,7 +496,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 // the move service item's status.
 func FetchMoveByMoveIDWithServiceItems(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
-	err := db.Q().Eager().Where("show = TRUE").Find(&move, moveID)
+	err := db.Q().Eager("MTOServiceItems.ReService").Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -666,6 +666,7 @@ func FetchMoveByMoveIDWithOrders(db *pop.Connection, moveID uuid.UUID) (Move, er
 	var move Move
 	err := db.Q().Eager(
 		"Orders",
+		"Orders.Entitlement",
 	).Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {
@@ -707,7 +708,6 @@ func GetTotalNetWeightForMove(m Move) unit.Pound {
 		}
 	}
 	return totalNetWeight
-
 }
 
 // gets total weight from all ppm and hhg shipments within a move

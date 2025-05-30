@@ -564,3 +564,30 @@ func FilterDeletedRejectedCanceledMtoShipments(unfilteredShipments MTOShipments)
 
 	return filteredShipments
 }
+
+// returns a pointer to a bool indicating whether the shipment is OCONUS
+// returns nil if either PickupAddress.IsOconus or DestinationAddress.IsOconus is nil
+func IsShipmentOCONUS(shipment MTOShipment) *bool {
+	if shipment.PickupAddress == nil || shipment.DestinationAddress == nil {
+		return nil
+	}
+	if shipment.PickupAddress.IsOconus == nil || shipment.DestinationAddress.IsOconus == nil {
+		return nil
+	}
+
+	isOCONUS := *shipment.PickupAddress.IsOconus || *shipment.DestinationAddress.IsOconus
+	return &isOCONUS
+}
+
+func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
+	return m.ShipmentType != MTOShipmentTypePPM
+}
+
+func PrimeCanUpdateDeliveryAddress(shipmentType MTOShipmentType) bool {
+	isValid := false
+	if shipmentType != "" && shipmentType != MTOShipmentTypePPM && shipmentType != MTOShipmentTypeHHGIntoNTS {
+		isValid = true
+	}
+
+	return isValid
+}

@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	r "github.com/transcom/mymove/pkg/models/roles"
 	userroles "github.com/transcom/mymove/pkg/services/users_roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -137,20 +138,15 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(len(identity.Roles), 1)
 	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
 
-	rs2 := []models.Privilege{{
-		ID:            uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
-		PrivilegeType: models.PrivilegeTypeSupervisor,
-	},
-	}
-	suite.NoError(suite.DB().Create(&rs2))
-	supervisorPrivilege := rs2[0]
+	supervisorPrivilege := factory.FetchOrBuildPrivilegeByPrivilegeType(suite.DB(), r.PrivilegeTypeSupervisor)
+
 	sueOktaID := factory.MakeRandomString(20)
 	sue := factory.BuildUser(suite.DB(), []factory.Customization{
 		{
 			Model: m.User{
 				OktaID:     sueOktaID,
 				Active:     true,
-				Privileges: []models.Privilege{supervisorPrivilege},
+				Privileges: []roles.Privilege{supervisorPrivilege},
 			},
 		},
 	}, nil)

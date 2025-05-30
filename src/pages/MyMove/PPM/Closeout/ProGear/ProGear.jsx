@@ -3,12 +3,12 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import {
   selectMTOShipmentById,
   selectProGearWeightTicketAndIndexById,
   selectServiceMemberFromLoggedInUser,
+  selectProGearEntitlements,
 } from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -24,9 +24,11 @@ import {
   getAllMoves,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
-import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm';
+import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
+import { APP_NAME } from 'constants/apps';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const ProGear = () => {
   const dispatch = useDispatch();
@@ -35,15 +37,17 @@ const ProGear = () => {
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
 
+  const proGearEntitlements = useSelector((state) => selectProGearEntitlements(state));
+
+  const appName = APP_NAME.MYMOVE;
   const { moveId, mtoShipmentId, proGearId } = useParams();
 
-  const [multiMove, setMultiMove] = useState(false);
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+      moveId,
+      mtoShipmentId,
+    });
+    navigate(path);
   };
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -53,9 +57,6 @@ const ProGear = () => {
   );
 
   useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
     if (!proGearId) {
       createProGearWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -87,26 +88,17 @@ const ProGear = () => {
     dispatch(updateAllMoves(moves));
   }, [proGearId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
 
+  const handleErrorMessage = (error) => {
+    if (error?.response?.status === 412) {
+      setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else {
+      setErrorMessage('Failed to fetch shipment information');
+    }
+  };
+
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
-
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, false)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, appendTimestampToFilename(file), false)
       .then((upload) => {
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -203,8 +195,8 @@ const ProGear = () => {
             setErrorMessage('Failed to fetch shipment information');
           });
       })
-      .catch(() => {
-        setErrorMessage('Failed to save updated trip record');
+      .catch((error) => {
+        handleErrorMessage(error);
       });
   };
 
@@ -232,19 +224,15 @@ const ProGear = () => {
   }
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Pro-gear</h1>
             {renderError()}
-            <div className={closingPageStyles['closing-section']}>
-              <p>
-                If you moved pro-gear for yourself or your spouse as part of this PPM, document the total weight here.
-                Reminder: This pro-gear should be included in your total weight moved.
-              </p>
-            </div>
             <ProGearForm
+              entitlements={proGearEntitlements}
               proGear={currentProGearWeightTicket}
               setNumber={currentIndex + 1}
               onBack={handleBack}
@@ -252,6 +240,7 @@ const ProGear = () => {
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}
+              appName={appName}
             />
           </Grid>
         </Grid>

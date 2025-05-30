@@ -25,6 +25,8 @@ func NewPPMShipmentFetcher() services.PPMShipmentFetcher {
 const (
 	// EagerPreloadAssociationShipment is the name of the association for the shipment
 	EagerPreloadAssociationShipment = "Shipment"
+	// EagerPreloadAssociationMove is the name of the association for the Move
+	EagerPreloadAssociationMove = "Shipment.MoveTaskOrder"
 	// EagerPreloadAssociationServiceMember is the name of the association for the service member
 	EagerPreloadAssociationServiceMember = "Shipment.MoveTaskOrder.Orders.ServiceMember"
 	// EagerPreloadAssociationWeightTickets is the name of the association for the weight tickets
@@ -72,6 +74,7 @@ const (
 func GetListOfAllPreloadAssociations() []string {
 	return []string{
 		EagerPreloadAssociationShipment,
+		EagerPreloadAssociationMove,
 		EagerPreloadAssociationServiceMember,
 		EagerPreloadAssociationWeightTickets,
 		EagerPreloadAssociationProgearWeightTickets,
@@ -150,8 +153,10 @@ func (f ppmShipmentFetcher) GetPPMShipment(
 	}
 
 	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
+	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterRejected()
 	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
+	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterRejected()
 
 	if postloadAssociations != nil {
 		postloadErr := f.PostloadAssociations(appCtx, &ppmShipment, postloadAssociations)
@@ -248,6 +253,8 @@ func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID)
 		EagerPreload(
 			"Shipment",
 			"WeightTickets",
+			"PickupAddress",
+			"DestinationAddress",
 		).
 		Find(&ppmShipment, id)
 

@@ -53,7 +53,7 @@ const CustomerSupportRemarks = ({ isMoveLocked }) => {
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
               {showDeletionSuccess && <Alert type="success">Your remark has been deleted.</Alert>}
-              <h1>Customer support remarks</h1>
+              <h1>Customer Support Remarks</h1>
             </Grid>
           </Grid>
         </GridContainer>

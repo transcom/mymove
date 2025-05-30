@@ -7,7 +7,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import styles from './AmendOrders.module.scss';
 
 import Hint from 'components/Hint';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -28,6 +28,7 @@ import {
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import { customerRoutes } from 'constants/routes';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
   const [isLoading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
   };
 
   const handleUpload = (file) => {
-    return createUploadForAmendedOrdersDocument(file, orderId);
+    return createUploadForAmendedOrdersDocument(appendTimestampToFilename(file), orderId);
   };
 
   const handleUploadComplete = () => {

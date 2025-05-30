@@ -159,6 +159,10 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment",
+				"PPMShipment.WeightTickets",
+				"PPMShipment.FinalIncentive",
+				"PPMShipment.ProGearWeight",
+				"PPMShipment.SpouseProGearWeight",
 				"BoatShipment",
 				"MobileHome",
 				"Distance"}
@@ -176,6 +180,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 					"SecondaryPickupAddress",
 					"SecondaryDestinationAddress",
 					"W2Address",
+					"MovingExpenses",
 				}
 
 				ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
@@ -190,6 +195,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				mtoShipment.PPMShipment.SecondaryPickupAddress = ppmShipment.SecondaryPickupAddress
 				mtoShipment.PPMShipment.SecondaryDestinationAddress = ppmShipment.SecondaryDestinationAddress
 				mtoShipment.PPMShipment.W2Address = ppmShipment.W2Address
+				mtoShipment.PPMShipment.MovingExpenses = ppmShipment.MovingExpenses
 			}
 
 			var agents []models.MTOAgent
@@ -534,6 +540,8 @@ type ApproveShipmentHandler struct {
 	services.ShipmentApprover
 	services.ShipmentSITStatus
 	services.MoveTaskOrderUpdater
+	services.MoveWeights
+	services.ShipmentReweighRequester
 }
 
 // Handle approves a shipment
@@ -578,6 +586,35 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			if err != nil {
 				appCtx.Logger().Error("Error making move available to prime", zap.Error(err))
 				return handleError(err)
+			}
+
+			// If there are existing reweighs for a move and this move was just approved and sent to Prime, apply a reweigh request to this one as well
+			reweighActiveForMove := false
+			for i := range move.MTOShipments {
+				if move.MTOShipments[i].Reweigh != nil && move.MTOShipments[i].Reweigh.ID != uuid.Nil {
+					reweighActiveForMove = true
+					break
+				}
+			}
+
+			if reweighActiveForMove {
+				for _, shipment := range move.MTOShipments {
+					if (shipment.Status == models.MTOShipmentStatusApproved ||
+						shipment.Status == models.MTOShipmentStatusDiversionRequested ||
+						shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
+						shipment.Reweigh.ID == uuid.Nil &&
+						shipment.ShipmentType != models.MTOShipmentTypePPM {
+						_, err := h.ShipmentReweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
+						if err != nil {
+							return handleError(err)
+						}
+					}
+				}
+			} else { // If previous check didn't trigger, make sure that any new shipments don't push the move over the weight trigger
+				err := h.MoveWeights.CheckAutoReweigh(appCtx, move.ID, shipment)
+				if err != nil {
+					return handleError(err)
+				}
 			}
 
 			// Execute tasks if the move has just become available to Prime (migrated from move_task_order.go)
@@ -654,6 +691,8 @@ type ApproveShipmentsHandler struct {
 	services.ShipmentApprover
 	services.ShipmentSITStatus
 	services.MoveTaskOrderUpdater
+	services.MoveWeights
+	services.ShipmentReweighRequester
 }
 
 // Handle approves one or more shipments
@@ -766,6 +805,36 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 					})
 					if err != nil {
 						appCtx.Logger().Error("ghcapi.ApproveShipmentsHandlerFunc could not generate the event")
+					}
+				}
+
+				// If there are existing reweighs for a move and this move was just approved and sent to Prime, apply a reweigh request to this one as well
+				reweighActiveForMove := false
+				for i := range move.MTOShipments {
+					if move.MTOShipments[i].Reweigh != nil && move.MTOShipments[i].Reweigh.ID != uuid.Nil {
+						reweighActiveForMove = true
+						break
+					}
+				}
+
+				if reweighActiveForMove {
+					for i := range move.MTOShipments {
+						shipment := move.MTOShipments[i]
+						if (shipment.Status == models.MTOShipmentStatusApproved ||
+							shipment.Status == models.MTOShipmentStatusDiversionRequested ||
+							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
+							shipment.Reweigh.ID == uuid.Nil &&
+							shipment.ShipmentType != models.MTOShipmentTypePPM {
+							_, err := h.ShipmentReweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
+							if err != nil {
+								return handleError(err)
+							}
+						}
+					}
+				} else { // If previous check didn't trigger, make sure that any new shipments don't push the move over the weight trigger
+					err := h.MoveWeights.CheckAutoReweigh(appCtx, move.ID, &(*approvedShipments)[0])
+					if err != nil {
+						return handleError(err)
 					}
 				}
 			}
@@ -1201,7 +1270,8 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 			}
 
 			/* Don't send emails for BLUEBARK/SAFETY moves */
-			if move.Orders.CanSendEmailWithOrdersType() {
+			/* Don't send reweigh emails to PPM shipments */
+			if move.Orders.CanSendEmailWithOrdersType() && shipment.CanSendReweighEmailForShipmentType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewReweighRequested(moveID, *shipment),
 				)

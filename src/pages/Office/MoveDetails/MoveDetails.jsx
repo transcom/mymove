@@ -47,6 +47,7 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS_URL, technicalHelpDeskURL } from 'shared/constants';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatDateWithUTC } from 'shared/dates';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
@@ -78,24 +79,6 @@ const MoveDetails = ({
   // RA Validator Status: CODEOWNER ACCEPTED
   // RA Modified Severity: N/A
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const errorIfMissing = {
-    HHG_INTO_NTS: [{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }],
-    HHG_OUTOF_NTS: [
-      { fieldName: 'storageFacility' },
-      { fieldName: 'ntsRecordedWeight' },
-      { fieldName: 'serviceOrderNumber' },
-      { fieldName: 'requestedPickupDate' },
-      { fieldName: 'tacType' },
-    ],
-    PPM: [
-      {
-        fieldName: 'advanceStatus',
-        condition: (mtoShipment) =>
-          mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
-          mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
-      },
-    ],
-  };
 
   const navigate = useNavigate();
 
@@ -113,18 +96,64 @@ const MoveDetails = ({
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
 
-  // for now we are only showing dest type on retiree and separatee orders
-  let isRetirementOrSeparation = false;
   let numberOfShipmentsNotAllowedForCancel = 0;
 
-  isRetirementOrSeparation =
-    order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
+  // for now we are only showing dest type on retiree and separatee orders
+  const isRetirementOrSeparation = useMemo(
+    () => order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION,
+    [order],
+  );
 
-  if (isRetirementOrSeparation) {
-    // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
-  }
+  const errorIfMissing = useMemo(() => {
+    const fieldRequestedPickupDate = {
+      fieldName: 'requestedPickupDate',
+      condition: (shipment) =>
+        new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null).setHours(0, 0, 0, 0) <=
+          new Date().setHours(0, 0, 0, 0) && shipment?.status === shipmentStatuses.SUBMITTED,
+      optional: true, // bypass to use condition, triggers condition if not present
+    };
+
+    const fields = {
+      HHG: [
+        {
+          ...fieldRequestedPickupDate,
+        },
+      ],
+      HHG_INTO_NTS: [
+        { fieldName: 'storageFacility' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+        { ...fieldRequestedPickupDate },
+      ],
+      HHG_OUTOF_NTS: [
+        { fieldName: 'storageFacility' },
+        { fieldName: 'ntsRecordedWeight' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+        { ...fieldRequestedPickupDate },
+      ],
+      MOBILE_HOME: [{ ...fieldRequestedPickupDate }],
+      BOAT_HAUL_AWAY: [{ ...fieldRequestedPickupDate }],
+      BOAT_TOW_AWAY: [{ ...fieldRequestedPickupDate }],
+      UNACCOMPANIED_BAGGAGE: [{ ...fieldRequestedPickupDate }],
+      PPM: [
+        {
+          fieldName: 'advanceStatus',
+          condition: (mtoShipment) =>
+            mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+        },
+      ],
+    };
+
+    if (isRetirementOrSeparation) {
+      // destination type must be set for for HHG, NTSR shipments only
+      fields.HHG.push({ fieldName: 'destinationType' });
+      fields.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
+    }
+
+    return fields;
+  }, [isRetirementOrSeparation]);
 
   let sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -363,7 +392,7 @@ const MoveDetails = ({
 
     // Set the error concern count after processing
     setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
-  }, [errorIfMissing, mtoShipments, setShipmentErrorConcernCount]);
+  }, [mtoShipments, setShipmentErrorConcernCount, errorIfMissing]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
@@ -554,7 +583,7 @@ const MoveDetails = ({
               )}
             </Grid>
             <Grid col={12} className={styles.tooMoveDetailsHeadingFlexbox}>
-              <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+              <h1 className={styles.tooMoveDetailsH1}>Move Details</h1>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div>
                   <FinancialReviewButton
@@ -711,7 +740,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

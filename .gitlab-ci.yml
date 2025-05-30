@@ -32,7 +32,7 @@ variables:
   # Specify the environment: loadtest, demo, exp
   DP3_ENV: &dp3_env placeholder_env
 
-  # Specify the branch to deploy TODO: this might be not needed. So far useless
+  # Specify the branch to deploy
   DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
@@ -86,6 +86,9 @@ stages:
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
+  - export SERVICE_RESERVATION_APP_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
+
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
@@ -120,6 +123,8 @@ stages:
   - export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
+  - export SERVICE_RESERVATION_APP_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 .setup_tls_vars_stg: &setup_tls_vars_stg
   - export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT
@@ -132,7 +137,9 @@ stages:
   - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
-  - export SERVICE_RESERVATION_MEM=8192
+  - export SERVICE_RESERVATION_MEM=4096
+  - export SERVICE_RESERVATION_APP_MEM=16384
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 
 .setup_tls_vars_prd: &setup_tls_vars_prd
@@ -186,6 +193,8 @@ stages:
 
 .install_yarn: &install_yarn
   - |
+    git config --global url."https://github".insteadOf ssh://git@github
+    git config --global url."https://github.com/".insteadOf git@github.com:
     mkdir -p /builds/milmove/mymove/.cache
     mkdir -p /builds/milmove/mymove/.cache/yarn
     yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
@@ -378,7 +387,6 @@ pre_deps_golang:
   before_script:
     - *setup_milmove_env
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "4Gi"
     KUBERNETES_MEMORY_LIMIT: "4Gi"
   script:
@@ -406,6 +414,7 @@ golang_lint:
   tags:
     - $Gitlab_Runner_Tag
   image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:$GOLANGCI_LINT_VERSION # Refer to https://hub.docker.com/r/golangci/golangci-lint
+  variables:
   script:
 # Write the code coverage report to gl-code-quality-report.json
     # and print linting issues to stdout in the format: path/to/file:line description
@@ -500,6 +509,7 @@ pre_deps_yarn:
 
 check_generated_code:
   stage: pre_checks
+  interruptible: true
   image: $DOCKER_APP_IMAGE # Replace with the appropriate Docker image
   tags:
     - $Gitlab_Runner_Tag
@@ -574,13 +584,13 @@ check_tls_certificate_prd:
 build_storybook:
   stage: build
   interruptible: true
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   tags:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
-  variables:
-    KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
     - pre_deps_yarn
     - anti_virus
@@ -634,9 +644,9 @@ compile_app_client:
     - <<: *yarn_cache
       policy: pull
   variables:
-    KUBERNETES_CPU_REQUEST: "6"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
   before_script:
   - *setup_milmove_env
   - *install_yarn
@@ -669,9 +679,9 @@ compile_app_server:
     - <<: *yarn_cache
       policy: pull
   variables:
-    KUBERNETES_CPU_REQUEST: "6"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_CPU_REQUEST: "3"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   needs:
     - pre_deps_golang
     - pre_deps_yarn
@@ -723,7 +733,7 @@ pre_test:
     - check_tls_certificate_stg
     - check_tls_certificate_prd
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
   before_script: *setup_milmove_env
@@ -784,7 +794,7 @@ server_test:
     - name: $postgres
     - name: $redis
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
     APPLICATION: app
@@ -896,7 +906,7 @@ client_test:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "3"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
   needs:
@@ -969,6 +979,9 @@ integration_test_devseed:
     - name: $postgres
     - name: $redis
   variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "6Gi"
+    KUBERNETES_MEMORY_LIMIT: "6Gi"
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
@@ -1034,8 +1047,7 @@ integration_tests:
     - integration_test_devseed
   before_script: *setup_milmove_env
   script:
-    - echo "TODO Add steps"
-    - echo "integration_tests"
+    - echo "NoOp combine state of integration tests"
   after_script:
     - *announce_failure
   rules:
@@ -1476,10 +1488,10 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container process-tpps "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploy connect to GEX via SFTP service"
     - ./scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-    - echo "Deploy post to GEX service"
-    - ./scripts/ecs-deploy-task-container post-file-to-gex "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-    - echo "Deploy process EDIs service"
-    - ./scripts/ecs-deploy-task-container process-edis "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    # - echo "Deploy post to GEX service"
+    # - ./scripts/ecs-deploy-task-container post-file-to-gex "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    # - echo "Deploy process EDIs service"
+    # - ./scripts/ecs-deploy-task-container process-edis "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:

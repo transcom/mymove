@@ -3,7 +3,9 @@ package payloads
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
+	"sort"
 	"strings"
 	"time"
 
@@ -124,6 +126,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
+		TOODestinationAssignedUser:                     AssignedOfficeUser(move.TOODestinationAssignedUser),
 	}
 
 	return payload, nil
@@ -715,6 +718,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 			totalWeight = int64(weightAllotment.TotalWeightSelf)
 		}
 	}
+
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
 		aw := int64(*entitlement.AuthorizedWeight())
@@ -980,7 +984,7 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus, storer stora
 }
 
 // PPMShipment payload
-func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
 		return nil
 	}
@@ -999,8 +1003,6 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
@@ -1011,6 +1013,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
@@ -1023,6 +1026,17 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
 		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
+	}
+
+	if ppmShipment.WeightTickets != nil {
+		weightTickets := WeightTickets(storer, ppmShipment.WeightTickets)
+		payloadPPMShipment.WeightTickets = weightTickets
+	}
+
+	if ppmShipment.FinalIncentive != nil {
+		finalIncentive := handlers.FmtCost(ppmShipment.FinalIncentive)
+		payloadPPMShipment.FinalIncentive = finalIncentive
 	}
 
 	if ppmShipment.SITLocation != nil {
@@ -1214,6 +1228,26 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.SITReimburseableAmount != nil {
 		payload.SitReimburseableAmount = handlers.FmtCost(movingExpense.SITReimburseableAmount)
+	}
+
+	if movingExpense.TrackingNumber != nil {
+		payload.TrackingNumber = movingExpense.TrackingNumber
+	}
+
+	if movingExpense.WeightShipped != nil {
+		payload.WeightShipped = handlers.FmtPoundPtr(movingExpense.WeightShipped)
+	}
+
+	if movingExpense.IsProGear != nil {
+		payload.IsProGear = movingExpense.IsProGear
+	}
+
+	if movingExpense.ProGearBelongsToSelf != nil {
+		payload.ProGearBelongsToSelf = movingExpense.ProGearBelongsToSelf
+	}
+
+	if movingExpense.ProGearDescription != nil {
+		payload.ProGearDescription = *movingExpense.ProGearDescription
 	}
 
 	return payload
@@ -1642,6 +1676,21 @@ func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments, 
 			payload[i] = MTOShipment(storer, &copyOfMtoShipment, nil)
 		}
 	}
+	return &payload
+}
+
+// InternalServerError describes errors in a standard structure to be returned in the payload.
+// If detail is nil, string defaults to "An internal server error has occurred."
+func InternalServerError(detail *string, traceID uuid.UUID) *ghcmessages.Error {
+	errDetail := handlers.FmtString(handlers.InternalServerErrDetail)
+
+	if detail != nil {
+		errDetail = detail
+	}
+
+	msg := fmt.Sprintf("%v | Instance: %v", *errDetail, traceID)
+	payload := ghcmessages.Error{Message: &msg}
+
 	return &payload
 }
 
@@ -2255,7 +2304,7 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 		isAssignable = true
 	}
 
-	isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+	isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 	// in TOO queues, all moves are assignable for supervisor users
 	if activeRole == string(roles.RoleTypeTOO) && isSupervisor {
 		isAssignable = true
@@ -2311,8 +2360,58 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 	return officeUsers
 }
 
+func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
+	switch activeRole {
+	case string(roles.RoleTypeTOO):
+		switch queueType {
+		case string(models.QueueTypeTaskOrder):
+			return move.TOOAssignedUser, move.TOOAssignedID
+		case string(models.QueueTypeDestinationRequest):
+			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
+		}
+	case string(roles.RoleTypeServicesCounselor):
+		return move.SCAssignedUser, move.SCAssignedID
+	}
+	return nil, nil
+}
+
+func attachApprovalRequestTypes(move models.Move) []string {
+	var requestTypes []string
+	for _, item := range move.MTOServiceItems {
+		if item.Status == models.MTOServiceItemStatusSubmitted {
+			requestTypes = append(requestTypes, string(item.ReService.Code))
+		}
+	}
+	if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestAmendedOrders))
+	}
+	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
+	for _, shipment := range move.MTOShipments {
+		if shipment.Status == models.MTOShipmentStatusSubmitted {
+			if shipment.Diversion {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestDiversion))
+			}
+			if !shipment.Diversion {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestNewShipment))
+			}
+		}
+		if shipment.DeliveryAddressUpdate != nil && shipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
+			requestTypes = append(requestTypes, string(models.ApprovalRequestDestinationAddressUpdate))
+		}
+		for _, sitDurationUpdate := range shipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == models.SITExtensionStatusPending {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestSITExtension))
+			}
+		}
+	}
+
+	return requestTypes
+}
+
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2335,6 +2434,28 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
+		}
+
+		// sorting the dates from earliest -> latest that will be displayed in the destination TOO queue
+		var dates []time.Time
+		for _, sh := range move.MTOShipments {
+			if queueIncludeShipmentStatus(sh.Status) && sh.DeletedAt == nil {
+				if d := findEarliestDateForRequestedMoveDate(sh); d != nil {
+					dates = append(dates, *d)
+				}
+			}
+		}
+		// sorting chronologically before formatting to a string
+		sort.Slice(dates, func(i, j int) bool { return dates[i].Before(dates[j]) })
+
+		var formatted []string
+		for _, dt := range dates {
+			formatted = append(formatted, dt.Format("Jan 2 2006"))
+		}
+		var requestedDatesStr *string
+		if len(formatted) > 0 {
+			s := strings.Join(formatted, ", ")
+			requestedDatesStr = &s
 		}
 
 		var deptIndicator ghcmessages.DeptIndicator
@@ -2380,6 +2501,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 		}
 
+		approvalRequestTypes := attachApprovalRequestTypes(move)
+
 		// queue assignment logic below
 
 		// determine if there is an assigned user
@@ -2387,10 +2510,12 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if (activeRole == string(roles.RoleTypeServicesCounselor) || activeRole == string(roles.RoleTypeHQ)) && move.SCAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
 		}
-		if (activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
+		if ((activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder)) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
-
+		if activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
+		}
 		// these branches have their own closeout specific offices
 		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
 		// requestedPpmStatus also represents if we are viewing the closeout queue
@@ -2398,7 +2523,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		// determine if the move is assignable
 		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, officeUser, ppmCloseoutGblocs, activeRole)
 
-		isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 		// only need to attach available office users if move is assignable
 		var apiAvailableOfficeUsers ghcmessages.AvailableOfficeUsers
 		if assignable {
@@ -2409,23 +2534,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				availableOfficeUsers = officeUsersSafety
 			}
 
-			// if the assigned user is not in the returned list of available users append them to the end
-			if (activeRole == string(roles.RoleTypeTOO) && move.TOOAssignedUser != nil) || (activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil) {
-				var assignedUser *models.OfficeUser
-				var assignedID *uuid.UUID
-
-				switch activeRole {
-				case string(roles.RoleTypeTOO):
-					assignedUser = move.TOOAssignedUser
-					assignedID = move.TOOAssignedID
-				case string(roles.RoleTypeServicesCounselor):
-					assignedUser = move.SCAssignedUser
-					assignedID = move.SCAssignedID
-				}
-
+			// Determine the assigned user and ID based on active role and queue type
+			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
+			// Ensure assignedUser and assignedID are not nil before proceeding
+			if assignedUser != nil && assignedID != nil {
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if assignedID != nil && officeUser.ID == *assignedID {
+					if officeUser.ID == *assignedID {
 						userFound = true
 						break
 					}
@@ -2441,6 +2556,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			apiAvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 
+		var destinationDutyLocation *ghcmessages.DutyLocation
+		if queueType != string(models.QueueTypeTaskOrder) {
+			destinationDutyLocation = DutyLocation(&move.Orders.NewDutyLocation)
+		} else {
+			destinationDutyLocation = nil
+		}
+
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
 			Status:                  ghcmessages.MoveStatus(move.Status),
@@ -2449,10 +2571,11 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
 			AppearedInTooAt:         handlers.FmtDateTimePtr(findLastSentToTOO(move)),
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
+			RequestedMoveDates:      requestedDatesStr,
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
-			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
+			DestinationDutyLocation: destinationDutyLocation,
 			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
@@ -2467,6 +2590,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			AssignedTo:              assignedToUser,
 			Assignable:              assignable,
 			AvailableOfficeUsers:    apiAvailableOfficeUsers,
+			ApprovalRequestTypes:    approvalRequestTypes,
 		}
 	}
 	return &queueMoves
@@ -2575,7 +2699,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			isAssignable = true
 		}
 
-		isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 		if isSupervisor {
 			isAssignable = true
 		}

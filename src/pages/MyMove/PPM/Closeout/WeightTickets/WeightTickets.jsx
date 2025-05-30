@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
-
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+import { Alert, Grid, GridContainer, Link } from '@trussworks/react-uswds';
 
 import {
   selectMTOShipmentById,
@@ -16,6 +14,7 @@ import {
   createWeightTicket,
   deleteUpload,
   getAllMoves,
+  getResponseError,
   patchWeightTicket,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -28,10 +27,10 @@ import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -55,9 +54,6 @@ const WeightTickets = () => {
     "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
 
   useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
     if (!weightTicketId) {
       createWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -89,34 +85,49 @@ const WeightTickets = () => {
     dispatch(updateAllMoves(moves));
   }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
 
+  const handleErrorClick = () => {
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+      moveId,
+      mtoShipmentId,
+    });
+
+    navigate(path);
+  };
+
+  const zipError = (
+    <p>
+      We are unable to calculate your distance. It may be that you have entered an invalid ZIP code. Please check
+      the&nbsp;
+      <Link className="usa-link" href="#" onClick={handleErrorClick} data-testid="ZipLink">
+        pickup and delivery ZIP codes
+      </Link>
+      &nbsp;to ensure they were entered correctly and are not PO boxes. If you do not have a different ZIP code, then
+      please contact the&nbsp;
+      <Link className="usa-link" href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
+        Technical Help Desk
+      </Link>
+      .
+    </p>
+  );
+
   const handleErrorMessage = (error) => {
     if (error?.response?.status === 412) {
       setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else if (
+      // this 'else if' can be removed when E-06516 is implemented
+      // along with zipError and handleErrorClick
+      error?.response?.body?.detail ===
+      'We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code. Please check your ZIP Code to ensure it was entered correctly and is not a PO Box.'
+    ) {
+      setErrorMessage(zipError);
     } else {
-      setErrorMessage('Failed to save updated trip record');
+      setErrorMessage(getResponseError(error.response, 'Failed to save updated trip record'));
     }
   };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
-
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, true)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, appendTimestampToFilename(file), true)
       .then((upload) => {
         mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -154,11 +165,11 @@ const WeightTickets = () => {
   };
 
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+      moveId,
+      mtoShipmentId,
+    });
+    navigate(path);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {

@@ -8,7 +8,7 @@ import styles from './CreatePaymentRequestForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import { ErrorMessage } from 'components/form/ErrorMessage';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import Hint from 'components/Hint/index';
@@ -149,7 +149,10 @@ const CreatePaymentRequestForm = ({
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IHUPK ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.ISLH ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.POEFSC ||
-                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.PODFSC) && (
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.PODFSC ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IUBPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IUBUPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.UBP) && (
                             <TextField
                               id={`${mtoServiceItem.id}-billedWeight`}
                               label="Weight Billed (if different from shipment weight)"
