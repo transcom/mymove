@@ -8,8 +8,15 @@ import { AddressFields } from './AddressFields';
 
 import * as ghcApi from 'services/ghcApi';
 import { configureStore } from 'shared/store';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('services/ghcApi');
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(true)),
+}));
 
 const mockLoggedInUser = {
   id: '123',
@@ -112,52 +119,44 @@ describe('AddressFields component', () => {
     });
   });
 
-  it('calls onCountryChanged when a country value is entered', async () => {
-    const mockLocationData = [
+  it('calls onCountryChange when a country value is entered', async () => {
+    const mockCountryData = [
       {
-        city: 'New York',
-        state: 'NY',
-        county: 'New York County',
-        postalCode: '10001',
-        usPostRegionCitiesID: '123456',
+        code: 'US',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        name: 'UNITED STATES',
       },
     ];
 
-    ghcApi.searchLocationByZipCityState.mockResolvedValue(mockLocationData);
+    ghcApi.searchCountry.mockResolvedValue(mockCountryData);
 
-    const onCountryChanged = jest.fn();
+    const onCountryChange = jest.fn();
 
     render(
       <Provider store={mockStore.store}>
         <Formik initialValues={{}}>
           {(formikProps) => (
-            <AddressFields name="address" formikProps={formikProps} onCountryChanged={onCountryChanged} />
+            <AddressFields name="address" formikProps={formikProps} onCountryChange={onCountryChange} />
           )}
         </Formik>
       </Provider>,
     );
+
+    await waitFor(() => {
+      expect(isBooleanFlagEnabled).toHaveBeenCalledWith(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER);
+    });
 
     const countryInput = screen.getByRole('combobox', { name: /country/i });
 
     await userEvent.type(countryInput, 'US');
 
     await waitFor(() => {
-      expect(ghcApi.searchLocationByZipCityState).toHaveBeenCalledWith('New York');
+      expect(ghcApi.searchCountry).toHaveBeenCalledWith('US');
     });
 
-    // Simulate selecting the option
     await userEvent.type(countryInput, '{arrowdown}{enter}');
-
     await waitFor(() => {
-      expect(onCountryChanged).toHaveBeenCalledWith(
-        expect.objectContaining({
-          city: 'New York',
-          state: 'NY',
-          county: 'New York County',
-          postalCode: '10001',
-          usPostRegionCitiesID: '123456',
-        }),
-      );
+      expect(onCountryChange).toHaveBeenCalledWith('US');
     });
   });
 });
