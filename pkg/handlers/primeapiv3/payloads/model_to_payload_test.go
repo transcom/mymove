@@ -8,6 +8,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -1623,4 +1624,75 @@ func (suite *PayloadsSuite) TestAddress() {
 	result = Address(shipmentAddress)
 	suite.NotNil(result)
 	suite.Equal(strfmt.UUID(""), result.UsPostRegionCitiesID)
+}
+func (suite *PayloadsSuite) TestOrder() {
+	testContext := suite.T()
+	suite.Run("returns nil for nil input", func() {
+		result := Order(nil)
+		suite.Nil(result)
+	})
+
+	suite.Run("correctly maps a valid order", func() {
+		order := factory.BuildOrder(nil, nil, nil)
+		result := Order(&order)
+
+		assert.NotNil(testContext, result)
+		assert.Equal(testContext, strfmt.UUID(order.ID.String()), result.ID)
+		assert.Equal(testContext, order.OrdersNumber, result.OrderNumber)
+		assert.Equal(testContext, order.TAC, result.LinesOfAccounting)
+		assert.Equal(testContext, strfmt.Date(order.ReportByDate), result.ReportByDate)
+	})
+
+	suite.Run("handles nil rank and grade", func() {
+		order := factory.BuildOrder(nil, nil, nil)
+		order.Rank = nil
+		order.Grade = nil
+		result := Order(&order)
+
+		assert.NotNil(testContext, result)
+		assert.Empty(testContext, result.Rank)
+		assert.Empty(testContext, result.Grade)
+	})
+
+	suite.Run("correctly sets GBLOC for Marines", func() {
+		order := factory.BuildOrder(nil, nil, nil)
+		serviceMemberAffiliation := models.AffiliationMARINES
+		order.ServiceMember.Affiliation = &serviceMemberAffiliation
+		result := Order(&order)
+
+		assert.NotNil(testContext, result)
+		assert.Equal(testContext, "USMC", result.OriginDutyLocationGBLOC)
+		assert.Equal(testContext, "USMC", result.DestinationDutyLocationGBLOC)
+	})
+
+	suite.Run("correctly handles nil duty locations", func() {
+		order := factory.BuildOrder(nil, nil, nil)
+		order.NewDutyLocation = models.DutyLocation{}
+		order.OriginDutyLocation = nil
+		result := Order(&order)
+
+		emptyNewDutyLocation := primev3messages.DutyLocation{
+			Name: "",
+		}
+
+		assert.NotNil(testContext, result)
+		assert.Equal(testContext, emptyNewDutyLocation.Name, result.DestinationDutyLocation.Name)
+		assert.Nil(testContext, result.OriginDutyLocation)
+	})
+
+	suite.Run("correctly sets all fields", func() {
+		order := factory.BuildOrder(nil, nil, nil)
+		order.SupplyAndServicesCostEstimate = "1000"
+		order.PackingAndShippingInstructions = "Handle with care"
+		order.MethodOfPayment = "Credit Card"
+		order.NAICS = "123456"
+
+		result := Order(&order)
+
+		assert.NotNil(testContext, result)
+		assert.Equal(testContext, "1000", result.SupplyAndServicesCostEstimate)
+		assert.Equal(testContext, "Handle with care", result.PackingAndShippingInstructions)
+		assert.Equal(testContext, "Credit Card", result.MethodOfPayment)
+		assert.Equal(testContext, "123456", result.Naics)
+	})
 }
