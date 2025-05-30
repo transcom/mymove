@@ -80,7 +80,7 @@ type Order struct {
 	OriginDutyLocation             *DutyLocation                      `json:"origin_duty_location" belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
 	OriginDutyLocationID           *uuid.UUID                         `json:"origin_duty_location_id" db:"origin_duty_location_id"`
 	NewDutyLocationID              uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
-	NewDutyLocation                DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
+	NewDutyLocation                DutyLocation                       `json:"new_duty_location" belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
 	DestinationGBLOC               *string                            `json:"destination_duty_location_gbloc" db:"destination_gbloc"`
 	UploadedOrders                 Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
 	UploadedOrdersID               uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
