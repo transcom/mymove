@@ -2820,14 +2820,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			}
 
 			patchResponse := patchHandler.Handle(firstPatchParams)
-			suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+			suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse, testCase.scenario)
 
 			responsePayload := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
 			suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 			if testCase.expectRDDAfterFirstUpdate {
-				suite.NotNil(responsePayload.Payload.RequiredDeliveryDate)
+				suite.NotNil(responsePayload.Payload.RequiredDeliveryDate, testCase.scenario)
 			} else {
-				suite.Nil(responsePayload.Payload.RequiredDeliveryDate)
+				suite.Nil(responsePayload.Payload.RequiredDeliveryDate, testCase.scenario)
 			}
 
 			if testCase.secondUpdate != nil {
@@ -2842,16 +2842,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				}
 
 				patchResponse = patchHandler.Handle(secondPatchParams)
-				suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+				suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse, testCase.scenario)
 
 				responsePayload = patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
 				suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
-				suite.NotNil(responsePayload.Payload.RequiredDeliveryDate)
 
 				if testCase.expectRDDAfterSecondUpdate {
-					suite.NotNil(responsePayload.Payload.RequiredDeliveryDate)
+					suite.NotNil(responsePayload.Payload.RequiredDeliveryDate, testCase.scenario)
 				} else {
-					suite.Nil(responsePayload.Payload.RequiredDeliveryDate)
+					suite.Nil(responsePayload.Payload.RequiredDeliveryDate, testCase.scenario)
 				}
 
 			}
