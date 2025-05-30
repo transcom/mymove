@@ -1,8 +1,7 @@
 package authentication
 
 import (
-	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
+	"slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
@@ -139,62 +138,27 @@ var GSR = RolePermissions{
 var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAE, CustomerServiceRepresentative, HQ, GSR, ContractingOfficer}
 
 // check if a [user.role] has permissions on a given object
-func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
-
-	logger := appCtx.Logger()
-	userPermissions := getPermissionsForUser(appCtx, session.UserID)
-
-	for _, perm := range userPermissions {
-		if permission == perm {
-			logger.Info("PERMISSION GRANTED: ", zap.String("permission", permission))
-			return true, nil
-		}
-	}
-
-	logger.Warn("Permission not granted for user, ", zap.String("permission denied to user with session IDToken: ", session.IDToken))
-	return false, nil
+func checkUserPermission(session auth.Session, permission string) bool {
+	return slices.Contains(session.Permissions, permission)
 }
 
-// for a given user return the permissions associated with their roles
-func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) []string {
+// for a given user return the permissions associated with their roles given the current session role
+func getPermissionsForUser(appCtx appcontext.AppContext) []string {
 	var userPermissions []string
 
-	// check the users roles
-	userRoles, err := getRolesForUser(appCtx, userID)
-	// if there's an error looking up roles return an empty permission array
-	if err != nil {
-		return userPermissions
-	}
-
-	for _, ur := range userRoles {
-		for _, rp := range AllRolesPermissions {
-
-			if ur == rp.RoleType {
-				userPermissions = append(userPermissions, rp.Permissions...)
-			}
-		}
+	session := appCtx.Session()
+	if session != nil {
+		return GetPermissionsForRole(session.ActiveRole.RoleType)
 	}
 
 	return userPermissions
 }
 
-// load the [user.role] given a valid user ID
-// what we care about here is the string, so we can look it up for permissions --> roles.role_type
-func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.RoleType, error) {
-	logger := appCtx.Logger()
-	userRoles, err := roles.FetchRolesForUser(appCtx.DB(), userID)
-
-	var userRoleTypes []roles.RoleType
-	for i := range userRoles {
-		userRoleTypes = append(userRoleTypes, userRoles[i].RoleType)
+func GetPermissionsForRole(roleType roles.RoleType) []string {
+	for _, rp := range AllRolesPermissions {
+		if rp.RoleType == roleType {
+			return rp.Permissions
+		}
 	}
-
-	if err != nil {
-		logger.Warn("Error while looking up user roles: ", zap.String("user role lookup error: ", err.Error()))
-		return nil, err
-	}
-
-	logger.Info("User has the following roles: ", zap.Any("user roles", userRoleTypes))
-
-	return userRoleTypes, nil
+	return []string{}
 }
