@@ -518,7 +518,7 @@ func (o *GetCounselingQueueParams) bindSort(rawData []string, hasKey bool, forma
 // validateSort carries on validations for parameter Sort
 func (o *GetCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "edipi", "emplid", "branch", "locator", "requestedMoveDate", "submittedAt", "originDutyLocation", "counselingOffice", "assignedTo"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "edipi", "emplid", "branch", "locator", "requestedMoveDates", "submittedAt", "originDutyLocation", "counselingOffice", "assignedTo"}, true); err != nil {
 		return err
 	}
 
