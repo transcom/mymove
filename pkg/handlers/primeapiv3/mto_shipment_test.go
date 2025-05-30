@@ -2842,6 +2842,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				}
 
 				patchResponse = patchHandler.Handle(secondPatchParams)
+
+				errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
+				suite.Equal("", errResponse, testCase.scenario)
+
 				suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse, testCase.scenario)
 
 				responsePayload = patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
