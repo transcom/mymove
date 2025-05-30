@@ -1463,11 +1463,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher_Befor
 	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
 	primeMove4 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	shipmentForPrimeMove4 := factory.BuildMTOShipmentWithMove(&primeMove4, suite.DB(), nil, nil)
+	shipmentForPrimeMove4, _ := factory.BuildMTOShipmentWithMove(&primeMove4, suite.DB(), nil, nil)
 	reweighsForPrimeMove1 := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 		MTOShipment: shipmentForPrimeMove4,
 	})
-	paymentRequestForPrimeMove3 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+	paymentRequestForPrimeMove3, _ := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusReviewed,
 		},
