@@ -568,6 +568,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					DependentsTwelveAndOver: dependentsTwelveAndOver,
 					AccompaniedTour:         payload.AccompaniedTour,
 					UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+					GunSafe:                 order.Entitlement.GunSafe,
+					GunSafeWeight:           order.Entitlement.GunSafeWeight,
 				}
 
 				/*
