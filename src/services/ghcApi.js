@@ -841,7 +841,7 @@ export async function getServicesCounselingOriginLocations(needsPPMCloseout, vie
   );
 }
 
-export async function getServicesCounselingPPMQueue(
+export async function getPPMCloseoutQueue(
   key,
   {
     sort,
@@ -854,7 +854,7 @@ export async function getServicesCounselingPPMQueue(
     activeRole,
   },
 ) {
-  const operationPath = 'queues.getServicesCounselingQueue';
+  const operationPath = 'queues.getPPMCloseoutQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
     paramFilters[`${filter.id}`] = filter.value;

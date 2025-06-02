@@ -2417,6 +2417,9 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
 		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
 	}
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
 	for _, shipment := range move.MTOShipments {
 		if shipment.Status == models.MTOShipmentStatusSubmitted {
 			if shipment.Diversion {
@@ -2486,6 +2489,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			s := strings.Join(formatted, ", ")
 			requestedDatesStr = &s
 		}
+
+		closeoutInitiatedStr := FormatPPMCloseoutInitiatedStr(move)
 
 		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
@@ -2608,6 +2613,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutInitiatedDates:  closeoutInitiatedStr,
 			CloseoutLocation:        &closeoutLocation,
 			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
@@ -2623,6 +2629,28 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		}
 	}
 	return &queueMoves
+}
+
+func FormatPPMCloseoutInitiatedStr(move models.Move) *string {
+	var closeoutDates []time.Time
+	var formattedDates []string
+	for _, shipment := range move.MTOShipments {
+		if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+			// This shipment has a closed out PPM for us to format
+			closeoutDates = append(closeoutDates, *shipment.PPMShipment.SubmittedAt)
+		}
+	}
+	// Sort chronologically
+	sort.Slice(closeoutDates, func(i, j int) bool { return closeoutDates[i].Before(closeoutDates[j]) })
+	for _, closeoutDate := range closeoutDates {
+		formattedDates = append(formattedDates, closeoutDate.Format("Jan 2 2006"))
+	}
+	var requestedDatesStr *string
+	if len(formattedDates) > 0 {
+		s := strings.Join(formattedDates, ", ")
+		requestedDatesStr = &s
+	}
+	return requestedDatesStr
 }
 
 func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
