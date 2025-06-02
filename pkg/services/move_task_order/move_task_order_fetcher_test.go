@@ -1447,11 +1447,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher_BeforeSearchParam() {
-	aYearAgo := time.Now().AddDate(-1, 0, 0)
-	aMonthAgo := time.Now().AddDate(0, -1, 0)
-	aWeekAgo := time.Now().AddDate(0, 0, -7)
-	yesterday := time.Now().AddDate(0, 0, -1)
 	today := time.Now()
+	aYearAgo := today.AddDate(-1, 0, 0)
+	aMonthAgo := today.AddDate(0, -1, 0)
+	aWeekAgo := today.AddDate(0, 0, -7)
+	yesterday := today.AddDate(0, 0, -1)
 	waf := entitlements.NewWeightAllotmentFetcher()
 	fetcher := m.NewMoveTaskOrderFetcher(waf)
 
