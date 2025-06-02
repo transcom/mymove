@@ -276,7 +276,6 @@ const DocumentViewerFileManager = ({
       });
     }
     filePondEl.current?.removeFile(file.id);
-    // filePondEl.current?.removeFiles(); // TODO: Parallel bug here?
     queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
     setServerError('');
   };
