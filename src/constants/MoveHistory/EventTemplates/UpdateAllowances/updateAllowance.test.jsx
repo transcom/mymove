@@ -14,6 +14,8 @@ describe('When a service counselor updates shipping allowances', () => {
       dependents_authorized: true,
       pro_gear_weight: '10',
       pro_gear_weight_spouse: '80',
+      gun_safe_weight: '222',
+      gun_safe: false,
       required_medical_equipment_weight: '100',
       storage_in_transit: '80',
     },
@@ -29,6 +31,8 @@ describe('When a service counselor updates shipping allowances', () => {
       ['Dependents', ': Yes'],
       ['Pro-gear weight', ': 10 lbs'],
       ['Spouse pro-gear weight', ': 80 lbs'],
+      ['Gun safe weight allowance', ': 222 lbs'],
+      ['Gun safe authorized', ': No'],
       ['Required medical equipment', ': 100 lbs'],
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(item);
