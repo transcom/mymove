@@ -534,3 +534,23 @@ func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
 		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
 	})
 }
+
+func (suite *PayloadsSuite) TestGunSafeWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		description := "test description"
+		hasWeightTickets := true
+
+		input := &internalmessages.UpdateGunSafeWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			Description:      description,
+		}
+
+		result := GunSafeWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.GunSafeWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
+	})
+}

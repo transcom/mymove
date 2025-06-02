@@ -24,6 +24,9 @@ type MTOShipment struct {
 	// Format: date
 	ActualDeliveryDate *strfmt.Date `json:"actualDeliveryDate,omitempty"`
 
+	// actual gun safe weight
+	ActualGunSafeWeight *int64 `json:"actualGunSafeWeight"`
+
 	// actual pickup date
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate,omitempty"`
