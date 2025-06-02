@@ -58,7 +58,7 @@ describe('MTO tag rendering', () => {
 });
 
 describe('Supporting Documents tag rendering', () => {
-  it('should render the Supporting Documents tab container', async () => {
+  it('should render the Supporting Documents tab container without a tag', async () => {
     render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
 
     await waitFor(() => {

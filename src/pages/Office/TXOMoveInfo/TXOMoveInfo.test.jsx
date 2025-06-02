@@ -186,7 +186,7 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('CustomerHeader').exists()).toBe(true);
       expect(wrapper.find('header.nav-header').exists()).toBe(true);
       expect(wrapper.find('nav.tabNav').exists()).toBe(true);
-      expect(wrapper.find('li.tabItem').length).toEqual(6);
+      expect(wrapper.find('li.tabItem').length).toEqual(7);
 
       expect(wrapper.find('span.tab-title').at(0).text()).toContain('Move Details');
       expect(wrapper.find('span.tab-title + span').at(0).exists()).toBe(false);
