@@ -13,7 +13,6 @@ type WeightAllotmentFetcher interface {
 	GetWeightAllotment(appCtx appcontext.AppContext, grade string, ordersType internalmessages.OrdersType) (models.WeightAllotment, error)
 	GetAllWeightAllotments(appCtx appcontext.AppContext) (map[internalmessages.OrderPayGrade]models.WeightAllotment, error)
 	GetWeightAllotmentByOrdersType(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType) (models.WeightAllotment, error)
-	GetTotalWeightAllotment(appCtx appcontext.AppContext, order models.Order, entitlement models.Entitlement) (int, error)
 }
 
 // The weight restrictor interface helps apply weight restrictions to entitlements
