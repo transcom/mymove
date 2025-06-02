@@ -213,6 +213,7 @@ export const ShipmentShape = shape({
   deliveryAddressUpdate: ShipmentAddressUpdateShape,
   actual_pro_gear_weight: number,
   actual_spouse_pro_gear_weight: number,
+  actual_gun_safe_weight: number,
 });
 
 const DocumentShape = shape({
@@ -270,6 +271,14 @@ export const StorageFacilityShape = shape({
 export const ProGearTicketShape = shape({
   belongsToSelf: bool,
   proGearWeight: number,
+  description: string,
+  missingWeightTicket: bool,
+  reason: string,
+  status: string,
+});
+
+export const GunSafeTicketShape = shape({
+  gunSafeWeight: number,
   description: string,
   missingWeightTicket: bool,
   reason: string,

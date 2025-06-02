@@ -55,6 +55,27 @@ export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTick
   }, 0);
 };
 
+export const calculateNetWeightForGunSafeWeightTicket = (weightTicket) => {
+  if (
+    weightTicket.weight == null ||
+    Number.isNaN(Number(weightTicket.weight)) ||
+    weightTicket.status === PPMDocumentsStatus.REJECTED
+  ) {
+    return 0;
+  }
+
+  return weightTicket.weight;
+};
+
+export const calculateTotalNetWeightForGunSafeWeightTickets = (gunSafeWeightTickets = []) => {
+  if (!gunSafeWeightTickets) {
+    return 0;
+  }
+  return gunSafeWeightTickets.reduce((prev, curr) => {
+    return prev + calculateNetWeightForGunSafeWeightTicket(curr);
+  }, 0);
+};
+
 export const calculateWeightTicketWeightDifference = (weightTicket) => {
   if (
     weightTicket.emptyWeight == null ||

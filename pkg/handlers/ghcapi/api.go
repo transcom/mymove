@@ -19,6 +19,7 @@ import (
 	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	gunsafe "github.com/transcom/mymove/pkg/services/gunsafe_weight_ticket"
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	mobileHomeShipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -675,6 +676,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		progear.NewOfficeProgearWeightTicketUpdater(),
 	}
+
+	ghcAPI.PpmCreateGunSafeWeightTicketHandler = CreateGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewOfficeGunSafeWeightTicketCreator()}
+	ghcAPI.PpmUpdateGunSafeWeightTicketHandler = UpdateGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewOfficeGunSafeWeightTicketUpdater()}
+	ghcAPI.PpmDeleteGunSafeWeightTicketHandler = DeleteGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewGunSafeWeightTicketDeleter()}
 
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 	if err != nil {
