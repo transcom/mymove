@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { CSVLink } from 'react-csv';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -50,24 +50,30 @@ const TableCSVExportButton = ({
   };
 
   const handleCsvExport = async () => {
-    if (!isLoading) {
-      setIsLoading(true);
-      const response = await queueFetcher(queueFetcherKey, {
-        sort: sortColumn,
-        order: sortOrder ? 'desc' : 'asc',
-        filters: paramFilters,
-        currentPageSize: totalCount,
-        viewAsGBLOC: selectedGbloc,
-        activeRole,
-      });
+    setIsLoading(true);
+    const response = await queueFetcher(queueFetcherKey, {
+      sort: sortColumn,
+      order: sortOrder ? 'desc' : 'asc',
+      filters: paramFilters,
+      currentPageSize: totalCount,
+      viewAsGBLOC: selectedGbloc,
+      activeRole,
+    });
 
-      const formattedData = formatDataForExport(response[queueFetcherKey]);
-      setCsvRows(formattedData);
+    const formattedData = formatDataForExport(response[queueFetcherKey]);
+    setCsvRows(formattedData);
 
-      csvLinkRef.current?.click();
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   };
+
+  useEffect(() => {
+    if (!!csvRows && csvRows.length > 0) {
+      setTimeout(() => {
+        csvLinkRef.current?.click();
+        setCsvRows([]); // reset data after download
+      });
+    }
+  }, [csvRows]);
 
   return (
     <p>
