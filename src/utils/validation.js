@@ -84,7 +84,6 @@ export const requiredAddressSchema = Yup.object().shape({
     .length(2, 'Must use state abbreviation')
     .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
-  usPostRegionCitiesID: Yup.string().trim().required('Required'),
   countryID: Yup.string().trim().required('Required'),
 });
 
@@ -98,7 +97,6 @@ export const partialRequiredAddressSchema = Yup.object().shape({
     .length(2, 'Must use state abbreviation')
     .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
-  usPostRegionCitiesID: Yup.string().trim().required('Required'),
   countryID: Yup.string().trim().required('Required'),
 });
 
@@ -108,7 +106,6 @@ export const requiredW2AddressSchema = Yup.object().shape({
   city: Yup.string().required('Required'),
   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
   postalCode: Yup.string().matches(ZIP5_CODE_REGEX, 'Must be valid zip code').required('Required'),
-  usPostRegionCitiesID: Yup.string().trim().required('Required'),
   countryID: Yup.string().trim().required('Required'),
 });
 
@@ -120,7 +117,6 @@ export const addressSchema = Yup.object().shape({
   county: Yup.string(),
   state: Yup.string().length(2, 'Must use state abbreviation'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
-  usPostRegionCitiesID: Yup.string().trim().required('Required'),
   countryID: Yup.string().trim().required('Required'),
 });
 
