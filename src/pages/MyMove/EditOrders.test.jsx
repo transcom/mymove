@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { cloneDeep } from 'lodash';
 
@@ -496,6 +496,22 @@ describe('EditOrders Page', () => {
 
     const editOrdersHeader = await screen.findByRole('heading', { name: 'Edit Orders:', level: 2 });
     expect(editOrdersHeader).toBeInTheDocument();
+  });
+
+  it('wounded warrior FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(false);
+    });
   });
 
   afterEach(jest.clearAllMocks);

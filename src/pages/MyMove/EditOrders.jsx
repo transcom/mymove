@@ -78,7 +78,16 @@ const EditOrders = ({
         setOrderTypes(options);
       }
     };
+    const checkWoundedWarriorFeatureFlag = async () => {
+      const isWoundedWarrior = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      if (!isWoundedWarrior) {
+        const options = orderTypes;
+        delete orderTypes.WOUNDED_WARRIOR;
+        setOrderTypes(options);
+      }
+    };
     checkAlaskaFeatureFlag();
+    checkWoundedWarriorFeatureFlag();
   }, [orderTypes]);
 
   useEffect(() => {
