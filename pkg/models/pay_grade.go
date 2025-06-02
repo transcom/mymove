@@ -35,7 +35,7 @@ func GetPayGradesForAffiliation(db *pop.Connection, affiliation string) (PayGrad
 		Join("ranks", "ranks.pay_grade_id = pay_grades.id").
 		Where("ranks.affiliation = $1", affiliation).
 		GroupBy("pay_grades.id, pay_grades.grade, pay_grades.created_at, pay_grades.updated_at").
-		Order("pay_grades.order").
+		Order("pay_grades.sort_order").
 		All(&payGrades)
 	if err != nil {
 		return nil, err
