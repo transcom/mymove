@@ -471,7 +471,7 @@ describe('Review page', () => {
     expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Documents');
     expect(screen.getAllByRole('heading', { level: 3 })[0]).toHaveTextContent('Weight moved');
     expect(screen.getAllByRole('heading', { level: 3 })[1]).toHaveTextContent('Pro-gear');
-    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Gun Safe');
+    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Gun safe');
     expect(screen.getAllByRole('heading', { level: 3 })[3]).toHaveTextContent('Expenses');
   });
 
@@ -540,7 +540,7 @@ describe('Review page', () => {
   it('routes to the add gun safe page when the add link is clicked', async () => {
     renderReviewPage();
 
-    await userEvent.click(screen.getByText('Add Gun Safe Weight'));
+    await userEvent.click(screen.getByText('Add Gun safe Weight'));
 
     await waitFor(() => {
       expect(screen.getByText('New Gun Safe Page')).toBeInTheDocument();

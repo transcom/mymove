@@ -239,7 +239,7 @@ describe('gun safe page', () => {
     renderGunSafePage();
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Gun Safe 2');
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Set 2');
     });
     await waitFor(() => {
       expect(screen.getByLabelText(/^Brief description of the gun safe/)).toBeInTheDocument();
