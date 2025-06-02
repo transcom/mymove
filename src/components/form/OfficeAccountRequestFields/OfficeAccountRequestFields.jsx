@@ -4,6 +4,7 @@ import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
 
 import RequiredAsterisk from '../RequiredAsterisk';
+import OptionalTag from '../OptionalTag';
 
 import styles from './OfficeAccountRequestFields.module.scss';
 
@@ -11,11 +12,21 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 export const OfficeAccountRequestFields = ({ render }) => {
   const { values, errors, touched, setFieldTouched, validateField } = useFormikContext();
   const [edipiRequired, setEdipiRequired] = useState(false);
   const [uniqueIdRequired, setUniqueIdRequired] = useState(false);
+  const [enableRequestAccountPrivileges, setEnableRequestAccountPrivileges] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableRequestAccountPrivileges(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES));
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (values.officeAccountRequestEdipi !== '') {
@@ -299,6 +310,12 @@ export const OfficeAccountRequestFields = ({ render }) => {
             aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
             aria-invalid={!!errors.requestedRolesGroup}
           />
+          {enableRequestAccountPrivileges && (
+            <Label data-testid="requestedPrivilegesHeading">
+              Privilege(s)
+              <OptionalTag />
+            </Label>
+          )}
         </>,
       )}
     </Fieldset>
