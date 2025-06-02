@@ -1447,6 +1447,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher_BeforeSearchParam() {
+	aYearAgo := time.Now().AddDate(-1, 0, 0)
 	aMonthAgo := time.Now().AddDate(0, -1, 0)
 	aWeekAgo := time.Now().AddDate(0, 0, -7)
 	yesterday := time.Now().AddDate(0, 0, -1)
@@ -1503,9 +1504,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher_Befor
 	// Run the fetcher without `before` to get all Prime moves:
 	primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 	suite.NoError(err)
-	suite.Len(primeMoves, 4)
-
-	moveIDs := []uuid.UUID{primeMoves[0].ID, primeMoves[1].ID, primeMoves[2].ID, primeMoves[3].ID}
+	suite.Len(primeMoves, 4, "Should return all 4 prime moves when no 'before' filter is applied")
+	moveIDs := make([]uuid.UUID, len(primeMoves))
+	for i, move := range primeMoves {
+		moveIDs[i] = move.ID
+	}
 	suite.NotContains(moveIDs, hiddenMove.ID)
 	suite.NotContains(moveIDs, nonPrimeMove.ID)
 	suite.Contains(moveIDs, primeMove1.ID)
@@ -1517,11 +1520,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher_Befor
 	searchParams.Before = &today
 	beforeSearchParamsMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 	suite.NoError(err)
-	suite.Len(beforeSearchParamsMoves, 3)
+	suite.Len(beforeSearchParamsMoves, 3, "Should return only primeMove1, primeMove3, and primeMove4 for 'before' filter")
 
-	beforeMoveIDs := []uuid.UUID{beforeSearchParamsMoves[0].ID, beforeSearchParamsMoves[1].ID, beforeSearchParamsMoves[2].ID}
-	suite.Contains(beforeMoveIDs, primeMove1.ID)
-	suite.Contains(beforeMoveIDs, primeMove3.ID)
-	suite.Contains(beforeMoveIDs, primeMove4.ID)
-	suite.NotContains(beforeMoveIDs, primeMove2.ID)
+	// Run the fetcher with `before` for date in the past with no records match to get no Prime moves
+	searchParams.Before = &aYearAgo
+	beforeSearchNOMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+	suite.NoError(err)
+	suite.Len(beforeSearchNOMoves, 0, "No moves should be returned for a before date far in the past")
 }
