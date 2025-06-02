@@ -96,36 +96,6 @@ export const CountrySearchBoxComponent = ({
 }) => {
   const { value, onChange, countryState, name: inputName } = input;
 
-  //   const [countryInfo, setCountryInfo] = useState(
-  //     !!value && !!value.country && value.country.name !== '' && value.country.code !== ''
-  //       ? `${value.country.name} (${value.country.code})`
-  //       : '',
-  //   );
-  // const country =
-  //       !!value &&
-  //       !!value.country &&
-  //       value.country.name !== '' &&
-  //       value.country.name !== null &&
-  //       value.country.code !== '' &&
-  //       value.country.code !== null
-  //         ? `${value.country.name} (${value.country.code})`
-  //         : '';
-
-  // useEffect(() => {
-  //   const country =
-  //     !!value &&
-  //     !!value.country &&
-  //     value.country.name !== '' &&
-  //     value.country.name !== null &&
-  //     value.country.code !== '' &&
-  //     value.country.code !== null
-  //       ? `${value.country.name} (${value.country.code})`
-  //       : '';
-  //   if (countryInfo !== country) {
-  //     setCountryInfo(country);
-  //   }
-  // }, [value, countryInfo]);
-
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
   if (isDisabled) {

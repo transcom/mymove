@@ -243,7 +243,7 @@ export const handleAddressToggleChange = (e, values, setValues, newDutyLocationA
           postalCode: newDutyLocationAddress.postalCode,
           county: newDutyLocationAddress.county,
           usPostRegionCitiesID: newDutyLocationAddress.usPostRegionCitiesID,
-          countryID: newDutyLocationAddress.country.id,
+          countryID: newDutyLocationAddress.countryID,
         },
       },
     },
