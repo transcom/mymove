@@ -12,16 +12,18 @@ import (
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type edi824Processor struct {
+	notifications notifications.NotificationSender
 }
 
 // NewEDI824Processor returns a new EDI824 processor
-func NewEDI824Processor() services.SyncadaFileProcessor {
+func NewEDI824Processor(notifications notifications.NotificationSender) services.SyncadaFileProcessor {
 
-	return &edi824Processor{}
+	return &edi824Processor{notifications: notifications}
 }
 
 // ProcessFile parses an EDI 824 response and updates the payment request status
@@ -168,6 +170,15 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 			}
 			txnAppCtx.Logger().Info("SUCCESS: 824 Processor updated Payment Request to new status")
 			e.logEDIWithPaymentRequest(txnAppCtx, edi824, paymentRequest)
+
+		}
+		paymentRequestNotifier := notifications.NewPaymentRequestFailed(paymentRequest)
+		err = e.notifications.SendNotification(appCtx, paymentRequestNotifier)
+		if err != nil {
+			appCtx.Logger().Error(
+				"failed to send notification for payment request that failed to send to GEX",
+				zap.String("PaymentRequestID", paymentRequest.ID.String()),
+				zap.Error(err))
 		}
 		return nil
 	})
