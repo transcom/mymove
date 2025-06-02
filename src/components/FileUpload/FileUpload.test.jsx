@@ -109,7 +109,7 @@ describe('FileUpload processing', () => {
       .querySelector('.filepond--file-status-main').textContent;
 
     // assertions
-    expect(statusAfter).toBe('Scanning for viruses…');
+    expect(statusAfter).toBe('Scanning');
     expect(createUpload).toHaveBeenCalledTimes(1);
     expect(waitForAvScan).toHaveBeenCalledTimes(1);
     expect(loadFunc).toHaveBeenCalledWith('abc123');

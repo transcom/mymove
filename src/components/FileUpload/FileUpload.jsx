@@ -75,7 +75,7 @@ const FileUpload = forwardRef(
             // Manually adjust status as we have successfully uploaded
             const fileProcessingLabel = itemEl.querySelector('.filepond--file-status-main');
             const subLabelWhenProcessing = itemEl.querySelector('.filepond--file-status-sub');
-            if (fileProcessingLabel) fileProcessingLabel.textContent = 'Scanning for viruses…'; // FilePond doesn't offer a state/api to change it mid-processing
+            if (fileProcessingLabel) fileProcessingLabel.textContent = 'Scanning'; // FilePond doesn't offer a state/api to change it mid-processing
             if (subLabelWhenProcessing) subLabelWhenProcessing.textContent = ''; // Change from FilePond's click to abort -> nothing. You can't abort after it's uploaded
           }
           return waitForAvScan(response.id, { signal }).then(() => response);
