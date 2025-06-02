@@ -550,6 +550,6 @@ func (suite *PayloadsSuite) TestVIntlLocationModel() {
 
 	suite.IsType(payload, &models.VIntlLocation{})
 	suite.Equal(intlCityCountriesId.String(), payload.IntlCityCountriesID.String(), "Expected IntlCityCountriesID to match")
-	suite.Equal(city, payload.CityName, "Expected City to match")
-	suite.Equal(principalDivision, payload.CountryPrnDivName, "Expected Principal Division to match")
+	suite.Equal(city, *payload.CityName, "Expected City to match")
+	suite.Equal(principalDivision, *payload.CountryPrnDivName, "Expected Principal Division to match")
 }

@@ -74,3 +74,35 @@ func (suite *AddressSuite) TestAddressLookup() {
 		suite.Nil((*address))
 	})
 }
+
+func (suite *AddressSuite) TestOconusAddressLookup() {
+	country := "GB"
+	city := "LONDON"
+	principalDivision := "CARDIFF"
+
+	suite.Run("Successfully search for location by principal division", func() {
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
+		addressLookup := NewVIntlLocation()
+		address, err := addressLookup.GetOconusLocations(appCtx, country, principalDivision, false)
+
+		suite.Nil(err)
+		suite.NotNil(address)
+		returnCity := (*address)[0].CityName
+		suite.Contains(*returnCity, city)
+		returnedPrincipalDivision := (*address)[0].CountryPrnDivName
+		suite.Contains(*returnedPrincipalDivision, principalDivision)
+	})
+
+	suite.Run("Successfully search for location by city name", func() {
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
+		addressLookup := NewVIntlLocation()
+		address, err := addressLookup.GetOconusLocations(appCtx, country, city, false)
+
+		suite.Nil(err)
+		suite.NotNil(address)
+		returnCity := (*address)[0].CityName
+		suite.Contains(*returnCity, city)
+		returnedPrincipalDivision := (*address)[0].CountryPrnDivName
+		suite.Contains(*returnedPrincipalDivision, principalDivision)
+	})
+}
