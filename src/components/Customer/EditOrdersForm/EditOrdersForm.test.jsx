@@ -186,7 +186,6 @@ const testProps = {
     { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
     { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
-    { key: ORDERS_TYPE.WOUNDED_WARRIOR, value: ORDERS_TYPE_OPTIONS.WOUNDED_WARRIOR },
   ],
   currentDutyLocation: {},
   grade: '',
@@ -990,24 +989,5 @@ describe('EditOrdersForm component', () => {
       ).not.toBeInTheDocument(),
     );
   });
-
-  it('wounded warrior FF turned off ', async () => {
-    // isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-
-    render(
-      <MockProviders>
-        <EditOrdersForm
-          {...testProps}
-          initialValues={{
-            ...testProps.initialValues,
-          }}
-        />
-      </MockProviders>,
-    );
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
-    });
-  });
-
   afterEach(jest.restoreAllMocks);
 });
