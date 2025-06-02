@@ -1,5 +1,5 @@
 --B-23342 Tae Jung create gunsafe_weight_tickets table for gun safe feature E-06078
--- B-23368 adding the "submitted_has_weight_tickets" and "submitted_weight" columns, need these to stay consistent with other PPM documents
+--B-23368 Brooklyn Welsh adding the "submitted_has_weight_tickets" and "submitted_weight" columns, need these to stay consistent with other PPM documents
 CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	id uuid PRIMARY KEY,
 	ppm_shipment_id uuid NOT NULL
