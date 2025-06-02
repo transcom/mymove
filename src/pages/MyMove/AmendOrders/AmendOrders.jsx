@@ -7,7 +7,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import styles from './AmendOrders.module.scss';
 
 import Hint from 'components/Hint';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
