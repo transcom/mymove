@@ -77,6 +77,8 @@ const CreateMoveCustomerInfo = () => {
       middle_name: middleName,
       backup_contact: {
         name: valuesBackupFullName,
+        firstName: valuesBackupFirstName,
+        lastName: valuesBackupLastName,
         email: values[backupContactName.toString()]?.email || '',
         phone: values[backupContactName.toString()]?.telephone || '',
       },
@@ -88,12 +90,6 @@ const CreateMoveCustomerInfo = () => {
     };
     mutateCustomerInfo({ customerId: customerData.id, ifMatchETag: customerData.eTag, body });
   };
-
-  const initialBackupFullName = (customerData?.backup_contact?.name || '').trim();
-  const [initialBackupFirstName = '', initialBackupLastName = ''] = initialBackupFullName
-    .split(/ (.+)/)
-    .map((part) => part?.trim())
-    .filter(Boolean);
 
   const initialValues = {
     firstName: customerData?.first_name || '',
@@ -109,8 +105,8 @@ const CreateMoveCustomerInfo = () => {
     phoneIsPreferred: customerData?.phoneIsPreferred || false,
     cacUser: formatTrueFalseInputValue(customerData?.cacValidated),
     [backupContactName]: {
-      firstName: initialBackupFirstName,
-      lastName: initialBackupLastName,
+      firstName: customerData?.backup_contact?.firstName || '',
+      lastName: customerData?.backup_contact?.lastName || '',
       email: customerData?.backup_contact?.email || '',
       telephone: customerData?.backup_contact?.phone || '',
     },

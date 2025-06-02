@@ -131,6 +131,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
       backupMailingAddress: values[backupAddressName],
       backupContact: {
         name: valuesBackupFullName,
+        firstName: valuesBackupFirstName,
+        lastName: valuesBackupLastName,
         email: values[backupContactName].email,
         phone: values[backupContactName].telephone,
       },
