@@ -474,22 +474,6 @@ describe('EditOrders Page', () => {
     expect(editOrdersHeader).toBeInTheDocument();
   });
 
-  it('wounded warrior FF turned on', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-
-    renderWithProviders(<EditOrders {...testProps} />, {
-      path: customerRoutes.ORDERS_EDIT_PATH,
-      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
-    });
-
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      const options = within(ordersTypeDropdown).queryAllByRole('option');
-      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
-      expect(hasWoundedWarrior).toBe(false);
-    });
-  });
-
   it('wounded warrior FF turned off', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
 
@@ -508,40 +492,3 @@ describe('EditOrders Page', () => {
 
   afterEach(jest.clearAllMocks);
 });
-
-//  describe('Order type: Wounded Warrior', () => {
-//     beforeEach(() => {
-//       jest.clearAllMocks();
-//     });
-
-//     it('wounded warrior FF turned on', async () => {
-//       // useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-
-//     renderWithProviders(<EditOrders {...testProps} />, {
-//       path: customerRoutes.ORDERS_EDIT_PATH,
-//       params: { moveId: 'testMoveId', orderId: 'testOrders1' },
-//     });
-
-//       const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-//       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
-//       expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
-//     });
-
-//     it('wounded warrior FF turned off', async () => {
-//       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-//       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-
-//       render(
-//         <MockProviders>
-//           <ServicesCounselingOrders {...ordersMockProps} />
-//         </MockProviders>,
-//       );
-
-//       await waitFor(() => {
-//         const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-//         const options = within(ordersTypeDropdown).queryAllByRole('option');
-//         const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
-//         expect(hasWoundedWarrior).toBe(false);
-//       });
-//     });
-// });

@@ -258,11 +258,27 @@ describe('AddOrdersForm -  Wounded Warrior FF', () => {
     );
 
     await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText(/orders type/i);
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
       const options = within(ordersTypeDropdown).queryAllByRole('option');
       const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
 
       expect(hasWoundedWarrior).toBe(false);
+    });
+  });
+
+  it('Does render Wounded Warrior order option', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
     });
   });
 });

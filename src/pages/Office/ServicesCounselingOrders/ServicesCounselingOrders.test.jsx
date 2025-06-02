@@ -955,6 +955,7 @@ describe('Orders page', () => {
     });
 
     it('wounded warrior FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
