@@ -343,7 +343,7 @@ describe('Review page', () => {
     expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Documents');
     expect(screen.getAllByRole('heading', { level: 3 })[0]).toHaveTextContent('Weight moved');
     expect(screen.getAllByRole('heading', { level: 3 })[1]).toHaveTextContent('Pro-gear');
-    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Gun Safe');
+    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Gun safe');
     expect(screen.getAllByRole('heading', { level: 3 })[3]).toHaveTextContent('Expenses');
   });
 
