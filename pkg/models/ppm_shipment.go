@@ -112,8 +112,6 @@ type PPMAdvanceStatus string
 const (
 	// PPMAdvanceStatusApproved captures enum value "APPROVED"
 	PPMAdvanceStatusApproved PPMAdvanceStatus = "APPROVED"
-	// PPMAdvanceStatusEdited captures enum value "EDITED"
-	PPMAdvanceStatusEdited PPMAdvanceStatus = "EDITED"
 	// PPMAdvanceStatusRejected captures enum value "REJECTED"
 	PPMAdvanceStatusRejected PPMAdvanceStatus = "REJECTED"
 	// PPMAdvanceStatusReceived captures enum value "RECEIVED"
@@ -126,7 +124,6 @@ const (
 // for validation.
 var AllowedPPMAdvanceStatuses = []string{
 	string(PPMAdvanceStatusApproved),
-	string(PPMAdvanceStatusEdited),
 	string(PPMAdvanceStatusRejected),
 	string(PPMAdvanceStatusReceived),
 	string(PPMAdvanceStatusNotReceived),
