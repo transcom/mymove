@@ -39,3 +39,42 @@ func (suite *ModelSuite) TestFetchReServiceBycode() {
 		suite.Contains(err.Error(), "error fetching from re_services - required code not provided")
 	})
 }
+
+func (suite *ModelSuite) TestContainsReServiceCode() {
+	tests := []struct {
+		name      string
+		valid     []models.ReServiceCode
+		code      models.ReServiceCode
+		expectsOK bool
+	}{
+		{
+			name:      "code is in the slice",
+			valid:     []models.ReServiceCode{models.ReServiceCodeDOASIT, models.ReServiceCodeDDASIT},
+			code:      models.ReServiceCodeDOASIT,
+			expectsOK: true,
+		},
+		{
+			name:      "code is not in the slice",
+			valid:     []models.ReServiceCode{models.ReServiceCodeDOASIT, models.ReServiceCodeDDASIT},
+			code:      models.ReServiceCodeIDFSIT,
+			expectsOK: false,
+		},
+		{
+			name:      "empty slice never contains anything",
+			valid:     []models.ReServiceCode{},
+			code:      models.ReServiceCodeIOFSIT,
+			expectsOK: false,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			ok := models.ContainsReServiceCode(tt.valid, tt.code)
+			if tt.expectsOK {
+				suite.True(ok, "expected ContainsReServiceCode(%v, %q) to be true", tt.valid, tt.code)
+			} else {
+				suite.False(ok, "expected ContainsReServiceCode(%v, %q) to be false", tt.valid, tt.code)
+			}
+		})
+	}
+}
