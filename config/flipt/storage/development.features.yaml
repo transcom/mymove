@@ -33,14 +33,6 @@ flags:
       - segment:
           key: mil-app
           value: true
-  - key: multi_move
-    name: Multi move feature flag
-    type: BOOLEAN_FLAG_TYPE
-    enabled: true
-    rollouts:
-      - segment:
-          key: mil-app
-          value: true
   - key: validation_code_required
     name: Customer validation code feature flag to access the application
     type: BOOLEAN_FLAG_TYPE

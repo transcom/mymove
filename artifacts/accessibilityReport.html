@@ -87,7 +87,7 @@
             </h3>
             <div class="summarySection">
             </div>
-            <h5>axe-core found <span class="badge badge-warning">5</span> violations</h5>
+            <h5>axe-core found <span class="badge badge-warning">9</span> violations</h5>
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
@@ -107,17 +107,14 @@
                         <td>WCAG 2 Level A, WCAG 4.1.1</td>
                         <td>minor</td>
                         <td>8</td>
+                        <td>Form elements should have a visible label</td>
+                        <td>label-title-only</td>
+                        <td>Best practice</td>
+                        <td>serious</td>
+                        <td>6</td>
                     </tr>
                     <tr>
                         <th scope="row"><a href="#2" class="card-link">2</a></th>
-                        <td>Page should contain a level-one heading</td>
-                        <td>page-has-heading-one</td>
-                        <td>Best practice</td>
-                        <td>moderate</td>
-                        <td>1</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><a href="#3" class="card-link">3</a></th>
                         <td>All page content should be contained by landmarks</td>
                         <td>region</td>
                         <td>Best practice</td>
@@ -131,10 +128,10 @@
                 <div class="card-body">
                     <div class="violationCardLine">
                         <h5 class="card-title violationCardTitleItem">
-                            <a id="1">1.</a> id attribute value must be unique
+                            <a id="1">1.</a> Form elements should have a visible label
                         </h5>
                         <a
-                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;duplicate-id?application&#x3D;axeAPI"
+                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;label-title-only?application&#x3D;axeAPI"
                             target="_blank"
                             class="card-link violationCardTitleItem learnMore"
                             >Learn more</a
@@ -567,20 +564,21 @@
                     </div>
                     <div class="violationCardLine">
                         <h6 class="card-subtitle mb-2 text-muted">page-has-heading-one</h6>
+                        <h6 class="card-subtitle mb-2 text-muted">label-title-only</h6>
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
                             Best practice
                         </h6>
                     </div>
                     <div class="violationCardLine">
-                        <p class="card-text">Ensure that the page, or at least one of its frames contains a level-one heading</p>
+                        <p class="card-text">Ensure that every form element has a visible label and is not solely labeled using hidden labels, or the title or aria-describedby attributes</p>
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
-                            moderate
+                            serious
                         </h6>
                     </div>
                     <div class="violationCardLine">
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
                             Issue Tags:
-                            <span class="badge bg-light text-dark"> cat.semantics </span>
+                            <span class="badge bg-light text-dark"> cat.forms </span>
 
                             <span class="badge bg-light text-dark"> best-practice </span>
                         </h6>
@@ -601,15 +599,100 @@
                                     <td>1</td>
                                     <td>
                                         <p><strong>Element location</strong></p>
-                                        <pre><code class="css text-wrap">html</code></pre>
+                                        <pre><code class="css text-wrap">#lengthFeet</code></pre>
                                         <p><strong>Element source</strong></p>
-                                        <pre><code class="html text-wrap">&lt;html lang&#x3D;&quot;en&quot;&gt;</code></pre>
+                                        <pre><code class="html text-wrap">&lt;input class&#x3D;&quot;usa-input&quot; data-testid&#x3D;&quot;lengthFeet&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;lengthFeet&quot; name&#x3D;&quot;lengthFeet&quot; aria-describedby&#x3D;&quot;&quot; signed&#x3D;&quot;false&quot; title&#x3D;&quot;Length in feet&quot; value&#x3D;&quot;&quot;&gt;</code></pre>
                                     </td>
                                     <td>
                                         <div class="wrapBreakWord">
                                             <p>Fix all of the following:</p>
                                             <ul class="text-muted">
-                                                <li>  Page must have a level-one heading</li>
+                                                <li>  Only title used to generate label for form element</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>
+                                        <p><strong>Element location</strong></p>
+                                        <pre><code class="css text-wrap">#lengthInches</code></pre>
+                                        <p><strong>Element source</strong></p>
+                                        <pre><code class="html text-wrap">&lt;input class&#x3D;&quot;usa-input&quot; data-testid&#x3D;&quot;lengthInches&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;lengthInches&quot; name&#x3D;&quot;lengthInches&quot; aria-describedby&#x3D;&quot;&quot; signed&#x3D;&quot;false&quot; title&#x3D;&quot;Length in inches&quot; value&#x3D;&quot;&quot;&gt;</code></pre>
+                                    </td>
+                                    <td>
+                                        <div class="wrapBreakWord">
+                                            <p>Fix all of the following:</p>
+                                            <ul class="text-muted">
+                                                <li>  Only title used to generate label for form element</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>
+                                        <p><strong>Element location</strong></p>
+                                        <pre><code class="css text-wrap">#widthFeet</code></pre>
+                                        <p><strong>Element source</strong></p>
+                                        <pre><code class="html text-wrap">&lt;input class&#x3D;&quot;usa-input&quot; data-testid&#x3D;&quot;widthFeet&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;widthFeet&quot; name&#x3D;&quot;widthFeet&quot; aria-describedby&#x3D;&quot;&quot; signed&#x3D;&quot;false&quot; title&#x3D;&quot;Width in feet&quot; value&#x3D;&quot;&quot;&gt;</code></pre>
+                                    </td>
+                                    <td>
+                                        <div class="wrapBreakWord">
+                                            <p>Fix all of the following:</p>
+                                            <ul class="text-muted">
+                                                <li>  Only title used to generate label for form element</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>
+                                        <p><strong>Element location</strong></p>
+                                        <pre><code class="css text-wrap">#widthInches</code></pre>
+                                        <p><strong>Element source</strong></p>
+                                        <pre><code class="html text-wrap">&lt;input class&#x3D;&quot;usa-input&quot; data-testid&#x3D;&quot;widthInches&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;widthInches&quot; name&#x3D;&quot;widthInches&quot; aria-describedby&#x3D;&quot;&quot; signed&#x3D;&quot;false&quot; title&#x3D;&quot;Width in inches&quot; value&#x3D;&quot;&quot;&gt;</code></pre>
+                                    </td>
+                                    <td>
+                                        <div class="wrapBreakWord">
+                                            <p>Fix all of the following:</p>
+                                            <ul class="text-muted">
+                                                <li>  Only title used to generate label for form element</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>
+                                        <p><strong>Element location</strong></p>
+                                        <pre><code class="css text-wrap">#heightFeet</code></pre>
+                                        <p><strong>Element source</strong></p>
+                                        <pre><code class="html text-wrap">&lt;input class&#x3D;&quot;usa-input&quot; data-testid&#x3D;&quot;heightFeet&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;heightFeet&quot; name&#x3D;&quot;heightFeet&quot; aria-describedby&#x3D;&quot;&quot; signed&#x3D;&quot;false&quot; title&#x3D;&quot;Height in feet&quot; value&#x3D;&quot;&quot;&gt;</code></pre>
+                                    </td>
+                                    <td>
+                                        <div class="wrapBreakWord">
+                                            <p>Fix all of the following:</p>
+                                            <ul class="text-muted">
+                                                <li>  Only title used to generate label for form element</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>
+                                        <p><strong>Element location</strong></p>
+                                        <pre><code class="css text-wrap">#heightInches</code></pre>
+                                        <p><strong>Element source</strong></p>
+                                        <pre><code class="html text-wrap">&lt;input class&#x3D;&quot;usa-input&quot; data-testid&#x3D;&quot;heightInches&quot; type&#x3D;&quot;text&quot; id&#x3D;&quot;heightInches&quot; name&#x3D;&quot;heightInches&quot; aria-describedby&#x3D;&quot;&quot; signed&#x3D;&quot;false&quot; title&#x3D;&quot;Height in inches&quot; value&#x3D;&quot;&quot;&gt;</code></pre>
+                                    </td>
+                                    <td>
+                                        <div class="wrapBreakWord">
+                                            <p>Fix all of the following:</p>
+                                            <ul class="text-muted">
+                                                <li>  Only title used to generate label for form element</li>
                                             </ul>
                                         </div>
                                     </td>
@@ -623,10 +706,10 @@
                 <div class="card-body">
                     <div class="violationCardLine">
                         <h5 class="card-title violationCardTitleItem">
-                            <a id="3">3.</a> All page content should be contained by landmarks
+                            <a id="2">2.</a> All page content should be contained by landmarks
                         </h5>
                         <a
-                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;region?application&#x3D;axeAPI"
+                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;region?application&#x3D;axeAPI"
                             target="_blank"
                             class="card-link violationCardTitleItem learnMore"
                             >Learn more</a
@@ -639,7 +722,7 @@
                         </h6>
                     </div>
                     <div class="violationCardLine">
-                        <p class="card-text">Ensures all page content is contained by landmarks</p>
+                        <p class="card-text">Ensure all page content is contained by landmarks</p>
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
                             moderate
                         </h6>
