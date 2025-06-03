@@ -2929,7 +2929,7 @@ func (suite *HandlerSuite) TestListMovesHandler_BeforeSearchParam() {
 	// make the request without `before` to get all Prime moves:
 	request := httptest.NewRequest("GET", "/moves?", nil)
 	params := movetaskorderops.ListMovesParams{HTTPRequest: request}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 
 	handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
 	response := handler.Handle(params)
@@ -2945,7 +2945,7 @@ func (suite *HandlerSuite) TestListMovesHandler_BeforeSearchParam() {
 	before := handlers.FmtDateTime(today)
 	request = httptest.NewRequest("GET", fmt.Sprintf("/moves?before=%s", before.String()), nil)
 	params = movetaskorderops.ListMovesParams{HTTPRequest: request, Before: before}
-	handlerConfig = suite.HandlerConfig()
+	handlerConfig = suite.NewHandlerConfig()
 
 	handler = ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
 	response = handler.Handle(params)
@@ -2961,7 +2961,7 @@ func (suite *HandlerSuite) TestListMovesHandler_BeforeSearchParam() {
 	before = handlers.FmtDateTime(aYearAgo)
 	request = httptest.NewRequest("GET", fmt.Sprintf("/moves?before=%s", before.String()), nil)
 	params = movetaskorderops.ListMovesParams{HTTPRequest: request, Before: before}
-	handlerConfig = suite.HandlerConfig()
+	handlerConfig = suite.NewHandlerConfig()
 
 	handler = ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
 	response = handler.Handle(params)
