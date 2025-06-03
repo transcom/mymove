@@ -50,7 +50,7 @@ func (h GetLocationByZipCityStateHandler) Handle(params addressop.GetLocationByZ
 				statesToExclude = append(statesToExclude, "HI")
 			}
 
-			locationList, err := h.GetLocationsByZipCityState(appCtx, params.Search, statesToExclude)
+			locationList, err := h.VLocation.GetLocationsByZipCityState(appCtx, params.Search, statesToExclude)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Zip/City/State: ", zap.Error(err))
 				return addressop.NewGetLocationByZipCityStateInternalServerError(), err
@@ -69,7 +69,7 @@ type GetOconusLocationHandler struct {
 func (h GetOconusLocationHandler) Handle(params addressop.GetOconusLocationParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			locationList, err := h.GetOconusLocations(appCtx, params.Country, params.Search)
+			locationList, err := h.GetOconusLocations(appCtx, params.Country, params.Search, false)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for OCONUS location: ", zap.Error(err))
 				return addressop.NewGetOconusLocationInternalServerError(), err

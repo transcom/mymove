@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 		err := suite.DB().Where("city_name = $1", city).First(&fetchedVIntlLocation)
 
 		suite.NoError(err)
-		suite.Equal(city, fetchedVIntlLocation)
+		suite.Equal(city, *fetchedVIntlLocation.CityName)
 
 		vIntlLocationService := address.NewVIntlLocation()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
@@ -57,6 +57,7 @@ func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		params := addressop.GetOconusLocationParams{
 			HTTPRequest: req,
+			Country:     country,
 			Search:      city,
 		}
 

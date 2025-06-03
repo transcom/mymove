@@ -119,14 +119,9 @@ func NewVIntlLocation() services.VIntlLocation {
 	return &vIntlLocation{}
 }
 
-func (o vIntlLocation) GetOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch ...bool) (*models.VIntlLocations, error) {
-	exact := false
+func (o vIntlLocation) GetOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch bool) (*models.VIntlLocations, error) {
 
-	if len(exactMatch) > 0 {
-		exact = true
-	}
-
-	locationList, err := FindOconusLocations(appCtx, country, search, exact)
+	locationList, err := FindOconusLocations(appCtx, country, search, exactMatch)
 
 	if err != nil {
 		switch err {
@@ -157,10 +152,10 @@ func FindOconusLocations(appCtx appcontext.AppContext, country string, search st
 		city = search
 	}
 
-	sqlQuery := `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE vil.city_name like upper(?) AND upper(vil.country_prn_dv_nm) like upper(?) AND upper(vil.country) = upper(?)`
+	sqlQuery := `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE upper(vil.country) like upper(?) AND (upper(vil.city_name) like upper(?) AND upper(vil.country_prn_dv_nm) like upper(?)) ORDER BY vil.country_prn_dv_nm`
 
 	if exactMatch {
-		sqlQuery = `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE vil.city_name = upper(?) AND upper(vil.country_prn_dv_nm) = upper(?) AND upper(vil.country) = upper(?)`
+		sqlQuery = `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE upper(vil.country) = upper(?) AND (upper(vil.city_name) = upper(?) AND upper(vil.country_prn_dv_nm) = upper(?)) ORDER BY vil.country_prn_dv_nm`
 	}
 
 	sqlQuery += ` limit 30`
@@ -168,9 +163,9 @@ func FindOconusLocations(appCtx appcontext.AppContext, country string, search st
 
 	// we only want to add an extra % to the strings if we are using the LIKE in the query
 	if exactMatch {
-		query = appCtx.DB().RawQuery(sqlQuery, city, principalDivision, country)
+		query = appCtx.DB().RawQuery(sqlQuery, country, city, principalDivision)
 	} else {
-		query = appCtx.DB().RawQuery(sqlQuery, fmt.Sprintf("%s%%", city), fmt.Sprintf("%s%%", principalDivision), country)
+		query = appCtx.DB().RawQuery(sqlQuery, fmt.Sprintf("%s%%", country), fmt.Sprintf("%s%%", city), fmt.Sprintf("%s%%", principalDivision))
 	}
 
 	if err := query.All(&locationList); err != nil {
