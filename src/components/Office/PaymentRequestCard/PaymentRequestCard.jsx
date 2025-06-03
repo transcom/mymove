@@ -5,7 +5,6 @@ import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { connect } from 'react-redux';
 
 import styles from './PaymentRequestCard.module.scss';
 
@@ -19,7 +18,6 @@ import { groupByShipment } from 'utils/serviceItems';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { formatDateWithUTC } from 'shared/dates';
-import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -492,8 +490,4 @@ PaymentRequestCard.defaultProps = {
   onEditAccountingCodes: () => {},
 };
 
-const mapDispatchToProps = {
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
-};
-
-export default connect(() => {}, mapDispatchToProps)(PaymentRequestCard);
+export default PaymentRequestCard;
