@@ -2,7 +2,9 @@ import * as Yup from 'yup';
 
 import { getUnSupportedStates, unSupportedStates, unSupportedStatesDisabledAlaska } from '../constants/states';
 
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { ValidateZipRateData } from 'shared/api';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const INVALID_DATE = 'Invalid date';
 
@@ -73,6 +75,8 @@ export const IsSupportedState = async (value, context) => {
   return true;
 };
 
+const isOconusCountryFinderEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER);
+
 /** Yup validation schemas */
 
 export const requiredAddressSchema = Yup.object().shape({
@@ -84,7 +88,10 @@ export const requiredAddressSchema = Yup.object().shape({
     .length(2, 'Must use state abbreviation')
     .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
-  countryID: Yup.string().trim().required('Required'),
+  countryID: Yup.string().when('isOconusCountryFinderEnabled', () => {
+    if (isOconusCountryFinderEnabled) return Yup.string().required('Required');
+    return Yup.string().nullable();
+  }),
 });
 
 // city, state, postalCode only required
@@ -97,7 +104,10 @@ export const partialRequiredAddressSchema = Yup.object().shape({
     .length(2, 'Must use state abbreviation')
     .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
-  countryID: Yup.string().trim().required('Required'),
+  countryID: Yup.string().when('isOconusCountryFinderEnabled', () => {
+    if (isOconusCountryFinderEnabled) return Yup.string().required('Required');
+    return Yup.string().nullable();
+  }),
 });
 
 export const requiredW2AddressSchema = Yup.object().shape({
@@ -106,7 +116,10 @@ export const requiredW2AddressSchema = Yup.object().shape({
   city: Yup.string().required('Required'),
   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
   postalCode: Yup.string().matches(ZIP5_CODE_REGEX, 'Must be valid zip code').required('Required'),
-  countryID: Yup.string().trim().required('Required'),
+  countryID: Yup.string().when('isOconusCountryFinderEnabled', () => {
+    if (isOconusCountryFinderEnabled) return Yup.string().required('Required');
+    return Yup.string().nullable();
+  }),
 });
 
 export const addressSchema = Yup.object().shape({
@@ -117,7 +130,10 @@ export const addressSchema = Yup.object().shape({
   county: Yup.string(),
   state: Yup.string().length(2, 'Must use state abbreviation'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
-  countryID: Yup.string().trim().required('Required'),
+  countryID: Yup.string().when('isOconusCountryFinderEnabled', () => {
+    if (isOconusCountryFinderEnabled) return Yup.string().required('Required');
+    return Yup.string().nullable();
+  }),
 });
 
 export const phoneSchema = Yup.string().matches(
