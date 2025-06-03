@@ -316,6 +316,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalCentIsPositive{Name: "SITEstimatedCost", Field: p.SITEstimatedCost},
 		&OptionalUUIDIsPresent{Name: "AOAPacketID", Field: p.AOAPacketID},
 		&OptionalUUIDIsPresent{Name: "PaymentPacketID", Field: p.PaymentPacketID},
+		&OptionalUUIDIsPresent{Name: "GCCMultiplierID", Field: p.GCCMultiplierID},
 	), nil
 
 }

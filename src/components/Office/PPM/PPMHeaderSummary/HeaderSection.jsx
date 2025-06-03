@@ -417,7 +417,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               </span>
             </div>
           ) : null}
-          {sectionInfo.intlPackingPrice ? (
+          {sectionInfo.intlPackPrice ? (
             <div className={styles.row}>
               <Label className={styles.label}>
                 International Packing <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>

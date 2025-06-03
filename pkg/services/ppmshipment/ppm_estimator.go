@@ -130,6 +130,12 @@ func (f *estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *
 }
 
 func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
+	// check if GCC multipliers have changed or do not match
+	if (newPPMShipment.GCCMultiplierID == nil && oldPPMShipment.GCCMultiplierID != nil) ||
+		(newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID == nil) ||
+		(newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID) {
+		return false
+	}
 	if oldPPMShipment.Status != models.PPMShipmentStatusDraft && oldPPMShipment.EstimatedIncentive != nil && *newPPMShipment.EstimatedIncentive == 0 || oldPPMShipment.MaxIncentive == nil {
 		return false
 	} else {
@@ -259,10 +265,6 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		destinationAddress := newPPMShipment.DestinationAddress
 
 		if !skipCalculatingEstimatedIncentive {
-			// Clear out advance and advance requested fields when the estimated incentive is reset.
-			newPPMShipment.HasRequestedAdvance = nil
-			newPPMShipment.AdvanceAmountRequested = nil
-
 			estimatedIncentive, err = f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), true, false, false)
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
@@ -660,6 +662,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
+	gccMultiplier := ppmShipment.GCCMultiplier
 
 	// Check different address values for a postal code
 	if ppmShipment.PickupAddress != nil && ppmShipment.PickupAddress.PostalCode != "" {
@@ -799,6 +802,12 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		}
 
 		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
+		// only apply the multiplier if centsValue is positive
+		if gccMultiplier != nil && gccMultiplier.Multiplier > 0 && centsValue > 0 {
+			multiplier := gccMultiplier.Multiplier
+			multipliedPrice := float64(centsValue) * multiplier
+			centsValue = unit.Cents(int(multipliedPrice))
+		}
 
 		if err != nil {
 			logger.Error("unable to calculate service item price", zap.Error(err))

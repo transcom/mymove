@@ -336,7 +336,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 		page1.SafetyMoveHeading = safetyMoveText
 	}
 
-	if data.PPMShipment.GCCMultiplierID != nil && data.PPMShipment.GCCMultiplier != nil {
+	if data.PPMShipment.GCCMultiplier != nil && data.PPMShipment.GCCMultiplier.Multiplier != 0 {
 		// the "g" here tells us to not use trailing zeros (1.3 instead of 1.30000)
 		// -1 is to use the most concise represenation
 		// 64 tells it that it's a float64

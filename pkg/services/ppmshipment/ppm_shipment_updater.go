@@ -232,6 +232,9 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			(updatedPPMShipment.GCCMultiplierID == nil || *updatedPPMShipment.GCCMultiplierID != gccMultiplier.ID) {
 			updatedPPMShipment.GCCMultiplierID = &gccMultiplier.ID
 			updatedPPMShipment.GCCMultiplier = &gccMultiplier
+		} else {
+			updatedPPMShipment.GCCMultiplierID = nil
+			updatedPPMShipment.GCCMultiplier = nil
 		}
 
 		// if the actual move date is being provided, we no longer need to calculate the estimate - it has already happened
