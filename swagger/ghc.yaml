@@ -5396,7 +5396,7 @@ paths:
             type: string
             enum:
               - INFECTED
-              - CLEAN
+              - NO_THREATS_FOUND
               - PROCESSING
             readOnly: true
         '400':
@@ -6214,6 +6214,10 @@ definitions:
         type: integer
         x-formatting: weight
       proGearWeightSpouse:
+        example: 500
+        type: integer
+        x-formatting: weight
+      gunSafeWeight:
         example: 500
         type: integer
         x-formatting: weight
@@ -7065,6 +7069,14 @@ definitions:
         maximum: 500
         x-formatting: weight
         x-nullable: true
+      gunSafeWeight:
+        description: unit is in lbs
+        example: 500
+        type: integer
+        minimum: 0
+        maximum: 500
+        x-formatting: weight
+        x-nullable: true
       requiredMedicalEquipmentWeight:
         description: unit is in lbs
         example: 2000
@@ -7172,6 +7184,14 @@ definitions:
         x-formatting: weight
         x-nullable: true
       proGearWeightSpouse:
+        minimum: 0
+        maximum: 500
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      gunSafeWeight:
         minimum: 0
         maximum: 500
         description: unit is in lbs
@@ -7707,6 +7727,17 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
+        type: integer
+        x-nullable: true
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -8203,6 +8234,13 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+      gunSafeWeight:
+        type: integer
+        x-nullable: true
       isActualExpenseReimbursement:
         description: >-
           Used for PPM shipments only. Denotes if this shipment uses the Actual
@@ -8222,6 +8260,7 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+      - hasGunSafe
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -9741,7 +9780,7 @@ definitions:
         type: string
         enum:
           - INFECTED
-          - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
         readOnly: true
       createdAt:

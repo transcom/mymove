@@ -9079,7 +9079,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -19251,7 +19251,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
