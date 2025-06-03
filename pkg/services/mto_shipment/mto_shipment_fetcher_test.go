@@ -175,7 +175,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
-		tertiaryPickuupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		tertiaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -190,7 +190,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 				Type:     &factory.Addresses.SecondaryDeliveryAddress,
 			},
 			{
-				Model:    tertiaryPickuupAddress,
+				Model:    tertiaryPickupAddress,
 				LinkOnly: true,
 				Type:     &factory.Addresses.TertiaryPickupAddress,
 			},
@@ -283,7 +283,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Equal(agents.ID.String(), actualShipment.MTOAgents[0].ID.String())
 		suite.Equal(shipment.PickupAddress.ID.String(), actualShipment.PickupAddress.ID.String())
 		suite.Equal(secondaryPickupAddress.ID.String(), actualShipment.SecondaryPickupAddress.ID.String())
-		suite.Equal(tertiaryPickuupAddress.ID.String(), actualShipment.TertiaryPickupAddress.ID.String())
+		suite.Equal(tertiaryPickupAddress.ID.String(), actualShipment.TertiaryPickupAddress.ID.String())
 		suite.Equal(shipment.DestinationAddress.ID.String(), actualShipment.DestinationAddress.ID.String())
 		suite.Equal(secondaryDeliveryAddress.ID.String(), actualShipment.SecondaryDeliveryAddress.ID.String())
 		suite.Equal(tertiaryDeliveryAddress.ID.String(), actualShipment.TertiaryDeliveryAddress.ID.String())
@@ -364,6 +364,52 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		suite.Len(actualPPMShipment.ProgearWeightTickets, 1)
 		suite.Len(actualPPMShipment.ProgearWeightTickets[0].Document.UserUploads, 1)
+	})
+
+	suite.Run("Loads Storage Facility Address Country association", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		storageFacilityAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Country{
+					Country: "GB",
+				},
+			},
+		}, nil)
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacilityAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+				},
+			},
+		}, nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: move.Orders.ServiceMemberID,
+		})
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
+
+		suite.NoError(err, "Expected no error for a move with shipment associations")
+		suite.Len(mtoShipments, 1, "Expected a single shipment with associations")
+
+		actualShipment := mtoShipments[0]
+		suite.Equal(storageFacility.Address.Country.ID.String(), actualShipment.StorageFacility.Address.Country.ID.String())
 	})
 }
 

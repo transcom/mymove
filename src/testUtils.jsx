@@ -171,3 +171,5 @@ export const mockPage = (path, name) => {
     return () => <div>{`Mock ${componentName} Component`}</div>;
   });
 };
+
+export const flushPromises = () => Promise.resolve().then();

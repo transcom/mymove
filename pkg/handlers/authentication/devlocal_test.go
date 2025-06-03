@@ -69,6 +69,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
+	emptyEmailTestCount := 0
 
 	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	handler := NewCreateUserHandler(authContext, handlerConfig)
@@ -77,6 +78,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		userType  string
 		roleTypes []roles.RoleType
 		email     string
+		gbloc     string
 	}{
 		{
 			userType:  TOOOfficeUserType,
@@ -119,6 +121,17 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 				roles.RoleTypeServicesCounselor, roles.RoleTypePrimeSimulator, roles.RoleTypeGSR, roles.RoleTypeHQ, roles.RoleTypeQae, roles.RoleTypeCustomerServiceRepresentative, roles.RoleTypeContractingOfficer},
 			email: "multi_role@example.com",
 		},
+		{
+			userType:  TOOOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypeTOO},
+			email:     "",
+		},
+		{
+			userType:  TOOOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypeTOO},
+			email:     "",
+			gbloc:     "AGFM",
+		},
 	} {
 		// Exercise all variables in the office user
 		form := url.Values{}
@@ -127,6 +140,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		form.Add("lastName", "X")
 		form.Add("telephone", "222-222-2222")
 		form.Add("email", newOfficeUser.email)
+		form.Add("gbloc", newOfficeUser.gbloc)
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/create", appnames.OfficeServername), strings.NewReader(form.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
@@ -160,6 +174,16 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		suite.Equal("Carol", officeUser.FirstName)
 		suite.Equal("X", officeUser.LastName)
 		suite.Equal("222-222-2222", officeUser.Telephone)
+
+		if newOfficeUser.email == "" {
+			emptyEmailTestCount += 1
+			if newOfficeUser.gbloc == "" {
+				suite.Equal(true, strings.HasSuffix(officeUser.Email, "KKFA@example.com"), "Expected default email with default gbloc ending")
+			} else {
+				suite.Equal(true, strings.HasSuffix(officeUser.Email, fmt.Sprintf("%s@example.com", newOfficeUser.gbloc)), "Expected default email with user's gbloc")
+			}
+		}
+
 		actualRoleTypes := []roles.RoleType{}
 		for i := range officeUser.User.Roles {
 			actualRoleTypes = append(actualRoleTypes, officeUser.User.Roles[i].RoleType)
@@ -168,8 +192,14 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 			suite.Contains(actualRoleTypes, newOfficeUser.roleTypes[i])
 		}
 		suite.Equal(len(newOfficeUser.roleTypes), len(actualRoleTypes))
-		suite.Equal("KKFA", officeUser.TransportationOffice.Gbloc)
+		if newOfficeUser.gbloc == "" {
+			suite.Equal("KKFA", officeUser.TransportationOffice.Gbloc)
+		} else {
+			suite.Equal(newOfficeUser.gbloc, officeUser.TransportationOffice.Gbloc)
+		}
 	}
+
+	suite.Equal(2, emptyEmailTestCount, "Empty email cases were not verified")
 }
 
 func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
