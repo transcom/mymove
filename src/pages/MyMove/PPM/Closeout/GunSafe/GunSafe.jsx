@@ -8,6 +8,7 @@ import {
   selectMTOShipmentById,
   selectGunSafeWeightTicketAndIndexById,
   selectServiceMemberFromLoggedInUser,
+  selectProGearEntitlements,
 } from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -34,6 +35,8 @@ const GunSafe = () => {
 
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
+
+  const entitlements = useSelector((state) => selectProGearEntitlements(state));
 
   const appName = APP_NAME.MYMOVE;
   const { moveId, mtoShipmentId, gunSafeId } = useParams();
@@ -200,6 +203,7 @@ const GunSafe = () => {
             <GunSafeForm
               gunSafe={currentGunSafeWeightTicket}
               setNumber={currentIndex + 1}
+              entitlements={entitlements}
               onBack={handleBack}
               onSubmit={handleSubmit}
               onCreateUpload={handleCreateUpload}
