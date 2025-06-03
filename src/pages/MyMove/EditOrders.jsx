@@ -62,25 +62,21 @@ const EditOrders = ({
   }
 
   useEffect(() => {
-    const checkAlaskaFeatureFlag = async () => {
+    const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const options = orderTypes;
+
       if (!isAlaskaEnabled) {
-        const options = orderTypes;
         delete orderTypes.EARLY_RETURN_OF_DEPENDENTS;
         delete orderTypes.STUDENT_TRAVEL;
-        setOrderTypes(options);
       }
-    };
-    const checkWoundedWarriorFeatureFlag = async () => {
-      const isWoundedWarrior = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      if (!isWoundedWarrior) {
-        const options = orderTypes;
+      if (!isWoundedWarriorEnabled) {
         delete orderTypes.WOUNDED_WARRIOR;
-        setOrderTypes(options);
       }
+      setOrderTypes(options);
     };
-    checkAlaskaFeatureFlag();
-    checkWoundedWarriorFeatureFlag();
+    checkFeatureFlags();
   }, [orderTypes]);
 
   useEffect(() => {
