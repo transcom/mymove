@@ -3,6 +3,10 @@
 import * as Yup from 'yup';
 
 import { ZIP_CODE_REGEX, IsSupportedState, UnsupportedStateErrorMsg } from 'utils/validation';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+const isOconusCountryFinderEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER);
 
 export const OptionalAddressSchema = Yup.object().shape(
   {
@@ -30,6 +34,9 @@ export const OptionalAddressSchema = Yup.object().shape(
       .when(['streetAddress1', 'streetAddress2', 'city', 'state'], ([street1, street2, city, state], schema) =>
         street1 || street2 || city || state ? schema.required('Required') : schema,
       ),
+    countryID: Yup.string().when(['streetAddress1', 'city'], ([street1, city], schema) =>
+      isOconusCountryFinderEnabled && (street1 || city) ? schema.required('Required') : schema,
+    ),
   },
   [
     ['streetAddress1', 'streetAddress2'],
