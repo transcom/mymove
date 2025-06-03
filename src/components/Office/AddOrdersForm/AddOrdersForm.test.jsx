@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -210,6 +210,9 @@ describe('CreateMoveCustomerInfo Component', () => {
 
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
 
     // Saftey option should not be available for non safety moves
     const options = ordersTypeDropdown.querySelectorAll('option');
@@ -511,5 +514,41 @@ describe('AddOrdersForm - With Counseling Office', () => {
 
     const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });
     expect(nextBtn).toBeDisabled();
+  });
+});
+
+describe('AddOrdersForm -  BLUEBARK_MOVE FF', () => {
+  it('Does not render BLUEBARK in order types dropdown', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+
+      expect(hasBluebark).toBe(false);
+    });
+  });
+
+  it('Does render BLUEBARK in order types dropdown', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
+    });
   });
 });

@@ -68,6 +68,7 @@ const EditOrdersForm = ({
   const [grade, setGrade] = useState(initialValues.grade);
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
+  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -135,6 +136,19 @@ const EditOrdersForm = ({
     };
     checkUBFeatureFlag();
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      const updatedOptions = isBluebarkEnabled
+        ? ordersTypeOptions
+        : ordersTypeOptions.filter((e) => e.key !== ORDERS_TYPE.BLUEBARK);
+
+      setFilteredOrderTypeOptions(updatedOptions);
+    };
+    fetchData();
+  }, [ordersTypeOptions]);
 
   useEffect(() => {
     const fetchCounselingOffices = async () => {
@@ -319,7 +333,7 @@ const EditOrdersForm = ({
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
-                options={ordersTypeOptions}
+                options={filteredOrderTypeOptions}
                 required
                 showRequiredAsterisk
                 onChange={(e) => {

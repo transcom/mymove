@@ -70,16 +70,7 @@ const EditOrders = ({
         setOrderTypes(options);
       }
     };
-    const checkBluebarkFeatureFlag = async () => {
-      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
-      if (!isBluebarkEnabled) {
-        const options = orderTypes;
-        delete orderTypes.BLUEBARK;
-        setOrderTypes(options);
-      }
-    };
     checkAlaskaFeatureFlag();
-    checkBluebarkFeatureFlag();
   }, [orderTypes]);
 
   useEffect(() => {

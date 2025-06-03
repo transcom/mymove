@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
@@ -186,6 +186,7 @@ const testProps = {
     { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
     { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
+    { key: ORDERS_TYPE.BLUEBARK, value: ORDERS_TYPE_OPTIONS.BLUEBARK },
   ],
   currentDutyLocation: {},
   grade: '',
@@ -991,4 +992,40 @@ describe('EditOrdersForm component', () => {
   });
 
   afterEach(jest.restoreAllMocks);
+});
+
+describe('EditOrdersForm -  BLUEBARK_MOVE FF', () => {
+  it('Does not render BLUEBARK in order types dropdown', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+
+      expect(hasBluebark).toBe(false);
+    });
+  });
+
+  it('Does render BLUEBARK in order types dropdown', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
+    });
+  });
 });
