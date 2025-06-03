@@ -3,6 +3,7 @@ import { connect, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Dropdown, Link } from '@trussworks/react-uswds';
 
 import styles from './MultiRoleSelectApplication.module.scss';
 
@@ -14,7 +15,6 @@ import getRoleTypesFromRoles from 'utils/user';
 import { selectIsSettingActiveRole } from 'store/auth/selectors';
 
 const selectStyle = styles['dropdown-style'];
-const usaSelectStyle = 'usa-select';
 const multiRoleWrapperStyle = styles['dropdown-wrapper-style'];
 const multiRoleUlContainerStyle = styles['dropdown-ul-container-style'];
 
@@ -43,19 +43,22 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
   const [pendingRole, setPendingRole] = useState(null);
   const [mainRole, setMainRole] = useState(activeRole);
   const [reset, setReset] = useState(false);
+
   useEffect(() => {
     if (!reset && pendingRole !== mainRole) {
       setPendingRole(mainRole);
-      setTimeout(() => {
+      (async () => {
         setActiveRole(mainRole);
         setReset(true);
-      }, 0);
+      })();
     }
     if (reset && mainRole === activeRole) {
-      setTimeout(() => {
-        navigate('/');
-        setReset(false);
-      }, 5);
+      (async () => {
+        setTimeout(() => {
+          navigate('/');
+          setReset(false);
+        }, 5);
+      })();
     }
   }, [pendingRole, mainRole, reset, activeRole, setActiveRole, isSettingActiveRole, navigate]);
 
@@ -114,25 +117,28 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
   const labelTextId = 'role-select-label';
 
   const selectDropdownContent = (
-    <select
+    <Dropdown
       key={assumedRoleType}
       id={selectId}
       aria-describedby={labelTextId}
       aria-label="User roles"
-      className={classNames(selectStyle, usaSelectStyle)}
+      className={classNames(selectStyle)}
       defaultValue={assumedRoleType}
       onChange={handleSelectRole}
     >
       {applicationOptions}
-    </select>
+    </Dropdown>
   );
+
+  const displayedContent =
+    inactiveRoles?.length === 0 ? <Link to="/">{roleLookupValues[assumedRoleType]?.name}</Link> : selectDropdownContent;
 
   return (
     <label className={classNames(multiRoleUlContainerStyle, multiRoleWrapperStyle)}>
       <div id={labelTextId} aria-label={selectDescription} aria-hidden>
         Role:
       </div>
-      {selectDropdownContent}
+      {displayedContent}
     </label>
   );
 };
