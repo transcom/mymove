@@ -35,7 +35,7 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
   const navigate = useNavigate();
   const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState('');
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
   const { entitlement: allowances } = currentOrder;
@@ -57,19 +57,19 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
     const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = { ...orderTypes };
+      const options = orderTypesOptions;
 
       if (!isAlaskaEnabled) {
-        delete options.EARLY_RETURN_OF_DEPENDENTS;
-        delete options.STUDENT_TRAVEL;
+        delete orderTypesOptions.EARLY_RETURN_OF_DEPENDENTS;
+        delete orderTypesOptions.STUDENT_TRAVEL;
       }
       if (!isWoundedWarriorEnabled) {
-        delete options.WOUNDED_WARRIOR;
+        delete orderTypesOptions.WOUNDED_WARRIOR;
       }
-      setOrderTypes(options);
+      setOrderTypesOptions(options);
     };
     checkFeatureFlags();
-  }, [orderTypes]);
+  }, [orderTypesOptions]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,7 +102,7 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
     civilian_tdy_ub_allowance: allowances.ub_allowance !== undefined ? `${allowances.ub_allowance}` : '',
   };
 
-  const ordersTypeOptions = dropdownInputOptions(orderTypes);
+  const ordersTypeOptions = dropdownInputOptions(orderTypesOptions);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;

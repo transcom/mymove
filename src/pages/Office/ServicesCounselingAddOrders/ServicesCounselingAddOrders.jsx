@@ -30,7 +30,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   const navigate = useNavigate();
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
 
   const handleBack = () => {
     navigate(-1);
@@ -88,17 +88,17 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = { ...orderTypes };
+      const options = orderTypesOptions;
       if (!isWoundedWarriorEnabled) {
-        delete options.WOUNDED_WARRIOR;
+        delete orderTypesOptions.WOUNDED_WARRIOR;
       }
-      setOrderTypes(options);
+      setOrderTypesOptions(options);
     };
     checkFeatureFlags();
-  }, [orderTypes]);
+  }, [orderTypesOptions]);
 
   const allowedOrdersTypes = {
-    ...orderTypes,
+    ...orderTypesOptions,
     ...(isSafetyPrivileged ? { SAFETY: 'Safety' } : {}),
     ...(isBluebarkMoveSelected ? { BLUEBARK: 'BLUEBARK' } : {}),
   };

@@ -34,7 +34,7 @@ const AddOrders = ({
   const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
   const navigate = useNavigate();
 
   // if the user did NOT come from the create a move button, we want to redirect them to their current move
@@ -53,14 +53,14 @@ const AddOrders = ({
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = { ...orderTypes };
+      const options = orderTypesOptions;
       if (!isWoundedWarriorEnabled) {
-        delete options.WOUNDED_WARRIOR;
+        delete orderTypesOptions.WOUNDED_WARRIOR;
       }
-      setOrderTypes(options);
+      setOrderTypesOptions(options);
     };
     checkFeatureFlags();
-  }, [orderTypes]);
+  }, [orderTypesOptions]);
 
   const handleBack = () => {
     navigate(generalRoutes.HOME_PATH);
@@ -160,7 +160,7 @@ const AddOrders = ({
     counseling_office_id: '',
     civilian_tdy_ub_allowance: '',
   };
-  const ordersTypeOptions = dropdownInputOptions(orderTypes);
+  const ordersTypeOptions = dropdownInputOptions(orderTypesOptions);
 
   if (isLoading) {
     return <LoadingPlaceholder />;

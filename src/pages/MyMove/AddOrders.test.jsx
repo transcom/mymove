@@ -672,33 +672,39 @@ describe('Add Orders page', () => {
     expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
   });
 
-  it('wounded warrior FF turned off', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
-    renderWithProviders(<AddOrders {...testProps} />, {
-      path: customerRoutes.ORDERS_ADD_PATH,
+  describe('Order type: Wounded Warrior', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      const options = within(ordersTypeDropdown).queryAllByRole('option');
-      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
-      expect(hasWoundedWarrior).toBe(false);
-    });
-  });
+    it('wounded warrior FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+      renderWithProviders(<AddOrders {...testProps} />, {
+        path: customerRoutes.ORDERS_ADD_PATH,
+      });
 
-  it('wounded warrior FF turned on', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
-    renderWithProviders(<AddOrders {...testProps} />, {
-      path: customerRoutes.ORDERS_ADD_PATH,
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+        expect(hasWoundedWarrior).toBe(true);
+      });
     });
 
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      const options = within(ordersTypeDropdown).queryAllByRole('option');
-      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
-      expect(hasWoundedWarrior).toBe(true);
+    it('wounded warrior FF turned off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+      renderWithProviders(<AddOrders {...testProps} />, {
+        path: customerRoutes.ORDERS_ADD_PATH,
+      });
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+        expect(hasWoundedWarrior).toBe(false);
+      });
     });
   });
 });

@@ -20,7 +20,7 @@ import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const Orders = ({ serviceMemberId, updateOrders, orders }) => {
   const [serverError, setServerError] = useState(null);
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
 
   const navigate = useNavigate();
   const { orderId } = useParams();
@@ -76,15 +76,15 @@ const Orders = ({ serviceMemberId, updateOrders, orders }) => {
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = { ...orderTypes };
+      const options = orderTypesOptions;
       if (!isWoundedWarriorEnabled) {
-        delete options.WOUNDED_WARRIOR;
+        delete orderTypesOptions.WOUNDED_WARRIOR;
       }
-      setOrderTypes(options);
+      setOrderTypesOptions(options);
     };
     checkFeatureFlags();
-  }, [orderTypes]);
-  const ordersTypeOptions = dropdownInputOptions(orderTypes);
+  }, [orderTypesOptions]);
+  const ordersTypeOptions = dropdownInputOptions(orderTypesOptions);
 
   return (
     <GridContainer data-testid="main-container">

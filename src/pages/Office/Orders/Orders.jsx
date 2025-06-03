@@ -38,7 +38,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { state } = useLocation();
@@ -269,15 +269,15 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
     const checkFeatureFlags = async () => {
       // debug in progress
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = { ...orderTypes };
+      const options = orderTypesOptions;
       if (!isWoundedWarriorEnabled) {
-        delete options.WOUNDED_WARRIOR;
+        delete orderTypesOptions.WOUNDED_WARRIOR;
       }
-      setOrderTypes(options);
+      setOrderTypesOptions(options);
     };
     checkFeatureFlags();
-  }, [orderTypes]);
-  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypes);
+  }, [orderTypesOptions]);
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -355,7 +355,6 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
           } else if (!loaValidationState[LOA_TYPE.NTS].isValid) {
             ntsLoaWarning = loaInvalidWarningMsg;
           }
-
           return (
             <form onSubmit={formik.handleSubmit}>
               <div className={styles.content}>
