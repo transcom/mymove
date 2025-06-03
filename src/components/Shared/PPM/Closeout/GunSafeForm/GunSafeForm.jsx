@@ -21,6 +21,7 @@ import { uploadShape } from 'types/uploads';
 const GunsafeForm = ({
   gunSafe,
   setNumber,
+  entitlements,
   onCreateUpload,
   onUploadComplete,
   onUploadDelete,
@@ -29,7 +30,7 @@ const GunsafeForm = ({
   isSubmitted,
 }) => {
   const { document, weight, description, hasWeightTickets } = gunSafe || {};
-  const maxWeight = 500;
+  const maxWeight = entitlements?.gunSafeWeight ? entitlements.gunSafeWeight : 500;
 
   const validationSchema = Yup.object().shape({
     document: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
