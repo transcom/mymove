@@ -21,13 +21,9 @@ jest.mock('react-router-dom', () => {
   return {
     ...actual,
     useLocation: () => ({ pathname: mockPath }),
+    useNavigate: () => jest.fn(),
   };
 });
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-}));
 
 jest.mock('store/auth/actions', () => ({
   loadUser: jest.fn(() => async () => {}),

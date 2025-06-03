@@ -1,5 +1,6 @@
 @import 'shared/styles/colors';
-//placeholder enforce the inheritance of .usa-select style-rules.
+@import 'shared/styles/mixins';
+
 
 // hoist this mixins to a standard module later on
 // overrides .usa-select style properties. --background-url is the svg with background black, and foreground white.
@@ -14,12 +15,6 @@
     appearance: none;
 }
 
-// variables for the dropdown.
-:root{
-    --background-url: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'><path d='M0 0h24v24H0z' fill='none' /><path stroke='white' fill='white' d='M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z'/></svg>"), linear-gradient(transparent, transparent);
-    --top-color: inherit;
-    --bg-color: inherit;
-}
 
 // hoist this mixins to a standard module later on
 @mixin mix-mm-row-container{
@@ -31,24 +26,40 @@
 
 // using :scope to maintain specificity precedence over any uswds selector properties.
 .dropdown-wrapper-style{
-    @scope (&) {
-        @include mix-mm-row-container;
-        font-weight: bold;
-        --top-color: #{$link-light};
+    @include mix-mm-row-container;
+    @include mix-mm-header-font-properties;
+    --top-color: #{$link-light};
+    color: var(--top-color);
+    padding: 0rem 1rem;
+
+    border-left: 1px solid $base-dark;
+    height: 100%;
+    $background-main: var(--background-url);
+    $background-hover: linear-gradient(to bottom, transparent calc(100% - 0.25rem), var(--top-color) calc(100% - 0.25rem), var(--top-color) 100%) center / 1.3333333333rem;
+    a {
+        align-content: center;
+        height: 100%;
+        --top-color: #{$link-light-hover};
         color: var(--top-color);
-        font-size: max(12pt, 1em);
-        padding: 0rem 1rem;
 
-        :hover{
-            background-color: var(--bg-color);
-            color: var(--top-color);
+        &:hover{
+            background: #{$background-hover};
         }
-
-        select {
-            @include mix-mm-select-dropdown;
+    }
+    select {
+        @include mix-mm-header-font-properties;
+        @include mix-mm-dropdown($top-color: white, $background-color: transparent){
+            text-align: center;
+            background: #{$background-main};
             background-color: var(--bg-color);
-            color: var(--top-color);
-            font-weight: bold;
+            border-radius: 0;
+            height: 100%;
+            &:focus,
+            &:hover{
+                --top-color: #{$link-light-hover};
+                color: var(--top-color);
+                background: #{$background-main}, #{$background-hover};
+            }
         }
     }
 }
