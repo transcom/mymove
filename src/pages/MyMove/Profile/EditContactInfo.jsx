@@ -31,12 +31,6 @@ export const EditContactInfo = ({
   const { state } = useLocation();
   const [serverError, setServerError] = useState(null);
 
-  const currentBackupContactFullName = (currentBackupContacts[0]?.name || '').trim();
-  const [currentBackupContactFirstName = '', currentBackupContactLastName = ''] = currentBackupContactFullName
-    .split(/ (.+)/)
-    .map((part) => part?.trim())
-    .filter(Boolean);
-
   const initialValues = {
     telephone: serviceMember?.telephone || '',
     secondary_telephone: serviceMember?.secondary_telephone || '',
@@ -64,8 +58,8 @@ export const EditContactInfo = ({
       usPostRegionCitiesID: serviceMember.backup_mailing_address?.usPostRegionCitiesID || '',
     },
     [backupContactName]: {
-      firstName: currentBackupContactFirstName,
-      lastName: currentBackupContactLastName,
+      firstName: (currentBackupContacts[0]?.firstName || '').trim(),
+      lastName: (currentBackupContacts[0]?.lastName || '').trim(),
       telephone: currentBackupContacts[0]?.telephone || '',
       email: currentBackupContacts[0]?.email || '',
     },
@@ -88,23 +82,18 @@ export const EditContactInfo = ({
 
     serviceMemberPayload.secondary_telephone = values?.secondary_telephone;
 
-    const backupFirstName = (values[backupContactName.toString()]?.firstName || '').trim();
-    const backupLastName = (values[backupContactName.toString()]?.lastName || '').trim();
-    const backupFullName = `${backupFirstName} ${backupLastName}`.trim();
-
     const backupContactPayload = {
       id: currentBackupContacts[0].id,
-      name: backupFullName,
-      firstName: backupFirstName,
-      lastName: backupLastName,
+      firstName: (values[backupContactName.toString()]?.firstName || '').trim(),
+      lastName: (values[backupContactName.toString()]?.lastName || '').trim(),
       email: values[backupContactName.toString()]?.email || '',
       telephone: values[backupContactName.toString()]?.telephone || '',
       permission: currentBackupContacts[0].permission,
     };
 
     const backupContactChanged =
-      initialValues[backupContactName.toString()].firstName !== backupFirstName ||
-      initialValues[backupContactName.toString()].lastName !== backupLastName ||
+      initialValues[backupContactName.toString()].firstName !== backupContactPayload.firstName ||
+      initialValues[backupContactName.toString()].lastName !== backupContactPayload.lastName ||
       initialValues[backupContactName.toString()].email !== backupContactPayload.email ||
       initialValues[backupContactName.toString()].telephone !== backupContactPayload.telephone;
 

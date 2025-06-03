@@ -7815,7 +7815,8 @@ func init() {
     "BackupContact": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "phone"
       ],
@@ -7829,9 +7830,6 @@ func init() {
           "type": "string"
         },
         "lastName": {
-          "type": "string"
-        },
-        "name": {
           "type": "string"
         },
         "phone": {
@@ -26449,7 +26447,8 @@ func init() {
     "BackupContact": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "phone"
       ],
@@ -26463,9 +26462,6 @@ func init() {
           "type": "string"
         },
         "lastName": {
-          "type": "string"
-        },
-        "name": {
           "type": "string"
         },
         "phone": {

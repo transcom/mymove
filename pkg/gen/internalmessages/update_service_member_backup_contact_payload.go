@@ -27,16 +27,13 @@ type UpdateServiceMemberBackupContactPayload struct {
 
 	// first name
 	// Example: Susan
-	FirstName *string `json:"firstName,omitempty"`
+	// Required: true
+	FirstName *string `json:"firstName"`
 
 	// last name
 	// Example: Smith
-	LastName *string `json:"lastName,omitempty"`
-
-	// name
-	// Example: Susan Smith
 	// Required: true
-	Name *string `json:"name"`
+	LastName *string `json:"lastName"`
 
 	// permission
 	// Required: true
@@ -56,7 +53,11 @@ func (m *UpdateServiceMemberBackupContactPayload) Validate(formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.validateName(formats); err != nil {
+	if err := m.validateFirstName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLastName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -87,9 +88,18 @@ func (m *UpdateServiceMemberBackupContactPayload) validateEmail(formats strfmt.R
 	return nil
 }
 
-func (m *UpdateServiceMemberBackupContactPayload) validateName(formats strfmt.Registry) error {
+func (m *UpdateServiceMemberBackupContactPayload) validateFirstName(formats strfmt.Registry) error {
 
-	if err := validate.Required("name", "body", m.Name); err != nil {
+	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateServiceMemberBackupContactPayload) validateLastName(formats strfmt.Registry) error {
+
+	if err := validate.Required("lastName", "body", m.LastName); err != nil {
 		return err
 	}
 

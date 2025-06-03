@@ -34,7 +34,8 @@ describe('EditContactInfo page', () => {
     currentBackupContacts: [
       {
         id: 'backupContactID',
-        name: 'Barbara St. Juste',
+        firstName: 'Barbara',
+        lastName: 'St. Juste',
         email: 'bsj@example.com',
         telephone: '915-555-1234',
         permission: 'NONE',
@@ -111,10 +112,10 @@ describe('EditContactInfo page', () => {
   });
 
   it('saves backup contact info when it is updated and the save button is clicked', async () => {
-    const newName = 'Rosalie Wexler';
-    const [newFirstName, newLastName] = newName.split(/ (.+)/).filter(Boolean);
+    const newFirstName = 'Rosalie';
+    const newLastName = 'Wexler';
 
-    const expectedPayload = { ...testProps.currentBackupContacts[0], name: newName };
+    const expectedPayload = { ...testProps.currentBackupContacts[0], firstName: newFirstName, lastName: newLastName };
 
     const patchResponse = {
       ...expectedPayload,

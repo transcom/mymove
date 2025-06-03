@@ -216,7 +216,7 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 }
 
 func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
-	ok, err := fakedata.IsValidFakeDataName(bc.Name)
+	ok, err := fakedata.IsValidFakeDataName(bc.FirstName + " " + bc.LastName)
 	if err != nil {
 		return false, err
 	}

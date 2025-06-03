@@ -12,7 +12,8 @@ func (suite *ModelSuite) Test_BackupContactCreate() {
 	newContact := models.BackupContact{
 		ServiceMemberID: serviceMember.ID,
 		ServiceMember:   serviceMember,
-		Name:            "name",
+		FirstName:       "firstName",
+		LastName:        "lastName",
 		Email:           "email@example.com",
 		Permission:      models.BackupContactPermissionEDIT,
 	}
@@ -43,7 +44,8 @@ func (suite *ModelSuite) Test_FetchBackupContact() {
 
 	backupContact := models.BackupContact{
 		ServiceMemberID: serviceMember1.ID,
-		Name:            "name",
+		FirstName:       "firstName",
+		LastName:        "lastName",
 		Email:           "email@example.com",
 		Permission:      models.BackupContactPermissionEDIT,
 	}

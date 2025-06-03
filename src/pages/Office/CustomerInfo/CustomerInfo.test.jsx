@@ -20,7 +20,8 @@ jest.mock('react-router-dom', () => ({
 const mockCustomer = {
   backup_contact: {
     email: 'backup@mail.com',
-    name: 'Jane Backup',
+    firstName: 'Jane',
+    lastName: 'Backup',
     phone: '555-555-1234',
   },
   backupAddress: {
@@ -107,10 +108,6 @@ describe('CustomerInfo', () => {
       </MockProviders>,
     );
 
-    const [backupContactFirstName, backupContactLastName] = mockCustomer.backup_contact.name
-      .split(/ (.+)/)
-      .filter(Boolean);
-
     await waitFor(() => {
       expect(screen.getByLabelText('First name').value).toEqual(mockCustomer.first_name);
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(mockCustomer.middle_name);
@@ -136,8 +133,8 @@ describe('CustomerInfo', () => {
           `${mockCustomer.current_address.city}, ${mockCustomer.current_address.state} ${mockCustomer.current_address.postalCode} ()`,
         ),
       );
-      expect(screen.getByDisplayValue('Jane').value).toEqual(backupContactFirstName);
-      expect(screen.getByDisplayValue('Backup').value).toEqual(backupContactLastName);
+      expect(screen.getByDisplayValue('Jane').value).toEqual(mockCustomer.backup_contact.firstName);
+      expect(screen.getByDisplayValue('Backup').value).toEqual(mockCustomer.backup_contact.lastName);
     });
   });
 

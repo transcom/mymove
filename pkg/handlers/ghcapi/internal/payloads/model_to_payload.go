@@ -594,9 +594,8 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	}
 
 	bc := &ghcmessages.BackupContact{
-		Name:      &backupContact.Name,
-		FirstName: backupContact.FirstName,
-		LastName:  backupContact.LastName,
+		FirstName: &backupContact.FirstName,
+		LastName:  &backupContact.LastName,
 		Email:     &backupContact.Email,
 		Phone:     &backupContact.Phone,
 	}
@@ -879,11 +878,10 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	if len(contacts) == 0 {
 		return nil
 	}
-	var name, firstName, lastName, email, phone string
+	var firstName, lastName, email, phone string
 
 	if len(contacts) != 0 {
 		contact := contacts[0]
-		name = contact.Name
 		firstName = contact.FirstName
 		lastName = contact.LastName
 		email = contact.Email
@@ -891,9 +889,8 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	}
 
 	return &ghcmessages.BackupContact{
-		Name:      &name,
-		FirstName: firstName,
-		LastName:  lastName,
+		FirstName: &firstName,
+		LastName:  &lastName,
 		Email:     &email,
 		Phone:     &phone,
 	}

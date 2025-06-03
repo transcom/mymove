@@ -140,7 +140,6 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 		if backupContacts := customer.BackupContacts; len(backupContacts) > 0 {
 			// added this check to prevent crashes when the customer doesn't finish creating their profile
 			if len(existingCustomer.BackupContacts) > 0 {
-				existingCustomer.BackupContacts[0].Name = backupContacts[0].Name
 				existingCustomer.BackupContacts[0].FirstName = backupContacts[0].FirstName
 				existingCustomer.BackupContacts[0].LastName = backupContacts[0].LastName
 				existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
@@ -148,7 +147,6 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			} else {
 				backupContact, verrs, dbErr := existingCustomer.CreateBackupContact(
 					txnAppCtx.DB(),
-					backupContacts[0].Name,
 					backupContacts[0].FirstName,
 					backupContacts[0].LastName,
 					backupContacts[0].Email,

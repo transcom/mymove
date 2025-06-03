@@ -63,10 +63,6 @@ const CreateMoveCustomerInfo = () => {
       secondaryPhone,
     } = values;
 
-    const valuesBackupFirstName = (values[backupContactName.toString()]?.firstName || '').trim();
-    const valuesBackupLastName = (values[backupContactName.toString()]?.lastName || '').trim();
-    const valuesBackupFullName = `${valuesBackupFirstName} ${valuesBackupLastName}`.trim();
-
     const body = {
       first_name: firstName,
       last_name: lastName,
@@ -76,9 +72,8 @@ const CreateMoveCustomerInfo = () => {
       suffix,
       middle_name: middleName,
       backup_contact: {
-        name: valuesBackupFullName,
-        firstName: valuesBackupFirstName,
-        lastName: valuesBackupLastName,
+        firstName: (values[backupContactName.toString()]?.firstName || '').trim(),
+        lastName: (values[backupContactName.toString()]?.lastName || '').trim(),
         email: values[backupContactName.toString()]?.email || '',
         phone: values[backupContactName.toString()]?.telephone || '',
       },

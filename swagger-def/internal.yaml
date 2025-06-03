@@ -949,11 +949,6 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      name:
-        type: string
-        example: Susan Smith
-        x-nullable: true
-        title: Name
       firstName:
         type: string
         example: Susan
@@ -990,7 +985,8 @@ definitions:
       - id
       - created_at
       - updated_at
-      - name
+      - firstName
+      - lastName
       - email
       - permission
   BackupContactPermission:
@@ -1007,19 +1003,16 @@ definitions:
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:
-      name:
-        type: string
-        example: Susan Smith
-        x-nullable: true
-        title: Name
       firstName:
         type: string
         example: Susan
         x-nullable: true
+        title: First Name
       lastName:
         type: string
         example: Smith
         x-nullable: true
+        title: Last Name
       telephone:
         type: string
         format: telephone
@@ -1037,16 +1030,13 @@ definitions:
       permission:
         $ref: '#/definitions/BackupContactPermission'
     required:
-      - name
+      - firstName
+      - lastName
       - email
       - permission
   UpdateServiceMemberBackupContactPayload:
     type: object
     properties:
-      name:
-        type: string
-        example: Susan Smith
-        x-nullable: true
       firstName:
         type: string
         example: Susan
@@ -1071,7 +1061,8 @@ definitions:
       permission:
         $ref: '#/definitions/BackupContactPermission'
     required:
-      - name
+      - firstName
+      - lastName
       - email
       - permission
   IndexServiceMemberBackupContactsPayload:
