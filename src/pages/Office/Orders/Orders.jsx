@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useCallback } from 'react';
+import React, { useEffect, useState, useReducer, useCallback } from 'react';
 import { Link, useNavigate, useParams, useLocation, generatePath } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -22,14 +22,14 @@ import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
-import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { scrollToViewFormikError } from 'utils/validation';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
-const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
@@ -38,6 +38,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
+  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { state } = useLocation();
@@ -263,6 +264,21 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
     isError,
     validateLoa,
   ]);
+
+  useEffect(() => {
+    const checkFeatureFlags = async () => {
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const options = orderTypes;
+
+      if (!isWoundedWarriorEnabled) {
+        delete orderTypes.WOUNDED_WARRIOR;
+      }
+      setOrderTypes(options);
+    };
+    checkFeatureFlags();
+  }, [orderTypes]);
+
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypes);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

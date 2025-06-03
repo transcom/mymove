@@ -20,6 +20,7 @@ import withRouter from 'utils/routing';
 import { withContext } from 'shared/AppContext';
 import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
 import { selectCanAddOrders } from 'store/entities/selectors';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOrders }) => {
   const { customerId } = useParams();
@@ -29,6 +30,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   const navigate = useNavigate();
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
 
   const handleBack = () => {
     navigate(-1);
@@ -83,8 +85,20 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
       ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
       : false;
 
+  useEffect(() => {
+    const checkFeatureFlags = async () => {
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const options = orderTypes;
+      if (!isWoundedWarriorEnabled) {
+        delete orderTypes.WOUNDED_WARRIOR;
+      }
+      setOrderTypes(options);
+    };
+    checkFeatureFlags();
+  }, [orderTypes]);
+
   const allowedOrdersTypes = {
-    ...ORDERS_TYPE_OPTIONS,
+    ...orderTypes,
     ...(isSafetyPrivileged ? { SAFETY: 'Safety' } : {}),
     ...(isBluebarkMoveSelected ? { BLUEBARK: 'BLUEBARK' } : {}),
   };
