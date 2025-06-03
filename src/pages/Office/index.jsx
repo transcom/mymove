@@ -123,6 +123,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const [gsrRoleFlag, setGsrRoleFlag] = useState(false);
   const [queueManagementFlag, setQueueManagementFlag] = useState(false);
   const [bulkAssignmentFlag, setBulkAssignmentFlag] = useState(false);
+  const [approvalRequestTypeFlag, setApprovalRequestTypeFlag] = useState(false);
 
   const location = useLocation();
 
@@ -145,6 +146,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     isBooleanFlagEnabled('gsr_role').then(setGsrRoleFlag);
     isBooleanFlagEnabled('queue_management').then(setQueueManagementFlag);
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BULK_ASSIGNMENT).then(setBulkAssignmentFlag);
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.APPROVAL_REQUEST_TYPE_COLUMN).then(setApprovalRequestTypeFlag);
 
     // We need to check if the user was redirected back from Okta after logging out
     // This can occur when they click "sign out" or if they try to access MM
@@ -163,7 +165,6 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   if (props.underMaintenance) {
     return <MaintenancePage />;
   }
-
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
       <SelectedGblocProvider>
@@ -217,7 +218,11 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       end
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} activeRole={props.activeRole} />
+                          <MoveQueue
+                            isQueueManagementFFEnabled={queueManagementFlag}
+                            activeRole={props.activeRole}
+                            isApprovalRequestTypeFFEnabled={approvalRequestTypeFlag}
+                          />
                         </PrivateRoute>
                       }
                     />
@@ -242,6 +247,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                           <HeadquartersQueues
                             isQueueManagementFFEnabled={queueManagementFlag}
                             activeRole={props.activeRole}
+                            isApprovalRequestTypeFFEnabled={approvalRequestTypeFlag}
                           />
                         </PrivateRoute>
                       }
@@ -316,6 +322,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                               userPrivileges={props.userPrivileges}
                               isBulkAssignmentFFEnabled={bulkAssignmentFlag}
                               activeRole={props.activeRole}
+                              isApprovalRequestTypeFFEnabled={approvalRequestTypeFlag}
                             />
                           </PrivateRoute>
                         }
@@ -331,6 +338,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             <HeadquartersQueues
                               isQueueManagementFFEnabled={queueManagementFlag}
                               activeRole={props.activeRole}
+                              isApprovalRequestTypeFFEnabled={approvalRequestTypeFlag}
                             />
                           </PrivateRoute>
                         }
