@@ -13,6 +13,7 @@ import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 
 const AllowancesList = ({ info, showVisualCues, isOconusMove }) => {
   const [enableUB, setEnableUB] = useState(false);
+  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
   const visualCuesStyle = classNames(descriptionListStyles.row, {
     [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
   });
@@ -22,6 +23,7 @@ const AllowancesList = ({ info, showVisualCues, isOconusMove }) => {
       if (enabled) {
         setEnableUB(true);
       }
+      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
     };
     checkUBFeatureFlag();
   }, []);
@@ -85,6 +87,12 @@ const AllowancesList = ({ info, showVisualCues, isOconusMove }) => {
           <dt>Spouse pro-gear</dt>
           <dd data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</dd>
         </div>
+        {isGunSafeEnabled && (
+          <div className={visualCuesStyle}>
+            <dt>Gun safe weight</dt>
+            <dd data-testid="gunSafeWeight">{formatWeight(info.gunSafeWeight)}</dd>
+          </div>
+        )}
         <div className={visualCuesStyle}>
           <dt>Required medical equipment</dt>
           <dd data-testid="rme">{formatWeight(info.requiredMedicalEquipmentWeight)}</dd>
