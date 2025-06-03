@@ -107,7 +107,7 @@ func (f shipmentSITStatus) RetrieveShipmentSIT(appCtx appcontext.AppContext, shi
 		} else {
 			// Create a new group for this entry date
 			location := OriginSITLocation
-			if containsReServiceCode(models.ValidDomesticDestinationSITReServiceCodes, serviceItem.ReService.Code) {
+			if models.ContainsReServiceCode(models.ValidDomesticDestinationSITReServiceCodes, serviceItem.ReService.Code) {
 				location = DestinationSITLocation
 			}
 			newGroup := &models.SITServiceItemGrouping{
@@ -155,18 +155,6 @@ func (f shipmentSITStatus) RetrieveShipmentSIT(appCtx appcontext.AppContext, shi
 	return shipmentSITs, nil
 }
 
-// Helper function to take in an MTO service item's ReServiceCode and validate it
-// against a given array of codes. This is primarily to support the RetrieveShipmentSIT method
-// when SIT groupings are created.
-func containsReServiceCode(validCodes []models.ReServiceCode, code models.ReServiceCode) bool {
-	for _, validCode := range validCodes {
-		if validCode == code {
-			return true
-		}
-	}
-	return false
-}
-
 // Helper function to generate the SIT Summary for a group of service items
 // This is where the craziest part of the SIT code should ever be (Besides the grouping section)
 // Due to our service item architecture, SIT is split across many service items
@@ -199,11 +187,11 @@ func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping,
 	for _, sitServiceItem := range sit.ServiceItems {
 		// Grab the first location found
 		if location == "" {
-			if containsReServiceCode(models.ValidDomesticOriginSITReServiceCodes, sitServiceItem.ReService.Code) {
+			if models.ContainsReServiceCode(models.ValidDomesticOriginSITReServiceCodes, sitServiceItem.ReService.Code) {
 				// Set to Domestic Origin
 				location = OriginSITLocation
 			}
-			if containsReServiceCode(models.ValidDomesticDestinationSITReServiceCodes, sitServiceItem.ReService.Code) {
+			if models.ContainsReServiceCode(models.ValidDomesticDestinationSITReServiceCodes, sitServiceItem.ReService.Code) {
 				// Set to Domestic Destination
 				location = DestinationSITLocation
 			}

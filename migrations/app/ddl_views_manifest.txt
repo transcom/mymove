@@ -2,3 +2,5 @@
 # If a migration is not recorded here, then it will error.
 # Naming convention: vw_some_view.up.sql  running <generate-ddl-migration some_view views> will create this file.
 20250506213002_vw_v_intl_locations.up.sql
+20250515143927_vw_move_to_gbloc.up.sql
+20250515145229_vw_move_to_dest_gbloc.up.sql
