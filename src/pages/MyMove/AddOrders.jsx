@@ -53,10 +53,9 @@ const AddOrders = ({
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = orderTypes;
-
+      const options = { ...orderTypes };
       if (!isWoundedWarriorEnabled) {
-        delete orderTypes.WOUNDED_WARRIOR;
+        delete options.WOUNDED_WARRIOR;
       }
       setOrderTypes(options);
     };
@@ -161,8 +160,8 @@ const AddOrders = ({
     counseling_office_id: '',
     civilian_tdy_ub_allowance: '',
   };
-
   const ordersTypeOptions = dropdownInputOptions(orderTypes);
+
   if (isLoading) {
     return <LoadingPlaceholder />;
   }

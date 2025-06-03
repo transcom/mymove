@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, within } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -848,40 +848,4 @@ describe('OrdersInfoForm component', () => {
   });
 
   afterEach(jest.restoreAllMocks);
-});
-
-describe('AddOrdersForm -  Wounded Warrior FF', () => {
-  it('Does not render Wounded Warrior order option', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-
-    render(
-      <Provider store={mockStore.store}>
-        <OrdersInfoForm {...testProps} />
-      </Provider>,
-    );
-
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      const options = within(ordersTypeDropdown).queryAllByRole('option');
-      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
-
-      expect(hasWoundedWarrior).toBe(false);
-    });
-  });
-
-  it('Does render Wounded Warrior order option', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-
-    render(
-      <Provider store={mockStore.store}>
-        <OrdersInfoForm {...testProps} />
-      </Provider>,
-    );
-
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
-      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
-    });
-  });
 });

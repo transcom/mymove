@@ -267,17 +267,16 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
 
   useEffect(() => {
     const checkFeatureFlags = async () => {
+      // debug in progress
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = orderTypes;
-
+      const options = { ...orderTypes };
       if (!isWoundedWarriorEnabled) {
-        delete orderTypes.WOUNDED_WARRIOR;
+        delete options.WOUNDED_WARRIOR;
       }
       setOrderTypes(options);
     };
     checkFeatureFlags();
   }, [orderTypes]);
-
   const ordersTypeDropdownOptions = dropdownInputOptions(orderTypes);
 
   if (isLoading) return <LoadingPlaceholder />;

@@ -76,16 +76,14 @@ const Orders = ({ serviceMemberId, updateOrders, orders }) => {
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = orderTypes;
-
+      const options = { ...orderTypes };
       if (!isWoundedWarriorEnabled) {
-        delete orderTypes.WOUNDED_WARRIOR;
+        delete options.WOUNDED_WARRIOR;
       }
       setOrderTypes(options);
     };
     checkFeatureFlags();
   }, [orderTypes]);
-
   const ordersTypeOptions = dropdownInputOptions(orderTypes);
 
   return (
