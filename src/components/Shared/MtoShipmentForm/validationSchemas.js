@@ -6,7 +6,7 @@ import { ZIP_CODE_REGEX, IsSupportedState, UnsupportedStateErrorMsg } from 'util
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const isOconusCountryFinderEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER);
+const isOconusCountryFinderEnabled = isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER);
 
 export const OptionalAddressSchema = Yup.object().shape(
   {

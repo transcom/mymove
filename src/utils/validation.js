@@ -75,7 +75,7 @@ export const IsSupportedState = async (value, context) => {
   return true;
 };
 
-const isOconusCountryFinderEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER);
+const isOconusCountryFinderEnabled = isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER);
 
 /** Yup validation schemas */
 
