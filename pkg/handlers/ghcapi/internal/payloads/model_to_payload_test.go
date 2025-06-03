@@ -803,6 +803,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	privatelyOwnedVehicle := true
 	proGearWeight := 1000
 	proGearWeightSpouse := 500
+	gunSafeWeight := 300
 	storageInTransit := 90
 	totalDependents := 2
 	requiredMedicalEquipmentWeight := 200
@@ -822,6 +823,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               &storageInTransit,
 		TotalDependents:                &totalDependents,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
@@ -847,6 +849,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UnaccompaniedBaggageAllowance))
 	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
 	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(int64(gunSafeWeight), returnedEntitlement.GunSafeWeight)
 	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
 	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
 	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
