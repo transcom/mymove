@@ -28,7 +28,8 @@ func (suite *ModelSuite) Test_BackupContactValidations() {
 	contact := &models.BackupContact{}
 
 	var expErrors = map[string][]string{
-		"name":       {"Name can not be blank."},
+		"first_name": {"FirstName can not be blank."},
+		"last_name":  {"LastName can not be blank."},
 		"email":      {"Email can not be blank."},
 		"permission": {"Permission can not be blank."},
 	}

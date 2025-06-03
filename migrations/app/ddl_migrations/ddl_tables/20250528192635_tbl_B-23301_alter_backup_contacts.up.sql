@@ -7,4 +7,7 @@ alter table backup_contacts
 comment on column backup_contacts.first_name is 'First name of the backup contact';
 comment on column backup_contacts.last_name is 'Last name of the backup contact';
 
+alter table backup_contacts
+alter column name drop not null;
+
 
