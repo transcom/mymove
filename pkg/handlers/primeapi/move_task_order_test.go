@@ -2941,7 +2941,7 @@ func (suite *HandlerSuite) TestListMovesHandler_BeforeSearchParam() {
 	suite.NoError(movesList.Validate(strfmt.Default))
 	suite.Len(movesList, 4, "Should return all 4 prime moves when no 'before' filter is applied")
 
-	// make the fetcher with `before` to get only primeMove1, primeMove3, and primeMove4 updated before today:
+	// make the request with `before` to get only primeMove1, primeMove3, and primeMove4 updated before today:
 	before := handlers.FmtDateTime(today)
 	request = httptest.NewRequest("GET", fmt.Sprintf("/moves?before=%s", before.String()), nil)
 	params = movetaskorderops.ListMovesParams{HTTPRequest: request, Before: before}
@@ -2957,7 +2957,7 @@ func (suite *HandlerSuite) TestListMovesHandler_BeforeSearchParam() {
 	suite.NoError(movesList.Validate(strfmt.Default))
 	suite.Len(movesList, 3, "Should return only primeMove1, primeMove3, and primeMove4 for 'before' filter")
 
-	// make the fetcher with `before` for date in the past with no records match to get no Prime moves
+	// make the request with `before` for date in the past with no records match to get no Prime moves
 	before = handlers.FmtDateTime(aYearAgo)
 	request = httptest.NewRequest("GET", fmt.Sprintf("/moves?before=%s", before.String()), nil)
 	params = movetaskorderops.ListMovesParams{HTTPRequest: request, Before: before}
