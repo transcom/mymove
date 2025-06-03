@@ -83,12 +83,8 @@ const GunSafe = () => {
   }, [gunSafeId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment]);
 
   useEffect(() => {
-    async function fetchData() {
-      return getAllMoves(serviceMemberId);
-    }
-    fetchData().then((moves) => {
-      dispatch(updateAllMoves(moves));
-    });
+    const moves = getAllMoves(serviceMemberId);
+    dispatch(updateAllMoves(moves));
   }, [gunSafeId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
 
   const handleErrorMessage = (error) => {
