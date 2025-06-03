@@ -25,3 +25,5 @@
 20250501151831_B-23342_insert_application_parameters.up.sql
 20250506181754_B-23565_insert_re_intl_cities.up.sql
 20250506182030_B-23565_insert_intl_city_countries.up.sql
+20250520150656_B-23635_update_pay_grades.up.sql
+20250520182947_B-23635_update_ub_allowances.up.sql
