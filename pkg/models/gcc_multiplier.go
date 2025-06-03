@@ -32,7 +32,7 @@ func FetchGccMultiplier(db *pop.Connection, ppmShipment PPMShipment) (GCCMultipl
 	if ppmShipment.ExpectedDepartureDate != nilTime {
 		dateForMultiplier = ppmShipment.ExpectedDepartureDate
 	} else {
-		return gccMultiplier, apperror.NewNotFoundError(ppmShipment.ID, " No expected departure date on PPM shipment, this is required for finding the GCC multiplier")
+		return gccMultiplier, apperror.NewNotFoundError(ppmShipment.ID, "No expected departure date on PPM shipment, this is required for finding the GCC multiplier")
 	}
 
 	err := db.Q().

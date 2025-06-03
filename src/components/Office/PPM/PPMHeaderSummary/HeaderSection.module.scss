@@ -6,6 +6,7 @@
   @include u-margin-top(2);
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
 
   :global(.usa-label) {
       width: auto;

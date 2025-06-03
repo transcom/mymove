@@ -44,7 +44,7 @@ type PPMCloseout struct {
 	IntlUnpackPrice       *unit.Cents
 	IntlLinehaulPrice     *unit.Cents
 	SITReimbursement      *unit.Cents
-	Multiplier            *float64
+	GCCMultiplier         *float64
 }
 
 type PPMActualWeight struct {

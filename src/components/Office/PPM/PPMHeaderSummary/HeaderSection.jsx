@@ -10,7 +10,7 @@ import styles from './HeaderSection.module.scss';
 
 import ToolTip from 'shared/ToolTip/ToolTip';
 import EditPPMHeaderSummaryModal from 'components/Office/PPM/PPMHeaderSummary/EditPPMHeaderSummaryModal';
-import { formatDate, formatCents, formatWeight } from 'utils/formatters';
+import { formatDate, formatCents, formatWeight, calculateTotal } from 'utils/formatters';
 import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
@@ -18,6 +18,7 @@ import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
 import { getTotalPackageWeightSPR, hasProGearSPR, hasSpouseProGearSPR } from 'utils/ppmCloseout';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { renderMultiplier } from 'constants/ppms';
+import StyledLine from 'components/StyledLine/StyledLine';
 
 export const sectionTypes = {
   incentives: 'incentives',
@@ -32,10 +33,10 @@ const HAUL_TYPES = {
 
 const getSectionTitle = (sectionInfo) => {
   switch (sectionInfo.type) {
-    case sectionTypes.incentives:
-      return `Incentives/Costs`;
     case sectionTypes.shipmentInfo:
       return `Shipment Info`;
+    case sectionTypes.incentives:
+      return `Incentives/Costs`;
     case sectionTypes.incentiveFactors:
       return `Incentive Factors`;
     default:
@@ -346,7 +347,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
             <div className={styles.row}>
               <Label className={styles.label}>
                 {renderHaulType(sectionInfo.haulType)} Fuel Rate Adjustment{' '}
-                <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+                <span>{sectionInfo.haulFSC > 0 && renderMultiplier(sectionInfo.gccMultiplier)}</span>
               </Label>
               <span data-testid="haulFSC" className={classnames(styles.value, styles.rightAlign)}>
                 {isFetchingItems && isRecalulatedItem('haulFSC') ? (
@@ -466,6 +467,13 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               </span>
             </div>
           ) : null}
+          <StyledLine />
+          <div className={styles.row}>
+            <Label className={styles.label}>TOTAL</Label>
+            <span data-testid="total" className={classnames(styles.value, styles.rightAlign)}>
+              ${calculateTotal(sectionInfo)}
+            </span>
+          </div>
         </div>
       );
 

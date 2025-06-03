@@ -171,9 +171,8 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if err != nil {
 			return err
 		}
-		// check if there's a valid gccMultiplier and if it's different from the current one (if there is one)
-		if gccMultiplier.ID != uuid.Nil &&
-			(ppmShipment.GCCMultiplierID == nil || *ppmShipment.GCCMultiplierID != gccMultiplier.ID) {
+		// apply the GCC multiplier if there is one
+		if gccMultiplier.ID != uuid.Nil {
 			ppmShipment.GCCMultiplierID = &gccMultiplier.ID
 			ppmShipment.GCCMultiplier = &gccMultiplier
 		}
