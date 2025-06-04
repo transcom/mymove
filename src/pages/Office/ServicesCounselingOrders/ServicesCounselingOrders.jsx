@@ -44,7 +44,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  const [orderTypeOptions, setOrderTypeOptions] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
   const [serverError, setServerError] = useState(null);
 
   const orderId = move?.ordersId;
@@ -270,19 +270,19 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = orderTypeOptions;
+      const options = orderTypesOptions;
 
       if (!isAlaskaEnabled) {
-        delete orderTypeOptions.EARLY_RETURN_OF_DEPENDENTS;
-        delete orderTypeOptions.STUDENT_TRAVEL;
+        delete orderTypesOptions.EARLY_RETURN_OF_DEPENDENTS;
+        delete orderTypesOptions.STUDENT_TRAVEL;
       }
       if (!isWoundedWarriorEnabled) {
-        delete orderTypeOptions.WOUNDED_WARRIOR;
+        delete orderTypesOptions.WOUNDED_WARRIOR;
       }
-      setOrderTypeOptions(options);
+      setOrderTypesOptions(options);
     };
     checkFeatureFlags();
-  }, [orderTypeOptions]);
+  }, [orderTypesOptions]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -334,7 +334,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     'Unable to find a LOA based on the provided details. Please ensure a department indicator and TAC are present on this form.';
   const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
 
-  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypeOptions);
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   return (
     <div className={styles.sidebar}>

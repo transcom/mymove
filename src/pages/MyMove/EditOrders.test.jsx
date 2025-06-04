@@ -306,7 +306,6 @@ describe('EditOrders Page', () => {
     setFlashMessage: jest.fn(),
     updateOrders: jest.fn(),
     updateAllMoves: jest.fn(),
-    context: { flags: { allOrdersTypes: true } },
   };
   selectServiceMemberFromLoggedInUser.mockImplementation(() => testProps.serviceMember);
   selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingAddOrders from './ServicesCounselingAddOrders';
@@ -9,6 +9,7 @@ import { counselingCreateOrder } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -422,6 +423,18 @@ describe('ServicesCounselingAddOrders component', () => {
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     await waitFor(() => {
       expect(nextBtn.getAttribute('disabled')).toBeFalsy();
+    });
+  });
+
+  it('wounded warrior FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(false);
     });
   });
 
