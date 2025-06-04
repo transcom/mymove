@@ -3,6 +3,8 @@ import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
+import { requiredAsteriskMessage } from '../RequiredAsterisk';
+
 import Hint from 'components/Hint/index';
 import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
@@ -36,10 +38,13 @@ export const AddressFields = ({
   const assistanceStr = ' for further assistance.';
 
   const getAddress1LabelHintText = (labelHint, address1Label) => {
+    if (labelHint === 'Required') {
+      // if labelHint is required, we want to show an asterisk instead of the word "Required"
+      return null;
+    }
     if (address1Label === null) {
       return labelHint;
     }
-
     // Override default and use what is passed in.
     if (address1Label && address1Label.trim().length > 0) {
       return address1Label;
@@ -72,8 +77,11 @@ export const AddressFields = ({
     });
   };
 
+  const showRequiredAsterisk = labelHintProp === 'Required';
+
   return (
     <Fieldset legend={legend} className={className}>
+      {requiredAsteriskMessage}
       {render(
         <>
           <TextField
@@ -81,6 +89,8 @@ export const AddressFields = ({
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
             labelHint={getAddress1LabelHintText(labelHintProp, address1LabelHint)}
+            required={showRequiredAsterisk}
+            showRequiredAsterisk={showRequiredAsterisk}
             data-testid={`${name}.streetAddress1`}
             validate={validators?.streetAddress1}
           />
@@ -120,7 +130,8 @@ export const AddressFields = ({
                 label="City"
                 id={`city_${addressFieldsUUID.current}`}
                 name={`${name}.city`}
-                labelHint={labelHintProp}
+                showRequiredAsterisk={showRequiredAsterisk}
+                required={showRequiredAsterisk}
                 data-testid={`${name}.city`}
                 display="readonly"
                 validate={validators?.city}
@@ -130,7 +141,8 @@ export const AddressFields = ({
                 id={`state_${addressFieldsUUID.current}`}
                 name={`${name}.state`}
                 data-testid={`${name}.state`}
-                labelHint={labelHintProp}
+                showRequiredAsterisk={showRequiredAsterisk}
+                required={showRequiredAsterisk}
                 display="readonly"
                 validate={validators?.state}
                 styles="margin-top: 1.5em"
@@ -143,7 +155,8 @@ export const AddressFields = ({
                 name={`${name}.postalCode`}
                 data-testid={`${name}.postalCode`}
                 maxLength={10}
-                labelHint={labelHintProp}
+                showRequiredAsterisk={showRequiredAsterisk}
+                required={showRequiredAsterisk}
                 display="readonly"
                 validate={validators?.postalCode}
               />
@@ -151,7 +164,8 @@ export const AddressFields = ({
                 label="County"
                 id={`county_${addressFieldsUUID.current}`}
                 name={`${name}.county`}
-                labelHint={labelHintProp}
+                showRequiredAsterisk={showRequiredAsterisk}
+                required={showRequiredAsterisk}
                 data-testid={`${name}.county`}
                 display="readonly"
                 validate={validators?.county}
