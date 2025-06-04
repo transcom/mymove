@@ -9,7 +9,7 @@ div.Modal {
   @include u-margin-x(1);
   @include u-radius('05');
   @include u-border('base-light');
-  @include u-border('1px');
+  border: 2px solid $base-light;
   @include u-shadow(2);
   min-width: 0;
   position: relative;

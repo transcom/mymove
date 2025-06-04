@@ -52,7 +52,7 @@ const MoveHistory = ({ moveCode }) => {
         showPagination
         disableSortBy
         columns={columns}
-        title="Move history"
+        title="Move History"
         handleClick={() => {}}
         useQueries={useGetMoveHistoryQuery}
         sessionStorageKey="MoveHistory"

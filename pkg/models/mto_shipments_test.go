@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		emptyMTOShipment := models.MTOShipment{}
 		expErrors := map[string][]string{
 			"move_task_order_id": {"MoveTaskOrderID can not be blank."},
-			"status":             {"Status is not in the list [APPROVED, REJECTED, SUBMITTED, DRAFT, CANCELLATION_REQUESTED, CANCELED, DIVERSION_REQUESTED]."},
+			"status":             {"Status is not in the list [APPROVED, REJECTED, SUBMITTED, DRAFT, CANCELLATION_REQUESTED, CANCELED, DIVERSION_REQUESTED, TERMINATED_FOR_CAUSE]."},
 		}
 		suite.verifyValidationErrors(&emptyMTOShipment, expErrors)
 	})
@@ -718,5 +718,29 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 
 		isOCONUS := models.IsShipmentOCONUS(shipment)
 		suite.Nil(isOCONUS)
+	})
+}
+
+func (suite *ModelSuite) TestPrimeCanUpdateDestinationAddress() {
+	suite.Run("return true for valid shipmentTypes", func() {
+		validTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHGOutOfNTS,
+			models.MTOShipmentTypeHHG, models.MTOShipmentTypeBoatTowAway, models.MTOShipmentTypeMobileHome,
+			models.MTOShipmentTypeUnaccompaniedBaggage}
+
+		for i := 0; i < len(validTypes); i++ {
+			canUpdate := models.PrimeCanUpdateDeliveryAddress(validTypes[i])
+			suite.Equal(true, canUpdate)
+		}
+	})
+
+	suite.Run("return false for invalid shipmentTypes", func() {
+		var emptyType models.MTOShipmentType
+		invalidTypes := []models.MTOShipmentType{models.MTOShipmentTypePPM,
+			models.MTOShipmentTypeHHGIntoNTS, emptyType}
+
+		for i := 0; i < len(invalidTypes); i++ {
+			cannotUpdate := models.PrimeCanUpdateDeliveryAddress(invalidTypes[i])
+			suite.Equal(false, cannotUpdate)
+		}
 	})
 }

@@ -15,13 +15,13 @@ const (
 	ddfsitTestServiceArea          = "456"
 	ddfsitTestIsPeakPeriod         = false
 	ddfsitTestBasePriceCents       = unit.Cents(1770)
-	ddfsitTestContractYearName     = "DDFSIT Test Year"
-	ddfsitTestEscalationCompounded = 1.052
+	ddfsitTestContractYearName     = testdatagen.DefaultContractYearName
+	ddfsitTestEscalationCompounded = 1.11000
 	ddfsitTestWeight               = unit.Pound(3300)
-	ddfsitTestPriceCents           = unit.Cents(61446)
+	ddfsitTestPriceCents           = unit.Cents(64845)
 )
 
-var ddfsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
+var ddfsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.February, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationFirstDaySITPricer() {
 	pricer := NewDomesticDestinationFirstDaySITPricer()
@@ -79,7 +79,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationFirstDaySITPricer
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestContractYearName, ddfsitTestEscalationCompounded)
-		twoYearsLaterPickupDate := ddfsitTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ddfsitTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddfsitTestWeight, ddfsitTestServiceArea, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")

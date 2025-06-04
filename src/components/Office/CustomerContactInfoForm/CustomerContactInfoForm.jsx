@@ -9,7 +9,7 @@ import styles from './CustomerContactInfoForm.module.scss';
 import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
 import { CustomerAltContactInfoFields } from 'components/form/CustomerAltContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -65,10 +65,10 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                         </>
                       )}
                     />
-                    <h3 className={styles.sectionHeader}>Pickup Address</h3>
-                    <AddressFields name="customerAddress" locationLookup formikProps={formikProps} />
+                    <h3 className={styles.sectionHeader}>Current Address</h3>
+                    <AddressFields name="customerAddress" formikProps={formikProps} />
                     <h3 className={styles.sectionHeader}>Backup Address</h3>
-                    <AddressFields name="backupAddress" locationLookup formikProps={formikProps} />
+                    <AddressFields name="backupAddress" formikProps={formikProps} />
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h2 className={styles.sectionHeader}>Backup contact</h2>

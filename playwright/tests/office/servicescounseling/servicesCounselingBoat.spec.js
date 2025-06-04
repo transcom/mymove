@@ -6,7 +6,7 @@ test.describe('Services counselor user', () => {
     const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     await scPage.navigateToMove(move.locator);
 
-    const deliveryDate = new Date().toLocaleDateString('en-US');
+    const deliveryDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
     await page.getByTestId('dropdown').selectOption({ label: 'Boat' });
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
@@ -56,7 +56,7 @@ test.describe('Services counselor user', () => {
     const move = await scPage.testHarness.buildBoatHaulAwayMoveNeedsSC();
     await scPage.navigateToMove(move.locator);
 
-    const deliveryDate = new Date().toLocaleDateString('en-US');
+    const deliveryDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
 
     await expect(page.getByText('Shipment method')).toBeVisible();
     await expect(page.getByTestId('shipmentType')).not.toHaveText('BTA');
@@ -126,7 +126,7 @@ test.describe('Services counselor user', () => {
     await expect(page.getByTestId('tag')).toHaveText('Boat');
     await page.getByRole('button', { name: 'Delete shipment' }).click();
 
-    await expect(page.getByRole('heading', { level: 3 })).toHaveText('Are you sure?');
+    await expect(page.getByText('Are you sure?')).toBeVisible();
     await page.getByTestId('modal').getByTestId('button').click();
     await scPage.waitForPage.moveDetails();
 

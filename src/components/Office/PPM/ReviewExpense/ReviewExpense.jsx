@@ -35,6 +35,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import SitCost from 'components/Office/PPM/SitCost/SitCost';
 import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
+import SmallPackageForm from 'components/Shared/PPM/Closeout/SmallPackageForm/SmallPackageForm';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -75,6 +76,26 @@ const validationSchema = (maxWeight) => {
       is: expenseTypes.STORAGE,
       then: (schema) => schema.oneOf(sitLocationOptions.map((i) => i.key)).required('Required'),
     }),
+    weightShipped: Yup.number().when('movingExpenseType', {
+      is: expenseTypes.SMALL_PACKAGE,
+      then: (schema) => schema.required('Required').min(0, 'Weight shipped must be at least 1 lb.'),
+    }),
+    isProGear: Yup.string().when('movingExpenseType', {
+      is: expenseTypes.SMALL_PACKAGE,
+      then: (schema) => schema.required('Required'),
+    }),
+    proGearBelongsToSelf: Yup.string()
+      .nullable()
+      .when('isProGear', {
+        is: 'true',
+        then: (schema) => schema.required('Required'),
+        otherwise: (schema) => schema.strip(),
+      }),
+    proGearDescription: Yup.string().when('isProGear', {
+      is: 'true',
+      then: (schema) => schema.required('Required'),
+      otherwise: (schema) => schema.strip(),
+    }),
   });
 };
 
@@ -103,6 +124,11 @@ export default function ReviewExpense({
     reason,
     weightStored,
     sitLocation,
+    weightShipped,
+    trackingNumber,
+    isProGear,
+    proGearBelongsToSelf,
+    proGearDescription,
   } = expense || {};
 
   const { mutate: patchExpenseMutation } = useMutation(patchExpense, {
@@ -125,7 +151,7 @@ export default function ReviewExpense({
   );
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
-    description: descriptionString,
+    description: descriptionString || '',
     amount: amountValue ? `${formatCents(amountValue)}` : '',
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
     sitStartDate: sitStartDateValue,
@@ -134,6 +160,13 @@ export default function ReviewExpense({
     reason: reason || '',
     weightStored: weightStoredValue?.toString() || '',
     sitLocation: ppmSITLocation,
+    weightShipped: weightShipped?.toString() || '',
+    isProGear: isProGear ? 'true' : 'false',
+    ...(isProGear && {
+      proGearBelongsToSelf: proGearBelongsToSelf ? 'true' : 'false',
+      proGearDescription: proGearDescription || '',
+    }),
+    trackingNumber: trackingNumber || '',
   };
 
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(getExpenseTypeValue(movingExpenseType)); // Set initial expense type via value received from backend
@@ -210,12 +243,50 @@ export default function ReviewExpense({
       }
     }
 
+    // if the expense is not a small package expense, description is required
+    if (llvmExpenseTypes[selectedExpenseType] !== expenseTypes.SMALL_PACKAGE) {
+      let errorMessage = '';
+
+      if (descriptionString === '' || descriptionString === null) {
+        errorMessage += 'Description is required.\n';
+      }
+
+      if (errorMessage !== '') {
+        onError(errorMessage);
+        return;
+      }
+    } else {
+      let errorMessage = '';
+      if (values.isProGear === '' || values.isProGear === null) {
+        errorMessage += 'Please select if the package is pro-gear or not.\n';
+      }
+
+      if (values.weightShipped === '' || values.weightShipped === null) {
+        errorMessage += 'Package weight is required for small package expenses.\n';
+      }
+
+      if (values.isProGear === 'true' || values.isProGear === true) {
+        if (values.proGearBelongsToSelf === '' || values.proGearBelongsToSelf === null) {
+          errorMessage += 'Please select who the pro-gear belongs to.\n';
+        }
+
+        if (values.proGearDescription === '' || values.proGearDescription === null) {
+          errorMessage += 'Pro-gear description is required.\n';
+        }
+      }
+
+      if (errorMessage !== '') {
+        onError(errorMessage);
+        return;
+      }
+    }
+
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],
       description: values.description,
       amount: convertDollarsToCents(values.amount),
-      paidWithGtcc: values.paidWithGtcc,
+      paidWithGtcc: values.paidWithGtcc === 'true',
       sitStartDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitStartDateValue : undefined,
       sitEndDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitEndDateValue : undefined,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
@@ -224,6 +295,13 @@ export default function ReviewExpense({
       sitLocation: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? ppmSITLocation : undefined,
       sitReimburseableAmount:
         llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? actualSITReimbursed : undefined,
+      weightShipped: parseInt(values.weightShipped, 10),
+      trackingNumber: values.trackingNumber,
+      isProGear: values.isProGear === 'true',
+      ...(values.isProGear === 'true' && {
+        proGearBelongsToSelf: values.proGearBelongsToSelf === 'true',
+        proGearDescription: values.proGearDescription,
+      }),
     };
 
     patchExpenseMutation({
@@ -327,6 +405,7 @@ export default function ReviewExpense({
                   value={selectedExpenseType}
                   disabled={readOnly}
                   onChange={(e) => {
+                    setFieldValue('movingExpenseType', e.target.value);
                     setSelectedExpenseType(e.target.value);
                     refreshPage(e);
                   }}
@@ -335,17 +414,19 @@ export default function ReviewExpense({
                     <option key={x.key}>{x.value}</option>
                   ))}
                 </select>
-                <TextField
-                  defaultValue={description}
-                  name="description"
-                  label="Description"
-                  id="description"
-                  className={styles.displayValue}
-                  disabled={readOnly}
-                  onBlur={(e) => {
-                    setDescriptionString(e.target.value);
-                  }}
-                />
+                {llvmExpenseTypes[selectedExpenseType] !== expenseTypes.SMALL_PACKAGE && (
+                  <TextField
+                    defaultValue={description}
+                    name="description"
+                    label="Description"
+                    id="description"
+                    className={styles.displayValue}
+                    disabled={readOnly}
+                    onBlur={(e) => {
+                      setDescriptionString(e.target.value);
+                    }}
+                  />
+                )}
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
                     <div className="labelWrapper">
@@ -390,26 +471,29 @@ export default function ReviewExpense({
                     )}
                   </>
                 )}
-                <MaskedTextField
-                  defaultValue="0"
-                  name="amount"
-                  label="Amount Requested"
-                  id="amount"
-                  mask={Number}
-                  scale={2} // digits after point, 0 for integers
-                  radix="." // fractional delimiter
-                  mapToRadix={['.']} // symbols to process as radix
-                  padFractionalZeros // if true, then pads zeros at end to the length of scale
-                  signed={false} // disallow negative
-                  thousandsSeparator=","
-                  lazy={false} // immediate masking evaluation
-                  prefix="$"
-                  isDisabled={readOnly}
-                  onBlur={(e) => {
-                    const newAmount = e.target.value.replace(/[,.]/g, '');
-                    setAmountValue(newAmount);
-                  }}
-                />
+                {llvmExpenseTypes[selectedExpenseType] !== expenseTypes.SMALL_PACKAGE && (
+                  <MaskedTextField
+                    defaultValue="0"
+                    name="amount"
+                    label="Amount Requested"
+                    id="amount"
+                    mask={Number}
+                    scale={2} // digits after point, 0 for integers
+                    radix="." // fractional delimiter
+                    mapToRadix={['.']} // symbols to process as radix
+                    padFractionalZeros // if true, then pads zeros at end to the length of scale
+                    signed={false} // disallow negative
+                    thousandsSeparator=","
+                    lazy={false} // immediate masking evaluation
+                    prefix="$"
+                    isDisabled={readOnly}
+                    onBlur={(e) => {
+                      const newAmount = e.target.value.replace(/[,.]/g, '');
+                      setAmountValue(newAmount);
+                    }}
+                  />
+                )}
+                {llvmExpenseTypes[selectedExpenseType] === expenseTypes.SMALL_PACKAGE && <SmallPackageForm />}
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
                     <div>

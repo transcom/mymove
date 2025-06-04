@@ -142,15 +142,21 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
 	// If oldPPMShipment field value is nil we know that the value has been updated and we should return false - the adjusted net weight is accounted for in the
-	// SumWeightTickets function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
+	// SumWeights function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
 	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
-		(oldPPMShipment.ActualPickupPostalCode != nil && *newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode) &&
-		(oldPPMShipment.ActualDestinationPostalCode != nil && *newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode) &&
+		(oldPPMShipment.PickupAddress != nil && oldPPMShipment.DestinationAddress != nil && newPPMShipment.PickupAddress != nil && newPPMShipment.DestinationAddress != nil) &&
+		(oldPPMShipment.PickupAddress.PostalCode != "" && newPPMShipment.PickupAddress.PostalCode == oldPPMShipment.PickupAddress.PostalCode) &&
+		(oldPPMShipment.DestinationAddress.PostalCode != "" && newPPMShipment.DestinationAddress.PostalCode == oldPPMShipment.DestinationAddress.PostalCode) &&
 		newTotalWeight == originalTotalWeight
 }
 
 func shouldSetFinalIncentiveToNil(newPPMShipment *models.PPMShipment, newTotalWeight unit.Pound) bool {
-	if newPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil || newTotalWeight <= 0 {
+	if newPPMShipment.ActualMoveDate == nil ||
+		newPPMShipment.PickupAddress == nil ||
+		newPPMShipment.DestinationAddress == nil ||
+		newPPMShipment.PickupAddress.PostalCode == "" ||
+		newPPMShipment.DestinationAddress.PostalCode == "" ||
+		newTotalWeight <= 0 {
 		return true
 	}
 
@@ -353,7 +359,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			return nil, err
 		}
 	}
-	originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, *newPPMShipment)
+	originalTotalWeight, newTotalWeight := SumWeights(oldPPMShipment, *newPPMShipment)
 
 	if newPPMShipment.AllowableWeight != nil && *newPPMShipment.AllowableWeight < newTotalWeight {
 		newTotalWeight = *newPPMShipment.AllowableWeight
@@ -406,28 +412,47 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	}
 }
 
-// SumWeightTickets return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
-func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
-	if len(ppmShipment.WeightTickets) >= 1 {
-		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
-				originalTotalWeight += 0
-			} else if weightTicket.AdjustedNetWeight != nil {
-				originalTotalWeight += *weightTicket.AdjustedNetWeight
-			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-				originalTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+// SumWeights return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
+func SumWeights(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
+	// small package PPMs will not have weight tickets, so we need to instead use moving expenses
+	if newPPMShipment.PPMType != models.PPMTypeSmallPackage {
+		if len(ppmShipment.WeightTickets) >= 1 {
+			for _, weightTicket := range ppmShipment.WeightTickets {
+				if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+					originalTotalWeight += 0
+				} else if weightTicket.AdjustedNetWeight != nil {
+					originalTotalWeight += *weightTicket.AdjustedNetWeight
+				} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+					originalTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+				}
 			}
 		}
-	}
 
-	if len(newPPMShipment.WeightTickets) >= 1 {
-		for _, weightTicket := range newPPMShipment.WeightTickets {
-			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+		if len(newPPMShipment.WeightTickets) >= 1 {
+			for _, weightTicket := range newPPMShipment.WeightTickets {
+				if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+					newTotalWeight += 0
+				} else if weightTicket.AdjustedNetWeight != nil {
+					newTotalWeight += *weightTicket.AdjustedNetWeight
+				} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+					newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+				}
+			}
+		}
+	} else {
+		for _, expense := range ppmShipment.MovingExpenses {
+			if expense.Status != nil && *expense.Status == models.PPMDocumentStatusRejected {
+				originalTotalWeight += 0
+			} else if expense.WeightShipped != nil {
+				originalTotalWeight += *expense.WeightShipped
+			}
+		}
+
+		for _, expense := range newPPMShipment.MovingExpenses {
+			if expense.Status != nil && *expense.Status == models.PPMDocumentStatusRejected {
 				newTotalWeight += 0
-			} else if weightTicket.AdjustedNetWeight != nil {
-				newTotalWeight += *weightTicket.AdjustedNetWeight
-			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-				newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			} else if expense.WeightShipped != nil {
+				newTotalWeight += *expense.WeightShipped
 			}
 		}
 	}
@@ -476,16 +501,16 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 			return nil, apperror.NewNotFoundError(ppmShipment.ID, " No postal code for destination duty location on orders when comparing postal codes")
 		}
 	} else {
-		if ppmShipment.ActualPickupPostalCode != nil {
-			pickupPostal = *ppmShipment.ActualPickupPostalCode
-		} else if ppmShipment.PickupAddress.PostalCode != "" {
+		if ppmShipment.PickupAddress != nil && ppmShipment.PickupAddress.PostalCode != "" {
 			pickupPostal = ppmShipment.PickupAddress.PostalCode
+		} else {
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, " no pickup address or zip on PPM - unable to calculate incentive")
 		}
 
-		if ppmShipment.ActualDestinationPostalCode != nil {
-			destPostal = *ppmShipment.ActualDestinationPostalCode
-		} else if ppmShipment.DestinationAddress.PostalCode != "" {
+		if ppmShipment.DestinationAddress != nil && ppmShipment.DestinationAddress.PostalCode != "" {
 			destPostal = ppmShipment.DestinationAddress.PostalCode
+		} else {
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, " no destination address or zip on PPM - unable to calculate incentive")
 		}
 	}
 
@@ -625,17 +650,17 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	var pickupPostal, destPostal string
 
 	// Check different address values for a postal code
-	if ppmShipment.ActualPickupPostalCode != nil {
-		pickupPostal = *ppmShipment.ActualPickupPostalCode
-	} else if ppmShipment.PickupAddress.PostalCode != "" {
+	if ppmShipment.PickupAddress != nil && ppmShipment.PickupAddress.PostalCode != "" {
 		pickupPostal = ppmShipment.PickupAddress.PostalCode
+	} else {
+		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, apperror.NewNotFoundError(ppmShipment.ID, " no pickup address or zip on PPM - unable to calculate incentive")
 	}
 
 	// Same for destination
-	if ppmShipment.ActualDestinationPostalCode != nil {
-		destPostal = *ppmShipment.ActualDestinationPostalCode
-	} else if ppmShipment.DestinationAddress.PostalCode != "" {
+	if ppmShipment.DestinationAddress != nil && ppmShipment.DestinationAddress.PostalCode != "" {
 		destPostal = ppmShipment.DestinationAddress.PostalCode
+	} else {
+		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, apperror.NewNotFoundError(ppmShipment.ID, " no destination address or zip on PPM - unable to calculate incentive")
 	}
 
 	// if the ZIPs are the same, we need to replace the DLH service item with DSH
@@ -666,18 +691,28 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 	}
 
-	var totalWeightFromWeightTickets unit.Pound
+	var totalWeightFromWeightTicketsOrExpenses unit.Pound
 	var blankPPM models.PPMShipment
-	if ppmShipment.WeightTickets != nil {
-		_, totalWeightFromWeightTickets = SumWeightTickets(blankPPM, *ppmShipment)
+	if ppmShipment.PPMType != models.PPMTypeSmallPackage {
+		// for incentive-based/actual expense PPMs, weight tickets are required
+		if ppmShipment.WeightTickets == nil {
+			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice,
+				apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, " no weight tickets")
+		}
+		_, totalWeightFromWeightTicketsOrExpenses = SumWeights(blankPPM, *ppmShipment)
 	} else {
-		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, " no weight tickets")
+		// for small package PPM-SPRs, moving expenses are used
+		if ppmShipment.MovingExpenses == nil {
+			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice,
+				apperror.NewPPMNoMovingExpensesError(ppmShipment.ID, " no moving expenses")
+		}
+		_, totalWeightFromWeightTicketsOrExpenses = SumWeights(blankPPM, *ppmShipment)
 	}
 
 	var mtoShipment models.MTOShipment
-	if totalWeightFromWeightTickets > 0 {
+	if totalWeightFromWeightTicketsOrExpenses > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
+		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTicketsOrExpenses)
 	} else {
 		mtoShipment, err = MapPPMShipmentEstimatedFields(appCtx, *ppmShipment)
 		if err != nil {
@@ -1294,9 +1329,7 @@ func MapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.
 	ppmShipment.Shipment.ActualPickupDate = ppmShipment.ActualMoveDate
 	ppmShipment.Shipment.RequestedPickupDate = ppmShipment.ActualMoveDate
 	ppmShipment.Shipment.PickupAddress = ppmShipment.PickupAddress
-	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: *ppmShipment.ActualPickupPostalCode}
 	ppmShipment.Shipment.DestinationAddress = ppmShipment.DestinationAddress
-	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: *ppmShipment.ActualDestinationPostalCode}
 	ppmShipment.Shipment.PrimeActualWeight = &totalWeight
 
 	return ppmShipment.Shipment

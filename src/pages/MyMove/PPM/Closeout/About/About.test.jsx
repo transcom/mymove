@@ -84,6 +84,7 @@ const mockMTOShipment = {
       city: 'Jacksonville',
       state: 'FL',
       postalCode: '32217',
+      county: 'Duval',
       usPostRegionCitiesID: '',
     },
   },
@@ -94,8 +95,6 @@ const mockMTOShipment = {
 
 const partialPayload = {
   actualMoveDate: '2022-05-31',
-  actualPickupPostalCode: '78234',
-  actualDestinationPostalCode: '98421',
   pickupAddress: {
     streetAddress1: '812 S 129th St',
     streetAddress2: '#123',
@@ -127,6 +126,7 @@ const partialPayload = {
     city: 'Jacksonville',
     state: 'FL',
     postalCode: '32217',
+    county: 'Duval',
     usPostRegionCitiesID: '',
   },
 };

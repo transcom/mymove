@@ -251,6 +251,8 @@ export const FEATURE_FLAG_KEYS = {
   BULK_RE_ASSIGNMENT: 'bulk_re_assignment',
   CUSTOMER_REGISTRATION: 'customer_registration',
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
+  TERMINATING_SHIPMENTS: 'terminating_shipments',
+  GUN_SAFE: 'gun_safe',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
