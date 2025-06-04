@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -48,7 +49,7 @@ type SSWPPMGenerator struct {
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGenerator, error) {
-	templateReader, err := createAssetByteReader("paperwork/formtemplates/ShipmentSummaryWorksheet.pdf")
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/ShipmentSummaryWorksheet_v2.pdf")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -311,12 +312,12 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	// Fill out form fields related to Actual Expense Reimbursement status
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
-		page1.GCCExpenseReimbursementType = "Actual Expense Reimbursement"
+		page1.GCCExpenseReimbursementType = "AER"
 	}
 
 	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
 		page1.IsSmallPackageReimbursement = true
-		page1.GCCExpenseReimbursementType = "Small Package Reimbursement"
+		page1.GCCExpenseReimbursementType = "SPR"
 	}
 
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
@@ -333,6 +334,16 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 
 	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
 		page1.SafetyMoveHeading = safetyMoveText
+	}
+
+	if data.PPMShipment.GCCMultiplier != nil && data.PPMShipment.GCCMultiplier.Multiplier != 0 {
+		// the "g" here tells us to not use trailing zeros (1.3 instead of 1.30000)
+		// -1 is to use the most concise represenation
+		// 64 tells it that it's a float64
+		multiplierStr := strconv.FormatFloat(data.PPMShipment.GCCMultiplier.Multiplier, 'g', -1, 64)
+		page1.GCCMultiplier = fmt.Sprintf("(with %sx multiplier)", multiplierStr)
+	} else {
+		page1.GCCMultiplier = "(with 1x multiplier)"
 	}
 
 	return page1, nil
@@ -412,13 +423,13 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.SignatureDate = certificationInfo.DateField
 
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
-		page2.IncentiveExpenseReimbursementType = "Actual Expense Reimbursement"
+		page2.IncentiveExpenseReimbursementType = "AER"
 		page2.HeaderExpenseReimbursementType = `This PPM is being processed as actual expense reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
 	}
 
 	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
-		page2.IncentiveExpenseReimbursementType = "Small Package Reimbursement"
+		page2.IncentiveExpenseReimbursementType = "SPR"
 		page2.HeaderExpenseReimbursementType = `This PPM is being processed as small package reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
 	}
@@ -1106,6 +1117,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"W2Address",
 		"WeightTickets",
 		"MovingExpenses",
+		"GCCMultiplier",
 	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
@@ -1273,7 +1285,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	}
 
 	var sswHeader = header{
-		Source:   "ShipmentSummaryWorksheet.pdf",
+		Source:   "ShipmentSummaryWorksheet_v2.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
 		Creation: "2025-05-23 17:26:58 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
