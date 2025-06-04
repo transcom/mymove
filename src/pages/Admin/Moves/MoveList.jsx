@@ -12,6 +12,14 @@ const MoveFilter = (props) => (
   </Filter>
 );
 
+const CustomDateField = ({ record, source }) => {
+  const value = record[source];
+  if (value == null) {
+    return <span>N/A</span>;
+  }
+  return <DateField record={record} source={source} showTime />;
+};
+
 const MoveList = () => (
   <List pagination={<AdminPagination />} perPage={25} filters={<MoveFilter />} sort={defaultSort}>
     <Datagrid bulkActionButtons={false} rowClick="show">
@@ -23,6 +31,7 @@ const MoveList = () => (
       <TextField source="show" reference="moves" />
       <DateField source="createdAt" reference="moves" showTime />
       <DateField source="updatedAt" reference="moves" showTime />
+      <CustomDateField source="availableToPrimeAt" reference="moves" showTime />
     </Datagrid>
   </List>
 );

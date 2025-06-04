@@ -2963,6 +2963,11 @@ func init() {
         "updatedAt"
       ],
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -7010,6 +7015,11 @@ func init() {
         "updatedAt"
       ],
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",

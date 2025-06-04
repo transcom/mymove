@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -48,6 +49,12 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 		Show:      &showMove,
 		CreatedAt: *handlers.FmtDateTime(move.CreatedAt),
 		UpdatedAt: *handlers.FmtDateTime(move.UpdatedAt),
+		AvailableToPrimeAt: func() strfmt.DateTime {
+			if move.AvailableToPrimeAt != nil {
+				return *handlers.FmtDateTime(*move.AvailableToPrimeAt)
+			}
+			return strfmt.NewDateTime()
+		}(),
 	}
 }
 
