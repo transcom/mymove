@@ -111,6 +111,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	serviceItemFetcher := serviceitem.NewServiceItemFetcher()
 
+	ghcAPI.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = BooleanFeatureFlagsUnauthenticatedHandler{handlerConfig}
+
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		log.Fatalln(err)
