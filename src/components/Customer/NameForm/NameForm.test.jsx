@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import NameForm from './NameForm';
 
 describe('NameForm component', () => {
-  it('renders the form inputs', async () => {
+  it('renders the form inputs and asterisks for required fields', async () => {
     const { getByLabelText } = render(
       <NameForm
         onSubmit={jest.fn()}
@@ -15,12 +15,14 @@ describe('NameForm component', () => {
     );
     await waitFor(() => {
       expect(getByLabelText(/First name/)).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/First name/)).toBeRequired();
+      expect(getByLabelText(/First name */)).toBeInTheDocument();
+      expect(getByLabelText(/First name */)).toBeRequired();
 
       expect(getByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText(/Last name/)).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/Last name/)).toBeRequired();
+      expect(getByLabelText(/Last name */)).toBeInTheDocument();
+      expect(getByLabelText(/Last name */)).toBeRequired();
 
       expect(getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
     });
@@ -35,8 +37,8 @@ describe('NameForm component', () => {
         initialValues={{ first_name: '', middle_name: '', last_name: '', suffix: 'Mrs.' }}
       />,
     );
-    await userEvent.clear(getByLabelText(/First name/));
-    await userEvent.clear(getByLabelText(/Last name/));
+    await userEvent.clear(getByLabelText(/First name */));
+    await userEvent.clear(getByLabelText(/Last name */));
     await userEvent.tab();
 
     const submitBtn = getByRole('button', { name: 'Next' });
