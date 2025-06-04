@@ -1,6 +1,6 @@
 module github.com/transcom/mymove
 
-go 1.23.0
+go 1.23
 
 // Temporary workaroudn to mockery alias generation issue with go 1.23
 // found at https://github.com/vektra/mockery/issues/803
