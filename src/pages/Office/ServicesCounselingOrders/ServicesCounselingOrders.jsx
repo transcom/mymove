@@ -266,17 +266,23 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   ]);
 
   useEffect(() => {
-    const checkAlaskaFeatureFlag = async () => {
+    const checkFeatureFlag = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      const updatedOptions = orderTypeOptions;
       if (!isAlaskaEnabled) {
-        const options = orderTypeOptions;
         delete orderTypeOptions.EARLY_RETURN_OF_DEPENDENTS;
         delete orderTypeOptions.STUDENT_TRAVEL;
-        setOrderTypeOptions(options);
       }
+      if (!isBluebarkEnabled) {
+        delete orderTypeOptions.BLUEBARK;
+      }
+      setOrderTypeOptions(updatedOptions);
     };
-    checkAlaskaFeatureFlag();
+    checkFeatureFlag();
   }, [orderTypeOptions]);
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypeOptions);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -327,8 +333,6 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const ntsLoaMissingWarningMsg =
     'Unable to find a LOA based on the provided details. Please ensure a department indicator and TAC are present on this form.';
   const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
-
-  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypeOptions);
 
   return (
     <div className={styles.sidebar}>
