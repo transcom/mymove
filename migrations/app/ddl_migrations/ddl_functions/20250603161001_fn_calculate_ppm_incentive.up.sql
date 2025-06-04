@@ -66,7 +66,8 @@ BEGIN
             service_id,
             contract_id,
             'ISLH',
-            move_date
+            move_date,
+            NULL
         ) * (weight / 100)::NUMERIC * 100, 0
     );
 
@@ -79,7 +80,8 @@ BEGIN
             service_id,
             contract_id,
             'IHPK',
-            move_date
+            move_date,
+            NULL
         ) * (weight / 100)::NUMERIC * 100, 0
     );
 
@@ -92,7 +94,8 @@ BEGIN
             service_id,
             contract_id,
             'IHUPK',
-            move_date
+            move_date,
+            NULL
         ) * (weight / 100)::NUMERIC * 100, 0
     );
 

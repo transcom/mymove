@@ -946,11 +946,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
 
 			// appending this to test functionality of the GCC multiplier
+			maxIncentive2 := unit.Cents(900000000)
 			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
 						ExpectedDepartureDate: validGccMultiplierDate,
 						Status:                models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:          &maxIncentive2,
 					},
 				},
 			}, nil)
@@ -2621,7 +2623,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
 			suite.NotEqual(unit.Cents(504512), *ppmEstimateWithMultiplier)
-			suite.Equal(unit.Cents(771427), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(884072), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for OCONUS -> CONUS", func() {
@@ -2797,7 +2799,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
 			suite.NotEqual(unit.Cents(504512), *ppmEstimateWithMultiplier)
-			suite.Equal(unit.Cents(1103119), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(1874487), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
@@ -2998,7 +3000,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			suite.Equal(unit.Pound(4000), *newPPMWithMultiplier.EstimatedWeight)
 			suite.NotEqual(unit.Cents(459178), *ppmEstimateWithMultiplier)
-			suite.Equal(unit.Cents(596931), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(682926), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Final Incentive - Success using estimated weight for OCONUS -> CONUS", func() {
