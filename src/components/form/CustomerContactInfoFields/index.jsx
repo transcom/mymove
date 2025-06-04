@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Label, Fieldset } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
+import RequiredAsterisk from '../RequiredAsterisk';
+
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -27,6 +29,7 @@ export const CustomerContactInfoFields = ({ legend, className, render, labelHint
                 minimum="12"
                 mask="000{-}000{-}0000"
                 required
+                showRequiredAsterisk
               />
             </div>
           </div>
@@ -34,7 +37,7 @@ export const CustomerContactInfoFields = ({ legend, className, render, labelHint
             <div className="mobile-lg:grid-col-7">
               <MaskedTextField
                 label="Alt. phone"
-                labelHint={labelHintProp ? null : 'Optional'}
+                labelHint={labelHintProp ? null : ''}
                 id={`secondaryTelephone_${CustomerContactInfoFieldsUUID.current}`}
                 name="secondary_telephone"
                 type="tel"
@@ -49,8 +52,13 @@ export const CustomerContactInfoFields = ({ legend, className, render, labelHint
             name="personal_email"
             labelHint={labelHintProp}
             required
+            showRequiredAsterisk
           />
-          <Label hint={labelHintProp}>Preferred contact method</Label>
+          <Label>
+            <span data-testid="preferredContactMethod">
+              Preferred contact method <RequiredAsterisk />
+            </span>
+          </Label>
           <div className={classnames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
             <CheckboxField
               id={`phoneIsPreferred_${CustomerContactInfoFieldsUUID.current}`}
