@@ -137,7 +137,7 @@ func (suite *ModelSuite) TestTacForbiddenCharacters() {
 					},
 				}
 
-				suite.verifyValidationErrors(&order, expErrors)
+				suite.verifyValidationErrors(&order, expErrors, nil)
 			})
 		}
 	})
@@ -162,7 +162,7 @@ func (suite *ModelSuite) TestTacForbiddenCharacters() {
 					},
 				}
 
-				suite.verifyValidationErrors(&order, expErrors)
+				suite.verifyValidationErrors(&order, expErrors, nil)
 			})
 		}
 	})
@@ -187,7 +187,7 @@ func (suite *ModelSuite) TestSacForbiddenCharacters() {
 					"sac": {"SAC cannot contain * or \" characters."},
 				}
 
-				suite.verifyValidationErrors(&order, expErrors)
+				suite.verifyValidationErrors(&order, expErrors, nil)
 			})
 		}
 	})
@@ -210,7 +210,7 @@ func (suite *ModelSuite) TestSacForbiddenCharacters() {
 					"nts_sac": {"NTS SAC cannot contain * or \" characters."},
 				}
 
-				suite.verifyValidationErrors(&order, expErrors)
+				suite.verifyValidationErrors(&order, expErrors, nil)
 			})
 		}
 	})
