@@ -88,10 +88,11 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      if (!isWoundedWarriorEnabled) {
-        delete orderTypesOptions.WOUNDED_WARRIOR;
+      if (!isWoundedWarriorEnabled && orderTypesOptions.WOUNDED_WARRIOR) {
+        const options = { ...orderTypesOptions };
+        delete options.WOUNDED_WARRIOR;
+        setOrderTypesOptions(options);
       }
-      setOrderTypesOptions(orderTypesOptions);
     };
     checkFeatureFlags();
   }, [orderTypesOptions]);
