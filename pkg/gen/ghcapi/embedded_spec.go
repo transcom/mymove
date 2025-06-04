@@ -11199,16 +11199,19 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TIOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -29831,16 +29834,19 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TIOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {

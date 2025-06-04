@@ -32,7 +32,7 @@ describe('When given a completed services counseling for a move', () => {
   it('displays correct details when a SC is unassigned', () => {
     historyRecord.changedValues = {
       ...historyRecord.changedValues,
-      sc_assigned_id: null,
+      sc_closeout_assigned_id: null,
     };
     const template = getTemplate(historyRecord);
 
