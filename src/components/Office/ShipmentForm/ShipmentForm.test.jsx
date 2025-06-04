@@ -1926,14 +1926,6 @@ describe('ShipmentForm component', () => {
         await waitFor(() => {
           // verify required alert was not raised
           expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-
-          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 delivery address, 4 for secondary addrs).
-          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the delivery address
-          // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
-          const elements = Array.from(document.querySelectorAll('.usa-hint')).filter((element) =>
-            element.textContent.includes('Optional'),
-          );
-          expect(elements).toHaveLength(9);
         });
       });
     });
