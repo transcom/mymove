@@ -273,7 +273,6 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
 
   useEffect(() => {
     const checkFeatureFlags = async () => {
-      // debug in progress
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
       const options = orderTypesOptions;
       if (!isWoundedWarriorEnabled) {
@@ -366,6 +365,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
           } else if (!loaValidationState[LOA_TYPE.NTS].isValid) {
             ntsLoaWarning = loaInvalidWarningMsg;
           }
+
           return (
             <form onSubmit={formik.handleSubmit}>
               <div className={styles.content}>

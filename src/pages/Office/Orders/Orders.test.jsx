@@ -190,7 +190,6 @@ describe('Orders page', () => {
 
     it('renders the Something Went Wrong component when the query errors', async () => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-
       useOrdersDocumentQueries.mockReturnValueOnce(errorReturnValue);
 
       render(

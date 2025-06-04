@@ -675,12 +675,10 @@ describe('Add Orders page', () => {
 
 describe('Order type: Wounded Warrior', () => {
   beforeEach(() => {
-    jest.resetAllMocks(); // resets mocks, including implementations and calls
-    jest.resetModules(); // clears module cache to force fresh imports
+    jest.resetAllMocks();
   });
 
   it('wounded warrior FF turned off', async () => {
-    // isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
