@@ -511,12 +511,22 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		return nil, err
 	}
 
-	// Only if service item types are DOASIT or DDASIT
+	// Check if valid service SIT service item to get correct authorized end date.
+	var endDate *time.Time
+	validOriginCodes := append(models.ValidDomesticOriginSITReServiceCodes, models.ValidInternationalOriginSITReServiceCodes...)
+	validDestCodes := append(models.ValidDomesticDestinationSITReServiceCodes, models.ValidInternationalDestinationSITReServiceCodes...)
+
+	if slices.Contains(validOriginCodes, updatedServiceItem.ReService.Code) &&
+		shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate == nil {
+		endDate = shipment.OriginSITAuthEndDate
+	} else if (slices.Contains(validDestCodes, updatedServiceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
+		endDate = shipment.DestinationSITAuthEndDate
+	}
+
 	// if the SIT departure date is on or before the authorized end date
 	// then REMOVE any pending sit extensions
 	if len(shipment.SITDurationUpdates) > 0 {
-		endDate := models.GetAuthorizedSITEndDateForSitExtension(shipment, updatedServiceItem.ReService.Code)
-		if mtoServiceItem.SITDepartureDate != nil && !endDate.IsZero() {
+		if mtoServiceItem.SITDepartureDate != nil && endDate != nil {
 			if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
 				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = ? WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusRemoved, models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
 				if err != nil {
