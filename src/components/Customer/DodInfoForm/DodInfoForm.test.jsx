@@ -39,9 +39,11 @@ describe('DodInfoForm component', () => {
 
   it('renders the form inputs but enables editing of DOD ID when flag is on', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-    const { getByLabelText } = render(<DodInfoForm {...testProps} />);
+    const { getByLabelText, getByTestId } = render(<DodInfoForm {...testProps} />);
 
     await waitFor(() => {
+      expect(getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
       expect(getByLabelText(/Branch of service/)).toBeInstanceOf(HTMLSelectElement);
       expect(getByLabelText(/Branch of service */)).toBeInTheDocument();
       expect(getByLabelText(/Branch of service */)).toBeRequired();

@@ -6,7 +6,7 @@ import NameForm from './NameForm';
 
 describe('NameForm component', () => {
   it('renders the form inputs and asterisks for required fields', async () => {
-    const { getByLabelText } = render(
+    const { getByLabelText, getByTestId } = render(
       <NameForm
         onSubmit={jest.fn()}
         onBack={jest.fn()}
@@ -14,6 +14,8 @@ describe('NameForm component', () => {
       />,
     );
     await waitFor(() => {
+      expect(getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
       expect(getByLabelText(/First name/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/First name */)).toBeInTheDocument();
       expect(getByLabelText(/First name */)).toBeRequired();
