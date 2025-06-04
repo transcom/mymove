@@ -18,7 +18,6 @@ import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
 import { getTotalPackageWeightSPR, hasProGearSPR, hasSpouseProGearSPR } from 'utils/ppmCloseout';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { renderMultiplier } from 'constants/ppms';
-import StyledLine from 'components/StyledLine/StyledLine';
 
 export const sectionTypes = {
   incentives: 'incentives',
@@ -467,7 +466,6 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               </span>
             </div>
           ) : null}
-          <StyledLine />
           <div className={styles.row}>
             <Label className={styles.label}>TOTAL</Label>
             <span data-testid="total" className={classnames(styles.value, styles.rightAlign)}>

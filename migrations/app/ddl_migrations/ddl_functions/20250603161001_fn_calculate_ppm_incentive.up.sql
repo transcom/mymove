@@ -1,4 +1,4 @@
--- Daniel Jordan  updating func to consider GCC multipliers
+-- B-23736 Daniel Jordan  updating func to consider GCC multipliers
 
 DROP FUNCTION IF EXISTS calculate_ppm_incentive;
 CREATE OR REPLACE FUNCTION calculate_ppm_incentive(

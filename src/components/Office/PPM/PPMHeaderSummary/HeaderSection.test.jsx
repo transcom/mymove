@@ -535,6 +535,8 @@ describe('PPMHeaderSummary component', () => {
         expect(screen.getByText('International Shipping & Linehaul')).toBeInTheDocument();
         expect(screen.getByTestId('intlLinehaulPrice')).toHaveTextContent('$1,234.56');
         expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
+        expect(screen.getByText('TOTAL')).toBeInTheDocument();
+        expect(screen.getByTestId('total')).toHaveTextContent('$71,388.92');
       });
 
       it('renders "Shorthaul" in place of linehaul when given a shorthaul type', async () => {
@@ -560,6 +562,8 @@ describe('PPMHeaderSummary component', () => {
         expect(screen.getByText('Destination Price')).toBeInTheDocument();
         expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
         expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
+        expect(screen.getByText('TOTAL')).toBeInTheDocument();
+        expect(screen.getByTestId('total')).toHaveTextContent('$70,028.05');
       });
     });
 

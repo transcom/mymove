@@ -131,9 +131,7 @@ func (f *estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *
 
 func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
 	// check if GCC multipliers have changed or do not match
-	if (newPPMShipment.GCCMultiplierID == nil && oldPPMShipment.GCCMultiplierID != nil) ||
-		(newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID == nil) ||
-		(newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID) {
+	if newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID {
 		return false
 	}
 	if oldPPMShipment.Status != models.PPMShipmentStatusDraft && oldPPMShipment.EstimatedIncentive != nil && *newPPMShipment.EstimatedIncentive == 0 || oldPPMShipment.MaxIncentive == nil {
@@ -239,7 +237,6 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 
 	// if the PPM is international, we will use a db func
 	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
-
 		if !skipCalculatingEstimatedIncentive {
 			// Clear out advance and advance requested fields when the estimated incentive is reset.
 			newPPMShipment.HasRequestedAdvance = nil
@@ -265,6 +262,10 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		destinationAddress := newPPMShipment.DestinationAddress
 
 		if !skipCalculatingEstimatedIncentive {
+			// Clear out advance and advance requested fields when the estimated incentive is reset.
+			newPPMShipment.HasRequestedAdvance = nil
+			newPPMShipment.AdvanceAmountRequested = nil
+
 			estimatedIncentive, err = f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), true, false, false)
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)

@@ -229,7 +229,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 		// check if there's a valid gccMultiplier and if it's different from the current one (if there is one)
 		if gccMultiplier.ID != uuid.Nil &&
-			(updatedPPMShipment.GCCMultiplierID == nil || *updatedPPMShipment.GCCMultiplierID != gccMultiplier.ID) {
+			(updatedPPMShipment.GCCMultiplierID == nil || *oldPPMShipment.GCCMultiplierID != gccMultiplier.ID) {
 			updatedPPMShipment.GCCMultiplierID = &gccMultiplier.ID
 			updatedPPMShipment.GCCMultiplier = &gccMultiplier
 		} else {

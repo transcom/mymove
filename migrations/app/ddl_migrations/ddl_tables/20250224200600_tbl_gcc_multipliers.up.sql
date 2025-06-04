@@ -1,4 +1,4 @@
--- Daniel Jordan adding gcc_multipliers table
+-- B-23736  Daniel Jordan  adding gcc_multipliers table
 CREATE TABLE IF NOT EXISTS gcc_multipliers (
     id          			uuid NOT NULL PRIMARY KEY,
 	multiplier              numeric(5, 2) NOT NULL,
