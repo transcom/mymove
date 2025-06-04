@@ -70,6 +70,7 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
               {requiredAsteriskMessage}
               <DropdownInput
                 label="Branch of service"
+                aria-label="Branch of service is a required field"
                 name="affiliation"
                 id="affiliation"
                 showRequiredAsterisk
@@ -82,6 +83,7 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
               />
               <TextField
                 label="DOD ID number"
+                aria-label="DOD ID number is a required field"
                 name="edipi"
                 id="edipi"
                 maxLength="10"
@@ -94,6 +96,7 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
               {showEmplid && (
                 <TextField
                   label="EMPLID"
+                  aria-label="EMPLID is a required field"
                   name="emplid"
                   id="emplid"
                   showRequiredAsterisk
