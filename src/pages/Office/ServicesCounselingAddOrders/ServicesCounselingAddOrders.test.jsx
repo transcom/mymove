@@ -426,6 +426,18 @@ describe('ServicesCounselingAddOrders component', () => {
     });
   });
 
+  it('wounded warrior FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(false);
+    });
+  });
+
   it('routes to the move details page when the next button is clicked for OCONUS orders', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     renderWithMocks();
@@ -473,30 +485,6 @@ describe('ServicesCounselingAddOrders component', () => {
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(-1);
-    });
-  });
-
-  it('wounded warrior FF turned off', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-    renderWithMocks();
-
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      const options = within(ordersTypeDropdown).queryAllByRole('option');
-      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
-      expect(hasWoundedWarrior).toBe(false);
-    });
-  });
-
-  it('wounded warrior FF turned on', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-    renderWithMocks();
-
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      const options = within(ordersTypeDropdown).queryAllByRole('option');
-      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
-      expect(hasWoundedWarrior).toBe(true);
     });
   });
 });
