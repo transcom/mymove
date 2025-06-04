@@ -1,6 +1,5 @@
 -- B-23540 - Daniel Jordan - initial function creation for TOO origin queue refactor into db func
 -- B-22712 -- Paul Stonebraker - add move data for excess weight, amended orders; attach diversions and SIT extensions to mto shipments
--- B-23739 - Daniel Jordan updating returns to consider lock_expires_at
 
 DROP FUNCTION IF EXISTS get_origin_queue;
 CREATE OR REPLACE FUNCTION get_origin_queue(
@@ -30,7 +29,6 @@ RETURNS TABLE (
     orders_id UUID,
     status TEXT,
     locked_by UUID,
-    lock_expires_at TIMESTAMP WITH TIME ZONE,
     too_assigned_id UUID,
     counseling_transportation_office_id UUID,
     orders JSONB,
@@ -112,7 +110,6 @@ BEGIN
             moves.orders_id,
             moves.status,
             moves.locked_by,
-            moves.lock_expires_at,
             moves.too_assigned_id,
             moves.counseling_transportation_office_id,
             moves.service_counseling_completed_at,
@@ -393,7 +390,6 @@ BEGIN
         orders_id_inner::UUID AS orders_id,
         status::TEXT,
         locked_by::UUID AS locked_by,
-        lock_expires_at::TIMESTAMP WITH TIME ZONE AS lock_expires_at,
         too_assigned_id::UUID AS too_assigned_id,
         counseling_transportation_office_id::UUID AS counseling_transportation_office_id,
         json_build_object(
