@@ -23,13 +23,14 @@ describe('DodInfoForm component', () => {
     initialValues: { affiliation: 'COAST_GUARD', edipi: '6546546541' },
   };
 
-  it('renders the form inputs', async () => {
+  it('renders the form inputs and asterisks for required fields', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const { getByLabelText } = render(<DodInfoForm {...testProps} />);
 
     await waitFor(() => {
       expect(getByLabelText(/Branch of service/)).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText(/Branch of service/)).toBeRequired();
+      expect(getByLabelText(/Branch of service */)).toBeRequired();
+      expect(getByLabelText(/Branch of service */)).toBeInTheDocument();
 
       expect(getByLabelText(/DOD ID number/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/DOD ID number/)).toBeDisabled();
@@ -42,10 +43,13 @@ describe('DodInfoForm component', () => {
 
     await waitFor(() => {
       expect(getByLabelText(/Branch of service/)).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText(/Branch of service/)).toBeRequired();
+      expect(getByLabelText(/Branch of service */)).toBeRequired();
+      expect(getByLabelText(/Branch of service */)).toBeInTheDocument();
 
       expect(getByLabelText(/DOD ID number/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/DOD ID number/)).toBeEnabled();
+      expect(getByLabelText(/DOD ID number */)).toBeRequired();
+      expect(getByLabelText(/DOD ID number */)).toBeInTheDocument();
     });
   });
 
@@ -87,6 +91,8 @@ describe('DodInfoForm component', () => {
       await userEvent.click(getByLabelText(/Branch of service/));
       await userEvent.click(getByLabelText(/DOD ID number/));
       await userEvent.click(getByLabelText(/EMPLID/));
+      expect(getByLabelText(/EMPLID */)).toBeRequired();
+      expect(getByLabelText(/EMPLID */)).toBeInTheDocument();
 
       const submitBtn = getByRole('button', { name: 'Next' });
       await userEvent.click(submitBtn);
