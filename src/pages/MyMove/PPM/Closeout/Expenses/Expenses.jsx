@@ -26,6 +26,7 @@ import { formatDateForSwagger } from 'shared/dates';
 import { convertDollarsToCents } from 'shared/utils';
 import appendTimestampToFilename from 'utils/fileUpload';
 import { APP_NAME } from 'constants/apps';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
