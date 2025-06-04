@@ -6,7 +6,7 @@ import Hint from 'components/Hint';
 
 export const RequiredAsterisk = () => {
   return (
-    <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
+    <span data-testid="requiredAsterisk" className={styles.requiredAsterisk} aria-hidden="true">
       *
     </span>
   );
