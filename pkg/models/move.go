@@ -666,6 +666,7 @@ func FetchMoveByMoveIDWithOrders(db *pop.Connection, moveID uuid.UUID) (Move, er
 	var move Move
 	err := db.Q().Eager(
 		"Orders",
+		"Orders.Entitlement",
 	).Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {
@@ -734,4 +735,135 @@ func (m Move) HasPPM() bool {
 		}
 	}
 	return hasPpmMove
+}
+
+/*
+Clears TOO assignments for origin/destination TOO queues if there are no more action items for the assigned user to take
+this DOES NOT UPDATE, but only returns the provided move back with updated assigned TOO values
+TOO origin queue action items
+- submitted shipments
+- SIT extension requests with origin SIT service items on a shipment
+- unacknowledged order amendments
+- unacknowledged excess weight (move & UB)
+- submitted non-destination service items
+
+TOO destination queue action items
+- submitted destination address requests
+- submitted destination SIT & shuttle service items
+- SIT extension requests with destination SIT service items on a shipment
+*/
+func ClearTOOAssignments(move *Move) (*Move, error) {
+	if move == nil {
+		return nil, fmt.Errorf("move is required when clearing TOO assignment, received empty move object")
+	}
+	originPending := false
+	destinationPending := false
+	hasOriginSIT := false
+	hasDestinationSIT := false
+
+	// unacknowledged amended orders -> origin queue
+	if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
+		originPending = true
+	}
+
+	// pending excess weight -> origin queue
+	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+		originPending = true
+	}
+
+	// pending UB excess weight -> origin queue
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
+		originPending = true
+	}
+
+	for _, si := range move.MTOServiceItems {
+		code := si.ReService.Code
+		if code != "" {
+			// checking if the shipment has origin SIT to be used later
+			if ContainsReServiceCode(ValidOriginSITReServiceCodes, code) {
+				hasOriginSIT = true
+			}
+			// checking if the shipment has destination SIT to be used later
+			if ContainsReServiceCode(ValidDestinationSITReServiceCodes, code) {
+				hasDestinationSIT = true
+			}
+			if si.Status != MTOServiceItemStatusSubmitted {
+				continue
+			}
+			if si.ReService == (ReService{}) {
+				continue
+			}
+			// submitted origin service items -> origin queue
+			if _, isOrigin := OriginServiceItemCodesMap[code]; isOrigin {
+				originPending = true
+			}
+			// submitted destination service items -> dest queue
+			if _, isDest := DestinationServiceItemCodesMap[code]; isDest {
+				destinationPending = true
+			}
+			// early break
+			if originPending && destinationPending {
+				break
+			}
+		} else {
+			return nil, fmt.Errorf("ReService.Code is required when clearing TOO assignment, received empty string for service item id; %s", si.ID)
+		}
+	}
+
+	// checking destination requests
+	if !destinationPending {
+		// pending destination address requests
+		for _, shipment := range move.MTOShipments {
+			if shipment.DeliveryAddressUpdate != nil && shipment.DeliveryAddressUpdate.Status == ShipmentAddressUpdateStatusRequested {
+				destinationPending = true
+				break
+			}
+			// SIT extension requests with destination SIT service items on the shipment
+			for _, sitExt := range shipment.SITDurationUpdates {
+				if sitExt.Status == SITExtensionStatusPending && hasDestinationSIT {
+					destinationPending = true
+					break
+				}
+			}
+			if destinationPending {
+				break
+			}
+		}
+	}
+
+	// checking shipment origin requests
+	if !originPending {
+		for _, shipment := range move.MTOShipments {
+			// submitted shipments needing approval
+			if shipment.Status == MTOShipmentStatusSubmitted && shipment.DeletedAt == nil {
+				originPending = true
+				break
+			}
+
+			// SIT extension requests with origin SIT service items on the shipment
+			for _, sitExt := range shipment.SITDurationUpdates {
+				if sitExt.Status == SITExtensionStatusPending && hasOriginSIT {
+					originPending = true
+					break
+				}
+			}
+			if originPending {
+				break
+			}
+		}
+	}
+
+	// clear out the origin-TOO assignment if nothing origin-type is still pending
+	if !originPending {
+		move.TOOAssignedID = nil
+		move.TOOAssignedUser = nil
+	}
+
+	// clear out the destination-TOO assignment if nothing destination-type is still pending
+	if !destinationPending {
+		move.TOODestinationAssignedID = nil
+		move.TOODestinationAssignedUser = nil
+	}
+
+	return move, nil
 }
