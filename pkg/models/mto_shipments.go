@@ -557,3 +557,16 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 	isOCONUS := *shipment.PickupAddress.IsOconus || *shipment.DestinationAddress.IsOconus
 	return &isOCONUS
 }
+
+func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
+	return m.ShipmentType != MTOShipmentTypePPM
+}
+
+func PrimeCanUpdateDeliveryAddress(shipmentType MTOShipmentType) bool {
+	isValid := false
+	if shipmentType != "" && shipmentType != MTOShipmentTypePPM && shipmentType != MTOShipmentTypeHHGIntoNTS {
+		isValid = true
+	}
+
+	return isValid
+}

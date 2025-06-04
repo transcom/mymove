@@ -251,21 +251,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		if appCtx.Session() != nil {
-			if appCtx.Session().IsOfficeUser() {
-				edited := models.PPMAdvanceStatusEdited
-				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
-					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
-					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-			}
 			if appCtx.Session().IsMilApp() {
 				if isPrimeCounseled && updatedPPMShipment.HasRequestedAdvance != nil {
 					received := models.PPMAdvanceStatusReceived
@@ -317,6 +302,42 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			ppmShipment.Shipment = mtoShipment
+		}
+
+		// authorize gunsafe in orders.Entitlement if customer has selected that they have gun safe when creating a ppm shipment
+		if ppmShipment.HasGunSafe != nil {
+			oldHasGunSafeValue := false
+
+			if oldPPMShipment.HasGunSafe != nil {
+				oldHasGunSafeValue = *oldPPMShipment.HasGunSafe
+			}
+
+			if oldHasGunSafeValue != *ppmShipment.HasGunSafe {
+				move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), mtoShipment.MoveTaskOrderID)
+				if err != nil {
+					return err
+				}
+
+				entitlement := move.Orders.Entitlement
+				entitlement.GunSafe = *updatedPPMShipment.HasGunSafe
+
+				maxGunSafeWeight := 0
+				if updatedPPMShipment.HasGunSafe != nil && *updatedPPMShipment.HasGunSafe {
+					maxGunSafeWeight, err = models.GetMaxGunSafeAllowance(appCtx)
+					if err != nil {
+						return err
+					}
+				}
+				entitlement.GunSafeWeight = maxGunSafeWeight
+
+				verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the Entitlement.")
+				}
+				if err != nil {
+					return apperror.NewQueryError("Entitlement", err, "")
+				}
+			}
 		}
 
 		return nil
