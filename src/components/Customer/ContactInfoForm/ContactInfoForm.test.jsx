@@ -18,16 +18,19 @@ describe('ContactInfoForm Component', () => {
     onBack: jest.fn(),
   };
 
-  it('renders the form inputs', async () => {
-    const { getByLabelText } = render(<ContactInfoForm {...testProps} />);
+  it('renders the form inputs and asterisks for required fields', async () => {
+    const { getByLabelText, getByTestId } = render(<ContactInfoForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText(/Best contact phone/)).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/Best contact phone/)).toBeRequired();
+      expect(getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      expect(getByLabelText(/Best contact phone */)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Best contact phone */)).toBeRequired();
       expect(getByLabelText(/Alt. phone/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/Alt. phone/)).not.toBeRequired();
-      expect(getByLabelText(/Personal email/)).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/Personal email/)).toBeRequired();
+      expect(getByLabelText(/Personal email */)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Personal email */)).toBeRequired();
+      expect(getByTestId('preferredContactMethod')).toHaveTextContent('Preferred contact method *');
       expect(getByLabelText(/Phone/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/Email/)).toBeInstanceOf(HTMLInputElement);
     });
