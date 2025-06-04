@@ -105,7 +105,12 @@ const ppmShipmentSchema = ({
     spouseProGearWeight: Yup.number()
       .min(0, 'Enter a weight 0 lbs or greater')
       .max(proGearSpouseWeightLimit, `Enter a weight ${proGearSpouseWeightLimit.toLocaleString()} lbs or less`),
-
+    hasGunSafe: Yup.boolean().required('Required'),
+    gunSafeWeight: Yup.number().when('hasGunSafe', {
+      is: true,
+      then: (schema) =>
+        schema.min(1, 'Enter a weight 1 lb or greater').max(500, 'Enter a weight 500 lbs or less').required('Required'),
+    }),
     advance: Yup.number()
       .max(
         (estimatedIncentive * 0.6) / 100,
