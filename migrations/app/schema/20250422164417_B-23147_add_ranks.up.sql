@@ -200,6 +200,7 @@ declare
 	i record;
 	v_count int;
 begin
+
 	for i in (
 		select pg.id pay_grade_id, pg.grade, o.id orders_id, sm.affiliation
 			from pay_grades pg, orders o, service_members sm
