@@ -22,7 +22,7 @@ type Move struct {
 	// available to prime at
 	// Read Only: true
 	// Format: date-time
-	AvailableToPrimeAt strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 	// created at
 	// Required: true
@@ -246,7 +246,7 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 
 func (m *Move) contextValidateAvailableToPrimeAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "availableToPrimeAt", "body", strfmt.DateTime(m.AvailableToPrimeAt)); err != nil {
+	if err := validate.ReadOnly(ctx, "availableToPrimeAt", "body", m.AvailableToPrimeAt); err != nil {
 		return err
 	}
 

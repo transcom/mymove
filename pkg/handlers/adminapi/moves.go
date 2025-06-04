@@ -49,11 +49,11 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 		Show:      &showMove,
 		CreatedAt: *handlers.FmtDateTime(move.CreatedAt),
 		UpdatedAt: *handlers.FmtDateTime(move.UpdatedAt),
-		AvailableToPrimeAt: func() strfmt.DateTime {
+		AvailableToPrimeAt: func() *strfmt.DateTime {
 			if move.AvailableToPrimeAt != nil {
-				return *handlers.FmtDateTime(*move.AvailableToPrimeAt)
+				return handlers.FmtDateTime(*move.AvailableToPrimeAt)
 			}
-			return strfmt.NewDateTime()
+			return nil
 		}(),
 	}
 }

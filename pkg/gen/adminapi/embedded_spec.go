@@ -2966,6 +2966,7 @@ func init() {
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "createdAt": {
@@ -7018,6 +7019,7 @@ func init() {
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "createdAt": {
