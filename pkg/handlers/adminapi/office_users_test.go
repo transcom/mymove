@@ -941,8 +941,8 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.Equal(telephone, *okResponse.Payload.Telephone)
 		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeID.String())
 		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeAssignments[0].TransportationOfficeID.String())
-		suite.Equal(1, len(okResponse.Payload.Roles))
-		suite.Equal(1, len(okResponse.Payload.Privileges))
+		suite.Equal(tooRoleName, *okResponse.Payload.Roles[0].RoleName)
+		suite.Equal(supervisorPrivilegeName, okResponse.Payload.Privileges[0].PrivilegeName)
 		suite.Equal(officeUser.LastName, *okResponse.Payload.LastName) // should not have been updated
 		suite.Equal(officeUser.Email, *okResponse.Payload.Email)       // should not have been updated
 	})
