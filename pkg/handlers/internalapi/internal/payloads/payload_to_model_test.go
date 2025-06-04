@@ -534,3 +534,22 @@ func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
 		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
 	})
 }
+
+func (suite *PayloadsSuite) TestVIntlLocationModel() {
+	city := "LONDON"
+	principalDivision := "CARDIFF"
+	intlCityCountriesId := uuid.Must(uuid.NewV4())
+
+	vIntlLocation := &internalmessages.VIntlLocation{
+		City:                city,
+		PrincipalDivision:   principalDivision,
+		IntlCityCountriesID: strfmt.UUID(intlCityCountriesId.String()),
+	}
+
+	payload := VIntlLocationModel(vIntlLocation)
+
+	suite.IsType(payload, &models.VIntlLocation{})
+	suite.Equal(intlCityCountriesId.String(), payload.IntlCityCountriesID.String(), "Expected IntlCityCountriesID to match")
+	suite.Equal(city, *payload.CityName, "Expected City to match")
+	suite.Equal(principalDivision, *payload.CountryPrnDivName, "Expected Principal Division to match")
+}

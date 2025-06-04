@@ -164,3 +164,35 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		suite.Assertions.IsType(&addressop.SearchCountriesForbidden{}, response)
 	})
 }
+
+func (suite *HandlerSuite) TestGetOconusLocationHandler() {
+	suite.Run("successful city name lookup", func() {
+		country := "GB"
+		city := "LONDON"
+		var fetchedVIntlLocation models.VIntlLocation
+		err := suite.DB().Where("city_name = $1", city).First(&fetchedVIntlLocation)
+
+		suite.NoError(err)
+		suite.Equal(city, *fetchedVIntlLocation.CityName)
+
+		vIntlLocationService := address.NewVIntlLocation()
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		req := httptest.NewRequest("GET", "/addresses/oconus_lookup/"+country+"/"+city, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		params := addressop.GetOconusLocationParams{
+			HTTPRequest: req,
+			Country:     country,
+			Search:      city,
+		}
+
+		handler := GetOconusLocationHandler{
+			HandlerConfig: suite.HandlerConfig(),
+			VIntlLocation: vIntlLocationService}
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&addressop.GetOconusLocationOK{}, response)
+		responsePayload := response.(*addressop.GetOconusLocationOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.Equal(city, responsePayload.Payload[0].City)
+	})
+}

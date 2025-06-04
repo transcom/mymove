@@ -77,6 +77,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		ghcrateengine.NewDomesticOriginSITPickupPricer(),
 		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
 		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	vIntlLocation := address.NewVIntlLocation()
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -137,6 +138,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
 		handlerConfig,
 		vLocation,
+	}
+
+	primeAPI.AddressesGetOconusLocationHandler = GetOconusLocationHandler{
+		handlerConfig,
+		vIntlLocation,
 	}
 
 	primeAPI.MtoShipmentUpdateShipmentDestinationAddressHandler = UpdateShipmentDestinationAddressHandler{
