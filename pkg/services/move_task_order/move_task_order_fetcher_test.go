@@ -1470,7 +1470,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 		suite.NotNil(actualMTO.Orders.RankID)
 		suite.Equal(*expectedMTO.Orders.RankID, *actualMTO.Orders.RankID)
 		suite.NotNil(actualMTO.Orders.Rank)
-		suite.Equal(internalmessages.OrderPayGradeE1, *actualMTO.Orders.Grade)
+		suite.Equal(internalmessages.OrderPayGradeEDash1, *actualMTO.Orders.Grade)
 		suite.Equal(rank.RankName, actualMTO.Orders.Rank.RankName)
 	})
 
