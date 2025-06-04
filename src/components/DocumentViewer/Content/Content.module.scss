@@ -3,19 +3,16 @@
 @import '../../../shared/styles/colors';
 
 .DocViewerContent {
-  aspect-ratio: 1/1;
+  // aspect-ratio: 1/1;
+  height: 100%;
   position: relative;
   @include u-bg('base-lighter');
+
+
 
   :global {
     .pdf-viewer-container {
       height: 100%;
-    }
-
-    .pdf-viewer,
-    .photo-viewer-container {
-      height: 100%;
-      overflow-y: scroll;
     }
 
     .pdf-canvas {
@@ -27,12 +24,14 @@
 
     .photo-viewer-container {
       align-items: center; // must override to get it to respect calculating padding-top
-      // spacing for controls/title bar
-      padding: 4em;
+      justify-content: center;
     }
 
     .photo{
       padding: 4em;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
   .zoomDisplayButton {
@@ -50,12 +49,20 @@
   }
 }
 
+:global(.photo-viewer-scale-container) {
+  align-items: last !important;
+}
+
+
 :global(.pg-viewer-wrapper) {
+
+  padding: 0;
+
   .controls {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 77%;
+    width: calc(100% - 400px); // account for sidebar
     background: rgba(255, 255, 255, 0.75);
     height: 50px;
     display: flex;
