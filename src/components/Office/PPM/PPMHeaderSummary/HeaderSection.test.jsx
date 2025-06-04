@@ -528,13 +528,15 @@ describe('PPMHeaderSummary component', () => {
         expect(screen.getByTestId('originPrice')).toHaveTextContent('$156.40');
         expect(screen.getByText('Destination Price')).toBeInTheDocument();
         expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
-        expect(screen.getByText('International Packing Charge')).toBeInTheDocument();
+        expect(screen.getByText('International Packing')).toBeInTheDocument();
         expect(screen.getByTestId('intlPackPrice')).toHaveTextContent('$12.34');
-        expect(screen.getByText('International Unpacking Charge')).toBeInTheDocument();
+        expect(screen.getByText('International Unpacking')).toBeInTheDocument();
         expect(screen.getByTestId('intlUnpackPrice')).toHaveTextContent('$123.45');
-        expect(screen.getByText('International Shipping & Linehaul Charge')).toBeInTheDocument();
+        expect(screen.getByText('International Shipping & Linehaul')).toBeInTheDocument();
         expect(screen.getByTestId('intlLinehaulPrice')).toHaveTextContent('$1,234.56');
         expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
+        expect(screen.getByText('TOTAL')).toBeInTheDocument();
+        expect(screen.getByTestId('total')).toHaveTextContent('$71,388.92');
       });
 
       it('renders "Shorthaul" in place of linehaul when given a shorthaul type', async () => {
@@ -560,6 +562,8 @@ describe('PPMHeaderSummary component', () => {
         expect(screen.getByText('Destination Price')).toBeInTheDocument();
         expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
         expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
+        expect(screen.getByText('TOTAL')).toBeInTheDocument();
+        expect(screen.getByTestId('total')).toHaveTextContent('$70,028.05');
       });
     });
 
