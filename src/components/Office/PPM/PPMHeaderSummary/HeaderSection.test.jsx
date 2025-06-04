@@ -240,6 +240,7 @@ const incentiveFactorsProps = {
     intlUnpackPrice: 12345,
     intlLinehaulPrice: 123456,
     sitReimbursement: 30000,
+    gccMultiplier: 1.3,
   },
 };
 
@@ -514,6 +515,14 @@ describe('PPMHeaderSummary component', () => {
         });
         await act(async () => {
           clickDetailsButton('incentiveFactors');
+        });
+
+        const labels = screen.getAllByTestId('label');
+
+        labels.forEach((label) => {
+          if (label.textContent !== 'SIT Reimbursement' && label.textContent !== 'TOTAL') {
+            expect(label).toHaveTextContent('with 1.3x multiplier');
+          }
         });
 
         expect(screen.getByText('Linehaul Price')).toBeInTheDocument();

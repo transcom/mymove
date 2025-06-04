@@ -49,7 +49,7 @@ type SSWPPMGenerator struct {
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGenerator, error) {
-	templateReader, err := createAssetByteReader("paperwork/formtemplates/ShipmentSummaryWorksheet_v2.pdf")
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/ShipmentSummaryWorksheet.pdf")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1285,7 +1285,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	}
 
 	var sswHeader = header{
-		Source:   "ShipmentSummaryWorksheet_v2.pdf",
+		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
 		Creation: "2025-05-23 17:26:58 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",

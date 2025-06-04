@@ -29,5 +29,5 @@ export const renderMultiplier = (multiplier) => {
   if (multiplier === '') {
     return null;
   }
-  return `(with ${multiplier}x Multiplier)`;
+  return `(with ${multiplier}x multiplier)`;
 };
