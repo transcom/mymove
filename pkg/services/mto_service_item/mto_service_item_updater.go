@@ -511,7 +511,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		return nil, err
 	}
 
-	// Check if valid service SIT service item to get correct authorized end date.
+	// Check if valid SIT service item to get correct authorized end date.
 	var endDate *time.Time
 	validOriginCodes := append(models.ValidDomesticOriginSITReServiceCodes, models.ValidInternationalOriginSITReServiceCodes...)
 	validDestCodes := append(models.ValidDomesticDestinationSITReServiceCodes, models.ValidInternationalDestinationSITReServiceCodes...)
