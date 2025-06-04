@@ -2,7 +2,6 @@ package address
 
 import (
 	"slices"
-
 	"strings"
 
 	"github.com/transcom/mymove/pkg/appcontext"
