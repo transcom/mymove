@@ -14,34 +14,77 @@ const MoveFilter = (props) => (
 );
 
 const useStyles = makeStyles({
-  table: {
-    width: '100%',
-    '& .MuiTable-root': {
-      tableLayout: 'fixed',
-    },
+  tableCell: {
+    whiteSpace: 'normal',
+    minWidth: '25px',
+    padding: '8px',
   },
 });
 
 const MoveList = () => {
   const classes = useStyles();
   return (
-    <List
-      pagination={<AdminPagination />}
-      perPage={25}
-      filters={<MoveFilter />}
-      sort={defaultSort}
-      className={classes.table}
-    >
+    <List pagination={<AdminPagination />} perPage={25} filters={<MoveFilter />} sort={defaultSort}>
       <Datagrid bulkActionButtons={false} rowClick="show">
-        <TextField source="id" reference="moves" />
-        <TextField source="ordersId" reference="moves" label="Order Id" />
-        <TextField source="serviceMember.id" label="Service Member Id" sortable={false} />
-        <TextField source="locator" reference="moves" />
-        <TextField source="status" reference="moves" />
-        <TextField source="show" reference="moves" />
-        <DateField source="createdAt" reference="moves" showTime />
-        <DateField source="updatedAt" reference="moves" showTime />
-        <DateField source="availableToPrimeAt" reference="moves" showTime />
+        <TextField
+          source="id"
+          reference="moves"
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
+        <TextField
+          source="ordersId"
+          reference="moves"
+          label="Order Id"
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
+        <TextField
+          source="serviceMember.id"
+          label="Service Member Id"
+          sortable={false}
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
+        <TextField
+          source="locator"
+          reference="moves"
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
+        <TextField
+          source="status"
+          reference="moves"
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
+        <TextField
+          source="show"
+          reference="moves"
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
+        <DateField
+          source="createdAt"
+          reference="moves"
+          showTime
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
+        <DateField
+          source="updatedAt"
+          reference="moves"
+          showTime
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
+        <DateField
+          source="availableToPrimeAt"
+          reference="moves"
+          showTime
+          cellClassName={classes.tableCell}
+          headerClassName={classes.tableCell}
+        />
       </Datagrid>
     </List>
   );
