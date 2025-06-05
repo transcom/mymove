@@ -11,10 +11,19 @@ import SelectedGblocContext, {
   SELECTED_GBLOC_SESSION_STORAGE_KEY,
 } from 'components/Office/GblocSwitcher/SelectedGblocContext';
 import { roleTypes } from 'constants/userRoles';
+import { setActiveOffice as setActiveOfficeAction } from 'store/auth/actions';
 
-const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
+const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel, setActiveOffice }) => {
   const [isInitialPageLoad, setIsInitialPageLoad] = useState(true);
   const { selectedGbloc, handleGblocChange } = useContext(SelectedGblocContext);
+
+  const handleChange = (activeGbloc) => {
+    handleGblocChange(activeGbloc);
+    const activeOffice = officeUser.transportation_office_assignments?.find(
+      (office) => office.transportationOffice.gbloc === activeGbloc,
+    );
+    setActiveOffice(activeOffice.transportationOffice);
+  };
 
   let { result: gblocs } = useListGBLOCsQueries();
   if (activeRole !== roleTypes.HQ) {
@@ -41,7 +50,7 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
   return (
     <ButtonDropdown
       onChange={(e) => {
-        handleGblocChange(e.target.value);
+        handleChange(e.target.value);
       }}
       value={selectedGbloc || officeUsersDefaultGbloc}
       ariaLabel={ariaLabel}
@@ -76,4 +85,8 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(GBLOCSwitcher);
+const mapDispatchToProps = {
+  setActiveOffice: setActiveOfficeAction,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(GBLOCSwitcher);

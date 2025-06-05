@@ -5220,6 +5220,13 @@ func init() {
             "description": "user's actively logged in role",
             "name": "activeRole",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5429,6 +5436,13 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5597,6 +5611,13 @@ func init() {
             "description": "user's actively logged in role",
             "name": "activeRole",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5756,6 +5777,13 @@ func init() {
             "type": "string",
             "description": "user's actively logged in role",
             "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
             "in": "query"
           }
         ],
@@ -5981,6 +6009,13 @@ func init() {
             "type": "string",
             "description": "user's actively logged in role",
             "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
             "in": "query"
           }
         ],
@@ -24312,6 +24347,13 @@ func init() {
             "description": "user's actively logged in role",
             "name": "activeRole",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
+            "in": "query"
           }
         ],
         "responses": {
@@ -24533,6 +24575,13 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
+            "in": "query"
           }
         ],
         "responses": {
@@ -24707,6 +24756,13 @@ func init() {
             "description": "user's actively logged in role",
             "name": "activeRole",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
+            "in": "query"
           }
         ],
         "responses": {
@@ -24872,6 +24928,13 @@ func init() {
             "type": "string",
             "description": "user's actively logged in role",
             "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
             "in": "query"
           }
         ],
@@ -25103,6 +25166,13 @@ func init() {
             "type": "string",
             "description": "user's actively logged in role",
             "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "user's actively logged in transportation office ID",
+            "name": "activeOfficeID",
             "in": "query"
           }
         ],
