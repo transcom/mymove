@@ -105,29 +105,21 @@ BEGIN
 
     -- looking to see if the PPM's departure date falls within a multiplier window
     EXECUTE 'SELECT multiplier FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1' INTO gcc_multiplier USING ppm.expected_departure_date;
-    RAISE NOTICE 'Before multiplier, price ISLH: %, After multiplier: %', price_islh, ROUND(price_islh * gcc_multiplier);
-    RAISE NOTICE 'Before multiplier, price IHPK: %, After multiplier: %', price_ihpk, ROUND(price_ihpk * gcc_multiplier);
-    RAISE NOTICE 'Before multiplier, price IHUPK: %, After multiplier: %', price_ihupk, ROUND(price_ihupk * gcc_multiplier);
-    RAISE NOTICE 'Before multiplier, price FSC: %, After multiplier: %', price_fsc, ROUND(price_fsc * gcc_multiplier);
 
     IF price_islh > 0 AND gcc_multiplier != 1.00 THEN
         price_islh := ROUND(price_islh * gcc_multiplier);
-        RAISE NOTICE 'price ISLH after multiplier: %', price_islh;
     END IF;
 
     IF price_ihpk > 0 AND gcc_multiplier != 1.00 THEN
         price_ihpk := ROUND(price_ihpk * gcc_multiplier);
-        RAISE NOTICE 'price IHPK after multiplier: %', price_ihpk;
     END IF;
 
     IF price_ihupk > 0 AND gcc_multiplier != 1.00 THEN
         price_ihupk := ROUND(price_ihupk * gcc_multiplier);
-        RAISE NOTICE 'price IHUPK after multiplier: %', price_ihupk;
     END IF;
 
     IF price_fsc > 0 AND gcc_multiplier != 1.00 THEN
         price_fsc := ROUND(price_fsc * gcc_multiplier);
-        RAISE NOTICE 'price FSC after multiplier: %', price_fsc;
     END IF;
 
     total_incentive := ROUND(price_islh + price_ihpk + price_ihupk + price_fsc);

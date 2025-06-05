@@ -18,3 +18,4 @@ COMMENT ON COLUMN ppm_shipments.gun_safe_weight IS 'Customer estimated gun safe 
 ALTER TABLE ppm_shipments
 ADD COLUMN IF NOT EXISTS gcc_multiplier_id	uuid
 	CONSTRAINT fk_ppm_shipments_gcc_multiplier_id REFERENCES gcc_multipliers (id);
+COMMENT ON COLUMN ppm_shipments.gcc_multiplier_id IS 'References the gcc_multipliers table that holds a multiplier to be applied to incentives if the expected departure date falls within an applicable window';
