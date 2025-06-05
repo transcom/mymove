@@ -15,7 +15,7 @@ import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { formatDateWithUTC, formatDateForDatePicker } from 'shared/dates';
-import { dateSelectionIsWeekendHoliday } from 'services/ghcApi';
+import { dateSelectionIsWeekendHoliday, searchCountry } from 'services/ghcApi';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -25,6 +25,7 @@ jest.mock('utils/featureFlags', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
+  searchCountry: jest.fn().mockImplementation(() => Promise.resolve([{}])),
 }));
 
 const mockMutateFunction = jest.fn();
@@ -48,7 +49,7 @@ const mockMtoShipment = {
   customerRemarks: 'mock customer remarks',
   counselorRemarks: 'mock counselor remarks',
   requestedPickupDate: tomorrow,
-  requestedDeliveryDate: '2020-03-30',
+  requestedDeliveryDate: tomorrow,
   hasSecondaryDeliveryAddress: false,
   hasSecondaryPickupAddress: false,
   pickupAddress: {
@@ -57,6 +58,7 @@ const mockMtoShipment = {
     state: 'TX',
     postalCode: '78234',
     county: 'BEXAR',
+    country: { code: 'US' },
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
@@ -64,6 +66,7 @@ const mockMtoShipment = {
     state: 'WA',
     postalCode: '98421',
     county: 'PIERCE',
+    country: { code: 'US' },
   },
   mtoAgents: [
     {
@@ -175,6 +178,50 @@ const mockMtoShipment = {
   ],
 };
 
+const mockNtsShipment = {
+  ...mockMtoShipment,
+  pickupAddress: {
+    city: 'Beverly Hills',
+    postalCode: '90210',
+    state: 'CA',
+    streetAddress1: '123 Any Street',
+    streetAddress2: 'P.O. Box 12345',
+    streetAddress3: 'c/o Some Person',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
+  },
+  storageFacility: {
+    facilityName: 'Storage Facility',
+    address: {
+      city: 'Anytown',
+      postalCode: '90210',
+      state: 'OK',
+      streetAddress1: '555 Main Ave',
+      streetAddress2: 'Apartment 900',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+  },
+  tacType: 'HHG',
+  sacType: 'NTS',
+  tac: '123',
+  sac: '456',
+  serviceOrderNumber: '12341234',
+};
+
+const mockNtsrShipment = {
+  ...mockNtsShipment,
+  ntsRecordedWeight: 2000,
+};
+
 const mockUBShipment = {
   id: 'shipment123',
   moveTaskOrderId: 'mock move id',
@@ -220,6 +267,9 @@ const defaultProps = {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
+    country: {
+      code: 'US',
+    },
   },
   currentResidence: {
     city: 'Fort Benning',
@@ -571,8 +621,25 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const renderWithRouter = (ui) => {
-  render(<MockProviders {...mockRoutingOptions}>{ui}</MockProviders>);
+const mockLoggedInUser = {
+  entities: {
+    user: {
+      123: {
+        id: '123',
+        office_user: {
+          id: '456',
+        },
+      },
+    },
+  },
+};
+
+const renderWithRouter = (ui, initialState) => {
+  render(
+    <MockProviders initialState={initialState} {...mockRoutingOptions}>
+      {ui}
+    </MockProviders>,
+  );
 };
 
 describe('ShipmentForm component', () => {
@@ -2641,50 +2708,6 @@ describe('ShipmentForm component', () => {
       requestedPickupDate: '2020-03-01',
     };
 
-    const mockNtsShipment = {
-      ...mockHHGShipment,
-      pickupAddress: {
-        city: 'Beverly Hills',
-        postalCode: '90210',
-        state: 'CA',
-        streetAddress1: '123 Any Street',
-        streetAddress2: 'P.O. Box 12345',
-        streetAddress3: 'c/o Some Person',
-        country: {
-          code: 'US',
-          name: 'UNITED STATES',
-          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
-        },
-        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
-      },
-      storageFacility: {
-        facilityName: 'Storage Facility',
-        address: {
-          city: 'Anytown',
-          postalCode: '90210',
-          state: 'OK',
-          streetAddress1: '555 Main Ave',
-          streetAddress2: 'Apartment 900',
-          country: {
-            code: 'US',
-            name: 'UNITED STATES',
-            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
-          },
-          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
-        },
-      },
-      tacType: 'HHG',
-      sacType: 'NTS',
-      tac: '123',
-      sac: '456',
-      serviceOrderNumber: '12341234',
-    };
-
-    const mockNtsrShipment = {
-      ...mockNtsShipment,
-      ntsRecordedWeight: 2000,
-    };
-
     const mockBoatShipment = (boatShipmentType) => ({
       ...mockHHGShipment,
       boatShipment: {
@@ -2855,5 +2878,1243 @@ describe('ShipmentForm component', () => {
         });
       },
     );
+  });
+
+  async function selectCountryInput(countryInputField) {
+    // Select the US option from the Country dropdown
+    await act(async () => {
+      await userEvent.type(countryInputField, 'US');
+      await waitFor(() => {
+        expect(screen.getByText(/option UNITED STATES/i)).toBeInTheDocument();
+      });
+      await userEvent.type(countryInputField, '{enter}');
+    });
+  }
+
+  async function selectTomorrowForDatePicker(datePickerInput) {
+    await act(async () => {
+      await userEvent.clear(datePickerInput);
+      await userEvent.type(datePickerInput, tomorrowDatePicker);
+    });
+  }
+
+  describe('holiday/weekend warning', () => {
+    const mockCountryData = [
+      {
+        code: 'US',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        name: 'UNITED STATES',
+      },
+    ];
+
+    const mockHolidayData = {
+      data: JSON.stringify({
+        country_code: 'US',
+        country_name: 'United States',
+        date: '2025-07-04',
+        is_holiday: true,
+        is_weekend: false,
+      }),
+    };
+
+    const mockInternationalHolidayData = {
+      data: JSON.stringify({
+        country_code: 'DE',
+        country_name: 'Germany',
+        date: '2025-07-04',
+        is_holiday: true,
+        is_weekend: false,
+      }),
+    };
+
+    const mockWeekendData = {
+      data: JSON.stringify({
+        country_code: 'US',
+        country_name: 'United States',
+        date: '2025-06-07',
+        is_holiday: false,
+        is_weekend: true,
+      }),
+    };
+
+    const mockInternationalWeekendData = {
+      data: JSON.stringify({
+        country_code: 'GB',
+        country_name: 'United Kingdom',
+        date: '2025-06-07',
+        is_holiday: false,
+        is_weekend: true,
+      }),
+    };
+
+    const mockHolidayAndWeekendData = {
+      data: JSON.stringify({
+        country_code: 'US',
+        country_name: 'United States',
+        date: '2025-07-04',
+        is_holiday: true,
+        is_weekend: true,
+      }),
+    };
+
+    const mockNonHolidayOrWeekendData = {
+      data: JSON.stringify({
+        country_code: 'US',
+        country_name: 'United States',
+        date: '2025-07-07',
+        is_holiday: false,
+        is_weekend: false,
+      }),
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      searchCountry.mockResolvedValue(mockCountryData);
+    });
+
+    describe('when the oconus city finder feature flag is enabled', () => {
+      beforeEach(() => {
+        isBooleanFlagEnabled.mockResolvedValue(true);
+      });
+
+      describe('when the shipment type is HHG', () => {
+        it('displays the holiday warning on a new shipment when a user selects a country/requested pickup date combo that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+          const countryInput = screen.getByLabelText(/Country Lookup/);
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a weekend in United Kingdom. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the holiday warning on a new shipment when a user selects a country/requested pickup date combo that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+          const countryInput = screen.getByLabelText(/Country Lookup/);
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday warning on a new shipment when a user changes the requested country field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[0];
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(countryInput);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the weekend warning on a new shipment when a user changes the requested pickup date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+          screen.debug(null, 100000);
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[0];
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedPickupDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday warning on a new shipment when a user selects a requested delivery date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+
+          // No need to select country here since it defaults to the new duty location country
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the warning on a new shipment when a user selects a requested delivery date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+
+          // No need to select country here since it defaults to the new duty location country
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the weekend warning on a new shipment when a user changes the delivery country field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+          await act(async () => {
+            await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+          });
+
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[1];
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(countryInput);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday warning on a new shipment when a user changes the requested delivery date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+          await act(async () => {
+            await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+          });
+
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[1];
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedDeliveryDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the weekend warning on a new shipment when a user changes the customer knows delivery address question', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+
+          await act(async () => {
+            await userEvent.click(screen.getByTitle('No, I do not know my delivery address'));
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('displays the holiday warning when an existing shipment has a country/date combo that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayAndWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm
+                {...defaultProps}
+                isCreatePage={false}
+                shipmentType={SHIPMENT_OPTIONS.HHG}
+                mtoShipment={mockMtoShipment}
+              />,
+              mockLoggedInUser,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+      });
+
+      describe('when the shipment type is NTS', () => {
+        it('displays the holiday warning on a new shipment when a user selects a country/requested pickup date combo that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />, mockLoggedInUser);
+          });
+          const countryInput = screen.getByLabelText(/Country Lookup/);
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the holiday warning on a new shipment when a user selects a country/requested pickup date combo that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />, mockLoggedInUser);
+          });
+          const countryInput = screen.getByLabelText(/Country Lookup/);
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the weekend warning on a new shipment when a user changes the requested country field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />, mockLoggedInUser);
+          });
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[0];
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(countryInput);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday and weekend warning on a new shipment when a user changes the requested pickup date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayAndWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />, mockLoggedInUser);
+          });
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[0];
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedPickupDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday warning on a new shipment when a user selects a country/requested delivery date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const deliveryCountry = screen.getAllByLabelText(/Country Lookup/)[1];
+          await selectCountryInput(deliveryCountry);
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the warning on a new shipment when a user selects a requested delivery date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const deliveryCountry = screen.getAllByLabelText(/Country Lookup/)[1];
+          await selectCountryInput(deliveryCountry);
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the weekend warning on a new shipment when a user changes the delivery country field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[1];
+          await selectCountryInput(countryInput);
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(countryInput);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday warning on a new shipment when a user changes the requested delivery date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[1];
+          await selectCountryInput(countryInput);
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in Germany. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedDeliveryDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday and weekend warning when an existing shipment has a country/date combo that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayAndWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm
+                {...defaultProps}
+                isCreatePage={false}
+                shipmentType={SHIPMENT_OPTIONS.NTS}
+                userRole={roleTypes.TOO}
+                mtoShipment={mockNtsShipment}
+              />,
+              mockLoggedInUser,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+      });
+
+      describe('when the shipment type is NTSR', () => {
+        it('displays the weekend warning on a new shipment when a user selects a country/requested pickup date combo that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[0];
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a weekend in United Kingdom. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the warning on a new shipment when a user selects a country/requested pickup date combo that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[0];
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday warning on a new shipment when a user changes the pickup country field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[0];
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday in Germany. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(countryInput);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday and weekend warning on a new shipment when a user changes the requested pickup date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayAndWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[0];
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedPickupDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday warning on a new shipment when a user selects a requested delivery date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[1];
+          await selectCountryInput(countryInput);
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the warning on a new shipment when a user selects a requested delivery date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[1];
+          await selectCountryInput(countryInput);
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the weekend warning on a new shipment when a user changes the delivery country field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[1];
+          await selectCountryInput(countryInput);
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(countryInput);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday warning on a new shipment when a user changes the requested delivery date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const countryInput = screen.getAllByLabelText(/Country Lookup/)[1];
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+
+          await selectCountryInput(countryInput);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedDeliveryDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday and weekend warning when an existing shipment has a country/date combo that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayAndWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm
+                {...defaultProps}
+                isCreatePage={false}
+                shipmentType={SHIPMENT_OPTIONS.NTSR}
+                userRole={roleTypes.TOO}
+                mtoShipment={mockNtsrShipment}
+              />,
+              mockLoggedInUser,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+      });
+    });
+
+    describe('when the oconus city finder feature flag is disabled', () => {
+      beforeEach(() => {
+        isBooleanFlagEnabled.mockResolvedValue(false);
+      });
+
+      describe('when the shipment type is HHG', () => {
+        it('displays the holiday warning on a new shipment when a user selects a requested pickup date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the warning on a new shipment when a user selects a requested pickup date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the weekend warning on a new shipment when a user changes the requested pickup date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedPickupDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday warning on a new shipment when a user selects a requested delivery date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalHolidayData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in Germany. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the warning on a new shipment when a user selects a requested delivery date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday and weekend warning on a new shipment when a user changes the requested delivery date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayAndWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />, mockLoggedInUser);
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedDeliveryDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday warning when an existing shipment has a date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm
+                {...defaultProps}
+                isCreatePage={false}
+                shipmentType={SHIPMENT_OPTIONS.HHG}
+                mtoShipment={mockMtoShipment}
+              />,
+              mockLoggedInUser,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday in Germany. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in Germany. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+      });
+
+      describe('when the shipment type is NTS', () => {
+        it('displays the weekend warning on a new shipment when a user selects a requested pickup date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />, mockLoggedInUser);
+          });
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a weekend in United Kingdom. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the warning on a new shipment when a user selects a requested pickup date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />, mockLoggedInUser);
+          });
+
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday warning on a new shipment when a user changes the requested pickup date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />, mockLoggedInUser);
+          });
+
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedPickupDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday warning on a new shipment when a user selects a requested delivery date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in Germany. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display a warning on a new shipment when a user selects a requested delivery date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the weekend warning on a new shipment when a user changes the requested delivery date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a weekend in United Kingdom. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedDeliveryDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday warning when an existing shipment has a date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm
+                {...defaultProps}
+                isCreatePage={false}
+                shipmentType={SHIPMENT_OPTIONS.NTS}
+                userRole={roleTypes.TOO}
+                mtoShipment={mockNtsShipment}
+              />,
+              mockLoggedInUser,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+      });
+
+      describe('when the shipment type is NTSR', () => {
+        it('displays the holiday warning on a new shipment when a user selects a requested pickup date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display a warning on a new shipment when a user selects a requested pickup date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday warning on a new shipment when a user changes the requested pickup date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const requestedPickupDate = screen.getByLabelText(/Requested pickup date/);
+
+          await selectTomorrowForDatePicker(requestedPickupDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a weekend in United Kingdom. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedPickupDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the holiday warning on a new shipment when a user selects a requested delivery date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockInternationalHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in Germany. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+
+        it('does not display the warning on a new shipment when a user selects a requested delivery date that does not fall on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockNonHolidayOrWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('toggles the holiday warning on a new shipment when a user changes the requested delivery date field', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockHolidayData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+              mockLoggedInUser,
+            );
+          });
+
+          const requestedDeliveryDate = screen.getByLabelText(/Requested delivery date/);
+
+          await selectTomorrowForDatePicker(requestedDeliveryDate);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await act(async () => {
+            await userEvent.clear(requestedDeliveryDate);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('requestedDeliveryDateAlert')).not.toBeInTheDocument();
+          });
+        });
+
+        it('displays the weekend warning when an existing shipment has a date that falls on a holiday', async () => {
+          dateSelectionIsWeekendHoliday.mockResolvedValue(mockWeekendData);
+          await act(async () => {
+            renderWithRouter(
+              <ShipmentForm
+                {...defaultProps}
+                isCreatePage={false}
+                shipmentType={SHIPMENT_OPTIONS.NTSR}
+                userRole={roleTypes.TOO}
+                mtoShipment={mockNtsrShipment}
+              />,
+              mockLoggedInUser,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedPickupDateAlert')).toHaveTextContent(
+              `Requested pickup date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('requestedDeliveryDateAlert')).toHaveTextContent(
+              `Requested delivery date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
+            );
+          });
+        });
+      });
+    });
   });
 });

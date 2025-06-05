@@ -355,6 +355,14 @@ const ShipmentForm = (props) => {
     checkDateHolidayWeekend,
   ]);
 
+  const handleStorageFacilityAddressChange = (country, date) => {
+    if (isNTS) {
+      handleDeliveryCountryChange(country, date);
+    } else if (isNTSR) {
+      handlePickupCountryChange(country, date);
+    }
+  };
+
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
@@ -800,15 +808,20 @@ const ShipmentForm = (props) => {
           });
 
           setIsRequestedPickupDateChanged(true);
-          if (!validatePickupDate(e)) {
-            checkDateHolidayWeekend(
-              values.pickup?.address?.country?.code,
-              new Date(e),
-              REQUESTED_PICKUP_DATE,
-              setRequestedPickupDateAlertMessage,
-              setIsRequestedPickupDateAlertVisible,
-            );
+
+          let pickupCountry;
+          if (isNTSR) {
+            pickupCountry = values.storageFacility?.address?.country?.code;
+          } else {
+            pickupCountry = values.pickup?.address?.country?.code;
           }
+          checkDateHolidayWeekend(
+            pickupCountry,
+            new Date(e),
+            REQUESTED_PICKUP_DATE,
+            setRequestedPickupDateAlertMessage,
+            setIsRequestedPickupDateAlertVisible,
+          );
         };
 
         const handleDeliveryDateChange = (e) => {
@@ -844,6 +857,11 @@ const ShipmentForm = (props) => {
         const handleAddressKnownChange = (e) => {
           handleAddressToggleChange(e, values, setValues, blankAddress);
           handleDeliveryCountryChange(values.delivery?.address?.country?.code, values.delivery.requestedDate);
+        };
+
+        const handleAddressNotKnownChange = (e) => {
+          updateAddressTouched(e, 'delivery.address', newDutyLocationAddress);
+          handleDeliveryCountryChange(newDutyLocationAddress?.country?.code, values.delivery.requestedDate);
         };
 
         return (
@@ -1005,6 +1023,19 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
+                {isTOO && isNTSR && (
+                  <>
+                    <StorageFacilityInfo userRole={userRole} />
+                    <StorageFacilityAddress
+                      values={values}
+                      formikProps={formikProps}
+                      onCountryChange={(country) =>
+                        handleStorageFacilityAddressChange(country, values.pickup?.requestedDate)
+                      }
+                    />
+                  </>
+                )}
+
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
                     {!isNTSR && (
@@ -1146,15 +1177,14 @@ const ShipmentForm = (props) => {
                   </SectionWrapper>
                 )}
 
-                {isTOO && (isNTS || isNTSR) && (
+                {isTOO && isNTS && (
                   <>
                     <StorageFacilityInfo userRole={userRole} />
-                    sd
                     <StorageFacilityAddress
                       values={values}
                       formikProps={formikProps}
                       onCountryChange={(country) =>
-                        handleDeliveryCountryChange(country, values.delivery?.requestedDate)
+                        handleStorageFacilityAddressChange(country, values.delivery?.requestedDate)
                       }
                     />
                   </>
@@ -1299,7 +1329,12 @@ const ShipmentForm = (props) => {
 
                         <Fieldset legend="Delivery details">
                           {isRequestedDeliveryDateAlertVisible && (
-                            <Alert type="warning" aria-live="polite" headingLevel="h4">
+                            <Alert
+                              type="warning"
+                              aria-live="polite"
+                              headingLevel="h4"
+                              data-testid="requestedDeliveryDateAlert"
+                            >
                               {requestedDeliveryDateAlertMessage}
                             </Alert>
                           )}
@@ -1325,7 +1360,12 @@ const ShipmentForm = (props) => {
                     {isNTS && (
                       <Fieldset legend="Delivery details">
                         {isRequestedDeliveryDateAlertVisible && (
-                          <Alert type="warning" aria-live="polite" headingLevel="h4">
+                          <Alert
+                            type="warning"
+                            aria-live="polite"
+                            headingLevel="h4"
+                            data-testid="requestedDeliveryDateAlert"
+                          >
                             {requestedDeliveryDateAlertMessage}
                           </Alert>
                         )}
@@ -1387,7 +1427,7 @@ const ShipmentForm = (props) => {
                                 value="false"
                                 title="No, I do not know my delivery address"
                                 checked={hasDeliveryAddress === 'false'}
-                                onChange={(e) => updateAddressTouched(e, 'delivery.address', newDutyLocationAddress)}
+                                onChange={(e) => handleAddressNotKnownChange(e)}
                               />
                             </div>
                           </FormGroup>
@@ -1529,7 +1569,12 @@ const ShipmentForm = (props) => {
 
                         <Fieldset legend="Delivery details">
                           {isRequestedDeliveryDateAlertVisible && (
-                            <Alert type="warning" aria-live="polite" headingLevel="h4">
+                            <Alert
+                              type="warning"
+                              aria-live="polite"
+                              headingLevel="h4"
+                              data-testid="requestedDeliveryDateAlert"
+                            >
                               {requestedDeliveryDateAlertMessage}
                             </Alert>
                           )}
