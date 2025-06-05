@@ -27,6 +27,7 @@ import {
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { shipmentStatuses } from 'constants/shipments';
 
 describe('ShipmentSITDisplay', () => {
   it('renders the Shipment SIT Extensions', async () => {
@@ -335,6 +336,32 @@ describe('ShipmentSITDisplay', () => {
     });
   });
 
+  it('shows openConvertModalButton even when terminated', async () => {
+    const onClick = jest.fn();
+    const OpenConvertModalButton = (
+      <button type="button" onClick={() => onClick()}>
+        Convert to customer expense
+      </button>
+    );
+    render(
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentSITDisplay
+          sitStatus={SITStatusShowConvert}
+          shipment={{ ...SITShipment, status: shipmentStatuses.TERMINATED_FOR_CAUSE }}
+          openConvertModalButton={OpenConvertModalButton}
+        />
+      </MockProviders>,
+    );
+
+    const convertButton = screen.getByRole('button', { name: 'Convert to customer expense' });
+
+    await userEvent.click(convertButton);
+
+    await waitFor(() => {
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('hide convert SIT To Customer Expense button when show button is false', async () => {
     const onClick = jest.fn();
     const OpenConvertModalButton = (
@@ -393,6 +420,19 @@ describe('ShipmentSITDisplay', () => {
     render(
       <MockProviders>
         <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+  it('Edit button is hidden when shipment is terminated and the user does in fact have permission', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensions}
+          sitStatus={SITStatusDestination}
+          shipment={{ ...SITShipment, status: shipmentStatuses.TERMINATED_FOR_CAUSE }}
+        />
       </MockProviders>,
     );
 
