@@ -274,14 +274,17 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = orderTypesOptions;
-      if (!isWoundedWarriorEnabled) {
-        delete orderTypesOptions.WOUNDED_WARRIOR;
-      }
-      setOrderTypesOptions(options);
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+        return options;
+      });
     };
+
     checkFeatureFlags();
-  }, [orderTypesOptions]);
+  }, []);
   const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   if (isLoading) return <LoadingPlaceholder />;

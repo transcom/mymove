@@ -269,19 +269,24 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = orderTypesOptions;
 
-      if (!isAlaskaEnabled) {
-        delete orderTypesOptions.EARLY_RETURN_OF_DEPENDENTS;
-        delete orderTypesOptions.STUDENT_TRAVEL;
-      }
-      if (!isWoundedWarriorEnabled) {
-        delete orderTypesOptions.WOUNDED_WARRIOR;
-      }
-      setOrderTypesOptions(options);
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+
+        if (!isAlaskaEnabled) {
+          delete options.EARLY_RETURN_OF_DEPENDENTS;
+          delete options.STUDENT_TRAVEL;
+        }
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+
+        return options;
+      });
     };
+
     checkFeatureFlags();
-  }, [orderTypesOptions]);
+  }, []);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

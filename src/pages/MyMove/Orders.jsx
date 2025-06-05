@@ -76,15 +76,18 @@ const Orders = ({ serviceMemberId, updateOrders, orders }) => {
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      const options = orderTypesOptions;
-      if (!isWoundedWarriorEnabled) {
-        delete orderTypesOptions.WOUNDED_WARRIOR;
-      }
-      setOrderTypesOptions(options);
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+        return options;
+      });
     };
+
     checkFeatureFlags();
-  }, [orderTypesOptions]);
-  const ordersTypeOptions = dropdownInputOptions(orderTypesOptions);
+  }, []);
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   return (
     <GridContainer data-testid="main-container">
@@ -103,7 +106,7 @@ const Orders = ({ serviceMemberId, updateOrders, orders }) => {
       <Grid row data-testid="orders-form-container">
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <OrdersInfoForm
-            ordersTypeOptions={ordersTypeOptions}
+            ordersTypeOptions={ordersTypeDropdownOptions}
             initialValues={initialValues}
             onSubmit={submitOrders}
             onBack={handleBack}
