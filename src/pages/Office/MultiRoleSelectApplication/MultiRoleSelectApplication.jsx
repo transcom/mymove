@@ -86,9 +86,8 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
         </option>
       ) : (
         rolesAvailableToUser.map(({ roleType, abbv }) => {
-          const current = assumedRoleType === roleType;
           return (
-            <option key={roleType} value={roleType} selected={current}>
+            <option key={roleType} value={roleType}>
               {abbv}
             </option>
           );

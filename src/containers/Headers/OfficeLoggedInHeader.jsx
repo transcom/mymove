@@ -52,25 +52,25 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
 
   const navListItems = [
     activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1 ? (
-      <GblocSwitcher activeRole={activeRole} officeUser={officeUser} />
+      <li className={classnames('usa-nav__primary-item')}>
+        <GblocSwitcher activeRole={activeRole} officeUser={officeUser} />
+      </li>
     ) : (
-      <Link to="/">
-        {officeUser?.transportation_office?.gbloc} {queueText}
-      </Link>
+      <li className={classnames('usa-nav__primary-item')}>
+        <Link to="/">
+          {officeUser?.transportation_office?.gbloc} {queueText}
+        </Link>
+      </li>
     ),
-    <ConnectedSelectApplication />,
+    <li className={classnames('usa-nav__primary-item')}>
+      <ConnectedSelectApplication />
+    </li>,
     <OfficeUserInfo lastName={officeUser?.last_name} firstName={officeUser?.first_name} handleLogout={handleLogout} />,
   ];
 
   return (
     <MilMoveHeader>
-      <ul className="usa-nav__primary">
-        {navListItems.map((content, i) => (
-          <li key={i} className={classnames('usa-nav__primary-item')}>
-            {content}
-          </li>
-        ))}
-      </ul>
+      <ul className="usa-nav__primary">{navListItems.map((content) => content)}</ul>
     </MilMoveHeader>
   );
 };
