@@ -38,7 +38,7 @@
         @include mix-mm-header-font-properties;
         @include mix-mm-dropdown($top-color: white, $background-color: transparent){
             background-color: var(--bg-color, inherit);
-
+            color: var(--top-color, inherit);
             height: 100%;
             border-radius: 0;
             text-align: center;
