@@ -22,9 +22,18 @@ jest.mock('utils/featureFlags', () => ({
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
+const defaultIsWeekendHolidayResponse = {
+  country_code: 'US',
+  country_name: 'United States',
+  is_weekend: false,
+  is_holiday: false,
+};
+
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
-  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
+  dateSelectionIsWeekendHoliday: jest
+    .fn()
+    .mockImplementation(() => Promise.resolve({ data: JSON.stringify(defaultIsWeekendHolidayResponse) })),
   searchCountry: jest.fn().mockImplementation(() => Promise.resolve([{}])),
 }));
 
@@ -885,7 +894,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Requested delivery date')).toHaveValue(tomorrowDatePicker);
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
@@ -969,7 +978,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Requested delivery date')).toHaveValue(tomorrowDatePicker);
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
@@ -2703,6 +2712,10 @@ describe('ShipmentForm component', () => {
   });
 
   describe('requestedPickupDate validation when creating and editing non-PPM shipments', () => {
+    beforeEach(() => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    });
+
     const mockHHGShipment = {
       ...mockMtoShipment,
       requestedPickupDate: '2020-03-01',
@@ -2829,6 +2842,7 @@ describe('ShipmentForm component', () => {
           is_weekend: true,
           is_holiday: true,
         };
+
         dateSelectionIsWeekendHoliday.mockImplementation(() =>
           Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
         );

@@ -336,8 +336,7 @@ const ShipmentForm = (props) => {
           : newDutyLocationAddress?.country?.code;
     }
 
-    dateSelectionWeekendHolidayCheck(
-      dateSelectionIsWeekendHoliday,
+    checkDateHolidayWeekend(
       deliveryCountry,
       new Date(mtoShipment.requestedDeliveryDate),
       REQUESTED_DELIVERY_DATE,
