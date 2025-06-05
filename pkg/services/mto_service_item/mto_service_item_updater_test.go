@@ -522,6 +522,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.DB().Q().All(&sitExtensions)
 		suite.Equal(1, len(sitExtensions))
 		suite.Equal(models.SITExtensionStatusRemoved, sitExtensions[0].Status)
+		// Confirm decision date is set to today
+		suite.Equal(time.Now().Truncate(time.Hour*24), sitExtensions[0].DecisionDate.Truncate(time.Hour*24).Local())
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
 
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
