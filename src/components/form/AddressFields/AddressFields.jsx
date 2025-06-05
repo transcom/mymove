@@ -91,6 +91,11 @@ export const AddressFields = ({
     const countryID = value ? value.id : null;
     const countryName = value ? value.name : null;
     const countryCode = value ? value.code : null;
+
+    if (countryID == null) {
+      handleOnLocationChange(null);
+    }
+
     setCurrentCountryCode(countryCode);
     setFieldValue(`${name}.country.id`, countryID).then(() => {
       setFieldTouched(`${name}.country.id`, false);
