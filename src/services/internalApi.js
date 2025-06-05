@@ -305,7 +305,7 @@ export function waitForAvScan(uploadId, { signal } = {}) {
     }
 
     // Init server sent event
-    const es = new EventSource(`/ghc/v1/uploads/${uploadId}/status`, {
+    const es = new EventSource(`/internal/uploads/${uploadId}/status`, {
       withCredentials: true,
     });
 
