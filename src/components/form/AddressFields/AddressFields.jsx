@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
+import { useFormikContext } from 'formik';
 
 import Hint from 'components/Hint/index';
 import styles from 'components/form/AddressFields/AddressFields.module.scss';
@@ -38,6 +39,9 @@ export const AddressFields = ({
   const assistanceStr = ' for further assistance.';
 
   const [isCountrySearchEnabled, setIsCountrySearchEnabled] = useState(false);
+  const { values } = useFormikContext();
+  const code = values[name];
+  const [currentCountryCode, setCurrentCountryCode] = useState(code?.country ? code?.country?.code : '');
 
   useEffect(() => {
     const fetchFlag = async () => {
@@ -87,6 +91,7 @@ export const AddressFields = ({
     const countryID = value ? value.id : null;
     const countryName = value ? value.name : null;
     const countryCode = value ? value.code : null;
+    setCurrentCountryCode(countryCode);
     setFieldValue(`${name}.country.id`, countryID).then(() => {
       setFieldTouched(`${name}.country.id`, false);
     });
@@ -144,6 +149,10 @@ export const AddressFields = ({
             placeholder="Start typing a Zip or City, State Zip"
             label="Location Lookup"
             handleLocationChange={handleOnLocationChange}
+            isDisabled={
+              isCountrySearchEnabled &&
+              (currentCountryCode === null || currentCountryCode === '' || currentCountryCode !== 'US')
+            }
           />
 
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
