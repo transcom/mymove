@@ -486,13 +486,11 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 
 	// Check if valid service SIT service item to get correct authorized end date.
 	var endDate *time.Time
-	validOriginCodes := append(models.ValidDomesticOriginSITReServiceCodes, models.ValidInternationalOriginSITReServiceCodes...)
-	validDestCodes := append(models.ValidDomesticDestinationSITReServiceCodes, models.ValidInternationalDestinationSITReServiceCodes...)
 
-	if slices.Contains(validOriginCodes, updatedServiceItem.ReService.Code) &&
+	if slices.Contains(models.ValidOriginSITReServiceCodes, updatedServiceItem.ReService.Code) &&
 		shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate == nil {
 		endDate = shipment.OriginSITAuthEndDate
-	} else if (slices.Contains(validDestCodes, updatedServiceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
+	} else if (slices.Contains(models.ValidDestinationSITReServiceCodes, updatedServiceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
 		endDate = shipment.DestinationSITAuthEndDate
 	}
 
@@ -501,7 +499,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	if len(shipment.SITDurationUpdates) > 0 {
 		if mtoServiceItem.SITDepartureDate != nil && endDate != nil {
 			if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
-				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = ? WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusRemoved, models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
+				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = ?, decision_date = ? WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusRemoved, time.Now(), models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
 				if err != nil {
 					return nil, err
 				}

@@ -128,14 +128,11 @@ func checkDepartureDate() sitExtensionValidator {
 			for _, serviceItem := range shipment.MTOServiceItems {
 				if serviceItem.SITDepartureDate != nil {
 					// Check if valid service SIT service item to get correct authorized end date.
-					validOriginCodes := append(models.ValidDomesticOriginSITReServiceCodes, models.ValidInternationalOriginSITReServiceCodes...)
-					validDestCodes := append(models.ValidDomesticDestinationSITReServiceCodes, models.ValidInternationalDestinationSITReServiceCodes...)
-
-					if slices.Contains(validOriginCodes, serviceItem.ReService.Code) &&
+					if slices.Contains(models.ValidOriginSITReServiceCodes, serviceItem.ReService.Code) &&
 						shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate == nil {
 						si = &serviceItem
 						endDate = shipment.OriginSITAuthEndDate
-					} else if (slices.Contains(validDestCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
+					} else if (slices.Contains(models.ValidDestinationSITReServiceCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
 						si = &serviceItem
 						endDate = shipment.DestinationSITAuthEndDate
 					}
