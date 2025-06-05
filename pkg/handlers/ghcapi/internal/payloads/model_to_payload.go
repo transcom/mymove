@@ -3015,3 +3015,41 @@ func Countries(countries models.Countries) ghcmessages.Countries {
 	}
 	return payload
 }
+
+func SetMTOShipmentModelWithDefaultCountry(mtoShipment *models.MTOShipment, country models.Country) {
+	setCountryID := func(a *models.Address, countryID uuid.UUID) {
+		if a != nil && (a.CountryId.IsNil() || a.CountryId == &uuid.Nil) {
+			a.CountryId = &countryID
+		}
+	}
+	setCountryID(mtoShipment.PickupAddress, country.ID)
+	setCountryID(mtoShipment.SecondaryPickupAddress, country.ID)
+	setCountryID(mtoShipment.TertiaryPickupAddress, country.ID)
+
+	setCountryID(mtoShipment.DestinationAddress, country.ID)
+	setCountryID(mtoShipment.SecondaryDeliveryAddress, country.ID)
+	setCountryID(mtoShipment.TertiaryDeliveryAddress, country.ID)
+
+	if mtoShipment.PPMShipment != nil {
+		setCountryID(mtoShipment.PPMShipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.SecondaryDestinationAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.TertiaryDestinationAddress, country.ID)
+	} else if mtoShipment.BoatShipment != nil {
+		setCountryID(mtoShipment.BoatShipment.Shipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.SecondaryDeliveryAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.TertiaryDeliveryAddress, country.ID)
+	} else if mtoShipment.MobileHome != nil {
+		setCountryID(mtoShipment.MobileHome.Shipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.SecondaryDeliveryAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.TertiaryDeliveryAddress, country.ID)
+	}
+}
