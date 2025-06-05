@@ -319,6 +319,33 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByText('Allowable Weight')).toBeInTheDocument();
       expect(screen.getByText('4,300 lbs')).toBeInTheDocument();
     });
+
+    it('does not render undefined values', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+
+      const undefinedMiles = {
+        ...ppmShipmentInfoProps,
+        sectionInfo: {
+          ...ppmShipmentInfoProps.sectionInfo,
+          miles: undefined,
+        },
+      };
+
+      await act(async () => {
+        renderWithProviders(<HeaderSection {...undefinedMiles} />, mockRoutingConfig);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 4, name: 'Shipment Info' })).toBeInTheDocument();
+      });
+      await act(async () => {
+        clickDetailsButton('shipmentInfo');
+      });
+
+      // miles should not appear because it is undefined
+      expect(screen.queryByText('Miles')).not.toBeInTheDocument();
+    });
   });
 
   describe('displays "Incentives/Costs" section', () => {

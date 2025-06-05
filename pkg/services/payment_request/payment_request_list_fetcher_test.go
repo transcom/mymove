@@ -1,10 +1,12 @@
 package paymentrequest
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -318,24 +320,31 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 
 	suite.Run("Returns all payment requests when all status filters are selected", func() {
 		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested", "Reviewed", "Rejected", "Paid", "Deprecated", "Error"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusPending.String(),
+				models.PaymentRequestStatusReviewed.String(),
+				models.PaymentRequestStatusReviewedAllRejected.String(),
+				models.PaymentRequestStatusPaid.String(),
+				models.PaymentRequestStatusDeprecated.String(),
+				models.PaymentRequestStatusEDIError.String(),
+				models.PaymentRequestStatusTppsReceived.String(),
+				models.PaymentRequestStatusSentToGex.String()}})
 		suite.NoError(err)
 		suite.Equal(len(allPaymentRequests), actualCount)
 	})
 
 	suite.Run("Returns only those payment requests with the exact status", func() {
 		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusPending.String()}})
 		pending := *pendingPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, pendingCount)
 		suite.Equal(pendingPaymentRequest.ID, pending[0].ID)
 
 		reviewedPaymentRequests, reviewedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Reviewed"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusReviewed.String()}})
 		reviewed := *reviewedPaymentRequests
 		suite.NoError(err)
-		suite.Equal(3, reviewedCount)
+		suite.Equal(1, reviewedCount)
 
 		reviewedIDs := []uuid.UUID{reviewedPaymentRequest.ID, sentToGexPaymentRequest.ID, recByGexPaymentRequest.ID}
 		for _, pr := range reviewed {
@@ -343,21 +352,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		}
 
 		rejectedPaymentRequests, rejectedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Rejected"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusReviewedAllRejected.String()}})
 		rejected := *rejectedPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, rejectedCount)
 		suite.Equal(rejectedPaymentRequest.ID, rejected[0].ID)
 
 		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Paid"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusPaid.String()}})
 		paid := *paidPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, paidCount)
 		suite.Equal(paidPaymentRequest.ID, paid[0].ID)
 
 		deprecatedPaymentRequests, deprecatedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Deprecated"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusDeprecated.String()}})
 
 		deprecated := *deprecatedPaymentRequests
 		suite.NoError(err)
@@ -365,7 +374,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		suite.Equal(deprecatedPaymentRequest.ID, deprecated[0].ID)
 
 		errorPaymentRequests, errorCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Error"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusEDIError.String()}})
 
 		errorPR := *errorPaymentRequests
 		suite.NoError(err)
@@ -394,7 +403,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 			AccessToken:     "fakeAccessToken",
 		}
 
-		expectedMoveNotUSMC := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMoveNotUSMC := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		expectedMoveUSMC := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marines,
+				},
+			},
+		}, nil)
 
 		paymentRequestUSMC = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -405,12 +428,8 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
 			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-				},
-			},
-			{
-				Model: models.ServiceMember{Affiliation: &marines},
+				Model:    expectedMoveUSMC,
+				LinkOnly: true,
 			},
 		}, nil)
 
@@ -433,11 +452,8 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
 			{
-				Model:    paymentRequestUSMC.MoveTaskOrder,
+				Model:    expectedMoveUSMC,
 				LinkOnly: true,
-			},
-			{
-				Model: models.ServiceMember{Affiliation: &marines},
 			},
 		}, nil)
 
@@ -618,7 +634,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	branchNavy := models.AffiliationNAVY
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
-	//
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
@@ -1291,4 +1306,290 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 		suite.NoError(err)
 		suite.Equal(0, len(paymentRequests))
 	})
+}
+
+func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListByAllFilters() {
+	fetcher := NewPaymentRequestListFetcher()
+	var officeUser models.OfficeUser
+	var session auth.Session
+	navy := models.DepartmentIndicatorNAVYANDMARINES.String()
+	navyAffiliation := models.AffiliationNAVY
+	army := models.DepartmentIndicatorARMY.String()
+	armyAffiliation := models.AffiliationARMY
+	now := time.Now().UTC().Truncate(24 * time.Hour)
+	exactTime := time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC)
+
+	var (
+		branchLocator             string
+		locatorLocator            string
+		edipiLocator              string
+		emplidLocator             string
+		customerNameLocator       string
+		submittedAtLocator        string
+		statusLocator             string
+		tioAssignedLocator        string
+		counselingOfficeLocator   string
+		tioNameLocator            string
+		testCounselingOffice      models.TransportationOffice
+		originDutyLocationLocator string
+		originDutyLocationName    string
+	)
+
+	suite.PreloadData(func() {
+		// build your TIO user and session
+		officeUser = factory.BuildOfficeUserWithRoles(
+			suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO},
+		)
+		tioNameLocator = fmt.Sprintf("%s %s", officeUser.FirstName, officeUser.LastName)
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		// --- BRANCH ---
+		good := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "BR1234"}},
+			{Model: models.Order{DepartmentIndicator: &navy}},
+			{Model: models.ServiceMember{Affiliation: &navyAffiliation}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: good, LinkOnly: true},
+		}, nil)
+		// bad
+		bad := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "BR9999"}},
+			{Model: models.Order{DepartmentIndicator: &army}},
+			{Model: models.ServiceMember{Affiliation: &armyAffiliation}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		branchLocator = good.Locator
+
+		// --- LOCATOR ---
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "LO1234"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: good, LinkOnly: true},
+		}, nil)
+		// bad
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "XX9999"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		locatorLocator = good.Locator
+
+		// --- EDIPI ---
+		edipiGood := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{Model: models.ServiceMember{Edipi: models.StringPointer("1234567890")}},
+		}, nil)
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: edipiGood, LinkOnly: true},
+			{Model: models.Move{Locator: "ED1234"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: good, LinkOnly: true},
+		}, nil)
+		svcBad := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{Model: models.ServiceMember{Edipi: models.StringPointer("0987654321")}},
+		}, nil)
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: svcBad, LinkOnly: true},
+			{Model: models.Move{Locator: "ED9999"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		edipiLocator = good.Locator
+
+		// --- EMPLID ---
+		emplidGood := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{Model: models.ServiceMember{Emplid: models.StringPointer("EMPL123")}},
+		}, nil)
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: emplidGood, LinkOnly: true},
+			{Model: models.Move{Locator: "EM1234"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: good, LinkOnly: true},
+		}, nil)
+		svcBad = factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{Model: models.ServiceMember{Emplid: models.StringPointer("NOTEMPL")}},
+		}, nil)
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: svcBad, LinkOnly: true},
+			{Model: models.Move{Locator: "EM9999"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		emplidLocator = good.Locator
+
+		// --- CUSTOMER NAME ---
+		svcGood := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{Model: models.ServiceMember{
+				FirstName: models.StringPointer("Alice"),
+				LastName:  models.StringPointer("Smith"),
+			}},
+		}, nil)
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: svcGood, LinkOnly: true},
+			{Model: models.Move{Locator: "CN1234"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: good, LinkOnly: true},
+		}, nil)
+		svcBad = factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{Model: models.ServiceMember{
+				FirstName: models.StringPointer("Bob"),
+				LastName:  models.StringPointer("Jones"),
+			}},
+		}, nil)
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: svcBad, LinkOnly: true},
+			{Model: models.Move{Locator: "CN9999"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		customerNameLocator = good.Locator
+
+		// --- SUBMITTED AT ---
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "SUB123"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: models.PaymentRequest{CreatedAt: exactTime}},
+			{Model: good, LinkOnly: true},
+		}, nil)
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "SUB999"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: models.PaymentRequest{CreatedAt: now}},
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		submittedAtLocator = good.Locator
+
+		// --- STATUS ---
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "ST1234"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: models.PaymentRequest{Status: models.PaymentRequestStatusReviewed}},
+			{Model: good, LinkOnly: true},
+		}, nil)
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "ST9999"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: models.PaymentRequest{Status: models.PaymentRequestStatusPending}},
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		statusLocator = good.Locator
+
+		// --- TIO ASSIGNED ---
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "TIO123", TIOAssignedID: &officeUser.ID}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: good, LinkOnly: true},
+		}, nil)
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "TIO999", TIOAssignedID: nil}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		tioAssignedLocator = good.Locator
+
+		// --- COUNSELING OFFICE ---
+		coOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		testCounselingOffice = coOffice
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "CO1234", CounselingOfficeID: &coOffice.ID}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: good, LinkOnly: true},
+		}, nil)
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: models.Move{Locator: "CO9999", CounselingOfficeID: nil}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: bad, LinkOnly: true},
+		}, nil)
+		counselingOfficeLocator = good.Locator
+
+		// --- ORIGIN DUTY LOCATION ---
+		origin := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: models.DutyLocation{Name: "Fort Example"}},
+		}, nil)
+		originDutyLocationName = origin.Name
+		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    origin,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+			{Model: models.Move{Locator: "OD1234"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: good, LinkOnly: true},
+		}, nil)
+
+		badOrigin := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: models.DutyLocation{Name: "Camp Nowhere"}},
+		}, nil)
+		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    badOrigin,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+			{Model: models.Move{Locator: "OD9999"}},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{Model: bad, LinkOnly: true},
+		}, nil)
+
+		originDutyLocationLocator = good.Locator
+	})
+
+	tests := []struct {
+		name   string
+		params services.FetchPaymentRequestListParams
+		want   string
+	}{
+		{"customerName", services.FetchPaymentRequestListParams{CustomerName: swag.String("Alice")}, customerNameLocator},
+		{"edipi", services.FetchPaymentRequestListParams{Edipi: swag.String("1234567890")}, edipiLocator},
+		{"emplid", services.FetchPaymentRequestListParams{Emplid: swag.String("EMPL123")}, emplidLocator},
+		{"branch", services.FetchPaymentRequestListParams{Branch: swag.String(navyAffiliation.String())}, branchLocator},
+		{"locator", services.FetchPaymentRequestListParams{Locator: swag.String("LO1234")}, locatorLocator},
+		{"submittedAt", services.FetchPaymentRequestListParams{SubmittedAt: &exactTime}, submittedAtLocator},
+		{"status", services.FetchPaymentRequestListParams{Status: []string{string(models.PaymentRequestStatusReviewed)}}, statusLocator},
+		{"tioAssigned", services.FetchPaymentRequestListParams{TIOAssignedUser: &tioNameLocator}, tioAssignedLocator},
+		{"counselingOffice", services.FetchPaymentRequestListParams{CounselingOffice: swag.String(testCounselingOffice.Name)}, counselingOfficeLocator},
+		{"originDutyLocation", services.FetchPaymentRequestListParams{OriginDutyLocation: swag.String(originDutyLocationName)}, originDutyLocationLocator},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		suite.Run("filter by "+tc.name, func() {
+			prs, total, err := fetcher.FetchPaymentRequestList(
+				suite.AppContextWithSessionForTest(&session),
+				officeUser.ID,
+				&tc.params,
+			)
+			suite.NoError(err)
+			suite.Len(*prs, 1)
+			suite.Equal(tc.want, (*prs)[0].MoveTaskOrder.Locator)
+			suite.Equal(1, total)
+		})
+	}
 }
