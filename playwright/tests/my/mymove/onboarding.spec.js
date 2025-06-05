@@ -2,7 +2,6 @@
 // import { test, expect } from '../../utils/my/customerTest';
 import { test, expect } from '../../utils/my/customerTest';
 
-const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 const LocationLookup = 'ATCO, NJ 08004 (CAMDEN)';
 
 test.describe('Onboarding', () => {
@@ -60,7 +59,6 @@ test.describe('Onboarding', () => {
 
 test.describe('(MultiMove) Onboarding', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-
   test('A customer can go through onboarding', async ({ page, customerPage }) => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();

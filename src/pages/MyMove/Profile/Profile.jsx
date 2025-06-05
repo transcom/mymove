@@ -4,8 +4,6 @@ import { arrayOf, bool } from 'prop-types';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { Link, useLocation, useNavigate, generatePath } from 'react-router-dom';
 
-import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-
 import styles from './Profile.module.scss';
 
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
@@ -40,7 +38,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   };
   const [needsToVerifyProfile, setNeedsToVerifyProfile] = useState(false);
   const [profileValidated, setProfileValidated] = useState(false);
-  const [multiMove, setMultiMove] = useState(false);
 
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -53,8 +50,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       } else {
         setNeedsToVerifyProfile(false);
       }
-
-      setMultiMove(await isBooleanFlagEnabled('multi_move'));
     };
     fetchData();
   }, [state]);
@@ -67,8 +62,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     setProfileValidated(true);
   };
 
-  const returnToMovePath =
-    multiMove && moveId ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }) : generalRoutes.HOME_PATH;
+  const returnToMovePath = moveId ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }) : generalRoutes.HOME_PATH;
 
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
