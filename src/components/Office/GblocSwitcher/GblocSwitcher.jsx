@@ -40,23 +40,21 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
   }, [selectedGbloc, officeUsersDefaultGbloc, isInitialPageLoad, handleGblocChange]);
 
   return (
-    <div className={styles.gblocWrapper}>
-      <Dropdown
-        onChange={(e) => {
-          handleGblocChange(e.target.value);
-        }}
-        className={classNames(styles.switchGblocButton)}
-        value={selectedGbloc || officeUsersDefaultGbloc}
-        ariaLabel={ariaLabel}
-        data-testId="gbloc_switcher"
-      >
-        {gblocs?.map((gbloc) => (
-          <option value={gbloc} key={`filterOption_${gbloc}`}>
-            {gbloc}
-          </option>
-        ))}
-      </Dropdown>
-    </div>
+    <Dropdown
+      onChange={(e) => {
+        handleGblocChange(e.target.value);
+      }}
+      className={classNames(styles.switchGblocButton)}
+      value={selectedGbloc || officeUsersDefaultGbloc}
+      aria-label={ariaLabel}
+      data-testid="gbloc_switcher"
+    >
+      {gblocs?.map((gbloc) => (
+        <option value={gbloc} key={`filterOption_${gbloc}`}>
+          {gbloc}
+        </option>
+      ))}
+    </Dropdown>
   );
 };
 

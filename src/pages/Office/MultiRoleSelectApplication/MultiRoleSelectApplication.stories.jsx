@@ -42,6 +42,7 @@ export default {
 
 export const MultiRoleUser = {
   render: ({ activeRole, inactiveRoles }) => {
+    const roles = inactiveRoles?.filter(({ roleType }) => roleType !== activeRole);
     const mockState = {
       auth: {
         activeRole,
@@ -49,13 +50,13 @@ export const MultiRoleUser = {
       entities: {
         user: [
           {
-            inactiveRoles,
+            inactiveRoles: roles,
           },
         ],
       },
     };
     return (
-      <MockProviders store={mockStore.store} initialState={mockState}>
+      <MockProviders store={mockStore} initialState={mockState}>
         <ConnectedSelectApplication />
       </MockProviders>
     );

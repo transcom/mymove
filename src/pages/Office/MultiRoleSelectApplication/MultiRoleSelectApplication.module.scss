@@ -3,20 +3,6 @@
 
 
 // hoist this mixins to a standard module later on
-// overrides .usa-select style properties. --background-url is the svg with background black, and foreground white.
-@mixin mix-mm-select-dropdown {
-    margin: 0;
-    background: {
-        image: var(--background-url);
-        repeat: no-repeat;
-        position: right 0.5rem center;
-        size: 1.25rem;
-    }
-    appearance: none;
-}
-
-
-// hoist this mixins to a standard module later on
 @mixin mix-mm-row-container{
     display: grid;
     grid-auto-flow: column;
@@ -28,38 +14,34 @@
 .dropdown-wrapper-style{
     @include mix-mm-row-container;
     @include mix-mm-header-font-properties;
-    --top-color: #{$link-light};
-    color: var(--top-color);
-    padding: 0rem 1rem;
 
-    border-left: 1px solid $base-dark;
+    --top-color: #{$link-light};
+
+    color: var(--top-color, inherit);
+
     height: 100%;
-    $background-main: var(--background-url);
-    $background-hover: linear-gradient(to bottom, transparent calc(100% - 0.25rem), var(--top-color) calc(100% - 0.25rem), var(--top-color) 100%) center / 1.3333333333rem;
+    padding-left: 0.65rem;
+
     a {
-        align-content: center;
-        height: 100%;
         --top-color: #{$link-light-hover};
-        color: var(--top-color);
+
+        color: var(--top-color, inherit);
+
+        height: 100%;
+        align-content: center;
 
         &:hover{
-            background: #{$background-hover};
+            background: #{$background-highlight};
         }
     }
     select {
         @include mix-mm-header-font-properties;
         @include mix-mm-dropdown($top-color: white, $background-color: transparent){
-            text-align: center;
-            background: #{$background-main};
-            background-color: var(--bg-color);
-            border-radius: 0;
+            background-color: var(--bg-color, inherit);
+
             height: 100%;
-            &:focus,
-            &:hover{
-                --top-color: #{$link-light-hover};
-                color: var(--top-color);
-                background: #{$background-main}, #{$background-hover};
-            }
+            border-radius: 0;
+            text-align: center;
         }
     }
 }
