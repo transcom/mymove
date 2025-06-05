@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { generatePath } from 'react-router';
 
 import { customerRoutes } from 'constants/routes';
 import FinalCloseout from 'pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout';
@@ -129,7 +130,9 @@ describe('Final Closeout page', () => {
       await userEvent.click(screen.getByText('Return To Homepage'));
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.MOVE_HOME_PAGE);
+    expect(mockNavigate).toHaveBeenCalledWith(
+      generatePath(customerRoutes.MOVE_HOME_PATH, { moveId: shipment.moveTaskOrderId }),
+    );
   });
 
   it('submits the ppm signed certification', async () => {
@@ -163,7 +166,8 @@ describe('Final Closeout page', () => {
 
     expect(updateMTOShipment).toHaveBeenCalledWith(shipment);
     expect(mockDispatch).toHaveBeenCalledTimes(2);
-
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.MOVE_HOME_PAGE);
+    expect(mockNavigate).toHaveBeenCalledWith(
+      generatePath(customerRoutes.MOVE_HOME_PATH, { moveId: shipment.moveTaskOrderId }),
+    );
   });
 });
