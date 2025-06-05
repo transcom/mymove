@@ -315,7 +315,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
-// this is a custom/temporary struct used in the below service object to get destination queue moves
+// this is a custom/temporary struct used in the below service object to convert moves consumed from the db into Go structs
 type MoveWithCount struct {
 	models.Move
 	OrdersRaw                     json.RawMessage              `json:"orders" db:"orders"`
@@ -324,6 +324,8 @@ type MoveWithCount struct {
 	MTOShipments                  *models.MTOShipments         `json:"-"`
 	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
 	CounselingOffice              *models.TransportationOffice `json:"-"`
+	TOOAssignedUserRaw            json.RawMessage              `json:"too_assigned" db:"too_assigned"`
+	TOOAssignedUser               *models.OfficeUser           `json:"-"`
 	TOODestinationAssignedUserRaw json.RawMessage              `json:"too_destination_assigned" db:"too_destination_assigned"`
 	TOODestinationAssignedUser    *models.OfficeUser           `json:"-"`
 	MTOServiceItemsRaw            json.RawMessage              `json:"mto_service_items" db:"mto_service_items"`
@@ -336,6 +338,109 @@ type JSONB []byte
 func (j *JSONB) UnmarshalJSON(data []byte) error {
 	*j = data
 	return nil
+}
+
+func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
+	var moves []models.Move
+	var movesWithCount []MoveWithCount
+
+	var officeUserGbloc string
+	hasSafetyPrivilege := false
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return []models.Move{}, 0, gblocErr
+		}
+	}
+
+	privileges, privErr := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if privErr == nil && privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+		hasSafetyPrivilege = true
+	} else if privErr != nil {
+		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(privErr))
+	}
+
+	err := appCtx.DB().RawQuery("SELECT * FROM get_origin_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
+		officeUserGbloc,
+		params.CustomerName,
+		params.Edipi,
+		params.Emplid,
+		pq.Array(params.Status),
+		params.Locator,
+		params.RequestedMoveDate,
+		params.AppearedInTOOAt,
+		params.Branch,
+		strings.Join(params.OriginDutyLocation, " "),
+		params.CounselingOffice,
+		params.AssignedTo,
+		hasSafetyPrivilege,
+		params.Page,
+		params.PerPage,
+		params.Sort,
+		params.Order).
+		All(&movesWithCount)
+
+	if err != nil {
+		return []models.Move{}, 0, err
+	}
+
+	var count int64
+	if len(movesWithCount) > 0 {
+		count = movesWithCount[0].TotalCount
+	} else {
+		count = 0
+	}
+
+	for i := range movesWithCount {
+		var order models.Order
+		if err := json.Unmarshal(movesWithCount[i].OrdersRaw, &order); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling orders JSON: %w", err)
+		}
+		movesWithCount[i].OrdersRaw = nil
+		movesWithCount[i].Orders = &order
+
+		var shipments models.MTOShipments
+		if err := json.Unmarshal(movesWithCount[i].MTOShipmentsRaw, &shipments); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling shipments JSON: %w", err)
+		}
+		movesWithCount[i].MTOShipmentsRaw = nil
+		movesWithCount[i].MTOShipments = &shipments
+
+		var serviceItems models.MTOServiceItems
+		if err := json.Unmarshal(movesWithCount[i].MTOServiceItemsRaw, &serviceItems); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling service items JSON: %w", err)
+		}
+		movesWithCount[i].MTOServiceItemsRaw = nil
+		movesWithCount[i].MTOServiceItems = &serviceItems
+
+		var counselingTransportationOffice models.TransportationOffice
+		if err := json.Unmarshal(movesWithCount[i].CounselingOfficeRaw, &counselingTransportationOffice); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling counseling_transportation_office JSON: %w", err)
+		}
+		movesWithCount[i].CounselingOfficeRaw = nil
+		movesWithCount[i].CounselingOffice = &counselingTransportationOffice
+
+		var tooAssigned models.OfficeUser
+		if err := json.Unmarshal(movesWithCount[i].TOOAssignedUserRaw, &tooAssigned); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling too_assigned JSON: %w", err)
+		}
+		movesWithCount[i].TOOAssignedUserRaw = nil
+		movesWithCount[i].TOOAssignedUser = &tooAssigned
+	}
+
+	for _, moveWithCount := range movesWithCount {
+		var move models.Move
+		if err := copier.Copy(&move, &moveWithCount); err != nil {
+			return nil, 0, fmt.Errorf("error copying movesWithCount into Moves struct: %w", err)
+		}
+		moves = append(moves, move)
+	}
+
+	return moves, int(count), nil
 }
 
 func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
@@ -372,7 +477,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		params.RequestedMoveDate,
 		params.AppearedInTOOAt,
 		params.Branch,
-		strings.Join(params.OriginDutyLocation, " "),
+		params.DestinationDutyLocation,
 		params.CounselingOffice,
 		params.AssignedTo,
 		hasSafetyPrivilege,

@@ -235,8 +235,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	ppmModel := &models.PPMShipment{
 		PPMType:                        models.PPMType(ppmShipment.PpmType),
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
@@ -285,6 +283,14 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	if ppmShipment.FinalIncentive != nil {
 		ppmModel.FinalIncentive = handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive)
+	}
+
+	if ppmShipment.HasGunSafe != nil {
+		ppmModel.HasGunSafe = ppmShipment.HasGunSafe
+	}
+
+	if ppmShipment.GunSafeWeight != nil {
+		ppmModel.GunSafeWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.GunSafeWeight)
 	}
 
 	return ppmModel

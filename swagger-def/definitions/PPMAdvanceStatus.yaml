@@ -5,6 +5,5 @@ x-nullable: true
 enum:
   - APPROVED
   - REJECTED
-  - EDITED
   - RECEIVED
   - NOT_RECEIVED
