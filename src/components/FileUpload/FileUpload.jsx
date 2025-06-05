@@ -85,7 +85,7 @@ const FileUpload = forwardRef(
           load(response.id); // Make FilePond store the server id
         })
         .catch((err) => {
-          if (err.name === 'AbortError') return;
+          if (err.name === 'AbortError') return; // controller close
           if (err.message === UPLOAD_SCAN_STATUS.INFECTED) {
             pondRef.current?.setOptions({
               labelFileProcessing: 'File failed virus scan',
