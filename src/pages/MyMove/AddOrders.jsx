@@ -54,9 +54,11 @@ const AddOrders = ({
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
       if (!isWoundedWarriorEnabled && orderTypesOptions.WOUNDED_WARRIOR) {
-        const options = { ...orderTypesOptions };
-        delete options.WOUNDED_WARRIOR;
-        setOrderTypesOptions(options);
+        setOrderTypesOptions((prevOptions) => {
+          const options = { ...prevOptions };
+          delete options.WOUNDED_WARRIOR;
+          return options;
+        });
       }
     };
     checkFeatureFlags();

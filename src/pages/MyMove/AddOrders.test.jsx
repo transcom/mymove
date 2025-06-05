@@ -691,4 +691,18 @@ describe('Order type: Wounded Warrior', () => {
       expect(hasWoundedWarrior).toBe(false);
     });
   });
+  it('wounded warrior FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(true);
+    });
+  });
 });
