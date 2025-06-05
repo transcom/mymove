@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -223,18 +225,26 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		// if the expected departure date falls within a multiplier window, we need to apply that here
-		gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *updatedPPMShipment)
-		if err != nil {
-			return err
-		}
-		// check if there's a valid gccMultiplier and if it's different from the current one (if there is one)
-		if gccMultiplier.ID != uuid.Nil &&
-			(updatedPPMShipment.GCCMultiplierID == nil || *oldPPMShipment.GCCMultiplierID != gccMultiplier.ID) {
-			updatedPPMShipment.GCCMultiplierID = &gccMultiplier.ID
-			updatedPPMShipment.GCCMultiplier = &gccMultiplier
-		} else {
-			updatedPPMShipment.GCCMultiplierID = nil
-			updatedPPMShipment.GCCMultiplier = nil
+		// but only if the expected departure date is being changed
+		updatedDate := updatedPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+		oldDate := oldPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+		if !updatedDate.Equal(oldDate) {
+			gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *updatedPPMShipment)
+			if err != nil {
+				return err
+			}
+			// check if there's a valid gccMultiplier and if it's different from the current one (if there is one)
+			if gccMultiplier.ID != uuid.Nil &&
+				(updatedPPMShipment.GCCMultiplierID == nil || *oldPPMShipment.GCCMultiplierID != gccMultiplier.ID) {
+				updatedPPMShipment.GCCMultiplierID = &gccMultiplier.ID
+				updatedPPMShipment.GCCMultiplier = &gccMultiplier
+			} else {
+				// only reset if there is no valid GCCMultiplierID and there's currently one on the PPM
+				if updatedPPMShipment.GCCMultiplierID != nil {
+					updatedPPMShipment.GCCMultiplierID = nil
+					updatedPPMShipment.GCCMultiplier = nil
+				}
+			}
 		}
 
 		// if the actual move date is being provided, we no longer need to calculate the estimate - it has already happened

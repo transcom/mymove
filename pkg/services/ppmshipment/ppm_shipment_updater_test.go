@@ -1617,7 +1617,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NotNil(updatedEntitlement.DBAuthorizedWeight)
 		suite.True(*updatedEntitlement.DBAuthorizedWeight > 0)
 	})
-
 	suite.Run("updating PPM with valid GCC multiplier date updates PPM", func() {
 		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
