@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -251,21 +253,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		if appCtx.Session() != nil {
-			if appCtx.Session().IsOfficeUser() {
-				edited := models.PPMAdvanceStatusEdited
-				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
-					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
-					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-			}
 			if appCtx.Session().IsMilApp() {
 				if isPrimeCounseled && updatedPPMShipment.HasRequestedAdvance != nil {
 					received := models.PPMAdvanceStatusReceived
@@ -317,6 +304,37 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			ppmShipment.Shipment = mtoShipment
+		}
+
+		// authorize gunsafe in orders.Entitlement if customer has selected that they have gun safe when creating a ppm shipment
+		if ppmShipment.HasGunSafe != nil {
+			oldHasGunSafeValue := false
+
+			if oldPPMShipment.HasGunSafe != nil {
+				oldHasGunSafeValue = *oldPPMShipment.HasGunSafe
+			}
+
+			if oldHasGunSafeValue != *ppmShipment.HasGunSafe {
+				move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), mtoShipment.MoveTaskOrderID)
+				if err != nil {
+					return err
+				}
+
+				entitlement := move.Orders.Entitlement
+				if entitlement == nil {
+					return apperror.NewQueryError("Entitlement", fmt.Errorf("entitlement is nil after fetching move with ID %s", move.ID), "Move is missing an associated entitlement.")
+				}
+
+				entitlement.GunSafe = *updatedPPMShipment.HasGunSafe
+
+				verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the gun safe entitlement.")
+				}
+				if err != nil {
+					return apperror.NewQueryError("Entitlement", err, "")
+				}
+			}
 		}
 
 		return nil

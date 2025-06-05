@@ -97,6 +97,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		},
 		{
 			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusApprovalsRequested,
 				PrimeEstimatedWeight: models.PoundPointer(1500),
 			},
 		},
@@ -137,6 +138,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidIDFSITServiceItemWithValidMov
 		{
 			Model: models.MTOShipment{
 				MarketCode: models.MarketCodeInternational,
+				Status:     models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}, nil)
@@ -327,10 +329,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		var foundMove models.Move
 		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, sitShipment.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numDDFSITFound := 0
 		numDDASITFound := 0
@@ -381,10 +387,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		var foundMove models.Move
 		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, sitShipment.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numIDFSITFound := 0
 		numIDASITFound := 0
@@ -1694,6 +1704,86 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
+	setupDOFSITWithDepartureDate := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
+		// Create DOFSIT
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress.ID = uuid.Nil
+		actualPickupAddress.CountryId = &country.ID
+		actualPickupAddress.Country = &country
+		entryDate := time.Now()
+		departureDate := time.Now().AddDate(0, 0, 10)
+
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceDOFSIT,
+			SITEntryDate:              &entryDate,
+			SITDepartureDate:          &departureDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		// Successful creation of DOFSIT
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		return creator
+	}
+
+	suite.Run("Create DOASIT with 89 days if no departure date is provided", func() {
+		shipment := setupTestData()
+		shipment2 := setupTestData()
+		creator := setupDOFSIT(shipment)
+		creator2 := setupDOFSITWithDepartureDate(shipment2)
+
+		entryDate := time.Now()
+		departureDate := time.Now().AddDate(0, 0, 10)
+
+		// Create DOASIT
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MTOShipment:      shipment,
+			MTOShipmentID:    &shipment.ID,
+			ReService:        reServiceDOASIT,
+			Status:           models.MTOServiceItemStatusSubmitted,
+			SITEntryDate:     &entryDate,
+			SITDepartureDate: nil,
+		}
+
+		serviceItemDOASITWithDeparture := models.MTOServiceItem{
+			MoveTaskOrder:    shipment2.MoveTaskOrder,
+			MoveTaskOrderID:  shipment2.MoveTaskOrderID,
+			MTOShipment:      shipment2,
+			MTOShipmentID:    &shipment2.ID,
+			ReService:        reServiceDOASIT,
+			Status:           models.MTOServiceItemStatusSubmitted,
+			SITEntryDate:     &entryDate,
+			SITDepartureDate: &departureDate,
+		}
+
+		var err error
+		var createdServiceItems *models.MTOServiceItems
+		var createdServiceItemsWithDeparture *models.MTOServiceItems
+		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		createdServiceItemsWithDeparture, _, err = creator2.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASITWithDeparture)
+		suite.NotNil(createdServiceItemsWithDeparture)
+		suite.NoError(err)
+
+		createdDOASITItem := (*createdServiceItems)[0]
+		createdDOASITItemWithDeparture := (*createdServiceItemsWithDeparture)[0]
+
+		suite.Greater(createdDOASITItem.PricingEstimate.Int64(), createdDOASITItemWithDeparture.PricingEstimate.Int64())
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateDOFSIT() {
@@ -1811,9 +1901,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
-
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
 		return shipment, creator, reServiceDDFSIT
 
 	}
@@ -3236,8 +3323,6 @@ func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
 			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
 		return shipment, creator, reServiceDDFSIT
 
 	}

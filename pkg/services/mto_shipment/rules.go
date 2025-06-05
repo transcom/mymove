@@ -27,8 +27,11 @@ func checkUBShipmentOCONUSRequirement() validator {
 }
 
 func checkStatus() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
+		if older != nil && IsStatusBannedFromUpdating(older.Status) {
+			verrs.Add("status", "this shipment has been blocked from updating due to its status")
+		}
 		if newer.Status != "" && newer.Status != models.MTOShipmentStatusDraft && newer.Status != models.MTOShipmentStatusSubmitted {
 			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
 		}
@@ -73,14 +76,23 @@ func checkAvailToPrime() validator {
 
 func checkReweighAllowed() validator {
 	return validatorFunc(func(_ appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
-		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusDiversionRequested {
-			return apperror.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", newer.Status))
+		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusApprovalsRequested && newer.Status != models.MTOShipmentStatusDiversionRequested {
+			return apperror.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved, Approvals Requested, or Diversion Requested. The shipment's current status is %s", newer.Status))
 		}
 		if newer.Reweigh.RequestedBy != "" {
 			return apperror.NewConflictError(newer.ID, "Cannot request a reweigh on a shipment that already has one.")
 		}
 		return nil
 	})
+}
+
+func IsStatusBannedFromUpdating(status models.MTOShipmentStatus) bool {
+	for _, banned := range ShipmentStatusesBannedFromUpdating {
+		if status == banned {
+			return true
+		}
+	}
+	return false
 }
 
 // Checks if an office user is able to update a shipment based on shipment status
@@ -90,9 +102,9 @@ func checkUpdateAllowed() validator {
 		err := apperror.NewForbiddenError(msg)
 
 		if appCtx.Session().IsOfficeApp() && appCtx.Session().IsOfficeUser() {
-			isServiceCounselor := appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor)
-			isTOO := appCtx.Session().Roles.HasRole(roles.RoleTypeTOO)
-			isTIO := appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)
+			isServiceCounselor := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor
+			isTOO := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO
+			isTIO := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTIO
 			switch older.Status {
 			case models.MTOShipmentStatusSubmitted:
 				if isServiceCounselor || isTOO {
@@ -111,6 +123,10 @@ func checkUpdateAllowed() validator {
 					return nil
 				}
 			case models.MTOShipmentStatusDiversionRequested:
+				if isTOO {
+					return nil
+				}
+			case models.MTOShipmentStatusApprovalsRequested:
 				if isTOO {
 					return nil
 				}
@@ -134,15 +150,15 @@ func checkDeleteAllowed() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
 		move := older.MoveTaskOrder
 
-		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor {
 			if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
 				return apperror.NewForbiddenError("Service Counselor: A shipment can only be deleted if the move is in 'Draft' or 'NeedsServiceCounseling' status")
 			}
 		}
 
-		if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-			if older.Status == models.MTOShipmentStatusApproved {
-				return apperror.NewForbiddenError("TOO: APPROVED shipments cannot be deleted")
+		if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO {
+			if older.Status == models.MTOShipmentStatusApproved || older.Status == models.MTOShipmentStatusApprovalsRequested {
+				return apperror.NewForbiddenError("TOO: A shipment cannot be deleted if it's in Approved or Approvals Requested status")
 			}
 		}
 
@@ -489,11 +505,16 @@ func childDiversionPrimeWeightRule() validator {
 	})
 }
 
-var ShipmentStatusesBannedFromAddressUpdating = [3]models.MTOShipmentStatus{
+var ShipmentStatusesBannedFromUpdating = []models.MTOShipmentStatus{
 	models.MTOShipmentStatusCanceled,
 	models.MTOShipmentStatusTerminatedForCause,
 	models.MTOShipmentStatusRejected,
 }
+
+var ShipmentStatusesBannedFromAddressUpdating = append(
+	[]models.MTOShipmentStatus{},
+	ShipmentStatusesBannedFromUpdating...,
+)
 
 func checkStatusNotBannedFromAddressUpdates(shipment models.MTOShipment) error {
 	var statusIsBannedFromAddressUpdates bool
@@ -525,11 +546,11 @@ func checkShipmentTypeAllowsUpdate(address models.Address, shipment models.MTOSh
 
 func checkShipmentStatusAllowsUpdate(address models.Address, shipment models.MTOShipment) error {
 	switch shipment.Status {
-	case models.MTOShipmentStatusApproved:
+	case models.MTOShipmentStatusApproved, models.MTOShipmentStatusApprovalsRequested:
 		if shipment.DestinationAddressID != nil && *shipment.DestinationAddressID == address.ID {
 			// The updateShipmentDestinationAddress handler bypasses these rules by use of the ShipmentAddressUpdateRequester service.
 			// ReviewShipmentAddressChange utilizes special logic for updating SIT service items, etc. as well
-			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("This shipment is approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address of an approved shipment for shipment id %s", shipment.ID))
+			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("This shipment has already been approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address of an approved shipment for shipment id %s", shipment.ID))
 		}
 	}
 	return nil

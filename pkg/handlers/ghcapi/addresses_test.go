@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		}
 
 		handler := GetLocationByZipCityStateHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			VLocation:     vLocationService}
 
 		response := handler.Handle(params)
@@ -41,6 +41,35 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		responsePayload := response.(*addressop.GetLocationByZipCityStateOK)
 		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 		suite.Equal(zip, responsePayload.Payload[0].PostalCode)
+	})
+
+	suite.Run("returns no results for a PO box zip when PO boxes are excluded", func() {
+		zip := "00929" // PO Box ZIP in PR
+		var fetchedVLocation models.VLocation
+		err := suite.DB().Where("uspr_zip_id = $1", zip).First(&fetchedVLocation)
+
+		suite.NoError(err)
+		suite.Equal(zip, fetchedVLocation.UsprZipID)
+
+		vLocationService := address.NewVLocation()
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		req := httptest.NewRequest("GET", "/addresses/zip_city_lookup/"+zip, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		params := addressop.GetLocationByZipCityStateParams{
+			HTTPRequest:    req,
+			Search:         zip,
+			IncludePOBoxes: models.BoolPointer(false),
+		}
+
+		handler := GetLocationByZipCityStateHandler{
+			HandlerConfig: suite.NewHandlerConfig(),
+			VLocation:     vLocationService}
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&addressop.GetLocationByZipCityStateOK{}, response)
+		responsePayload := response.(*addressop.GetLocationByZipCityStateOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.Equal(0, len(responsePayload.Payload))
 	})
 }
 
@@ -56,7 +85,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: countrySearcher}
 
 		response := handler.Handle(params)
@@ -77,7 +106,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: countrySearcher}
 
 		response := handler.Handle(params)
@@ -103,7 +132,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: &mockCountrySearcher,
 		}
 
@@ -127,7 +156,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: &mockCountrySearcher,
 		}
 

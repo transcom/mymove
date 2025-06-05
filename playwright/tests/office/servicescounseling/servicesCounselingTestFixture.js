@@ -261,7 +261,7 @@ export class ServiceCounselorPage extends OfficePage {
         filepond
           .locator('../..')
           .locator('p')
-          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+          .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
       ).toBeVisible();
 
       await this.page.getByLabel('Full weight').clear();
@@ -282,7 +282,7 @@ export class ServiceCounselorPage extends OfficePage {
       await this.uploadFileViaFilepond(filepond, 'constructedWeight.xlsx');
 
       // weight estimator file should be converted to .pdf so we verify it was
-      const re = /constructedWeight.+\.pdf-\d{14}$/;
+      const re = /constructedWeight.+-\d{14}\.pdf$/;
 
       // wait for the file to be visible in the uploads
       await expect(filepond.locator('../..').locator('p').getByText(re, { exact: false })).toBeVisible();
@@ -301,7 +301,7 @@ export class ServiceCounselorPage extends OfficePage {
         emptyFilepond
           .locator('../..')
           .locator('p')
-          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+          .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
       ).toBeVisible();
 
       await this.page.getByLabel('Full Weight').clear();
@@ -320,7 +320,7 @@ export class ServiceCounselorPage extends OfficePage {
         fullFilepond
           .locator('../..')
           .locator('p')
-          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+          .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
       ).toBeVisible();
     }
 
@@ -347,13 +347,82 @@ export class ServiceCounselorPage extends OfficePage {
           ownershipFilepond
             .locator('../..')
             .locator('p')
-            .getByText(/trailerOwnership\.pdf-\d{14}/, { exact: false }),
+            .getByText(/trailerOwnership-\d{14}\.pdf/, { exact: false }),
         ).toBeVisible();
       } else {
         // the page design makes it hard to click without using a css locator
         await this.page.locator('label[for="notrailerMeetsCriteria"]').click();
       }
     }
+  }
+
+  async fillOutWeightTicketWithIncorrectXlsx() {
+    const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
+    await expect(emptyWeightLabel).toBeVisible();
+    const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(emptyFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(emptyFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the an incorrect file to not be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    // find the label, then find the filepond wrapper.
+    const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
+    await expect(fullWeightLabel).toBeVisible();
+    const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(fullFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the file not to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
+    await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
+    // wait for the file to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
+  }
+
+  async fillOutProGearWithIncorrectXlsx() {
+    // find the label, then find the filepond wrapper.
+    const proGearWeightLabel = this.page.locator('label').getByText('Upload your');
+    await expect(proGearWeightLabel).toBeVisible();
+    const proGearFilepond = proGearWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(proGearFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(proGearFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the an incorrect file to not be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
+    await this.uploadFileViaFilepond(proGearFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
+    // wait for the file to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
   }
 }
 

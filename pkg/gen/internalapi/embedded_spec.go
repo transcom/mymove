@@ -91,6 +91,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5548,6 +5555,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeRole": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Role"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -5565,6 +5576,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "inactiveRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          },
+          "x-nullable": true
+        },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
@@ -5579,13 +5597,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Privilege"
           }
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Role"
-          },
-          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -7008,7 +7019,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -7305,6 +7315,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -8687,6 +8709,15 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
@@ -9002,7 +9033,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -9676,6 +9707,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -15603,6 +15641,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeRole": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Role"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -15620,6 +15662,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "inactiveRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          },
+          "x-nullable": true
+        },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
@@ -15634,13 +15683,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Privilege"
           }
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Role"
-          },
-          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -17065,7 +17107,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -17363,6 +17404,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -18747,6 +18800,15 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
@@ -19066,7 +19128,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
