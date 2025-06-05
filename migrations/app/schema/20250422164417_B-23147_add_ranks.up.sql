@@ -207,6 +207,7 @@ begin
 			where pg.grade = o.grade
 			  and o.service_member_id = sm.id)
 	loop
+
 		select count(*) into v_count
 		  from ranks
 		 where pay_grade_id = i.pay_grade_id
@@ -219,6 +220,9 @@ begin
 			   and p.pay_grade_id = i.pay_grade_id
 			   and p.affiliation = i.affiliation
 			   and o.rank_id is null;
+
 		end if;
+
 	end loop;
+
 end ';
