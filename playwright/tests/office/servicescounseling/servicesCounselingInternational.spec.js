@@ -41,8 +41,8 @@ test.describe('Services counselor user', () => {
       // fill out the customer form
       await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
       await page.getByLabel('DoD ID number').fill('1234567890');
-      await page.getByLabel('First name').fill('Mister');
-      await page.getByLabel('Last name').fill('Alaska');
+      await page.getByLabel('First name').nth(0).fill('Mister');
+      await page.getByLabel('Last name').nth(0).fill('Alaska');
       await page.getByLabel('Best contact phone').fill('555-555-5555');
       await page.getByLabel('Personal email').fill('alaskaBoi@mail.mil');
       await page.getByText('Phone', { exact: true }).nth(0).click();
@@ -54,7 +54,8 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Location Lookup').nth(1).fill('90212');
       await expect(page.getByText(LocationLookup2, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
-      await page.getByLabel('Name', { exact: true }).fill('Backup Friend');
+      await page.getByLabel('First Name').nth(1).fill('Backup');
+      await page.getByLabel('Last Name').nth(1).fill('Friend');
       await page.getByLabel('Email', { exact: true }).nth(1).fill('backupFriend@mail.mil');
       await page.getByLabel('Phone', { exact: true }).nth(1).fill('555-867-5309');
       await page.locator('label[for="noCreateOktaAccount"]').click();

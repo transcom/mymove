@@ -886,9 +886,10 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	}
 
 	backupContact := models.BackupContact{
-		Name:  "Billy Bob",
-		Email: "billBob@mail.mil",
-		Phone: "444-555-6677",
+		FirstName: "Billy",
+		LastName:  "Bob",
+		Email:     "billBob@mail.mil",
+		Phone:     "444-555-6677",
 	}
 
 	firstName := "First"

@@ -25,8 +25,11 @@ import scrollToTop from 'shared/scrollToTop';
 
 export const BackupContact = ({ serviceMember, currentBackupContacts, updateServiceMember, updateBackupContact }) => {
   const navigate = useNavigate();
+  const fullName = currentBackupContacts[0]?.name || '';
+  const [firstName, lastName] = fullName.split(/ (.+)/).filter(Boolean);
   const initialValues = {
-    name: currentBackupContacts[0]?.name || '',
+    firstName: firstName || '',
+    lastName: lastName || '',
     telephone: currentBackupContacts[0]?.telephone || '',
     email: currentBackupContacts[0]?.email || '',
   };
@@ -40,8 +43,13 @@ export const BackupContact = ({ serviceMember, currentBackupContacts, updateServ
   };
 
   const handleSubmit = (values) => {
+    const valueFirstName = (values?.firstName || '').trim();
+    const valueLastName = (values?.lastName || '').trim();
+
     const payload = {
-      name: values?.name || '',
+      name: `${valueFirstName} ${valueLastName}`.trim(),
+      firstName: valueFirstName,
+      lastName: valueLastName,
       email: values?.email || '',
       telephone: values?.telephone || '',
       permission: values.permission === undefined ? NonePermission : values.permission,

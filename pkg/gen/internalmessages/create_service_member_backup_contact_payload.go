@@ -25,10 +25,15 @@ type CreateServiceMemberBackupContactPayload struct {
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email"`
 
-	// Name
-	// Example: Susan Smith
+	// First Name
+	// Example: Susan
 	// Required: true
-	Name *string `json:"name"`
+	FirstName *string `json:"firstName"`
+
+	// Last Name
+	// Example: Smith
+	// Required: true
+	LastName *string `json:"lastName"`
 
 	// permission
 	// Required: true
@@ -48,7 +53,11 @@ func (m *CreateServiceMemberBackupContactPayload) Validate(formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.validateName(formats); err != nil {
+	if err := m.validateFirstName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLastName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -79,9 +88,18 @@ func (m *CreateServiceMemberBackupContactPayload) validateEmail(formats strfmt.R
 	return nil
 }
 
-func (m *CreateServiceMemberBackupContactPayload) validateName(formats strfmt.Registry) error {
+func (m *CreateServiceMemberBackupContactPayload) validateFirstName(formats strfmt.Registry) error {
 
-	if err := validate.Required("name", "body", m.Name); err != nil {
+	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateServiceMemberBackupContactPayload) validateLastName(formats strfmt.Registry) error {
+
+	if err := validate.Required("lastName", "body", m.LastName); err != nil {
 		return err
 	}
 

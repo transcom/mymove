@@ -88,7 +88,9 @@ const ContactInfoDisplay = ({
         <dl className={descriptionListStyles.descriptionList}>
           <div className={descriptionListStyles.row}>
             <dt>Name</dt>
-            <dd>{backupContact.name}</dd>
+            <dd>
+              {backupContact.firstName} {backupContact.lastName}
+            </dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Email</dt>
