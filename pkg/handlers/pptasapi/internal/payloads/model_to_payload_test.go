@@ -57,13 +57,13 @@ func (suite *PayloadsSuite) TestReport() {
 		suite.NotNil(payload)
 		suite.Equal(*report.FirstName, payload.FirstName)
 		suite.Equal(*report.LastName, payload.LastName)
-		suite.Equal("A", *payload.MiddleInitial)
+		suite.Equal(*report.MiddleInitial, *payload.MiddleInitial)
 		suite.Equal(*report.Edipi, payload.Edipi)
 		suite.Equal(*report.PhonePrimary, payload.PhonePrimary)
 		suite.Equal(*report.EmailPrimary, payload.EmailPrimary)
 		suite.Equal(*report.OrdersNumber, payload.OrdersNumber)
 		suite.Equal(int64(report.ShipmentNum), payload.ShipmentNum)
-		suite.Equal(payload.MaxBillableWeight, payload.MaxBillableWeight)
+		suite.Equal(report.MaxBillableWeight.Float64(), *payload.MaxBillableWeight)
 	})
 
 	suite.Run("nil report", func() {
