@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { generatePath, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, getAllMoves, patchMove, patchMTOShipment } from 'services/internalApi';
@@ -26,7 +24,6 @@ import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move, isMoveLocked }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [errorCode, setErrorCode] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
   const navigate = useNavigate();
   const { moveId } = useParams();
   const dispatch = useDispatch();
@@ -42,19 +39,11 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const isNewShipment = !mtoShipment?.id;
   const isCivilian = move.orders?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
 
-  useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
-  }, []);
-
   const handleBack = () => {
     if (isNewShipment) {
       navigate(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
-    } else if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     } else {
-      navigate(generalRoutes.HOME_PATH);
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     }
   };
 
