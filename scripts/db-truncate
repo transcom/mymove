@@ -44,12 +44,12 @@ BEGIN
                                   're_oconus_rate_areas',
                                   're_rate_areas',
                                   're_services',
+                                  're_shipment_type_prices',
                                   're_service_items',
                                   're_states',
                                   're_us_post_regions',
                                   're_zip3s',
                                   'roles',
-                                  're_contracts',
                                   'privileges',
                                   'roles_privileges',
                                   're_contracts',
@@ -58,7 +58,8 @@ BEGIN
                                   'service_item_param_keys',
                                   'ub_allowances',
                                   'us_post_region_cities',
-                                  'zip3_distances'
+                                  'zip3_distances',
+                                  'pay_grade_ranks'
                                     ) order by tablename ) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;
