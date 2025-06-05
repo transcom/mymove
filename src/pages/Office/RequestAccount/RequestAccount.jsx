@@ -33,6 +33,14 @@ export const RequestAccount = ({ setFlashMessage }) => {
 
   const handleSubmit = async (values) => {
     const requestedRoles = [];
+    const requestedPrivileges = [];
+
+    if (values.supervisorCheckbox) {
+      requestedPrivileges.push({
+        name: 'Supervisor',
+        privilegeType: 'supervisor',
+      });
+    }
 
     if (values.taskInvoicingOfficerCheckBox) {
       requestedRoles.push({
@@ -91,6 +99,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
       telephone: values.officeAccountRequestTelephone,
       transportationOfficeId: values.officeAccountTransportationOffice.id,
       roles: requestedRoles,
+      privileges: requestedPrivileges,
     };
 
     if (values.officeAccountRequestEdipi !== '') {
