@@ -240,6 +240,7 @@ const MoveQueue = ({
   activeRole,
   setRefetchQueue,
   activeOfficeID,
+  activeGbloc,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
@@ -279,15 +280,10 @@ const MoveQueue = ({
     setSearch(payload);
     setSearchHappened(true);
   }, []);
-  const {
-    // eslint-disable-next-line camelcase
-    data: { office_user },
-    isLoading,
-    isError,
-  } = useUserQueries();
+  const { isLoading, isError } = useUserQueries();
 
   // eslint-disable-next-line camelcase
-  const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
+  const showBranchFilter = activeGbloc !== GBLOC.USMC;
 
   const handleEditProfileClick = (locator) => {
     navigate(generatePath(tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
@@ -437,6 +433,7 @@ const MoveQueue = ({
 
 const mapStateToProps = (state) => {
   return {
+    activeGbloc: state?.auth?.activeOffice?.gbloc,
     activeOfficeID: state?.auth?.activeOffice?.id,
     setRefetchQueue: state.generalState.setRefetchQueue,
   };
