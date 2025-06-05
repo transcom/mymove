@@ -42,11 +42,11 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 77%;
+    padding-left: calc(50vw - 575px);
+    width: 100vw;
     background: rgba(255, 255, 255, 0.75);
     height: 50px;
     display: flex;
-    justify-content: center;
     align-items: center;
     svg {
       @include u-margin-right(1);
