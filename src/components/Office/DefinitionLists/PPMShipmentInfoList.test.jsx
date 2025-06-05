@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
 
 import PPMShipmentInfoList from './PPMShipmentInfoList';
 
@@ -11,11 +12,17 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
 import { PPM_TYPES } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   downloadPPMAOAPacket: jest.fn(),
   downloadPPMPaymentPacket: jest.fn(),
+}));
+
+jest.mock('../../../utils/featureFlags', () => ({
+  ...jest.requireActual('../../../utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 afterEach(() => {
@@ -81,6 +88,15 @@ describe('PPMShipmentInfoList', () => {
     expect(screen.getByText('Small Package Reimbursement')).toBeInTheDocument();
     expect(screen.getByText('Shipped from Address')).toBeInTheDocument();
     expect(screen.getByText('Destination Address')).toBeInTheDocument();
+  });
+
+  it('renders gun safe information', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    await act(async () => {
+      renderWithPermissions({ ppmShipment: { hasGunSafe: true, gunSafeWeight: 400 } });
+    });
+    expect(screen.getByText('Gun safe')).toBeInTheDocument();
+    expect(screen.getByText('Yes, 400 lbs')).toBeInTheDocument();
   });
 
   it('PPM Download AOA Paperwork - success with Approved', async () => {

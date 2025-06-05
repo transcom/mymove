@@ -708,9 +708,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var proGearWeight, proGearWeightSpouse, gunSafeWeight, totalWeight int64
 	proGearWeight = int64(entitlement.ProGearWeight)
 	proGearWeightSpouse = int64(entitlement.ProGearWeightSpouse)
+	gunSafeWeight = int64(entitlement.GunSafeWeight)
 
 	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
 		if *entitlement.DependentsAuthorized {
@@ -769,6 +770,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               sit,
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
@@ -1014,6 +1016,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
@@ -2247,6 +2251,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusApprovalsRequested ||
 		status == models.MTOShipmentStatusDiversionRequested ||
 		status == models.MTOShipmentStatusCancellationRequested ||
 		status == models.MTOShipmentStatusTerminatedForCause
@@ -2368,6 +2373,9 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
 		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
 	}
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
 	for _, shipment := range move.MTOShipments {
 		if shipment.Status == models.MTOShipmentStatusSubmitted {
 			if shipment.Diversion {
@@ -2437,6 +2445,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			s := strings.Join(formatted, ", ")
 			requestedDatesStr = &s
 		}
+
+		closeoutInitiatedStr := FormatPPMCloseoutInitiatedStr(move)
 
 		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
@@ -2559,6 +2569,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutInitiatedDates:  closeoutInitiatedStr,
 			CloseoutLocation:        &closeoutLocation,
 			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
@@ -2574,6 +2585,28 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		}
 	}
 	return &queueMoves
+}
+
+func FormatPPMCloseoutInitiatedStr(move models.Move) *string {
+	var closeoutDates []time.Time
+	var formattedDates []string
+	for _, shipment := range move.MTOShipments {
+		if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+			// This shipment has a closed out PPM for us to format
+			closeoutDates = append(closeoutDates, *shipment.PPMShipment.SubmittedAt)
+		}
+	}
+	// Sort chronologically
+	sort.Slice(closeoutDates, func(i, j int) bool { return closeoutDates[i].Before(closeoutDates[j]) })
+	for _, closeoutDate := range closeoutDates {
+		formattedDates = append(formattedDates, closeoutDate.Format("Jan 2 2006"))
+	}
+	var requestedDatesStr *string
+	if len(formattedDates) > 0 {
+		s := strings.Join(formattedDates, ", ")
+		requestedDatesStr = &s
+	}
+	return requestedDatesStr
 }
 
 func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {

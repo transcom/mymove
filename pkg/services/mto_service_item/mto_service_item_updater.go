@@ -294,6 +294,33 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		}
 
 		move := serviceItem.MoveTaskOrder
+
+		mtoshipmentID := serviceItem.MTOShipmentID
+		var shipment models.MTOShipment
+		err = appCtx.DB().Q().EagerPreload("MTOServiceItems", "SITDurationUpdates", "DeliveryAddressUpdate").Find(&shipment, mtoshipmentID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(shipment.ID, "looking for MTOShipment")
+			default:
+				return apperror.NewQueryError("MTOShipment", err, "")
+			}
+		}
+		if models.IsShipmentApprovable(shipment) {
+			shipment.Status = models.MTOShipmentStatusApproved
+			approvedDate := time.Now()
+			shipment.ApprovedDate = &approvedDate
+
+			verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(
+					shipment.ID, err, verrs, "Invalid input found while updating shipment")
+			}
+			if err != nil {
+				return err
+			}
+		}
+
 		if _, err = p.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}

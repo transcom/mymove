@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
-import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-
 import styles from './Review.module.scss';
 
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
@@ -25,15 +23,10 @@ import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   useTitle('Move review');
   const navigate = useNavigate();
-  const [multiMove, setMultiMove] = useState(false);
   const { moveId } = useParams();
   const [isMoveLocked, setIsMoveLocked] = useState(false);
   const handleCancel = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
 
   // fetching all move data on load since this component is dependent on that data
@@ -41,9 +34,6 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   useEffect(() => {
     getAllMoves(serviceMemberId).then((response) => {
       updateAllMoves(response);
-    });
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
     });
   }, [updateAllMoves, serviceMemberId]);
 

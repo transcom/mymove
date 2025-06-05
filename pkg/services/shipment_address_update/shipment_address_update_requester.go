@@ -452,6 +452,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 		existingMoveStatus := move.Status
 		if updateNeedsTOOReview {
+			shipment.Status = models.MTOShipmentStatusApprovalsRequested
+
 			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 			if err != nil {
 				return err
@@ -502,7 +504,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.SITDurationUpdates", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -543,7 +545,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
 
 		var haulPricingTypeHasChanged bool
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
+		if shipment.ShipmentType == models.MTOShipmentTypeHHG || shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			haulPricingTypeHasChanged, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
@@ -554,7 +556,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be HHG, NTSr or UB")
 		}
 
 		var shipmentDetails models.MTOShipment
@@ -678,6 +680,14 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
 		addressUpdate.OfficeRemarks = &tooRemarks
+	}
+
+	if models.IsShipmentApprovable(shipment) {
+		shipment.Status = models.MTOShipmentStatusApproved
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
+	} else {
+		shipment.Status = models.MTOShipmentStatusApprovalsRequested
 	}
 
 	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {

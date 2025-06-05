@@ -13,12 +13,12 @@ import {
   useMoveSearchQueries,
   usePaymentRequestQueueQueries,
   useServicesCounselingQueueQueries,
-  useServicesCounselingQueuePPMQueries,
+  usePPMQueueQueries,
   useUserQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingQueue,
-  getServicesCounselingPPMQueue,
+  getPPMCloseoutQueue,
   getPaymentRequestsQueue,
   getMovesQueue,
 } from 'services/ghcApi';
@@ -38,7 +38,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
+const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalRequestTypeFFEnabled }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -237,7 +237,14 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tooQueueColumns(moveLockFlag, isQueueManagementFFEnabled, queueType, null, showBranchFilter)}
+          columns={tooQueueColumns(
+            moveLockFlag,
+            isQueueManagementFFEnabled,
+            queueType,
+            null,
+            isApprovalRequestTypeFFEnabled,
+            showBranchFilter,
+          )}
           title="All moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useMovesQueueQueries}
@@ -302,11 +309,11 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
           )}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
-          useQueries={useServicesCounselingQueuePPMQueries}
+          useQueries={usePPMQueueQueries}
           key="PPM Closeout Queue"
           showCSVExport
           csvExportFileNamePrefix="PPM-Closeout-Queue"
-          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcher={getPPMCloseoutQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           activeRole={activeRole}

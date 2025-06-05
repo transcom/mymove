@@ -495,6 +495,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			moveRouter,
 		),
 		shipmentSITStatus,
+		moveRouter,
 	}
 
 	ghcAPI.ShipmentRejectShipmentHandler = RejectShipmentHandler{
@@ -639,6 +640,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
+		handlerConfig,
+		order.NewOrderFetcher(waf),
+		movelocker.NewMoveUnlocker(),
+		officeuser.NewOfficeUserFetcherPop(),
+	}
+
+	ghcAPI.QueuesGetPPMCloseoutQueueHandler = GetPPMCloseoutQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(waf),
 		movelocker.NewMoveUnlocker(),

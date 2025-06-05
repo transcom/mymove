@@ -2081,6 +2081,13 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: >-
+            Toggles whether the search results should include postal codes that
+            only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
@@ -4152,7 +4159,7 @@ definitions:
         type: string
         enum:
           - INFECTED
-          - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
       createdAt:
         type: string
@@ -5287,6 +5294,7 @@ definitions:
           - CANCELED
           - DIVERSION_REQUESTED
           - TERMINATION_FOR_CAUSE
+          - APPROVALS_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:
