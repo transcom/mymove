@@ -12,8 +12,9 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
+// import { useRolesPrivilegesQueries } from 'hooks/queries';
 
 export const OfficeAccountRequestFields = ({ render }) => {
   const { values, errors, touched, setFieldTouched, validateField } = useFormikContext();
@@ -21,11 +22,12 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const [uniqueIdRequired, setUniqueIdRequired] = useState(false);
   const [enableRequestAccountPrivileges, setEnableRequestAccountPrivileges] = useState(false);
 
+  // const { result } = useRolesPrivilegesQueries();
+  // const { privileges = [] } = result;
   useEffect(() => {
-    const fetchData = async () => {
-      setEnableRequestAccountPrivileges(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES));
-    };
-    fetchData();
+    isBooleanFlagEnabledUnauthenticatedOffice(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES)?.then((enabled) => {
+      setEnableRequestAccountPrivileges(enabled);
+    });
   }, []);
 
   useEffect(() => {
@@ -311,10 +313,35 @@ export const OfficeAccountRequestFields = ({ render }) => {
             aria-invalid={!!errors.requestedRolesGroup}
           />
           {enableRequestAccountPrivileges && (
-            <Label data-testid="requestedPrivilegesHeading">
-              Privilege(s)
-              <OptionalTag />
-            </Label>
+            <>
+              <Label data-testid="requestedPrivilegesHeading">
+                Privilege(s)
+                <OptionalTag />
+              </Label>
+              <CheckboxField
+                id="supervisorCheckbox"
+                data-testid="supervisorCheckbox"
+                name="supervisorCheckbox"
+                label="Supervisor"
+                aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
+                aria-invalid={!!errors.requestedRolesGroup}
+              />
+              {/* <FieldArray name="privileges">
+                {() => {
+                  <>
+                    {privileges.map(({ privilegeType, privilegeName }) => (
+                      <CheckboxField
+                        key={privilegeType}
+                        id={`privileges.${privilegeType}`}
+                        data-testid={`privilege-${privilegeType}`}
+                        name={`privileges.${privilegeType}`}
+                        label={privilegeName}
+                      />
+                    ))}
+                  </>;
+                }}
+              </FieldArray> */}
+            </>
           )}
         </>,
       )}

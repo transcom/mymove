@@ -27,6 +27,8 @@ type RequestOfficeUserHandler struct {
 	services.NewQueryFilter
 	services.UserRoleAssociator
 	services.RoleAssociater
+	services.UserPrivilegeAssociator
+	services.PrivilegeAssociater
 	services.TransportaionOfficeAssignmentUpdater
 }
 
@@ -43,6 +45,19 @@ func payloadForRole(r roles.Role) *ghcmessages.Role {
 	}
 }
 
+// Convert internal role model to ghc role model
+func payloadForPrivilege(p roles.Privilege) *ghcmessages.Privilege {
+	privilegeType := string(p.PrivilegeType)
+	privilegeName := string(p.PrivilegeName)
+	return &ghcmessages.Privilege{
+		ID:            handlers.FmtUUID(p.ID),
+		PrivilegeType: &privilegeType,
+		PrivilegeName: &privilegeName,
+		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
+		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
+	}
+}
+
 // Convert ghc role models to internal role models
 func rolesPayloadToModel(payload []*ghcmessages.OfficeUserRole) []roles.RoleType {
 	var rt []roles.RoleType
@@ -52,6 +67,17 @@ func rolesPayloadToModel(payload []*ghcmessages.OfficeUserRole) []roles.RoleType
 		}
 	}
 	return rt
+}
+
+// Convert ghc privilege models to internal privilege models
+func privilegesPayloadToModel(payload []*ghcmessages.OfficeUserPrivilege) []roles.PrivilegeType {
+	var pt []roles.PrivilegeType
+	for _, role := range payload {
+		if role.PrivilegeType != nil {
+			pt = append(pt, roles.PrivilegeType(*role.PrivilegeType))
+		}
+	}
+	return pt
 }
 
 // Convert internal office user model to ghc office user model
@@ -84,6 +110,9 @@ func payloadForOfficeUserModel(o models.OfficeUser) *ghcmessages.OfficeUser {
 	}
 	for _, role := range user.Roles {
 		payload.Roles = append(payload.Roles, payloadForRole(role))
+	}
+	for _, privilege := range user.Privileges {
+		payload.Privileges = append(payload.Privileges, payloadForPrivilege(privilege))
 	}
 	return payload
 }
@@ -121,6 +150,13 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 			updatedRoles := rolesPayloadToModel(payload.Roles)
 			if len(updatedRoles) == 0 {
 				err = apperror.NewBadDataError("No roles were matched from payload")
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity(), err
+			}
+
+			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
+			if len(updatedPrivileges) == 0 {
+				err = apperror.NewBadDataError("No privileges were matched from payload")
 				appCtx.Logger().Error(err.Error())
 				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity(), err
 			}
@@ -188,13 +224,27 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
 			}
 
+			_, err = h.UserPrivilegeAssociator.UpdateUserPrivileges(appCtx, *createdOfficeUser.UserID, updatedPrivileges)
+
+			if err != nil {
+				appCtx.Logger().Error("Error updating user privileges", zap.Error(err))
+				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
+			}
+
 			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
 			}
 
+			privileges, err := h.PrivilegeAssociater.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
+				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
+			}
+
 			createdOfficeUser.User.Roles = roles
+			createdOfficeUser.User.Privileges = privileges
 
 			transportationOfficeAssignments := models.TransportationOfficeAssignments{
 				{

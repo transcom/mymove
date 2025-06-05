@@ -12084,6 +12084,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -12175,6 +12181,13 @@ func init() {
           "title": "Office user identifier when EDIPI is not available",
           "x-nullable": true
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          },
+          "x-nullable": false
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -12194,6 +12207,23 @@ func init() {
           "format": "uuid",
           "x-nullable": false,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -13829,6 +13859,41 @@ func init() {
           "type": "string",
           "format": "uuid",
           "title": "The service member this document belongs to"
+        }
+      }
+    },
+    "Privilege": {
+      "type": "object",
+      "required": [
+        "id",
+        "privilegeType",
+        "privilegeName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -30796,6 +30861,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -30887,6 +30958,13 @@ func init() {
           "title": "Office user identifier when EDIPI is not available",
           "x-nullable": true
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          },
+          "x-nullable": false
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -30906,6 +30984,23 @@ func init() {
           "format": "uuid",
           "x-nullable": false,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -32615,6 +32710,41 @@ func init() {
           "type": "string",
           "format": "uuid",
           "title": "The service member this document belongs to"
+        }
+      }
+    },
+    "Privilege": {
+      "type": "object",
+      "required": [
+        "id",
+        "privilegeType",
+        "privilegeName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },

@@ -544,11 +544,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move.SetFinancialReviewFlag has not yet been implemented")
 		})
 	}
-	if api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
-		api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
-			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
-		})
-	}
 	if api.PpmShowAOAPacketHandler == nil {
 		api.PpmShowAOAPacketHandler = ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")

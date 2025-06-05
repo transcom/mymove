@@ -5253,6 +5253,33 @@ definitions:
       - roleName
       - createdAt
       - updatedAt
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 463c2034-d197-4d9a-897e-8bbe64893a31
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - privilegeType
+      - privilegeName
+      - createdAt
+      - updatedAt
   OfficeUser:
     type: object
     properties:
@@ -5292,6 +5319,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       edipi:
         type: string
       otherUniqueId:
@@ -5387,6 +5418,11 @@ definitions:
         items:
           $ref: '#/definitions/OfficeUserRole'
         x-nullable: false
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
+        x-nullable: false
     required:
       - firstName
       - lastName
@@ -5417,6 +5453,19 @@ definitions:
         example: 'task_ordering_officer'
         x-nullable: true
         title: roleType
+  OfficeUserPrivilege:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Supervisor
+        x-nullable: true
+        title: name
+      privilegeType:
+        type: string
+        example: supervisor
+        x-nullable: true
+        title: privilegeType
   Customer:
     type: object
     properties:
