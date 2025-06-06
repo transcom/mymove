@@ -106,6 +106,7 @@ const useOrdersDocumentQueriesReturnValue = {
         privatelyOwnedVehicle: true,
         proGearWeight: 2000,
         proGearWeightSpouse: 500,
+        gunSafeWeight: 400,
         requiredMedicalEquipmentWeight: 1000,
         organizationalClothingAndIndividualEquipment: true,
         storageInTransit: 2,
@@ -182,7 +183,6 @@ const editMoveStatuses = [
 ];
 
 const disabledMoveStatuses = [
-  MOVE_STATUSES.DRAFT,
   MOVE_STATUSES.SUBMITTED,
   MOVE_STATUSES.APPROVED,
   MOVE_STATUSES.CANCELED,
@@ -248,7 +248,8 @@ describe('MoveAllowances page', () => {
     });
 
     it('renders displays the allowances in the sidebar form', async () => {
-      render(
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      await render(
         <MockProviders>
           <ServicesCounselingMoveAllowances />
         </MockProviders>,
@@ -256,6 +257,7 @@ describe('MoveAllowances page', () => {
 
       expect(await screen.findByTestId('proGearWeightInput')).toHaveDisplayValue('2,000');
       expect(screen.getByTestId('proGearWeightSpouseInput')).toHaveDisplayValue('500');
+      expect(screen.getByTestId('gunSafeWeightInput')).toHaveDisplayValue('400');
       expect(screen.getByTestId('rmeInput')).toHaveDisplayValue('1,000');
       expect(screen.getByTestId('branchInput')).toHaveDisplayValue('Army');
       expect(screen.getByTestId('sitInput')).toHaveDisplayValue('2');

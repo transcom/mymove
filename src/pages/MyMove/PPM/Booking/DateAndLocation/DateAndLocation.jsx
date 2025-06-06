@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { generatePath, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, getAllMoves, patchMove, patchMTOShipment } from 'services/internalApi';
-import { PPM_TYPES, SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, PPM_TYPES, SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment, updateMove, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
@@ -23,10 +21,9 @@ import { validatePostalCode } from 'utils/validation';
 import { formatAddressForAPI } from 'utils/formatMtoShipment';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
-const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
+const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move, isMoveLocked }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [errorCode, setErrorCode] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
   const navigate = useNavigate();
   const { moveId } = useParams();
   const dispatch = useDispatch();
@@ -42,19 +39,11 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const isNewShipment = !mtoShipment?.id;
   const isCivilian = move.orders?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
 
-  useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
-  }, []);
-
   const handleBack = () => {
     if (isNewShipment) {
       navigate(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
-    } else if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     } else {
-      navigate(generalRoutes.HOME_PATH);
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     }
   };
 
@@ -194,41 +183,49 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   };
 
   return (
-    <div className={ppmPageStyles.ppmPageStyle}>
-      <NotificationScrollToTop dependency={errorMessage} />
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
-            <h1>PPM date & location</h1>
-            {errorMessage && (
-              <Alert headingLevel="h4" slim type="error">
-                {errorCode === 400 ? (
-                  <p>
-                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
-                    <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
-                      Technical Help Desk
-                    </Link>
-                    .
-                  </p>
-                ) : (
-                  <p>{errorMessage}</p>
-                )}
-              </Alert>
-            )}
-            <DateAndLocationForm
-              mtoShipment={mtoShipment}
-              serviceMember={serviceMember}
-              destinationDutyLocation={destinationDutyLocation}
-              move={move}
-              onSubmit={handleSubmit}
-              onBack={handleBack}
-              postalCodeValidator={validatePostalCode}
-            />
+    <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {MOVE_LOCKED_WARNING}
+        </Alert>
+      )}
+      <div className={ppmPageStyles.ppmPageStyle}>
+        <NotificationScrollToTop dependency={errorMessage} />
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
+              <h1>PPM date & location</h1>
+              {errorMessage && (
+                <Alert headingLevel="h4" slim type="error">
+                  {errorCode === 400 ? (
+                    <p>
+                      {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                      <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                        Technical Help Desk
+                      </Link>
+                      .
+                    </p>
+                  ) : (
+                    <p>{errorMessage}</p>
+                  )}
+                </Alert>
+              )}
+              <DateAndLocationForm
+                mtoShipment={mtoShipment}
+                serviceMember={serviceMember}
+                destinationDutyLocation={destinationDutyLocation}
+                move={move}
+                onSubmit={handleSubmit}
+                onBack={handleBack}
+                postalCodeValidator={validatePostalCode}
+                isMoveLocked={isMoveLocked}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
-    </div>
+        </GridContainer>
+      </div>
+    </>
   );
 };
 

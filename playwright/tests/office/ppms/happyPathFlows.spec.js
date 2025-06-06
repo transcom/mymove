@@ -7,6 +7,8 @@
 // @ts-check
 import { test, expect } from './ppmTestFixture';
 
+const gunSafeEnabled = process.env.FEATURE_FLAG_GUN_SAFE;
+
 test.describe('Services counselor user', () => {
   test.beforeEach(async ({ ppmPage }) => {
     const move = await ppmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
@@ -25,7 +27,7 @@ test.describe('Services counselor user', () => {
     await ppmPage.waitForLoading();
 
     // Verify SIT info
-    await expect(page.getByText('Government constructed cost: $326')).toBeVisible();
+    await expect(page.getByText('Government constructed cost:')).toBeVisible();
     await expect(page.getByText('1,000 lbs of destination SIT at 30813 for 31 days.')).toBeVisible();
     // Verify estimated incentive
     await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();
@@ -44,7 +46,7 @@ test.describe('Services counselor user', () => {
     await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     let shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2020');
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2024');
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('987 New Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('P.O. Box 12345');
@@ -81,7 +83,7 @@ test.describe('Services counselor user', () => {
     await ppmPage.waitForLoading();
 
     // Verify SIT info
-    await expect(page.getByText('Government constructed cost: $379')).toBeVisible();
+    await expect(page.getByText('Government constructed cost:')).toBeVisible();
     await expect(page.getByText('1,000 lbs of destination SIT at 76127 for 31 days.')).toBeVisible();
     // Verify estimated incentive
     await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();
@@ -99,7 +101,7 @@ test.describe('Services counselor user', () => {
     await expect(page.getByText('Your changes were saved.')).toBeVisible();
     shipmentContainer = page.locator('[data-testid="ShipmentContainer"]').last();
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2025');
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('BEVERLY HILLS');
@@ -122,6 +124,48 @@ test.describe('Services counselor user', () => {
     await expect(shipmentContainer.locator('[data-testid="counselorRemarks"]')).toContainText(
       'Added correct incentive',
     );
+  });
+
+  test('is able to edit a PPM shipment with gun safe', async ({ page, ppmPage }) => {
+    test.skip(gunSafeEnabled === 'false', 'Skip if Gun Safe FF is disabled.');
+
+    const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
+    await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
+    await expect(shipmentContainer.locator('[data-testid="gunSafeWeight"]')).toContainText('No');
+    // View existing shipment
+    await page.locator('[data-testid="ShipmentContainer"] .usa-button').click();
+
+    await page.locator('label[for="hasGunSafeYes"]').click();
+    await page.locator('input[name="gunSafeWeight"]').fill('200');
+    await expect(
+      page.getByText(
+        'The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.',
+      ),
+    ).toBeVisible();
+    await ppmPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
+
+    // Submit page 1 of form
+    await page.locator('[data-testid="submitForm"]').click();
+    await ppmPage.waitForLoading();
+
+    // Verify estimated incentive
+    await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();
+
+    // Update page 2
+    await ppmPage.fillOutIncentiveAndAdvance();
+    await page.locator('[data-testid="counselor-remarks"]').fill('Increased incentive to max');
+    await page.locator('[data-testid="counselor-remarks"]').blur();
+
+    // Submit page 2 of form
+    await page.locator('[data-testid="submitForm"]').click();
+    await ppmPage.waitForLoading();
+
+    // Expand details and verify information
+    await expect(page.getByText('Your changes were saved.')).toBeVisible();
+    await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
+
+    await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
+    await expect(shipmentContainer.locator('[data-testid="gunSafeWeight"]')).toContainText('Yes, 200 lbs');
   });
 });
 

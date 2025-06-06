@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 
 	setUpHandler := func(ppmCloseoutFetcher services.PPMCloseoutFetcher) GetPPMCloseoutHandler {
 		return GetPPMCloseoutHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			ppmCloseoutFetcher,
 		}
 	}
@@ -61,6 +61,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		gcc := unit.Cents(500)
 		actualMoveDate := time.Now()
 		plannedMoveDate := time.Now()
+		gccMultiplier := float64(1.3)
 		ppmCloseoutObj := models.PPMCloseout{
 			ID:                    &ppmShipment.ID,
 			SITReimbursement:      &SITReimbursement,
@@ -81,6 +82,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 			ProGearWeightSpouse:   &ProGearWeightSpouse,
 			RemainingIncentive:    &remainingIncentive,
 			UnpackPrice:           &UnpackPrice,
+			GCCMultiplier:         &gccMultiplier,
 		}
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		fetcher := setUpMockCloseoutFetcher(&ppmCloseoutObj, nil)
@@ -106,8 +108,8 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 	suite.Run("404 response when the service returns not found", func() {
 		uuidForShipment, _ := uuid.NewV4()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
-		handlerConfig := suite.HandlerConfig()
-		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner(), &paymentrequest.RequestPaymentHelper{}, &mocks.PPMEstimator{})
+		handlerConfig := suite.NewHandlerConfig()
+		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.NewHandlerConfig().DTODPlanner(), &paymentrequest.RequestPaymentHelper{}, &mocks.PPMEstimator{})
 		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/closeout", uuidForShipment.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 

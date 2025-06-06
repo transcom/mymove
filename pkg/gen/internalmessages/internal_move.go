@@ -39,6 +39,11 @@ type InternalMove struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// lock expires at
+	// Read Only: true
+	// Format: date-time
+	LockExpiresAt strfmt.DateTime `json:"lockExpiresAt,omitempty"`
+
 	// move code
 	// Example: HYXFJF
 	// Read Only: true
@@ -92,6 +97,10 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockExpiresAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -183,6 +192,18 @@ func (m *InternalMove) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *InternalMove) validateLockExpiresAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockExpiresAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockExpiresAt", "body", "date-time", m.LockExpiresAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *InternalMove) validateMtoShipments(formats strfmt.Registry) error {
 	if swag.IsZero(m.MtoShipments) { // not required
 		return nil
@@ -265,6 +286,10 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 	}
 
 	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateLockExpiresAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -352,6 +377,15 @@ func (m *InternalMove) contextValidateCreatedAt(ctx context.Context, formats str
 func (m *InternalMove) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InternalMove) contextValidateLockExpiresAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "lockExpiresAt", "body", strfmt.DateTime(m.LockExpiresAt)); err != nil {
 		return err
 	}
 

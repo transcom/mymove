@@ -4,6 +4,7 @@ import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-uswds';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { civilianTDYUBAllowanceWeightWarningOfficeUser, FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -15,15 +16,18 @@ import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/fo
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
-import { dropdownInputOptions } from 'utils/formatters';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { formatPayGradeOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { showCounselingOffices } from 'services/ghcApi';
+import { getPayGradeOptions, showCounselingOffices } from 'services/ghcApi';
 import Hint from 'components/Hint';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import retryPageLoading from 'utils/retryPageLoading';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 let originMeta;
 let newDutyMeta = '';
@@ -34,8 +38,9 @@ const AddOrdersForm = ({
   onBack,
   isSafetyMoveSelected,
   isBluebarkMoveSelected,
+  setShowLoadingSpinner,
+  affiliation,
 }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -69,7 +74,7 @@ const AddOrdersForm = ({
       ? Yup.string().required('Required')
       : Yup.string().notRequired(),
     newDutyLocation: Yup.object().nullable().required('Required'),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    grade: Yup.string().required('Required'),
     accompaniedTour: showAccompaniedTourField
       ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
       : Yup.string().notRequired(),
@@ -165,6 +170,26 @@ const AddOrdersForm = ({
     };
     fetchData();
   }, [ordersTypeOptions]);
+
+  const [payGradeOptions, setPayGradeOptions] = useState([]);
+  useEffect(() => {
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      try {
+        const fetchedRanks = await getPayGradeOptions(affiliation);
+        if (fetchedRanks) {
+          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchGradeOptions();
+  }, [affiliation, setShowLoadingSpinner]);
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -552,4 +577,8 @@ const AddOrdersForm = ({
   );
 };
 
-export default AddOrdersForm;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => {}, mapDispatchToProps)(AddOrdersForm);

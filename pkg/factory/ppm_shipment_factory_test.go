@@ -340,4 +340,30 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		suite.Empty(ppmShipment.ProgearWeightTickets)
 		suite.Empty(ppmShipment.MovingExpenses)
 	})
+
+	suite.Run("creation of PPM with expected departure date in GCC multiplier window adds GCC multiplier data", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		invalidGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-04-02")
+		ppmShipment := BuildPPMShipment(suite.DB(), []Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: validGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		suite.NotNil(ppmShipment.GCCMultiplierID)
+		suite.NotNil(ppmShipment.GCCMultiplier)
+
+		ppmShipment = BuildPPMShipment(suite.DB(), []Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: invalidGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		suite.Nil(ppmShipment.GCCMultiplierID)
+		suite.Nil(ppmShipment.GCCMultiplier)
+	})
 }

@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
-
-import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
 
 import BoatShipmentForm from 'components/Customer/BoatShipment/BoatShipmentForm/BoatShipmentForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import scrollToTop from 'shared/scrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { boatShipmentTypes } from 'constants/shipments';
 import pageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMTOShipment, deleteMTOShipment, getAllMoves } from 'services/internalApi';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
@@ -22,9 +20,15 @@ import { validatePostalCode } from 'utils/validation';
 import { toTotalInches } from 'utils/formatMtoShipment';
 import BoatShipmentConfirmationModal from 'components/Customer/BoatShipment/BoatShipmentConfirmationModal/BoatShipmentConfirmationModal';
 
-const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocation, move, serviceMemberMoves }) => {
+const BoatShipmentCreate = ({
+  mtoShipment,
+  serviceMember,
+  destinationDutyLocation,
+  move,
+  serviceMemberMoves,
+  isMoveLocked,
+}) => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
   const [showBoatConfirmationModal, setShowBoatConfirmationModal] = useState(false);
   const [isDimensionsMeetReq, setIsDimensionsMeetReq] = useState(false);
   const [boatShipmentObj, setBoatShipmentObj] = useState(null);
@@ -42,19 +46,11 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
 
   const isNewShipment = !mtoShipment?.id;
 
-  useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
-  }, []);
-
   const handleBack = () => {
     if (isNewShipment) {
       navigate(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
-    } else if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     } else {
-      navigate(generalRoutes.HOME_PATH);
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     }
   };
 
@@ -224,6 +220,11 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
 
   return (
     <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {MOVE_LOCKED_WARNING}
+        </Alert>
+      )}
       <div className={pageStyles.ppmPageStyle}>
         <NotificationScrollToTop dependency={errorMessage} />
         <GridContainer>
@@ -244,6 +245,7 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
                 onSubmit={handleSubmit}
                 onBack={handleBack}
                 postalCodeValidator={validatePostalCode}
+                isMoveLocked={isMoveLocked}
               />
             </Grid>
           </Grid>

@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexAdminUsersHandler{
-			HandlerConfig:        suite.HandlerConfig(),
+			HandlerConfig:        suite.NewHandlerConfig(),
 			NewQueryFilter:       query.NewQueryFilter,
 			AdminUserListFetcher: adminuser.NewAdminUserListFetcher(queryBuilder),
 			NewPagination:        pagination.NewPagination,
@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexAdminUsersHandler{
-			HandlerConfig:        suite.HandlerConfig(),
+			HandlerConfig:        suite.NewHandlerConfig(),
 			NewQueryFilter:       newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 			AdminUserListFetcher: adminUserListFetcher,
 			NewPagination:        pagination.NewPagination,
@@ -92,7 +92,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetAdminUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminuser.NewAdminUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -116,7 +116,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			mock.Anything,
 		).Return(adminUser, nil).Once()
 		handler := GetAdminUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminUserFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			mock.Anything,
 		).Return(models.AdminUser{}, expectedError).Once()
 		handler := GetAdminUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminUserFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -185,7 +185,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
 		handler := CreateAdminUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminUserCreator,
 			newQueryFilter,
 		}
@@ -211,7 +211,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
 		handler := CreateAdminUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminUserCreator,
 			newQueryFilter,
 		}
@@ -244,7 +244,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		).Return(&adminUser, nil, nil).Once()
 
 		handler := UpdateAdminUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminUserUpdater,
 			newQueryFilter,
 		}
@@ -277,7 +277,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		).Return(nil, err, nil).Once()
 
 		handler := UpdateAdminUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminUserUpdater,
 			newQueryFilter,
 		}

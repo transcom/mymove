@@ -2,6 +2,8 @@ package sitextension
 
 import (
 	"fmt"
+	"slices"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -10,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 )
 
 // checkShipmentID checks that a shipmentID is not nil and returns a verification error if it is
@@ -100,6 +103,49 @@ func checkMinimumSITDuration() sitExtensionValidator {
 		newSITDuration := int(*sitDurationUpdate.ApprovedDays) + int(*shipment.SITDaysAllowance)
 		if newSITDuration < 1 {
 			return apperror.NewInvalidInputError(sitDurationUpdate.ID, nil, nil, "can't reduce a SIT duration to less than one day")
+		}
+		return nil
+	},
+	)
+}
+
+func checkDepartureDate() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, _ models.SITDurationUpdate, shipment *models.MTOShipment) error {
+		// The prime cannot create a SIT Extension if the current SIT departure date
+		// is before or equal to the authorized end date.
+		var endDate *time.Time
+		var si *models.MTOServiceItem
+		shipmentSITStatus := sitstatus.NewShipmentSITStatus()
+
+		sitGroupings, err := shipmentSITStatus.RetrieveShipmentSIT(appCtx, *shipment)
+		if err != nil {
+			return err
+		}
+		sorted := sitstatus.SortShipmentSITs(sitGroupings, time.Now())
+
+		// Check if any current SITs
+		if sorted.CurrentSITs != nil {
+			for _, serviceItem := range shipment.MTOServiceItems {
+				if serviceItem.SITDepartureDate != nil {
+					// Check if valid service SIT service item to get correct authorized end date.
+					if slices.Contains(models.ValidOriginSITReServiceCodes, serviceItem.ReService.Code) &&
+						shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate == nil {
+						si = &serviceItem
+						endDate = shipment.OriginSITAuthEndDate
+					} else if (slices.Contains(models.ValidDestinationSITReServiceCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
+						si = &serviceItem
+						endDate = shipment.DestinationSITAuthEndDate
+					}
+				}
+			}
+		}
+
+		format := "2006-01-02"
+		if endDate != nil && si != nil {
+			if si.SITDepartureDate.Before(*endDate) || si.SITDepartureDate.Equal(*endDate) {
+				sitErr := fmt.Sprintf("\nSIT departure date (%s) cannot be prior or equal to the SIT end date (%s)", si.SITDepartureDate.Format(format), endDate.Format(format))
+				return apperror.NewConflictError(shipment.ID, sitErr)
+			}
 		}
 		return nil
 	},

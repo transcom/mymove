@@ -50,6 +50,11 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		return nil, err
 	}
 
+	var lockExpiresAt strfmt.DateTime
+	if move.LockExpiresAt != nil {
+		lockExpiresAt = *handlers.FmtDateTime(*move.LockExpiresAt)
+	}
+
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:           handlers.FmtDateTime(move.CreatedAt),
 		SubmittedAt:         handlers.FmtDateTime(SubmittedAt),
@@ -62,6 +67,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		Status:              internalmessages.MoveStatus(move.Status),
 		ETag:                &eTag,
 		AdditionalDocuments: additionalDocumentsPayload,
+		LockExpiresAt:       lockExpiresAt,
 	}
 
 	if move.CloseoutOffice != nil {
@@ -105,6 +111,11 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			closeOutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
 		}
 
+		var lockExpiresAt strfmt.DateTime
+		if move.LockExpiresAt != nil {
+			lockExpiresAt = *handlers.FmtDateTime(*move.LockExpiresAt)
+		}
+
 		currentMove := &internalmessages.InternalMove{
 			CreatedAt:      *handlers.FmtDateTime(move.CreatedAt),
 			ETag:           eTag,
@@ -115,6 +126,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			Orders:         orders,
 			CloseoutOffice: &closeOutOffice,
 			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
+			LockExpiresAt:  lockExpiresAt,
 		}
 
 		if move.PrimeCounselingCompletedAt != nil {
@@ -263,10 +275,21 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 				return handlers.ResponseForError(logger, err), err
 			}
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+
 			/* Don't send Move Creation email if orders type is BLUEBARK/SAFETY */
 			if move.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
-					notifications.NewMoveSubmitted(moveID),
+					notifications.NewMoveSubmitted(moveID, isGunSafeFeatureOn),
 				)
 				if err != nil {
 					logger.Error("problem sending email to user", zap.Error(err))

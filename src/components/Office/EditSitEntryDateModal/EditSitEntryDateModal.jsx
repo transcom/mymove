@@ -94,7 +94,7 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.UpdateSitEntryDateModal}>
+        <Modal className={styles.UpdateSitEntryDateModal} onClose={() => onClose()}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h2>Edit SIT Entry Date</h2>
@@ -128,6 +128,15 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
                     />
                     <ModalActions>
                       <Button
+                        type="button"
+                        onClick={() => onClose()}
+                        data-testid="modalCancelButton"
+                        secondary
+                        className={styles.CancelButton}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
                         type="submit"
                         disabled={
                           (!isValid && (touched.sitEntryDate || touched.officeRemarks)) ||
@@ -137,15 +146,6 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
                         onClick={() => setTouched({ sitEntryDate: true, officeRemarks: true })}
                       >
                         Save
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onClose()}
-                        data-testid="modalCancelButton"
-                        outline
-                        className={styles.CancelButton}
-                      >
-                        Cancel
                       </Button>
                     </ModalActions>
                   </Form>

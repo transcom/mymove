@@ -27,7 +27,14 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		// Expected:	New sit successfully created
 		// Create new mtoShipment
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
 
 		// Create a valid SIT Extension for the move
 		sit := &models.SITDurationUpdate{

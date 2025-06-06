@@ -75,6 +75,38 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		}
 	}
 
+	suite.Run("fetches PPM with GCC Multiplier data when applicable", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), factory.GetTraitActiveOfficeUser(), nil)
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          officeUser.User.ID,
+			OfficeUserID:    officeUser.ID,
+		})
+
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: validGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		ppmShipmentReturned, err := fetcher.GetPPMShipment(
+			appCtx,
+			ppmShipment.ID,
+			nil,
+			nil,
+		)
+
+		if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+			suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+			suite.NotNil(ppmShipment.GCCMultiplierID)
+			suite.NotNil(ppmShipment.GCCMultiplier)
+		}
+	})
+
 	suite.Run("GetPPMShipment", func() {
 		suite.Run("Can fetch a PPM Shipment if there is no session (e.g. a prime request)", func() {
 			appCtx := suite.AppContextWithSessionForTest(nil)
@@ -90,6 +122,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 
 			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
 				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+				suite.Nil(ppmShipment.GCCMultiplierID)
+				suite.Nil(ppmShipment.GCCMultiplier)
 			}
 		})
 
@@ -113,6 +147,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 
 			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
 				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+				suite.Nil(ppmShipment.GCCMultiplierID)
+				suite.Nil(ppmShipment.GCCMultiplier)
 			}
 		})
 
@@ -135,6 +171,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 
 			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
 				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+				suite.Nil(ppmShipment.GCCMultiplierID)
+				suite.Nil(ppmShipment.GCCMultiplier)
 			}
 		})
 
@@ -872,9 +910,10 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		// No uploads are added by default for the ProofOfTrailerOwnershipDocument to the WeightTicket model
-		testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
+		_, err := testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
 			ppmShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument,
 			testdatagen.Assertions{ServiceMember: ppmShipment.WeightTickets[0].EmptyDocument.ServiceMember})
+		suite.NoError(err)
 
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), ppmShipment.ID)
 		suite.NoError(err)
@@ -959,9 +998,10 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	suite.Run("FindPPMShipment - deleted uploads are removed", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
-		testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
+		_, err := testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
 			ppmShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument,
 			testdatagen.Assertions{ServiceMember: ppmShipment.WeightTickets[0].EmptyDocument.ServiceMember})
+		suite.NoError(err)
 
 		factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
 			{

@@ -103,11 +103,11 @@ const PPMShipmentCard = ({
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
-              <Button onClick={() => onDeleteClick(shipment.id)} unstyled>
+              <Button data-testid="delete-shipment-btn" onClick={() => onDeleteClick(shipment.id)} unstyled>
                 Delete
               </Button>
               |
-              <Button onClick={() => onEditClick(editPath)} unstyled>
+              <Button data-testid="edit-shipment-btn" onClick={() => onEditClick(editPath)} unstyled>
                 Edit
               </Button>
             </div>

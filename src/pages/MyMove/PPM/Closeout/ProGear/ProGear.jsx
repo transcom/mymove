@@ -19,13 +19,13 @@ import {
   createProGearWeightTicket,
   deleteUpload,
   patchProGearWeightTicket,
-  patchMTOShipment,
   getMTOShipmentsForMove,
   getAllMoves,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
 import appendTimestampToFilename from 'utils/fileUpload';
@@ -34,6 +34,8 @@ const ProGear = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const displayHelpDeskLink = false;
+
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
 
@@ -41,6 +43,14 @@ const ProGear = () => {
 
   const appName = APP_NAME.MYMOVE;
   const { moveId, mtoShipmentId, proGearId } = useParams();
+
+  const errorModalMessage =
+    'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.';
+
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
+  };
 
   const handleBack = () => {
     const path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
@@ -103,10 +113,15 @@ const ProGear = () => {
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
         setFieldTouched(fieldName, true);
+        setIsErrorModalVisible(false);
         return upload;
       })
-      .catch(() => {
-        setErrorMessage('Failed to save the file upload');
+      .catch((err) => {
+        if (err.response.obj.title === 'Incorrect Xlsx Template') {
+          setIsErrorModalVisible(true);
+        } else {
+          setErrorMessage('Failed to save file upload');
+        }
       });
   };
 
@@ -129,38 +144,6 @@ const ProGear = () => {
       })
       .catch(() => {
         setErrorMessage('Failed to delete the file upload');
-      });
-  };
-
-  const updateMtoShipment = (values) => {
-    const belongsToSelf = values.belongsToSelf === 'true';
-    let proGear;
-    let spouseProGear;
-    if (belongsToSelf) {
-      proGear = values.weight;
-    }
-    if (!belongsToSelf) {
-      spouseProGear = values.weight;
-    }
-    const payload = {
-      belongsToSelf,
-      ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
-      },
-      shipmentType: mtoShipment.shipmentType,
-      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
-      actualProGearWeight: parseInt(proGear, 10),
-      shipmentLocator: values.shipmentLocator,
-      eTag: mtoShipment.eTag,
-    };
-
-    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
-      .then((response) => {
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(response));
-      })
-      .catch(() => {
-        setErrorMessage('Failed to update MTO shipment due to server error.');
       });
   };
 
@@ -188,7 +171,6 @@ const ProGear = () => {
           .then((response) => {
             dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
             mtoShipment.eTag = response.mtoShipments[mtoShipmentId].eTag;
-            updateMtoShipment(values);
             navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
           })
           .catch(() => {
@@ -241,6 +223,12 @@ const ProGear = () => {
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}
               appName={appName}
+            />
+            <ErrorModal
+              isOpen={isErrorModalVisible}
+              closeModal={toggleErrorModal}
+              errorMessage={errorModalMessage}
+              displayHelpDeskLink={displayHelpDeskLink}
             />
           </Grid>
         </Grid>

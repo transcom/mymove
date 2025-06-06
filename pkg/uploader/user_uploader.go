@@ -123,6 +123,25 @@ func (u *UserUploader) CreateUserUpload(appCtx appcontext.AppContext, userID uui
 	return u.CreateUserUploadForDocument(appCtx, nil, userID, file, allowedTypes)
 }
 
+func (u *UserUploader) UpdateUserXlsxUploadFilename(appCtx appcontext.AppContext, userUpload *models.UserUpload, newFilename string) (*models.UserUpload, *validate.Errors, error) {
+	// 1) Mutate the in-memory struct
+	userUpload.Upload.Filename = newFilename
+
+	// 2) Persist only the Upload table change.
+	//    ValidateAndUpdate will run any model validations and issue an UPDATE.
+	verrs, err := appCtx.DB().ValidateAndUpdate(&userUpload.Upload)
+	if err != nil || verrs.HasAny() {
+		appCtx.Logger().Error("failed to update upload filename",
+			zap.Error(err),
+			zap.Any("validation_errors", verrs),
+		)
+		return nil, verrs, errors.Wrap(err, "could not update upload filename")
+	}
+
+	// Return the updated UserUpload
+	return userUpload, &validate.Errors{}, nil
+}
+
 // DeleteUserUpload removes an UserUpload from the database and deletes its file from the
 // storer.
 func (u *UserUploader) DeleteUserUpload(appCtx appcontext.AppContext, userUpload *models.UserUpload) error {

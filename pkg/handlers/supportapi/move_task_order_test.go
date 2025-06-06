@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.ListMTOsParams{HTTPRequest: request}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 
 	handler := ListMTOsHandler{
 		HandlerConfig:        handlerConfig,
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 	suite.Run("successfully hide fake moves", func() {
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			movetaskorder.NewMoveTaskOrderHider(),
 		}
 		var moves models.Moves
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		}
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			mockHider,
 		}
 
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			mockHider,
 		}
 		mockHider.On("Hide",
@@ -168,7 +168,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
@@ -203,7 +203,25 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		return mockUpdater
 	}
 
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	ppmEstimator := &mocks.PPMEstimator{}
 	// make the request
@@ -230,7 +248,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	}
 	waf := entitlements.NewWeightAllotmentFetcher()
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := GetMoveTaskOrderHandlerFunc{handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
@@ -275,7 +293,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
 		deptIndicator := supportmessages.DeptIndicatorAIRANDSPACEFORCE
 
-		grade := (supportmessages.Rank)("E_6")
+		grade := (supportmessages.Rank)("E-6")
 		mtoPayload := &supportmessages.MoveTaskOrder{
 			PpmType:      "FULL",
 			ContractorID: handlers.FmtUUID(contractor.ID),
@@ -307,7 +325,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	setupHandler := func() CreateMoveTaskOrderHandler {
 		return CreateMoveTaskOrderHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 		}
 	}
@@ -419,12 +437,30 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			return mockUpdater
 		}
 
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+			planner,
+			queryBuilder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		ppmEstimator := &mocks.PPMEstimator{}
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
@@ -493,12 +529,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// This time we provide customer details to create
 		newCustomerFirstName := "Grace"
+		rank := supportmessages.Rank("ACADEMY_CADET")
 		mtoPayload.Order.Customer = &supportmessages.Customer{
 			FirstName: &newCustomerFirstName,
 			LastName:  models.StringPointer("Griffin"),
 			Agency:    models.StringPointer("Marines"),
 			DodID:     models.StringPointer("1209457894"),
-			Rank:      supportmessages.NewRank("ACADEMY_CADET"),
+			Rank:      &rank,
 		}
 		mtoPayload.Order.CustomerID = nil
 
@@ -637,7 +674,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 
 		handler := CreateMoveTaskOrderHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 		}
 

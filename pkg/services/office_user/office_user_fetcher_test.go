@@ -125,7 +125,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.SCAssignedUser,
+				Type:     &factory.OfficeUsers.SCCounselingAssignedUser,
 			},
 		}, nil)
 

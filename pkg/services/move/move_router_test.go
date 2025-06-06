@@ -1674,8 +1674,36 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
 	})
 
+	suite.Run("status changed to service counseling completed when originally in DRAFT status", func() {
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
+		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
+	})
+
 	suite.Run("status changed to approved", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
+		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
+		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+	})
+
+	suite.Run("status changed to approved when originally in DRAFT status", func() {
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
 		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
@@ -1696,7 +1724,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 	})
 
 	suite.Run("move has unexpected existing status", func() {
-		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusServiceCounselingCompleted)
 		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
@@ -1800,4 +1828,82 @@ func (suite *MoveServiceSuite) createServiceItem(createOrigin bool, createDest b
 	}
 
 	return originServiceItem, destServiceItem, move
+}
+
+func (suite *MoveServiceSuite) TestShipmentApprovalsRequested() {
+	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+
+	suite.Run("from valid statuses", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MTOShipmentID: &shipment.ID,
+				},
+			},
+		}, nil)
+		shipment.MTOServiceItems = models.MTOServiceItems{serviceItem}
+		validStatuses := []struct {
+			desc   string
+			status models.MTOShipmentStatus
+		}{
+			{"Draft", models.MTOShipmentStatusDraft},
+			{"Submitted", models.MTOShipmentStatusSubmitted},
+			{"Approved", models.MTOShipmentStatusApproved},
+			{"Rejected", models.MTOShipmentStatusRejected},
+			{"Cancellation Requested", models.MTOShipmentStatusCancellationRequested},
+			{"Diversion Requested", models.MTOShipmentStatusDiversionRequested},
+		}
+		for _, tt := range validStatuses {
+			shipment.Status = tt.status
+
+			updatedShipment, err := moveRouter.UpdateShipmentStatusToApprovalsRequested(suite.AppContextForTest(), shipment)
+
+			suite.NoError(err)
+			suite.Equal(models.MTOShipmentStatusApprovalsRequested, updatedShipment.Status)
+		}
+	})
+
+	suite.Run("from invalid statuses", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		invalidStatuses := []struct {
+			desc   string
+			status models.MTOShipmentStatus
+		}{
+			{"Canceled", models.MTOShipmentStatusCanceled},
+			{"Terminated For Cause", models.MTOShipmentStatusTerminatedForCause},
+		}
+		for _, tt := range invalidStatuses {
+			shipment.Status = tt.status
+
+			_, err := moveRouter.UpdateShipmentStatusToApprovalsRequested(suite.AppContextForTest(), shipment)
+
+			suite.Error(err)
+			suite.Contains(err.Error(), fmt.Sprintf("The status for the shipment with ID %s can not be sent to 'Approvals Requested' if the status is %s.", shipment.ID, shipment.Status))
+		}
+	})
+
+	suite.Run("from APPROVALS REQUESTED status", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
+		_, err := moveRouter.UpdateShipmentStatusToApprovalsRequested(suite.AppContextForTest(), shipment)
+		suite.NoError(err)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, shipment.Status)
+	})
 }

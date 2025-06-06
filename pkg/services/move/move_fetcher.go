@@ -156,7 +156,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 					AND moves.status = 'NEEDS SERVICE COUNSELING'
 					AND orders.gbloc = $1
 					AND moves.show = $2
-					AND moves.sc_assigned_id IS NULL
+					AND moves.sc_counseling_assigned_id IS NULL
 					AND moves.counseling_transportation_office_id = $3
 					AND (ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN ($4, $5, $6))
 					AND (orders.orders_type NOT IN ($7, $8, $9))
@@ -198,7 +198,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx ap
 				WHERE
 					(moves.status IN ('APPROVED', 'SERVICE COUNSELING COMPLETED'))
 					AND moves.show = $1
-					AND moves.sc_assigned_id IS NULL`
+					AND moves.sc_closeout_assigned_id IS NULL`
 
 	switch gbloc {
 	case "NAVY":

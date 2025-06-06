@@ -17,7 +17,7 @@ test.describe('Services counselor user', () => {
     // Shipment card
     await page.locator('[data-testid="ShipmentContainer"] ').click();
 
-    await expect(page.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2020');
+    await expect(page.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2024');
 
     await expect(page.locator('[data-testid="pickupAddress"]')).toContainText(
       '987 New Street, P.O. Box 12345, c/o Some Person, Des Moines, IA 50309',

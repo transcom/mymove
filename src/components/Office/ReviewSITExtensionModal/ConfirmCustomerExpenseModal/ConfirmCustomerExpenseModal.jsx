@@ -23,7 +23,7 @@ const ConfirmCustomerExpenseModal = ({ setShowConfirmModal, values, setValues })
   };
 
   return (
-    <Modal>
+    <Modal onClose={handleConfirmNo}>
       <ModalClose handleClick={handleConfirmNo} />
       <ModalTitle>
         <h2>Convert to Customer Expense</h2>
@@ -31,11 +31,16 @@ const ConfirmCustomerExpenseModal = ({ setShowConfirmModal, values, setValues })
       <div className={styles.ModalPanelNoBorder}>
         <p>Are you sure that you would like to convert to Customer Expense?</p>
         <ModalActions>
+          <Button
+            type="button"
+            secondary
+            data-testid="convertToCustomerExpenseConfirmationNo"
+            onClick={handleConfirmNo}
+          >
+            No
+          </Button>
           <Button type="button" data-testid="convertToCustomerExpenseConfirmationYes" onClick={handleConfirmYes}>
             Yes
-          </Button>
-          <Button type="button" data-testid="convertToCustomerExpenseConfirmationNo" onClick={handleConfirmNo}>
-            No
           </Button>
         </ModalActions>
       </div>

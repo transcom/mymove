@@ -19,6 +19,8 @@ type Country struct {
 	CountryName string    `json:"country_name" db:"country_name"`
 }
 
+type Countries []Country
+
 // TableName overrides the table name used by Pop.
 func (c Country) TableName() string {
 	return "re_countries"

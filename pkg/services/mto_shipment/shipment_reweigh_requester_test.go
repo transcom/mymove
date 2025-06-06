@@ -107,18 +107,20 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", rejectedShipment.ID, rejectedShipment.Status), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Can only reweigh a shipment that is Approved, Approvals Requested, or Diversion Requested. The shipment's current status is %s", rejectedShipment.ID, rejectedShipment.Status), err.Error())
 	})
 
 	suite.Run("When a reweigh already exists for the shipment, returns ConflictError", func() {
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
+		suite.NoError(err)
+
 		existingShipment := reweigh.Shipment
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 
-		_, err := requester.RequestShipmentReweigh(session, existingShipment.ID, models.ReweighRequesterTOO)
+		_, err = requester.RequestShipmentReweigh(session, existingShipment.ID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)

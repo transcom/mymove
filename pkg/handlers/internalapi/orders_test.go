@@ -36,11 +36,26 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			},
 		},
 	}, nil)
+
+	parameterName := "maxGunSafeAllowance"
+	parameterValue := "500"
+	param := models.ApplicationParameters{
+		ParameterName:  &parameterName,
+		ParameterValue: &parameterValue,
+	}
+	suite.MustSave(&param)
+
 	suite.Run("can create conus orders", func() {
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "35023")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus: models.BoolPointer(false),
+					IsOconus:   models.BoolPointer(false),
+					City:       "BESSEMER",
+					PostalCode: usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -91,7 +106,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
 
@@ -102,7 +117,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		orderID := okResponse.Payload.ID.String()
 		createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
 		var createdEntitlement models.Entitlement
-		err := suite.DB().Find(&createdEntitlement, createdOrder.EntitlementID)
+		err = suite.DB().Find(&createdEntitlement, createdOrder.EntitlementID)
 		suite.NoError(err)
 		suite.NotEmpty(createdEntitlement)
 		suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
@@ -121,6 +136,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.Nil(createdEntitlement.AccompaniedTour)
 		suite.Nil(createdEntitlement.DependentsTwelveAndOver)
 		suite.Nil(createdEntitlement.DependentsUnderTwelve)
+		suite.Equal(createdEntitlement.GunSafeWeight, 500)
 	})
 
 	suite.Run("can create oconus orders", func() {
@@ -133,6 +149,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -214,7 +232,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
 		response := createHandler.Handle(params)
@@ -258,6 +276,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					PostalCode:         usprc.UsprZipID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)
@@ -336,7 +356,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
 
@@ -372,7 +392,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	showHandler := ShowOrdersHandler{handlerConfig}
 
@@ -719,14 +739,9 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Can update CONUS orders", func() {
-		address := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					IsOconus: models.BoolPointer(false),
-				},
-			},
-		}, nil)
+		address := factory.BuildAddress(suite.DB(), nil, nil)
 
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
@@ -787,7 +802,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
@@ -834,15 +849,12 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	})
 
 	suite.Run("Can update OCONUS orders", func() {
-		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
-
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus:           models.BoolPointer(true),
-					UsPostRegionCityID: &usprc.ID,
+					IsOconus:   models.BoolPointer(true),
+					City:       "JUNEAU",
+					PostalCode: "99801",
 				},
 			},
 		}, nil)
@@ -884,11 +896,14 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			},
 		})
 		suite.NotNil(rateArea)
-		suite.Nil(err)
 
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
 		suite.Nil(err)
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 
 		oconusRateArea, err := models.FetchOconusRateAreaByCityId(suite.DB(), usprc.ID.String())
 		suite.NotNil(oconusRateArea)
@@ -939,7 +954,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
@@ -1040,7 +1055,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
@@ -1112,7 +1127,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
@@ -1133,17 +1148,12 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 
 func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 
-	firstAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				PostalCode: "90210",
-			},
-		},
-	}, nil)
+	firstAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	updatedAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
 				PostalCode: "35023",
+				City:       "BESSEMER",
 			},
 		},
 	}, nil)
@@ -1219,7 +1229,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := UpdateOrdersHandler{handlerConfig}
@@ -1359,7 +1369,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := UpdateOrdersHandler{handlerConfig}

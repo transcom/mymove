@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { cloneDeep } from 'lodash';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
@@ -29,6 +30,29 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const MOCKED__ORDERS_PAY_GRADE_TYPE = {
+      E_5: 'E-5',
+      E_6: 'E-6',
+      CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
+    };
+    return Promise.resolve({
+      body: [
+        {
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+        },
+        {
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+        },
+        {
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+        },
+      ],
+    });
+  }),
 }));
 jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
@@ -191,13 +215,15 @@ const testProps = {
   grade: '',
 };
 
+const testPropsWithLock = cloneDeep(testProps);
+testPropsWithLock.isMoveLocked = true;
+
 const initialValues = {
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'no',
   origin_duty_location: {
-    provides_services_counseling: true,
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -214,6 +240,7 @@ const initialValues = {
     id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
+    provides_services_counseling: true,
   },
   counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
   new_duty_location: {
@@ -344,6 +371,62 @@ describe('EditOrdersForm component', () => {
         expect(screen.getByText(documentSizeLimitMsg)).toBeInTheDocument();
       });
     });
+
+    it('disables the submit button if move is locked by office user', async () => {
+      showCounselingOffices.mockImplementation(() => Promise.resolve({}));
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      // Fill out form so that form is valid, and submit button will only be disabled if the move is locked.
+      render(
+        <MockProviders>
+          <EditOrdersForm
+            {...testPropsWithLock}
+            initialValues={{
+              origin_duty_location: {
+                name: 'Altus AFB',
+                provides_services_counseling: true,
+                address: { isOconus: false },
+              },
+              counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+              uploaded_orders: [
+                {
+                  id: '123',
+                  createdAt: '2020-11-08',
+                  bytes: 1,
+                  url: 'url',
+                  filename: 'Test Upload',
+                  contentType: 'application/pdf',
+                },
+              ],
+            }}
+          />
+        </MockProviders>,
+      );
+      await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+      await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+      await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+      await userEvent.click(screen.getByLabelText('No'));
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+
+      // Test New Duty Location Search Box interaction
+      await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+      const selectedOptionNew = await screen.findByText(/Luke/);
+      await userEvent.click(selectedOptionNew);
+
+      expect(screen.getByLabelText(/Counseling office/));
+
+      await waitFor(() =>
+        expect(screen.getByRole('form')).toHaveFormValues({
+          new_duty_location: 'Luke AFB',
+          origin_duty_location: 'Altus AFB',
+        }),
+      );
+
+      const submitButton = screen.getByRole('button', { name: 'Save' });
+      expect(submitButton).toBeDisabled();
+    });
   });
 
   describe('renders each option for the orders type dropdown', () => {
@@ -414,12 +497,11 @@ describe('EditOrdersForm component', () => {
     await waitFor(() => {
       expect(submitButton).not.toBeDisabled();
     });
-
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
 
     await waitFor(() => {
@@ -484,7 +566,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -528,7 +610,7 @@ describe('EditOrdersForm component', () => {
           provides_services_counseling: true,
         },
         origin_duty_location: expect.any(Object),
-        grade: 'E_5',
+        grade: ORDERS_PAY_GRADE_TYPE.E_5,
         counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
         uploaded_orders: expect.arrayContaining([
           expect.objectContaining({
@@ -595,7 +677,7 @@ describe('EditOrdersForm component', () => {
           contentType: 'application/pdf',
         },
       ],
-      grade: 'E_1',
+      grade: ORDERS_PAY_GRADE_TYPE.E_5,
       origin_duty_location: {
         address: {
           city: '',
@@ -631,7 +713,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
+      expect(screen.getByLabelText(/Pay grade/)).toHaveTextContent(ORDERS_PAY_GRADE_TYPE.E_5);
       expect(screen.getByText('Altus AFB')).toBeInTheDocument();
     });
 
@@ -767,7 +849,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_8']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 200 });
@@ -982,13 +1064,38 @@ describe('EditOrdersForm component', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.E_5);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
+
+  it.each([[ORDERS_TYPE.RETIREMENT], [ORDERS_TYPE.SEPARATION]])(
+    'renders correct DutyLocationInput label and hint for %s orders type',
+    async (ordersType) => {
+      render(
+        <MockProviders>
+          <EditOrdersForm
+            {...testProps}
+            initialValues={{
+              ...testProps.initialValues,
+              orders_type: ordersType,
+            }}
+          />
+        </MockProviders>,
+      );
+
+      const destinationInput = await screen.findByLabelText(/Destination Location \(As Authorized on Orders\)/);
+      expect(destinationInput).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Enter the option closest to your destination\. Your move counselor will identify if there might be a cost to you\./,
+        ),
+      ).toBeInTheDocument();
+    },
+  );
 
   afterEach(jest.restoreAllMocks);
 });

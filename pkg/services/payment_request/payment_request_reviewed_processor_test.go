@@ -200,7 +200,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	var responseFailure = http.Response{}
 	responseFailure.StatusCode = http.StatusInternalServerError
 	responseFailure.Status = "500 Internal Server Error"
-
 	suite.Run("process reviewed payment request successfully (0 Payments to review)", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
@@ -214,6 +213,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		gexSender := services.GexSender(nil)
 		sendToSyncada := false
 		mockNotificationSender := notifications.NewStubNotificationSender("")
+
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
 			reviewedPaymentRequestFetcher,
@@ -221,7 +221,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession,
-			mockNotificationSender)
+			mockNotificationSender,
+		)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		var ediProcessing models.EDIProcessing

@@ -28,7 +28,7 @@ const testInitialValues = {
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
   },
-  grade: 'E_1',
+  grade: 'E-1',
   origin_duty_location: {
     address: {
       city: 'Des Moines',

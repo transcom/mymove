@@ -27,6 +27,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/orders"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -368,6 +369,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		})
 	}
+	if api.QueuesGetPPMCloseoutQueueHandler == nil {
+		api.QueuesGetPPMCloseoutQueueHandler = queues.GetPPMCloseoutQueueHandlerFunc(func(params queues.GetPPMCloseoutQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetPPMCloseoutQueue has not yet been implemented")
+		})
+	}
 	if api.PpmGetPPMDocumentsHandler == nil {
 		api.PpmGetPPMDocumentsHandler = ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
@@ -386,6 +392,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ApplicationParametersGetParamHandler == nil {
 		api.ApplicationParametersGetParamHandler = application_parameters.GetParamHandlerFunc(func(params application_parameters.GetParamParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.GetParam has not yet been implemented")
+		})
+	}
+	if api.OrdersGetPayGradesHandler == nil {
+		api.OrdersGetPayGradesHandler = orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsGetPaymentRequestHandler == nil {
@@ -516,6 +527,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.EvaluationReportsSaveEvaluationReportHandler == nil {
 		api.EvaluationReportsSaveEvaluationReportHandler = evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
+		})
+	}
+	if api.AddressesSearchCountriesHandler == nil {
+		api.AddressesSearchCountriesHandler = addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
 		})
 	}
 	if api.CustomerSearchCustomersHandler == nil {
