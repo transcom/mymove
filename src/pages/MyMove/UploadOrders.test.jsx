@@ -10,6 +10,7 @@ import { renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import { selectOrdersForLoggedInUser, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { ORDERS_TYPE } from 'constants/orders';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
@@ -498,17 +499,7 @@ describe('UploadOrders Component', () => {
       result.handleUploadFile ||
       ((file) => {
         const documentId = mockOrders[0].uploaded_orders.id;
-        const now = new Date();
-        const timestamp = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now
-          .getDate()
-          .toString()
-          .padStart(2, '0')}${now.getHours().toString().padStart(2, '0')}${now
-          .getMinutes()
-          .toString()
-          .padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
-        const newFileName = `${file.name}-${timestamp}`;
-        const newFile = new File([file], newFileName, { type: file.type });
-        return createUploadForDocument(newFile, documentId);
+        return createUploadForDocument(appendTimestampToFilename(file), documentId);
       });
 
     // Step 6: Call the handleUploadFile mock
@@ -516,8 +507,7 @@ describe('UploadOrders Component', () => {
 
     // Step 7: Assert that the service was called with the new filename
     expect(createUploadForDocument).toHaveBeenCalledWith(expect.any(File), 'documentId');
-    expect(createUploadForDocument.mock.calls[0][0].name).toBe('testfile.txt-20221010123456'); // Expect the appended timestamp
-
+    expect(createUploadForDocument.mock.calls[0][0].name).toBe('testfile-20221010123456.txt'); // Expect the appended timestamp
     // Restore the original Date implementation
     jest.restoreAllMocks();
   });
