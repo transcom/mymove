@@ -119,7 +119,7 @@ func mergeAddress(address, originalAddress models.Address) models.Address {
 	mergedAddress.StreetAddress2 = services.SetOptionalStringField(address.StreetAddress2, mergedAddress.StreetAddress2)
 	mergedAddress.StreetAddress3 = services.SetOptionalStringField(address.StreetAddress3, mergedAddress.StreetAddress3)
 	if address.Country != nil {
-		mergedAddress.Country.Country = *services.SetOptionalStringField(&address.Country.Country, &mergedAddress.Country.Country)
+		mergedAddress.Country = address.Country
 	}
 	return mergedAddress
 }
