@@ -80,6 +80,9 @@
 
     &:has(> div){
        padding: 0rem 1rem;
+       > ul {
+        list-style: none;
+       }
     }
 
     & > ul {
