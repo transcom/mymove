@@ -139,4 +139,46 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		// if the created shipment has a status of approved, then ApproveDiversion was successful
 		suite.Equal(models.MTOShipmentStatusApproved, createdShipment.Status)
 	})
+
+	suite.Run("It updates the move from APPROVALS REQUESTED to APPROVED", func() {
+		shipmentRouter := NewShipmentRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		approver := NewShipmentDiversionApprover(shipmentRouter, moveRouter)
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:    models.MTOShipmentStatusSubmitted,
+					Diversion: true,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		_, err := approver.ApproveShipmentDiversion(session, shipment.ID, eTag)
+		suite.NoError(err)
+
+		var updatedMove models.Move
+		err = suite.DB().Find(&updatedMove, move.ID)
+		suite.NoError(err)
+
+		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
+	})
 }
