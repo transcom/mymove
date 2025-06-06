@@ -20,7 +20,7 @@ const initialValues = {
   moveData: [],
 };
 
-export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, queueType }) => {
+export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, queueType, activeOfficeID }) => {
   const bulkAssignmentSwitchLabels = ['Bulk Assignment', 'Bulk Re-assignment'];
   const errorMessage = 'Cannot assign more moves than are available.';
 
@@ -73,7 +73,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
 
   const fetchData = useCallback(async () => {
     try {
-      const data = await getBulkAssignmentData(queueType);
+      const data = await getBulkAssignmentData(queueType, activeOfficeID);
       setBulkAssignmentData(data);
       initUserData(data?.availableOfficeUsers);
       if (!data.bulkAssignmentMoveIDs) {
@@ -86,7 +86,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
     } catch (err) {
       milmoveLogger.error('Error fetching bulk assignment data:', err);
     }
-  }, [queueType]);
+  }, [queueType, activeOfficeID]);
 
   useEffect(() => {
     fetchData();

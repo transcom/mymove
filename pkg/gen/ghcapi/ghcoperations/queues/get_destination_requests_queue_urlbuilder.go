@@ -16,6 +16,7 @@ import (
 
 // GetDestinationRequestsQueueURL generates an URL for the get destination requests queue operation
 type GetDestinationRequestsQueueURL struct {
+	ActiveOfficeID          *strfmt.UUID
 	ActiveRole              *string
 	AppearedInTooAt         *strfmt.DateTime
 	AssignedTo              *string
@@ -69,6 +70,14 @@ func (o *GetDestinationRequestsQueueURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var activeOfficeIDQ string
+	if o.ActiveOfficeID != nil {
+		activeOfficeIDQ = o.ActiveOfficeID.String()
+	}
+	if activeOfficeIDQ != "" {
+		qs.Set("activeOfficeID", activeOfficeIDQ)
+	}
 
 	var activeRoleQ string
 	if o.ActiveRole != nil {

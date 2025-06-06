@@ -207,7 +207,7 @@ export const columns = (
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
                   <option
                     value={officeUserId}
                     key={officeUserId}
@@ -239,6 +239,8 @@ const MoveQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
+  activeOfficeID,
+  activeGbloc,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
@@ -278,15 +280,10 @@ const MoveQueue = ({
     setSearch(payload);
     setSearchHappened(true);
   }, []);
-  const {
-    // eslint-disable-next-line camelcase
-    data: { office_user },
-    isLoading,
-    isError,
-  } = useUserQueries();
+  const { isLoading, isError } = useUserQueries();
 
   // eslint-disable-next-line camelcase
-  const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
+  const showBranchFilter = activeGbloc !== GBLOC.USMC;
 
   const handleEditProfileClick = (locator) => {
     navigate(generatePath(tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
@@ -396,6 +393,7 @@ const MoveQueue = ({
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.TASK_ORDER}
           activeRole={activeRole}
+          activeOfficeID={activeOfficeID}
         />
       </div>
     );
@@ -425,7 +423,7 @@ const MoveQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.DESTINATION_REQUESTS}
-          activeRole={activeRole}
+          activeOfficeID={activeOfficeID}
         />
       </div>
     );
@@ -435,6 +433,8 @@ const MoveQueue = ({
 
 const mapStateToProps = (state) => {
   return {
+    activeGbloc: state?.auth?.activeOffice?.gbloc,
+    activeOfficeID: state?.auth?.activeOffice?.id,
     setRefetchQueue: state.generalState.setRefetchQueue,
   };
 };
