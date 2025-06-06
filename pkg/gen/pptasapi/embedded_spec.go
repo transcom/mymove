@@ -430,6 +430,11 @@ func init() {
           "type": "string",
           "example": "Job"
         },
+        "maxBillableWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "middleInitial": {
           "type": "string",
           "x-nullable": true,
@@ -1328,6 +1333,11 @@ func init() {
         "lastName": {
           "type": "string",
           "example": "Job"
+        },
+        "maxBillableWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
         },
         "middleInitial": {
           "type": "string",
