@@ -39,17 +39,19 @@ const authReducer = (state = initialState, action = {}) => {
     }
     case 'GET_LOGGED_IN_USER_SUCCESS': {
       const {
-        payload: { activeRole },
+        payload: {
+          activeRole,
+          office_user: { transportation_office_assignments: transportationOfficeAssignments },
+        },
       } = action;
-      const officeUser = action?.payload?.office_user;
-      const primaryOffice = officeUser?.transportation_office_assignments?.find(
-        (office) => office.primaryOffice === true,
-      );
+      const activeOffice =
+        state.activeOffice ||
+        transportationOfficeAssignments.find((office) => office.primaryOffice === true).transportationOffice;
 
       return {
         ...state,
         activeRole: activeRole.roleType,
-        activeOffice: primaryOffice?.transportationOffice,
+        activeOffice,
         hasSucceeded: true,
         hasErrored: false,
         isLoading: false,
