@@ -31,7 +31,7 @@ type CounselingUpdateOrderPayload struct {
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// grade
-	Grade *Grade `json:"grade,omitempty"`
+	Grade *OrderPayGrade `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
 	HasDependents *bool `json:"hasDependents,omitempty"`
