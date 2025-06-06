@@ -1261,7 +1261,7 @@ func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
 		_ = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					TOOAssignedID: &officeUser.ID,
+					TOOTaskOrderAssignedID: &officeUser.ID,
 				},
 			},
 			{

@@ -261,7 +261,7 @@ func (o *moveTaskOrderUpdater) ApproveMoveAndCreateServiceItems(appCtx appcontex
 	}
 
 	//When approving a shipment - remove the assigned TOO user
-	move.TOOAssignedID = nil
+	move.TOOTaskOrderAssignedID = nil
 
 	updateMove := false
 	if move.ApprovedAt == nil {

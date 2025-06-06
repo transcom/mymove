@@ -123,7 +123,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		AdditionalDocuments:                            additionalDocumentsPayload,
 		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
 		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
-		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
+		TOOTaskOrderAssignedUser:                       AssignedOfficeUser(move.TOOTaskOrderAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
@@ -2504,8 +2504,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if queueType == string(models.QueueTypeCloseout) && move.SCCloseoutAssignedUser != nil {
 			assignedToUser = move.SCCloseoutAssignedUser
 		}
-		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
-			assignedToUser = move.TOOAssignedUser
+		if queueType == string(models.QueueTypeTaskOrder) && move.TOOTaskOrderAssignedUser != nil {
+			assignedToUser = move.TOOTaskOrderAssignedUser
 		}
 		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
 			assignedToUser = move.TOODestinationAssignedUser
