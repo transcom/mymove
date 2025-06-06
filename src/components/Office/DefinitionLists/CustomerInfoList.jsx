@@ -6,16 +6,15 @@ import styles from './OfficeDefinitionLists.module.scss';
 import { BackupContactShape } from 'types/backupContact';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { AddressShape } from 'types/address';
-import { formatCustomerContactFullAddress } from 'utils/formatters';
+import { formatCustomerContactFullAddress, formatLastNameFirstName } from 'utils/formatters';
 import departmentIndicators from 'constants/departmentIndicators';
 
 const CustomerInfoList = ({ customerInfo }) => {
-  const backupFirstName = customerInfo.backupContact?.firstName || '';
-  const backupLastName = customerInfo.backupContact?.lastName || '';
-  const backupContactName =
-    backupFirstName.length > 0 || backupLastName.length > 0
-      ? backupLastName + (backupLastName.length > 0 ? ', ' : '') + backupFirstName
-      : '-';
+  const lastNameFirstName = formatLastNameFirstName(
+    customerInfo.backupContact?.firstName,
+    customerInfo.backupContact?.lastName,
+  );
+  const backupContactName = lastNameFirstName.length > 0 ? lastNameFirstName : '-';
 
   return (
     <div className={styles.OfficeDefinitionLists}>
