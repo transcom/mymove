@@ -724,6 +724,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
+		"ServiceMember.ResidentialAddress.Country",
 		"NewDutyLocation.Address.Country",
 		"OriginDutyLocation",
 		"Entitlement",

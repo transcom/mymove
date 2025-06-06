@@ -146,6 +146,12 @@ export const blankAddress = {
     state: '',
     postalCode: '',
     usPostRegionCitiesID: '',
+    countryID: '',
+    country: {
+      id: '',
+      name: '',
+      code: '',
+    },
   },
 };
 
@@ -237,6 +243,7 @@ export const handleAddressToggleChange = (e, values, setValues, newDutyLocationA
           postalCode: newDutyLocationAddress.postalCode,
           county: newDutyLocationAddress.county,
           usPostRegionCitiesID: newDutyLocationAddress.usPostRegionCitiesID,
+          countryID: newDutyLocationAddress.countryID,
         },
       },
     },
