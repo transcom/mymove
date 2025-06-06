@@ -15,6 +15,8 @@ import {
   Confirm,
 } from 'react-admin';
 
+import adminStyles from '../adminStyles.module.scss';
+
 import styles from './RequestedOfficeUserShow.module.scss';
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
@@ -164,20 +166,19 @@ const RequestedOfficeUserEdit = () => {
             {validationCheck}
           </Alert>
         )}
-        <Toolbar sx={{ display: 'flex', gap: '10px' }}>
-          <SaveButton
-            type="button"
-            alwaysEnable
-            label="Approve"
+        <Toolbar className={adminStyles.flexRight} sx={{ gap: '20px' }}>
+          <DeleteButton
             mutationOptions={{
               onSuccess: async (data) => {
-                await approve(data);
+                // setting user data so we can use it in the delete function
+                setUserData(data);
+                handleClick();
               },
             }}
           />
           <SaveButton
             type="button"
-            color="error"
+            color="warning"
             alwaysEnable
             label="Reject"
             mutationOptions={{
@@ -186,12 +187,13 @@ const RequestedOfficeUserEdit = () => {
               },
             }}
           />
-          <DeleteButton
+          <SaveButton
+            type="button"
+            alwaysEnable
+            label="Approve"
             mutationOptions={{
               onSuccess: async (data) => {
-                // setting user data so we can use it in the delete function
-                setUserData(data);
-                handleClick();
+                await approve(data);
               },
             }}
           />
