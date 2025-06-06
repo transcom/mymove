@@ -78,6 +78,7 @@ export const UPLOAD_SCAN_STATUS = {
   CLEAN: 'NO_THREATS_FOUND',
   INFECTED: 'INFECTED',
   PROCESSING: 'PROCESSING',
+  CONNECTION_CLOSED: 'Connection closed',
 };
 
 export const UPLOAD_DOC_STATUS = {
