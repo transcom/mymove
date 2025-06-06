@@ -373,13 +373,19 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	// DESTINATION
 	suite.Run("Successful Prime update - adding SITDepartureDate adjusts shipment's Destination SIT authorized end date", func() {
 		now := time.Now()
-		requestApproavalsRequestedStatus := false
+		requestApproavalsRequestedStatus := true
 		year, month, day := now.Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		departureDate := contactDatePlusGracePeriod.Add(time.Hour * 24)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
 		shipmentSITAllowance := int(90)
 		estimatedWeight := unit.Pound(1400)
 
@@ -507,6 +513,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(1, len(sitExtensions))
 		suite.Equal(models.SITExtensionStatusPending, sitExtensions[0].Status)
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, shipment.MoveTaskOrder.Status)
 
 		// Update MTO service item
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipmentWithCalculatedStatus, eTag)
@@ -521,6 +528,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		// Confirm decision date is set to today
 		suite.Equal(time.Now().Truncate(time.Hour*24), sitExtensions[0].DecisionDate.Truncate(time.Hour*24).Local())
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
+		suite.Equal(models.MoveStatusAPPROVED, shipment.MoveTaskOrder.Status)
 
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date

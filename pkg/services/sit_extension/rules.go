@@ -143,7 +143,7 @@ func checkDepartureDate() sitExtensionValidator {
 		format := "2006-01-02"
 		if endDate != nil && si != nil {
 			if si.SITDepartureDate.Before(*endDate) || si.SITDepartureDate.Equal(*endDate) {
-				sitErr := fmt.Sprintf("\nSIT departure date (%s) cannot be prior or equal to the SIT end date (%s)", si.SITDepartureDate.Format(format), endDate.Format(format))
+				sitErr := fmt.Sprintf("\nSIT extension cannot be created: SIT departure date (%s) cannot be prior or equal to the SIT end date (%s)", si.SITDepartureDate.Format(format), endDate.Format(format))
 				return apperror.NewConflictError(shipment.ID, sitErr)
 			}
 		}
