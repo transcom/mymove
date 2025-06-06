@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestGHCDieselFuelPriceInstantiation() {
 		"publication_date":         {"PublicationDate can not be blank."},
 	}
 
-	suite.verifyValidationErrors(ghcDieselFuelPrice, expectedErrors)
+	suite.verifyValidationErrors(ghcDieselFuelPrice, expectedErrors, nil)
 }
 
 func (suite *ModelSuite) TestGHCDieselFuelPriceUniqueness() {

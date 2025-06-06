@@ -60,3 +60,12 @@ func (e *EdiError) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 	return nil
 }
+
+func FetchEdiErrorByPaymentRequestID(db *pop.Connection, paymentRequestID uuid.UUID) (EdiError, error) {
+	var ediError EdiError
+	err := db.Where("payment_request_id = $1", paymentRequestID).First(&ediError)
+	if err != nil {
+		return EdiError{}, err
+	}
+	return ediError, nil
+}
