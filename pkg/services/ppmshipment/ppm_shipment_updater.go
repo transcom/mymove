@@ -267,6 +267,12 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			updatedPPMShipment.MaxIncentive = maxIncentive
+
+			// Estimated Incentive cannot be more than maxIncentive
+			if updatedPPMShipment.EstimatedIncentive != nil && updatedPPMShipment.MaxIncentive != nil &&
+				*updatedPPMShipment.EstimatedIncentive > *updatedPPMShipment.MaxIncentive {
+				updatedPPMShipment.EstimatedIncentive = updatedPPMShipment.MaxIncentive
+			}
 		}
 
 		if appCtx.Session() != nil {
