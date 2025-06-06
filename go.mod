@@ -62,7 +62,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lib/pq v1.10.9
-	github.com/markbates/goth v1.79.0
+	github.com/markbates/goth v1.81.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.9.2-0.20250122004437-b05d39596f8f
 	github.com/pkg/errors v0.9.1
