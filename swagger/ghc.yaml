@@ -4089,6 +4089,11 @@ paths:
           name: activeRole
           type: string
           description: user's actively logged in role
+        - in: query
+          name: activeOfficeID
+          format: uuid
+          type: string
+          description: user's actively logged in transportation office ID
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4267,6 +4272,11 @@ paths:
           name: activeRole
           type: string
           description: user's actively logged in role
+        - in: query
+          name: activeOfficeID
+          format: uuid
+          type: string
+          description: user's actively logged in transportation office ID
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4555,6 +4565,11 @@ paths:
           name: activeRole
           type: string
           description: user's actively logged in role
+        - in: query
+          name: activeOfficeID
+          format: uuid
+          type: string
+          description: user's actively logged in transportation office ID
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4683,6 +4698,11 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: activeOfficeID
+          format: uuid
+          type: string
+          description: user's actively logged in transportation office ID
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4803,6 +4823,11 @@ paths:
           name: activeRole
           type: string
           description: user's actively logged in role
+        - in: query
+          name: activeOfficeID
+          format: uuid
+          type: string
+          description: user's actively logged in transportation office ID
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
