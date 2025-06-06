@@ -20,7 +20,6 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import RequiredTag from 'components/form/RequiredTag';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 import LoadingButton from 'components/LoadingButton/LoadingButton';
@@ -282,8 +281,14 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       {isTertiaryAddressEnabled && values.hasSecondaryPickupAddress === 'true' && (
                         <div>
                           <FormGroup>
-                            <legend className="usa-label">Will you add items to your PPM from a third address?</legend>
-                            <RequiredTag />
+                            <legend
+                              className="usa-label"
+                              aria-label="Required: Will you add items to your PPM from a third address?"
+                            >
+                              <span required>
+                                Will you add items to your PPM from a third address? <RequiredAsterisk />
+                              </span>
+                            </legend>
                             <Fieldset>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -420,8 +425,14 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       {isTertiaryAddressEnabled && values.hasSecondaryDestinationAddress === 'true' && (
                         <div>
                           <FormGroup>
-                            <legend className="usa-label">Will you deliver part of your PPM to a third address?</legend>
-                            <RequiredTag />
+                            <legend
+                              className="usa-label"
+                              aria-label="Required: Will you deliver part of your PPM to a third address?"
+                            >
+                              <span required>
+                                Will you deliver part of your PPM to a third address? <RequiredAsterisk />
+                              </span>
+                            </legend>
                             <Fieldset>
                               <div className={formStyles.radioGroup}>
                                 <Field
