@@ -37,7 +37,7 @@ export const WithInitialValues = (argTypes) => (
       suffix: 'Mr.',
       affiliation: 'ARMY',
       edipi: '9999999999',
-      grade: 'E_2',
+      grade: 'E-2',
       current_location: {
         address: {
           city: 'Los Angeles',
@@ -63,7 +63,7 @@ export const CoastGuardCustomer = (argTypes) => (
       affiliation: 'COAST_GUARD',
       edipi: '9999999999',
       emplid: '7777777',
-      grade: 'E_2',
+      grade: 'E-2',
       current_location: {
         address: {
           city: 'Los Angeles',

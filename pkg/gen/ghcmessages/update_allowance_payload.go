@@ -35,7 +35,7 @@ type UpdateAllowancePayload struct {
 	DependentsUnderTwelve *int64 `json:"dependentsUnderTwelve,omitempty"`
 
 	// grade
-	Grade *Grade `json:"grade,omitempty"`
+	Grade *OrderPayGrade `json:"grade,omitempty"`
 
 	// True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
 	GunSafe *bool `json:"gunSafe,omitempty"`
