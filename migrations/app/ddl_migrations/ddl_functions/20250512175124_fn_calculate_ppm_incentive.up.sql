@@ -1,5 +1,8 @@
+-- B-23736 Daniel Jordan  updating func to consider GCC multipliers
+
 -- db func that will calculate a PPM's incentives
 -- this is used for estimated/final/max incentives
+DROP FUNCTION IF EXISTS calculate_ppm_incentive;
 CREATE OR REPLACE FUNCTION calculate_ppm_incentive(
     ppm_id UUID,
     pickup_address_id UUID,
@@ -28,6 +31,7 @@ DECLARE
     fuel_price NUMERIC;
     price_difference NUMERIC;
     cents_above_baseline NUMERIC;
+    gcc_multiplier NUMERIC := 1.00;
 BEGIN
 
     IF NOT is_estimated AND NOT is_actual AND NOT is_max THEN
@@ -35,7 +39,7 @@ BEGIN
     END IF;
 
     -- validating it's a real PPM
-    SELECT ppms.id INTO ppm FROM ppm_shipments ppms WHERE ppms.id = ppm_id;
+    SELECT ppms.id, ppms.expected_departure_date INTO ppm FROM ppm_shipments ppms WHERE ppms.id = ppm_id;
     IF ppm IS NULL THEN
         RAISE EXCEPTION 'PPM with ID % not found', ppm_id;
     END IF;
@@ -104,7 +108,26 @@ BEGIN
     cents_above_baseline := mileage * estimated_fsc_multiplier;
     price_fsc := ROUND((cents_above_baseline * price_difference) * 100);
 
-    total_incentive := price_islh + price_ihpk + price_ihupk + price_fsc;
+    -- looking to see if the PPM's departure date falls within a multiplier window
+    EXECUTE 'SELECT multiplier FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1' INTO gcc_multiplier USING ppm.expected_departure_date;
+
+    IF price_islh > 0 AND gcc_multiplier != 1.00 THEN
+        price_islh := ROUND(price_islh * gcc_multiplier);
+    END IF;
+
+    IF price_ihpk > 0 AND gcc_multiplier != 1.00 THEN
+        price_ihpk := ROUND(price_ihpk * gcc_multiplier);
+    END IF;
+
+    IF price_ihupk > 0 AND gcc_multiplier != 1.00 THEN
+        price_ihupk := ROUND(price_ihupk * gcc_multiplier);
+    END IF;
+
+    IF price_fsc > 0 AND gcc_multiplier != 1.00 THEN
+        price_fsc := ROUND(price_fsc * gcc_multiplier);
+    END IF;
+
+    total_incentive := ROUND(price_islh + price_ihpk + price_ihupk + price_fsc);
 
     UPDATE ppm_shipments
     SET estimated_incentive = CASE WHEN is_estimated THEN total_incentive ELSE estimated_incentive END,
@@ -113,6 +136,6 @@ BEGIN
     WHERE id = ppm_id;
 
     -- returning a table so we can use this data in the breakdown for the service member
-    RETURN QUERY SELECT total_incentive, price_islh, price_ihpk, price_ihupk, price_fsc;
+    RETURN QUERY SELECT total_incentive::NUMERIC, price_islh::NUMERIC, price_ihpk::NUMERIC, price_ihupk::NUMERIC, price_fsc::NUMERIC;
 END;
 $$ LANGUAGE plpgsql;
