@@ -1,11 +1,16 @@
 -- B-23736  Daniel Jordan  adding gcc_multipliers table
+
 CREATE TABLE IF NOT EXISTS gcc_multipliers (
     id          			uuid NOT NULL PRIMARY KEY,
 	multiplier              numeric(5, 2) NOT NULL,
 	start_date              date UNIQUE NOT NULL,
     end_date                date UNIQUE NOT NULL,
     created_at  			timestamp   NOT NULL DEFAULT NOW(),
-    updated_at  			timestamp   NOT NULL DEFAULT NOW()
+    updated_at  			timestamp   NOT NULL DEFAULT NOW(),
+    -- constraint ensuring start_date is before end_date
+    CONSTRAINT check_date_range CHECK (start_date < end_date),
+    -- prevent overlapping date ranges
+    CONSTRAINT no_overlap EXCLUDE USING gist ( daterange(start_date, end_date) WITH && )
 );
 
 
