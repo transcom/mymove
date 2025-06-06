@@ -147,6 +147,11 @@ properties:
     type: integer
     x-nullable: true
     x-omitempty: false
+  gunSafeWeightTickets:
+    description: All gun safe weight ticket documentation records for this PPM shipment.
+    type: array
+    items:
+      $ref: 'GunSafeWeightTicket.yaml'
   estimatedIncentive:
     description: The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
     type: integer

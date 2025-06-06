@@ -1,0 +1,6 @@
+name: gunSafeWeightTicketId
+in: path
+type: string
+format: uuid
+required: true
+description: UUID of the gun safe weight ticket

@@ -276,6 +276,22 @@ export const selectProGearWeightTicketAndIndexById = (state, mtoShipmentId, proG
   return { proGearWeightTicket, index };
 };
 
+export const selectGunSafeWeightTicketAndIndexById = (state, mtoShipmentId, gunSafeWeightId) => {
+  let gunSafeWeightTicket = null;
+  let index = -1;
+  if (gunSafeWeightId == null) {
+    return { gunSafeWeightTicket, index };
+  }
+
+  const mtoShipment = selectMTOShipmentById(state, mtoShipmentId);
+  const gunSafeWeightTickets = mtoShipment?.ppmShipment?.gunSafeWeightTickets;
+  if (Array.isArray(gunSafeWeightTickets)) {
+    index = gunSafeWeightTickets.findIndex((ele) => ele.id === gunSafeWeightId);
+    gunSafeWeightTicket = gunSafeWeightTickets?.[index] || null;
+  }
+  return { gunSafeWeightTicket, index };
+};
+
 export const selectCurrentPPM = (state) => {
   const move = selectCurrentMove(state);
   return selectPPMForMove(state, move?.id);

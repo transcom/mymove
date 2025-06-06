@@ -7,6 +7,7 @@ import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createCompleteGunSafeWeightTicket } from 'utils/test/factories/gunSafeWeightTicket';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { APP_NAME } from 'constants/apps';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -57,6 +58,7 @@ describe('FinalCloseoutForm component', () => {
     const weightTicket = createCompleteWeightTicket({ serviceMemberId }, { emptyWeight: 14000, fullWeight: 18000 });
     const movingExpense = createCompleteMovingExpense({ serviceMemberId }, { amount: 30000 });
     const proGearWeightTicket = createCompleteProGearWeightTicket({ serviceMemberId }, { weight: 1500 });
+    const gunSafeWeightTicket = createCompleteGunSafeWeightTicket({ serviceMemberId }, { weight: 455 });
 
     const mtoShipment = createPPMShipmentWithFinalIncentive({
       ppmShipment: {
@@ -65,6 +67,7 @@ describe('FinalCloseoutForm component', () => {
         weightTickets: [weightTicket],
         movingExpenses: [movingExpense],
         proGearWeightTickets: [proGearWeightTicket],
+        gunSafeWeightTickets: [gunSafeWeightTicket],
       },
     });
 
@@ -80,6 +83,7 @@ describe('FinalCloseoutForm component', () => {
 
     expect(findListItemWithText('4,000 lbs total net weight')).toBeInTheDocument();
     expect(findListItemWithText('1,500 lbs of pro-gear')).toBeInTheDocument();
+    expect(findListItemWithText('455 lbs of gun safe weight')).toBeInTheDocument();
     expect(findListItemWithText('$300.00 in expenses claimed')).toBeInTheDocument();
 
     expect(
