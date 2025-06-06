@@ -385,7 +385,6 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
       expect(screen.getByRole('textbox', { name: 'Planned Departure Date' })).toHaveValue('28 Jun 2022');
 
-      screen.debug();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
         ppmShipment.ppmShipment.pickupAddress.streetAddress1,
       );
