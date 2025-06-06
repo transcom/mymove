@@ -47,7 +47,7 @@ beforeEach(() => {
 
 describe('BoatShipmentForm component', () => {
   describe('displays form', () => {
-    it('renders filled form on load and asterisks for required fields and asterisks for required fields', async () => {
+    it('renders filled form on load and asterisks for required fields', async () => {
       render(<BoatShipmentForm {...defaultProps} />);
       expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
       expect(await screen.getByTestId('year')).toHaveValue(mtoShipment.boatShipment.year);
