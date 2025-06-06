@@ -700,3 +700,17 @@ func SignedCertificationFromSubmit(payload *internalmessages.SubmitMoveForApprov
 
 	return &newSignedCertification
 }
+
+func VIntlLocationModel(vIntlLocation *internalmessages.VIntlLocation) *models.VIntlLocation {
+	if vIntlLocation == nil {
+		return nil
+	}
+
+	intlCityCountriesID := uuid.FromStringOrNil(vIntlLocation.IntlCityCountriesID.String())
+
+	return &models.VIntlLocation{
+		CityName:            &vIntlLocation.City,
+		CountryPrnDivName:   &vIntlLocation.PrincipalDivision,
+		IntlCityCountriesID: &intlCityCountriesID,
+	}
+}
