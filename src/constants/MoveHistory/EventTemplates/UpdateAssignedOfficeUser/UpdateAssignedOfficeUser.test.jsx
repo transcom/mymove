@@ -94,6 +94,28 @@ describe('When given a move that has been assigned', () => {
       expect(screen.getByText('Task ordering officer reassigned')).toBeInTheDocument();
       expect(screen.getByText(': Robinson, Brian')).toBeInTheDocument();
     });
+    it('assignment of a destination task ordering officer', () => {
+      historyRecord.changedValues = { too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
+      historyRecord.oldValues = { too_destination_assigned_id: null };
+      historyRecord.context = [{ assigned_office_user_last_name: 'Samuel', assigned_office_user_first_name: 'Deebo' }];
+
+      const template = getTemplate(historyRecord);
+
+      render(template.getDetails(historyRecord));
+      expect(screen.getByText('Destination task ordering officer assigned')).toBeInTheDocument();
+      expect(screen.getByText(': Samuel, Deebo')).toBeInTheDocument();
+    });
+    it('reassignment of a task ordering officer', () => {
+      historyRecord.changedValues = { too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
+      historyRecord.oldValues = { too_destination_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64' };
+      historyRecord.context = [{ assigned_office_user_last_name: 'Samuel', assigned_office_user_first_name: 'Deebo' }];
+
+      const template = getTemplate(historyRecord);
+
+      render(template.getDetails(historyRecord));
+      expect(screen.getByText('Destination task ordering officer reassigned')).toBeInTheDocument();
+      expect(screen.getByText(': Samuel, Deebo')).toBeInTheDocument();
+    });
     it('assignment of a task invoicing officer', () => {
       historyRecord.changedValues = { tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
       historyRecord.oldValues = { tio_assigned_id: null };

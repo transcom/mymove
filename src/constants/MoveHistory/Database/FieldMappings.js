@@ -171,7 +171,7 @@ export default {
   re_assigned_sc_counseling: 'Counselor reassigned',
   re_assigned_sc_closeout: 'Closeout counselor reassigned',
   re_assigned_too_task_order: 'Task ordering officer reassigned',
-  re_assigned_too_destination: 'Destination task ordering officer assigned',
+  re_assigned_too_destination: 'Destination task ordering officer reassigned',
   re_assigned_tio: 'Task invoicing officer reassigned',
   available_to_prime_at: 'Available to Prime at',
   terminated_at: 'Terminated at',

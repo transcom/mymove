@@ -51,12 +51,12 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		scCloseoutAssignedUser = BuildOfficeUser(db, tempSCCloseoutAssignedUserCustoms, nil)
 	}
 
-	var TOOTaskOrderAssignedUser models.OfficeUser
+	var tooTaskOrderAssignedUser models.OfficeUser
 	tempTOOTaskOrderAssignedUserCustoms := customs
-	TOOTaskOrderAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOOTaskOrderAssignedUser)
-	if TOOTaskOrderAssignedUserResult != nil {
+	tooTaskOrderAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOOTaskOrderAssignedUser)
+	if tooTaskOrderAssignedUserResult != nil {
 		tempTOOTaskOrderAssignedUserCustoms = convertCustomizationInList(tempTOOTaskOrderAssignedUserCustoms, OfficeUsers.TOOTaskOrderAssignedUser, OfficeUser)
-		TOOTaskOrderAssignedUser = BuildOfficeUser(db, tempTOOTaskOrderAssignedUserCustoms, nil)
+		tooTaskOrderAssignedUser = BuildOfficeUser(db, tempTOOTaskOrderAssignedUserCustoms, nil)
 	}
 
 	var tioAssignedUser models.OfficeUser
@@ -120,9 +120,9 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
 
-	if TOOTaskOrderAssignedUserResult != nil {
-		move.TOOTaskOrderAssignedUser = &TOOTaskOrderAssignedUser
-		move.TOOTaskOrderAssignedID = &TOOTaskOrderAssignedUser.ID
+	if tooTaskOrderAssignedUserResult != nil {
+		move.TOOTaskOrderAssignedUser = &tooTaskOrderAssignedUser
+		move.TOOTaskOrderAssignedID = &tooTaskOrderAssignedUser.ID
 	}
 
 	if tioAssignedUserResult != nil {
