@@ -63,6 +63,9 @@ type CreateServiceMemberPayload struct {
 	// Phone
 	PhoneIsPreferred *bool `json:"phone_is_preferred,omitempty"`
 
+	// rank
+	Rank *Rank `json:"rank,omitempty"`
+
 	// residential address
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
 
@@ -111,6 +114,10 @@ func (m *CreateServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePersonalEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -237,6 +244,25 @@ func (m *CreateServiceMemberPayload) validatePersonalEmail(formats strfmt.Regist
 	return nil
 }
 
+func (m *CreateServiceMemberPayload) validateRank(formats strfmt.Registry) error {
+	if swag.IsZero(m.Rank) { // not required
+		return nil
+	}
+
+	if m.Rank != nil {
+		if err := m.Rank.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CreateServiceMemberPayload) validateResidentialAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.ResidentialAddress) { // not required
 		return nil
@@ -308,6 +334,10 @@ func (m *CreateServiceMemberPayload) ContextValidate(ctx context.Context, format
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateRank(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateResidentialAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -373,6 +403,27 @@ func (m *CreateServiceMemberPayload) contextValidateGrade(ctx context.Context, f
 				return ve.ValidateName("grade")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("grade")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateServiceMemberPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Rank != nil {
+
+		if swag.IsZero(m.Rank) { // not required
+			return nil
+		}
+
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}

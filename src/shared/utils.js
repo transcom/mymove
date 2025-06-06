@@ -238,6 +238,21 @@ export function isPreceedingAddressPPMPrimaryDestinationComplete(addressValues) 
   return false;
 }
 
+export const sortRankOptions = (ranks) => {
+  const options = [];
+
+  if (ranks.length > 0) {
+    ranks.forEach((rank) => {
+      options.push({
+        key: rank.id,
+        value: rank.rankAbbv,
+      });
+    });
+  }
+
+  return options;
+};
+
 // helper function to convert non-pdf orientation/rotated position (0-3) to degrees (0-270) for pdfs
 export function toRotatedDegrees(rotation, fileType) {
   if (fileType === 'pdf') {
