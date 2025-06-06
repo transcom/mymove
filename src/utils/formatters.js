@@ -167,6 +167,13 @@ export const filenameFromPath = (filePath) => {
   return path.basename(filePath);
 };
 
+export const payGradeFormat = (payGradeRaw) => {
+  if (payGradeRaw !== undefined) {
+    return payGradeRaw.replace('_', '-');
+  }
+  return '';
+};
+
 export const formatAddressShort = (address) => {
   const { city, state, postalCode } = address;
   return `${city}, ${state} ${postalCode}`;
@@ -319,6 +326,12 @@ export const formatMoveHistoryGunSafe = (historyRecord) => {
 
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
+};
+
+export const formatPayGradeOptions = (payGrades) => {
+  return payGrades.map((grade) => {
+    return { key: grade.grade, value: grade.description };
+  });
 };
 
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
