@@ -3,7 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generatePath, useNavigate, useParams } from 'react-router';
 import { GridContainer } from '@trussworks/react-uswds';
 
-import CustomerContactInfoForm from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
+import CustomerContactInfoForm, {
+  backupContactName,
+} from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
 import { CUSTOMER } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { updateCustomerInfo } from 'services/ghcApi';
@@ -55,9 +57,6 @@ const CreateMoveCustomerInfo = () => {
       customerAddress,
       suffix,
       middleName,
-      name,
-      email,
-      telephone,
       backupAddress,
       phoneIsPreferred,
       emailIsPreferred,
@@ -73,9 +72,10 @@ const CreateMoveCustomerInfo = () => {
       suffix,
       middle_name: middleName,
       backup_contact: {
-        name,
-        email,
-        phone: telephone,
+        firstName: (values[backupContactName.toString()]?.firstName || '').trim(),
+        lastName: (values[backupContactName.toString()]?.lastName || '').trim(),
+        email: values[backupContactName.toString()]?.email || '',
+        phone: values[backupContactName.toString()]?.telephone || '',
       },
       backupAddress,
       phoneIsPreferred,
@@ -85,6 +85,7 @@ const CreateMoveCustomerInfo = () => {
     };
     mutateCustomerInfo({ customerId: customerData.id, ifMatchETag: customerData.eTag, body });
   };
+
   const initialValues = {
     firstName: customerData?.first_name || '',
     lastName: customerData?.last_name || '',
@@ -92,15 +93,18 @@ const CreateMoveCustomerInfo = () => {
     suffix: customerData?.suffix || '',
     customerTelephone: customerData?.phone || '',
     customerEmail: customerData?.email || '',
-    name: customerData?.backup_contact?.name || '',
-    telephone: customerData?.backup_contact?.phone || '',
     secondaryPhone: customerData?.secondaryTelephone || '',
-    email: customerData?.backup_contact?.email || '',
     customerAddress: customerData?.current_address || '',
     backupAddress: customerData?.backupAddress || '',
     emailIsPreferred: customerData?.emailIsPreferred || false,
     phoneIsPreferred: customerData?.phoneIsPreferred || false,
     cacUser: formatTrueFalseInputValue(customerData?.cacValidated),
+    [backupContactName]: {
+      firstName: customerData?.backup_contact?.firstName || '',
+      lastName: customerData?.backup_contact?.lastName || '',
+      email: customerData?.backup_contact?.email || '',
+      telephone: customerData?.backup_contact?.phone || '',
+    },
   };
 
   return (

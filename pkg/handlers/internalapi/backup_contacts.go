@@ -20,7 +20,8 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 		ServiceMemberID: *handlers.FmtUUID(contact.ServiceMemberID),
 		UpdatedAt:       handlers.FmtDateTime(contact.UpdatedAt),
 		CreatedAt:       handlers.FmtDateTime(contact.CreatedAt),
-		Name:            &contact.Name,
+		FirstName:       &contact.FirstName,
+		LastName:        &contact.LastName,
 		Email:           &contact.Email,
 		Telephone:       &contact.Phone,
 		Permission:      permission,
@@ -50,7 +51,8 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 			}
 
 			newContact, verrs, err := serviceMember.CreateBackupContact(appCtx.DB(),
-				*params.CreateBackupContactPayload.Name,
+				*params.CreateBackupContactPayload.FirstName,
+				*params.CreateBackupContactPayload.LastName,
 				*params.CreateBackupContactPayload.Email,
 				*params.CreateBackupContactPayload.Telephone,
 				models.BackupContactPermission(*params.CreateBackupContactPayload.Permission))
@@ -127,7 +129,8 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
+			contact.FirstName = *params.UpdateServiceMemberBackupContactPayload.FirstName
+			contact.LastName = *params.UpdateServiceMemberBackupContactPayload.LastName
 			contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
 			contact.Phone = *params.UpdateServiceMemberBackupContactPayload.Telephone
 			if params.UpdateServiceMemberBackupContactPayload.Permission != nil {
