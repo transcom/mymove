@@ -12,6 +12,8 @@ import {
   useRedirect,
 } from 'react-admin';
 
+import adminStyles from '../adminStyles.module.scss';
+
 import styles from './UserEdit.module.scss';
 
 import { deleteUser, updateUser } from 'services/adminApi';
@@ -28,8 +30,7 @@ const UserEdit = () => {
 
   const renderUserEditToolbar = () => {
     return (
-      <Toolbar>
-        <SaveButton />
+      <Toolbar className={adminStyles.flexRight} sx={{ gap: '10px' }}>
         <DeleteButton
           mutationOptions={{
             onSuccess: async (data) => {
@@ -39,6 +40,7 @@ const UserEdit = () => {
             },
           }}
         />
+        <SaveButton />
       </Toolbar>
     );
   };

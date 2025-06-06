@@ -4,7 +4,6 @@ import {
   ArrayField,
   Datagrid,
   DateField,
-  EditButton,
   ReferenceField,
   Show,
   SimpleShowLayout,
@@ -128,14 +127,6 @@ const RequestedOfficeUserActionButtons = () => {
       </div>
       <div className={styles.btnContainer}>
         <Button
-          className={styles.approveBtn}
-          onClick={async () => {
-            await approve(record);
-          }}
-        >
-          Approve
-        </Button>
-        <Button
           className={styles.rejectBtn}
           onClick={async () => {
             await reject(record, rejectionReason);
@@ -143,7 +134,14 @@ const RequestedOfficeUserActionButtons = () => {
         >
           Reject
         </Button>
-        <EditButton />
+        <Button
+          className={styles.approveBtn}
+          onClick={async () => {
+            await approve(record);
+          }}
+        >
+          Approve
+        </Button>
       </div>
     </>
   );
