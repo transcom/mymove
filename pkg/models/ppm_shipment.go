@@ -112,8 +112,6 @@ type PPMAdvanceStatus string
 const (
 	// PPMAdvanceStatusApproved captures enum value "APPROVED"
 	PPMAdvanceStatusApproved PPMAdvanceStatus = "APPROVED"
-	// PPMAdvanceStatusEdited captures enum value "EDITED"
-	PPMAdvanceStatusEdited PPMAdvanceStatus = "EDITED"
 	// PPMAdvanceStatusRejected captures enum value "REJECTED"
 	PPMAdvanceStatusRejected PPMAdvanceStatus = "REJECTED"
 	// PPMAdvanceStatusReceived captures enum value "RECEIVED"
@@ -126,7 +124,6 @@ const (
 // for validation.
 var AllowedPPMAdvanceStatuses = []string{
 	string(PPMAdvanceStatusApproved),
-	string(PPMAdvanceStatusEdited),
 	string(PPMAdvanceStatusRejected),
 	string(PPMAdvanceStatusReceived),
 	string(PPMAdvanceStatusNotReceived),
@@ -224,7 +221,6 @@ type PPMShipment struct {
 	TertiaryPickupAddress          *Address             `belongs_to:"addresses" fk_id:"tertiary_pickup_postal_address_id"`
 	TertiaryPickupAddressID        *uuid.UUID           `db:"tertiary_pickup_postal_address_id"`
 	HasTertiaryPickupAddress       *bool                `db:"has_tertiary_pickup_address"`
-	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
 	DestinationAddress             *Address             `belongs_to:"addresses" fk_id:"destination_postal_address_id"`
 	DestinationAddressID           *uuid.UUID           `db:"destination_postal_address_id"`
 	SecondaryDestinationAddress    *Address             `belongs_to:"addresses" fk_id:"secondary_destination_postal_address_id"`
@@ -233,7 +229,6 @@ type PPMShipment struct {
 	TertiaryDestinationAddress     *Address             `belongs_to:"addresses" fk_id:"tertiary_destination_postal_address_id"`
 	TertiaryDestinationAddressID   *uuid.UUID           `db:"tertiary_destination_postal_address_id"`
 	HasTertiaryDestinationAddress  *bool                `db:"has_tertiary_destination_address"`
-	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
 	AllowableWeight                *unit.Pound          `json:"allowable_weight" db:"allowable_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
@@ -297,10 +292,8 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalUUIDIsPresent{Name: "W2AddressID", Field: p.W2AddressID},
 		&OptionalUUIDIsPresent{Name: "PickupAddressID", Field: p.PickupAddressID},
 		&OptionalUUIDIsPresent{Name: "SecondaryPickupAddressID", Field: p.SecondaryPickupAddressID},
-		&StringIsNilOrNotBlank{Name: "ActualPickupPostalCode", Field: p.ActualPickupPostalCode},
 		&OptionalUUIDIsPresent{Name: "DestinationAddressID", Field: p.DestinationAddressID},
 		&OptionalUUIDIsPresent{Name: "SecondaryDestinationAddressID", Field: p.SecondaryDestinationAddressID},
-		&StringIsNilOrNotBlank{Name: "ActualDestinationPostalCode", Field: p.ActualDestinationPostalCode},
 		&OptionalPoundIsNonNegative{Name: "EstimatedWeight", Field: p.EstimatedWeight},
 		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: p.AllowableWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},

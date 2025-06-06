@@ -244,24 +244,15 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			updatedPPMShipment.MaxIncentive = maxIncentive
+
+			// Estimated Incentive cannot be more than maxIncentive
+			if updatedPPMShipment.EstimatedIncentive != nil && updatedPPMShipment.MaxIncentive != nil &&
+				*updatedPPMShipment.EstimatedIncentive > *updatedPPMShipment.MaxIncentive {
+				updatedPPMShipment.EstimatedIncentive = updatedPPMShipment.MaxIncentive
+			}
 		}
 
 		if appCtx.Session() != nil {
-			if appCtx.Session().IsOfficeUser() {
-				edited := models.PPMAdvanceStatusEdited
-				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
-					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
-					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-			}
 			if appCtx.Session().IsMilApp() {
 				if isPrimeCounseled && updatedPPMShipment.HasRequestedAdvance != nil {
 					received := models.PPMAdvanceStatusReceived

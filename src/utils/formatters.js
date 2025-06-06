@@ -625,6 +625,22 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
+export const formatServiceMemberNameToString = (serviceMember) => {
+  let formattedUser = '';
+  if (serviceMember.first_name && serviceMember.last_name) {
+    formattedUser += `${serviceMember.first_name}`;
+    formattedUser += ` ${serviceMember.last_name}`;
+  } else {
+    if (serviceMember.first_name) {
+      formattedUser += `${serviceMember.first_name}`;
+    }
+    if (serviceMember.last_name) {
+      formattedUser += `${serviceMember.last_name}`;
+    }
+  }
+  return formattedUser;
+};
+
 export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   const { changedValues, context, oldValues } = historyRecord;
   if (!context || context.length === 0) return {};

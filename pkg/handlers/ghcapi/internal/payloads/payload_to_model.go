@@ -649,8 +649,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)

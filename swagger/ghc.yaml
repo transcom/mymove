@@ -7477,32 +7477,12 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
           - $ref: '#/definitions/PPMDestinationAddress'
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -8415,6 +8395,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -8423,7 +8407,10 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+        x-nullable: true
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
@@ -10411,7 +10398,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   OmittablePPMDocumentStatus:
@@ -11120,17 +11106,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       destinationAddress:
         $ref: '#/definitions/Address'
       secondaryDestinationAddress:
@@ -11151,17 +11126,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require

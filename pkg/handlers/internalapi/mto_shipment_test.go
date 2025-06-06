@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	)
 	mockSender := suite.TestNotificationSender()
 	waf := entitlements.NewWeightAllotmentFetcher()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 
 	type mtoCreateSubtestData struct {
@@ -769,7 +769,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	).Return(400, nil)
 
 	mockSender := suite.TestNotificationSender()
-	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -1163,7 +1163,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountRequested)
 				},
 			},
-			"Add actual zips and advance info - no advance": {
+			"Advance info - no advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
 					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 						{
@@ -1178,9 +1178,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					ActualPickupPostalCode:      handlers.FmtString("90210"),
-					ActualDestinationPostalCode: handlers.FmtString("90210"),
-					HasReceivedAdvance:          handlers.FmtBool(false),
+					HasReceivedAdvance: handlers.FmtBool(false),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -1190,13 +1188,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
-					suite.Equal(desiredShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
 					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
 					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountReceived)
 				},
 			},
-			"Add actual zips and advance info - yes advance": {
+			"Advance info - yes advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
 					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 						{
@@ -1211,10 +1207,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					ActualPickupPostalCode:      handlers.FmtString("90210"),
-					ActualDestinationPostalCode: handlers.FmtString("90210"),
-					HasReceivedAdvance:          handlers.FmtBool(true),
-					AdvanceAmountReceived:       handlers.FmtInt64(250000),
+					HasReceivedAdvance:    handlers.FmtBool(true),
+					AdvanceAmountReceived: handlers.FmtInt64(250000),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -1224,8 +1218,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
-					suite.Equal(desiredShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
 					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
 					suite.Equal(desiredShipment.AdvanceAmountReceived, updatedShipment.PpmShipment.AdvanceAmountReceived)
 				},
@@ -1334,15 +1326,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 						{
 							Model: models.PPMShipment{
-								EstimatedWeight:             models.PoundPointer(4000),
-								HasProGear:                  models.BoolPointer(false),
-								EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
-								HasRequestedAdvance:         models.BoolPointer(true),
-								AdvanceAmountRequested:      models.CentPointer(unit.Cents(200000)),
-								ActualPickupPostalCode:      models.StringPointer("90210"),
-								ActualDestinationPostalCode: models.StringPointer("90210"),
-								HasReceivedAdvance:          models.BoolPointer(true),
-								AdvanceAmountReceived:       models.CentPointer(unit.Cents(250000)),
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+								HasReceivedAdvance:     models.BoolPointer(true),
+								AdvanceAmountReceived:  models.CentPointer(unit.Cents(250000)),
 							},
 						},
 					}, nil)
@@ -1356,9 +1346,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
 					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
-
-					suite.Equal(originalShipment.PPMShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
-					suite.Equal(originalShipment.PPMShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
 
 					// check expected fields were updated
 					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
