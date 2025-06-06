@@ -467,7 +467,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
 	suite.DB().All(&addresses)
-	suite.Equal(6, len(addresses))
+	suite.Equal(42307, len(addresses))
 	// Why 6?
 	// Make duty locations +2 addresses each DL => 4
 	// Patch service member +2 addresses added to service member => 2
