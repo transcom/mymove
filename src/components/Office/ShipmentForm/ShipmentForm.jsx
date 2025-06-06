@@ -880,17 +880,19 @@ const ShipmentForm = (props) => {
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
-                {!isCreatePage && mtoShipment?.status !== 'APPROVED' && (
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      handleShowCancellationModal();
-                    }}
-                    unstyled
-                  >
-                    Delete shipment
-                  </Button>
-                )}
+                {!isCreatePage &&
+                  mtoShipment?.status !== 'APPROVED' &&
+                  mtoShipment?.status !== 'APPROVALS_REQUESTED' && (
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        handleShowCancellationModal();
+                      }}
+                      unstyled
+                    >
+                      Delete shipment
+                    </Button>
+                  )}
               </div>
               {isPPM && !isAdvancePage && isServiceCounselor && isCreatePage && (
                 <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>

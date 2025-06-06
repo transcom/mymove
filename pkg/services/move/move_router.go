@@ -457,7 +457,7 @@ func allSITExtensionsAreReviewed(move models.Move) bool {
 func allShipmentsAreApproved(move models.Move) bool {
 	for _, shipment := range move.MTOShipments {
 		// ignores deleted shipments
-		if shipment.Status == models.MTOShipmentStatusSubmitted && shipment.DeletedAt == nil {
+		if (shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApprovalsRequested) && shipment.DeletedAt == nil {
 			return false
 		}
 	}
@@ -501,6 +501,27 @@ func (router moveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *mo
 	appCtx.Logger().Info("SUCCESS: Move sent to TOO to request approval")
 
 	return nil
+}
+
+func (router moveRouter) UpdateShipmentStatusToApprovalsRequested(appCtx appcontext.AppContext, shipment models.MTOShipment) (*models.MTOShipment, error) {
+	if shipment.Status == models.MTOShipmentStatusApprovalsRequested {
+		return nil, nil
+	}
+	if shipment.Status == models.MTOShipmentStatusCanceled || shipment.Status == models.MTOShipmentStatusTerminatedForCause {
+		errorMessage := fmt.Sprintf("The status for the shipment with ID %s can not be sent to 'Approvals Requested' if the status is %s.", shipment.ID, shipment.Status)
+		appCtx.Logger().Warn(errorMessage)
+
+		return nil, errors.Wrap(models.ErrInvalidTransition, errorMessage)
+	}
+	shipment.Status = models.MTOShipmentStatusApprovalsRequested
+	if verrs, err := appCtx.DB().ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
+		msg := "failure saving shipment"
+		appCtx.Logger().Error(msg, zap.Error(err))
+		return nil, apperror.NewInvalidInputError(shipment.ID, err, verrs, msg)
+	}
+	appCtx.Logger().Info("SUCCESS: Shipment status updated to Approvals Requested")
+
+	return &shipment, nil
 }
 
 // Cancel cancels the Move and its associated PPMs
