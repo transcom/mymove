@@ -61,6 +61,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",
 			"PPMShipment.ProgearWeightTickets",
+			"PPMShipment.GunSafeWeightTickets",
 			"PPMShipment.PickupAddress",
 			"PPMShipment.SecondaryPickupAddress",
 			"PPMShipment.TertiaryPickupAddress",
@@ -130,6 +131,17 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 					return nil, loadErr
 				}
 				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
+			}
+
+			shipments[i].PPMShipment.GunSafeWeightTickets = shipments[i].PPMShipment.GunSafeWeightTickets.FilterDeleted()
+			for j := range shipments[i].PPMShipment.GunSafeWeightTickets {
+				gunSafeWeightTicket := &shipments[i].PPMShipment.GunSafeWeightTickets[j]
+
+				loadErr := appCtx.DB().Load(gunSafeWeightTicket, "Document.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+				gunSafeWeightTicket.Document.UserUploads = gunSafeWeightTicket.Document.UserUploads.FilterDeleted()
 			}
 		}
 
