@@ -16,6 +16,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole } from 'utils/formatters';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive, getFormattedMaxAdvancePercentage } from 'utils/incentives';
 import LoadingButton from 'components/LoadingButton/LoadingButton';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = (maxAdvance, formattedMaxAdvance, estimatedIncentive) => {
   let returnSchema = Yup.object().shape({
@@ -121,13 +122,15 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                 </Fieldset>
                 {values.hasRequestedAdvance === 'true' && (
                   <>
+                    {requiredAsteriskMessage}
                     {estimatedIncentive !== 0 && (
                       <MaskedTextField
                         isDisabled={estimatedIncentive === 0}
                         defaultValue="0"
                         name="advanceAmountRequested"
                         label="Amount requested"
-                        labelHint="Required"
+                        showRequiredAsterisk
+                        required
                         id="advanceAmountRequested"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
