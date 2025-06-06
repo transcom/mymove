@@ -3,10 +3,11 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import OfficeApp from './index';
 
-import { roleTypes } from 'constants/userRoles';
+import { officeRoles, roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { mockPage } from 'testUtils';
 import { loadPublicSchema, loadInternalSchema } from 'shared/Swagger/ducks';
@@ -20,11 +21,14 @@ jest.mock('react-router-dom', () => {
   return {
     ...actual,
     useLocation: () => ({ pathname: mockPath }),
+    useNavigate: () => jest.fn(),
   };
 });
 
 jest.mock('store/auth/actions', () => ({
   loadUser: jest.fn(() => async () => {}),
+  setActiveRole: jest.fn().mockImplementation(() => ({ type: '' })),
+  logOut: jest.fn().mockImplementation(() => ({ type: '' })),
 }));
 
 jest.mock('shared/Swagger/ducks', () => ({
@@ -102,13 +106,13 @@ const defaultState = {
     loadingSpinnerMessage: null,
   },
   entities: {
-    user: {
-      userId123: {
+    user: [
+      {
         permissions: [],
         privileges: [],
-        roles: [],
+        inactiveRoles: [],
       },
-    },
+    ],
   },
 };
 
@@ -125,35 +129,39 @@ const renderOfficeApp = ({ state = defaultState, path = '/', role = null } = {})
           isLoggedIn: true,
         },
         entities: {
-          user: {
-            userId123: {
-              id: 'userId123',
-              roles: [{ roleType: role }],
+          user: [
+            {
+              id: 'testUser',
+              office_user: { id: 'testUser', first_name: 'bob', last_name: 'robert' },
+              inactiveRoles: [],
             },
-          },
+          ],
         },
       }
     : state;
 
   const mockStore = configureStore({ ...finalState });
+  const queryClient = new QueryClient();
   isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
   const userRoles = role ? [{ roleType: role }] : [];
   render(
     <MemoryRouter initialEntries={[path]}>
-      <Provider store={mockStore.store}>
-        <OfficeApp
-          loadInternalSchema={jest.fn()}
-          loadPublicSchema={jest.fn()}
-          loadUser={jest.fn()}
-          hasRecentError={false}
-          activeRole={role || null}
-          userRoles={userRoles}
-          traceId=""
-          loginIsLoading={!!role}
-          userIsLoggedIn={!!role}
-          hqRoleFlag
-          gsrRoleFlag
-        />
+      <Provider store={mockStore.store} initialState={finalState}>
+        <QueryClientProvider client={queryClient}>
+          <OfficeApp
+            loadInternalSchema={jest.fn()}
+            loadPublicSchema={jest.fn()}
+            loadUser={jest.fn()}
+            hasRecentError={false}
+            activeRole={role || null}
+            userRoles={userRoles}
+            traceId=""
+            loginIsLoading={!!role}
+            userIsLoggedIn={!!role}
+            hqRoleFlag
+            gsrRoleFlag
+          />
+        </QueryClientProvider>
       </Provider>
     </MemoryRouter>,
   );
@@ -184,7 +192,7 @@ describe('Office App', () => {
       auth: {
         ...defaultState.auth,
         isLoggedIn: true,
-        activeRole: 'TOO',
+        activeRole: officeRoles.task_ordering_officer,
       },
       generalState: {
         ...defaultState.generalState,
@@ -192,12 +200,13 @@ describe('Office App', () => {
         loadingSpinnerMessage: 'Loading...',
       },
       entities: {
-        user: {
-          testUser: {
+        user: [
+          {
             id: 'testUser',
-            roles: [{ roleType: 'TOO' }],
+            office_user: { id: 'testUser', first_name: 'bob', last_name: 'robert' },
+            inactiveRoles: [],
           },
-        },
+        ],
       },
     };
 
@@ -227,7 +236,16 @@ describe('Office App', () => {
       auth: {
         ...defaultState.auth,
         isLoggedIn: true,
-        activeRole: null,
+        activeRole: roleTypes.SERVICES_COUNSELOR,
+      },
+      entities: {
+        user: [
+          {
+            id: 'testUser',
+            office_user: { id: 'testUser', first_name: 'bob', last_name: 'robert' },
+            inactiveRoles: [],
+          },
+        ],
       },
       interceptor: {
         hasRecentError: true,
@@ -285,7 +303,8 @@ describe('Office App', () => {
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
       expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
-      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+      await waitFor(() => expect(screen.getByText('Sign out')).toBeInTheDocument()); // Sign Out button
 
       // Wait for and lazy load, validate correct component was rendered
       await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
@@ -353,13 +372,20 @@ describe('Office App', () => {
     ])('renders the %s component at %s as a %s with sufficient permissions', async (component, path, role) => {
       renderOfficeApp({ path, role });
 
-      // Header content should be rendered
-      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
-      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
-      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+      const delay = new Promise((resolve) => {
+        setTimeout(() => resolve(), 100);
+      });
 
-      // Wait for lazy load, validate correct component was rendered
-      await waitFor(() => expect(screen.getByText(`Mock ${component} Component`)));
+      const afterDelay = delay.then(async () => {
+        expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+        expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+        expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+        screen.debug();
+        // Wait for lazy load, validate correct component was rendered
+        await waitFor(() => expect(screen.getByText(`Mock ${component} Component`)));
+      });
+
+      await afterDelay;
     });
 
     it.each([

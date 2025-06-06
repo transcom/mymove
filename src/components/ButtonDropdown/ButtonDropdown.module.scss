@@ -1,12 +1,12 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/basics';
+@import 'shared/styles/mixins';
 
 .ButtonDropdown {
+  @include mix-mm-header-font-properties;
   position: relative;
   display: flex;
   align-items: center;
-  font-weight: 600;
-  font-size:1.06rem;
 
   select {
     color: white;
@@ -28,6 +28,7 @@
       background-color: white;
     }
   }
+
   .ButtonDropdownIcon {
     background: url('~uswds/src/img/usa-icons/unfold_more.svg') center center no-repeat;
     position: absolute;
