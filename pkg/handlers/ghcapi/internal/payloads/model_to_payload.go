@@ -647,9 +647,9 @@ func Order(order *models.Order) *ghcmessages.Order {
 		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*order.OrdersTypeDetail)
 	}
 
-	var grade ghcmessages.Grade
+	var grade ghcmessages.OrderPayGrade
 	if order.Grade != nil {
-		grade = ghcmessages.Grade(*order.Grade)
+		grade = ghcmessages.OrderPayGrade(*order.Grade)
 	}
 	//
 	var affiliation ghcmessages.Affiliation
@@ -1377,6 +1377,7 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
 		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+		GccMultiplier:         swag.Float32(float32(*ppmCloseout.GCCMultiplier)),
 	}
 
 	return payload
@@ -3014,4 +3015,19 @@ func Countries(countries models.Countries) ghcmessages.Countries {
 		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
+	var payloadPayGrades []*ghcmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := ghcmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }
