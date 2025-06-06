@@ -65,6 +65,11 @@ paths:
           format: date-time
           description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
         - in: query
+          name: before
+          type: string
+          format: date-time
+          description: Only return moves updated before this time. Formatted like "2021-07-23T18:30:47.116Z"
+        - in: query
           name: acknowledged
           type: boolean
           x-nullable: true

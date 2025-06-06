@@ -82,6 +82,7 @@ type MoveTaskOrderFetcherParams struct {
 	IsAvailableToPrime       bool       // indicates if all MTOs returned must be Prime-available
 	IncludeHidden            bool       // indicates if hidden/disabled MTOs should be included in the output
 	Since                    *time.Time // if filled, only MTOs that have been updated after this timestamp will be returned
+	Before                   *time.Time // if filled, only MTOs that have been updated before this timestamp will be returned
 	MoveTaskOrderID          uuid.UUID  // ID of the move task order
 	Locator                  string     // the locator is a unique string that identifies the move
 	MoveCode                 *string    // moveCode that is passed in when searching through prime moves

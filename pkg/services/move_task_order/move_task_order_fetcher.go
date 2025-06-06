@@ -446,6 +446,7 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 		sql = sql + getPrimeAcknowledgedFilter(searchParams.Acknowledged)
 		sql = sql + getPrimeAcknowledgedAfterFilter(searchParams.AcknowledgedAfter, &sqlParams)
 		sql = sql + getPrimeAcknowledgedBeforeFilter(searchParams.AcknowledgedBefore, &sqlParams)
+		sql = sql + getBeforeFilter(searchParams.Before, &sqlParams)
 	}
 	sql = sql + `;`
 
@@ -492,6 +493,38 @@ func getSinceFilter(since *time.Time, sqlParams *[]any) string {
 
 	// Add the since parameter value to the sqlParams slice
 	*sqlParams = append(*sqlParams, *since)
+	return sql
+}
+
+func getBeforeFilter(before *time.Time, sqlParams *[]any) string {
+	if before == nil {
+		// No filtering on Before
+		return ""
+	}
+
+	// Determine the next available query param
+	nextParam := len(*sqlParams) + 1
+	beforeParamIndex := strconv.Itoa(nextParam)
+
+	sql := ` AND (moves.updated_at <= $` + beforeParamIndex + ` OR orders.updated_at <= $` + beforeParamIndex + ` OR
+                      (moves.id IN (SELECT mto_shipments.move_id
+                                    FROM mto_shipments WHERE mto_shipments.updated_at <= $` + beforeParamIndex + `
+                                    UNION
+                                    SELECT mto_service_items.move_id
+                                    FROM mto_service_items
+                                    WHERE mto_service_items.updated_at <= $` + beforeParamIndex + `
+                                    UNION
+                                    SELECT payment_requests.move_id
+                                    FROM payment_requests
+                                    WHERE payment_requests.updated_at <= $` + beforeParamIndex + `
+                                    UNION
+                                    SELECT mto_shipments.move_id
+                                    FROM mto_shipments
+                                    INNER JOIN reweighs ON reweighs.shipment_id = mto_shipments.id
+                                    WHERE reweighs.updated_at <= $` + beforeParamIndex + `)))`
+
+	// Add the before parameter value to the sqlParams slice
+	*sqlParams = append(*sqlParams, *before)
 	return sql
 }
 
