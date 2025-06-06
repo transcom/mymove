@@ -58,7 +58,8 @@ export const EditContactInfo = ({
       usPostRegionCitiesID: serviceMember.backup_mailing_address?.usPostRegionCitiesID || '',
     },
     [backupContactName]: {
-      name: currentBackupContacts[0]?.name || '',
+      firstName: (currentBackupContacts[0]?.firstName || '').trim(),
+      lastName: (currentBackupContacts[0]?.lastName || '').trim(),
       telephone: currentBackupContacts[0]?.telephone || '',
       email: currentBackupContacts[0]?.email || '',
     },
@@ -83,14 +84,16 @@ export const EditContactInfo = ({
 
     const backupContactPayload = {
       id: currentBackupContacts[0].id,
-      name: values[backupContactName.toString()]?.name || '',
+      firstName: (values[backupContactName.toString()]?.firstName || '').trim(),
+      lastName: (values[backupContactName.toString()]?.lastName || '').trim(),
       email: values[backupContactName.toString()]?.email || '',
       telephone: values[backupContactName.toString()]?.telephone || '',
       permission: currentBackupContacts[0].permission,
     };
 
     const backupContactChanged =
-      initialValues[backupContactName.toString()].name !== backupContactPayload.name ||
+      initialValues[backupContactName.toString()].firstName !== backupContactPayload.firstName ||
+      initialValues[backupContactName.toString()].lastName !== backupContactPayload.lastName ||
       initialValues[backupContactName.toString()].email !== backupContactPayload.email ||
       initialValues[backupContactName.toString()].telephone !== backupContactPayload.telephone;
 

@@ -24,9 +24,13 @@ type BackupContact struct {
 	// Required: true
 	Email *string `json:"email"`
 
-	// name
+	// first name
 	// Required: true
-	Name *string `json:"name"`
+	FirstName *string `json:"firstName"`
+
+	// last name
+	// Required: true
+	LastName *string `json:"lastName"`
 
 	// phone
 	// Required: true
@@ -42,7 +46,11 @@ func (m *BackupContact) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateName(formats); err != nil {
+	if err := m.validateFirstName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLastName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -65,9 +73,18 @@ func (m *BackupContact) validateEmail(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *BackupContact) validateName(formats strfmt.Registry) error {
+func (m *BackupContact) validateFirstName(formats strfmt.Registry) error {
 
-	if err := validate.Required("name", "body", m.Name); err != nil {
+	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BackupContact) validateLastName(formats strfmt.Registry) error {
+
+	if err := validate.Required("lastName", "body", m.LastName); err != nil {
 		return err
 	}
 
