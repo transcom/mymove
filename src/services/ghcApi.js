@@ -1135,3 +1135,8 @@ export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
 export function getResponseError(response, defaultErrorMessage) {
   return response?.body?.detail || response?.statusText || defaultErrorMessage;
 }
+
+export async function getRolesPrivilegesOfficeApp() {
+  const operationPath = 'rolePrivileges.getRolesPrivileges';
+  return makeGHCRequest(operationPath, {}, { normalize: false });
+}
