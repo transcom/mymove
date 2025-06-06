@@ -787,6 +787,42 @@ export async function getServicesCounselingQueue(
   );
 }
 
+export async function getCounselingQueue(
+  key,
+  {
+    sort,
+    order,
+    filters = [],
+    currentPage = 1,
+    currentPageSize = 20,
+    needsPPMCloseout = false,
+    viewAsGBLOC,
+    activeRole,
+  },
+) {
+  const operationPath = 'queues.getCounselingQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      needsPPMCloseout,
+      viewAsGBLOC,
+      activeRole,
+      ...paramFilters,
+    },
+
+    { schemaKey: 'queueMovesResult', normalize: false },
+  );
+}
+
 export async function getServicesCounselingOriginLocations(needsPPMCloseout, viewAsGBLOC) {
   const operationPath = 'queues.getServicesCounselingOriginList';
 
