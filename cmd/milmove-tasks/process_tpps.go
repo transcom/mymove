@@ -58,11 +58,11 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 }
 
 const (
-	// AVStatusCLEAN string CLEAN
-	AVStatusCLEAN string = "CLEAN"
+	// AVStatusCLEAN string NO_THREATS_FOUND
+	AVStatusCLEAN string = "NO_THREATS_FOUND"
 
 	// AVStatusUNKNOWN string UNKNOWN
-	// Placeholder for error when scanning, actual scan results from ClamAV are CLEAN or INFECTED
+	// Placeholder for error when scanning, actual scan results from GuardDuty are NO_THREATS_FOUND or INFECTED
 	AVStatusUNKNOWN string = "UNKNOWN"
 
 	// Default value for parameter store environment variable
@@ -184,7 +184,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	}
 
 	if avStatus == AVStatusCLEAN {
-		logger.Info(fmt.Sprintf("av-status is CLEAN for TPPS file: %s", tppsFilename))
+		logger.Info(fmt.Sprintf("GuardDutyMalwareScanStatus is NO_THREATS_FOUND for TPPS file: %s", tppsFilename))
 
 		// get the S3 object, download file to /tmp dir for processing if clean
 		localFilePath, err := downloadS3File(logger, s3Client, tppsS3Bucket, s3Key)
@@ -226,7 +226,7 @@ func getS3ObjectTags(s3Client S3API, bucket, key string) (string, map[string]str
 
 	for _, tag := range tagResp.TagSet {
 		tags[*tag.Key] = *tag.Value
-		if *tag.Key == "av-status" {
+		if *tag.Key == "GuardDutyMalwareScanStatus" {
 			avStatus = *tag.Value
 		}
 	}
