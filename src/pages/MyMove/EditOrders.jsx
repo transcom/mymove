@@ -30,15 +30,7 @@ import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
-const EditOrders = ({
-  serviceMemberId,
-  serviceMemberMoves,
-  updateOrders,
-  setFlashMessage,
-  context,
-  orders,
-  updateAllMoves,
-}) => {
+const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlashMessage, orders, updateAllMoves }) => {
   const filePondEl = createRef();
   const navigate = useNavigate();
   const { moveId, orderId } = useParams();
@@ -62,17 +54,23 @@ const EditOrders = ({
   }
 
   useEffect(() => {
-    const checkAlaskaFeatureFlag = async () => {
+    const checkFeatureFlag = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      const updatedOptions = orderTypes;
       if (!isAlaskaEnabled) {
-        const options = orderTypes;
         delete orderTypes.EARLY_RETURN_OF_DEPENDENTS;
         delete orderTypes.STUDENT_TRAVEL;
-        setOrderTypes(options);
       }
+      if (!isBluebarkEnabled) {
+        delete orderTypes.BLUEBARK;
+      }
+      setOrderTypes(updatedOptions);
     };
-    checkAlaskaFeatureFlag();
+    checkFeatureFlag();
   }, [orderTypes]);
+  const ordersTypeOptions = dropdownInputOptions(orderTypes);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,12 +102,6 @@ const EditOrders = ({
       allowances.dependents_twelve_and_over !== undefined ? `${allowances.dependents_twelve_and_over}` : '',
     civilian_tdy_ub_allowance: allowances.ub_allowance !== undefined ? `${allowances.ub_allowance}` : '',
   };
-
-  const showAllOrdersTypes = context.flags?.allOrdersTypes;
-  const allowedOrdersTypes = showAllOrdersTypes
-    ? orderTypes
-    : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
-  const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;

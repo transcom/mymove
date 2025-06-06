@@ -20,6 +20,7 @@ import withRouter from 'utils/routing';
 import { withContext } from 'shared/AppContext';
 import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
 import { selectCanAddOrders } from 'store/entities/selectors';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOrders }) => {
   const { customerId } = useParams();
@@ -29,6 +30,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   const navigate = useNavigate();
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
 
   const handleBack = () => {
     navigate(-1);
@@ -40,6 +42,18 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
     });
     navigate(path);
   };
+
+  useEffect(() => {
+    const checkFeatureFlag = async () => {
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+      if (!isBluebarkEnabled) {
+        const options = orderTypes;
+        delete orderTypes.BLUEBARK;
+        setOrderTypes(options);
+      }
+    };
+    checkFeatureFlag();
+  }, [orderTypes]);
 
   const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(counselingCreateOrder, {
@@ -84,7 +98,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
       : false;
 
   const allowedOrdersTypes = {
-    ...ORDERS_TYPE_OPTIONS,
+    ...orderTypes,
     ...(isSafetyPrivileged ? { SAFETY: 'Safety' } : {}),
     ...(isBluebarkMoveSelected ? { BLUEBARK: 'BLUEBARK' } : {}),
   };
