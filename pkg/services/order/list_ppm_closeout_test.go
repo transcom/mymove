@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -979,5 +980,128 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		suite.Equal(count, 1)
 		suite.Equal("MATCHY", moves[0].Locator)
 		suite.FatalNoError(err)
+	})
+
+	suite.Run("Special filtering (NAVY, MARINES (TVCB), USMC, USCG)", func() {
+		testCases := []struct {
+			name                string
+			userGBLOC           string
+			closeoutGBLOC       string
+			affiliationShow     models.ServiceMemberAffiliation
+			affiliationDontShow models.ServiceMemberAffiliation
+		}{
+			{
+				name:                "NAVY counselor sees only NAVY moves",
+				userGBLOC:           "NAVY",
+				affiliationShow:     models.AffiliationNAVY,
+				affiliationDontShow: models.AffiliationARMY,
+				closeoutGBLOC:       "NAVY",
+			},
+			{
+				name:                "USMC counselor sees only MARINE moves",
+				userGBLOC:           "USMC",
+				affiliationShow:     models.AffiliationMARINES,
+				affiliationDontShow: models.AffiliationNAVY,
+				closeoutGBLOC:       "TVCB", // Marines close-out under TVCB is possible
+			},
+			{
+				name:                "TVCB counselor sees everyone except MARINES",
+				userGBLOC:           "TVCB",
+				affiliationShow:     models.AffiliationNAVY,
+				affiliationDontShow: models.AffiliationMARINES,
+				closeoutGBLOC:       "TVCB",
+			},
+			{
+				name:                "USCG counselor sees only COAST GUARD moves",
+				userGBLOC:           "USCG",
+				affiliationShow:     models.AffiliationCOASTGUARD,
+				affiliationDontShow: models.AffiliationARMY,
+				closeoutGBLOC:       "USCG",
+			},
+		}
+
+		for _, tc := range testCases {
+			suite.Run(tc.name, func() {
+				// Closeout office the SC will belong to
+				closeoutTO := factory.BuildTransportationOffice(
+					suite.DB(),
+					[]factory.Customization{
+						{
+							Model: models.TransportationOffice{
+								Name:  fmt.Sprintf("%s closeout", tc.userGBLOC),
+								Gbloc: tc.userGBLOC, ProvidesCloseout: true,
+							},
+						},
+					}, nil)
+
+				// Create counselor tied to office
+				sc := factory.BuildOfficeUserWithRoles(
+					suite.DB(),
+					[]factory.Customization{
+						{
+							Model: models.OfficeUser{
+								TransportationOfficeID: closeoutTO.ID,
+							},
+						},
+						{
+							Model: closeoutTO, LinkOnly: true,
+							Type: &factory.TransportationOffices.CounselingOffice,
+						},
+					},
+					[]roles.RoleType{roles.RoleTypeServicesCounselor},
+				)
+
+				session := setupAuthSession(sc.ID)
+				appCtx := suite.AppContextWithSessionForTest(&session)
+
+				// Helper func to build PPMs needing closeout
+				buildMove := func(aff models.ServiceMemberAffiliation, locator, gbloc string) {
+					// Build service member with test case affiliation
+					sm := factory.BuildServiceMember(suite.DB(),
+						[]factory.Customization{{Model: models.ServiceMember{Affiliation: &aff}}}, nil)
+
+					closeout := factory.BuildTransportationOffice(
+						suite.DB(),
+						[]factory.Customization{
+							{
+								Model: models.TransportationOffice{
+									Name: locator + " closeout", Gbloc: gbloc, ProvidesCloseout: true,
+								},
+							},
+						}, nil)
+
+					now := time.Now()
+					factory.BuildPPMShipmentThatNeedsCloseout(
+						suite.DB(), nil,
+						[]factory.Customization{
+							{
+								Model: models.Order{ServiceMemberID: sm.ID},
+							},
+							{
+								Model: models.Move{
+									Locator: locator, CloseoutOfficeID: &closeout.ID,
+									SubmittedAt: &now,
+								},
+								Type: &factory.Move,
+							},
+						},
+					)
+				}
+
+				// Move to be filtered in
+				buildMove(tc.affiliationShow, tc.userGBLOC+"YE", tc.closeoutGBLOC)
+				// Move to be exist but be filtered out
+				buildMove(tc.affiliationDontShow, tc.userGBLOC+"NO", tc.closeoutGBLOC)
+
+				// Fetch
+				moves, count, err := orderFetcher.ListPPMCloseoutOrders(
+					appCtx, sc.ID,
+					&services.ListOrderParams{NeedsPPMCloseout: models.BoolPointer(true)},
+				)
+				suite.FatalNoError(err)
+				suite.Equal(1, count, "unexpected number of moves visible")
+				suite.Equal(tc.userGBLOC+"YE", moves[0].Locator)
+			})
+		}
 	})
 }

@@ -1,5 +1,6 @@
 -- B-23547 - Cameron Jewell - Initial PPM Closeout queue refactor from pop -> proc
-
+--           Cameron Jewell - Remember that Navy, Marines, and Coast Guard have special filters!
+--           Cameron Jewell - Their filter is applied in the return
 DROP FUNCTION IF EXISTS get_ppm_closeout_queue;
 
 CREATE OR REPLACE FUNCTION get_ppm_closeout_queue(
@@ -178,7 +179,16 @@ BEGIN
         ),
         filtered AS (
             SELECT * FROM base WHERE
-              $1  IS NULL OR closeout_gbloc = $1
+              (
+                $1 IS NULL
+                OR (closeout_gbloc = $1 AND $1 NOT IN (''NAVY'', ''USMC'', ''TVCB'',''USCG''))
+                -- Special closeout GBLOC handling
+                -- Marines will be found under TVCB, so we want to filter them out
+                OR ($1 = ''NAVY'' AND branch_out = ''NAVY'')        -- Navy SC -> Navy moves
+                OR ($1 = ''TVCB'' AND branch_out != ''MARINES'')    -- TVCB SC -> everyone except Marines
+                OR ($1 = ''USMC'' AND branch_out = ''MARINES'')     -- Marine SC -> all Marines
+                OR ($1 = ''USCG'' AND branch_out = ''COAST_GUARD'') -- Coast Guard SC -> Coast Guard moves
+              )
               AND ($2  IS NULL OR customer_name_out ILIKE ''%%'' || $2 || ''%%'')
               AND ($3  IS NULL OR edipi_out   = $3)
               AND ($4  IS NULL OR emplid_out  = $4)
