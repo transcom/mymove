@@ -49,6 +49,60 @@ import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { formatDateWithUTC } from 'shared/dates';
 
+export function useErrorIfMissing(isRetirementOrSeparation) {
+  return useMemo(() => {
+    const fieldRequestedPickupDate = {
+      fieldName: 'requestedPickupDate',
+      condition: (shipment) =>
+        new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null).setHours(0, 0, 0, 0) <=
+          new Date().setHours(0, 0, 0, 0) && shipment?.status === shipmentStatuses.SUBMITTED,
+      optional: true, // bypass to use condition, triggers condition if not present
+    };
+
+    const fields = {
+      HHG: [
+        {
+          ...fieldRequestedPickupDate,
+        },
+      ],
+      HHG_INTO_NTS: [
+        { fieldName: 'storageFacility' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+        { ...fieldRequestedPickupDate },
+      ],
+      HHG_OUTOF_NTS: [
+        { fieldName: 'storageFacility' },
+        { fieldName: 'ntsRecordedWeight' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+        { ...fieldRequestedPickupDate },
+      ],
+      MOBILE_HOME: [{ ...fieldRequestedPickupDate }],
+      BOAT_HAUL_AWAY: [{ ...fieldRequestedPickupDate }],
+      BOAT_TOW_AWAY: [{ ...fieldRequestedPickupDate }],
+      UNACCOMPANIED_BAGGAGE: [{ ...fieldRequestedPickupDate }],
+      PPM: [
+        {
+          fieldName: 'advanceStatus',
+          condition: (mtoShipment) =>
+            mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue &&
+            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.REJECTED.apiValue,
+        },
+      ],
+    };
+
+    if (isRetirementOrSeparation) {
+      // destination type must be set for for HHG, NTSR shipments only
+      fields.HHG.push({ fieldName: 'destinationType' });
+      fields.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
+    }
+
+    return fields;
+  }, [isRetirementOrSeparation]);
+}
+
 const MoveDetails = ({
   setUnapprovedShipmentCount,
   setUnapprovedServiceItemCount,
@@ -104,56 +158,7 @@ const MoveDetails = ({
     [order],
   );
 
-  const errorIfMissing = useMemo(() => {
-    const fieldRequestedPickupDate = {
-      fieldName: 'requestedPickupDate',
-      condition: (shipment) =>
-        new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null).setHours(0, 0, 0, 0) <=
-          new Date().setHours(0, 0, 0, 0) && shipment?.status === shipmentStatuses.SUBMITTED,
-      optional: true, // bypass to use condition, triggers condition if not present
-    };
-
-    const fields = {
-      HHG: [
-        {
-          ...fieldRequestedPickupDate,
-        },
-      ],
-      HHG_INTO_NTS: [
-        { fieldName: 'storageFacility' },
-        { fieldName: 'serviceOrderNumber' },
-        { fieldName: 'tacType' },
-        { ...fieldRequestedPickupDate },
-      ],
-      HHG_OUTOF_NTS: [
-        { fieldName: 'storageFacility' },
-        { fieldName: 'ntsRecordedWeight' },
-        { fieldName: 'serviceOrderNumber' },
-        { fieldName: 'tacType' },
-        { ...fieldRequestedPickupDate },
-      ],
-      MOBILE_HOME: [{ ...fieldRequestedPickupDate }],
-      BOAT_HAUL_AWAY: [{ ...fieldRequestedPickupDate }],
-      BOAT_TOW_AWAY: [{ ...fieldRequestedPickupDate }],
-      UNACCOMPANIED_BAGGAGE: [{ ...fieldRequestedPickupDate }],
-      PPM: [
-        {
-          fieldName: 'advanceStatus',
-          condition: (mtoShipment) =>
-            mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
-            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
-        },
-      ],
-    };
-
-    if (isRetirementOrSeparation) {
-      // destination type must be set for for HHG, NTSR shipments only
-      fields.HHG.push({ fieldName: 'destinationType' });
-      fields.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
-    }
-
-    return fields;
-  }, [isRetirementOrSeparation]);
+  const errorIfMissing = useErrorIfMissing(isRetirementOrSeparation);
 
   let sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
