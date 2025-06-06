@@ -34,18 +34,36 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		return session
 	}
 
-	setupServicesCounselor := func(db *pop.Connection) models.OfficeUser {
-		return factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	setupServicesCounselor := func(db *pop.Connection, transportationOffice models.TransportationOffice) models.OfficeUser {
+		// Create the SC with role and assigned transportation office
+		return factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					TransportationOfficeID: transportationOffice.ID,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 	}
 
-	setupOrdersToFilterBy := func(db *pop.Connection) {
+	// Return MacDill AFB as a "SHARED" default GBLOC office
+	setupOrdersToFilterBy := func(db *pop.Connection) models.TransportationOffice {
 		oldestCloseoutInitiatedDate := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
 		latestCloseoutInitiatedDate := time.Date(2023, 04, 02, 0, 0, 0, 0, time.UTC)
 
 		macDillTransportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
-					Name: "MacDill AFB",
+					Name:  "MacDill AFB",
+					Gbloc: "SHARED",
+				},
+			},
+		}, nil)
+
+		patrickTransportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name:  "Patrick SFB",
+					Gbloc: "SHARED",
 				},
 			},
 		}, nil)
@@ -86,25 +104,27 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 				},
 				{
 					Model: models.Move{
-						PPMType: models.StringPointer(models.MovePPMTypePARTIAL),
-						Locator: "OLDEST",
+						PPMType:          models.StringPointer(models.MovePPMTypePARTIAL),
+						Locator:          "OLDEST",
+						CloseoutOfficeID: &patrickTransportationOffice.ID,
 					},
 					Type: &factory.Move,
 				},
 			},
 		)
+		return macDillTransportationOffice
 	}
 
-	createUserAndCtx := func(db *pop.Connection) (models.OfficeUser, appcontext.AppContext) {
-		servicesCounselor := setupServicesCounselor(db)
+	createUserAndCtx := func(db *pop.Connection, transportationOffice models.TransportationOffice) (models.OfficeUser, appcontext.AppContext) {
+		servicesCounselor := setupServicesCounselor(db, transportationOffice)
 		session := setupAuthSession(servicesCounselor.ID)
 		appCtx := suite.AppContextWithSessionForTest(&session)
 		return servicesCounselor, appCtx
 	}
 
 	suite.Run("default sort is by closeout initiated oldest -> newest", func() {
-		setupOrdersToFilterBy(suite.DB())
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		defaultOffice := setupOrdersToFilterBy(suite.DB())
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), defaultOffice)
 
 		defaultMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
@@ -119,8 +139,8 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can sort descending showing newest first and oldest last", func() {
-		setupOrdersToFilterBy(suite.DB())
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		defaultOffice := setupOrdersToFilterBy(suite.DB())
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), defaultOffice)
 
 		sortedDescendingMoves, _, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
@@ -134,8 +154,8 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("returns moves based on ppm status", func() {
-		setupOrdersToFilterBy(suite.DB())
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		defaultOffice := setupOrdersToFilterBy(suite.DB())
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), defaultOffice)
 
 		partialMoves, count, err := orderFetcher.ListPPMCloseoutOrders(appCtx, servicesCounselor.ID, &services.ListOrderParams{
 			PPMType: models.StringPointer(models.MovePPMTypePARTIAL),
@@ -153,8 +173,8 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by closeout location inclusively", func() {
-		setupOrdersToFilterBy(suite.DB())
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		defaultOffice := setupOrdersToFilterBy(suite.DB())
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), defaultOffice)
 
 		movesWithMacDillFilter, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
@@ -171,11 +191,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by customer name", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -208,10 +227,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by edipi", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
@@ -245,11 +264,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by emplid", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -282,11 +300,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by locator", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -319,11 +336,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by submitted_at", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -356,11 +372,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by branch", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -395,11 +410,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	suite.Run("can filter by move's ppm type", func() {
 		// Don't confuse this one with ppm_shipments.ppm_type!
 		// They are different! Filtering by ppm shipment ppm type is not supported
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -432,10 +446,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by origin duty location name", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
@@ -475,11 +489,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by counseling office", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -490,6 +503,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 						SubmittedAt:        &now,
 						Locator:            "LATEST",
 						CounselingOfficeID: &transportationOffice.ID,
+						CloseoutOfficeID:   &transportationOffice.ID,
 					},
 					Type: &factory.Move,
 				},
@@ -506,16 +520,16 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 				CounselingOffice: &transportationOffice.Name,
 			},
 		)
+		suite.FatalNoError(err)
 		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
-		suite.FatalNoError(err)
 	})
 
 	suite.Run("can filter by destination", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
@@ -554,11 +568,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by closeout office", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -667,11 +680,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can not see safety moves by default", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -710,11 +722,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can not see a move entry that has a ppm but the ppm has not entered closeout", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		// By not setting a submittedAt value for the PPM shipment, we are declaring
 		// it has not entered the closeout phase
 		ppmShipment := factory.BuildPPMShipment(
@@ -761,11 +772,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can filter by sc assigned closeout", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
@@ -799,12 +809,13 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	})
 
 	suite.Run("can sort by branch affiliation", func() {
-		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), transportationOffice)
 
 		now := time.Now()
 		army := models.AffiliationARMY
 		navy := models.AffiliationNAVY
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		serviceMemberArmy := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{
@@ -880,4 +891,93 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		suite.Equal(filteredMoves[1].Locator, ppmShipmentNavy.Shipment.MoveTaskOrder.Locator, "The navy move should be the second in the slice")
 	})
 
+	suite.Run("GBLOC results should be driven by closeout location, not origin location", func() {
+		closeoutOfficeAssignedToUser := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name:             "Will appear",
+					Gbloc:            "FIND",
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+
+		closeoutOfficeForAnotherGBLOC := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name:             "Will not appear",
+					Gbloc:            "HIDE",
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+
+		servicesCounselor := factory.BuildOfficeUserWithRoles(
+			suite.DB(),
+			[]factory.Customization{
+				{
+					Model: models.OfficeUser{
+						TransportationOfficeID: closeoutOfficeAssignedToUser.ID,
+					},
+				},
+				{
+					Model:    closeoutOfficeAssignedToUser,
+					LinkOnly: true,
+					Type:     &factory.TransportationOffices.CounselingOffice,
+				},
+			},
+			[]roles.RoleType{roles.RoleTypeServicesCounselor},
+		)
+
+		session := setupAuthSession(servicesCounselor.ID)
+		appCtx := suite.AppContextWithSessionForTest(&session)
+		now := time.Now()
+
+		// Move we will find
+		factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						Locator:          "MATCHY",
+						CloseoutOfficeID: &closeoutOfficeAssignedToUser.ID,
+						SubmittedAt:      &now,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// Move that will exist but be filtered out
+		originDL := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Order{
+						OriginDutyLocationID: &originDL.ID,
+					},
+				},
+				{
+					Model: models.Move{
+						Locator:          "NOMATC",
+						CloseoutOfficeID: &closeoutOfficeForAnotherGBLOC.ID,
+						SubmittedAt:      &now,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		moves, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{NeedsPPMCloseout: models.BoolPointer(true)},
+		)
+		suite.Equal(count, 1)
+		suite.Equal("MATCHY", moves[0].Locator)
+		suite.FatalNoError(err)
+	})
 }

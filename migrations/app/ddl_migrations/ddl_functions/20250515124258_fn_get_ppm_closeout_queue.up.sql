@@ -78,10 +78,11 @@ BEGIN
                 m.locator::TEXT                       AS locator,
                 m.ppm_type::TEXT                      AS full_or_partial_ppm,
                 m.locked_by                           AS locked_by,
-                m.sc_closeout_assigned_id                      AS sc_closeout_assigned_id,
+                m.sc_closeout_assigned_id             AS sc_closeout_assigned_id,
                 m.counseling_transportation_office_id AS counseling_transportation_office_id,
                 m.status::TEXT                        AS status,
                 m.submitted_at::timestamptz           AS move_submitted_at,
+                closeout_to.gbloc                     AS closeout_gbloc,
                 json_build_object(
                     ''id'', o.id,
                     ''orders_type'', o.orders_type,
@@ -177,7 +178,7 @@ BEGIN
         ),
         filtered AS (
             SELECT * FROM base WHERE
-              $1  IS NULL OR (orders->>''origin_duty_location_gbloc'') = $1
+              $1  IS NULL OR closeout_gbloc = $1
               AND ($2  IS NULL OR customer_name_out ILIKE ''%%'' || $2 || ''%%'')
               AND ($3  IS NULL OR edipi_out   = $3)
               AND ($4  IS NULL OR emplid_out  = $4)
