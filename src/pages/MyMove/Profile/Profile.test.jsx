@@ -7,6 +7,7 @@ import ConnectedProfile from './Profile';
 
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -74,7 +75,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -165,7 +166,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -270,7 +271,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -370,7 +371,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
