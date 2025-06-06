@@ -592,6 +592,22 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice');
+  }
+
+  /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2() {
+    return this.buildDefault('ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2');
+  }
+
+  /**
    * Use testharness to build Use testharness to build submitted move with ppm and pro-gear - civilian
    * @returns {Promise<Move>}
    */
