@@ -910,7 +910,7 @@ const ShipmentForm = (props) => {
                 ) : (
                   <p data-testid="weightAllowance">
                     <strong>Weight allowance: </strong>
-                    {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
+                    {formatWeight(serviceMember.weightAllotment.authorizedWeight)}
                   </p>
                 )}
               </SectionWrapper>
