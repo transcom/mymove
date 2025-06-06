@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 
+import styles from './FeatureFlags.module.scss'; // Importing styles from SCSS module
+
 import { BOOLEAN_FLAG_TYPE, VARIANT_FLAG_TYPE } from 'components/FeatureFlag/FeatureFlag';
 import { getBooleanFeatureFlagForUser, getVariantFeatureFlagForUser } from 'services/internalApi';
 import { milmoveLogger } from 'utils/milmoveLog';
 
 const displayVariant = (result) => {
   if ('variant' in result) {
-    if (result.variant === '') {
-      return '<none>';
-    }
-    return result.variant;
+    return result.variant === '' ? '<none>' : result.variant;
   }
   return 'Boolean Flag';
 };
@@ -25,9 +24,7 @@ export const FeatureFlagEvaluate = () => {
       flagType === BOOLEAN_FLAG_TYPE ? getBooleanFeatureFlagForUser : getVariantFeatureFlagForUser;
 
     getFeatureFlagForUser(flagKey, {})
-      .then((result) => {
-        setFlagResult(result);
-      })
+      .then((result) => setFlagResult(result))
       .catch((error) => {
         milmoveLogger.error(error);
         setFlagResult(null);
@@ -35,11 +32,7 @@ export const FeatureFlagEvaluate = () => {
   };
 
   const handleTypeChange = (e) => {
-    if (e.target.value === VARIANT_FLAG_TYPE) {
-      setFlagType(VARIANT_FLAG_TYPE);
-    } else {
-      setFlagType(BOOLEAN_FLAG_TYPE);
-    }
+    setFlagType(e.target.value);
   };
 
   const handleKeyChange = (e) => {
@@ -47,44 +40,67 @@ export const FeatureFlagEvaluate = () => {
   };
 
   return (
-    <div>
-      <span>Show feature flag for current user. This tests the feature flag API.</span>
+    <div className={styles.container}>
+      <p>Show feature flag for current user. This tests the feature flag API.</p>
       <hr />
-      <div>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="adminFeatureFlagType">Feature Flag Type</label>
-            <select onChange={handleTypeChange} name="featureFlagType" id="adminFeatureFlagType">
-              <option value={BOOLEAN_FLAG_TYPE}>Boolean</option>
-              <option value={VARIANT_FLAG_TYPE}>Variant</option>
-            </select>
-          </div>
-          <br />
-          <div>
-            <label htmlFor="adminFeatureFlagKey">Feature Flag Key</label>
-            <input onChange={handleKeyChange} name="featureFlagKey" id="adminFeatureFlagKey" type="text" />
-          </div>
-          <br />
-          <button type="submit">Evaluate</button>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formGroup}>
+          <label htmlFor="adminFeatureFlagType" className={styles.label}>
+            Feature Flag Type
+          </label>
+          <select
+            id="adminFeatureFlagType"
+            name="featureFlagType"
+            value={flagType}
+            onChange={handleTypeChange}
+            className={styles.select}
+          >
+            <option value={BOOLEAN_FLAG_TYPE}>Boolean</option>
+            <option value={VARIANT_FLAG_TYPE}>Variant</option>
+          </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="adminFeatureFlagKey" className={styles.label}>
+            Feature Flag Key
+          </label>
+          <input
+            id="adminFeatureFlagKey"
+            name="featureFlagKey"
+            type="text"
+            value={flagKey || ''}
+            onChange={handleKeyChange}
+            className={styles.input}
+          />
+        </div>
+        <button type="submit" className={styles.button} aria-label="Evaluate Feature Flag">
+          Evaluate
+        </button>
+      </form>
       <hr />
-      <div>
-        {flagResult && (
-          <dl>
-            <dt>Entity</dt>
-            <dd>{flagResult.entity}</dd>
-            <dt>Key</dt>
-            <dd>{flagResult.key}</dd>
-            <dt>Match</dt>
-            <dd>{flagResult.match.toString()}</dd>
-            <dt>Value</dt>
-            <dd>{displayVariant(flagResult)}</dd>
-            <dt>Namespace</dt>
-            <dd>{flagResult.namespace}</dd>
-          </dl>
-        )}
-      </div>
+      {flagResult && (
+        <div className={styles.result}>
+          <div className={styles.resultRow}>
+            <strong>Entity:</strong>
+            <span>{flagResult.entity}</span>
+          </div>
+          <div className={styles.resultRow}>
+            <strong>Key:</strong>
+            <span>{flagResult.key}</span>
+          </div>
+          <div className={styles.resultRow}>
+            <strong>Match:</strong>
+            <span>{flagResult.match.toString()}</span>
+          </div>
+          <div className={styles.resultRow}>
+            <strong>Value:</strong>
+            <span>{displayVariant(flagResult)}</span>
+          </div>
+          <div className={styles.resultRow}>
+            <strong>Namespace:</strong>
+            <span>{flagResult.namespace}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

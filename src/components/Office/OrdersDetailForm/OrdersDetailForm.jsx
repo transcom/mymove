@@ -148,7 +148,7 @@ const OrdersDetailForm = ({
         <MaskedTextField
           name="sac"
           label="SAC"
-          mask={/[A-Za-z0-9]*/}
+          mask="****"
           id="hhgSacInput"
           inputTestId="hhgSacInput"
           data-testid="hhgSacInput"
@@ -192,7 +192,7 @@ const OrdersDetailForm = ({
           name="ntsSac"
           label="SAC"
           id="ntsSacInput"
-          mask={/[A-Za-z0-9]*/}
+          mask="****"
           isDisabled={formIsDisabled}
           inputTestId="ntsSacInput"
           data-testid="ntsSacInput"

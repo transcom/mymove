@@ -1,16 +1,11 @@
 import React from 'react';
-import { Edit, SimpleForm, TextInput, SelectInput, Toolbar, DeleteButton, SaveButton } from 'react-admin';
+import { Edit, SimpleForm, TextInput, SelectInput } from 'react-admin';
 
-const ClientCertEditToolbar = (props) => (
-  <Toolbar {...props}>
-    <DeleteButton />
-    <SaveButton />
-  </Toolbar>
-);
+import SaveToolbar from '../Shared/SaveToolbar';
 
 const ClientCertEdit = (props) => (
   <Edit {...props}>
-    <SimpleForm toolbar={<ClientCertEditToolbar />}>
+    <SimpleForm toolbar={<SaveToolbar showDeleteBtn />}>
       <TextInput source="id" disabled />
       <TextInput source="userId" disabled label="User Id" />
       <TextInput source="subject" fullWidth />
