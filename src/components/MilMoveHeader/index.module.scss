@@ -65,7 +65,24 @@
     align-items: center;
     justify-content: flex-end;
 
-    > ul {
+
+    .userInfo > ul {
+      > li {
+        &::before{
+          content: '';
+          width: 1px;
+          height: 100%;
+          background-color: $base-dark;
+          margin: 0rem 1rem;
+        }
+      }
+    }
+
+    &:has(> div){
+       padding: 0rem 1rem;
+    }
+
+    & > ul {
       list-style: none;
       padding: 0rem 1rem;
       > li {
@@ -74,9 +91,8 @@
         }
       }
 
-      > li:nth-last-child(n + 2) {
-
-        &::after{
+      > :where(li:nth-of-type(n + 2), li:first-of-type:is(li:last-of-type)) {
+        &::before{
           content: '';
           width: 1px;
           height: 100%;
@@ -194,7 +210,6 @@
       }
 
       :global(.usa-nav__primary-item):last-child {
-        @include u-margin-left(2);
         @include u-margin-right(0);
       }
 
@@ -205,8 +220,6 @@
 
       :global(.usa-nav__primary button) {
         @include u-font-size('body', 'xs');
-        @include u-padding-x(2);
-        @include u-margin-right(2);
       }
     }
   }
