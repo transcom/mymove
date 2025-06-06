@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Routes, Link, matchPath, Navigate, useLocation } from 'react-router-dom';
+import { Route, Routes, matchPath, Navigate, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 
@@ -125,16 +125,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const [approvalRequestTypeFlag, setApprovalRequestTypeFlag] = useState(false);
 
   const location = useLocation();
-  const displayChangeRole =
-    props.userIsLoggedIn &&
-    !!props.userInactiveRoles?.length &&
-    !matchPath(
-      {
-        path: '/select-application',
-        end: true,
-      },
-      location.pathname,
-    );
+
   const isFullscreenPage = matchPath(
     {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -180,7 +171,6 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
             <BypassBlock />
             <CUIHeader />
             {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
             {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
