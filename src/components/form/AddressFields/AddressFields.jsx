@@ -37,22 +37,6 @@ export const AddressFields = ({
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
 
-  const getAddress1LabelHintText = (labelHint, address1Label) => {
-    if (labelHint === 'Required') {
-      // if labelHint is required, we want to show an asterisk instead of the word "Required"
-      return null;
-    }
-    if (address1Label === null) {
-      return labelHint;
-    }
-    // Override default and use what is passed in.
-    if (address1Label && address1Label.trim().length > 0) {
-      return address1Label;
-    }
-
-    return null;
-  };
-
   const handleOnLocationChange = (value) => {
     const city = value ? value.city : null;
     const state = value ? value.state : null;
@@ -77,7 +61,10 @@ export const AddressFields = ({
     });
   };
 
-  const showRequiredAsterisk = labelHintProp === 'Required';
+  // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
+  // this field is usually always required other than PPMs
+  // a value for address1LabelHint is passed in when we want address 1 to be optional
+  const showRequiredAsteriskForAddress1 = address1LabelHint === null || labelHintProp === 'Required';
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -88,15 +75,13 @@ export const AddressFields = ({
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
-            labelHint={getAddress1LabelHintText(labelHintProp, address1LabelHint)}
-            required={showRequiredAsterisk}
-            showRequiredAsterisk={showRequiredAsterisk}
+            required={showRequiredAsteriskForAddress1}
+            showRequiredAsterisk={showRequiredAsteriskForAddress1}
             data-testid={`${name}.streetAddress1`}
             validate={validators?.streetAddress1}
           />
           <TextField
             label="Address 2"
-            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress2`}
             data-testid={`${name}.streetAddress2`}
@@ -104,7 +89,6 @@ export const AddressFields = ({
           />
           <TextField
             label="Address 3"
-            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress3_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress3`}
             data-testid={`${name}.streetAddress3`}
@@ -130,8 +114,8 @@ export const AddressFields = ({
                 label="City"
                 id={`city_${addressFieldsUUID.current}`}
                 name={`${name}.city`}
-                showRequiredAsterisk={showRequiredAsterisk}
-                required={showRequiredAsterisk}
+                showRequiredAsterisk
+                required
                 data-testid={`${name}.city`}
                 display="readonly"
                 validate={validators?.city}
@@ -141,8 +125,8 @@ export const AddressFields = ({
                 id={`state_${addressFieldsUUID.current}`}
                 name={`${name}.state`}
                 data-testid={`${name}.state`}
-                showRequiredAsterisk={showRequiredAsterisk}
-                required={showRequiredAsterisk}
+                showRequiredAsterisk
+                required
                 display="readonly"
                 validate={validators?.state}
                 styles="margin-top: 1.5em"
@@ -155,8 +139,8 @@ export const AddressFields = ({
                 name={`${name}.postalCode`}
                 data-testid={`${name}.postalCode`}
                 maxLength={10}
-                showRequiredAsterisk={showRequiredAsterisk}
-                required={showRequiredAsterisk}
+                showRequiredAsterisk
+                required
                 display="readonly"
                 validate={validators?.postalCode}
               />
@@ -164,8 +148,8 @@ export const AddressFields = ({
                 label="County"
                 id={`county_${addressFieldsUUID.current}`}
                 name={`${name}.county`}
-                showRequiredAsterisk={showRequiredAsterisk}
-                required={showRequiredAsterisk}
+                showRequiredAsterisk
+                required
                 data-testid={`${name}.county`}
                 display="readonly"
                 validate={validators?.county}

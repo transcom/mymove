@@ -559,7 +559,7 @@ describe('ShipmentForm component', () => {
         await user.click(screen.getByLabelText('Use pickup address'));
       });
 
-      expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
+      expect((await screen.findAllByLabelText(/Address 1/))[0]).toHaveValue(
         defaultProps.currentResidence.streetAddress1,
       );
 
@@ -605,7 +605,7 @@ describe('ShipmentForm component', () => {
         await user.click(screen.getByTitle('Yes, I know my delivery address'));
       });
 
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
       expect(screen.getAllByTestId('City')[1]).toHaveAttribute('aria-label', 'delivery.address.city');
@@ -643,7 +643,7 @@ describe('ShipmentForm component', () => {
           />,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
           mockMtoShipment.destinationAddress.streetAddress1,
         );
         expect(
@@ -659,7 +659,7 @@ describe('ShipmentForm component', () => {
         const locationLookup = screen.getAllByLabelText(/Location Lookup/);
 
         await act(async () => {
-          expect(screen.getAllByLabelText('Address 1')[2]).toBeInstanceOf(HTMLInputElement);
+          expect(screen.getAllByLabelText(/Address 1/)[2]).toBeInstanceOf(HTMLInputElement);
           expect(locationLookup[2]).toBeInstanceOf(HTMLInputElement);
         });
       });
@@ -726,7 +726,7 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText('Address 1 *')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByTestId('City')[0]).toHaveTextContent('San Antonio');
       expect(screen.getAllByTestId('State')[0]).toHaveTextContent('TX');
@@ -739,7 +739,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText('Address 1 *')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByTestId('City')[1]).toHaveTextContent('Tacoma');
       expect(screen.getAllByTestId('State')[1]).toHaveTextContent('WA');
@@ -810,7 +810,7 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getByTestId('pickup.address.streetAddress1')).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByTestId('City')[0]).toHaveTextContent('San Antonio');
       expect(screen.getAllByTestId('State')[0]).toHaveTextContent('TX');
@@ -822,7 +822,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByTestId('City')[1]).toHaveTextContent('Tacoma');
       expect(screen.getAllByTestId('State')[1]).toHaveTextContent('WA');
@@ -1552,6 +1552,7 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           isCreatePage
           userRole={roleTypes.SERVICES_COUNSELOR}
+          address1LabelHint={' '}
         />,
       );
 
@@ -1650,12 +1651,13 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           mtoShipment={mockPPMShipment}
           userRole={roleTypes.TOO}
+          // address1LabelHint="optional"
         />,
       );
 
       expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
 
-      expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
@@ -1674,7 +1676,7 @@ describe('ShipmentForm component', () => {
         ),
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
@@ -1796,12 +1798,13 @@ describe('ShipmentForm component', () => {
             shipmentType={SHIPMENT_OPTIONS.PPM}
             mtoShipment={mockPPMShipment}
             userRole={roleTypes.SERVICES_COUNSELOR}
+            address1LabelHint="optional"
           />,
         );
 
         expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
 
-        expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
@@ -1822,7 +1825,7 @@ describe('ShipmentForm component', () => {
           ),
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(

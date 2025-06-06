@@ -86,7 +86,7 @@ describe('AddressFields component', () => {
           </Formik>
         </Provider>,
       );
-      expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
+      expect(getByLabelText(/Address 1/)).toHaveValue(initialValues.address.streetAddress1);
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
       expect(getByTestId('City')).toHaveTextContent(initialValues.address.city);
       expect(getByTestId('State')).toHaveTextContent(initialValues.address.state);

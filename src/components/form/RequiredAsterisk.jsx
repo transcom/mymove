@@ -13,7 +13,7 @@ export const RequiredAsterisk = () => {
 };
 
 export const requiredAsteriskMessage = (
-  <Hint data-testid="reqAsteriskMsg">
+  <Hint data-testid="reqAsteriskMsg" id="reqAsteriskMsg">
     Fields marked with <RequiredAsterisk /> are required.
   </Hint>
 );

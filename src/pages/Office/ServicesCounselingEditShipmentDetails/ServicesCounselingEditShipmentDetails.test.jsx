@@ -385,7 +385,8 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
       expect(screen.getByRole('textbox', { name: 'Planned Departure Date' })).toHaveValue('28 Jun 2022');
 
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      screen.debug();
+      expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
         ppmShipment.ppmShipment.pickupAddress.streetAddress1,
       );
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
@@ -401,7 +402,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         )[0],
       );
 
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
         ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
       );
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(

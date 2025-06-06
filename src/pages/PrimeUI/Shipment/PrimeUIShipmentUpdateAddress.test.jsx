@@ -134,7 +134,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       const shipment = moveTaskOrder.mtoShipments[shipmentIndex];
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.pickupAddress.streetAddress1);
+        expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(shipment.pickupAddress.streetAddress1);
         expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
         expect(screen.getAllByLabelText(/Address 3/)[0]).toHaveValue('');
         expect(screen.getAllByText('City')[0]).toBeInTheDocument();
