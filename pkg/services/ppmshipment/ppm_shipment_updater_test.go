@@ -1577,6 +1577,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Error(err)
 		suite.Nil(updatedPPM)
 	})
+
 	suite.Run("Can successfully update a PPMShipment - cap estimated incentive to max incentive value", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
