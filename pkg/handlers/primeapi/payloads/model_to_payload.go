@@ -1053,7 +1053,7 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 	if err != nil || tags == nil {
 		payload.Status = "PROCESSING"
 	} else {
-		status, ok := tags["av-status"]
+		status, ok := tags["GuardDutyMalwareScanStatus"]
 		if !ok {
 			status = "PROCESSING"
 		}
