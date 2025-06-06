@@ -142,8 +142,8 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 </p>
 
                 <p>You get paid for moving pro-gear, but it does not count against your total weight allowance.</p>
+                {requiredAsteriskMessage}
                 <Fieldset>
-                  {requiredAsteriskMessage}
                   <legend
                     className="usa-label"
                     aria-label="Required: Do you or your spouse have pro-gear that you'll move in this PPM?"
