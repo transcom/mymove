@@ -5,7 +5,7 @@ import approveMoveAfterSitExtRemoval from 'constants/MoveHistory/EventTemplates/
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
-import { MOVE_STATUSES } from 'constants/moves';
+import MOVE_STATUSES from 'constants/moves';
 
 describe('when given a approveMoveAfterSitExtRemoval history record', () => {
   const historyRecord = {
