@@ -180,10 +180,8 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
       <SelectedGblocProvider>
         <div id="app-root">
           <div className={siteClasses}>
-            <div className={styles.top}>
-              <BypassBlock />
-              {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            </div>
+            <BypassBlock />
+            {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {props.userIsLoggedIn ? <TestingHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />

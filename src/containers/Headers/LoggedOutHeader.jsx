@@ -24,13 +24,15 @@ const LoggedOutHeader = ({ app }) => {
         }}
         closeModal={() => setShowEula(false)}
       />
-      <MilMoveHeader>
-        <LoggedOutUserInfo
-          handleLogin={() => setShowEula(true)}
-          handleRequestAccount={() => handleRequestAccount()}
-          app={app}
-        />
-      </MilMoveHeader>
+      <div>
+        <MilMoveHeader>
+          <LoggedOutUserInfo
+            handleLogin={() => setShowEula(true)}
+            handleRequestAccount={() => handleRequestAccount()}
+            app={app}
+          />
+        </MilMoveHeader>
+      </div>
     </>
   );
 };
