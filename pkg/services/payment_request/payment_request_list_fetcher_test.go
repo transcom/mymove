@@ -403,7 +403,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 			AccessToken:     "fakeAccessToken",
 		}
 
-		expectedMoveNotUSMC := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMoveNotUSMC := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		expectedMoveUSMC := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marines,
+				},
+			},
+		}, nil)
 
 		paymentRequestUSMC = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -414,12 +428,8 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
 			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-				},
-			},
-			{
-				Model: models.ServiceMember{Affiliation: &marines},
+				Model:    expectedMoveUSMC,
+				LinkOnly: true,
 			},
 		}, nil)
 
@@ -442,11 +452,8 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 				Type: &factory.TransportationOffices.OriginDutyLocation,
 			},
 			{
-				Model:    paymentRequestUSMC.MoveTaskOrder,
+				Model:    expectedMoveUSMC,
 				LinkOnly: true,
-			},
-			{
-				Model: models.ServiceMember{Affiliation: &marines},
 			},
 		}, nil)
 

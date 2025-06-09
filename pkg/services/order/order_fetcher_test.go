@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -132,6 +133,43 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(expectedMove.Orders.OriginDutyLocation.ID, move.Orders.OriginDutyLocation.ID)
 		suite.NotNil(move.Orders.OriginDutyLocation)
 		suite.Equal(expectedMove.Orders.OriginDutyLocation.Address.StreetAddress1, move.Orders.OriginDutyLocation.Address.StreetAddress1)
+	})
+
+	suite.Run("returns moves with all required locked information", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			ActiveRole:      officeUser.User.Roles[0],
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
+		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		now := time.Now()
+
+		// build a move that's locked
+		lockedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					LockedByOfficeUserID: &tooUser.ID,
+					LockExpiresAt:        &now,
+					Show:                 models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		moves, moveCount, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{Page: models.Int64Pointer(1)})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Len(moves, 1)
+
+		// Check that move matches
+		move := moves[0]
+		suite.Equal(move.Locator, lockedMove.Locator)
+		suite.NotNil(move.LockedByOfficeUserID)
+		suite.NotNil(move.LockExpiresAt)
 	})
 
 	suite.Run("returns moves filtered by GBLOC", func() {
@@ -1243,6 +1281,67 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, len(moves))
 	})
 
+	suite.Run("task order queue returns a move with pending amended orders", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			ActiveRole:      officeUser.User.Roles[0],
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Document{},
+				Type:  &factory.Documents.UploadedAmendedOrders,
+			},
+		}, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			},
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.NotNil(shipment)
+		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		suite.NotNil(originSITServiceItem)
+
+		moves, moveCount, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Equal(1, len(moves))
+	})
+
 	suite.Run("task order queue does NOT return a move with a pending SIT extension and only destination service items to review", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
@@ -1982,19 +2081,105 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	suite.Run("Sort by move status", func() {
 		expectedMove1, expectedMove2, session := setupTestData()
-		params := services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
+
+		moveNeedsSC := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusNeedsServiceCounseling,
+					Locator: "A1SC01",
+					Show:    models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		moveSubmitted := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusSUBMITTED,
+					Locator: "B2SUB2",
+					Show:    models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		moveApprovalsRequested := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+					Locator: "C3APP3",
+					Show:    models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		moveApproved := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVED,
+					Locator: "D4APR4",
+					Show:    models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		expectedStatusesAsc := []models.MoveStatus{
+			models.MoveStatusServiceCounselingCompleted,
+			models.MoveStatusSUBMITTED,
+			models.MoveStatusNeedsServiceCounseling,
+			models.MoveStatusAPPROVALSREQUESTED,
+			models.MoveStatusAPPROVED,
+			models.MoveStatusAPPROVED,
+		}
+
+		expectedLocatorsAsc := []string{
+			expectedMove2.Locator,          // SERVICE COUNSELING COMPLETED
+			moveSubmitted.Locator,          // SUBMITTED (NEW MOVE)
+			moveNeedsSC.Locator,            // NEEDS SERVICE COUNSELING
+			moveApprovalsRequested.Locator, // APPROVALS REQUESTED
+			expectedMove1.Locator,          // APPROVED
+			moveApproved.Locator,           // APPROVED
+		}
+
+		params := services.ListOrderParams{
+			Sort:  models.StringPointer("status"),
+			Order: models.StringPointer("asc"),
+		}
 		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove1.Status, moves[0].Status)
-		suite.Equal(expectedMove2.Status, moves[1].Status)
+		suite.Equal(6, len(moves))
 
-		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("desc")}
+		for i, move := range moves {
+			suite.Equal(expectedStatusesAsc[i], move.Status, fmt.Sprintf("Unexpected status at index %d (asc)", i))
+			suite.Equal(expectedLocatorsAsc[i], move.Locator, fmt.Sprintf("Unexpected locator at index %d (asc)", i))
+		}
+
+		expectedStatusesDesc := []models.MoveStatus{
+			models.MoveStatusAPPROVED,
+			models.MoveStatusAPPROVED,
+			models.MoveStatusAPPROVALSREQUESTED,
+			models.MoveStatusNeedsServiceCounseling,
+			models.MoveStatusSUBMITTED,
+			models.MoveStatusServiceCounselingCompleted,
+		}
+
+		expectedLocatorsDesc := []string{
+			expectedMove1.Locator,          // APPROVED
+			moveApproved.Locator,           // APPROVED
+			moveApprovalsRequested.Locator, // APPROVALS REQUESTED
+			moveNeedsSC.Locator,            // NEEDS SERVICE COUNSELING
+			moveSubmitted.Locator,          // SUBMITTED
+			expectedMove2.Locator,          // SERVICE COUNSELING COMPLETED
+		}
+
+		params.Order = models.StringPointer("desc")
 		moves, _, err = orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove2.Status, moves[0].Status)
-		suite.Equal(expectedMove1.Status, moves[1].Status)
+		suite.Equal(6, len(moves))
+
+		for i, move := range moves {
+			suite.Equal(expectedStatusesDesc[i], move.Status, fmt.Sprintf("Unexpected status at index %d (asc)", i))
+			suite.Equal(expectedLocatorsDesc[i], move.Locator, fmt.Sprintf("Unexpected locator at index %d (asc)", i))
+		}
 	})
 
 	suite.Run("Sort by service member affiliations", func() {
@@ -2032,6 +2217,70 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(1, len(moves[0].MTOShipments)) // the move with one shipment should be first
 		suite.Equal(2, len(moves[1].MTOShipments))
 		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
+	})
+
+	suite.Run("Sort by request move date including pickup, delivery, and PPM expected departure", func() {
+		_, _, session := setupTestData()
+
+		expectedDepartureDate := time.Date(testdatagen.GHCTestYear, 01, 01, 0, 0, 0, 0, time.UTC)
+		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, 01, 02, 0, 0, 0, 0, time.UTC)
+
+		// PPM (expected departure date only)
+		movePPM := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "PPM001",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		shipmentPPM := factory.BuildMTOShipmentWithMove(&movePPM, suite.DB(), nil, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ShipmentID:            shipmentPPM.ID,
+					ExpectedDepartureDate: expectedDepartureDate,
+				},
+			},
+		}, nil)
+
+		// NTSr (delivery date only)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "NTS001",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
+					RequestedPickupDate:   nil,
+					RequestedDeliveryDate: &requestedDeliveryDate,
+				},
+			},
+		}, nil)
+
+		// sort by requestedMoveDate asc and validate order
+		params := services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.True(len(moves) >= 4)
+
+		suite.Equal("PPM001", moves[0].Locator) // jan 1
+		suite.Equal("NTS001", moves[1].Locator) // jan 2
+		suite.Equal("TTZ123", moves[2].Locator) // jan 3 (pickup)
+		suite.Equal("AA1234", moves[3].Locator) // feb 20
+
+		params.Order = models.StringPointer("desc")
+		moves, _, err = orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+
+		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal("TTZ123", moves[1].Locator)
+		suite.Equal("NTS001", moves[2].Locator)
+		suite.Equal("PPM001", moves[3].Locator)
 	})
 
 	suite.Run("Sort by submitted date (appearedInTooAt) in TOO queue ", func() {
@@ -2139,7 +2388,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(1, len(moves))
 		suite.Equal(5, count)
 
-		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal("AA5678", moves[0].Locator)
 
 		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc"), PerPage: models.Int64Pointer(3)}
 		moves, count, err = orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
@@ -2148,9 +2397,9 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(3, len(moves))
 		suite.Equal(5, count)
 
-		suite.Equal("AA1234", moves[0].Locator)
-		suite.Equal("BB1234", moves[1].Locator)
-		suite.Equal("UU1234", moves[2].Locator)
+		suite.Equal("AA5678", moves[0].Locator)
+		suite.Equal("TTZ123", moves[1].Locator)
+		suite.Equal("AA1234", moves[2].Locator)
 
 		// Sorting by a column with non-unique values
 		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
@@ -2160,17 +2409,17 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(5, len(moves))
 		suite.Equal(5, count)
 
-		suite.Equal(models.MoveStatusAPPROVED, moves[0].Status)
-		suite.Equal(models.MoveStatusAPPROVED, moves[1].Status)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[0].Status)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[1].Status)
 		suite.Equal(models.MoveStatusAPPROVED, moves[2].Status)
-		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[3].Status)
-		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[4].Status)
+		suite.Equal(models.MoveStatusAPPROVED, moves[3].Status)
+		suite.Equal(models.MoveStatusAPPROVED, moves[4].Status)
 
-		suite.Equal("AA1234", moves[0].Locator)
-		suite.Equal("BB1234", moves[1].Locator)
-		suite.Equal("UU1234", moves[2].Locator)
-		suite.Equal("AA5678", moves[3].Locator)
-		suite.Equal("TTZ123", moves[4].Locator)
+		suite.Equal("AA5678", moves[0].Locator)
+		suite.Equal("TTZ123", moves[1].Locator)
+		suite.Equal("AA1234", moves[2].Locator)
+		suite.Equal("BB1234", moves[3].Locator)
+		suite.Equal("UU1234", moves[4].Locator)
 	})
 }
 
@@ -3401,6 +3650,54 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 
 	waf := entitlements.NewWeightAllotmentFetcher()
 	orderFetcher := NewOrderFetcher(waf)
+
+	suite.Run("returns move in destination queue with all locked information", func() {
+		officeUser, session := setupTestData("MBFL")
+		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		now := time.Now()
+
+		// setting up two moves, each with requested destination SIT service items
+		// a move associated with an air force customer containing AK Zone II shipment
+		move, shipment := buildMoveZone2AK(airForce)
+		move.LockedByOfficeUserID = &tooUser.ID
+		move.LockExpiresAt = &now
+		suite.MustSave(&move)
+
+		// destination service item in SUBMITTED status so it shows in queue
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		params := services.ListOrderParams{Status: []string{string(models.MoveStatusAPPROVALSREQUESTED)}}
+		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params,
+		)
+
+		// we should get both moves back because one is in Zone II & the other is within the postal code GBLOC
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Len(moves, 1)
+		lockedMove := moves[0]
+		suite.NotNil(lockedMove.LockedByOfficeUserID)
+		suite.NotNil(lockedMove.LockExpiresAt)
+	})
 
 	suite.Run("returns moves for KKFA GBLOC when destination address is in KKFA GBLOC, and uses secondary sort column", func() {
 		officeUser, session := setupTestData("KKFA")

@@ -1,4 +1,5 @@
 -- B-23540 - Daniel Jordan - initial function creation for TOO origin queue refactor into db func
+-- B-23739 - Daniel Jordan updating returns to consider lock_expires_at
 
 DROP FUNCTION IF EXISTS get_origin_queue;
 CREATE OR REPLACE FUNCTION get_origin_queue(
@@ -28,6 +29,7 @@ RETURNS TABLE (
     orders_id UUID,
     status TEXT,
     locked_by UUID,
+    lock_expires_at TIMESTAMP WITH TIME ZONE,
     too_assigned_id UUID,
     counseling_transportation_office_id UUID,
     orders JSONB,
@@ -55,11 +57,17 @@ BEGIN
     IF sort IS NOT NULL THEN
         CASE sort
             WHEN 'locator' THEN sort_column := 'base.locator';
-            WHEN 'status' THEN sort_column := 'base.status';
+            WHEN 'status' THEN sort_column := 'CASE base.status
+                WHEN ''SERVICE COUNSELING COMPLETED'' THEN 1
+                WHEN ''SUBMITTED'' THEN 2
+                WHEN ''NEEDS SERVICE COUNSELING'' THEN 3
+                WHEN ''APPROVALS REQUESTED'' THEN 4
+                WHEN ''APPROVED'' THEN 5
+                ELSE 99 END';
             WHEN 'customerName' THEN sort_column := 'base.sm_last_name, base.sm_first_name';
             WHEN 'edipi' THEN sort_column := 'base.sm_edipi';
             WHEN 'emplid' THEN sort_column := 'base.sm_emplid';
-            WHEN 'requestedMoveDate' THEN sort_column := 'base.earliest_requested_pickup_date';
+            WHEN 'requestedMoveDate' THEN sort_column := 'LEAST(base.earliest_requested_pickup_date, base.earliest_expected_departure_date, base.earliest_requested_delivery_date)';
             WHEN 'appearedInTooAt' THEN sort_column := 'GREATEST(base.submitted_at, base.service_counseling_completed_at, base.approvals_requested_at)';
             WHEN 'branch' THEN sort_column := 'base.sm_affiliation';
             WHEN 'originDutyLocation' THEN sort_column := 'base.origin_duty_location_name';
@@ -78,7 +86,11 @@ BEGIN
     END IF;
 
     IF sort_column IS NULL THEN
-        sort_column := 'status';
+        sort_column := 'CASE base.status
+            WHEN ''APPROVALS REQUESTED'' THEN 1
+            WHEN ''SUBMITTED'' THEN 2
+            WHEN ''SERVICE COUNSELING COMPLETED'' THEN 3
+            ELSE 99 END';
     END IF;
 
     IF sort_order IS NULL THEN
@@ -95,6 +107,7 @@ BEGIN
             moves.orders_id,
             moves.status,
             moves.locked_by,
+            moves.lock_expires_at,
             moves.too_assigned_id,
             moves.counseling_transportation_office_id,
             moves.service_counseling_completed_at,
@@ -142,6 +155,7 @@ BEGIN
                         ''status'', ms.status,
                         ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                        ''requested_delivery_date'', TO_CHAR(ms.requested_delivery_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''prime_estimated_weight'', ms.prime_estimated_weight,
                         ''ppm_shipment'', CASE
@@ -334,6 +348,9 @@ BEGIN
 								moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
 								AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
 							)
+                            OR (
+                                orders.uploaded_amended_orders_id IS NOT NULL
+                                AND orders.amended_orders_acknowledged_at IS NULL)
 						)
 					)
 				)
@@ -348,6 +365,7 @@ BEGIN
         orders_id_inner::UUID AS orders_id,
         status::TEXT,
         locked_by::UUID AS locked_by,
+        lock_expires_at::TIMESTAMP WITH TIME ZONE AS lock_expires_at,
         too_assigned_id::UUID AS too_assigned_id,
         counseling_transportation_office_id::UUID AS counseling_transportation_office_id,
         json_build_object(
@@ -388,10 +406,7 @@ BEGIN
             sort_order, sort_order
         );
     ELSE
-        sql_query := sql_query || format(
-            ' ORDER BY %s %s, locator ASC ',
-            sort_column, sort_order
-        );
+        sql_query := sql_query || ' ORDER BY ' || sort_column || ' ' || sort_order || ', locator ASC ';
     END IF;
 
     sql_query := sql_query || ' LIMIT $14 OFFSET $15 ';

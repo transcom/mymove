@@ -176,7 +176,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
 	})
 
-	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
+	suite.Run("POST failure - 422 Unprocessable Entity Error - Invalid Input", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
@@ -204,6 +204,36 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		response := handler.Handle(subtestData)
 		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		handler := UpdateShipmentDestinationAddressHandler{
+			suite.NewHandlerConfig(),
+			&mockCreator,
+			vLocationServices,
+		}
+
+		err := apperror.NewUnprocessableEntityError("\ndestination address cannot be created or updated for PPM and NTS shipments")
+
+		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressInternalServerError{}, response)
+		errResponse := response.(*mtoshipmentops.UpdateShipmentDestinationAddressInternalServerError)
 
 		// Validate outgoing payload
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
@@ -334,7 +364,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	mockSender := suite.TestNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())

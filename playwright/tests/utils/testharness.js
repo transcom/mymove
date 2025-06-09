@@ -306,6 +306,17 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build terminated hhg move for TOO
+   * They should still be able to approve/deny service items
+   * but not request cancellation, diversion, reweigh, or other shipment-specific
+   * actions. Only actions associated with the shipment
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveInTerminatedStatus() {
+    return this.buildDefault('HHGMoveInTerminatedStatus');
+  }
+
+  /**
    * Use testharness to build hhg move for TOO with Alaska address
    * @returns {Promise<Move>}
    */

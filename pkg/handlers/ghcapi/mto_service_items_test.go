@@ -409,7 +409,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -859,7 +859,7 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		mock.Anything,
 	).Return(400, nil)
 	mockSender := suite.TestNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
