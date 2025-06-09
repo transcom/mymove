@@ -54,7 +54,7 @@ describe('When given a move that has been unassigned', () => {
       expect(screen.getByText('Task ordering officer unassigned')).toBeInTheDocument();
     });
     it('task invoicing officer', () => {
-      historyRecord.changedValues = { tio_assigned_id: null };
+      historyRecord.changedValues = { tio_payment_request_assigned_id: null };
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));

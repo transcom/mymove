@@ -338,7 +338,7 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 		suite.Nil(paymentRequestCopy[0].CounselingOffice)
 	})
 
-	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
+	paymentRequests[0].MoveTaskOrder.TIOPaymentRequestAssignedUser = &officeUserTIO
 	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
 
 	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)

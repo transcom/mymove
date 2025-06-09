@@ -490,10 +490,10 @@ describe('formatAssignedOfficeUserFromContext', () => {
   it('properly formats a TIOs name for assignment', () => {
     const values = {
       changedValues: {
-        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        tio_payment_request_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        tio_assigned_id: null,
+        tio_payment_request_assigned_id: null,
       },
       context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
     };
@@ -507,10 +507,10 @@ describe('formatAssignedOfficeUserFromContext', () => {
   it('properly formats a TIOs name for reassignment', () => {
     const values = {
       changedValues: {
-        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        tio_payment_request_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        tio_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+        tio_payment_request_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
     };

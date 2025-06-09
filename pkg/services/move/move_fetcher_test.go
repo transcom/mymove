@@ -1033,7 +1033,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTIO() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TIOAssignedUser,
+				Type:     &factory.OfficeUsers.TIOPaymentRequestAssignedUser,
 			},
 		}, nil)
 		assignedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
