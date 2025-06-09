@@ -556,6 +556,15 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
 					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
+
+				roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *updatedOfficeUser.UserID)
+
+				if err != nil {
+					appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+				}
+
+				updatedOfficeUser.User.Roles = roles
 			}
 
 			if updatedOfficeUser.UserID != nil && payload.Privileges != nil {
@@ -589,6 +598,15 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
 					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
+
+				privileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *updatedOfficeUser.UserID)
+
+				if err != nil {
+					appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
+					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+				}
+
+				updatedOfficeUser.User.Privileges = privileges
 			}
 
 			if len(payload.TransportationOfficeAssignments) > 0 {
