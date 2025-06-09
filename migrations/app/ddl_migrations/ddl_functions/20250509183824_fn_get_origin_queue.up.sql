@@ -323,7 +323,7 @@ BEGIN
     -- we want to omit shipments with ONLY destination queue-specific filters
     -- (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
-			AND NOT (
+            AND NOT (
 					(
 						EXISTS (
 							SELECT 1
@@ -421,7 +421,7 @@ BEGIN
                 )
             ),
             ''uploaded_amended_orders_id'', uploaded_amended_orders_id,
-            ''amended_orders_acknowledged_at'', amended_orders_acknowledged_at
+            ''amended_orders_acknowledged_at'', amended_orders_acknowledged_at::TIMESTAMP WITH TIME ZONE
         )::JSONB AS orders,
         COALESCE(mto_shipments, ''[]''::JSONB) AS mto_shipments,
         COALESCE(mto_service_items, ''[]''::JSONB) AS mto_service_items,

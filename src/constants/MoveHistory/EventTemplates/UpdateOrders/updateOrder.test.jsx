@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/UpdateOrders/updateOrder';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 describe('when given an Order update history record', () => {
   const historyRecord = {
@@ -19,7 +19,7 @@ describe('when given an Order update history record', () => {
         origin_duty_location_id: 'ID2',
         new_duty_location_id: 'ID2',
         has_dependents: true,
-        grade: 'E_2',
+        grade: ORDERS_PAY_GRADE_TYPE.E_2,
       },
       context: [
         {

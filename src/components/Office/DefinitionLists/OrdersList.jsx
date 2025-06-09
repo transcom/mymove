@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 import styles from './OfficeDefinitionLists.module.scss';
 
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OrdersInfoShape } from 'types/order';
 import { formatDate } from 'shared/dates';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
@@ -49,9 +48,7 @@ const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
           })}
         >
           <dt>Pay grade</dt>
-          <dd data-testid="payGrade">
-            {!ordersInfo.payGrade ? missingText : ORDERS_PAY_GRADE_OPTIONS[ordersInfo.payGrade]}
-          </dd>
+          <dd data-testid="payGrade">{!ordersInfo.payGrade ? missingText : ordersInfo.payGrade}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Current duty location</dt>

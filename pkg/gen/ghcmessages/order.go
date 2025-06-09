@@ -60,7 +60,7 @@ type Order struct {
 	FirstName string `json:"first_name,omitempty"`
 
 	// grade
-	Grade *Grade `json:"grade,omitempty"`
+	Grade *OrderPayGrade `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
 	// Example: false
