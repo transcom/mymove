@@ -506,12 +506,14 @@ describe('ShipmentForm component', () => {
   });
 
   describe('when creating a new HHG shipment', () => {
-    it('renders the HHG shipment form', async () => {
+    it('renders the HHG shipment form and asterisks for required fields', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
-      expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use pickup address')).toBeInstanceOf(HTMLInputElement);
@@ -529,7 +531,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[0]).toHaveAttribute('name', 'pickup.agent.phone');
       expect(screen.getAllByLabelText('Email')[0]).toHaveAttribute('name', 'pickup.agent.email');
 
-      expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInstanceOf(HTMLInputElement);
 
       const deliveryLocationSectionHeadings = screen.getAllByText('Delivery Address');
       expect(deliveryLocationSectionHeadings).toHaveLength(2);
@@ -724,7 +726,7 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
+      expect(await screen.findByLabelText('Requested pickup date *')).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1 *')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -736,7 +738,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Requested delivery date *')).toHaveValue('30 Mar 2020');
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
       expect(screen.getAllByLabelText('Address 1 *')[1]).toHaveValue('441 SW Rio de la Plata Drive');
@@ -808,7 +810,7 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
+      expect(await screen.findByLabelText('Requested pickup date *')).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
       expect(screen.getByTestId('pickup.address.streetAddress1')).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -820,7 +822,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Requested delivery date *')).toHaveValue('30 Mar 2020');
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
@@ -988,7 +990,7 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
 
-      expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use pickup address')).toBeInstanceOf(HTMLInputElement);
@@ -1115,7 +1117,7 @@ describe('ShipmentForm component', () => {
       );
 
       await act(async () => {
-        await userEvent.clear(screen.getByLabelText('Requested pickup date'));
+        await userEvent.clear(screen.getByLabelText('Requested pickup date *'));
         await userEvent.paste(tomorrow);
         await userEvent.click(screen.getByTestId('useCurrentResidence'));
       });
@@ -1149,7 +1151,7 @@ describe('ShipmentForm component', () => {
       expect(screen.queryByText('Pickup Address')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
-      expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Delivery Address')).toBeInstanceOf(HTMLLegendElement);
 
@@ -1185,9 +1187,9 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
-      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInTheDocument();
       expect(screen.getByText('Pickup Address')).toBeInTheDocument();
-      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInTheDocument();
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInTheDocument();
       expect(screen.getByText('Customer remarks')).toBeInTheDocument();
       expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
@@ -1197,8 +1199,8 @@ describe('ShipmentForm component', () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
-      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
-      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility address' })).toBeInTheDocument();
@@ -1212,8 +1214,8 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
-      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInTheDocument();
     });
   });
 
@@ -1622,7 +1624,7 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(screen.getByLabelText('When did the customer ship their package?')).toBeInTheDocument();
+      expect(screen.getByLabelText('When did the customer ship their package? *')).toBeInTheDocument();
 
       await waitFor(() => {
         const smallPackageRadio = screen.getByTestId('isSmallPackage');
@@ -1655,7 +1657,7 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
+      expect(await screen.getByLabelText('Planned Departure Date *')).toHaveValue('01 Apr 2022');
 
       expect(await screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
@@ -1741,7 +1743,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
-      expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
+      expect(screen.getByLabelText('Estimated PPM weight *')).toHaveValue('4,999');
       expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
       expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
     });
@@ -1802,7 +1804,7 @@ describe('ShipmentForm component', () => {
           />,
         );
 
-        expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
+        expect(await screen.getByLabelText('Planned Departure Date *')).toHaveValue('01 Apr 2022');
 
         expect(await screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
@@ -1893,7 +1895,7 @@ describe('ShipmentForm component', () => {
         await waitFor(() => {
           expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).not.toBeChecked();
         });
-        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
+        expect(screen.getByLabelText('Estimated PPM weight *')).toHaveValue('4,999');
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('No')[1]).toBeChecked();
       });
@@ -2724,12 +2726,12 @@ describe('ShipmentForm component', () => {
 
         // Trigger invalid date error - must be in the future
         await act(async () => {
-          const node = screen.getByLabelText('Requested pickup date');
+          const node = screen.getByLabelText('Requested pickup date *');
           await userEvent.clear(node);
           await userEvent.paste('26 Mar 2022');
           node.blur();
         });
-        expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
+        expect(await screen.findByLabelText('Requested pickup date *')).toHaveValue('26 Mar 2022');
         const dateRequiredParent = within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId(
           'formGroup',
         );
@@ -2743,12 +2745,12 @@ describe('ShipmentForm component', () => {
 
         // Valid date, hides errors
         await act(async () => {
-          const node = screen.getByLabelText('Requested pickup date');
+          const node = screen.getByLabelText('Requested pickup date *');
           await userEvent.clear(node);
           await userEvent.paste(tomorrowDatePicker);
           node.blur();
         });
-        expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
+        expect(await screen.findByLabelText('Requested pickup date *')).toHaveValue(tomorrowDatePicker);
         await waitFor(() => {
           expect(screen.queryByTestId('requestedPickupDateErrorAlert')).not.toBeInTheDocument();
           expect(
