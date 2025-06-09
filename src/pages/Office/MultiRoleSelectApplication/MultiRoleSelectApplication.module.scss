@@ -12,6 +12,7 @@
 
 // using :scope to maintain specificity precedence over any uswds selector properties.
 .dropdown-wrapper-style{
+
     @include mix-mm-row-container;
     @include mix-mm-header-font-properties;
 
@@ -22,16 +23,17 @@
     height: 100%;
     padding-left: 0.65rem;
 
-    a {
-        --top-color: #{$link-light-hover};
+    @scope (&) {
+        a {
 
-        color: var(--top-color, inherit);
+            color: var(--top-color, inherit) !important;
 
-        height: 100%;
-        align-content: center;
+            height: 100%;
+            align-content: center;
 
-        &:hover{
-            background: #{$background-highlight};
+            &:hover{
+                background: unset !important;
+            }
         }
     }
     select {

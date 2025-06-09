@@ -89,6 +89,7 @@
       list-style: none;
       padding: 0rem 1rem;
       > li {
+
         button {
           @include u-font-size('body', 'xs');
         }
@@ -121,6 +122,7 @@
     align-self: stretch;
     order: inherit;
     color: $bg-white;
+    list-style: none;
 
     > :global(.usa-nav__primary-item) {
       border: none;
@@ -181,10 +183,12 @@
   .userInfo {
     display: flex;
     align-self: stretch;
+    list-style: none;
 
     :global(.usa-nav__primary) {
       @include u-padding-x(0);
       @include u-margin-x(0);
+      list-style: none;
     }
 
     :global(.usa-nav__primary button),

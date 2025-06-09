@@ -81,13 +81,13 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
   const applicationOptions = useMemo(
     () =>
       assumedRoleType === EMPTY_ROLE ? (
-        <option key={EMPTY_ROLE} value={EMPTY_ROLE}>
+        <option aria-label="no role" key={EMPTY_ROLE} value={EMPTY_ROLE}>
           no role
         </option>
       ) : (
-        rolesAvailableToUser.map(({ roleType, abbv }) => {
+        rolesAvailableToUser.map(({ roleType, abbv, name }) => {
           return (
-            <option key={roleType} value={roleType}>
+            <option aria-label={name} key={roleType} value={roleType}>
               {abbv}
             </option>
           );
