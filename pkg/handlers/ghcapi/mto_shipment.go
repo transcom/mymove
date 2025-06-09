@@ -620,6 +620,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			if reweighActiveForMove {
 				for _, shipment := range move.MTOShipments {
 					if (shipment.Status == models.MTOShipmentStatusApproved ||
+						shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 						shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 						shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 						shipment.Reweigh.ID == uuid.Nil &&
@@ -841,6 +842,7 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 					for i := range move.MTOShipments {
 						shipment := move.MTOShipments[i]
 						if (shipment.Status == models.MTOShipmentStatusApproved ||
+							shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 							shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 							shipment.Reweigh.ID == uuid.Nil &&
