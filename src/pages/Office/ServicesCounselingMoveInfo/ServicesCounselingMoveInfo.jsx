@@ -86,7 +86,9 @@ const ServicesCounselingMoveInfo = () => {
   }, []);
 
   // checking for the move_lock flag, if it's turned on we need to assess if the move should be locked to the user
-  useEffect(() => isBooleanFlagEnabled('move_lock').then(setMoveLockFlag), []);
+  useEffect(() => {
+    isBooleanFlagEnabled('move_lock').then(setMoveLockFlag);
+  }, []);
 
   useEffect(() => {
     const checkLock = async () => {
