@@ -540,7 +540,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(time.Now().Truncate(time.Hour*24), sitExtensions[0].DecisionDate.Truncate(time.Hour*24).Local())
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
 
-		// Confirm move status is APPROVED after remove sit extension reomval
+		// Confirm move status is APPROVED after sit extension removal
 		suite.DB().Q().All(&moves)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.MoveStatusAPPROVED, moves[0].Status)
