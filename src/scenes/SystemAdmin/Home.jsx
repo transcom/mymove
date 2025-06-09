@@ -134,6 +134,30 @@ const theme = deepmerge(defaultTheme, {
         },
       },
     },
+    RaConfirm: {
+      styleOverrides: {
+        root: {
+          '& .RaConfirm-confirmPrimary': {
+            minHeight: '30px',
+            backgroundColor: '#005ea2',
+            color: '#fff',
+            '&:hover': {
+              opacity: '0.8',
+            },
+          },
+          '& .MuiDialogActions-root > button:nth-of-type(1)': {
+            minHeight: '30px',
+            color: '#005ea2',
+            border: '1px solid #005ea2',
+            backgroundColor: 'transparent',
+            '&:hover': {
+              backgroundColor: '#f5f5f5',
+              borderColor: '#004a8c',
+            },
+          },
+        },
+      },
+    },
   },
 });
 
