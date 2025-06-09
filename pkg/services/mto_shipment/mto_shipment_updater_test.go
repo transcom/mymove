@@ -59,7 +59,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -2340,18 +2340,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		appCtx := suite.AppContextForTest()
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
-		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
 
 		preApprovalTime := time.Now()
-		_, err := updater.UpdateMTOShipmentStatus(appCtx, shipmentForAutoApprove.ID, status, nil, nil, shipmentForAutoApproveEtag)
+		approvedShipment, err := updater.UpdateMTOShipmentStatus(appCtx, shipmentForAutoApprove.ID, status, nil, nil, shipmentForAutoApproveEtag)
 		suite.NoError(err)
-
-		err = appCtx.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
-		suite.NoError(err)
-
 		// Let's make sure the status is approved
-		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
 
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
 		suite.NoError(err)
@@ -3038,12 +3033,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		suite.Nil(shipment5.ApprovedDate)
 
-		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment5.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
-
+		approvedShipment, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment5.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
 		suite.NoError(err)
-		suite.NoError(suite.DB().Find(&shipment5, shipment5.ID))
-		suite.Equal(models.MTOShipmentStatusApproved, shipment5.Status)
-		suite.NotNil(shipment5.ApprovedDate)
+		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
+		suite.NotNil(approvedShipment.ApprovedDate)
 	})
 
 	suite.Run("Changing to a non-APPROVED status does not record approved_date", func() {
@@ -3168,6 +3161,27 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
 	})
 
+	suite.Run("An APPROVALS_REQUESTED shipment CANNOT change to CANCELED - ERROR", func() {
+		setupTestData()
+
+		testShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
+		eTag = etag.GenerateEtag(testShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			suite.AppContextForTest(), testShipment.ID, models.MTOShipmentStatusCanceled, nil, nil, eTag)
+		suite.NoError(suite.DB().Find(&testShipment, testShipment.ID))
+
+		suite.Error(err)
+		suite.Nil(updatedShipment)
+		suite.IsType(ConflictStatusError{}, err)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, testShipment.Status)
+	})
+
 	suite.Run("An APPROVED shipment CAN change to Diversion Requested", func() {
 		setupTestData()
 
@@ -3263,7 +3277,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -3334,7 +3348,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -3519,7 +3533,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -4052,7 +4066,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
@@ -4378,7 +4392,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
