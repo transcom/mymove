@@ -37,7 +37,8 @@ const baseProps = {
     county: 'El Paso',
   },
   backupContact: {
-    name: 'Gabriela Sáenz Perez',
+    firstName: 'Gabriela',
+    lastName: 'Sáenz Perez',
     telephone: '206-555-8989',
     email: 'gsp@example.com',
   },
