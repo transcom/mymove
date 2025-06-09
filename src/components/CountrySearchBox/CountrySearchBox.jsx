@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ErrorMessage, FormGroup, Label } from '@trussworks/react-uswds';
 import AsyncSelect from 'react-select/async';
@@ -126,6 +126,27 @@ export const CountrySearchBoxComponent = ({
     };
   }
 
+  const [loadDefaultCountry, setLoadDefaultCountry] = useState(true);
+  const [defaultCountry, setDefaultCountry] = useState(null);
+
+  useEffect(() => {
+    if (loadDefaultCountry) {
+      setLoadDefaultCountry(false);
+
+      if (value === null || value.city === '') {
+        const country = 'UNITED STATES';
+        searchCountries(country)
+          .then((locations) => {
+            setDefaultCountry(locations[0]);
+            handleCountryOnChange(locations[0]);
+          })
+          .catch(() => {
+            setDefaultCountry(null);
+          });
+      }
+    }
+  }, [loadDefaultCountry, defaultCountry, handleCountryOnChange, searchCountries, value]);
+
   const loadOptions = debounce((query, callback) => {
     if (!query || query.length < MIN_SEARCH_LENGTH) {
       callback(null);
@@ -146,6 +167,7 @@ export const CountrySearchBoxComponent = ({
   const selectOption = async (selectedValue) => {
     countryState(selectedValue);
     onChange(selectedValue);
+    setDefaultCountry(null);
 
     if (handleCountryOnChange !== null) {
       handleCountryOnChange(selectedValue);
@@ -176,12 +198,11 @@ export const CountrySearchBoxComponent = ({
       } else {
         onChange(null);
       }
-
-      // setCountryInfo('');
     }
   };
 
   const handleFocus = () => {
+    setDefaultCountry(null);
     if (handleCountryOnChange) {
       handleCountryOnChange(null);
     } else {
@@ -223,7 +244,7 @@ export const CountrySearchBoxComponent = ({
             value.country.code !== '' &&
             value.country.code !== null
               ? value.country
-              : ''
+              : defaultCountry
           }
           noOptionsMessage={noOptionsMessage}
           onFocus={handleFocus}
