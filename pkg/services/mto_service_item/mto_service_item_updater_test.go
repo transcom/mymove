@@ -2332,8 +2332,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 		err = suite.DB().Find(&serviceItem, serviceItem.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, serviceItem.MTOShipmentID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
 		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
 		suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
 		suite.NotNil(serviceItem.ApprovedAt)
@@ -3081,8 +3085,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 		err = suite.DB().Find(&serviceItem, serviceItem.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, serviceItem.MTOShipmentID)
+		suite.NoError(err)
 
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
 		suite.Equal(models.MTOServiceItemStatusRejected, serviceItem.Status)
 		suite.Equal(rejectionReason, serviceItem.RejectionReason)
 		suite.NotNil(serviceItem.RejectedAt)
@@ -3183,6 +3191,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
 
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, serviceItem.MTOShipmentID)
+		suite.NoError(err)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
+
 		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
 		suite.NotNil(updatedServiceItem.ApprovedAt)
 		suite.Nil(updatedServiceItem.RejectionReason)
@@ -3228,6 +3241,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		err = suite.DB().Find(&move, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, serviceItem.MTOShipmentID)
+		suite.NoError(err)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
 
 		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
 		suite.NotNil(updatedServiceItem.ApprovedAt)
