@@ -337,6 +337,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
 		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numDDFSITFound := 0
 		numDDASITFound := 0
@@ -394,6 +395,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numIDFSITFound := 0

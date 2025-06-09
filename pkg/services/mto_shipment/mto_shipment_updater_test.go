@@ -3149,6 +3149,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.NoError(err)
 		// Let's make sure the status is approved
 		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
 
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
 		suite.NoError(err)
@@ -3817,6 +3818,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		approvedShipment, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment5.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
 		suite.NoError(err)
+		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
+		suite.NotNil(approvedShipment.ApprovedDate)
 		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
 		suite.NotNil(approvedShipment.ApprovedDate)
 	})
