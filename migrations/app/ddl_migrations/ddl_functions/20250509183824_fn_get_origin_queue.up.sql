@@ -323,7 +323,7 @@ BEGIN
     -- we want to omit shipments with ONLY destination queue-specific filters
     -- (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
-			AND NOT (
+            AND NOT (
 					(
 						EXISTS (
 							SELECT 1
