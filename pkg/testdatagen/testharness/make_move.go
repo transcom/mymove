@@ -5129,6 +5129,8 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			FinalIncentive:        models.CentPointer(50000000),
 		},
 	}
 
