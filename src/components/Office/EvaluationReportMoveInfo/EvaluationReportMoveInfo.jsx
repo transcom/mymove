@@ -7,7 +7,7 @@ import evaluationReportStyles from './EvaluationReportMoveInfo.module.scss';
 
 import DataTable from 'components/DataTable';
 import { CustomerShape } from 'types';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 
 const EvaluationReportMoveInfo = ({ customerInfo, grade }) => {
   const customerInfoTableBody = (
@@ -16,7 +16,7 @@ const EvaluationReportMoveInfo = ({ customerInfo, grade }) => {
       <br />
       {customerInfo.phone}
       <br />
-      {ORDERS_PAY_GRADE_OPTIONS[grade]}
+      {grade}
       <br />
       {ORDERS_BRANCH_OPTIONS[customerInfo.agency] ? ORDERS_BRANCH_OPTIONS[customerInfo.agency] : customerInfo.agency}
     </>
