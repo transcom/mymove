@@ -373,7 +373,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	// DESTINATION
 	suite.Run("Successful Prime update - adding SITDepartureDate adjusts shipment's Destination SIT authorized end date", func() {
 		now := time.Now()
-		requestApproavalsRequestedStatus := true
+		requestApproavalsRequestedStatus := false
 		year, month, day := now.Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
