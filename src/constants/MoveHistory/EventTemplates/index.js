@@ -2,6 +2,7 @@ export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeigh
 export { default as acknowledgeExcessUnaccompaniedBaggageWeightRisk } from './AcknowledgeExcessUnaccompaniedBaggageWeightRisk/acknowledgeExcessUnaccompaniedBaggageWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
+export { default as approveShipmentDiversionApproveMove } from './ApproveShipmentDiversion/approveShipmentDiversionApproveMove';
 export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
 export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
@@ -122,6 +123,7 @@ export { default as updateAssignedOfficeUser } from './UpdateAssignedOfficeUser/
 export { default as deleteAssignedOfficeUser } from './UpdateAssignedOfficeUser/DeleteAssignedOfficeUser';
 export { default as UpdatePaymentRequestStatusMoves } from './UpdatePaymentRequestStatus/UpdatePaymentRequestStatusMoves';
 export { default as reviewShipmentAddressUpdate } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdate';
+export { default as reviewShipmentAddressUpdateMove } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdateMove';
 export { default as FinishDocumentReviewMoves } from './FinishDocumentReview/FinishDocumentReviewMoves';
 export { default as saveBulkAssignmentData } from './SaveBulkAssignmentData/SaveBulkAssignmentData';
 export { default as approveShipments } from './ApproveShipments/approveShipments';
@@ -132,3 +134,4 @@ export { default as approveShipmentsServiceItem } from './ApproveShipments/appro
 export { default as createTermination } from './CreateTermination/createTermination';
 export { default as acknowledgMove } from './AcknowledgeMovesAndShipments/acknowledgeMove';
 export { default as acknowledgeShipment } from './AcknowledgeMovesAndShipments/acknowledgeShipment';
+export { default as createMTOServiceItemUpdateShipmentStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateShipmentStatus';

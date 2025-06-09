@@ -8,7 +8,7 @@ export default {
   action: a.UPDATE,
   eventName: o.deleteAssignedOfficeUser,
   tableName: t.moves,
-  getEventNameDisplay: () => 'Updated move',
+  getEventNameDisplay: () => 'Move assignment updated',
   getDetails: ({ changedValues }) => {
     if (changedValues.sc_counseling_assigned_id === null) return <>Counselor unassigned</>;
     if (changedValues.sc_closeout_assigned_id === null) return <>Closeout counselor unassigned</>;

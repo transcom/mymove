@@ -137,10 +137,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
-			moves, count, err := h.OrderFetcher.ListOrders(
+			moves, count, err := h.OrderFetcher.ListOriginRequestsOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
-				roles.RoleTypeTOO,
 				&ListOrderParams,
 			)
 			if err != nil {
@@ -436,7 +435,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				activeRole = *params.ActiveRole
 			}
 
-			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
+			listPaymentRequestParams.Status = []string{string(models.PaymentRequestStatusPending)}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.

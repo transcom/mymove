@@ -50,7 +50,7 @@ func (suite *ModelSuite) Test_ClientCertValidations() {
 		"user_id":       {"UserID can not be blank."},
 	}
 
-	suite.verifyValidationErrors(cert, expErrors)
+	suite.verifyValidationErrors(cert, expErrors, nil)
 }
 
 func (suite *ModelSuite) Test_ClientCertGetAllowedOrdersIssuersReadNone() {

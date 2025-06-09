@@ -14,7 +14,7 @@ import formStyles from 'styles/form.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes } from 'constants/routes';
 import TextField from 'components/form/fields/TextField/TextField';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField, DropdownInput } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';

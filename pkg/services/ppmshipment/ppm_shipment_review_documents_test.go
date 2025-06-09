@@ -434,4 +434,22 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		suite.Nil(err)
 		suite.True(len(certs) == 1)
 	})
+
+	suite.Run("Dollar input handled properly", func() {
+		dollarInput := "$245.78"
+		expected := 24578
+
+		result, err := priceToCents(dollarInput)
+		suite.Nil(err)
+		suite.Equal(expected, result)
+	})
+
+	suite.Run("Non-dollar input handled properly, returns 0", func() {
+		nonDollarInput := ""
+		expected := 0
+
+		result, err := priceToCents(nonDollarInput)
+		suite.Nil(err)
+		suite.Equal(expected, result)
+	})
 }

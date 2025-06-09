@@ -74,8 +74,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	activeRole := string(roles.RoleTypeTOO)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
+		ActiveRole:  &activeRole,
 	}
 	handlerConfig := suite.HandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
@@ -198,8 +200,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		orderFetcher := mocks.OrderFetcher{}
-		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
-			officeUser.ID, roles.RoleTypeTOO, mock.Anything).Return(expectedMoves, 4, nil)
+		orderFetcher.On("ListOriginRequestsOrders", mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -463,16 +465,20 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 
 	// Approvals requested
 	approvedMove := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    approvedMove,
+			LinkOnly: true,
+		},
+	}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model:    approvedMove,
 			LinkOnly: true,
 		},
 		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
+			Model:    mtoShipment,
+			LinkOnly: true,
 		},
 		{
 			Model: models.MTOServiceItem{
@@ -495,7 +501,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		},
 		{
 			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+				Status: models.MTOShipmentStatusSubmitted,
 			},
 		},
 	}, nil)
@@ -534,7 +540,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
 
-	suite.Run("loads results with all STATUSes selected", func() {
+	suite.Run("loads results with all statuses selected", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
@@ -556,7 +562,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
 		// test that the moves are sorted by status descending
-		suite.Equal(ghcmessages.MoveStatus("SUBMITTED"), payload.QueueMoves[0].Status)
+		suite.Equal(ghcmessages.MoveStatus("APPROVALS REQUESTED"), payload.QueueMoves[0].Status)
 	})
 
 	suite.Run("loads results with all STATUSes and 1 page selected", func() {
@@ -1095,7 +1101,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(string(paymentRequest.Status), "Payment requested")
 	suite.Equal("KKFA", string(paymentRequest.OriginGBLOC))
 
-	//createdAt := actualPaymentRequest.CreatedAt
 	age := float64(2)
 	deptIndicator := *paymentRequest.DepartmentIndicator
 
@@ -2322,8 +2327,10 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, subtestData.officeUsers[0])
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
 		handlerConfig := suite.HandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
@@ -2942,8 +2949,10 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 
 		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetDestinationRequestsQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
 		handlerConfig := suite.HandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
@@ -3074,8 +3083,10 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 
 		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetDestinationRequestsQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
 		handlerConfig := suite.HandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
