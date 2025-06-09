@@ -278,6 +278,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				map[models.MTOShipmentStatus]bool{
 					models.MTOShipmentStatusSubmitted:             true,
 					models.MTOShipmentStatusApproved:              true,
+					models.MTOShipmentStatusApprovalsRequested:    true,
 					models.MTOShipmentStatusCancellationRequested: true,
 					models.MTOShipmentStatusCanceled:              true,
 					models.MTOShipmentStatusDiversionRequested:    true,
@@ -351,6 +352,10 @@ func (suite *MTOShipmentServiceSuite) TestCheckAddressUpdateAllowed() {
 			},
 			"Approved is not banned": {
 				status:    models.MTOShipmentStatusApproved,
+				canUpdate: true,
+			},
+			"ApprovalsRequested is not banned": {
+				status:    models.MTOShipmentStatusApprovalsRequested,
 				canUpdate: true,
 			},
 			"Rejected is banned": {
