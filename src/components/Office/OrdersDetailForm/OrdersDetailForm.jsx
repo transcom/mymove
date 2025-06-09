@@ -45,7 +45,6 @@ const OrdersDetailForm = ({
   const noStarOrQuote = (value) => (/^[^*"]*$/.test(value) ? undefined : 'SAC cannot contain * or " characters');
   // The text/placeholder are different if the customer is retiring or separating.
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
-
   return (
     <div className={styles.OrdersDetailForm}>
       {requiredAsteriskMessage}

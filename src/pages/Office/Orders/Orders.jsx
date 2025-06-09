@@ -22,14 +22,14 @@ import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
-import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { scrollToViewFormikError } from 'utils/validation';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
-const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
@@ -39,6 +39,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
   const [serverError, setServerError] = useState(null);
+  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { state } = useLocation();
@@ -130,6 +131,21 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
       milmoveLogger.error(errorMsg);
     },
   });
+
+  useEffect(() => {
+    const checkFeatureFlags = async () => {
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+      if (!isBluebarkEnabled && orderTypes.BLUEBARK) {
+        setOrderTypes((prevOptions) => {
+          const options = { ...prevOptions };
+          delete options.BLUEBARK;
+          return options;
+        });
+      }
+    };
+    checkFeatureFlags();
+  });
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypes);
 
   const handleHHGTacValidation = async (value) => {
     if (value && value.length === 4 && value !== tacValidationState[LOA_TYPE.HHG].tac) {

@@ -53,7 +53,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
       }
     };
     checkFeatureFlag();
-  }, [orderTypes]);
+  });
 
   const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(counselingCreateOrder, {
