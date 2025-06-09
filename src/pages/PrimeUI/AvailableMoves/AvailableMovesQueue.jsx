@@ -77,6 +77,7 @@ const PrimeSimulatorAvailableMoves = () => {
 
   return (
     <TableQueue
+      className={styles.tableTabs}
       title="Moves available to Prime"
       columns={columnHeaders()}
       useQueries={usePrimeSimulatorAvailableMovesQueries}

@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import 'styles/office.scss';
 
 import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/ServicesCounselingTabNav';
-import CustomerHeader from 'components/CustomerHeader';
+// import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
@@ -228,13 +228,6 @@ const ServicesCounselingMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader
-        move={move}
-        order={order}
-        customer={customerData}
-        moveCode={moveCode}
-        userRole={roleTypes.SERVICES_COUNSELOR}
-      />
       {renderLockedBanner()}
 
       {hasRecentError && (

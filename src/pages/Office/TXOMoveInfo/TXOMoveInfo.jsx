@@ -3,6 +3,8 @@ import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'reac
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
+import styles from '../../../components/Office/TestingHeader/TestingHeader.module.scss'; // './TestingHeader.module.scss';
+
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
@@ -140,8 +142,10 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
-      {renderLockedBanner()}
+      <div className={styles.customerData}>
+        <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
+        {renderLockedBanner()}
+      </div>
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.

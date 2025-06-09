@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Routes, Link, matchPath, Navigate, useLocation } from 'react-router-dom';
+import { Route, Routes, matchPath, Navigate, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 
@@ -27,11 +27,11 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 // Shared layout components
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
-import CUIHeader from 'components/CUIHeader/CUIHeader';
+// import CUIHeader from 'components/CUIHeader/CUIHeader';
 import BypassBlock from 'components/BypassBlock';
 import SystemError from 'components/SystemError';
 import NotFound from 'components/NotFound/NotFound';
-import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
+// import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
@@ -55,6 +55,7 @@ import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGbloc
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import TestingHeader from 'components/Office/TestingHeader/TestingHeader';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -125,16 +126,16 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const [bulkAssignmentFlag, setBulkAssignmentFlag] = useState(false);
 
   const location = useLocation();
-  const displayChangeRole =
-    props.userIsLoggedIn &&
-    props.userRoles?.length > 1 &&
-    !matchPath(
-      {
-        path: '/select-application',
-        end: true,
-      },
-      location.pathname,
-    );
+  // const displayChangeRole =
+  //   props.userIsLoggedIn &&
+  //   props.userRoles?.length > 1 &&
+  //   !matchPath(
+  //     {
+  //       path: '/select-application',
+  //       end: true,
+  //     },
+  //     location.pathname,
+  //   );
   const isFullscreenPage = matchPath(
     {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -173,16 +174,17 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     return <MaintenancePage />;
   }
 
+  // TODO add check for multi role user before calling testing header
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
       <SelectedGblocProvider>
         <div id="app-root">
           <div className={siteClasses}>
-            <BypassBlock />
-            <CUIHeader />
-            {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
+            <div className={styles.top}>
+              <BypassBlock />
+              {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
+            </div>
+            {props.userIsLoggedIn ? <TestingHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
               {props.hasRecentError && location.pathname === '/' && (

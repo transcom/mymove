@@ -533,7 +533,7 @@ const MoveDetails = ({
         <ConnectedFlashMessage />
       </div>
       <div className={styles.container}>
-        <LeftNav sections={sections}>
+        <LeftNav className={styles.leftNav} sections={sections}>
           <LeftNavTag
             background="#e34b11"
             associatedSectionName="orders"
