@@ -27,6 +27,7 @@ export const CloseoutOfficeInput = (props) => {
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchLocations={searchTransportationOffices}
+      showRequiredAsterisk
     />
   );
 };

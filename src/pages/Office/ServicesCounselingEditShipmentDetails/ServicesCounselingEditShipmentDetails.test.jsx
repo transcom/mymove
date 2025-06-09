@@ -686,7 +686,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
+        expect(screen.getByLabelText('Estimated PPM weight *')).toHaveValue('1,111');
       });
       await userEvent.type(screen.getByLabelText(/Closeout location/), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));
@@ -717,7 +717,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
+        expect(screen.getByLabelText('Estimated PPM weight *')).toHaveValue('1,111');
       });
       await userEvent.type(screen.getByLabelText(/Closeout location/), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));

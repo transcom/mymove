@@ -20,7 +20,6 @@ describe('components/Office/ShipmentFormRemarks', () => {
       </Formik>,
     );
 
-    expect(screen.getByText(/Optional/)).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(screen.getByText('Customer remarks from props')).toBeInTheDocument();
     expect(screen.getByText('Counselor remarks from initial values')).toBeInTheDocument();
