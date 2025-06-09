@@ -294,7 +294,7 @@ describe('Test DocumentViewer File Upload Statuses', () => {
   it('displays Establishing document for viewing  status', async () => {
     renderDocumentViewer({ files: mockFiles });
     await act(async () => {
-      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.CLEAN });
+      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.NO_THREATS_FOUND });
     });
     await waitFor(() => {
       expect(

@@ -94,7 +94,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         case UPLOAD_SCAN_STATUS.PROCESSING:
           setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
           break;
-        case UPLOAD_SCAN_STATUS.CLEAN:
+        case UPLOAD_SCAN_STATUS.NO_THREATS_FOUND:
         case UPLOAD_SCAN_STATUS.LEGACY_CLEAN:
           setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
           break;
@@ -115,7 +115,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
       sse.onmessage = (event) => {
         handleFileProcessing(event.data);
         if (
-          event.data === UPLOAD_SCAN_STATUS.CLEAN ||
+          event.data === UPLOAD_SCAN_STATUS.NO_THREATS_FOUND ||
           event.data === UPLOAD_SCAN_STATUS.INFECTED ||
           event.data === UPLOAD_SCAN_STATUS.LEGACY_CLEAN ||
           event.data === UPLOAD_SCAN_STATUS.THREATS_FOUND ||
