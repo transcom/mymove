@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import updateAllowanceServiceMemberByTOO from 'constants/MoveHistory/EventTemplates/UpdateServiceMember/updateServiceMemberByTOO';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 describe('When a TOO updates shipping allowances', () => {
   const historyRecord = {
@@ -11,7 +12,7 @@ describe('When a TOO updates shipping allowances', () => {
     eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'AIR_FORCE',
-      grade: 'E_2',
+      grade: ORDERS_PAY_GRADE_TYPE.E_2,
     },
   };
   it('correctly matches the update allowance event results in a change in service branch', () => {

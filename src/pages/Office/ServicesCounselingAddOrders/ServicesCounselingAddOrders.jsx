@@ -159,6 +159,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
             onBack={handleBack}
             isSafetyMoveSelected={isSafetyMoveSelected}
             isBluebarkMoveSelected={isBluebarkMoveSelected}
+            affiliation={state?.affiliation}
           />
         </Grid>
       </Grid>

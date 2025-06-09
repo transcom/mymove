@@ -186,7 +186,7 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('CustomerHeader').exists()).toBe(true);
       expect(wrapper.find('header.nav-header').exists()).toBe(true);
       expect(wrapper.find('nav.tabNav').exists()).toBe(true);
-      expect(wrapper.find('li.tabItem').length).toEqual(6);
+      expect(wrapper.find('li.tabItem').length).toEqual(7);
 
       expect(wrapper.find('span.tab-title').at(0).text()).toContain('Move Details');
       expect(wrapper.find('span.tab-title + span').at(0).exists()).toBe(false);
@@ -284,11 +284,9 @@ describe('TXO Move Info Container', () => {
       await expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
     });
 
-    it('should render the Supporting Documents component if the feature flag is enabled', async () => {
+    it('should render the Supporting Documents component', async () => {
       const componentName = 'Supporting Documents';
       const nestedPath = 'supporting-documents';
-
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
       renderTXOMoveInfo(nestedPath);
 
@@ -298,23 +296,6 @@ describe('TXO Move Info Container', () => {
       // Assert that the mock component is rendered
       await waitFor(() => {
         expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
-      });
-    });
-
-    it('should not render the Supporting Documents component if the feature flag is turned off', async () => {
-      const componentName = 'Supporting Documents';
-      const nestedPath = 'supporting-documents';
-
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-
-      renderTXOMoveInfo(nestedPath);
-
-      // Wait for loading to finish
-      await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
-
-      // Assert that the mock component has not been rendered
-      await waitFor(() => {
-        expect(screen.queryByText(`Mock ${componentName} Component`)).not.toBeInTheDocument();
       });
     });
   });
