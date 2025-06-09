@@ -264,17 +264,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 	suite.Run("Fail - Unprocessable due to dest address being updated for approved shipment", func() {
 		// Testcase:   destination address is updated on a shipment, but shipment is approved
-		// Expected:   UnprocessableEntity error is returned
+		// Expected:   Conflict error is returned
 		// Under Test: UpdateMTOShipmentAddress handler
 		handler, availableMove := setupTestData()
 		destAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
-		address := models.Address{
-			ID:             destAddress.ID,
-			StreetAddress1: "7 Q St",
-			City:           "Framington",
-			State:          "MA",
-			PostalCode:     "35004",
-		}
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    availableMove,
@@ -292,7 +285,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			},
 		}, nil)
 		// Try to update destination address for approved shipment
-		payload := payloads.Address(&address)
+		payload := payloads.Address(&destAddress)
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
 			HTTPRequest:   req,
@@ -307,22 +300,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 		// Run handler and check response
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+		resp, ok := response.(*mtoshipmentops.UpdateMTOShipmentAddressConflict)
+		suite.True(ok, "Expected response to be of type UpdateMTOShipmentAddressConflict")
+		suite.Contains(*resp.Payload.Detail, "This shipment has already been approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address")
 	})
 
-	suite.Run("Fail - Unprocessable due to updating pickup address on NTS-Release shipment", func() {
+	suite.Run("Fail - Conflict due to updating pickup address on NTS-Release shipment", func() {
 		// Testcase:   destination address is updated on a shipment, but shipment is approved
-		// Expected:   UnprocessableEntity error is returned
+		// Expected:   Conflict error is returned
 		// Under Test: UpdateMTOShipmentAddress handler
 		handler, availableMove := setupTestData()
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
-		address := models.Address{
-			ID:             pickupAddress.ID,
-			StreetAddress1: "7 Q St",
-			City:           "Framington",
-			State:          "MA",
-			PostalCode:     "35004",
-		}
 		shipment := factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    availableMove,
@@ -340,11 +328,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			},
 		}, nil)
 		// Try to update destination address for approved shipment
-		payload := payloads.Address(&address)
+		payload := payloads.Address(&pickupAddress)
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
 			HTTPRequest:   req,
-			AddressID:     *handlers.FmtUUID(pickupAddress.ID),
+			AddressID:     *handlers.FmtUUID(shipment.PickupAddress.ID),
 			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
 			Body:          payload,
 			IfMatch:       etag.GenerateEtag(shipment.DestinationAddress.UpdatedAt),
@@ -355,7 +343,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 		// Run handler and check response
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+		resp, ok := response.(*mtoshipmentops.UpdateMTOShipmentAddressConflict)
+		suite.True(ok, "Expected response to be of type UpdateMTOShipmentAddressConflict")
+		suite.Contains(*resp.Payload.Detail, "please update the storage facility address instead")
 	})
 
 	suite.Run("Failure - Unprocessable when updating address with invalid data", func() {
