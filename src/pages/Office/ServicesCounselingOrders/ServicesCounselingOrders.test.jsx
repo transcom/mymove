@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
@@ -10,6 +10,7 @@ import { MOVE_DOCUMENT_TYPE, MOVE_STATUSES } from 'shared/constants';
 import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockOriginDutyLocation = {
   address: {
@@ -89,6 +90,11 @@ const disabledMoveStatuses = [
 
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 jest.mock('services/ghcApi', () => ({
@@ -274,6 +280,9 @@ describe('Orders page', () => {
 
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
       expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
+
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
     });
 
     it('populates initial field values', async () => {
@@ -1016,6 +1025,45 @@ describe('Orders page', () => {
             }),
           }),
         );
+      });
+    });
+  });
+
+  describe('Order type: BLUEBARK', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('BLUEBARK FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
+    });
+
+    it('BLUEBARK FF turned off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+        expect(hasBluebark).toBe(false);
       });
     });
   });

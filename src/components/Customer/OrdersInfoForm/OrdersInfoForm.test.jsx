@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, within } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -848,40 +848,4 @@ describe('OrdersInfoForm component', () => {
   });
 
   afterEach(jest.restoreAllMocks);
-});
-
-describe('OrdersInfoForm -  BLUEBARK_MOVE FF', () => {
-  it('Does not render BLUEBARK in order types dropdown', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(false);
-
-    render(
-      <Provider store={mockStore.store}>
-        <OrdersInfoForm {...testProps} />
-      </Provider>,
-    );
-
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      const options = within(ordersTypeDropdown).queryAllByRole('option');
-      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
-
-      expect(hasBluebark).toBe(false);
-    });
-  });
-
-  it('Does render BLUEBARK in order types dropdown', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
-    render(
-      <Provider store={mockStore.store}>
-        <OrdersInfoForm {...testProps} />
-      </Provider>,
-    );
-
-    await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
-      userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
-      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
-    });
-  });
 });
