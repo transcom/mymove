@@ -20,7 +20,7 @@ WITH updates (id, grade, grade_description, updated_at, "sort_order") AS (
         ('5a65fb1f-4245-4178-b6a7-cc504c9cbb37', 'W-3', 'W-3', NOW(), 12),
         ('74db5649-cf66-4af8-939b-d3d7f1f6b7c6', 'W-4', 'W-4', NOW(), 13),
         ('ea8cb0e9-15ff-43b4-9e41-7168d01e7553', 'W-5', 'W-5', NOW(), 14),
-        --Officer pay Gradesnow(),
+        --Officer pay Grades,
         ('b25998f4-4715-4f41-8986-4c5c8e59fc80', 'O-1', 'O-1', NOW(), 15),
         ('d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790', 'O-2', 'O-2', NOW(), 16),
         ('5658d67b-d510-4226-9e56-714403ba0f10', 'O-3', 'O-3', NOW(), 17),

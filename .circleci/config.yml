@@ -881,7 +881,6 @@ commands:
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
-            export FEATURE_FLAG_MULTI_MOVE=true
             export FEATURE_FLAG_PPM=true
             export FEATURE_FLAG_PPM_SPR=false
             export FEATURE_FLAG_NTS=true
@@ -892,7 +891,6 @@ commands:
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
             export FEATURE_FLAG_MOVE_LOCK=false
             export FEATURE_FLAG_OKTA_DODID_INPUT=false
-            export FEATURE_FLAG_HEADQUARTERS_ROLE=true
             export FEATURE_FLAG_GSR_ROLE=false
             export FEATURE_FLAG_SAFETY_MOVE=false
             export FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE=false
@@ -926,7 +924,6 @@ commands:
             PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
             PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
             # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
-            FEATURE_FLAG_MULTI_MOVE: 'true'
             FEATURE_FLAG_PPM: 'true'
             FEATURE_FLAG_NTS: 'true'
             FEATURE_FLAG_NTSR: 'true'
@@ -936,7 +933,6 @@ commands:
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
             FEATURE_FLAG_MOVE_LOCK: 'false'
             FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
-            FEATURE_FLAG_HEADQUARTERS_ROLE: 'true'
             FEATURE_FLAG_GSR_ROLE: 'false'
             FEATURE_FLAG_SAFETY_MOVE: 'false'
             FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE: 'false'
