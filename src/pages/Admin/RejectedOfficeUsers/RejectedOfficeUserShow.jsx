@@ -111,6 +111,13 @@ const RejectedOfficeUserShow = () => {
               handleClick();
             },
           }}
+          sx={{
+            backgroundColor: '#e1400a !important',
+            width: 120,
+            '&:hover': {
+              opacity: '0.8',
+            },
+          }}
         />
       </Toolbar>
     </Show>
