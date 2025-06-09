@@ -509,11 +509,18 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Confirm sitExtension exists for the shipment
 		var sitExtensions []models.SITDurationUpdate
+
 		suite.DB().Q().All(&sitExtensions)
 		suite.Equal(1, len(sitExtensions))
 		suite.Equal(models.SITExtensionStatusPending, sitExtensions[0].Status)
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, shipment.MoveTaskOrder.Status)
+
+		// Confirm move status is APPROVALS REQUESTED before sit extension removal
+		var moves []models.Move
+		suite.DB().Q().All(&moves)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moves[0].Status)
 
 		// Update MTO service item
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipmentWithCalculatedStatus, eTag)
@@ -523,12 +530,17 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Confirm sitExtension status was updated for the shipment
 		suite.DB().Q().All(&sitExtensions)
+		suite.DB().Q().All(&moves)
 		suite.Equal(1, len(sitExtensions))
 		suite.Equal(models.SITExtensionStatusRemoved, sitExtensions[0].Status)
 		// Confirm decision date is set to today
 		suite.Equal(time.Now().Truncate(time.Hour*24), sitExtensions[0].DecisionDate.Truncate(time.Hour*24).Local())
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
-		suite.Equal(models.MoveStatusAPPROVED, shipment.MoveTaskOrder.Status)
+
+		// Confirm move status is APPROVED after remove sit extension reomval
+		suite.DB().Q().All(&moves)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.MoveStatusAPPROVED, moves[0].Status)
 
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date
