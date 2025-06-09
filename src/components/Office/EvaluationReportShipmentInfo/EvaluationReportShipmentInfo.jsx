@@ -8,7 +8,7 @@ import evaluationReportStyles from './EvaluationReportShipmentInfo.module.scss';
 import styles from 'components/Office/EvaluationReportPreview/EvaluationReportPreview.module.scss';
 import 'styles/office.scss';
 import DataTable from 'components/DataTable';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 import { shipmentTypeLabels } from 'content/shipments';
 import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
 
@@ -33,7 +33,7 @@ const EvaluationReportShipmentInfo = ({
       <br />
       {customerInfo.phone}
       <br />
-      {ORDERS_PAY_GRADE_OPTIONS[grade]}
+      {grade}
       <br />
       {ORDERS_BRANCH_OPTIONS[customerInfo.agency] ? ORDERS_BRANCH_OPTIONS[customerInfo.agency] : customerInfo.agency}
     </>
