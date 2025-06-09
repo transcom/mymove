@@ -509,7 +509,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Confirm sitExtension exists for the shipment
 		var sitExtensions []models.SITDurationUpdate
-
 		suite.DB().Q().All(&sitExtensions)
 		suite.Equal(1, len(sitExtensions))
 		suite.Equal(models.SITExtensionStatusPending, sitExtensions[0].Status)
