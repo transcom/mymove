@@ -15,7 +15,7 @@ describe('components/Office/StorageFacilityInfo', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
-    expect(screen.getAllByText(/Optional/)).toHaveLength(3);
+    expect(screen.getByLabelText(/Service order number/)).not.toBeRequired();
   });
 
   it('populates Formik initialValues', async () => {
@@ -30,7 +30,7 @@ describe('components/Office/StorageFacilityInfo', () => {
       </Formik>,
     );
 
-    expect(screen.getByLabelText('Facility name')).toHaveValue('Most Excellent Storage');
+    expect(screen.getByLabelText('Facility name *')).toHaveValue('Most Excellent Storage');
     expect(screen.getByLabelText(/Service order number/)).toHaveValue('12341234');
     expect(await screen.findByLabelText(/Phone/)).toHaveValue('555-456-4567');
   });
@@ -42,6 +42,6 @@ describe('components/Office/StorageFacilityInfo', () => {
       </Formik>,
     );
 
-    expect(screen.getAllByText(/Optional/)).toHaveLength(2);
+    expect(screen.getByLabelText(/Service order number/)).toBeRequired();
   });
 });
