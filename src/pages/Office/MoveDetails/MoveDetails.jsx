@@ -279,6 +279,7 @@ const MoveDetails = ({
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
       shipment.status === shipmentStatuses.APPROVED ||
+      shipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
       shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELED ||
@@ -300,7 +301,8 @@ const MoveDetails = ({
     const nonDeletedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
     const nonPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const nonPpmApprovedShipments = nonPpmShipments.filter(
-      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+      (shipment) =>
+        shipment?.status === shipmentStatuses.APPROVED || shipment?.status === shipmentStatuses.APPROVALS_REQUESTED,
     );
     const onlyPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
