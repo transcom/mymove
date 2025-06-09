@@ -25,9 +25,9 @@ const (
 	// AVStatusINFECTED string INFECTED
 	AVStatusINFECTED AVStatusType = "THREATS_FOUND"
 	//ClamAVStatusCLEAN string CLAMAV_CLEAN
-	ClamAVStatusCLEAN AVStatusType = "CLAMAV_CLEAN"
+	ClamAVStatusCLEAN AVStatusType = "CLEAN"
 	// ClamAVStatusINFECTED string CLAMAV_INFECTED
-	ClamAVStatusINFECTED AVStatusType = "CLAMAV_INFECTED"
+	ClamAVStatusINFECTED AVStatusType = "INFECTED"
 )
 
 func GetAVStatusFromTags(tags map[string]string) AVStatusType {
