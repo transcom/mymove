@@ -84,6 +84,7 @@ const MoveList = () => {
           showTime
           cellClassName={classes.tableCell}
           headerClassName={classes.tableCell}
+          label="Available to Prime at"
         />
       </Datagrid>
     </List>
