@@ -76,8 +76,8 @@ func checkAvailToPrime() validator {
 
 func checkReweighAllowed() validator {
 	return validatorFunc(func(_ appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
-		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusDiversionRequested {
-			return apperror.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", newer.Status))
+		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusApprovalsRequested && newer.Status != models.MTOShipmentStatusDiversionRequested {
+			return apperror.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved, Approvals Requested, or Diversion Requested. The shipment's current status is %s", newer.Status))
 		}
 		if newer.Reweigh.RequestedBy != "" {
 			return apperror.NewConflictError(newer.ID, "Cannot request a reweigh on a shipment that already has one.")
@@ -126,6 +126,10 @@ func checkUpdateAllowed() validator {
 				if isTOO {
 					return nil
 				}
+			case models.MTOShipmentStatusApprovalsRequested:
+				if isTOO {
+					return nil
+				}
 			default:
 				return err
 			}
@@ -149,8 +153,8 @@ func checkDeleteAllowed() validator {
 		}
 
 		if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-			if older.Status == models.MTOShipmentStatusApproved {
-				return apperror.NewForbiddenError("TOO: APPROVED shipments cannot be deleted")
+			if older.Status == models.MTOShipmentStatusApproved || older.Status == models.MTOShipmentStatusApprovalsRequested {
+				return apperror.NewForbiddenError("TOO: A shipment cannot be deleted if it's in Approved or Approvals Requested status")
 			}
 		}
 
@@ -538,11 +542,11 @@ func checkShipmentTypeAllowsUpdate(address models.Address, shipment models.MTOSh
 
 func checkShipmentStatusAllowsUpdate(address models.Address, shipment models.MTOShipment) error {
 	switch shipment.Status {
-	case models.MTOShipmentStatusApproved:
+	case models.MTOShipmentStatusApproved, models.MTOShipmentStatusApprovalsRequested:
 		if shipment.DestinationAddressID != nil && *shipment.DestinationAddressID == address.ID {
 			// The updateShipmentDestinationAddress handler bypasses these rules by use of the ShipmentAddressUpdateRequester service.
 			// ReviewShipmentAddressChange utilizes special logic for updating SIT service items, etc. as well
-			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("This shipment is approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address of an approved shipment for shipment id %s", shipment.ID))
+			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("This shipment has already been approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address of an approved shipment for shipment id %s", shipment.ID))
 		}
 	}
 	return nil
