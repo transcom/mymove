@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import ordersFormValidationSchema from './ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
+import formStyles from 'styles/form.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { getTacValid, getLoa, updateOrder, getResponseError, getPayGradeOptions } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -473,12 +474,12 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
                 {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
                 <Restricted to={permissionTypes.updateOrders}>
                   <div className={styles.bottom}>
-                    <div className={styles.buttonGroup}>
-                      <Button disabled={formik.isSubmitting} type="submit" onClick={scrollToViewFormikError(formik)}>
-                        Save
-                      </Button>
+                    <div className={formStyles.formActions}>
                       <Button type="button" secondary onClick={handleClose}>
                         Cancel
+                      </Button>
+                      <Button disabled={formik.isSubmitting} type="submit" onClick={scrollToViewFormikError(formik)}>
+                        Save
                       </Button>
                     </div>
                   </div>
