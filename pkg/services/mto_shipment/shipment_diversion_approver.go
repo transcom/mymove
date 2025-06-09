@@ -41,13 +41,6 @@ func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.A
 			return err
 		}
 
-		move := shipment.MoveTaskOrder
-		if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
-			if _, err = f.moveRouter.ApproveOrRequestApproval(appCtx, move); err != nil {
-				return err
-			}
-		}
-
 		return nil
 	})
 
@@ -63,6 +56,25 @@ func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.A
 	}
 	if err != nil {
 		return nil, err
+	}
+
+	transactionError = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		move := &models.Move{}
+		err := txnAppCtx.DB().Find(move, shipment.MoveTaskOrderID)
+		if err != nil {
+			return apperror.NewQueryError("Move", err, "")
+		}
+
+		if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
+			if _, err := f.moveRouter.ApproveOrRequestApproval(txnAppCtx, *move); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
 	return shipment, err
