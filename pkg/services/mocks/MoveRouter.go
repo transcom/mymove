@@ -152,6 +152,36 @@ func (_m *MoveRouter) Submit(appCtx appcontext.AppContext, move *models.Move, ne
 	return r0
 }
 
+// UpdateShipmentStatusToApprovalsRequested provides a mock function with given fields: appCtx, shipment
+func (_m *MoveRouter) UpdateShipmentStatusToApprovalsRequested(appCtx appcontext.AppContext, shipment models.MTOShipment) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateShipmentStatusToApprovalsRequested")
+	}
+
+	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipment)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOShipment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOShipment) error); ok {
+		r1 = rf(appCtx, shipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewMoveRouter creates a new instance of MoveRouter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMoveRouter(t interface {

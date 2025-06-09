@@ -90,6 +90,20 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 			return err
 		}
 
+		if models.IsShipmentApprovable(shipment) {
+			shipment.Status = models.MTOShipmentStatusApproved
+			approvedDate := time.Now()
+			shipment.ApprovedDate = &approvedDate
+			verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(
+					shipment.ID, err, verrs, "Invalid input found while updating shipment")
+			}
+			if err != nil {
+				return err
+			}
+		}
+
 		if _, err := f.moveRouter.ApproveOrRequestApproval(txnAppCtx, shipment.MoveTaskOrder); err != nil {
 			return err
 		}
