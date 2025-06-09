@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -8,6 +9,7 @@ import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
 import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
+import { checkForLockedMovesAndUnlock } from 'services/ghcApi';
 
 jest.mock('store/auth/actions', () => ({
   ...jest.requireActual('store/auth/actions'),
@@ -17,6 +19,19 @@ jest.mock('store/auth/actions', () => ({
 jest.mock('utils/api', () => ({
   LogoutUser: jest.fn(() => ({ then: () => {} })),
 }));
+
+jest.mock('services/ghcApi', () => ({
+  checkForLockedMovesAndUnlock: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn(),
+}));
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 const localStorageMock = (() => {
   let store = {};
@@ -210,5 +225,40 @@ describe('OfficeLoggedInHeader', () => {
     expect(gblocSwitcher).toBeInstanceOf(HTMLDivElement);
     expect(gblocSwitcher.firstChild).toBeInstanceOf(HTMLSelectElement);
     expect(gblocSwitcher.firstChild.firstChild).toBeInstanceOf(HTMLOptionElement);
+  });
+
+  it('unlocks all moves when the milmove logo is clicked', async () => {
+    const testState = {
+      auth: {
+        activeRole: roleTypes.QAE,
+        isLoading: false,
+        isLoggedIn: true,
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: [{ roleType: roleTypes.QAE }],
+            office_user: {
+              first_name: 'Amanda',
+              last_name: 'Gorman',
+              transportation_office: {
+                gbloc: 'KKFA',
+              },
+            },
+          },
+        },
+      },
+    };
+
+    useLocation.mockReturnValue({ pathname: '/' });
+
+    render(
+      <MockProviders initialState={testState}>
+        <ConnectedOfficeLoggedInHeader />
+      </MockProviders>,
+    );
+
+    expect(checkForLockedMovesAndUnlock).toHaveBeenCalledTimes(1);
   });
 });
