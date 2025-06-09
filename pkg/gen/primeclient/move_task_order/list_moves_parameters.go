@@ -84,6 +84,14 @@ type ListMovesParams struct {
 	*/
 	AcknowledgedBefore *strfmt.DateTime
 
+	/* Before.
+
+	   Only return moves updated before this time. Formatted like "2021-07-23T18:30:47.116Z"
+
+	   Format: date-time
+	*/
+	Before *strfmt.DateTime
+
 	/* Since.
 
 	   Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
@@ -178,6 +186,17 @@ func (o *ListMovesParams) SetAcknowledgedBefore(acknowledgedBefore *strfmt.DateT
 	o.AcknowledgedBefore = acknowledgedBefore
 }
 
+// WithBefore adds the before to the list moves params
+func (o *ListMovesParams) WithBefore(before *strfmt.DateTime) *ListMovesParams {
+	o.SetBefore(before)
+	return o
+}
+
+// SetBefore adds the before to the list moves params
+func (o *ListMovesParams) SetBefore(before *strfmt.DateTime) {
+	o.Before = before
+}
+
 // WithSince adds the since to the list moves params
 func (o *ListMovesParams) WithSince(since *strfmt.DateTime) *ListMovesParams {
 	o.SetSince(since)
@@ -243,6 +262,23 @@ func (o *ListMovesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		if qAcknowledgedBefore != "" {
 
 			if err := r.SetQueryParam("acknowledgedBefore", qAcknowledgedBefore); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.Before != nil {
+
+		// query param before
+		var qrBefore strfmt.DateTime
+
+		if o.Before != nil {
+			qrBefore = *o.Before
+		}
+		qBefore := qrBefore.String()
+		if qBefore != "" {
+
+			if err := r.SetQueryParam("before", qBefore); err != nil {
 				return err
 			}
 		}
