@@ -38,9 +38,6 @@ const (
 	// PPMAdvanceStatusREJECTED captures enum value "REJECTED"
 	PPMAdvanceStatusREJECTED PPMAdvanceStatus = "REJECTED"
 
-	// PPMAdvanceStatusEDITED captures enum value "EDITED"
-	PPMAdvanceStatusEDITED PPMAdvanceStatus = "EDITED"
-
 	// PPMAdvanceStatusRECEIVED captures enum value "RECEIVED"
 	PPMAdvanceStatusRECEIVED PPMAdvanceStatus = "RECEIVED"
 
@@ -53,7 +50,7 @@ var pPMAdvanceStatusEnum []interface{}
 
 func init() {
 	var res []PPMAdvanceStatus
-	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","EDITED","RECEIVED","NOT_RECEIVED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","RECEIVED","NOT_RECEIVED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
