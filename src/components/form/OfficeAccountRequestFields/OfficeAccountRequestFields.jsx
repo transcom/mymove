@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { func } from 'prop-types';
 import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
-import { useFormikContext, FieldArray } from 'formik';
+import { useFormikContext } from 'formik';
+// import { useFormikContext } from 'formik';
 
 import RequiredAsterisk from '../RequiredAsterisk';
 import OptionalTag from '../OptionalTag';
@@ -326,29 +327,14 @@ export const OfficeAccountRequestFields = ({ render }) => {
                 Privilege(s)
                 <OptionalTag />
               </Label>
-              {/* <CheckboxField
-                id="supervisorCheckbox"
-                data-testid="supervisorCheckbox"
-                name="supervisorCheckbox"
-                label="Supervisor"
-                aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-                aria-invalid={!!errors.requestedRolesGroup}
-              /> */}
-              <FieldArray name="privileges">
-                {() => {
-                  <>
-                    {filteredPrivileges.map(({ privilegeType, privilegeName }) => (
-                      <CheckboxField
-                        key={privilegeType}
-                        id={`privileges-${privilegeType}`}
-                        data-testid={`privilege-${privilegeType}`}
-                        name={`privileges.${privilegeType}`}
-                        label={privilegeName}
-                      />
-                    ))}
-                  </>;
-                }}
-              </FieldArray>
+              {filteredPrivileges.map(({ privilegeType, privilegeName }) => (
+                <CheckboxField
+                  id={`${privilegeType}PrivilegeCheckbox`}
+                  data-testid={`${privilegeType}PrivilegeCheckbox`}
+                  name={`${privilegeType}PrivilegeCheckbox`}
+                  label={privilegeName}
+                />
+              ))}
             </>
           )}
         </>,
