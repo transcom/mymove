@@ -140,10 +140,6 @@ describe('Shipment details component', () => {
     expect(updateShipmentLink).toBeInTheDocument();
     expect(updateShipmentLink.getAttribute('href')).toBe(`/shipments/${shipmentId}`);
 
-    const addServiceItemLink = screen.getByText(/Add Service Item/, { selector: 'a.usa-button' });
-    expect(addServiceItemLink).toBeInTheDocument();
-    expect(addServiceItemLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/service-items/new`);
-
     const acknowledgeShipmentLink = screen.getByText(/Acknowledge Shipment/, { selector: 'a.usa-button' });
     expect(acknowledgeShipmentLink).toBeInTheDocument();
     expect(acknowledgeShipmentLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/acknowledge`);

@@ -125,7 +125,6 @@
 
   > :global(.usa-form-group:first-child .usa-label),
   > :global(.usa-form-group:first-child .usa-label .usa-label--error),
-  // > :global(.usa-form-group--error :first-child),
   > :global(.usa-form-group.warning :first-child),
   > :global(.usa-form-group.warning:first-of-type .usa-label),
   > :global(.usa-form-group.usa-form-group--error:first-of-type .usa-label) {
@@ -171,6 +170,8 @@ p + .radioGroup {
 }
 
 .formActions {
+  display: flex;
+  justify-content: flex-end;
   @include u-margin-top(3);
   @include u-margin-bottom(6);
 }
@@ -192,4 +193,8 @@ p + .radioGroup {
 .buttonGroup {
   display: flex;
   gap: 10px;
+}
+
+.sectionHeader {
+  margin-bottom: 0;
 }
