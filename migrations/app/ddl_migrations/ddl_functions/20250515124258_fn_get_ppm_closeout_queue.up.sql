@@ -182,15 +182,14 @@ BEGIN
               (
                 $1 IS NULL
                 -- Default query, match the office user GBLOC to the move closeout GBLOC
-                -- unless the user GBLOC is of NAVY, USMC, TVCB, or USCG. These
-                -- use special filters
-                OR (closeout_gbloc = $1 AND $1 NOT IN (''NAVY'', ''USMC'', ''TVCB'',''USCG''))
+                -- unless the user GBLOC is of NAVY, TVCB (Marines), or USCG. These
+                -- will use special filters
+                OR (closeout_gbloc = $1 AND $1 NOT IN (''NAVY'', ''TVCB'',''USCG''))
                 -- Special closeout GBLOC handling
-                -- Marines will be found under TVCB, so we want to filter them out
-                OR ($1 = ''NAVY'' AND branch_out = ''NAVY'')        -- Navy SC -> Navy moves
-                OR ($1 = ''TVCB'' AND branch_out != ''MARINES'')    -- TVCB SC -> everyone except Marines because marines use this GBLOC too, so let TVCB see everyone else
-                OR ($1 = ''USMC'' AND branch_out = ''MARINES'')     -- Marine SC -> all Marines (Even the TVCB GBLOC marines as long as the branch filter matches!)
-                OR ($1 = ''USCG'' AND branch_out = ''COAST_GUARD'') -- Coast Guard SC -> Coast Guard moves
+                OR ($1 = ''NAVY'' AND branch_out = ''NAVY'')        -- Navy -> Navy moves
+                OR ($1 = ''TVCB'' AND branch_out = ''MARINES'')     -- TVCB -> Marine moves (USMC GBLOC is used for HHG moves. USMC uses TVCB closeout GBLOC explicitly for PPMs)
+                OR ($1 = ''USCG'' AND branch_out = ''COAST_GUARD'') -- Coast Guard -> Coast Guard moves
+                -- Again, USMC GBLOC does not go here! USMC is for HHG Marine moves, TVCB for PPM Marine moves
               )
               AND ($2  IS NULL OR customer_name_out ILIKE ''%%'' || $2 || ''%%'')
               AND ($3  IS NULL OR edipi_out   = $3)

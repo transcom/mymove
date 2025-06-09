@@ -982,7 +982,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		suite.FatalNoError(err)
 	})
 
-	suite.Run("Special filtering (NAVY, MARINES (TVCB), USMC, USCG)", func() {
+	suite.Run("Special filtering (NAVY, MARINES (TVCB), USCG)", func() {
 		testCases := []struct {
 			name                string
 			userGBLOC           string
@@ -998,17 +998,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 				closeoutGBLOC:       "NAVY",
 			},
 			{
-				name:                "USMC counselor sees only MARINE moves",
-				userGBLOC:           "USMC",
-				affiliationShow:     models.AffiliationMARINES,
-				affiliationDontShow: models.AffiliationNAVY,
-				closeoutGBLOC:       "TVCB", // Marines close-out under TVCB is possible
-			},
-			{
-				name:                "TVCB counselor sees everyone except MARINES",
+				name:                "TVCB counselor sees only moves for MARINES",
 				userGBLOC:           "TVCB",
-				affiliationShow:     models.AffiliationNAVY,
-				affiliationDontShow: models.AffiliationMARINES,
+				affiliationShow:     models.AffiliationMARINES,
+				affiliationDontShow: models.AffiliationARMY,
 				closeoutGBLOC:       "TVCB",
 			},
 			{
