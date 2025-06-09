@@ -53,7 +53,7 @@ const AddOrders = ({
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
-      if (!isWoundedWarriorEnabled && orderTypesOptions.WOUNDED_WARRIOR) {
+      if (!isWoundedWarriorEnabled) {
         setOrderTypesOptions((prevOptions) => {
           const options = { ...prevOptions };
           delete options.WOUNDED_WARRIOR;
@@ -62,7 +62,7 @@ const AddOrders = ({
       }
     };
     checkFeatureFlags();
-  }, [orderTypesOptions]);
+  }, []);
 
   const handleBack = () => {
     navigate(generalRoutes.HOME_PATH);
