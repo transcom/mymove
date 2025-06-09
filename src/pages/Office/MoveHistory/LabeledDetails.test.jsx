@@ -47,6 +47,7 @@ describe('LabeledDetails', () => {
       sit_estimated_cost: '120000',
       estimated_incentive: '850',
       shipment_weight: '100',
+      required_delivery_date: '2025-05-27',
     };
 
     const testCases = Object.entries(changedValues).map(([fieldName, value]) => {
