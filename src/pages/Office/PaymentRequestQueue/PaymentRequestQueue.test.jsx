@@ -9,7 +9,6 @@ import PaymentRequestQueue from './PaymentRequestQueue';
 
 import { MockProviders } from 'testUtils';
 import { generalRoutes, tioRoutes } from 'constants/routes';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -461,9 +460,8 @@ describe('PaymentRequestQueue', () => {
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
   });
-  it('renders a lock icon when move lock flag is on', async () => {
+  it('renders a lock icon', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
-    isBooleanFlagEnabled.mockResolvedValue(true);
 
     render(
       <MockProviders>
@@ -473,20 +471,6 @@ describe('PaymentRequestQueue', () => {
     await waitFor(() => {
       const lockIcon = screen.queryAllByTestId('lock-icon')[0];
       expect(lockIcon).toBeInTheDocument();
-    });
-  });
-  it('does NOT render a lock icon when move lock flag is off', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
-    isBooleanFlagEnabled.mockResolvedValue(false);
-
-    render(
-      <MockProviders>
-        <PaymentRequestQueue />
-      </MockProviders>,
-    );
-    await waitFor(() => {
-      const lockIcon = screen.queryByTestId('lock-icon');
-      expect(lockIcon).not.toBeInTheDocument();
     });
   });
   it('renders assignedTo columns when the queue management flag is on', async () => {
