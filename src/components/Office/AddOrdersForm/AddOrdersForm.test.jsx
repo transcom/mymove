@@ -211,6 +211,9 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
 
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
+
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
 

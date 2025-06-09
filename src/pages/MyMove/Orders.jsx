@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import { patchOrders, getResponseError, getOrders } from 'services/internalApi';
@@ -15,12 +16,12 @@ import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { selectServiceMemberFromLoggedInUser, selectOrdersForLoggedInUser } from 'store/entities/selectors';
 import { generalRoutes } from 'constants/routes';
 import withRouter from 'utils/routing';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
-const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
+const Orders = ({ serviceMemberId, updateOrders, orders }) => {
   const [serverError, setServerError] = useState(null);
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
+
   const navigate = useNavigate();
   const { orderId } = useParams();
   const currentOrders = orders.find((order) => order.id === orderId);
@@ -74,25 +75,24 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
 
   useEffect(() => {
     const checkFeatureFlags = async () => {
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
       const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
-      if (!isBluebarkEnabled && orderTypes.BLUEBARK) {
-        setOrderTypes((prevOptions) => {
-          const options = { ...prevOptions };
+
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+        if (!isBluebarkEnabled) {
           delete options.BLUEBARK;
-          return options;
-        });
-      }
+        }
+        return options;
+      });
     };
+
     checkFeatureFlags();
-  });
-
-  // Only allow PCS unless feature flag is on
-  const showAllOrdersTypes = context.flags?.allOrdersTypes;
-  const allowedOrdersTypes = showAllOrdersTypes
-    ? orderTypes
-    : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
-
-  const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
+  }, []);
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   return (
     <GridContainer data-testid="main-container">
@@ -111,7 +111,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
       <Grid row data-testid="orders-form-container">
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <OrdersInfoForm
-            ordersTypeOptions={ordersTypeOptions}
+            ordersTypeOptions={ordersTypeDropdownOptions}
             initialValues={initialValues}
             onSubmit={submitOrders}
             onBack={handleBack}
@@ -123,11 +123,6 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
 };
 
 Orders.propTypes = {
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      allOrdersTypes: PropTypes.bool,
-    }).isRequired,
-  }).isRequired,
   serviceMemberId: PropTypes.string.isRequired,
   updateOrders: PropTypes.func.isRequired,
 };

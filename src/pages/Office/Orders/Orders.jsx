@@ -38,8 +38,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
   const [serverError, setServerError] = useState(null);
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { state } = useLocation();
@@ -131,21 +131,6 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
       milmoveLogger.error(errorMsg);
     },
   });
-
-  useEffect(() => {
-    const checkFeatureFlags = async () => {
-      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
-      if (!isBluebarkEnabled && orderTypes.BLUEBARK) {
-        setOrderTypes((prevOptions) => {
-          const options = { ...prevOptions };
-          delete options.BLUEBARK;
-          return options;
-        });
-      }
-    };
-    checkFeatureFlags();
-  });
-  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypes);
 
   const handleHHGTacValidation = async (value) => {
     if (value && value.length === 4 && value !== tacValidationState[LOA_TYPE.HHG].tac) {
@@ -285,6 +270,28 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
     isError,
     validateLoa,
   ]);
+
+  useEffect(() => {
+    const checkFeatureFlags = async () => {
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
+        }
+        return options;
+      });
+    };
+
+    checkFeatureFlags();
+  }, []);
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

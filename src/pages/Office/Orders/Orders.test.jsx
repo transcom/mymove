@@ -5,12 +5,12 @@ import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockOriginDutyLocation = {
   address: {
@@ -189,6 +189,7 @@ describe('Orders page', () => {
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       useOrdersDocumentQueries.mockReturnValueOnce(errorReturnValue);
 
       render(
@@ -197,7 +198,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      const errorMessage = await screen.getByText(/Something went wrong./);
+      const errorMessage = screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -500,6 +501,30 @@ describe('Orders page', () => {
       await waitFor(() => {
         expect(screen.queryByText(/Manage Orders/)).not.toBeInTheDocument();
         expect(screen.queryByText(/Manage Amended Orders/)).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('wounded warrior FF', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('wounded warrior FF turned off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+        expect(hasWoundedWarrior).toBe(false);
       });
     });
   });

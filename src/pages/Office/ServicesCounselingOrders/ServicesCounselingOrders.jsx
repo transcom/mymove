@@ -44,7 +44,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  const [orderTypeOptions, setOrderTypeOptions] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
   const [serverError, setServerError] = useState(null);
 
   const orderId = move?.ordersId;
@@ -266,23 +266,30 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   ]);
 
   useEffect(() => {
-    const checkFeatureFlag = async () => {
+    const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
       const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
 
-      const updatedOptions = orderTypeOptions;
-      if (!isAlaskaEnabled) {
-        delete orderTypeOptions.EARLY_RETURN_OF_DEPENDENTS;
-        delete orderTypeOptions.STUDENT_TRAVEL;
-      }
-      if (!isBluebarkEnabled) {
-        delete orderTypeOptions.BLUEBARK;
-      }
-      setOrderTypeOptions(updatedOptions);
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+
+        if (!isAlaskaEnabled) {
+          delete options.EARLY_RETURN_OF_DEPENDENTS;
+          delete options.STUDENT_TRAVEL;
+        }
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
+        }
+        return options;
+      });
     };
-    checkFeatureFlag();
-  }, [orderTypeOptions]);
-  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypeOptions);
+
+    checkFeatureFlags();
+  }, []);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -333,6 +340,8 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const ntsLoaMissingWarningMsg =
     'Unable to find a LOA based on the provided details. Please ensure a department indicator and TAC are present on this form.';
   const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
+
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   return (
     <div className={styles.sidebar}>

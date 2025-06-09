@@ -35,7 +35,7 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
   const navigate = useNavigate();
   const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState('');
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
   const { entitlement: allowances } = currentOrder;
@@ -54,23 +54,31 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
   }
 
   useEffect(() => {
-    const checkFeatureFlag = async () => {
+    const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
       const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
 
-      const updatedOptions = orderTypes;
-      if (!isAlaskaEnabled) {
-        delete orderTypes.EARLY_RETURN_OF_DEPENDENTS;
-        delete orderTypes.STUDENT_TRAVEL;
-      }
-      if (!isBluebarkEnabled) {
-        delete orderTypes.BLUEBARK;
-      }
-      setOrderTypes(updatedOptions);
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+
+        if (!isAlaskaEnabled) {
+          delete options.EARLY_RETURN_OF_DEPENDENTS;
+          delete options.STUDENT_TRAVEL;
+        }
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
+        }
+
+        return options;
+      });
     };
-    checkFeatureFlag();
-  }, [orderTypes]);
-  const ordersTypeOptions = dropdownInputOptions(orderTypes);
+
+    checkFeatureFlags();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,6 +110,8 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
       allowances.dependents_twelve_and_over !== undefined ? `${allowances.dependents_twelve_and_over}` : '',
     civilian_tdy_ub_allowance: allowances.ub_allowance !== undefined ? `${allowances.ub_allowance}` : '',
   };
+
+  const ordersTypeOptions = dropdownInputOptions(orderTypesOptions);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;
@@ -274,11 +284,6 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
 EditOrders.propTypes = {
   setFlashMessage: PropTypes.func.isRequired,
   updateOrders: PropTypes.func.isRequired,
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      allOrdersTypes: PropTypes.bool,
-    }).isRequired,
-  }).isRequired,
 };
 
 function mapStateToProps(state) {

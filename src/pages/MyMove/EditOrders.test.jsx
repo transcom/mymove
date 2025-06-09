@@ -64,253 +64,252 @@ jest.mock('store/general/actions', () => ({
   })),
 }));
 
-const testProps = {
-  serviceMember: {
-    id: 'id123',
-    current_location: {
-      address: {
-        city: 'Fort Bragg',
-        country: 'United States',
-        id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
-        postalCode: '29310',
-        state: 'NC',
-        streetAddress1: '',
-      },
-      address_id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
-      affiliation: 'ARMY',
-      created_at: '2020-10-19T17:01:16.114Z',
-      id: 'dca78766-e76b-4c6d-ba82-81b50ca824b9"',
-      name: 'Fort Bragg',
-      updated_at: '2020-10-19T17:01:16.114Z',
-    },
-  },
-  serviceMemberId: 'id123',
-  orders: [
-    {
-      authorizedWeight: 11000,
-      created_at: '2024-02-23T19:30:11.369Z',
-      entitlement: {
-        proGear: 2000,
-        proGearSpouse: 500,
-      },
-      grade: 'E_7',
-      has_dependents: false,
-      id: 'testOrders1',
-      issue_date: '2024-02-29',
-      moves: ['testMoveId'],
-      new_duty_location: {
+describe('EditOrders Page', () => {
+  const testProps = {
+    serviceMember: {
+      id: 'id123',
+      current_location: {
         address: {
-          city: 'Fort Irwin',
+          city: 'Fort Bragg',
           country: 'United States',
-          id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
-          postalCode: '92310',
-          state: 'CA',
-          streetAddress1: 'n/a',
+          id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
+          postalCode: '29310',
+          state: 'NC',
+          streetAddress1: '',
         },
-        address_id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
+        address_id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
         affiliation: 'ARMY',
-        created_at: '2024-02-22T21:34:21.449Z',
-        id: '12421bcb-2ded-4165-b0ac-05f76301082a',
-        name: 'Fort Irwin, CA 92310',
-        transportation_office: {
+        created_at: '2020-10-19T17:01:16.114Z',
+        id: 'dca78766-e76b-4c6d-ba82-81b50ca824b9"',
+        name: 'Fort Bragg',
+        updated_at: '2020-10-19T17:01:16.114Z',
+      },
+    },
+    serviceMemberId: 'id123',
+    orders: [
+      {
+        authorizedWeight: 11000,
+        created_at: '2024-02-23T19:30:11.369Z',
+        entitlement: {
+          proGear: 2000,
+          proGearSpouse: 500,
+        },
+        grade: 'E_7',
+        has_dependents: false,
+        id: 'testOrders1',
+        issue_date: '2024-02-29',
+        moves: ['testMoveId'],
+        new_duty_location: {
           address: {
             city: 'Fort Irwin',
             country: 'United States',
-            id: '65a97b21-cf6a-47c1-a4b6-e3f885dacba5',
+            id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
             postalCode: '92310',
             state: 'CA',
-            streetAddress1: 'Langford Lake Rd',
-            streetAddress2: 'Bldg 105',
+            streetAddress1: 'n/a',
           },
-          created_at: '2018-05-28T14:27:37.312Z',
-          gbloc: 'LKNQ',
-          id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
-          name: 'PPPO Fort Irwin - USA',
-          phone_lines: ['760-380-3823', '470-3823'],
-          updated_at: '2018-05-28T14:27:37.312Z',
-        },
-        transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
-        updated_at: '2024-02-22T21:34:21.449Z',
-      },
-      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
-      originDutyLocationGbloc: 'BGAC',
-      origin_duty_location: {
-        address: {
-          city: 'Fort Gregg-Adams',
-          country: 'United States',
-          id: '12270b68-01cf-4416-8b19-125d11bc8340',
-          postalCode: '23801',
-          state: 'VA',
-          streetAddress1: 'n/a',
-        },
-        address_id: '12270b68-01cf-4416-8b19-125d11bc8340',
-        affiliation: 'ARMY',
-        created_at: '2024-02-22T21:34:26.430Z',
-        id: '9cf15b8d-985b-4ca3-9f27-4ba32a263908',
-        name: 'Fort Gregg-Adams, VA 23801',
-        transportation_office: {
-          address: null,
-          created_at: '2018-05-28T14:27:42.125Z',
-          gbloc: 'BGAC',
-          id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
-          name: 'PPPO Fort Gregg-Adams - USA',
-          phone_lines: [],
-          updated_at: '2018-05-28T14:27:42.125Z',
-        },
-        transportation_office_id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
-        updated_at: '2024-02-22T21:34:26.430Z',
-      },
-      report_by_date: '2024-02-29',
-      service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
-      spouse_has_pro_gear: false,
-      status: 'DRAFT',
-      updated_at: '2024-02-23T19:30:11.369Z',
-      uploaded_orders: {
-        id: 'bd35c4c2-41c6-44a1-bf54-9098c68d87cc',
-        service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
-        uploads: [
-          {
-            bytes: 92797,
-            contentType: 'image/png',
-            createdAt: '2024-02-26T18:43:58.515Z',
-            filename: 'Screenshot 2024-02-08 at 12.57.43 PM.png',
-            id: '786237dc-c240-449d-8859-3f37583b3406',
-            status: 'PROCESSING',
-            updatedAt: '2024-02-26T18:43:58.515Z',
-            url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/786237dc-c240-449d-8859-3f37583b3406?contentType=image%2Fpng',
-          },
-        ],
-      },
-    },
-  ],
-  serviceMemberMoves: {
-    currentMove: [
-      {
-        createdAt: '2024-02-23T19:30:11.374Z',
-        eTag: 'MjAyNC0wMi0yM1QxOTozMDoxMS4zNzQxN1o=',
-        id: 'testMoveId',
-        moveCode: '44649B',
-        orders: {
-          authorizedWeight: 11000,
-          created_at: '2024-02-23T19:30:11.369Z',
-          entitlement: {
-            proGear: 2000,
-            proGearSpouse: 500,
-          },
-          grade: 'E_7',
-          has_dependents: false,
-          id: 'testOrders1',
-          issue_date: '2024-02-29',
-          new_duty_location: {
+          address_id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
+          affiliation: 'ARMY',
+          created_at: '2024-02-22T21:34:21.449Z',
+          id: '12421bcb-2ded-4165-b0ac-05f76301082a',
+          name: 'Fort Irwin, CA 92310',
+          transportation_office: {
             address: {
               city: 'Fort Irwin',
               country: 'United States',
-              id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
+              id: '65a97b21-cf6a-47c1-a4b6-e3f885dacba5',
               postalCode: '92310',
               state: 'CA',
-              streetAddress1: 'n/a',
+              streetAddress1: 'Langford Lake Rd',
+              streetAddress2: 'Bldg 105',
             },
-            address_id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
-            affiliation: 'ARMY',
-            created_at: '2024-02-22T21:34:21.449Z',
-            id: '12421bcb-2ded-4165-b0ac-05f76301082a',
-            name: 'Fort Irwin, CA 92310',
-            transportation_office: {
+            created_at: '2018-05-28T14:27:37.312Z',
+            gbloc: 'LKNQ',
+            id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
+            name: 'PPPO Fort Irwin - USA',
+            phone_lines: ['760-380-3823', '470-3823'],
+            updated_at: '2018-05-28T14:27:37.312Z',
+          },
+          transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
+          updated_at: '2024-02-22T21:34:21.449Z',
+        },
+        orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+        originDutyLocationGbloc: 'BGAC',
+        origin_duty_location: {
+          address: {
+            city: 'Fort Gregg-Adams',
+            country: 'United States',
+            id: '12270b68-01cf-4416-8b19-125d11bc8340',
+            postalCode: '23801',
+            state: 'VA',
+            streetAddress1: 'n/a',
+          },
+          address_id: '12270b68-01cf-4416-8b19-125d11bc8340',
+          affiliation: 'ARMY',
+          created_at: '2024-02-22T21:34:26.430Z',
+          id: '9cf15b8d-985b-4ca3-9f27-4ba32a263908',
+          name: 'Fort Gregg-Adams, VA 23801',
+          transportation_office: {
+            address: null,
+            created_at: '2018-05-28T14:27:42.125Z',
+            gbloc: 'BGAC',
+            id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
+            name: 'PPPO Fort Gregg-Adams - USA',
+            phone_lines: [],
+            updated_at: '2018-05-28T14:27:42.125Z',
+          },
+          transportation_office_id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
+          updated_at: '2024-02-22T21:34:26.430Z',
+        },
+        report_by_date: '2024-02-29',
+        service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
+        spouse_has_pro_gear: false,
+        status: 'DRAFT',
+        updated_at: '2024-02-23T19:30:11.369Z',
+        uploaded_orders: {
+          id: 'bd35c4c2-41c6-44a1-bf54-9098c68d87cc',
+          service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
+          uploads: [
+            {
+              bytes: 92797,
+              contentType: 'image/png',
+              createdAt: '2024-02-26T18:43:58.515Z',
+              filename: 'Screenshot 2024-02-08 at 12.57.43 PM.png',
+              id: '786237dc-c240-449d-8859-3f37583b3406',
+              status: 'PROCESSING',
+              updatedAt: '2024-02-26T18:43:58.515Z',
+              url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/786237dc-c240-449d-8859-3f37583b3406?contentType=image%2Fpng',
+            },
+          ],
+        },
+      },
+    ],
+    serviceMemberMoves: {
+      currentMove: [
+        {
+          createdAt: '2024-02-23T19:30:11.374Z',
+          eTag: 'MjAyNC0wMi0yM1QxOTozMDoxMS4zNzQxN1o=',
+          id: 'testMoveId',
+          moveCode: '44649B',
+          orders: {
+            authorizedWeight: 11000,
+            created_at: '2024-02-23T19:30:11.369Z',
+            entitlement: {
+              proGear: 2000,
+              proGearSpouse: 500,
+            },
+            grade: 'E_7',
+            has_dependents: false,
+            id: 'testOrders1',
+            issue_date: '2024-02-29',
+            new_duty_location: {
               address: {
                 city: 'Fort Irwin',
                 country: 'United States',
-                id: '65a97b21-cf6a-47c1-a4b6-e3f885dacba5',
+                id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
                 postalCode: '92310',
                 state: 'CA',
-                streetAddress1: 'Langford Lake Rd',
-                streetAddress2: 'Bldg 105',
+                streetAddress1: 'n/a',
               },
-              created_at: '2018-05-28T14:27:37.312Z',
-              gbloc: 'LKNQ',
-              id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
-              name: 'PPPO Fort Irwin - USA',
-              phone_lines: [],
-              updated_at: '2018-05-28T14:27:37.312Z',
+              address_id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
+              affiliation: 'ARMY',
+              created_at: '2024-02-22T21:34:21.449Z',
+              id: '12421bcb-2ded-4165-b0ac-05f76301082a',
+              name: 'Fort Irwin, CA 92310',
+              transportation_office: {
+                address: {
+                  city: 'Fort Irwin',
+                  country: 'United States',
+                  id: '65a97b21-cf6a-47c1-a4b6-e3f885dacba5',
+                  postalCode: '92310',
+                  state: 'CA',
+                  streetAddress1: 'Langford Lake Rd',
+                  streetAddress2: 'Bldg 105',
+                },
+                created_at: '2018-05-28T14:27:37.312Z',
+                gbloc: 'LKNQ',
+                id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
+                name: 'PPPO Fort Irwin - USA',
+                phone_lines: [],
+                updated_at: '2018-05-28T14:27:37.312Z',
+              },
+              transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
+              updated_at: '2024-02-22T21:34:21.449Z',
             },
-            transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
-            updated_at: '2024-02-22T21:34:21.449Z',
-          },
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
-          originDutyLocationGbloc: 'BGAC',
-          origin_duty_location: {
-            address: {
-              city: 'Fort Gregg-Adams',
-              country: 'United States',
-              id: '12270b68-01cf-4416-8b19-125d11bc8340',
-              postalCode: '23801',
-              state: 'VA',
-              streetAddress1: 'n/a',
-            },
-            address_id: '12270b68-01cf-4416-8b19-125d11bc8340',
-            affiliation: 'ARMY',
-            created_at: '2024-02-22T21:34:26.430Z',
-            id: '9cf15b8d-985b-4ca3-9f27-4ba32a263908',
-            name: 'Fort Gregg-Adams, VA 23801',
-            transportation_office: {
+            orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+            originDutyLocationGbloc: 'BGAC',
+            origin_duty_location: {
               address: {
                 city: 'Fort Gregg-Adams',
                 country: 'United States',
-                id: '10dc88f5-d76a-427f-89a0-bf85587b0570',
+                id: '12270b68-01cf-4416-8b19-125d11bc8340',
                 postalCode: '23801',
                 state: 'VA',
-                streetAddress1: '1401 B Ave',
-                streetAddress2: 'Bldg 3400, Room 119',
+                streetAddress1: 'n/a',
               },
-              created_at: '2018-05-28T14:27:42.125Z',
-              gbloc: 'BGAC',
-              id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
-              name: 'PPPO Fort Gregg-Adams - USA',
-              phone_lines: [],
-              updated_at: '2018-05-28T14:27:42.125Z',
+              address_id: '12270b68-01cf-4416-8b19-125d11bc8340',
+              affiliation: 'ARMY',
+              created_at: '2024-02-22T21:34:26.430Z',
+              id: '9cf15b8d-985b-4ca3-9f27-4ba32a263908',
+              name: 'Fort Gregg-Adams, VA 23801',
+              transportation_office: {
+                address: {
+                  city: 'Fort Gregg-Adams',
+                  country: 'United States',
+                  id: '10dc88f5-d76a-427f-89a0-bf85587b0570',
+                  postalCode: '23801',
+                  state: 'VA',
+                  streetAddress1: '1401 B Ave',
+                  streetAddress2: 'Bldg 3400, Room 119',
+                },
+                created_at: '2018-05-28T14:27:42.125Z',
+                gbloc: 'BGAC',
+                id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
+                name: 'PPPO Fort Gregg-Adams - USA',
+                phone_lines: [],
+                updated_at: '2018-05-28T14:27:42.125Z',
+              },
+              transportation_office_id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
+              updated_at: '2024-02-22T21:34:26.430Z',
             },
-            transportation_office_id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
-            updated_at: '2024-02-22T21:34:26.430Z',
-          },
-          report_by_date: '2024-02-29',
-          service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
-          spouse_has_pro_gear: false,
-          status: 'DRAFT',
-          updated_at: '2024-02-23T19:30:11.369Z',
-          uploaded_orders: {
-            id: 'bd35c4c2-41c6-44a1-bf54-9098c68d87cc',
+            report_by_date: '2024-02-29',
             service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
-            uploads: [
-              {
-                bytes: 92797,
-                contentType: 'image/png',
-                createdAt: '2024-02-26T18:43:58.515Z',
-                filename: 'Screenshot 2024-02-08 at 12.57.43 PM.png',
-                id: '786237dc-c240-449d-8859-3f37583b3406',
-                status: 'PROCESSING',
-                updatedAt: '2024-02-26T18:43:58.515Z',
-                url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/786237dc-c240-449d-8859-3f37583b3406?contentType=image%2Fpng',
-              },
-            ],
+            spouse_has_pro_gear: false,
+            status: 'DRAFT',
+            updated_at: '2024-02-23T19:30:11.369Z',
+            uploaded_orders: {
+              id: 'bd35c4c2-41c6-44a1-bf54-9098c68d87cc',
+              service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
+              uploads: [
+                {
+                  bytes: 92797,
+                  contentType: 'image/png',
+                  createdAt: '2024-02-26T18:43:58.515Z',
+                  filename: 'Screenshot 2024-02-08 at 12.57.43 PM.png',
+                  id: '786237dc-c240-449d-8859-3f37583b3406',
+                  status: 'PROCESSING',
+                  updatedAt: '2024-02-26T18:43:58.515Z',
+                  url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/786237dc-c240-449d-8859-3f37583b3406?contentType=image%2Fpng',
+                },
+              ],
+            },
           },
+          status: 'DRAFT',
+          submittedAt: '0001-01-01T00:00:00.000Z',
+          updatedAt: '0001-01-01T00:00:00.000Z',
         },
-        status: 'DRAFT',
-        submittedAt: '0001-01-01T00:00:00.000Z',
-        updatedAt: '0001-01-01T00:00:00.000Z',
-      },
-    ],
-    previousMoves: [],
-  },
-  setFlashMessage: jest.fn(),
-  updateOrders: jest.fn(),
-  updateAllMoves: jest.fn(),
-  context: { flags: { allOrdersTypes: true } },
-};
-selectServiceMemberFromLoggedInUser.mockImplementation(() => testProps.serviceMember);
-selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
-getOrders.mockResolvedValue(() => testProps.orders[0]);
-selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
+      ],
+      previousMoves: [],
+    },
+    setFlashMessage: jest.fn(),
+    updateOrders: jest.fn(),
+    updateAllMoves: jest.fn(),
+  };
+  selectServiceMemberFromLoggedInUser.mockImplementation(() => testProps.serviceMember);
+  selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
+  getOrders.mockResolvedValue(() => testProps.orders[0]);
+  selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
 
-describe('EditOrders Page', () => {
   it('renders the edit orders form', async () => {
     renderWithProviders(<EditOrders {...testProps} />, {
       path: customerRoutes.ORDERS_EDIT_PATH,
@@ -474,11 +473,38 @@ describe('EditOrders Page', () => {
     expect(editOrdersHeader).toBeInTheDocument();
   });
 
-  // afterEach(jest.clearAllMocks);
-  // });
+  it('wounded warrior FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
 
-  // describe('OrdersInfoForm -  BLUEBARK_MOVE FF', () => {
-  it('Does not render BLUEBARK in order types dropdown', async () => {
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(false);
+    });
+  });
+  it('wounded warrior FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(true);
+    });
+  });
+
+  it('BLUEBARK FF turned off', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
 
     renderWithProviders(<EditOrders {...testProps} />, {
@@ -490,12 +516,10 @@ describe('EditOrders Page', () => {
       const ordersTypeDropdown = screen.getByLabelText('Orders type *');
       const options = within(ordersTypeDropdown).queryAllByRole('option');
       const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
-
       expect(hasBluebark).toBe(false);
     });
   });
-
-  it('Does render BLUEBARK in order types dropdown', async () => {
+  it('BLUEBARK FF turned on', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     renderWithProviders(<EditOrders {...testProps} />, {
@@ -507,7 +531,6 @@ describe('EditOrders Page', () => {
       const ordersTypeDropdown = screen.getByLabelText('Orders type *');
       const options = within(ordersTypeDropdown).queryAllByRole('option');
       const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
-
       expect(hasBluebark).toBe(true);
     });
   });
