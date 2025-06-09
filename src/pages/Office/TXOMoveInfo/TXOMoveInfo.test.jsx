@@ -226,8 +226,7 @@ describe('TXO Move Info Container', () => {
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
 
-    it('renders a locked move banner when move lock flag is on', async () => {
-      isBooleanFlagEnabled.mockResolvedValue(true);
+    it('renders a locked move banner', async () => {
       useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
 
       render(
@@ -239,21 +238,6 @@ describe('TXO Move Info Container', () => {
       await waitFor(() => {
         const banner = screen.queryByTestId('locked-move-banner');
         expect(banner).toBeInTheDocument();
-      });
-    });
-    it('does NOT render a locked move banner when move lock flag is off', async () => {
-      isBooleanFlagEnabled.mockResolvedValue(false);
-      useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
-
-      render(
-        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      await waitFor(() => {
-        const banner = screen.queryByTestId('locked-move-banner');
-        expect(banner).not.toBeInTheDocument();
       });
     });
   });
