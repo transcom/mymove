@@ -27,6 +27,16 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const { privileges, rolesWithPrivs } = result;
 
   const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== 'customer');
+  const hasAnyRoleSelected = React.useMemo(
+    () => availableRoles.some(({ roleType }) => !!values[`${roleType}Checkbox`]),
+    [availableRoles, values],
+  );
+  const hasTransportConflict = !!values.task_ordering_officerCheckbox && !!values.task_invoicing_officerCheckbox;
+
+  const showRequestedRolesError = touched.requestedRolesGroup && !hasAnyRoleSelected;
+
+  const showTransportConflictError = touched.transportationOfficerRoleConflict && hasTransportConflict;
+
   useEffect(() => {
     isBooleanFlagEnabledUnauthenticatedOffice(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES)?.then((enabled) => {
       setEnableRequestAccountPrivileges(enabled);
@@ -225,7 +235,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             Requested Role(s)
             <RequiredAsterisk />
           </Label>
-          {errors.requestedRolesGroup && touched.requestedRolesGroup && (
+          {showRequestedRolesError && (
             <ErrorMessage
               id="requestedRolesGroupError"
               className={styles.errorText}
@@ -234,16 +244,23 @@ export const OfficeAccountRequestFields = ({ render }) => {
               {errors.requestedRolesGroup}
             </ErrorMessage>
           )}
+
+          {showTransportConflictError && (
+            <ErrorMessage
+              id="transportationOfficerRoleConflictError"
+              className={styles.errorText}
+              data-testid="transportationOfficerRoleConflictError"
+            >
+              {errors.transportationOfficerRoleConflict}
+            </ErrorMessage>
+          )}
           {availableRoles.map(({ roleType, roleName }) => {
             const fieldName = `${roleType}Checkbox`;
             const isTransportRole = roleType === 'task_ordering_officer' || roleType === 'task_invoicing_officer';
 
             const describedBy = [
-              errors.requestedRolesGroup && touched.requestedRolesGroup && 'requestedRoleGroupError',
-              isTransportRole &&
-                errors.transportationOfficerRoleConflict &&
-                touched.transportationOfficerRoleConflict &&
-                'transportationOfficerRoleConflictError',
+              showRequestedRolesError && 'requestedRolesGroupError',
+              isTransportRole && showTransportConflictError && 'transportationOfficerRoleConflictError',
             ]
               .filter(Boolean)
               .join(' ');
@@ -256,9 +273,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
                 name={fieldName}
                 label={roleName}
                 aria-describedby={describedBy || undefined}
-                aria-invalid={
-                  !!errors.requestedRolesGroup || (isTransportRole && !!errors.transportationOfficerRoleConflict)
-                }
+                aria-invalid={showRequestedRolesError || (isTransportRole && showTransportConflictError)}
               />
             );
           })}
