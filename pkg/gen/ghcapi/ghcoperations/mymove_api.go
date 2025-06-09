@@ -35,6 +35,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/orders"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -266,6 +267,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ApplicationParametersGetParamHandler: application_parameters.GetParamHandlerFunc(func(params application_parameters.GetParamParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.GetParam has not yet been implemented")
+		}),
+		OrdersGetPayGradesHandler: orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
 		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
@@ -633,6 +637,8 @@ type MymoveAPI struct {
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// ApplicationParametersGetParamHandler sets the operation handler for the get param operation
 	ApplicationParametersGetParamHandler application_parameters.GetParamHandler
+	// OrdersGetPayGradesHandler sets the operation handler for the get pay grades operation
+	OrdersGetPayGradesHandler orders.GetPayGradesHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
@@ -1036,6 +1042,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ApplicationParametersGetParamHandler == nil {
 		unregistered = append(unregistered, "application_parameters.GetParamHandler")
+	}
+	if o.OrdersGetPayGradesHandler == nil {
+		unregistered = append(unregistered, "orders.GetPayGradesHandler")
 	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
@@ -1576,6 +1585,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/application_parameters/{parameterName}"] = application_parameters.NewGetParam(o.context, o.ApplicationParametersGetParamHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/paygrade/{affiliation}"] = orders.NewGetPayGrades(o.context, o.OrdersGetPayGradesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

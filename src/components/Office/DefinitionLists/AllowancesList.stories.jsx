@@ -15,11 +15,12 @@ export default {
 
 const info = {
   branch: 'NAVY',
-  grade: 'E_6',
+  grade: 'E-6',
   totalWeight: 11000,
   authorizedWeight: 11000,
   progear: 2000,
   spouseProgear: 500,
+  gunSafeWeight: 500,
   storageInTransit: 90,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,

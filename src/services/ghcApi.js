@@ -1198,3 +1198,7 @@ export function getResponseError(errorOrResponse, defaultErrorMessage) {
 
   return detail;
 }
+
+export async function getPayGradeOptions(affiliation) {
+  return makeGHCRequestRaw('orders.getPayGrades', { affiliation });
+}
