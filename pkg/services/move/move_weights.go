@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -27,12 +26,11 @@ const AutoReweighRequestThreshold = .9
 type moveWeights struct {
 	ReweighRequestor       services.ShipmentReweighRequester
 	WeightAllotmentFetcher services.WeightAllotmentFetcher
-	Sender                 notifications.NotificationSender
 }
 
 // NewMoveWeights creates a new moveWeights service
-func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester, weightAllotmentFetcher services.WeightAllotmentFetcher, sender notifications.NotificationSender) services.MoveWeights {
-	return &moveWeights{ReweighRequestor: reweighRequestor, WeightAllotmentFetcher: weightAllotmentFetcher, Sender: sender}
+func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester, weightAllotmentFetcher services.WeightAllotmentFetcher) services.MoveWeights {
+	return &moveWeights{ReweighRequestor: reweighRequestor, WeightAllotmentFetcher: weightAllotmentFetcher}
 }
 
 func validateAndSave(appCtx appcontext.AppContext, move *models.Move) (*validate.Errors, error) {
@@ -56,6 +54,7 @@ func validateAndSave(appCtx appcontext.AppContext, move *models.Move) (*validate
 // only shipments in these statuses should have their weights included in the totals
 func availableShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusApprovalsRequested ||
 		status == models.MTOShipmentStatusDiversionRequested ||
 		status == models.MTOShipmentStatusCancellationRequested
 }
@@ -207,7 +206,7 @@ func sumWeightsFromShipment(shipment models.MTOShipment) SumOfWeights {
 	var sumEstimatedWeightOfUbShipments int
 	var sumActualWeightOfUbShipments int
 
-	if shipment.Status != models.MTOShipmentStatusApproved {
+	if shipment.Status != models.MTOShipmentStatusApproved && shipment.Status != models.MTOShipmentStatusApprovalsRequested {
 		return SumOfWeights{}
 	}
 
@@ -388,17 +387,6 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 			reweigh, err := w.ReweighRequestor.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
 			if err != nil {
 				return err
-			}
-
-			/* Don't send emails to BLUEBARK moves */
-			/* Don't send reweigh emails to PPM shipments */
-			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() && shipment.CanSendReweighEmailForShipmentType() {
-				err := w.Sender.SendNotification(appCtx,
-					notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
-				)
-				if err != nil {
-					return err
-				}
 			}
 
 			shipment.Reweigh = reweigh
