@@ -75,7 +75,7 @@ export const PPM_DOCUMENT_TYPES = {
 };
 
 export const UPLOAD_SCAN_STATUS = {
-  CLEAN: 'CLEAN',
+  CLEAN: 'NO_THREATS_FOUND',
   INFECTED: 'INFECTED',
   PROCESSING: 'PROCESSING',
 };
@@ -257,6 +257,7 @@ export const FEATURE_FLAG_KEYS = {
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
   TERMINATING_SHIPMENTS: 'terminating_shipments',
   GUN_SAFE: 'gun_safe',
+  APPROVAL_REQUEST_TYPE_COLUMN: 'approval_request_type_column',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

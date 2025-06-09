@@ -1,8 +1,22 @@
 // @ts-check
 import { test, expect } from './servicesCounselingTestFixture';
 
+const completePPMCloseoutForCustomerEnabled = process.env.FEATURE_FLAG_COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER;
+
 test('A service counselor can approve/reject weight tickets', async ({ page, scPage }) => {
   // Create a move with TestHarness, and then navigate to the move details page for it
+  await page.route('**/ghc/v1/ppm-shipments/*/payment-packet', async (route) => {
+    // mocked blob
+    const fakePdfBlob = new Blob(['%PDF-1.4 foo'], { type: 'application/pdf' });
+    const arrayBuffer = await fakePdfBlob.arrayBuffer();
+    // playwright route mocks only want a Buffer or string
+    const bodyBuffer = Buffer.from(arrayBuffer);
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/pdf',
+      body: bodyBuffer,
+    });
+  });
   const move = await scPage.testHarness.buildApprovedMoveWithPPMWeightTicketOffice();
   await scPage.navigateToCloseoutMove(move.locator);
 
@@ -16,30 +30,11 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
   await scPage.waitForPage.reviewDocumentsConfirmation();
 
   // Click "Confirm" on confirmation page, returning to move details page
-  await page.getByRole('button', { name: 'PPM Review Complete' }).click();
+  await page.getByRole('button', { name: 'Preview PPM Payment Packet' }).click();
+  await expect(page.getByTestId('loading-spinner')).not.toBeVisible();
+  await page.getByRole('button', { name: 'Complete PPM Review' }).click();
+  await page.getByRole('button', { name: 'Yes' }).click();
   await scPage.waitForPage.moveDetails();
-
-  // NOTE: Code below is commented out because the feature for the SC to be able to review documents AFTER it has been submitted will be picked up at a future date.
-  // Currently SC is unable to re-review documents after it has been submitted, so these tests were failing.
-
-  // Return to the weight ticket and verify that it's approved
-  // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewWeightTicket();
-  // await expect(page.getByRole('radio', { name: 'Accept' })).toBeChecked();
-
-  // // Click "Reject" on the weight ticket, provide a reason, then save
-  // await page.getByText('Reject').click();
-  // await page.getByLabel('Reason').fill('Justification for rejection');
-  // await page.getByRole('button', { name: 'Continue' }).click();
-  // await scPage.waitForPage.reviewDocumentsConfirmation();
-  // await page.getByRole('button', { name: 'Confirm' }).click();
-  // await scPage.waitForPage.moveDetails();
-
-  // // Return to the weight ticket and verify that it's been edited
-  // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewWeightTicket();
-  // await expect(page.getByRole('radio', { name: 'Reject' })).toBeChecked();
-  // await expect(page.getByLabel('Reason')).toHaveValue('Justification for rejection');
 });
 
 test('A services counselor can reduce PPM weights for a move with excess weight', async ({ page, scPage }) => {
@@ -101,6 +96,32 @@ test('A services counselor can edit allowable weight', async ({ page, scPage }) 
   // Ensure change appears in audit history
   await page.getByText('Move History').click();
   await expect(page.getByText('Allowable Weight: 8,000 lbs')).toBeVisible();
+});
+
+test('A service counselor cannot upload an other excel file except a weight estimator file into a weight ticket file upload', async ({
+  page,
+  scPage,
+}) => {
+  test.skip(completePPMCloseoutForCustomerEnabled === 'false', 'Skip if FF is disabled.');
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
+  await scPage.signInAsNewServicesCounselorUser();
+  await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+  // click on "Complete PPM on behalf of the customer" button
+  await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+  // expect the new page to have heading "Review"
+  await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+
+  // click the edit button in the "Trip 1" card of "Weight Moved" section
+  await expect(page.getByText('Edit')).toBeVisible();
+  await page.getByText('Add More Weight').click();
+
+  // expect the weight tickets page to have loaded
+  await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+
+  // can use fillOutWeightTicketPage as base
+  await scPage.fillOutWeightTicketWithIncorrectXlsx();
 });
 
 test('A service counselor can see HHG weights when reviewing weight tickets', async ({ page, scPage }) => {
