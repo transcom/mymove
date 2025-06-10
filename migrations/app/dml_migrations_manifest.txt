@@ -33,3 +33,4 @@
 20250506182030_B-23565_insert_intl_city_countries.up.sql
 20250513195206_B-23575_add_data_to_country_holidays_and_country_weekends.up.sql
 20250522135232_B-22466_v2_add_distance_lookup_service_params.up.sql
+20250528155401_B-23736_add_multipliers.up.sql
