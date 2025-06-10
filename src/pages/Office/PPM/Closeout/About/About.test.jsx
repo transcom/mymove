@@ -152,7 +152,7 @@ const fillOutAdvanceSections = async (form) => {
     await userEvent.click(within(form).getAllByLabelText('Yes')[2]);
   });
 
-  within(form).getByLabelText('How much did you receive?').focus();
+  within(form).getByLabelText('How much did you receive? *').focus();
   await act(async () => {
     await userEvent.paste('7500');
   });
