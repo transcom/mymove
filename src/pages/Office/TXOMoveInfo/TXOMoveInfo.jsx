@@ -3,8 +3,6 @@ import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'reac
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
-import styles from '../../../components/Office/StickyOfficeHeader/StickyOfficeHeader.module.scss';
-
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
@@ -142,7 +140,7 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <div className={styles.customerData}>
+      <div className="custHeader">
         <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
         {renderLockedBanner()}
       </div>

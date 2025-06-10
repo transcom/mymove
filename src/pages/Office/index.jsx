@@ -175,9 +175,10 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     return <MaintenancePage />;
   }
 
+  // If path is not in office user tabs
+  // do not make the header sticky
   let isSticky = false;
-
-  const not = [
+  const notStickyList = [
     '/counseling',
     '/',
     '/sign-in',
@@ -189,20 +190,10 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     '/destination-requests',
     '/payment-requests',
   ];
-
-  // const another = [
-  //   '/details',
-  //   '/mto',
-  //   '/payment-requests',
-  //   '/customer-support-remarks',
-  //   '/evaluation-reports',
-  //   '/history',
-  //   '/supporting-documents',
-  // ];
-  // const stickyTestList = ['details', 'mto', 'customer-support-remarks', 'history', 'supporting-documents'];
-  if (!not.includes(location.pathname) && !location.pathname.includes('simulator')) {
+  if (!notStickyList.includes(location.pathname) && !location.pathname.includes('simulator')) {
     isSticky = true;
   }
+
   // TODO add check for multi role user before calling testing header
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
