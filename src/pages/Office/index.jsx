@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Routes, matchPath, Navigate, useLocation } from 'react-router-dom';
+import { Route, Routes, Link, matchPath, Navigate, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 
@@ -31,7 +31,7 @@ import CUIHeader from 'components/CUIHeader/CUIHeader';
 import BypassBlock from 'components/BypassBlock';
 import SystemError from 'components/SystemError';
 import NotFound from 'components/NotFound/NotFound';
-// import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
+import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
@@ -126,7 +126,16 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const [bulkAssignmentFlag, setBulkAssignmentFlag] = useState(false);
 
   const location = useLocation();
-  const displayChangeRole = props.userRoles?.length > 1;
+  const displayChangeRole =
+    props.userIsLoggedIn &&
+    props.userRoles?.length > 1 &&
+    !matchPath(
+      {
+        path: '/select-application',
+        end: true,
+      },
+      location.pathname,
+    );
 
   const isFullscreenPage = matchPath(
     {
@@ -166,6 +175,33 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     return <MaintenancePage />;
   }
 
+  let isSticky = false;
+
+  const not = [
+    '/counseling',
+    '/',
+    '/sign-in',
+    '/PPM-closeout',
+    '/search',
+    '/customer-search',
+    '/select-application',
+    '/move-queue',
+    '/destination-requests',
+  ];
+
+  // const another = [
+  //   '/details',
+  //   '/mto',
+  //   '/payment-requests',
+  //   '/customer-support-remarks',
+  //   '/evaluation-reports',
+  //   '/history',
+  //   '/supporting-documents',
+  // ];
+  // const stickyTestList = ['details', 'mto', 'customer-support-remarks', 'history', 'supporting-documents'];
+  if (!not.includes(location.pathname) && !location.pathname.includes('simulator')) {
+    isSticky = true;
+  }
   // TODO add check for multi role user before calling testing header
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
@@ -173,12 +209,18 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
-            <CUIHeader className={styles.test} />
             {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {props.userIsLoggedIn && displayChangeRole ? (
-              <StickyOfficeHeader displayChangeRole />
-            ) : (
+            {!props.userIsLoggedIn && !location.pathname.includes('/sign-in') && (
               <LoggedOutHeader app={pageNames.OFFICE} />
+            )}
+            {props.userIsLoggedIn && isSticky ? (
+              <StickyOfficeHeader displayChangeRole={displayChangeRole} />
+            ) : (
+              <div>
+                <CUIHeader />
+                {displayChangeRole && <Link to="/select-application">Change user role</Link>}
+                <OfficeLoggedInHeader />
+              </div>
             )}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
