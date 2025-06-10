@@ -98,8 +98,8 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         case UPLOAD_SCAN_STATUS.LEGACY_CLEAN:
           setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
           break;
-        case UPLOAD_SCAN_STATUS.INFECTED:
-          setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+        case UPLOAD_SCAN_STATUS.LEGACY_INFECTED:
+          setFileStatus(UPLOAD_DOC_STATUS.LEGACY_INFECTED);
           break;
         default:
           throw new Error(`unrecognized file status`);
