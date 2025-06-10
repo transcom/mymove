@@ -9,11 +9,12 @@ variables:
   #Docker config
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
   #hard code sha as newer version of debian is needed for pre-test
-  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
+  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app-ubuntu
   DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
   DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
   DOCKER_TOKEN: DOCKER_TOKEN
+  CI_DEBUG_SERVICES: true
   registry: https://registry.hub.docker.com/
 
   #
@@ -30,25 +31,26 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env placeholder_env
+  DP3_ENV: &dp3_env demo
 
-  # Specify the branch to deploy
-  DP3_BRANCH: &dp3_branch placeholder_branch_name
+  # Specify the branch to deploy TODO: this might be not needed. So far useless
+  DP3_BRANCH: &dp3_branch B-22106-integration-attempt-9543
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22106-integration-attempt-9543
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-22106-integration-attempt-9543
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-integration-attempt-9543
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-integration-attempt-9543
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
   CDPS_RUNNER_TAG: &cdps_runner_tag milmove
   EKS_CLUSTER_RUNNER_TAG: &eks_cluster_runner_tag eks_cluster_runner
 
-  postgres: &postgres harbor.csde.caci.com/docker.io/postgres:16.4
+
+  postgres: &postgres harbor.csde.caci.com/docker.io/library/postgres:16.4
   #postgres: &postgres postgres:16.4
-  redis: &redis harbor.csde.caci.com/docker.io/redis:5.0.6
+  redis: &redis harbor.csde.caci.com/docker.io/library/redis:5.0.6
 
 stages:
 - pre_checks
@@ -64,7 +66,7 @@ stages:
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
-    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
+    - export PATH=${PATH}:${GOPATH}/bin:/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
     - export REACT_APP_ERROR_LOGGING=otel
 
 .announce_failure: &announce_failure
@@ -84,11 +86,13 @@ stages:
     fi
 
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
+  - unset AWS_DEFAULT_REGION
+  - unset AWS_ACCOUNT_ID
+  - unset AWS_ACCESS_KEY_ID
+  - unset AWS_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
-  - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
   - export SERVICE_RESERVATION_CLIENT_MEM=4096
-
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
@@ -110,6 +114,7 @@ stages:
       export APP_ENVIRONMENT=$DP3_ENV
     fi
 
+
 .setup_aws_vars_com_dev: &setup_aws_vars_com_dev
   - export AWS_REGION=$COM_REGION
   - export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID
@@ -117,12 +122,15 @@ stages:
   - export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY
 
 .setup_aws_vars_stg: &setup_aws_vars_stg
+  - unset AWS_DEFAULT_REGION
+  - unset AWS_ACCOUNT_ID
+  - unset AWS_ACCESS_KEY_ID
+  - unset AWS_SECRET_ACCESS_KEY
   - export AWS_DEFAULT_REGION=$STG_REGION
   - export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
-  - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
   - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
@@ -132,12 +140,15 @@ stages:
   - export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA
 
 .setup_aws_vars_prd: &setup_aws_vars_prd
+  - unset AWS_DEFAULT_REGION
+  - unset AWS_ACCOUNT_ID
+  - unset AWS_ACCESS_KEY_ID
+  - unset AWS_SECRET_ACCESS_KEY
   - export AWS_DEFAULT_REGION=$PRD_REGION
   - export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
-  - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=16384
   - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
@@ -193,8 +204,6 @@ stages:
 
 .install_yarn: &install_yarn
   - |
-    git config --global url."https://github".insteadOf ssh://git@github
-    git config --global url."https://github.com/".insteadOf git@github.com:
     mkdir -p /builds/milmove/mymove/.cache
     mkdir -p /builds/milmove/mymove/.cache/yarn
     yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
@@ -218,6 +227,15 @@ stages:
       - $GOPATH/pkg/mod
       - /builds/milmove/mymove/bin
     policy: pull-push
+
+.node_cache: &node_cache
+  # most npm libraries will only have 1 entry for the base project deps
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+  policy: pull-push
 
 .setup_generic_app_env_variables: &setup_generic_app_env_variables
   - |
@@ -292,7 +310,8 @@ stages:
     export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
     export LOGIN_GOV_CALLBACK_PORT=4000
     export LOGIN_GOV_CALLBACK_PROTOCOL=http
-    make db_dev_create
+    make db_dev_create >> $CI_PROJECT_DIR/db_dev_create.txt
+
     bin/milmove migrate
     mkdir -p build
     touch build/index.html
@@ -301,24 +320,13 @@ stages:
 .e2e_tests_playwright: &e2e_tests_playwright
   - |
      echo "Preparing the environment"
-     export MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
-     export MIL_MOVE_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
-     export MIL_MOVE_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
-     export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
-     export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-     export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
-     export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
      sed 's,^,export ,' config/env/review.app.env > server_env
      source server_env
      make db_dev_create
-     bin/milmove migrate
-     bin/milmove serve &
-     echo "Waiting for server to start"
-     dockerize -wait http://milmovelocal:4000 -timeout 5m
+
      echo "Installing Playwright dependencies"
      yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
      ./node_modules/.bin/playwright install
-
 
 sast:
   stage: pre_checks
@@ -387,6 +395,7 @@ pre_deps_golang:
   before_script:
     - *setup_milmove_env
   variables:
+    KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "4Gi"
     KUBERNETES_MEMORY_LIMIT: "4Gi"
   script:
@@ -414,7 +423,6 @@ golang_lint:
   tags:
     - $Gitlab_Runner_Tag
   image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:$GOLANGCI_LINT_VERSION # Refer to https://hub.docker.com/r/golangci/golangci-lint
-  variables:
   script:
 # Write the code coverage report to gl-code-quality-report.json
     # and print linting issues to stdout in the format: path/to/file:line description
@@ -509,7 +517,6 @@ pre_deps_yarn:
 
 check_generated_code:
   stage: pre_checks
-  interruptible: true
   image: $DOCKER_APP_IMAGE # Replace with the appropriate Docker image
   tags:
     - $Gitlab_Runner_Tag
@@ -584,13 +591,13 @@ check_tls_certificate_prd:
 build_storybook:
   stage: build
   interruptible: true
-  variables:
-    KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "10Gi"
-    KUBERNETES_MEMORY_LIMIT: "10Gi"
   tags:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
+  variables:
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   needs:
     - pre_deps_yarn
     - anti_virus
@@ -715,6 +722,29 @@ compile_app_server:
 #####################################
 ## Test stages various conditions  ##
 #####################################
+prep_integration_docker_microservice:
+  stage: test
+  interruptible: true
+  tags:
+    - $Gitlab_Runner_Tag
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - pre_deps_yarn
+    - compile_app_server
+  before_script:
+    - *kaniko_before_setup
+  script:
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile_gitlabtests_dp3"
+      --destination "${CI_REGISTRY_IMAGE}:e2e-${CI_COMMIT_SHORT_SHA}"
+  allow_failure: true
+  after_script:
+    - *announce_failure
+  rules:
+   - *check_integration_mtls_ignore_branch
 
 pre_test:
   stage: test
@@ -733,7 +763,7 @@ pre_test:
     - check_tls_certificate_stg
     - check_tls_certificate_prd
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
   before_script: *setup_milmove_env
@@ -906,7 +936,7 @@ client_test:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "3"
+    KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
   needs:
@@ -1028,7 +1058,7 @@ integration_test_devseed:
      allow_failure: true
    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
      allow_failure: false
-   - *check_client_ignore_branch
+   - *check_integration_ignore_branch
 
 integration_tests:
   stage: test
@@ -1041,13 +1071,14 @@ integration_tests:
     - pre_deps_golang
     - compile_app_client
     - compile_app_server
-    # - integration_test_my
-    # - integration_test_office
-    # - integration_test_admin
+    - integration_test_my
+    - integration_test_office
+    - integration_test_admin
     - integration_test_devseed
   before_script: *setup_milmove_env
   script:
-    - echo "NoOp combine state of integration tests"
+    - echo "TODO Add steps"
+    - echo "integration_tests"
   after_script:
     - *announce_failure
   rules:
@@ -1057,265 +1088,498 @@ integration_tests:
      allow_failure: true # allow failure for now
    - *check_integration_ignore_branch
 
-# integration_test_mtls:
-#   stage: test
-#   interruptible: true
-#   tags:
-#     - $Gitlab_Runner_Tag
-#   image: $DOCKER_APP_IMAGE
-#   services:
-#     - name: $postgres
-#     - name: $redis
-#   variables:
-#     APPLICATION: app
-#     DB_PASSWORD: mysecretpassword
-#     DB_USER_LOW_PRIV: crud
-#     DB_PASSWORD_LOW_PRIV: mysecretpassword
-#     DB_USER: postgres
-#     DB_HOST: localhost
-#     DB_PORT: 5432
-#     DB_NAME: dev_db
-#     DB_NAME_DEV: dev_db
-#     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-#     DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
-#     DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
-#     DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
-#     DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
-#     DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
-#     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-#     DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
-#     DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
-#     DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
-#     DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
-#     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-#     ENVIRONMENT: development
-#     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
-#     POSTGRES_PASSWORD: mysecretpassword
-#     POSTGRES_DB: test_db
-#   needs:
-#     - pre_deps_yarn
-#     - compile_app_server
-#   before_script:
-#     - *setup_milmove_env
-#     - *setup_env_intergration_mtls
-#   script:
-#     - echo "TODO Add steps"
-#     - echo "integration_test_mtls"
-#     - echo "Waiting for server to start"
-#     - dockerize -wait http://milmovelocal:4000 -timeout 5m
-#     - echo "Running E2E mTLS tests"
-#     - ./scripts/run-e2e-mtls-test
-#   artifacts:
-#     paths:
-#       - test-results/
-#     when: always
-#   after_script:
-#     - *announce_failure
-#   rules:
-#    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
-#      allow_failure: true
-#    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
-#      allow_failure: true # allow failure for now
-#    - *check_integration_mtls_ignore_branch
 
-# integration_test_admin:
-#   stage: test
-#   interruptible: true
-#   tags:
-#     - $Gitlab_Runner_Tag
-#   image: $DOCKER_APP_IMAGE
-#   services:
-#     - name: $postgres
-#     - name: $redis
-#   variables:
-#     APPLICATION: app
-#     DB_PASSWORD: mysecretpassword
-#     DB_USER_LOW_PRIV: crud
-#     DB_PASSWORD_LOW_PRIV: mysecretpassword
-#     DB_USER: postgres
-#     DB_HOST: localhost
-#     DB_PORT: 5432
-#     DB_NAME: dev_db
-#     DB_NAME_DEV: dev_db
-#     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-#     DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
-#     DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
-#     DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
-#     DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
-#     DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
-#     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-#     DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
-#     DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
-#     DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
-#     DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
-#     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-#     ENVIRONMENT: development
-#     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
-#     POSTGRES_PASSWORD: mysecretpassword
-#     POSTGRES_DB: test_db
-#   needs:
-#     - pre_deps_yarn
-#     - pre_deps_golang
-#     - compile_app_client
-#     - compile_app_server
-#   before_script:
-#       - *setup_milmove_env
-#       - *e2e_tests_playwright
-#   script:
-#     - echo "TODO Add steps"
-#     - echo "integration_test_admin"
-#     - echo "Running integration tests for Admin"
-#     - ./node_modules/.bin/playwright test playwright/tests/admin \
-#         --reporter=html,junit \
-#         --trace=on \
-#         --workers=1
-#   artifacts:
-#     paths:
-#       - playwright-report/
-#       - complete-playwright-report.zip
-#       - playwright-results.xml
-#     when: always
-#   after_script:
-#     - *announce_failure
-#   rules:
-#    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
-#      allow_failure: true
-#    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
-#      allow_failure: true # allow failure for now
-#    - *check_integration_ignore_branch
 
-# integration_test_my:
-#   stage: test
-#   interruptible: true
-#   tags:
-#     - $Gitlab_Runner_Tag
-#   image: $DOCKER_APP_IMAGE
-#   services:
-#     - name: $postgres
-#     - name: $redis
-#   variables:
-#     APPLICATION: app
-#     DB_PASSWORD: mysecretpassword
-#     DB_USER_LOW_PRIV: crud
-#     DB_PASSWORD_LOW_PRIV: mysecretpassword
-#     DB_USER: postgres
-#     DB_HOST: localhost
-#     DB_PORT: 5432
-#     DB_NAME: dev_db
-#     DB_NAME_DEV: dev_db
-#     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-#     DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
-#     DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
-#     DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
-#     DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
-#     DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
-#     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-#     DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
-#     DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
-#     DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
-#     DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
-#     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-#     ENVIRONMENT: development
-#     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
-#     POSTGRES_PASSWORD: mysecretpassword
-#     POSTGRES_DB: test_db
-#   needs:
-#     - pre_deps_yarn
-#     - pre_deps_golang
-#     - compile_app_client
-#     - compile_app_server
-#   before_script:
-#       - *setup_milmove_env
-#       - *e2e_tests_playwright
-#   script:
-#     - echo "TODO Add steps"
-#     - echo "integration_test_my"
-#     - echo "Running integration tests for My"
-#     - ./node_modules/.bin/playwright test playwright/tests/my \
-#         --reporter=html,junit \
-#         --trace=on \
-#         --workers=1 \
-#         --shard="$CI_NODE_INDEX/$CI_NODE_TOTAL"
-#   artifacts:
-#     paths:
-#       - playwright-report/
-#       - complete-playwright-report.zip
-#       - playwright-results.xml
-#     when: always
-#   after_script:
-#     - *announce_failure
-#   rules:
-#    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
-#      allow_failure: true
-#    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
-#      allow_failure: true # allow failure for now
-#    - *check_integration_ignore_branch
 
-# integration_test_office:
-#   stage: test
-#   interruptible: true
-#   tags:
-#     - $Gitlab_Runner_Tag
-#   image: $DOCKER_APP_IMAGE
-#   services:
-#     - name: $postgres
-#     - name: $redis
-#   variables:
-#     APPLICATION: app
-#     DB_PASSWORD: mysecretpassword
-#     DB_USER_LOW_PRIV: crud
-#     DB_PASSWORD_LOW_PRIV: mysecretpassword
-#     DB_USER: postgres
-#     DB_HOST: localhost
-#     DB_PORT: 5432
-#     DB_NAME: dev_db
-#     DB_NAME_DEV: dev_db
-#     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-#     DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
-#     DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
-#     DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
-#     DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
-#     DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
-#     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-#     DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
-#     DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
-#     DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
-#     DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
-#     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-#     ENVIRONMENT: development
-#     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
-#     POSTGRES_PASSWORD: mysecretpassword
-#     POSTGRES_DB: test_db
-#   needs:
-#     - pre_deps_yarn
-#     - pre_deps_golang
-#     - compile_app_client
-#     - compile_app_server
-#   before_script:
-#       - *setup_milmove_env
-#       - *e2e_tests_playwright
-#   script:
-#     - echo "TODO Add steps"
-#     - echo "integration_test_office"
-#     - ./node_modules/.bin/playwright test playwright/tests/office \
-#         --reporter=html,junit \
-#         --trace=on \
-#         --workers=1
-#   artifacts:
-#     paths:
-#       - playwright-report/
-#       - complete-playwright-report.zip
-#       - playwright-results.xml
-#     when: always
-#   after_script:
-#     - *announce_failure
-#   rules:
-#    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
-#      allow_failure: true
-#    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
-#      allow_failure: true # allow failure for now
-#    - *check_integration_ignore_branch
+integration_test_mtls:
+  stage: test
+  interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
+  tags:
+    - $Gitlab_Runner_Tag
+  image: $DOCKER_APP_IMAGE
+  services:
+    - name: $postgres
+    - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+      alias: milmovelocal,officelocal,adminlocal,primelocal
+      entrypoint: ["/bin/milmove"]
+      command: ["serve"]
+  variables:
+    CI_DEBUG_SERVICES: "true"
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "6Gi"
+    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    FF_NETWORK_PER_BUILD: "true"
+    PLAYWRIGHT_MY_URL: http://milmovelocal:4000
+    PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
+    PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
+    # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+    FEATURE_FLAG_MULTI_MOVE: 'true'
+    FEATURE_FLAG_PPM: 'true'
+    FEATURE_FLAG_NTS: 'true'
+    FEATURE_FLAG_NTSR: 'true'
+    FEATURE_FLAG_BOAT: 'true'
+    FEATURE_FLAG_MOBILE_HOME: 'true'
+    FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
+    FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
+    FEATURE_FLAG_MOVE_LOCK: 'false'
+    FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
+    FEATURE_FLAG_HEADQUARTERS_ROLE: 'true'
+    FEATURE_FLAG_GSR_ROLE: 'false'
+    FEATURE_FLAG_SAFETY_MOVE: 'false'
+    FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
+    FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE: 'false'
+    FEATURE_FLAG_QUEUE_MANAGEMENT: 'false'
+    FEATURE_FLAG_UNACCOMPANIED_BAGGAGE: 'false'
+    FEATURE_FLAG_ENABLE_ALASKA: 'false'
+    FEATURE_FLAG_BULK_ASSIGNMENT: 'false'
 
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    CI_REGISTRY: $CI_REGISTRY
+    CI_REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
+    CI_REGISTRY_USER: $CI_REGISTRY_USER
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
+
+    MOVE_MIL_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    MOVE_MIL_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+    MOVE_MIL_DOD_TLS_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+    CLIENT_AUTH_SECRET_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+    LOGIN_GOV_SECRET_KEY: $(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    HERE_MAPS_APP_ID: $E2E_HERE_MAPS_APP_ID
+    HERE_MAPS_APP_CODE: $E2E_HERE_MAPS_APP_CODE
+
+    HERE_MAPS_GEOCODE_ENDPOINT: 'https: //geocoder.api.here.com/6.2/geocode.json'
+    HERE_MAPS_ROUTING_ENDPOINT: 'https: //route.api.here.com/routing/7.2/calculateroute.json'
+    LOGIN_GOV_CALLBACK_PORT: 4000
+    LOGIN_GOV_CALLBACK_PROTOCOL: http
+    OKTA_CUSTOMER_CLIENT_ID: 1q2w3e4r5t6y7u8i9o
+    OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
+    OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
+    OKTA_CUSTOMER_SECRET_KEY: notrealkey
+    OKTA_OFFICE_SECRET_KEY: notrealkey1
+    OKTA_ADMIN_SECRET_KEY: notrealkey2
+    OKTA_TENANT_CALLBACK_PORT: 4000
+    OKTA_TENANT_CALLBACK_PROTOCOL: http
+    OKTA_TENANT_ORG_URL: test-milmove.okta.mil
+    OKTA_API_KEY: notrealapikey
+    OKTA_OFFICE_GROUP_ID: notrealgroupId
+    OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+
+    SERVE_API_SUPPORT: true
+    SERVE_PRIME_SIMULATOR: true
+    DEVLOCAL_CA: '/builds/milmove/mymove/config/tls/devlocal-ca.pem'
+
+
+    HTTP_ADMIN_SERVER_NAME: adminlocal
+    HTTP_MY_SERVER_NAME: milmovelocal
+    HTTP_OFFICE_SERVER_NAME: officelocal
+    HTTP_ORDERS_SERVER_NAME: orderslocal
+    HTTP_PRIME_SERVER_NAME: primelocal
+
+    MUTUAL_TLS_ENABLED: true
+    MUTUAL_TLS_PORT: 9443
+    SERVE_API_PRIME: true
+
+    DB_DEBUG: false
+  # needs:
+  #  - prep_integration_docker_microservice
+  #   - pre_deps_yarn
+  #   - compile_app_server
+  before_script:
+    - *setup_milmove_env
+    - *setup_env_intergration_mtls
+  script:
+    # - echo "TODO Add steps"
+    # - echo "integration_test_mtls"
+    # - echo "Waiting for server to start"
+    # - dockerize -wait http://milmovelocal:4000 -timeout 5m
+    - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
+    - source server_env
+    # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
+    # - curl http://milmovelocal:4000
+    - make bin/milmove
+    - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
+    - make bin/prime-api-client
+    - echo "Running E2E mTLS tests"
+    - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.output 2>&1
+  artifacts:
+    paths:
+      - test-results/
+      - $CI_PROJECT_DIR/e2e_mtls_test.output
+      - $CI_PROJECT_DIR/milmove_migrate.output
+    when: always
+  after_script:
+    - *announce_failure
+  rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
+   - *check_integration_mtls_ignore_branch
+
+integration_test_admin:
+  stage: test
+  interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
+  tags:
+    - $Gitlab_Runner_Tag
+  image: $DOCKER_APP_IMAGE
+  services:
+    - name: $postgres
+    - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+      alias: milmovelocal,officelocal,adminlocal,primelocal
+      entrypoint: ["/bin/milmove"]
+      command: ["serve"]
+  variables:
+    CI_DEBUG_SERVICES: "true"
+    # KUBERNETES_CPU_REQUEST: "2"
+    # KUBERNETES_MEMORY_REQUEST: "6Gi"
+    # KUBERNETES_MEMORY_LIMIT: "6Gi"
+    # FF_NETWORK_PER_BUILD: "true"
+    PLAYWRIGHT_MY_URL: http://milmovelocal:4000
+    PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
+    PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
+  # needs:
+  #   - pre_deps_yarn
+  #   - pre_deps_golang
+  #   - compile_app_client
+  #   - compile_app_server
+  before_script:
+      - *setup_milmove_env
+      - *e2e_tests_playwright
+  script:
+    - echo $MIL_MOVE_DOD_CA_CERT
+    - echo "TODO Add steps"
+    - echo "integration_test_admin"
+    - echo "Running integration tests for Admin"
+    - ./node_modules/.bin/playwright test playwright/tests/admin \
+        --reporter=html,junit \
+        --trace=on \
+        --shard="${CI_NODE_INDEX}/${CI_NODE_TOTAL}" \
+        --workers=1 >> $CI_PROJECT_DIR/playwright_test_admin.output 2>&1
+  artifacts:
+    paths:
+      - playwright-report/
+      - complete-playwright-report.zip
+      - playwright-results.xml
+      - $CI_PROJECT_DIR/playwright_test_admin.output
+    when: always
+  # parallel: 6
+  after_script:
+    - *announce_failure
+  rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
+   - *check_integration_ignore_branch
+
+integration_test_my:
+  stage: test
+  interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
+  tags:
+    - $Gitlab_Runner_Tag
+  image: $DOCKER_APP_IMAGE
+  services:
+    - name: $postgres
+    - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+      alias: milmovelocal,officelocal,adminlocal,primelocal
+      entrypoint: ["/bin/milmove"]
+      command: ["serve"]
+  variables:
+    CI_DEBUG_SERVICES: "true"
+    # KUBERNETES_CPU_REQUEST: "2"
+    # KUBERNETES_MEMORY_REQUEST: "6Gi"
+    # KUBERNETES_MEMORY_LIMIT: "6Gi"
+    MIL_MOVE_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    MIL_MOVE_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+    MIL_MOVE_DOD_TLS_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+    CLIENT_AUTH_SECRET_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+    LOGIN_GOV_SECRET_KEY: $(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    HERE_MAPS_APP_ID: $E2E_HERE_MAPS_APP_ID
+    HERE_MAPS_APP_CODE: $E2E_HERE_MAPS_APP_CODE
+
+    PLAYWRIGHT_MY_URL: http://milmovelocal:4000
+    PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
+    PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
+  # needs:
+  #   - pre_deps_yarn
+  #   - pre_deps_golang
+  #   - compile_app_client
+  #   - compile_app_server
+  before_script:
+      - *setup_milmove_env
+      - *e2e_tests_playwright
+  script:
+    - echo "TODO Add steps"
+    - echo "integration_test_my"
+    - echo "Running integration tests for My"
+    - ./node_modules/.bin/playwright test playwright/tests/my \
+        --reporter=html,junit \
+        --trace=on \
+        --shard="${CI_NODE_INDEX}/${CI_NODE_TOTAL}" \
+        --workers=1 >> $CI_PROJECT_DIR/playwright_test_my.output 2>&1
+  artifacts:
+    paths:
+      - playwright-report/
+      - complete-playwright-report.zip
+      - playwright-results.
+      - $CI_PROJECT_DIR/playwright_test_my.output
+    when: always
+  after_script:
+    - *announce_failure
+  rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
+   - *check_integration_ignore_branch
+
+integration_test_office:
+  stage: test
+  interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
+  tags:
+    - $Gitlab_Runner_Tag
+  image: $DOCKER_APP_IMAGE
+  services:
+    - name: $postgres
+    - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+      alias: milmovelocal,officelocal,adminlocal,primelocal
+      entrypoint: ["/bin/milmove"]
+      command: ["serve"]
+  variables:
+    CI_DEBUG_SERVICES: "true"
+    # KUBERNETES_CPU_REQUEST: "2"
+    # KUBERNETES_MEMORY_REQUEST: "6Gi"
+    # KUBERNETES_MEMORY_LIMIT: "6Gi"
+    MIL_MOVE_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    MIL_MOVE_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+    MIL_MOVE_DOD_TLS_KEY: $(cat /builds/milmove/mymove//tls/devlocal-https.key)
+    CLIENT_AUTH_SECRET_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+    LOGIN_GOV_SECRET_KEY: $(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    HERE_MAPS_APP_ID: $E2E_HERE_MAPS_APP_ID
+    HERE_MAPS_APP_CODE: $E2E_HERE_MAPS_APP_CODE
+
+    PLAYWRIGHT_MY_URL: http://milmovelocal:4000
+    PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
+    PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
+  # needs:
+  #   - pre_deps_yarn
+  #   - pre_deps_golang
+  #   - compile_app_client
+  #   - compile_app_server
+  before_script:
+      - *setup_milmove_env
+      - *e2e_tests_playwright
+  script:
+    - echo "TODO Add steps"
+    - echo "integration_test_office"
+    - ./node_modules/.bin/playwright test playwright/tests/office \
+        --reporter=html,junit \
+        --trace=on \
+        --shard="${CI_NODE_INDEX}/${CI_NODE_TOTAL}" \
+        --workers=1 >> $CI_PROJECT_DIR/playwright_test_office.output 2>&1
+  artifacts:
+    paths:
+      - playwright-report/
+      - complete-playwright-report.zip
+      - playwright-results.xml
+      - $CI_PROJECT_DIR/playwright_test_office.output
+    when: always
+  after_script:
+    - *announce_failure
+  rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
+   - *check_integration_ignore_branch
+
+integration_test_e2e_generic:
+  stage: test
+  interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
+  tags:
+    - $Gitlab_Runner_Tag
+  image: $DOCKER_APP_IMAGE
+  services:
+    - name: $postgres
+    - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+      alias: milmovelocal,officelocal,adminlocal,primelocal
+      entrypoint: ["/bin/milmove"]
+      command: ["serve"]
+  variables:
+    CI_DEBUG_SERVICES: "true"
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "6Gi"
+    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
+  # needs:
+  #   - pre_deps_yarn
+  #   - pre_deps_golang
+  #   - compile_app_client
+  #   - compile_app_server
+  before_script:
+      - *setup_milmove_env
+      - *e2e_tests_playwright
+      - apt-get update -y
+      #- apt-get install -y golang-go
+      #- go install your/go/app # Replace with your actual Go app path
+      #- go mod download
+      #- go build -o myapp . # Build your Go application
+      #- ./myapp migrate up # Run database migrations
+      - npm install
+  script:
+    - echo "TODO Add steps"
+    - echo "integration_test_office"
+    - ./node_modules/.bin/playwright test playwright/tests/office \
+        --reporter=html,junit \
+        --trace=on \
+        --workers=1
+  artifacts:
+    paths:
+      - playwright-report/
+      - complete-playwright-report.zip
+      - playwright-results.xml
+    when: always
+  after_script:
+    - *announce_failure
+  rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
+   - *check_integration_ignore_branch
 
 ###############################################################
 ## DP3 Env push and deploy stages all off of setting dp3 env ##
@@ -1402,7 +1666,7 @@ push_otel_collector_image_dp3:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   image:
-    name: $DOCKER_BASE_IMAGE
+    name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
     - compile_app_server
@@ -1901,6 +2165,8 @@ prod_approval:
 build_push_app_prd:
   stage: push_prd
   resource_group: production_app
+  tags:
+    - $Gitlab_Runner_Tag
   environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
