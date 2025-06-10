@@ -252,9 +252,9 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    await userEvent.type(screen.getByLabelText('Vehicle description *'), 'DMC Delorean');
+    await userEvent.type(screen.getByLabelText('Empty weight *'), '4999');
+    await userEvent.type(screen.getByLabelText('Full weight *'), '6999');
     await userEvent.click(screen.getByLabelText('Yes'));
     await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
@@ -291,9 +291,9 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 5');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    await userEvent.type(screen.getByLabelText('Vehicle description *'), 'DMC Delorean');
+    await userEvent.type(screen.getByLabelText('Empty weight *'), '4999');
+    await userEvent.type(screen.getByLabelText('Full weight *'), '6999');
     await userEvent.click(screen.getByLabelText('Yes'));
     await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
@@ -321,16 +321,16 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 5');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    await userEvent.type(screen.getByLabelText('Vehicle description *'), 'DMC Delorean');
+    await userEvent.type(screen.getByLabelText('Empty weight *'), '4999');
+    await userEvent.type(screen.getByLabelText('Full weight *'), '6999');
     await userEvent.click(screen.getByLabelText('Yes'));
     await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
-      expect(screen.getByText('pickup and delivery ZIP codes')).toBeInTheDocument();
+      expect(screen.getByText(/pickup and delivery ZIP codes/)).toBeInTheDocument();
     });
     await userEvent.click(screen.getByTestId('ZipLink'));
 
