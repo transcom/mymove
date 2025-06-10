@@ -92,7 +92,7 @@ func GetTraitShipmentAddressUpdateRequested() []Customization {
 		},
 		{
 			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+				Status: models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}
