@@ -19,6 +19,7 @@ import (
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
@@ -140,5 +141,21 @@ func main() {
 	err = models.CreatePaymentRequestEdiFile(appCtx.DB(), "858."+paymentRequest.PaymentRequestNumber, edi858String, paymentRequestNumber)
 	if err != nil {
 		logger.Fatal(err.Error())
+	}
+	notificationSender, notificationErr := notifications.InitEmail(v, logger)
+	if notificationErr != nil {
+		logger.Error("notification sender initialization failed", zap.Error(notificationErr))
+	} else { // Create a notification for payment request generation
+		// You can use an appropriate notification type here
+		paymentRequestNotifier := notifications.NewPaymentRequestFailed(paymentRequest)
+
+		// Send the notification
+		err = notificationSender.SendNotification(appCtx, paymentRequestNotifier)
+		if err != nil {
+			logger.Error("problem sending email notification", zap.Error(err))
+		} else {
+			logger.Info("payment request notification sent successfully")
+		}
+
 	}
 }
