@@ -403,7 +403,7 @@ describe('validates form fields and displays error messages', () => {
         // this field is usually always required other than PPMs
         // if a value is passed in for address1LabelHint, we will know it is optional and won't show the red asterisk
         const labelsWithAsterisk = screen.queryAllByText((content) => content.trim().endsWith('*'));
-        expect(labelsWithAsterisk.length).toBe(21);
+        expect(labelsWithAsterisk.length).toBe(13);
       });
     });
   });

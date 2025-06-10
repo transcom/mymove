@@ -180,7 +180,6 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                       defaultValue="0"
                       name="proGearWeight"
                       label="Estimated weight of your pro-gear"
-                      showRequiredAsterisk
                       required
                       id="proGearWeight"
                       mask={Number}
@@ -194,7 +193,6 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                       defaultValue="0"
                       name="spouseProGearWeight"
                       label="Estimated weight of your spouse’s pro-gear"
-                      showRequiredAsterisk
                       required
                       id="spouseProGearWeight"
                       mask={Number}
