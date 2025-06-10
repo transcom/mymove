@@ -95,7 +95,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 			Model:    move,
 			LinkOnly: true,
 		},
-	}, nil)
+	}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 	destAddress := factory.BuildDefaultAddress(suite.DB())
 
 	serviceItem := models.MTOServiceItem{
@@ -132,6 +132,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidIDFSITServiceItemWithValidMov
 		{
 			Model: models.MTOShipment{
 				MarketCode: models.MarketCodeInternational,
+				Status:     models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}, nil)
@@ -286,10 +287,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		var foundMove models.Move
 		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, sitShipment.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numDDFSITFound := 0
 		numDDASITFound := 0
@@ -340,10 +345,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		var foundMove models.Move
 		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, sitShipment.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numIDFSITFound := 0
 		numIDASITFound := 0
@@ -2754,7 +2763,8 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.Equal(unit.Cents(10929600), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
-		suite.Equal(unit.Cents(3173), fscEstimatedPriceInCents)
+		// negative because we are using 2020 fuel rates
+		suite.Equal(unit.Cents(-168), fscEstimatedPriceInCents)
 	})
 
 	suite.Run("Calcuating price estimated on creation for NTS shipment ", func() {
@@ -3052,7 +3062,8 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.Equal(unit.Cents(21859200), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
-		suite.Equal(unit.Cents(6345), fscEstimatedPriceInCents)
+		// negative because we are using 2020 fuel rate
+		suite.Equal(unit.Cents(-335), fscEstimatedPriceInCents)
 	})
 
 }
