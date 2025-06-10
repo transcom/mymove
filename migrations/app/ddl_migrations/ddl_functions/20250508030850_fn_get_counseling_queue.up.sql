@@ -34,7 +34,8 @@ RETURNS TABLE (
     counseling_transportation_office JSONB,
     orders JSONB,
     mto_shipments JSONB,
-    total_count BIGINT
+    total_count BIGINT,
+    mtos_earliest_requested_pickup_date TIMESTAMP WITH TIME zone
 ) LANGUAGE plpgsql AS $$
 DECLARE
   sql_query 	TEXT;
@@ -47,7 +48,6 @@ BEGIN
   IF page     < 1 THEN page     := 1;  END IF;
   IF per_page < 1 THEN per_page := 20; END IF;
   offset_val := (page - 1) * per_page;
-
 
   sql_query := '
     SELECT
@@ -95,7 +95,8 @@ BEGIN
 				)
 		  )::JSONB AS orders,
       COALESCE(ms_agg.mto_shipments)::JSONB AS mto_shipments,
-		COUNT(*) OVER() AS total_count
+	  COUNT(*) OVER() AS total_count,
+	ms_agg.mtos_earliest_requested_pickup_date::timestamptz AS mtos_earliest_requested_pickup_date
     From moves m
     JOIN orders o ON m.orders_id = o.id
     JOIN service_members sm ON o.service_member_id = sm.id
@@ -116,7 +117,8 @@ BEGIN
                             ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
                             ''prime_estimated_weight'', ms.prime_estimated_weight
 						)
-                       )::JSONB AS mto_shipments
+                       )::JSONB AS mto_shipments,
+						MIN(ms.requested_pickup_date) AS mtos_earliest_requested_pickup_date
                 FROM   mto_shipments ms
                 WHERE  ms.move_id = m.id
                 ) ms_agg ON TRUE
@@ -127,7 +129,6 @@ BEGIN
   IF user_gbloc IS NOT NULL THEN
           sql_query := sql_query || ' AND move_to_gbloc.gbloc = $1 ';
   END IF;
---
   IF customer_name IS NOT NULL THEN
           sql_query := sql_query || ' AND (
               sm.first_name || '' '' || sm.last_name ILIKE ''%'' || $2 || ''%''
@@ -197,7 +198,6 @@ BEGIN
 	sort_ord = 'desc';
   END IF;
 
-
   IF sort IS NULL THEN
     sql_query := sql_query || format(' ORDER BY submitted_at %s', sort_ord);
   ELSE
@@ -214,7 +214,7 @@ BEGIN
       WHEN 'status' THEN
         sql_query := sql_query || format(' ORDER BY m.status %s', sort_ord);
       WHEN 'submittedAt' THEN
-        sql_query := sql_query || format(' ORDER BY m.created_at %s', sort_ord);
+        sql_query := sql_query || format(' ORDER BY m.submitted_at %s', sort_ord);
       WHEN 'branch' THEN
         sql_query := sql_query || format(' ORDER BY sm.affiliation %s', sort_ord);
       WHEN 'originDutyLocation' THEN
@@ -223,6 +223,8 @@ BEGIN
         sql_query := sql_query || format(' ORDER BY sc_user.last_name %s', sort_ord);
       WHEN 'counselingOffice' THEN
         sql_query := sql_query || format(' ORDER BY co.name %s', sort_ord);
+	  WHEN 'requestedMoveDates' THEN
+        sql_query := sql_query || format(' ORDER BY ms_agg.mtos_earliest_requested_pickup_date %s', sort_ord);
       ELSE
         sql_query := sql_query || format(' ORDER BY %s %s', sort_col, sort_ord);
     END CASE;
