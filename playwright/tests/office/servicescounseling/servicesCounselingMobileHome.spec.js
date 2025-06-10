@@ -1,10 +1,9 @@
 // @ts-check
 import { test, expect } from './servicesCounselingTestFixture';
 
-const today = new Date();
-const pickupDate = today;
+const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
 const pickupDateString = pickupDate.toLocaleDateString('en-US');
-const deliveryDate = new Date(new Date().setDate(today.getDate() + 14));
+const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000);
 const deliveryDateString = deliveryDate.toLocaleDateString('en-US');
 
 const pickupAddress = {
@@ -104,7 +103,7 @@ test.describe('Services counselor user', () => {
     await page.locator('#requestedPickupDate').fill(pickupDateString);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDateString);
     await page.locator('#requestedDeliveryDate').blur();
 
     await page.getByLabel('Counselor remarks').fill('Sample counselor remarks');

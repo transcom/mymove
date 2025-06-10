@@ -58,7 +58,8 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       // Basic info
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.getByText('Use pickup address').click();
 
       // Storage facility info
@@ -85,7 +86,8 @@ test.describe('TOO user', () => {
 
       // Delivery info
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+      const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
 
       // TAC and SAC
       await page.locator('[data-testid="radio"] [for="tacType-NTS"]').click();

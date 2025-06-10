@@ -2379,11 +2379,13 @@ describe('MtoShipmentForm component', () => {
             expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
           });
         } else {
+          const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+
           // Trigger error with invalid date, field touched
           await act(async () => {
             const node = screen.getByLabelText(/Preferred pickup date/);
             await userEvent.clear(node);
-            await userEvent.paste('22 Mar 2022');
+            await userEvent.paste(pickupDate);
             node.blur();
           });
           const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
@@ -2434,14 +2436,16 @@ describe('MtoShipmentForm component', () => {
           mtoShipment: isCreate ? {} : mockShipment,
         });
 
+        const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+
         // Trigger invalid date error - must be in the future
         await act(async () => {
           const node = screen.getByLabelText(/Preferred pickup date/);
           await userEvent.clear(node);
-          await userEvent.paste('26 Mar 2022');
+          await userEvent.paste(pickupDate);
           node.blur();
         });
-        expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('26 Mar 2022');
+        expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(pickupDate);
         const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
           'formGroup',
         );

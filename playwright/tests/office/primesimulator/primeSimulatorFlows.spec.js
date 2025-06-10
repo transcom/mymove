@@ -281,8 +281,8 @@ test.describe('Prime simulator user', () => {
     const serviceItemCount = items.length;
     expect(serviceItemCount).toBeGreaterThan(0);
     for (let i = 0; i < serviceItemCount; i += 1) {
-      const dddsitIt = items.find((items) => items.ReService.code === 'DDDSIT');
-      serviceItemID = dddsitIt.ID;
+      const dddsitIt = items.find((items) => items.re_service.code === 'DDDSIT');
+      serviceItemID = dddsitIt.id;
     }
 
     await page.locator(`[id="${serviceItemID}-div"] > .usa-checkbox`).click();
@@ -292,8 +292,8 @@ test.describe('Prime simulator user', () => {
 
     await page.getByRole('link', { name: 'Create Payment Request' }).click();
     for (let i = 0; i < serviceItemCount; i += 1) {
-      const ddsfsc = items.find((items) => items.ReService.code === 'DDSFSC');
-      serviceItemID = ddsfsc.ID;
+      const ddsfsc = items.find((items) => items.re_service.code === 'DDSFSC');
+      serviceItemID = ddsfsc.id;
     }
 
     await page.locator(`[id="${serviceItemID}-div"] > .usa-checkbox`).click();

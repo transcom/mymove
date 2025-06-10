@@ -48,7 +48,8 @@ test.describe('Services counselor user', () => {
     await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     // Verify unexpanded view
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText(expectedDeparture);
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('BEVERLY HILLS');

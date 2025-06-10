@@ -61,7 +61,8 @@ test.describe('TOO user', () => {
       await page.locator('#ntsRecordedWeight').clear();
       await page.locator('#ntsRecordedWeight').fill('3000');
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('15 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedPickupDate').fill(pickupDate);
 
       // Storage facility info
       await page.locator('#facilityName').fill('Sample Facility Name');
@@ -88,7 +89,8 @@ test.describe('TOO user', () => {
 
       // Delivery info
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+      const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
 
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('148 S East St');

@@ -432,12 +432,7 @@ export class CustomerPpmPage extends CustomerPage {
     await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
-    let todayPlus5 = new Date();
-    todayPlus5.setDate(todayPlus5.getDate() + 5);
-    const day = String(todayPlus5.getDate()).padStart(2, '0');
-    const month = todayPlus5.toLocaleString('default', { month: 'short' });
-    const year = todayPlus5.getFullYear();
-    const expectedDeparture = `${day} ${month} ${year}`;
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
@@ -638,14 +633,14 @@ export class CustomerPpmPage extends CustomerPage {
   async signAgreement() {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/agreement/);
     await expect(this.page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
-    await this.page.evaluate( () => {
-      const textBox = document.getElementById("certificationTextScrollBox");
+    await this.page.evaluate(() => {
+      const textBox = document.getElementById('certificationTextScrollBox');
       textBox.scrollTop = textBox.scrollHeight;
     });
     await expect(this.page.getByRole('checkbox')).toBeEnabled();
     await this.page.getByRole('checkbox').click();
     const name = await this.page.getByTestId('currentUser').textContent();
-    
+
     await this.page.locator('input[name="signature"]').fill(name);
     await expect(this.page.getByRole('button', { name: 'Complete' })).toBeEnabled();
   }

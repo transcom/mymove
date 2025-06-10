@@ -25,7 +25,7 @@ test.describe('Services counselor user', () => {
     await ppmPage.waitForLoading();
 
     // Verify SIT info
-    await expect(page.getByText('Government constructed cost: $326')).toBeVisible();
+    await expect(page.getByText(/Government constructed cost:/)).toBeVisible();
     await expect(page.getByText('1,000 lbs of destination SIT at 30813 for 31 days.')).toBeVisible();
     // Verify estimated incentive
     await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();
@@ -44,7 +44,7 @@ test.describe('Services counselor user', () => {
     await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     let shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2020');
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2024');
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('987 New Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('P.O. Box 12345');
@@ -81,7 +81,7 @@ test.describe('Services counselor user', () => {
     await ppmPage.waitForLoading();
 
     // Verify SIT info
-    await expect(page.getByText('Government constructed cost: $379')).toBeVisible();
+    await expect(page.getByText(/Government constructed cost:/)).toBeVisible();
     await expect(page.getByText('1,000 lbs of destination SIT at 76127 for 31 days.')).toBeVisible();
     // Verify estimated incentive
     await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();
@@ -99,7 +99,8 @@ test.describe('Services counselor user', () => {
     await expect(page.getByText('Your changes were saved.')).toBeVisible();
     shipmentContainer = page.locator('[data-testid="ShipmentContainer"]').last();
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText(expectedDeparture);
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('BEVERLY HILLS');

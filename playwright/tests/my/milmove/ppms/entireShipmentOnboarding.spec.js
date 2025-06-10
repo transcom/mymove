@@ -79,7 +79,8 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await this.page.locator('label[for="sitExpectedNo"]').click();
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
-    await this.page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
 
     // Change closeout location
