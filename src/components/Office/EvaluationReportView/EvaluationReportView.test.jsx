@@ -10,6 +10,7 @@ import { qaeCSRRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { roleTypes } from 'constants/userRoles';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -358,7 +359,11 @@ describe('EvaluationReportView', () => {
 
     render(
       <MockProviders>
-        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+        <EvaluationReportView
+          customerInfo={{}}
+          grade={ORDERS_PAY_GRADE_TYPE.E_5}
+          destinationDutyLocationPostalCode="12345"
+        />
       </MockProviders>,
     );
 
@@ -377,7 +382,11 @@ describe('EvaluationReportView', () => {
 
     render(
       <MockProviders>
-        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+        <EvaluationReportView
+          customerInfo={{}}
+          grade={ORDERS_PAY_GRADE_TYPE.E_5}
+          destinationDutyLocationPostalCode="12345"
+        />
       </MockProviders>,
     );
 
@@ -432,7 +441,11 @@ describe('EvaluationReportView', () => {
 
     render(
       <MockProviders>
-        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+        <EvaluationReportView
+          customerInfo={{}}
+          grade={ORDERS_PAY_GRADE_TYPE.E_5}
+          destinationDutyLocationPostalCode="12345"
+        />
       </MockProviders>,
     );
 
@@ -453,7 +466,11 @@ describe('EvaluationReportView', () => {
 
     render(
       <MockProviders>
-        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+        <EvaluationReportView
+          customerInfo={{}}
+          grade={ORDERS_PAY_GRADE_TYPE.E_5}
+          destinationDutyLocationPostalCode="12345"
+        />
       </MockProviders>,
     );
 
