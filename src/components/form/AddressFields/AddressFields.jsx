@@ -114,8 +114,6 @@ export const AddressFields = ({
                 label="City"
                 id={`city_${addressFieldsUUID.current}`}
                 name={`${name}.city`}
-                showRequiredAsterisk
-                required
                 data-testid={`${name}.city`}
                 display="readonly"
                 validate={validators?.city}
@@ -125,8 +123,6 @@ export const AddressFields = ({
                 id={`state_${addressFieldsUUID.current}`}
                 name={`${name}.state`}
                 data-testid={`${name}.state`}
-                showRequiredAsterisk
-                required
                 display="readonly"
                 validate={validators?.state}
                 styles="margin-top: 1.5em"
@@ -139,8 +135,6 @@ export const AddressFields = ({
                 name={`${name}.postalCode`}
                 data-testid={`${name}.postalCode`}
                 maxLength={10}
-                showRequiredAsterisk
-                required
                 display="readonly"
                 validate={validators?.postalCode}
               />
@@ -148,8 +142,6 @@ export const AddressFields = ({
                 label="County"
                 id={`county_${addressFieldsUUID.current}`}
                 name={`${name}.county`}
-                showRequiredAsterisk
-                required
                 data-testid={`${name}.county`}
                 display="readonly"
                 validate={validators?.county}
