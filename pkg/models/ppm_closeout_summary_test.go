@@ -91,3 +91,65 @@ func (suite *ModelSuite) TestFetchPPMCloseoutByPPMID_NotFound() {
 	suite.Equal(fetched, models.PPMCloseoutSummary{})
 	suite.True(errors.Is(err, models.ErrFetchNotFound), "Expected FETCH_NOT_FOUND error")
 }
+
+func (suite *ModelSuite) TestCalculateAndGetPPMCloseoutSummary() {
+	suite.Run("CalculatePPMCloseoutSummary creates a closeout record", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+
+		// Should not exist yet
+		_, err := models.FetchPPMCloseoutByPPMID(suite.DB(), ppmShipment.ID)
+		suite.Error(err)
+
+		// Should succeed and create a record
+		err = models.CalculatePPMCloseoutSummary(suite.DB(), ppmShipment.ID, false)
+		suite.NoError(err)
+
+		// Should succeed and find a record
+		closeout, err := models.FetchPPMCloseoutByPPMID(suite.DB(), ppmShipment.ID)
+		suite.NoError(err)
+		suite.Equal(ppmShipment.ID, closeout.PPMShipmentID)
+	})
+
+	suite.Run("GetPPMCloseoutSummary returns the closeout record and calls calculate", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+
+		// Should succeed and return the record
+		closeout, err := models.GetPPMCloseoutSummary(suite.DB(), ppmShipment.ID, false)
+		suite.NoError(err)
+		suite.Equal(ppmShipment.ID, closeout.PPMShipmentID)
+	})
+
+	suite.Run("GetPPMCloseoutSummary & CalculatePPMCloseoutSummary don't recalculate if already calculated and recalculateIfExists is false", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		closeout, err := models.GetPPMCloseoutSummary(suite.DB(), ppmShipment.ID, false)
+		suite.NoError(err)
+		closeoutUpdatedAt := closeout.UpdatedAt
+
+		closeout, err = models.GetPPMCloseoutSummary(suite.DB(), ppmShipment.ID, false)
+		suite.NoError(err)
+		suite.Equal(ppmShipment.ID, closeout.PPMShipmentID)
+		suite.Equal(closeoutUpdatedAt, closeout.UpdatedAt, "Expected no change in updated_at when not recalculating")
+	})
+
+	suite.Run("GetPPMCloseoutSummary & CalculatePPMCloseoutSummary do recalculate if already calculated and recalculateIfExists is true", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		closeout, err := models.GetPPMCloseoutSummary(suite.DB(), ppmShipment.ID, false)
+		suite.NoError(err)
+		initialCloseoutMaxAdvance := closeout.MaxAdvance
+
+		ppmShipment.EstimatedIncentive = initialCloseoutMaxAdvance
+		err = suite.DB().Update(&ppmShipment)
+		suite.NoError(err)
+
+		closeout, err = models.GetPPMCloseoutSummary(suite.DB(), ppmShipment.ID, true)
+		suite.NoError(err)
+		suite.Equal(ppmShipment.ID, closeout.PPMShipmentID)
+		suite.Equal(initialCloseoutMaxAdvance.Float64()*0.6, closeout.MaxAdvance.Float64(), "Expected max advance to change when recalculating")
+	})
+
+	suite.Run("GetPPMCloseoutSummary returns error for nonexistent PPM", func() {
+		fakePPMID := uuid.Must(uuid.NewV4())
+		_, err := models.GetPPMCloseoutSummary(suite.DB(), fakePPMID, false)
+		suite.Error(err)
+	})
+}
