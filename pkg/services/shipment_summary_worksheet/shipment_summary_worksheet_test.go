@@ -290,50 +290,141 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	wtgEntitlements := models.SSWMaxWeightEntitlement{
+		Entitlement:   15000,
+		ProGear:       2000,
+		SpouseProGear: 500,
+		TotalWeight:   17500,
+	}
+
+	serviceMemberID, _ := uuid.NewV4()
+	serviceBranch := models.AffiliationAIRFORCE
+	grade := models.ServiceMemberGradeE9
+	serviceMember := models.ServiceMember{
+		ID:            serviceMemberID,
+		FirstName:     models.StringPointer("Marcus"),
+		MiddleName:    models.StringPointer("Joseph"),
+		LastName:      models.StringPointer("Jenkins"),
+		Suffix:        models.StringPointer("Jr."),
+		Telephone:     models.StringPointer("444-555-8888"),
+		PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
+		Edipi:         models.StringPointer("1234567890"),
+		Affiliation:   &serviceBranch,
+	}
+
+	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
+	order := models.Order{
+		IssueDate:         orderIssueDate,
+		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:      models.StringPointer("012345"),
+		NewDutyLocationID: fortGordon.ID,
+		TAC:               models.StringPointer("NTA4"),
+		SAC:               models.StringPointer("SAC"),
+		HasDependents:     true,
+		SpouseHasProGear:  true,
+		Grade:             &grade,
+	}
+
+	expectedPickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(2019, time.February, 11, 0, 0, 0, 0, time.UTC)
+	netWeight := unit.Pound(4000)
+	cents := unit.Cents(1000)
+	locator := "ABCDEF-01"
+	estIncentive := unit.Cents(1000000)
+	maxIncentive := unit.Cents(2000000)
+
+	suite.Run("PPM Type Incentive-based with multiplier - Success", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		gccMultiplier := models.GCCMultiplier{
+			Multiplier: 1.3,
+		}
+		PPMShipments := models.PPMShipment{
+			ExpectedDepartureDate:  validGccMultiplierDate,
+			ActualMoveDate:         &actualPickupDate,
+			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+			EstimatedWeight:        &netWeight,
+			AdvanceAmountRequested: &cents,
+			EstimatedIncentive:     &estIncentive,
+			MaxIncentive:           &maxIncentive,
+			Shipment: models.MTOShipment{
+				ShipmentLocator: &locator,
+			},
+			GCCMultiplier: &gccMultiplier,
+		}
+		ssd := models.ShipmentSummaryFormData{
+			ServiceMember:           serviceMember,
+			Order:                   order,
+			CurrentDutyLocation:     yuma,
+			NewDutyLocation:         fortGordon,
+			PPMRemainingEntitlement: 3000,
+			WeightAllotment:         wtgEntitlements,
+			PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+			PPMShipment:             PPMShipments,
+		}
+
+		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+		sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+		sswPage1, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
+		suite.NoError(err)
+		suite.Equal(FormatDate(time.Now()), sswPage1.PreparationDate1)
+
+		suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
+		suite.Equal("E-9", sswPage1.RankGrade)
+		suite.Equal("Air Force", sswPage1.ServiceBranch)
+		suite.Equal("00 Days in SIT", sswPage1.MaxSITStorageEntitlement)
+		suite.Equal("Yuma AFB, IA 50309", sswPage1.AuthorizedOrigin)
+		suite.Equal("Fort Eisenhower, GA 30813", sswPage1.AuthorizedDestination)
+		suite.Equal("No", sswPage1.POVAuthorized)
+		suite.Equal("444-555-8888", sswPage1.PreferredPhoneNumber)
+		suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
+		suite.Equal("1234567890", sswPage1.DODId)
+		suite.Equal("Air Force", sswPage1.IssuingBranchOrAgency)
+		suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
+		suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
+		suite.Equal("Fort Eisenhower, GA 30813", sswPage1.NewDutyAssignment)
+		suite.Equal("15,000", sswPage1.WeightAllotment)
+		suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
+		suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
+		suite.Equal("17,500", sswPage1.TotalWeightAllotment)
+
+		suite.Equal(locator+" PPM", sswPage1.ShipmentNumberAndTypes)
+		suite.Equal("02-Jun-2025", sswPage1.ShipmentPickUpDates)
+		suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
+		suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
+		suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
+		suite.Equal("17,500 lbs; $20,000.00", sswPage1.MaxObligationGCC100)
+		suite.False(sswPage1.IsActualExpenseReimbursement)
+		suite.False(sswPage1.IsSmallPackageReimbursement)
+		suite.Equal("(with 1.3x multiplier)", sswPage1.GCCMultiplier)
+
+		// quick test when there is no PPM actual move date
+		PPMShipmentWithoutActualMoveDate := models.PPMShipment{
+			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+			EstimatedWeight:        &netWeight,
+			AdvanceAmountRequested: &cents,
+			Shipment: models.MTOShipment{
+				ShipmentLocator: &locator,
+			},
+		}
+
+		ssdWithoutPPMActualMoveDate := models.ShipmentSummaryFormData{
+			ServiceMember:           serviceMember,
+			Order:                   order,
+			CurrentDutyLocation:     yuma,
+			NewDutyLocation:         fortGordon,
+			PPMRemainingEntitlement: 3000,
+			WeightAllotment:         wtgEntitlements,
+			PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+			PPMShipment:             PPMShipmentWithoutActualMoveDate,
+		}
+		sswPage1NoActualMoveDate, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssdWithoutPPMActualMoveDate, false)
+		suite.NoError(err)
+		suite.Equal("N/A", sswPage1NoActualMoveDate.ShipmentPickUpDates)
+	})
+
 	suite.Run("PPM Type Actual Expense Reimbursement - Success", func() {
-		yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-		fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-		wtgEntitlements := models.SSWMaxWeightEntitlement{
-			Entitlement:   15000,
-			ProGear:       2000,
-			SpouseProGear: 500,
-			TotalWeight:   17500,
-		}
-
-		serviceMemberID, _ := uuid.NewV4()
-		serviceBranch := models.AffiliationAIRFORCE
-		grade := models.ServiceMemberGradeE9
-		serviceMember := models.ServiceMember{
-			ID:            serviceMemberID,
-			FirstName:     models.StringPointer("Marcus"),
-			MiddleName:    models.StringPointer("Joseph"),
-			LastName:      models.StringPointer("Jenkins"),
-			Suffix:        models.StringPointer("Jr."),
-			Telephone:     models.StringPointer("444-555-8888"),
-			PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
-			Edipi:         models.StringPointer("1234567890"),
-			Affiliation:   &serviceBranch,
-		}
-
-		orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
-		order := models.Order{
-			IssueDate:         orderIssueDate,
-			OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-			OrdersNumber:      models.StringPointer("012345"),
-			NewDutyLocationID: fortGordon.ID,
-			TAC:               models.StringPointer("NTA4"),
-			SAC:               models.StringPointer("SAC"),
-			HasDependents:     true,
-			SpouseHasProGear:  true,
-			Grade:             &grade,
-		}
-		expectedPickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
-		actualPickupDate := time.Date(2019, time.February, 11, 0, 0, 0, 0, time.UTC)
-		netWeight := unit.Pound(4000)
-		cents := unit.Cents(1000)
-		locator := "ABCDEF-01"
-		estIncentive := unit.Cents(1000000)
-		maxIncentive := unit.Cents(2000000)
 		PPMShipments := models.PPMShipment{
 			PPMType:                models.PPMTypeActualExpense,
 			ExpectedDepartureDate:  expectedPickupDate,
@@ -392,7 +483,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("17,500 lbs; $20,000.00", sswPage1.MaxObligationGCC100)
 		suite.True(sswPage1.IsActualExpenseReimbursement)
 		suite.False(sswPage1.IsSmallPackageReimbursement)
-		suite.Equal("Actual Expense Reimbursement", sswPage1.GCCExpenseReimbursementType)
+		suite.Equal("AER", sswPage1.GCCExpenseReimbursementType)
+		suite.Equal("(with 1x multiplier)", sswPage1.GCCMultiplier)
 
 		// quick test when there is no PPM actual move date
 		PPMShipmentWithoutActualMoveDate := models.PPMShipment{
@@ -420,49 +512,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	})
 
 	suite.Run("PPM Type Small Package Reimbursement - Success", func() {
-		yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-		fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-		wtgEntitlements := models.SSWMaxWeightEntitlement{
-			Entitlement:   15000,
-			ProGear:       2000,
-			SpouseProGear: 500,
-			TotalWeight:   17500,
-		}
-
-		serviceMemberID, _ := uuid.NewV4()
-		serviceBranch := models.AffiliationAIRFORCE
-		grade := models.ServiceMemberGradeE9
-		serviceMember := models.ServiceMember{
-			ID:            serviceMemberID,
-			FirstName:     models.StringPointer("Marcus"),
-			MiddleName:    models.StringPointer("Joseph"),
-			LastName:      models.StringPointer("Jenkins"),
-			Suffix:        models.StringPointer("Jr."),
-			Telephone:     models.StringPointer("444-555-8888"),
-			PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
-			Edipi:         models.StringPointer("1234567890"),
-			Affiliation:   &serviceBranch,
-		}
-
-		orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
-		order := models.Order{
-			IssueDate:         orderIssueDate,
-			OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-			OrdersNumber:      models.StringPointer("012345"),
-			NewDutyLocationID: fortGordon.ID,
-			TAC:               models.StringPointer("NTA4"),
-			SAC:               models.StringPointer("SAC"),
-			HasDependents:     true,
-			SpouseHasProGear:  true,
-			Grade:             &grade,
-		}
-		expectedPickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
-		actualPickupDate := time.Date(2019, time.February, 11, 0, 0, 0, 0, time.UTC)
-		netWeight := unit.Pound(4000)
-		cents := unit.Cents(1000)
-		locator := "ABCDEF-01"
-		estIncentive := unit.Cents(1000000)
-		maxIncentive := unit.Cents(2000000)
 		PPMShipments := models.PPMShipment{
 			PPMType:                models.PPMTypeSmallPackage,
 			ExpectedDepartureDate:  expectedPickupDate,
@@ -521,7 +570,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("17,500 lbs; $20,000.00", sswPage1.MaxObligationGCC100)
 		suite.False(sswPage1.IsActualExpenseReimbursement)
 		suite.True(sswPage1.IsSmallPackageReimbursement)
-		suite.Equal("Small Package Reimbursement", sswPage1.GCCExpenseReimbursementType)
+		suite.Equal("SPR", sswPage1.GCCExpenseReimbursementType)
+		suite.Equal("(with 1x multiplier)", sswPage1.GCCMultiplier)
 
 		// quick test when there is no PPM actual move date
 		PPMShipmentWithoutActualMoveDate := models.PPMShipment{
@@ -546,6 +596,76 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		sswPage1NoActualMoveDate, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssdWithoutPPMActualMoveDate, false)
 		suite.NoError(err)
 		suite.Equal("N/A", sswPage1NoActualMoveDate.ShipmentPickUpDates)
+	})
+
+	suite.Run("Safety Heading - Safety Orders Type", func() {
+		PPMShipments := models.PPMShipment{
+			PPMType:                models.PPMTypeSmallPackage,
+			ExpectedDepartureDate:  expectedPickupDate,
+			ActualMoveDate:         &actualPickupDate,
+			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+			EstimatedWeight:        &netWeight,
+			AdvanceAmountRequested: &cents,
+			EstimatedIncentive:     &estIncentive,
+			MaxIncentive:           &maxIncentive,
+			Shipment: models.MTOShipment{
+				ShipmentLocator: &locator,
+			},
+		}
+		orderCopy := order
+		orderCopy.OrdersType = internalmessages.OrdersTypeSAFETY
+		ssd := models.ShipmentSummaryFormData{
+			ServiceMember:           serviceMember,
+			Order:                   orderCopy,
+			CurrentDutyLocation:     yuma,
+			NewDutyLocation:         fortGordon,
+			PPMRemainingEntitlement: 3000,
+			WeightAllotment:         wtgEntitlements,
+			PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+			PPMShipment:             PPMShipments,
+		}
+
+		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+		sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+		sswPage1, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
+		suite.NoError(err)
+		suite.Equal(FormatDate(time.Now()), sswPage1.PreparationDate1)
+
+		suite.Equal("SAFETY", sswPage1.SafetyMoveHeading)
+	})
+
+	suite.Run("Safety Heading - non-Safety Orders Type", func() {
+		PPMShipments := models.PPMShipment{
+			PPMType:                models.PPMTypeSmallPackage,
+			ExpectedDepartureDate:  expectedPickupDate,
+			ActualMoveDate:         &actualPickupDate,
+			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+			EstimatedWeight:        &netWeight,
+			AdvanceAmountRequested: &cents,
+			EstimatedIncentive:     &estIncentive,
+			MaxIncentive:           &maxIncentive,
+			Shipment: models.MTOShipment{
+				ShipmentLocator: &locator,
+			},
+		}
+		ssd := models.ShipmentSummaryFormData{
+			ServiceMember:           serviceMember,
+			Order:                   order,
+			CurrentDutyLocation:     yuma,
+			NewDutyLocation:         fortGordon,
+			PPMRemainingEntitlement: 3000,
+			WeightAllotment:         wtgEntitlements,
+			PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+			PPMShipment:             PPMShipments,
+		}
+
+		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+		sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+		sswPage1, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
+		suite.NoError(err)
+		suite.Equal(FormatDate(time.Now()), sswPage1.PreparationDate1)
+
+		suite.Equal("", sswPage1.SafetyMoveHeading)
 	})
 }
 
@@ -642,7 +762,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("$400.00", sswPage2.TotalMemberPaid)
 		suite.Equal("NTA4", sswPage2.TAC)
 		suite.Equal("SAC", sswPage2.SAC)
-		suite.Equal("Actual Expense Reimbursement", sswPage2.IncentiveExpenseReimbursementType)
+		suite.Equal("AER", sswPage2.IncentiveExpenseReimbursementType)
 		suite.Equal(`This PPM is being processed as actual expense reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`, sswPage2.HeaderExpenseReimbursementType)
 	})
@@ -739,7 +859,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("$400.00", sswPage2.TotalMemberPaid)
 		suite.Equal("NTA4", sswPage2.TAC)
 		suite.Equal("SAC", sswPage2.SAC)
-		suite.Equal("Small Package Reimbursement", sswPage2.IncentiveExpenseReimbursementType)
+		suite.Equal("SPR", sswPage2.IncentiveExpenseReimbursementType)
 		suite.Equal(`This PPM is being processed as small package reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`, sswPage2.HeaderExpenseReimbursementType)
 	})
@@ -2300,7 +2420,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPaymentPacketWithNilFi
 			PaidWithGTCC:      models.BoolPointer(true),
 		},
 	}
-	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	signedCertType := models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT
 	cert := models.SignedCertification{
 		CertificationType: &signedCertType,
 		CertificationText: "APPROVED",
