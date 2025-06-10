@@ -42,49 +42,49 @@ export const RequestAccount = ({ setFlashMessage }) => {
       });
     }
 
-    if (values.taskInvoicingOfficerCheckBox) {
+    if (values.task_invoicing_officerCheckbox) {
       requestedRoles.push({
         name: 'Task Invoicing Officer',
         roleType: 'task_invoicing_officer',
       });
     }
-    if (values.taskOrderingOfficerCheckBox) {
+    if (values.task_ordering_officerCheckbox) {
       requestedRoles.push({
         name: 'Task Ordering Officer',
         roleType: 'task_ordering_officer',
       });
     }
-    if (values.headquartersCheckBox) {
+    if (values.headquartersCheckbox) {
       requestedRoles.push({
         name: 'Headquarters',
         roleType: 'headquarters',
       });
     }
-    if (values.transportationContractingOfficerCheckBox) {
+    if (values.contracting_officerCheckbox) {
       requestedRoles.push({
         name: 'Contracting Officer',
         roleType: 'contracting_officer',
       });
     }
-    if (values.servicesCounselorCheckBox) {
+    if (values.services_counselorCheckbox) {
       requestedRoles.push({
         name: 'Services Counselor',
         roleType: 'services_counselor',
       });
     }
-    if (values.qualityAssuranceEvaluatorCheckBox) {
+    if (values.qaeCheckbox) {
       requestedRoles.push({
         name: 'Quality Assurance Evaluator',
         roleType: 'qae',
       });
     }
-    if (values.customerSupportRepresentativeCheckBox) {
+    if (values.customer_service_representativeCheckbox) {
       requestedRoles.push({
         name: 'Customer Service Representative',
         roleType: 'customer_service_representative',
       });
     }
-    if (values.governmentSurveillanceRepresentativeCheckbox) {
+    if (values.gsrCheckbox) {
       requestedRoles.push({
         name: 'Government Surveillance Representative',
         roleType: 'gsr',

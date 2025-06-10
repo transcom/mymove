@@ -91,7 +91,7 @@ describe('RequestAccount page', () => {
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
     await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
-    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
     await userEvent.click(tooCheckbox);
 
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');
@@ -145,16 +145,16 @@ describe('RequestAccount page', () => {
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
     await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
-    const tcoCheckbox = screen.getByTestId('transportationContractingOfficerCheckBox');
-    await userEvent.click(tcoCheckbox);
+    const coCheckbox = screen.getByTestId('contracting_officerCheckbox');
+    await userEvent.click(coCheckbox);
 
-    const scCheckbox = screen.getByTestId('servicesCounselorCheckBox');
+    const scCheckbox = screen.getByTestId('services_counselorCheckbox');
     await userEvent.click(scCheckbox);
 
-    const qsaCheckbox = screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
-    await userEvent.click(qsaCheckbox);
+    const qaeCheckbox = screen.getByTestId('qaeCheckbox');
+    await userEvent.click(qaeCheckbox);
 
-    const gsrCheckbox = screen.getByTestId('governmentSurveillanceRepresentativeCheckbox');
+    const gsrCheckbox = screen.getByTestId('gsrCheckbox');
     await userEvent.click(gsrCheckbox);
 
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');

@@ -34,14 +34,14 @@ describe('OfficeAccountRequestFields component', () => {
     expect(screen.getByTestId('edipiConfirmation')).toBeInTheDocument();
     expect(screen.getByTestId('officeAccountRequestOtherUniqueId')).toBeInTheDocument();
     expect(screen.getByTestId('otherUniqueIdConfirmation')).toBeInTheDocument();
-    expect(screen.getByTestId('headquartersCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('taskOrderingOfficerCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('taskInvoicingOfficerCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('transportationContractingOfficerCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('servicesCounselorCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('qualityAssuranceEvaluatorCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('customerSupportRepresentativeCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('governmentSurveillanceRepresentativeCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('headquartersCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('task_ordering_officerCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('task_invoicing_officerCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('contracting_officerCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('services_counselorCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('qaeCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('customer_service_representativeCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('gsrCheckbox')).toBeInTheDocument();
   });
 
   it('validates that EDIPI and EDIPI confirmation match', async () => {
@@ -120,7 +120,7 @@ describe('OfficeAccountRequestFields component', () => {
       </Formik>,
     );
 
-    const headquartersCheckbox = screen.getByTestId('headquartersCheckBox');
+    const headquartersCheckbox = screen.getByTestId('headquartersCheckbox');
 
     await userEvent.click(headquartersCheckbox); // check
     await userEvent.click(headquartersCheckbox); // uncheck
@@ -136,8 +136,8 @@ describe('OfficeAccountRequestFields component', () => {
       </Formik>,
     );
 
-    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
-    const tioCheckbox = screen.getByTestId('taskInvoicingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
+    const tioCheckbox = screen.getByTestId('task_invoicing_officerCheckbox');
 
     await userEvent.click(tooCheckbox);
     await userEvent.click(tioCheckbox);

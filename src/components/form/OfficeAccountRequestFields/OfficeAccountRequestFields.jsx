@@ -38,9 +38,12 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const showTransportConflictError = touched.transportationOfficerRoleConflict && hasTransportConflict;
 
   useEffect(() => {
-    isBooleanFlagEnabledUnauthenticatedOffice(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES)?.then((enabled) => {
-      setEnableRequestAccountPrivileges(enabled);
-    });
+    const fetchData = async () => {
+      isBooleanFlagEnabledUnauthenticatedOffice(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES)?.then((enabled) => {
+        setEnableRequestAccountPrivileges(enabled);
+      });
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -65,7 +68,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
       values.contracting_officerCheckbox,
       values.qaeCheckbox,
       values.headquartersCheckbox,
-      values.customer_services_representativeCheckBox,
+      values.customer_services_representativeCheckbox,
       values.gsrCheckbox,
     ].some(Boolean);
 
@@ -86,7 +89,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
     values.contracting_officerCheckbox,
     values.qaeCheckbox,
     values.headquartersCheckbox,
-    values.customer_services_representativeCheckBox,
+    values.customer_services_representativeCheckbox,
     values.gsrCheckbox,
     setFieldTouched,
     validateField,
