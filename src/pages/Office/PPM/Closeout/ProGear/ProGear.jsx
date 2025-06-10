@@ -13,9 +13,8 @@ import {
   patchProGearWeightTicket,
   createUploadForPPMDocument,
   deleteUploadForDocument,
-  updateMTOShipment,
 } from 'services/ghcApi';
-import { DOCUMENTS } from 'constants/queryKeys';
+import { DOCUMENTS, MTO_SHIPMENT } from 'constants/queryKeys';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { usePPMShipmentAndDocsOnlyQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
@@ -28,12 +27,11 @@ const ProGear = () => {
   const queryClient = useQueryClient();
   const { moveCode, shipmentId, proGearId } = useParams();
 
-  const { mtoShipment, refetchMTOShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const { orders } = useReviewShipmentWeightsQuery(moveCode);
   const appName = APP_NAME.OFFICE;
   const ppmShipment = mtoShipment?.ppmShipment;
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
-  const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
 
   const currentProGearWeightTicket = proGearWeightTickets?.find((item) => item.id === proGearId) ?? null;
   const currentIndex = Array.isArray(proGearWeightTickets)
@@ -60,56 +58,12 @@ const ProGear = () => {
   });
 
   const { mutate: mutatePatchProGearWeightTicket } = useMutation(patchProGearWeightTicket);
-  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment, {
-    onSuccess: () => {
-      navigate(reviewPath);
-    },
-    onError: () => {
-      setErrorMessage(`Failed to update shipment record`);
-    },
-  });
 
   useEffect(() => {
     if (!proGearId) {
       mutateProGearCreateWeightTicket(ppmShipment?.id);
     }
   }, [mutateProGearCreateWeightTicket, ppmShipment?.id, proGearId]);
-
-  const updateShipment = async (values) => {
-    const shipmentResp = await refetchMTOShipment();
-    if (shipmentResp.isSuccess) {
-      const belongsToSelf = values.belongsToSelf === 'true';
-      let proGear;
-      let spouseProGear;
-      if (belongsToSelf) {
-        proGear = values.weight;
-      }
-      if (!belongsToSelf) {
-        spouseProGear = values.weight;
-      }
-
-      const shipmentPayload = {
-        belongsToSelf,
-        ppmShipment: {
-          id: mtoShipment.ppmShipment.id,
-        },
-        shipmentType: mtoShipment.shipmentType,
-        actualSpouseProGearWeight: parseInt(spouseProGear, 10),
-        actualProGearWeight: parseInt(proGear, 10),
-        shipmentLocator: values.shipmentLocator,
-        eTag: shipmentResp?.data?.eTag,
-      };
-
-      mutateUpdateMtoShipment({
-        moveTaskOrderID,
-        shipmentID: mtoShipment.id,
-        ifMatchETag: shipmentPayload.eTag,
-        body: shipmentPayload,
-      });
-    } else {
-      setErrorMessage('Failed to fetch shipment record');
-    }
-  };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
@@ -184,9 +138,10 @@ const ProGear = () => {
         eTag: currentProGearWeightTicket.eTag,
       },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
-          updateShipment(values);
+        onSuccess: async () => {
+          await queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+          await queryClient.invalidateQueries([MTO_SHIPMENT, shipmentId]);
+          navigate(reviewPath);
         },
         onError: () => {
           setIsSubmitted(false);
