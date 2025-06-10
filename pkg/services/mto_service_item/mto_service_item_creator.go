@@ -298,7 +298,14 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 	var distance int
 	var err error
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOASIT || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDOASIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDOSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOASIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOPSIT {
 		// Creation: Origin SIT: distance between shipment pickup address & service item pickup address
 		// On creation, shipment pickup and service item pickup are the same
 		var originalSITAddressZip string
@@ -310,12 +317,20 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDDASIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDASIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDDSIT {
 		// Creation: Destination SIT: distance between shipment destination address & service item destination address
 		if mtoShipment.DestinationAddress != nil && serviceItem.SITDestinationFinalAddress != nil {
 			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 		}
 	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -386,32 +401,37 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
 	// also rather basic.
 	if serviceItem.MTOShipmentID == nil {
+		var feeDate *time.Time
+		// we need to know the first shipment's requested pickup date OR a PPM's expected departure date to establish the correct base year for the fee
+		// Loop through shipments to find the first requested pickup date
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
-			// we need to know the first shipment's requested pickup date OR a PPM's expected departure date to establish the correct base year for the fee
-			// Loop through shipments to find the first requested pickup date
-			var feeDate *time.Time
 			for _, shipment := range move.MTOShipments {
-				if shipment.RequestedPickupDate != nil {
-					feeDate = shipment.RequestedPickupDate
-					break
+				if shipment.RequestedPickupDate != nil && shipment.DeletedAt == nil {
+					if feeDate == nil || shipment.RequestedPickupDate.Before(*feeDate) {
+						feeDate = shipment.RequestedPickupDate
+					}
+
+					if serviceItem.ReService.Code == models.ReServiceCodeCS {
+						if shipment.PPMShipment != nil && !shipment.PPMShipment.ExpectedDepartureDate.IsZero() {
+							feeDate = &shipment.PPMShipment.ExpectedDepartureDate
+						}
+					}
 				}
-				var nilTime time.Time
-				if shipment.PPMShipment != nil && shipment.PPMShipment.ExpectedDepartureDate != nilTime {
-					feeDate = &shipment.PPMShipment.ExpectedDepartureDate
-				}
 			}
-			if feeDate == nil {
-				return nil, nil, apperror.NewNotFoundError(moveID, fmt.Sprintf(
-					"cannot create fee for service item %s: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment in move %s",
-					serviceItem.ReService.Code, moveID.String()))
-			}
-			serviceItem.Status = "APPROVED"
-			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *feeDate)
-			if err != nil {
-				return nil, nil, err
-			}
-			serviceItem.LockedPriceCents = &taskOrderFee.PriceCents
 		}
+
+		if feeDate == nil {
+			return nil, nil, apperror.NewNotFoundError(moveID, fmt.Sprintf(
+				"cannot create fee for service item %s: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment in move %s",
+				serviceItem.ReService.Code, moveID.String()))
+		}
+		serviceItem.Status = "APPROVED"
+		taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *feeDate)
+		if err != nil {
+			return nil, nil, err
+		}
+		serviceItem.LockedPriceCents = &taskOrderFee.PriceCents
+
 		verrs, err = o.builder.CreateOne(appCtx, serviceItem)
 		if verrs != nil {
 			return nil, verrs, nil
@@ -595,6 +615,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					extraServiceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeIDASIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeIDSFSC {
+					extraServiceItem.SITDestinationOriginalAddress = serviceItem.SITDestinationOriginalAddress
+					extraServiceItem.SITDestinationOriginalAddressID = serviceItem.SITDestinationOriginalAddressID
 					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
 					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
 				}
@@ -603,7 +625,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 		milesCalculated, errCalcSITDelivery := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
 
-		// only calculate SITDeliveryMiles for DOPSIT and DOSFSC origin service items
+		// only calculate SITDeliveryMiles for DOPSIT/DOSFSC, IOPSIT/IOSFSC origin service items
 		if (serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeIOFSIT) &&
 			milesCalculated != 0 {
 			for itemIndex := range *extraServiceItems {
@@ -618,7 +640,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 
-		// only calculate SITDeliveryMiles for DDDSIT and DDSFSC destination service items
+		// only calculate SITDeliveryMiles for DDDSIT/DDSFSC, IDDSIT/IDSFSC destination service items
 		if (serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeIDFSIT) && milesCalculated != 0 {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
@@ -758,6 +780,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 
 		if _, err = o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
+			return err
+		}
+		if _, err = o.moveRouter.UpdateShipmentStatusToApprovalsRequested(txnAppCtx, mtoShipment); err != nil {
 			return err
 		}
 

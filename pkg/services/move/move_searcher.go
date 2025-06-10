@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -39,7 +40,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		return models.Moves{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
@@ -73,7 +74,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 		Where("show = TRUE")
 
-	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+	if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 		query.Where("orders.orders_type != (?)", "SAFETY")
 	}
 

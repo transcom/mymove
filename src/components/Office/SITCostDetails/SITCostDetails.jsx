@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { formatCentsTruncateWhole, formatDaysInTransit, formatWeight } from 'utils/formatters';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 

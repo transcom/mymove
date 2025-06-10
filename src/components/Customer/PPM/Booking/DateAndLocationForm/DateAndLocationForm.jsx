@@ -6,7 +6,7 @@ import { Button, Form, Checkbox, Radio, FormGroup } from '@trussworks/react-uswd
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
@@ -23,6 +23,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import RequiredTag from 'components/form/RequiredTag';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import LoadingButton from 'components/LoadingButton/LoadingButton';
 
 let meta = '';
 
@@ -567,14 +568,15 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
-                <Button
-                  className={ppmStyles.saveButton}
+                <LoadingButton
+                  buttonClassName={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
-                >
-                  Save & Continue
-                </Button>
+                  disabled={isSubmitting || !isValid}
+                  isLoading={isSubmitting}
+                  labelText="Save & Continue"
+                  loadingText="Saving"
+                />
               </div>
             </Form>
           </div>
