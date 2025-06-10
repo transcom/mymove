@@ -14,6 +14,7 @@ BEGIN
             AND tablename NOT IN ('country_holidays',
                                     'country_weekends',
                                     'gbloc_aors',
+                                    'gcc_multipliers',
                                     'ghc_diesel_fuel_prices',
                                     'hhg_allowances',
                                     'jppso_regions',
