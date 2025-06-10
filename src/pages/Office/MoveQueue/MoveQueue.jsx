@@ -260,6 +260,7 @@ const MoveQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
+  isApprovalRequestTypeFFEnabled,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
@@ -394,7 +395,13 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
+          columns={columns(
+            isQueueManagementFFEnabled,
+            queueType,
+            setRefetchQueue,
+            isApprovalRequestTypeFFEnabled,
+            showBranchFilter,
+          )}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
@@ -424,7 +431,13 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
+          columns={columns(
+            isQueueManagementFFEnabled,
+            queueType,
+            setRefetchQueue,
+            isApprovalRequestTypeFFEnabled,
+            showBranchFilter,
+          )}
           title="Destination requests"
           handleClick={handleClick}
           useQueries={useDestinationRequestsQueueQueries}
