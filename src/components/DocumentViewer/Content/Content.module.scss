@@ -4,7 +4,6 @@
 
 .DocViewerContent {
   height: 100%;
-  overflow: scroll;
   position: relative;
   @include u-bg('base-lighter');
 
@@ -16,6 +15,7 @@
     .pdf-viewer,
     .photo-viewer-container {
       height: 100%;
+      overflow: scroll;
     }
 
     .pdf-canvas {
@@ -25,18 +25,17 @@
       padding-bottom: 75px;
     }
 
-    .photo-viewer-container {
-      align-items: center; // must override to get it to respect calculating padding-top
-      // spacing for controls/title bar
-      padding-top: 55%;
-      padding-bottom: 55%;
+    .photo-viewer-container{
+      align-items: center;
+    }
+
+    .photo-viewer-image-container {
+      align-items: center;
+      padding-top: 85%;
+      padding-bottom: 25%;
       aspect-ratio: 1;
       width: 100%;
       height: auto;
-    }
-
-    .photo {
-      margin: 5%;
     }
   }
   .zoomDisplayButton {
@@ -56,7 +55,7 @@
 
 :global(.pg-viewer-wrapper) {
   .controls {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -65,6 +64,7 @@
     display: flex;
     padding-left: calc(50% - 600px);
     align-items: center;
+    justify-content: center;
     svg {
       @include u-margin-right(1);
     }
