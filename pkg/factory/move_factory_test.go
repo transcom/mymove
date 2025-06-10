@@ -315,10 +315,10 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &OfficeUsers.TOOAssignedUser,
+				Type:     &OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 		}, nil)
-		suite.Equal(officeUser.ID, *move.TOOAssignedID)
+		suite.Equal(officeUser.ID, *move.TOOTaskOrderAssignedID)
 	})
 
 	suite.Run("Successful creation of a move with an assigned TOO for Destination Request", func() {

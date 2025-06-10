@@ -12042,10 +12042,10 @@ func init() {
         "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -31672,10 +31672,10 @@ func init() {
         "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
