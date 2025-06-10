@@ -95,9 +95,9 @@ const ServicesCounselingMoveInfo = () => {
       const now = new Date();
       const isLocked =
         moveLockFlag &&
-        move.lockedByOfficeUserID &&
-        officeUserID !== move.lockedByOfficeUserID &&
-        now < new Date(move.lockExpiresAt);
+        move?.lockedByOfficeUserID &&
+        officeUserID !== move?.lockedByOfficeUserID &&
+        now < new Date(move?.lockExpiresAt);
       setIsMoveLocked(isLocked);
     };
     checkLock();
