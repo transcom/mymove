@@ -1255,8 +1255,17 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 		defaultRole = *devPreferredRolePtr
 	}
 
+	var activeOfficeID uuid.UUID
+	for _, toa := range userIdentity.TransportationOfficeAssignments {
+		if *toa.PrimaryOffice {
+			activeOfficeID = toa.TransportationOfficeID
+		}
+	}
+
 	session.ActiveRole = defaultRole
 	session.Permissions = getPermissionsForUser(appCtx)
+
+	session.ActiveOfficeID = activeOfficeID
 
 	// Assign user identity to session
 	session.IDToken = "devlocal"

@@ -658,6 +658,99 @@ func (h LogoutOktaRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+type ActiveOfficeUpdateHandler struct {
+	Context
+	handlers.HandlerConfig
+	OfficeUserFetcher services.OfficeUserFetcherPop
+}
+
+func NewActiveOfficeUpdateHandler(ac Context, hc handlers.HandlerConfig, officeUserFetcher services.OfficeUserFetcherPop) ActiveOfficeUpdateHandler {
+	handler := ActiveOfficeUpdateHandler{
+		Context:           ac,
+		HandlerConfig:     hc,
+		OfficeUserFetcher: officeUserFetcher,
+	}
+	return handler
+}
+
+func (h ActiveOfficeUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	appCtx := h.AppContextFromRequest(r)
+
+	// Attempting to use a session manager with a faulty context will panic
+	defer func() {
+		if r := recover(); r != nil {
+			appCtx.Logger().Error("Panic: likely multiple session managers causing context conflict",
+				zap.Any("panic", r),
+				zap.String("userID", string(appCtx.Session().UserID.String())))
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+	}()
+
+	if appCtx.Session() == nil {
+		appCtx.Logger().Error("request to update server session active office but context had no session to update",
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	var body struct {
+		OfficeID string `json:"officeID"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.OfficeID == "" {
+		appCtx.Logger().Error("invalid office id payload",
+			zap.Error(err),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	requestedOfficeID := body.OfficeID
+
+	officeUser, err := h.OfficeUserFetcher.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+	// TO DO HANDLE ERROR
+
+	if officeUser.PrimaryOffice().ID.String() != requestedOfficeID && officeUser.SecondaryOffice().ID.String() != requestedOfficeID {
+		appCtx.Logger().Warn("user attempted to switch to unauthorized office",
+			zap.String("requestedOfficeID", string(requestedOfficeID)),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
+	sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
+	if sessionManager == nil {
+		appCtx.Logger().Error("Updating user current role in session, cannot get session manager from request",
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	ctx := r.Context()
+	err = sessionManager.RenewToken(ctx)
+	if err != nil {
+		appCtx.Logger().Error("Error renewing session token", zap.Error(err),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	var activeOfficeID uuid.UUID
+	if officeUser.PrimaryOffice().ID.String() == requestedOfficeID {
+		activeOfficeID = officeUser.PrimaryOffice().ID
+	}
+	if officeUser.SecondaryOffice().ID.String() == requestedOfficeID {
+		activeOfficeID = officeUser.SecondaryOffice().ID
+	}
+
+	appCtx.Session().ActiveOfficeID = activeOfficeID
+
+	sessionManager.Put(ctx, "session", appCtx.Session())
+
+	w.WriteHeader(http.StatusOK)
+}
+
 type ActiveRoleUpdateHandler struct {
 	Context
 	handlers.HandlerConfig

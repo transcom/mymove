@@ -196,7 +196,7 @@ export const columns = (
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
                   <option
                     value={officeUserId}
                     key={officeUserId}

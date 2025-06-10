@@ -87,3 +87,20 @@ export function UpdateActiveRoleServerSession(roleType) {
   };
   return Swagger.http(req);
 }
+
+// updates a users server-side session
+// with their new active office
+export function UpdateActiveOfficeServerSession(officeID) {
+  const updateActiveOfficeEndpoint = '/auth/activeOffice';
+  const req = {
+    url: updateActiveOfficeEndpoint,
+    method: 'PATCH',
+    credentials: 'same-origin',
+    requestInterceptor,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ officeID }),
+  };
+  return Swagger.http(req);
+}
