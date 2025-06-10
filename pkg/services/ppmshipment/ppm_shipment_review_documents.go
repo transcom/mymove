@@ -21,7 +21,6 @@ type ppmShipmentReviewDocuments struct {
 	services.PPMShipmentRouter
 	services.SignedCertificationCreator
 	services.SignedCertificationUpdater
-	services.SSWPPMComputer
 }
 
 // NewPPMShipmentReviewDocuments creates a new ppmShipmentReviewDocuments
@@ -29,13 +28,11 @@ func NewPPMShipmentReviewDocuments(
 	ppmShipmentRouter services.PPMShipmentRouter,
 	signedCertificationCreator services.SignedCertificationCreator,
 	signedCertificationUpdater services.SignedCertificationUpdater,
-	sswPPMComputer services.SSWPPMComputer,
 ) services.PPMShipmentReviewDocuments {
 	return &ppmShipmentReviewDocuments{
 		PPMShipmentRouter:          ppmShipmentRouter,
 		SignedCertificationCreator: signedCertificationCreator,
 		SignedCertificationUpdater: signedCertificationUpdater,
-		SSWPPMComputer:             sswPPMComputer,
 	}
 }
 
