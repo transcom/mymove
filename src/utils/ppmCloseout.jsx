@@ -50,7 +50,14 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           value: getW2Address(ppmShipment.w2Address),
         },
       ],
-      renderEditLink: () => (editPath ? <Link to={generatePath(editPath, editParams)}>Edit</Link> : ''),
+      renderEditLink: () =>
+        editPath ? (
+          <Link data-testid="aboutYourPPMEditLink" to={generatePath(editPath, editParams)}>
+            Edit
+          </Link>
+        ) : (
+          ''
+        ),
     },
   ];
 };
@@ -208,6 +215,9 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
 };
 
 export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
+  if (!movingExpenses) {
+    return 0;
+  }
   const excludedExpenseStatuses = [PPMDocumentsStatus.EXCLUDED, PPMDocumentsStatus.REJECTED]; //  EXCLUDED and REJECTED expenses aren't included in the total.
   return movingExpenses.reduce((prev, curr) => {
     return curr.amount && !Number.isNaN(Number(curr.amount)) && !excludedExpenseStatuses.includes(curr.status)
@@ -217,26 +227,31 @@ export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
 };
 
 export const getNonProGearWeightSPR = (expenses) => {
+  if (!expenses) return 0;
   return expenses
     .filter((expense) => expense.isProGear !== true)
     .reduce((total, expense) => total + (expense.weightShipped || 0), 0);
 };
 
 export const getProGearWeightSPR = (expenses) => {
+  if (!expenses) return 0;
   return expenses
     .filter((expense) => expense.isProGear === true)
     .reduce((total, expense) => total + (expense.weightShipped || 0), 0);
 };
 
 export const getTotalPackageWeightSPR = (expenses) => {
+  if (!expenses) return 0;
   return expenses.reduce((total, expense) => total + (expense.weightShipped || 0), 0);
 };
 
 export const hasProGearSPR = (expenses) => {
+  if (!expenses) return 'No';
   return expenses.some((expense) => expense.isProGear === true) ? 'Yes' : 'No';
 };
 
 export const hasSpouseProGearSPR = (expenses) => {
+  if (!expenses) return 'No';
   return expenses.some((expense) => expense.isProGear === true && expense.proGearBelongsToSelf === false)
     ? 'Yes'
     : 'No';

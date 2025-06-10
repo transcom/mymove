@@ -89,6 +89,10 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewDomesticOriginSITFuelSurchargePricer(), nil
 	case models.ReServiceCodeDDSFSC:
 		return NewDomesticDestinationSITFuelSurchargePricer(), nil
+	case models.ReServiceCodeIOSFSC:
+		return NewInternationalOriginSITFuelSurchargePricer(), nil
+	case models.ReServiceCodeIDSFSC:
+		return NewInternationalDestinationSITFuelSurchargePricer(), nil
 	case models.ReServiceCodeDOASIT:
 		return NewDomesticOriginAdditionalDaysSITPricer(), nil
 	case models.ReServiceCodeDDASIT:

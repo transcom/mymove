@@ -458,6 +458,40 @@ describe('formatAssignedOfficeUserFromContext', () => {
       re_assigned_too: 'McLaurin, Terry',
     });
   });
+  it('properly formats a TOOs name for assignment', () => {
+    const values = {
+      changedValues: {
+        too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_destination_assigned_id: null,
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TOOs name for reassignment', () => {
+    const values = {
+      changedValues: {
+        too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_destination_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_too: 'McLaurin, Terry',
+    });
+  });
   it('properly formats a TIOs name for assignment', () => {
     const values = {
       changedValues: {
@@ -710,5 +744,47 @@ describe('formatFullName', () => {
 
   it('returns an empty string if all names are empty', () => {
     expect(formatFullName('', '', '')).toBe('');
+  });
+});
+
+describe('calculateTotal', () => {
+  it('should calculate total with all available prices', () => {
+    const sectionInfo = {
+      haulPrice: 100,
+      haulFSC: 50,
+      packPrice: 150,
+      unpackPrice: 80,
+      dop: 200,
+      ddp: 300,
+      intlPackingPrice: 120,
+      intlUnpackPrice: 90,
+      intlLinehaulPrice: 100,
+      sitReimbursement: 250,
+    };
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('14.40');
+  });
+
+  it('should calculate total when some values are missing', () => {
+    const sectionInfo = {
+      haulPrice: 100,
+      haulFSC: 50,
+      packPrice: 150,
+      // Missing unpackPrice
+      dop: 200,
+      ddp: 300,
+      // Missing intlPackingPrice
+      intlUnpackPrice: 90,
+      intlLinehaulPrice: 100,
+      sitReimbursement: 250,
+    };
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('12.40');
+  });
+
+  it('should return $0.00 when no values are provided', () => {
+    const sectionInfo = {};
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('0.00');
   });
 });
