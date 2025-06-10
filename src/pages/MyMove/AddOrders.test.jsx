@@ -674,11 +674,8 @@ describe('Add Orders page', () => {
 });
 
 describe('Order type: Wounded Warrior', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
   it('wounded warrior FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
@@ -707,6 +704,7 @@ describe('Order type: Wounded Warrior', () => {
   });
 
   it('BLUEBARK FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
