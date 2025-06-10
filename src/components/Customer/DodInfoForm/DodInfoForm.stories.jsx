@@ -20,7 +20,7 @@ export const WithInitialValues = (argTypes) => (
     initialValues={{
       affiliation: 'ARMY',
       edipi: '9999999999',
-      grade: 'E_2',
+      grade: 'E-2',
     }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}
@@ -32,7 +32,7 @@ export const CoastGuardCustomer = (argTypes) => (
     initialValues={{
       affiliation: 'COAST_GUARD',
       edipi: '9999999999',
-      grade: 'E_2',
+      grade: 'E-2',
       emplid: '1263456',
     }}
     onSubmit={argTypes.onSubmit}

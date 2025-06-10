@@ -19,7 +19,7 @@ enum:
   - IsPeak
   - MarketDest
   - MarketOrigin
-  - MTOAvailableToPrimeAt
+  - MTOEarliestRequestedPickup
   - NTSPackingFactor
   - NumberDaysSIT
   - PriceAreaDest
@@ -55,6 +55,8 @@ enum:
   - SITScheduleOrigin
   - SITServiceAreaDest
   - SITServiceAreaOrigin
+  - SITRateAreaDest
+  - SITRateAreaOrigin
   - WeightAdjusted
   - WeightBilled
   - WeightEstimated

@@ -58,6 +58,8 @@ const serviceItemWithDetails = {
     pickupPostalCode: '20050',
     SITPostalCode: '12345',
     reason: 'Took a detour',
+    estimatedPrice: 243550,
+    status: 'APPROVED',
   },
 };
 
@@ -111,6 +113,8 @@ const testDetails = (wrapper) => {
   expect(getValue('Customer contact attempt 1:')).toContain('15 Sep 2020, 1200Z');
   expect(getValue('First available delivery date 2:')).toContain('21 Sep 2020');
   expect(getValue('Customer contact attempt 2:')).toContain('21 Sep 2020, 2300Z');
+
+  expect(getValue('Estimated Price:')).toContain('$2,435.50');
 
   expect(getAllValues('Reason:')).toContain('Took a detour');
 };

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"time"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -20,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 // ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
@@ -38,6 +38,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				since := handlers.FmtDateTimePtrToPop(params.Since)
 				searchParams.Since = &since
 			}
+			searchParams.Before = handlers.FmtDateTimePtrToPopPtr(params.Before)
 			searchParams.Acknowledged = params.Acknowledged
 			searchParams.AcknowledgedAfter = handlers.FmtDateTimePtrToPopPtr(params.AcknowledgedAfter)
 			searchParams.AcknowledgedBefore = handlers.FmtDateTimePtrToPopPtr(params.AcknowledgedBefore)
@@ -369,18 +370,20 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 
 			// Build fileName in format: Customer-{type}-for-MTO-{locator}-{TIMESTAMP}.pdf
 			// example:
-			// Customer-ORDERS,AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf   (all)
-			// Customer-ORDERS-for-MTO-PPMSIT-2024-01-11T17-02.pdf
-			// Customer-AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf
+			// Customer-ORDERS,AMENDMENTS-for-MTO-PPMSIT-20240111170212.pdf   (all)
+			// Customer-ORDERS-for-MTO-PPMSIT-20240111170212.pdf
+			// Customer-AMENDMENTS-for-MTO-PPMSIT-20240111170212.pdf
 			var fileNamePrefix = "Customer"
 			if docType == "ALL" {
 				fileNamePrefix += "-ORDERS,AMENDMENTS"
 			} else {
 				fileNamePrefix += "-" + docType
 			}
-			contentDisposition := fmt.Sprintf("inline; filename=\"%s-for-MTO-%s-%s.pdf\"", fileNamePrefix, locator, time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 
-			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(contentDisposition).WithPayload(payload), nil
+			filenameWithTimestamp := utils.AppendTimestampToFilename(fmt.Sprintf("%s-for-MTO-%s.pdf", fileNamePrefix, locator))
+			filenameDisposition := fmt.Sprintf("inline; filename=\"%s\"", filenameWithTimestamp)
+
+			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(filenameDisposition).WithPayload(payload), nil
 		})
 }
 

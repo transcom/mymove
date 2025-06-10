@@ -338,6 +338,111 @@ const newMoveDetailsQuery = {
   isSuccess: true,
 };
 
+const draftMoveDetailsQuery = {
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+    status: MOVE_STATUSES.DRAFT,
+  },
+  closeoutOffice: undefined,
+  customerData: {
+    id: '2468',
+    last_name: 'Kerry',
+    first_name: 'Smith',
+    dodID: '999999999',
+    agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
+  },
+  order: {
+    id: '1',
+    originDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Knox',
+        state: 'KY',
+        postalCode: '40121',
+        isOconus: true,
+      },
+    },
+    destinationDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Irwin',
+        state: 'CA',
+        postalCode: '92310',
+      },
+    },
+    customer: {
+      agency: 'ARMY',
+      backup_contact: {
+        email: 'email@example.com',
+        name: 'name',
+        phone: '555-555-5555',
+      },
+      current_address: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
+        id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      dodID: '6833908165',
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
+      email: 'combo@ppm.hhg',
+      first_name: 'Submitted',
+      id: 'f6bd793f-7042-4523-aa30-34946e7339c9',
+      last_name: 'Ppmhhg',
+      phone: '555-555-5555',
+    },
+    entitlement: {
+      authorizedWeight: 8000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NzgwMzda',
+      id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
+      nonTemporaryStorage: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 1,
+      proGearWeightSpouse: 500,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 8000,
+    },
+    order_number: 'ORDER3',
+    order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+    order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
+    department_indicator: 'ARMY',
+    tac: '9999',
+  },
+  orderDocuments: {
+    z: {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'z',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/z?contentType=application%2Fpdf',
+    },
+  },
+  mtoShipments,
+  mtoServiceItems: [],
+  mtoAgents: [],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
 const zeroIncentiveMoveDetailsQuery = {
   ...newMoveDetailsQuery,
   move: {
@@ -631,14 +736,6 @@ const ppmShipmentQuery = {
     },
   ],
 };
-
-const disabledMoveStatuses = [
-  MOVE_STATUSES.DRAFT,
-  MOVE_STATUSES.SUBMITTED,
-  MOVE_STATUSES.APPROVED,
-  MOVE_STATUSES.CANCELED,
-  MOVE_STATUSES.APPROVALS_REQUESTED,
-];
 
 const ppmShipmentQueryNeedsCloseout = {
   ...newMoveDetailsQuery,
@@ -1220,6 +1317,12 @@ const ppmShipmentQueryNeedsAdvanceApproval = {
     },
   ],
 };
+const disabledMoveStatuses = [
+  MOVE_STATUSES.SUBMITTED,
+  MOVE_STATUSES.APPROVED,
+  MOVE_STATUSES.CANCELED,
+  MOVE_STATUSES.APPROVALS_REQUESTED,
+];
 
 const renderComponent = (props, permissions = [permissionTypes.updateShipment, permissionTypes.updateCustomer]) => {
   return render(
@@ -1798,31 +1901,6 @@ describe('MoveDetails page', () => {
       });
     });
 
-    describe('for view only orders and allowance move statuses', () => {
-      it('shows view buttons instead of edit', async () => {
-        for (let i = 0; i < disabledMoveStatuses.length; i += 1) {
-          const counselingCompletedMoveDetailsQueryValues = JSON.parse(
-            JSON.stringify(counselingCompletedMoveDetailsQuery),
-          );
-          counselingCompletedMoveDetailsQueryValues.move = {
-            id: 123,
-            moveCode: 'GLOBAL123',
-            ordersId: 1,
-            status: disabledMoveStatuses[i],
-          };
-
-          // set return values for mocked functions
-          useMoveDetailsQueries.mockReturnValue(counselingCompletedMoveDetailsQueryValues);
-          renderComponent();
-
-          const viewOrders = screen.queryAllByRole('link', { name: 'View orders' });
-          expect(viewOrders[0]).toBeInTheDocument();
-          const viewAllowances = screen.queryAllByRole('link', { name: 'View allowances' });
-          expect(viewAllowances[0]).toBeInTheDocument();
-        }
-      });
-    });
-
     describe('ppm specific statuses for service counselor', () => {
       // PPM Shipments should show the edit button on shipments where PPM Shipment status is DRAFT, SUBMITTED, or NEEDS_ADVANCE_APPROVAL
       it('hides submit and view/edit buttons/links for NEEDS_CLOSEOUT status', async () => {
@@ -1895,7 +1973,9 @@ describe('MoveDetails page', () => {
 
         renderComponent();
 
-        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        const submitMoveButton = screen.queryByRole('button', { name: 'Submit move details' });
+        expect(submitMoveButton).toBeInTheDocument();
+        expect(submitMoveButton).toBeDisabled();
         expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
@@ -1908,9 +1988,59 @@ describe('MoveDetails page', () => {
 
         renderComponent();
 
-        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        const submitMoveButton = screen.queryByRole('button', { name: 'Submit move details' });
+        expect(submitMoveButton).toBeInTheDocument();
+        expect(submitMoveButton).toBeDisabled();
         expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+      });
+    });
+    describe('for view only orders and allowance move statuses', () => {
+      it('shows view buttons instead of edit', async () => {
+        for (let i = 0; i < disabledMoveStatuses.length; i += 1) {
+          const counselingCompletedMoveDetailsQueryValues = JSON.parse(
+            JSON.stringify(counselingCompletedMoveDetailsQuery),
+          );
+          counselingCompletedMoveDetailsQueryValues.move = {
+            id: 123,
+            moveCode: 'GLOBAL123',
+            ordersId: 1,
+            status: disabledMoveStatuses[i],
+          };
+
+          // set return values for mocked functions
+          useMoveDetailsQueries.mockReturnValue(counselingCompletedMoveDetailsQueryValues);
+          renderComponent();
+
+          const viewOrders = screen.queryAllByRole('link', { name: 'View orders' });
+          expect(viewOrders[0]).toBeInTheDocument();
+          const viewAllowances = screen.queryAllByRole('link', { name: 'View allowances' });
+          expect(viewAllowances[0]).toBeInTheDocument();
+        }
+      });
+    });
+
+    describe('move in draft status', () => {
+      it('submit move details button is on page', async () => {
+        useMoveDetailsQueries.mockReturnValue(draftMoveDetailsQuery);
+
+        renderComponent();
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+      });
+
+      it('renders submit and view/edit buttons/links', async () => {
+        useMoveDetailsQueries.mockReturnValue(draftMoveDetailsQuery);
+
+        renderComponent();
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
+        const shipmentEditButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
+        expect(shipmentEditButtons.length).toBe(2);
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();

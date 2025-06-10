@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -698,7 +699,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -720,9 +721,12 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			PpmShipmentID: ppmshipmentid.String(),
 		}
 		response := handler.Handle(params)
-		showAOAPacketResponse := response.(*ppmdocumentops.ShowAOAPacketOK)
+		suite.Assertions.IsType(&ppmdocumentops.ShowAOAPacketOK{}, response)
+		contentDisposition := response.(*ppmdocumentops.ShowAOAPacketOK).ContentDisposition
 
-		suite.Assertions.IsType(&ppmdocumentops.ShowAOAPacketOK{}, showAOAPacketResponse)
+		// Validate filename content disposition formatting
+		found := regexp.MustCompile(`inline; filename=\"AOA-\d{14}.pdf\"`).FindString(contentDisposition)
+		suite.NotEmpty(found, "filename format invalid: %s", contentDisposition)
 	})
 
 	suite.Run("Successful ShowAOAPacketHandler - error generating PDF - 500", func() {
@@ -734,7 +738,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -765,7 +769,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -820,9 +824,12 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 			PpmShipmentID: strfmt.UUID(ppmshipmentid.String()),
 		}
 		response := handler.Handle(params)
-		showPaymentPacketResponse := response.(*ppmdocumentops.ShowPaymentPacketOK)
+		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketOK{}, response)
+		contentDisposition := response.(*ppmdocumentops.ShowPaymentPacketOK).ContentDisposition
 
-		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketOK{}, showPaymentPacketResponse)
+		// Validate filename content disposition formatting
+		found := regexp.MustCompile(`inline; filename=\"ppm_payment_packet-\d{14}.pdf\"`).FindString(contentDisposition)
+		suite.NotEmpty(found, "filename format invalid: %s", contentDisposition)
 	})
 
 	suite.Run("Unsuccessful ShowPaymentPacketHandler - InternalServerError", func() {

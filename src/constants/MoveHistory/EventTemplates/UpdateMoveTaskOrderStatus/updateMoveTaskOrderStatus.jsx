@@ -13,8 +13,9 @@ export default {
     return (
       <>
         <div>Created Move Task Order (MTO)</div>
-        {(changedValues?.too_assigned_id !== undefined || changedValues?.too_destination_assigned_id !== undefined) && (
-          <div>Task ordering officer unassigned</div>
+        {changedValues?.too_task_order_assigned_id !== undefined && <div>Task ordering officer unassigned</div>}
+        {changedValues?.too_destination_assigned_id !== undefined && (
+          <div>Destination task ordering officer unassigned</div>
         )}
       </>
     );

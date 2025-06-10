@@ -249,7 +249,7 @@ func BuildBaseMTOShipment(db *pop.Connection, customs []Customization, traits []
 // BuildMTOShipment creates a single MTOShipment and associated set relationships
 // It will make a move record, if one is not provided.
 // It will make pickup addresses if the shipment type is not one of (HHGOutOfNTS, PPM)
-// It will make delivery addresses if the shipment type is not one of (HHGIntoNTSDom, PPM)
+// It will make delivery addresses if the shipment type is not one of (HHGIntoNTS, PPM)
 // It will make a storage facility if the shipment type is HHGOutOfNTS
 func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentBuild)

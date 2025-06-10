@@ -39,6 +39,8 @@ const (
 	SITExtensionStatusApproved SITDurationUpdateStatus = "APPROVED"
 	// SITExtensionStatusDenied is a SIT extension status
 	SITExtensionStatusDenied SITDurationUpdateStatus = "DENIED"
+	// SITExtensionStatusRemoved is a SIT extension status
+	SITExtensionStatusRemoved SITDurationUpdateStatus = "REMOVED"
 )
 
 // SITDurationUpdates is a slice containing SITDurationUpdate
@@ -85,6 +87,7 @@ func (m *SITDurationUpdate) Validate(_ *pop.Connection) (*validate.Errors, error
 		string(SITExtensionStatusPending),
 		string(SITExtensionStatusApproved),
 		string(SITExtensionStatusDenied),
+		string(SITExtensionStatusRemoved),
 	}})
 
 	if m.DecisionDate != nil {

@@ -52,6 +52,11 @@ type MovePayload struct {
 	// Required: true
 	Locator *string `json:"locator"`
 
+	// lock expires at
+	// Read Only: true
+	// Format: date-time
+	LockExpiresAt strfmt.DateTime `json:"lockExpiresAt,omitempty"`
+
 	// mto shipments
 	MtoShipments MTOShipments `json:"mto_shipments,omitempty"`
 
@@ -114,6 +119,10 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateLocator(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockExpiresAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -252,6 +261,18 @@ func (m *MovePayload) validateLocator(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MovePayload) validateLockExpiresAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockExpiresAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockExpiresAt", "body", "date-time", m.LockExpiresAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MovePayload) validateMtoShipments(formats strfmt.Registry) error {
 	if swag.IsZero(m.MtoShipments) { // not required
 		return nil
@@ -364,6 +385,10 @@ func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateLockExpiresAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -444,6 +469,15 @@ func (m *MovePayload) contextValidateCounselingOffice(ctx context.Context, forma
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MovePayload) contextValidateLockExpiresAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "lockExpiresAt", "body", strfmt.DateTime(m.LockExpiresAt)); err != nil {
+		return err
 	}
 
 	return nil

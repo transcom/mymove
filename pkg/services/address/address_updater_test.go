@@ -48,6 +48,8 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
 		suite.Equal(county, *desiredAddress.County)
+		suite.NotNil(updatedAddress.UsPostRegionCity)
+		suite.NotNil(updatedAddress.UsPostRegionCityID)
 	})
 
 	suite.Run("Successfully merges state for an address", func() {
@@ -76,6 +78,8 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
 		suite.Equal(county, *desiredAddress.County)
+		suite.NotNil(updatedAddress.UsPostRegionCity)
+		suite.NotNil(updatedAddress.UsPostRegionCityID)
 	})
 
 	suite.Run("Fails to updates because of stale etag", func() {
@@ -114,10 +118,11 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Equal("invalid input while updating an address", err.Error())
 		errors := err.(apperror.InvalidInputError)
-		suite.Len(errors.ValidationErrors.Errors, 3)
+		suite.Len(errors.ValidationErrors.Errors, 4)
 		suite.Contains(errors.ValidationErrors.Keys(), "street_address1")
 		suite.Contains(errors.ValidationErrors.Keys(), "city")
 		suite.Contains(errors.ValidationErrors.Keys(), "state")
+		suite.Contains(errors.ValidationErrors.Keys(), "us_post_region_city_id")
 	})
 
 	suite.Run("Fails to updates an address because of invalid county", func() {
@@ -212,5 +217,23 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Error(err)
 		suite.Nil(updatedAddress)
 		suite.Equal("- the country GB is not supported at this time - only US is allowed", err.Error())
+	})
+
+	suite.Run("Fails to updated an address when us_post_region_city record is not found", func() {
+		originalAddress := createOriginalAddress()
+
+		addressUpdater := NewAddressUpdater()
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     "97021",
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.Nil(updatedAddress)
+		suite.NotNil(err)
+		suite.Equal("No UsPostRegionCity found for provided zip code 97021 and city ELIZABETHTOWN.", err.Error())
 	})
 }

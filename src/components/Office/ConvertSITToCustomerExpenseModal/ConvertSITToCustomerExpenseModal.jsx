@@ -96,7 +96,7 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.ConvertSITToCustomerExpenseModal}>
+        <Modal className={styles.ConvertSITToCustomerExpenseModal} onClose={() => onClose()}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h2>Convert SIT To Customer Expense</h2>
@@ -116,17 +116,17 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
                   <Label htmlFor="remarks">Remarks</Label>
                   <Field as={Textarea} data-testid="remarks" label="No" name="remarks" id="remarks" required />
                   <ModalActions>
-                    <Button type="submit" disabled={!isValid}>
-                      Save
-                    </Button>
                     <Button
                       type="button"
                       onClick={() => onClose()}
                       data-testid="modalCancelButton"
-                      outline
+                      secondary
                       className={styles.CancelButton}
                     >
                       Cancel
+                    </Button>
+                    <Button type="submit" disabled={!isValid}>
+                      Save
                     </Button>
                   </ModalActions>
                 </Form>

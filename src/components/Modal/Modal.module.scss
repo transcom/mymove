@@ -139,6 +139,7 @@ div.Modal {
   .ModalActions {
     @include u-margin-top(3);
     display: flex;
+    justify-content: flex-end;
 
     button,
     :global(.usa-button) {

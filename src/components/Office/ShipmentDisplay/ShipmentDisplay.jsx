@@ -52,8 +52,8 @@ const ShipmentDisplay = ({
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
   const [isSubmitPPMShipmentModalVisible, setIsSubmitPPMShipmentModalVisible] = useState(false);
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
-  const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
   const [ppmSprFF, setPpmSprFF] = useState(false);
+  const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
   const isDisabled = isMoveLocked || displayInfo.shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE;
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>

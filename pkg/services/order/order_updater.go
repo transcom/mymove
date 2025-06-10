@@ -448,6 +448,10 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
 	}
 
+	if payload.GunSafeWeight != nil {
+		order.Entitlement.GunSafeWeight = int(*payload.GunSafeWeight)
+	}
+
 	if payload.RequiredMedicalEquipmentWeight != nil {
 		order.Entitlement.RequiredMedicalEquipmentWeight = int(*payload.RequiredMedicalEquipmentWeight)
 	}
@@ -556,6 +560,7 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 
 	return order, nil
 }
+
 func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) (models.Order, error) {
 	order := existingOrder
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -566,6 +571,10 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	if payload.ProGearWeightSpouse != nil {
 		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
+	}
+
+	if payload.GunSafeWeight != nil {
+		order.Entitlement.GunSafeWeight = int(*payload.GunSafeWeight)
 	}
 
 	if payload.RequiredMedicalEquipmentWeight != nil {

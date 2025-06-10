@@ -912,7 +912,7 @@ const ShipmentForm = (props) => {
                 ) : (
                   <p data-testid="weightAllowance">
                     <strong>Weight allowance: </strong>
-                    {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
+                    {formatWeight(serviceMember.weightAllotment.authorizedWeight)}
                   </p>
                 )}
               </SectionWrapper>
@@ -922,8 +922,8 @@ const ShipmentForm = (props) => {
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
-                {isMobileHome && (
-                  <MobileHomeShipmentForm
+                {isBoat && (
+                  <BoatShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
@@ -935,8 +935,8 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
-                {isBoat && (
-                  <BoatShipmentForm
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}

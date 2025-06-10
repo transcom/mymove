@@ -3,15 +3,16 @@ import { render, waitFor, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 import selectEvent from 'react-select-event';
+import { cloneDeep } from 'lodash';
 
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment, patchMove, searchTransportationOffices } from 'services/internalApi';
 import { updateMTOShipment, updateMove } from 'store/entities/actions';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { MockProviders } from 'testUtils';
-import { PPM_TYPES } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, PPM_TYPES } from 'shared/constants';
 
 const mockNavigate = jest.fn();
 
@@ -182,6 +183,9 @@ const fullShipmentProps = {
     eTag: 'Za8lF',
   },
 };
+
+const fullShipmentPropsWithLock = cloneDeep(fullShipmentProps);
+fullShipmentPropsWithLock.isMoveLocked = true;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -673,6 +677,12 @@ describe('DateAndLocation component', () => {
       expect(screen.getByText('Richmond, VA 20007 ()')).toBeInTheDocument();
     });
 
+    it('renders a warning message if a move has been locked', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      renderDateAndLocation(fullShipmentPropsWithLock);
+      expect(screen.getByText(MOVE_LOCKED_WARNING));
+    });
+
     describe('editing an existing PPM shipment', () => {
       it('renders the heading and form with shipment values', async () => {
         isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
@@ -706,7 +716,7 @@ describe('DateAndLocation component', () => {
         isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
         renderDateAndLocation(fullShipmentProps);
 
-        const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
+        const selectShipmentType = generatePath(customerRoutes.MOVE_HOME_PATH, { moveId: mockMoveId });
 
         await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 

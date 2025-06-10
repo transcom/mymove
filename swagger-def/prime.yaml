@@ -65,6 +65,11 @@ paths:
           format: date-time
           description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
         - in: query
+          name: before
+          type: string
+          format: date-time
+          description: Only return moves updated before this time. Formatted like "2021-07-23T18:30:47.116Z"
+        - in: query
           name: acknowledged
           type: boolean
           x-nullable: true
@@ -1622,11 +1627,46 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
             $ref: '#/definitions/VLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /addresses/countries:
+    get:
+      summary: Returns the countries matching the search query
+      description: >
+        Search API using search string that returns list of countries containing its code and name.
+        Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will
+        do an exact match on country code and also do a starts with match on country name. If not 2 characters search
+        will do a starts with match on country name.
+      operationId: searchCountries
+      tags:
+        - addresses
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: false
+          description: Search string for countries
+      responses:
+        '200':
+          description: countries matching the search query
+          schema:
+            $ref: '#/definitions/Countries'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -2462,6 +2502,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/VLocation.yaml'
+  Countries:
+    type: array
+    items:
+      $ref: 'definitions/Country.yaml'
 responses:
   InvalidRequest:
     description: The request payload is invalid.

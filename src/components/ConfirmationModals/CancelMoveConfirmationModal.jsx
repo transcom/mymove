@@ -5,13 +5,22 @@ import { Button } from '@trussworks/react-uswds';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const CancelMoveConfirmationModal = ({ onClose, onSubmit, moveID, title, content, submitText, closeText }) => (
-  <Modal>
+  <Modal onClose={onClose}>
     <ModalClose handleClick={() => onClose()} />
     <ModalTitle>
       <h3>{title}</h3>
     </ModalTitle>
     <p>{content}</p>
-    <ModalActions autofocus="true">
+    <ModalActions>
+      <Button
+        className="usa-button--secondary"
+        secondary
+        type="button"
+        onClick={() => onClose()}
+        data-testid="modalBackButton"
+      >
+        {closeText}
+      </Button>
       <Button
         data-focus="true"
         className="usa-button--destructive"
@@ -20,9 +29,6 @@ export const CancelMoveConfirmationModal = ({ onClose, onSubmit, moveID, title, 
         onClick={() => onSubmit(moveID)}
       >
         {submitText}
-      </Button>
-      <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
-        {closeText}
       </Button>
     </ModalActions>
   </Modal>

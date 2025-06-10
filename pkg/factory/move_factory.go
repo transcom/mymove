@@ -35,20 +35,28 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
 	}
 
-	var scAssignedUser models.OfficeUser
-	tempSCAssignedUserCustoms := customs
-	scAssignedUserResult := findValidCustomization(customs, OfficeUsers.SCAssignedUser)
-	if scAssignedUserResult != nil {
-		tempSCAssignedUserCustoms = convertCustomizationInList(tempSCAssignedUserCustoms, OfficeUsers.SCAssignedUser, OfficeUser)
-		scAssignedUser = BuildOfficeUser(db, tempSCAssignedUserCustoms, nil)
+	var scCounselingAssignedUser models.OfficeUser
+	tempSCCounselingAssignedUserCustoms := customs
+	scCounselingAssignedUserResult := findValidCustomization(customs, OfficeUsers.SCCounselingAssignedUser)
+	if scCounselingAssignedUserResult != nil {
+		tempSCCounselingAssignedUserCustoms = convertCustomizationInList(tempSCCounselingAssignedUserCustoms, OfficeUsers.SCCounselingAssignedUser, OfficeUser)
+		scCounselingAssignedUser = BuildOfficeUser(db, tempSCCounselingAssignedUserCustoms, nil)
 	}
 
-	var tooAssignedUser models.OfficeUser
-	tempTOOAssignedUserCustoms := customs
-	tooAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOOAssignedUser)
-	if tooAssignedUserResult != nil {
-		tempTOOAssignedUserCustoms = convertCustomizationInList(tempTOOAssignedUserCustoms, OfficeUsers.TOOAssignedUser, OfficeUser)
-		tooAssignedUser = BuildOfficeUser(db, tempTOOAssignedUserCustoms, nil)
+	var scCloseoutAssignedUser models.OfficeUser
+	tempSCCloseoutAssignedUserCustoms := customs
+	scCloseoutAssignedUserResult := findValidCustomization(customs, OfficeUsers.SCCloseoutAssignedUser)
+	if scCloseoutAssignedUserResult != nil {
+		tempSCCloseoutAssignedUserCustoms = convertCustomizationInList(tempSCCloseoutAssignedUserCustoms, OfficeUsers.SCCloseoutAssignedUser, OfficeUser)
+		scCloseoutAssignedUser = BuildOfficeUser(db, tempSCCloseoutAssignedUserCustoms, nil)
+	}
+
+	var tooTaskOrderAssignedUser models.OfficeUser
+	tempTOOTaskOrderAssignedUserCustoms := customs
+	tooTaskOrderAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOOTaskOrderAssignedUser)
+	if tooTaskOrderAssignedUserResult != nil {
+		tempTOOTaskOrderAssignedUserCustoms = convertCustomizationInList(tempTOOTaskOrderAssignedUserCustoms, OfficeUsers.TOOTaskOrderAssignedUser, OfficeUser)
+		tooTaskOrderAssignedUser = BuildOfficeUser(db, tempTOOTaskOrderAssignedUserCustoms, nil)
 	}
 
 	var tioAssignedUser models.OfficeUser
@@ -112,9 +120,9 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
 
-	if tooAssignedUserResult != nil {
-		move.TOOAssignedUser = &tooAssignedUser
-		move.TOOAssignedID = &tooAssignedUser.ID
+	if tooTaskOrderAssignedUserResult != nil {
+		move.TOOTaskOrderAssignedUser = &tooTaskOrderAssignedUser
+		move.TOOTaskOrderAssignedID = &tooTaskOrderAssignedUser.ID
 	}
 
 	if tioAssignedUserResult != nil {
@@ -127,9 +135,14 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CounselingOfficeID = &counselingOffice.ID
 	}
 
-	if scAssignedUserResult != nil {
-		move.SCAssignedUser = &scAssignedUser
-		move.SCAssignedID = &scAssignedUser.ID
+	if scCounselingAssignedUserResult != nil {
+		move.SCCounselingAssignedUser = &scCounselingAssignedUser
+		move.SCCounselingAssignedID = &scCounselingAssignedUser.ID
+	}
+
+	if scCloseoutAssignedUserResult != nil {
+		move.SCCloseoutAssignedUser = &scCloseoutAssignedUser
+		move.SCCloseoutAssignedID = &scCloseoutAssignedUser.ID
 	}
 
 	if tooDestinationAssignedUserResult != nil {

@@ -13,9 +13,11 @@ func (suite *MoveLockerServiceSuite) TestMoveUnlocker() {
 
 	suite.Run("successfully returns move with no values in locked_by or lock_expires_at column", func() {
 		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		defaultRole, err := tooUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           tooUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -48,9 +50,11 @@ func (suite *MoveLockerServiceSuite) TestCheckForLockedMovesAndUnlock() {
 
 	suite.Run("successfully clears all moves that user has locked", func() {
 		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		defaultRole, err := tooUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           tooUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -107,9 +111,11 @@ func (suite *MoveLockerServiceSuite) TestCheckForLockedMovesAndUnlock() {
 
 	suite.Run("successfully unlock move without changing updated_at", func() {
 		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		defaultRole, err := tooUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           tooUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

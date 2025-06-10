@@ -1,4 +1,5 @@
-import React from 'react';
+import { Alert } from '@trussworks/react-uswds';
+import React, { useState } from 'react';
 import {
   Edit,
   SimpleForm,
@@ -12,25 +13,31 @@ import {
   SimpleFormIterator,
   BooleanInput,
   useDataProvider,
+  useRedirect,
   Button,
+  DeleteButton,
+  Confirm,
 } from 'react-admin';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 
+import styles from './OfficeUserEdit.module.scss';
+
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { roleTypes } from 'constants/userRoles';
 import { selectAdminUser } from 'store/entities/selectors';
-
-const OfficeUserEditToolbar = (props) => {
-  return (
-    <Toolbar {...props}>
-      <SaveButton />
-    </Toolbar>
-  );
-};
+import { deleteOfficeUser, updateOfficeUser } from 'services/adminApi';
 
 const OfficeUserEdit = ({ adminUser }) => {
   const dataProvider = useDataProvider();
+  const redirect = useRedirect();
+  const [serverError, setServerError] = useState('');
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [inactivateOpen, setInactivateOpen] = useState(false);
+  const [userData, setUserData] = useState({});
+  const handleDeleteClick = () => setDeleteOpen(true);
+  const handleDeleteClose = () => setDeleteOpen(false);
+  const handleInactivateClose = () => setInactivateOpen(false);
 
   const validateForm = async (values) => {
     const errors = {};
@@ -103,10 +110,90 @@ const OfficeUserEdit = ({ adminUser }) => {
     return errors;
   };
 
+  // hard deletes an office user and associated roles/privileges
+  const deleteUser = async () => {
+    try {
+      await deleteOfficeUser(userData.id);
+      redirect('./..');
+    } catch (err) {
+      if (err?.statusCode === 409) {
+        setInactivateOpen(true);
+      } else {
+        setServerError(err?.message);
+      }
+      redirect(false);
+    }
+  };
+
+  const inactivateUser = async () => {
+    const userUpdates = {
+      active: false,
+    };
+    try {
+      await updateOfficeUser(userData.id, userUpdates);
+      redirect('./show');
+    } catch (err) {
+      setServerError(err);
+      redirect(false);
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteUser();
+    setDeleteOpen(false);
+  };
+
+  const handleInactivateConfirm = () => {
+    inactivateUser();
+    setInactivateOpen(false);
+  };
+
+  // rendering tool bar
+  const renderToolBar = () => {
+    return (
+      <Toolbar sx={{ display: 'flex', gap: '10px' }}>
+        <SaveButton />
+        <DeleteButton
+          mutationOptions={{
+            onSuccess: async (data) => {
+              // setting user data so we can use it in the delete function
+              setUserData(data);
+              handleDeleteClick();
+            },
+          }}
+        />
+      </Toolbar>
+    );
+  };
+
   return (
-    <Edit mutationMode="pessimistic">
+    <Edit>
+      <Confirm
+        isOpen={deleteOpen}
+        title={`Delete office user ${userData.firstName} ${userData.lastName}?`}
+        content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        onClose={handleDeleteClose}
+      />
+      <Confirm
+        isOpen={inactivateOpen && userData.active}
+        title={`Deletion failed for user ${userData.firstName} ${userData.lastName}.`}
+        content="This deletion failed as this user is already tied to existing moves. Would you like to inactivate them instead?"
+        onConfirm={handleInactivateConfirm}
+        onClose={handleInactivateClose}
+      />
+      {inactivateOpen && !userData.active && (
+        <Alert type="error" slim className={styles.error}>
+          This deletion failed as this user is already tied to existing moves. The user is already inactive.
+        </Alert>
+      )}
+      {serverError && (
+        <Alert type="error" slim className={styles.error}>
+          {serverError}
+        </Alert>
+      )}
       <SimpleForm
-        toolbar={<OfficeUserEditToolbar />}
+        toolbar={renderToolBar()}
         sx={{ '& .MuiInputBase-input': { width: 232 } }}
         mode="onSubmit"
         reValidateMode="onSubmit"

@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 import { roleTypes } from 'constants/userRoles';
+import serviceBranches from 'content/serviceMemberAgencies';
 
 const mockPickupLocation = [
   {
@@ -119,7 +120,7 @@ const fakePayload = {
   },
   create_okta_account: 'true',
   cac_user: 'false',
-  is_safety_move: false,
+  is_safety_move: 'false',
   is_bluebark: 'false',
 };
 
@@ -333,6 +334,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: serviceBranches.ARMY,
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },
@@ -429,6 +431,7 @@ describe('CreateCustomerForm', () => {
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },
@@ -574,6 +577,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
         },
@@ -655,6 +659,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'COAST_GUARD',
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
         },
@@ -730,6 +735,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: true,
         },

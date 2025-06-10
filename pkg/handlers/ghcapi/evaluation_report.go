@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -21,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 // GetShipmentEvaluationReportsHandler gets a list of shipment evaluation reports for a given move
@@ -207,8 +207,11 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
 			}
 			payload := io.NopCloser(buf)
-			filename := fmt.Sprintf("inline; filename=\"%s QA-%s %s.pdf\"", *orders.ServiceMember.LastName, strings.ToUpper(evaluationReport.ID.String()[:5]), time.Now().Format("01-02-2006"))
-			return evaluationReportop.NewDownloadEvaluationReportOK().WithContentDisposition(filename).WithPayload(payload), nil
+
+			filenameWithTimestamp := utils.AppendTimestampToFilename(fmt.Sprintf("%s QA-%s.pdf", *orders.ServiceMember.LastName, strings.ToUpper(evaluationReport.ID.String()[:5])))
+			filenameDisposition := fmt.Sprintf("inline; filename=\"%s\"", filenameWithTimestamp)
+
+			return evaluationReportop.NewDownloadEvaluationReportOK().WithContentDisposition(filenameDisposition).WithPayload(payload), nil
 		})
 }
 

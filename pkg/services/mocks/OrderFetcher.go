@@ -191,6 +191,43 @@ func (_m *OrderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, o
 	return r0, r1, r2
 }
 
+// ListPPMCloseoutOrders provides a mock function with given fields: appCtx, officeUserID, params
+func (_m *OrderFetcher) ListPPMCloseoutOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
+	ret := _m.Called(appCtx, officeUserID, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListPPMCloseoutOrders")
+	}
+
+	var r0 []models.Move
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) ([]models.Move, int, error)); ok {
+		return rf(appCtx, officeUserID, params)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) []models.Move); ok {
+		r0 = rf(appCtx, officeUserID, params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Move)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) int); ok {
+		r1 = rf(appCtx, officeUserID, params)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) error); ok {
+		r2 = rf(appCtx, officeUserID, params)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // NewOrderFetcher creates a new instance of OrderFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewOrderFetcher(t interface {

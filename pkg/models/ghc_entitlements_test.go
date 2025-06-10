@@ -393,3 +393,31 @@ func (suite *ModelSuite) TestGetMaxGunSafeAllowance() {
 		suite.Equal(0, val)
 	})
 }
+
+func (suite *ModelSuite) TestGunSafeWeight() {
+	suite.Run("no validation errors for GunSafeWeight", func() {
+		entitlement := models.Entitlement{
+			GunSafeWeight: 500,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.False(verrs.HasAny(), "Should not have validation errors")
+	})
+
+	suite.Run("validation errors for GunSafeWeight over max value", func() {
+		entitlement := models.Entitlement{
+			GunSafeWeight: 501,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.True(verrs.HasAny())
+		suite.NotNil(verrs.Get("gun_safe_weight"))
+	})
+
+	suite.Run("validation errors for GunSafeWeight under min value", func() {
+		entitlement := models.Entitlement{
+			GunSafeWeight: -1,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.True(verrs.HasAny())
+		suite.NotNil(verrs.Get("gun_safe_weight"))
+	})
+}

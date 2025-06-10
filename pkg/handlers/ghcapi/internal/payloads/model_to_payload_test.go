@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -596,7 +597,7 @@ func (suite *PayloadsSuite) TestMoveWithGBLOC() {
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
 	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
-	defaultGrade := "E_1"
+	defaultGrade := "E-1"
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
 	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -803,6 +804,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	privatelyOwnedVehicle := true
 	proGearWeight := 1000
 	proGearWeightSpouse := 500
+	gunSafeWeight := 300
 	storageInTransit := 90
 	totalDependents := 2
 	requiredMedicalEquipmentWeight := 200
@@ -822,6 +824,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               &storageInTransit,
 		TotalDependents:                &totalDependents,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
@@ -847,6 +850,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UnaccompaniedBaggageAllowance))
 	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
 	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(int64(gunSafeWeight), returnedEntitlement.GunSafeWeight)
 	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
 	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
 	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
@@ -1431,6 +1435,220 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 }
 
+func (suite *PayloadsSuite) TestPort() {
+
+	suite.Run("returns nil when PortLocation is nil", func() {
+		var mtoServiceItems models.MTOServiceItems = nil
+		result := Port(mtoServiceItems, "POE")
+		suite.Nil(result, "Expected result to be nil when Port Location is nil")
+	})
+
+	suite.Run("Success - Maps PortLocation to Port payload", func() {
+		// Use the factory to create a port location
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		// Actual
+		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
+		result := Port(mtoServiceItems, "POE")
+
+		// Assert
+		suite.IsType(&ghcmessages.Port{}, result)
+		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
+		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
+		suite.Equal(portLocation.Port.PortCode, result.PortCode)
+		suite.Equal(portLocation.Port.PortName, result.PortName)
+		suite.Equal(portLocation.City.CityName, result.City)
+		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
+		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
+		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
+		suite.Equal(portLocation.Country.CountryName, result.Country)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
+	suite.Run("Only POE Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		poePortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePOEFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    poePortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{poefscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PoeLocation, "Expected POELocation to not be nil")
+		suite.Equal("PDX", payload.PoeLocation.PortCode, "Expected POE Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PoeLocation.PortName, "Expected POE Port Name to match")
+		suite.Nil(payload.PodLocation, "Expected PODLocation to be nil when POELocation is set")
+	})
+
+	suite.Run("Only POD Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		podPortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePODFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    podPortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfDebarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{podfscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PodLocation, "Expected PODLocation to not be nil")
+		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
+		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
+	})
+}
+
+func (suite *PayloadsSuite) TestPPMCloseout() {
+	plannedMoveDate := time.Now()
+	actualMoveDate := time.Now()
+	miles := 1200
+	estimatedWeight := unit.Pound(5000)
+	actualWeight := unit.Pound(5200)
+	proGearWeightCustomer := unit.Pound(300)
+	proGearWeightSpouse := unit.Pound(100)
+	grossIncentive := unit.Cents(100000)
+	gcc := unit.Cents(50000)
+	aoa := unit.Cents(20000)
+	remainingIncentive := unit.Cents(30000)
+	haulType := "Linehaul"
+	haulPrice := unit.Cents(40000)
+	haulFSC := unit.Cents(5000)
+	dop := unit.Cents(10000)
+	ddp := unit.Cents(8000)
+	packPrice := unit.Cents(7000)
+	unpackPrice := unit.Cents(6000)
+	intlPackPrice := unit.Cents(15000)
+	intlUnpackPrice := unit.Cents(14000)
+	intlLinehaulPrice := unit.Cents(13000)
+	sitReimbursement := unit.Cents(12000)
+	gccMultiplier := float64(1.3)
+
+	ppmCloseout := models.PPMCloseout{
+		ID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
+		PlannedMoveDate:       &plannedMoveDate,
+		ActualMoveDate:        &actualMoveDate,
+		Miles:                 &miles,
+		EstimatedWeight:       &estimatedWeight,
+		ActualWeight:          &actualWeight,
+		ProGearWeightCustomer: &proGearWeightCustomer,
+		ProGearWeightSpouse:   &proGearWeightSpouse,
+		GrossIncentive:        &grossIncentive,
+		GCC:                   &gcc,
+		AOA:                   &aoa,
+		RemainingIncentive:    &remainingIncentive,
+		HaulType:              (*models.HaulType)(&haulType),
+		HaulPrice:             &haulPrice,
+		HaulFSC:               &haulFSC,
+		DOP:                   &dop,
+		DDP:                   &ddp,
+		PackPrice:             &packPrice,
+		UnpackPrice:           &unpackPrice,
+		IntlPackPrice:         &intlPackPrice,
+		IntlUnpackPrice:       &intlUnpackPrice,
+		IntlLinehaulPrice:     &intlLinehaulPrice,
+		SITReimbursement:      &sitReimbursement,
+		GCCMultiplier:         &gccMultiplier,
+	}
+
+	payload := PPMCloseout(&ppmCloseout)
+	suite.NotNil(payload)
+	suite.Equal(ppmCloseout.ID.String(), payload.ID.String())
+	suite.Equal(handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate), payload.PlannedMoveDate)
+	suite.Equal(handlers.FmtDatePtr(ppmCloseout.ActualMoveDate), payload.ActualMoveDate)
+	suite.Equal(handlers.FmtIntPtrToInt64(ppmCloseout.Miles), payload.Miles)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight), payload.EstimatedWeight)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ActualWeight), payload.ActualWeight)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer), payload.ProGearWeightCustomer)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse), payload.ProGearWeightSpouse)
+	suite.Equal(handlers.FmtCost(ppmCloseout.GrossIncentive), payload.GrossIncentive)
+	suite.Equal(handlers.FmtCost(ppmCloseout.GCC), payload.Gcc)
+	suite.Equal(handlers.FmtCost(ppmCloseout.AOA), payload.Aoa)
+	suite.Equal(handlers.FmtCost(ppmCloseout.RemainingIncentive), payload.RemainingIncentive)
+	suite.Equal((*string)(ppmCloseout.HaulType), payload.HaulType)
+	suite.Equal(handlers.FmtCost(ppmCloseout.HaulPrice), payload.HaulPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.HaulFSC), payload.HaulFSC)
+	suite.Equal(handlers.FmtCost(ppmCloseout.DOP), payload.Dop)
+	suite.Equal(handlers.FmtCost(ppmCloseout.DDP), payload.Ddp)
+	suite.Equal(handlers.FmtCost(ppmCloseout.PackPrice), payload.PackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.UnpackPrice), payload.UnpackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlPackPrice), payload.IntlPackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlUnpackPrice), payload.IntlUnpackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlLinehaulPrice), payload.IntlLinehaulPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.SITReimbursement), payload.SITReimbursement)
+	suite.Equal(swag.Float32(float32(*ppmCloseout.GCCMultiplier)), payload.GccMultiplier)
+}
 func (suite *PayloadsSuite) TestMTOShipment() {
 	suite.Run("transforms standard MTOShipment without SIT overrides", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
@@ -1499,52 +1717,34 @@ func (suite *PayloadsSuite) TestMTOShipment() {
 	})
 }
 
-func (suite *PayloadsSuite) TestPort() {
-
-	suite.Run("returns nil when PortLocation is nil", func() {
-		var mtoServiceItems models.MTOServiceItems = nil
-		result := Port(mtoServiceItems, "POE")
-		suite.Nil(result, "Expected result to be nil when Port Location is nil")
-	})
-
-	suite.Run("Success - Maps PortLocation to Port payload", func() {
-		// Use the factory to create a port location
-		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+func (suite *PayloadsSuite) TestCounselingOffices() {
+	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
 			{
-				Model: models.Port{
-					PortCode: "PDX",
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Liberty",
 				},
 			},
 		}, nil)
 
-		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		office2 := factory.BuildTransportationOffice(nil, []factory.Customization{
 			{
-				Model: models.ReService{
-					Code: models.ReServiceCodePOEFSC,
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Walker",
 				},
-			},
-			{
-				Model:    portLocation,
-				LinkOnly: true,
-				Type:     &factory.PortLocations.PortOfEmbarkation,
 			},
 		}, nil)
 
-		// Actual
-		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
-		result := Port(mtoServiceItems, "POE")
+		offices := models.TransportationOffices{office1, office2}
 
-		// Assert
-		suite.IsType(&ghcmessages.Port{}, result)
-		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
-		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
-		suite.Equal(portLocation.Port.PortCode, result.PortCode)
-		suite.Equal(portLocation.Port.PortName, result.PortName)
-		suite.Equal(portLocation.City.CityName, result.City)
-		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
-		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
-		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
-		suite.Equal(portLocation.Country.CountryName, result.Country)
+		payload := CounselingOffices(offices)
+
+		suite.IsType(payload, ghcmessages.CounselingOffices{})
+		suite.Equal(2, len(payload))
+		suite.Equal(office1.ID.String(), payload[0].ID.String())
+		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
 }
 
@@ -1740,169 +1940,6 @@ func (suite *PayloadsSuite) TestMTOServiceItemSingleModel() {
 	})
 }
 
-func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
-	suite.Run("Only POE Location is set", func() {
-		// Create mock data for MTOServiceItems with POE and POD
-		poePortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
-			{
-				Model: models.Port{
-					PortCode: "PDX",
-				},
-			},
-		}, nil)
-
-		poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
-			{
-				Model: models.ReService{
-					Code:     models.ReServiceCodePOEFSC,
-					Priority: 1,
-				},
-			},
-			{
-				Model:    poePortLocation,
-				LinkOnly: true,
-				Type:     &factory.PortLocations.PortOfEmbarkation,
-			},
-		}, nil)
-
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					MTOServiceItems: models.MTOServiceItems{poefscServiceItem},
-				},
-			},
-		}, nil)
-
-		payload := MTOShipment(nil, &mtoShipment, nil)
-
-		// Assertions
-		suite.NotNil(payload, "Expected payload to not be nil")
-		suite.NotNil(payload.PoeLocation, "Expected POELocation to not be nil")
-		suite.Equal("PDX", payload.PoeLocation.PortCode, "Expected POE Port Code to match")
-		suite.Equal("PORTLAND INTL", payload.PoeLocation.PortName, "Expected POE Port Name to match")
-		suite.Nil(payload.PodLocation, "Expected PODLocation to be nil when POELocation is set")
-	})
-
-	suite.Run("Only POD Location is set", func() {
-		// Create mock data for MTOServiceItems with POE and POD
-		podPortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
-			{
-				Model: models.Port{
-					PortCode: "PDX",
-				},
-			},
-		}, nil)
-
-		podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
-			{
-				Model: models.ReService{
-					Code:     models.ReServiceCodePODFSC,
-					Priority: 1,
-				},
-			},
-			{
-				Model:    podPortLocation,
-				LinkOnly: true,
-				Type:     &factory.PortLocations.PortOfDebarkation,
-			},
-		}, nil)
-
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					MTOServiceItems: models.MTOServiceItems{podfscServiceItem},
-				},
-			},
-		}, nil)
-
-		payload := MTOShipment(nil, &mtoShipment, nil)
-
-		// Assertions
-		suite.NotNil(payload, "Expected payload to not be nil")
-		suite.NotNil(payload.PodLocation, "Expected PODLocation to not be nil")
-		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
-		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
-		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
-	})
-}
-
-func (suite *PayloadsSuite) TestPPMCloseout() {
-	plannedMoveDate := time.Now()
-	actualMoveDate := time.Now()
-	miles := 1200
-	estimatedWeight := unit.Pound(5000)
-	actualWeight := unit.Pound(5200)
-	proGearWeightCustomer := unit.Pound(300)
-	proGearWeightSpouse := unit.Pound(100)
-	grossIncentive := unit.Cents(100000)
-	gcc := unit.Cents(50000)
-	aoa := unit.Cents(20000)
-	remainingIncentive := unit.Cents(30000)
-	haulType := "Linehaul"
-	haulPrice := unit.Cents(40000)
-	haulFSC := unit.Cents(5000)
-	dop := unit.Cents(10000)
-	ddp := unit.Cents(8000)
-	packPrice := unit.Cents(7000)
-	unpackPrice := unit.Cents(6000)
-	intlPackPrice := unit.Cents(15000)
-	intlUnpackPrice := unit.Cents(14000)
-	intlLinehaulPrice := unit.Cents(13000)
-	sitReimbursement := unit.Cents(12000)
-
-	ppmCloseout := models.PPMCloseout{
-		ID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
-		PlannedMoveDate:       &plannedMoveDate,
-		ActualMoveDate:        &actualMoveDate,
-		Miles:                 &miles,
-		EstimatedWeight:       &estimatedWeight,
-		ActualWeight:          &actualWeight,
-		ProGearWeightCustomer: &proGearWeightCustomer,
-		ProGearWeightSpouse:   &proGearWeightSpouse,
-		GrossIncentive:        &grossIncentive,
-		GCC:                   &gcc,
-		AOA:                   &aoa,
-		RemainingIncentive:    &remainingIncentive,
-		HaulType:              (*models.HaulType)(&haulType),
-		HaulPrice:             &haulPrice,
-		HaulFSC:               &haulFSC,
-		DOP:                   &dop,
-		DDP:                   &ddp,
-		PackPrice:             &packPrice,
-		UnpackPrice:           &unpackPrice,
-		IntlPackPrice:         &intlPackPrice,
-		IntlUnpackPrice:       &intlUnpackPrice,
-		IntlLinehaulPrice:     &intlLinehaulPrice,
-		SITReimbursement:      &sitReimbursement,
-	}
-
-	payload := PPMCloseout(&ppmCloseout)
-	suite.NotNil(payload)
-	suite.Equal(ppmCloseout.ID.String(), payload.ID.String())
-	suite.Equal(handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate), payload.PlannedMoveDate)
-	suite.Equal(handlers.FmtDatePtr(ppmCloseout.ActualMoveDate), payload.ActualMoveDate)
-	suite.Equal(handlers.FmtIntPtrToInt64(ppmCloseout.Miles), payload.Miles)
-	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight), payload.EstimatedWeight)
-	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ActualWeight), payload.ActualWeight)
-	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer), payload.ProGearWeightCustomer)
-	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse), payload.ProGearWeightSpouse)
-	suite.Equal(handlers.FmtCost(ppmCloseout.GrossIncentive), payload.GrossIncentive)
-	suite.Equal(handlers.FmtCost(ppmCloseout.GCC), payload.Gcc)
-	suite.Equal(handlers.FmtCost(ppmCloseout.AOA), payload.Aoa)
-	suite.Equal(handlers.FmtCost(ppmCloseout.RemainingIncentive), payload.RemainingIncentive)
-	suite.Equal((*string)(ppmCloseout.HaulType), payload.HaulType)
-	suite.Equal(handlers.FmtCost(ppmCloseout.HaulPrice), payload.HaulPrice)
-	suite.Equal(handlers.FmtCost(ppmCloseout.HaulFSC), payload.HaulFSC)
-	suite.Equal(handlers.FmtCost(ppmCloseout.DOP), payload.Dop)
-	suite.Equal(handlers.FmtCost(ppmCloseout.DDP), payload.Ddp)
-	suite.Equal(handlers.FmtCost(ppmCloseout.PackPrice), payload.PackPrice)
-	suite.Equal(handlers.FmtCost(ppmCloseout.UnpackPrice), payload.UnpackPrice)
-	suite.Equal(handlers.FmtCost(ppmCloseout.IntlPackPrice), payload.IntlPackPrice)
-	suite.Equal(handlers.FmtCost(ppmCloseout.IntlUnpackPrice), payload.IntlUnpackPrice)
-	suite.Equal(handlers.FmtCost(ppmCloseout.IntlLinehaulPrice), payload.IntlLinehaulPrice)
-	suite.Equal(handlers.FmtCost(ppmCloseout.SITReimbursement), payload.SITReimbursement)
-}
-
 func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {
 	mtoServiceItemID := uuid.Must(uuid.NewV4())
 	mtoShipmentID := uuid.Must(uuid.NewV4())
@@ -2057,87 +2094,6 @@ func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
 		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem2.MtoShipmentType)
 		suite.Nil(psItem2.TppsInvoiceAmountPaidPerServiceItemMillicents)
 	})
-}
-
-func (suite *PayloadsSuite) TestCounselingOffices() {
-	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
-		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ID:   uuid.Must(uuid.NewV4()),
-					Name: "PPPO Fort Liberty",
-				},
-			},
-		}, nil)
-
-		office2 := factory.BuildTransportationOffice(nil, []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ID:   uuid.Must(uuid.NewV4()),
-					Name: "PPPO Fort Walker",
-				},
-			},
-		}, nil)
-
-		offices := models.TransportationOffices{office1, office2}
-
-		payload := CounselingOffices(offices)
-
-		suite.IsType(payload, ghcmessages.CounselingOffices{})
-		suite.Equal(2, len(payload))
-		suite.Equal(office1.ID.String(), payload[0].ID.String())
-		suite.Equal(office2.ID.String(), payload[1].ID.String())
-	})
-}
-
-func (suite *PayloadsSuite) TestGetAssignedUserAndID() {
-	// Create mock users and IDs
-	userTOO := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userTOODestination := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userSC := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	idTOO := uuid.Must(uuid.NewV4())
-	idTOODestination := uuid.Must(uuid.NewV4())
-	idSC := uuid.Must(uuid.NewV4())
-
-	// Create a mock move with assigned users
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				ID:                         uuid.Must(uuid.NewV4()),
-				TOOAssignedUser:            userTOO,
-				TOOAssignedID:              &idTOO,
-				TOODestinationAssignedUser: userTOODestination,
-				TOODestinationAssignedID:   &idTOODestination,
-				SCAssignedUser:             userSC,
-				SCAssignedID:               &idSC,
-			},
-			LinkOnly: true,
-		},
-	}, nil)
-
-	// Define test cases
-	testCases := []struct {
-		name         string
-		role         string
-		queueType    string
-		officeUser   *models.OfficeUser
-		officeUserID *uuid.UUID
-	}{
-		{"TOO assigned user for TaskOrder queue", string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), userTOO, &idTOO},
-		{"TOO assigned user for DestinationRequest queue", string(roles.RoleTypeTOO), string(models.QueueTypeDestinationRequest), userTOODestination, &idTOODestination},
-		{"SC assigned user", string(roles.RoleTypeServicesCounselor), "", userSC, &idSC},
-		{"Unknown role should return nil", "UnknownRole", "", nil, nil},
-		{"TOO with unknown queue should return nil", string(roles.RoleTypeTOO), "UnknownQueue", nil, nil},
-	}
-
-	// Run test cases
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			expectedOfficeUser, expectedOfficeUserID := getAssignedUserAndID(tc.role, tc.queueType, move)
-			suite.Equal(tc.officeUser, expectedOfficeUser)
-			suite.Equal(tc.officeUserID, expectedOfficeUserID)
-		})
-	}
 }
 
 func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
@@ -2368,6 +2324,39 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
 	})
+	suite.Run("does not attach 'EXCESS_WEIGHT' request type if ExcessUnaccompaniedBaggageWeightQualifiedAt value is nil", func() {
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("attaches UB 'EXCESS_WEIGHT' request type if is qualified but unacknowledged", func() {
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestExcessWeight), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach UB 'EXCESS_WEIGHT' request type if the excess weight has been acknowledged", func() {
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = models.TimePointer(time.Now())
+		move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
 
 	// sit extension
 	suite.Run("successfully attaches a SIT extension request to move", func() {
@@ -2483,6 +2472,28 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 	})
 }
 
+func (suite *PayloadsSuite) TestCountriesPayload() {
+	suite.Run("Correctly transform array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		countries = append(countries, models.Country{Country: "US", CountryName: "UNITED STATES"})
+		payload := Countries(countries)
+		suite.True(len(payload) == 1)
+		suite.Equal(payload[0].Code, "US")
+		suite.Equal(payload[0].Name, "UNITED STATES")
+	})
+
+	suite.Run("empty array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		payload := Countries(countries)
+		suite.True(len(payload) == 0)
+	})
+
+	suite.Run("nil countries into payload", func() {
+		payload := Countries(nil)
+		suite.True(len(payload) == 0)
+	})
+}
+
 func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
@@ -2555,4 +2566,25 @@ func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 	// all dates sorted and joined with ", "
 	suite.Require().NotNil(q.RequestedMoveDates)
 	suite.Equal("Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDates)
+}
+
+func (suite *PayloadsSuite) TestPayGrades() {
+	payGrades := models.PayGrades{
+		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
+		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
+		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+	}
+
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
+
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
 }

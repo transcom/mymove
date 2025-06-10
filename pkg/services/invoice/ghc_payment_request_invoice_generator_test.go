@@ -754,6 +754,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		customAddress := models.Address{
 			ID:         uuid.Must(uuid.NewV4()),
 			PostalCode: "73403",
+			City:       "ARDMORE",
 		}
 		destDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
@@ -2361,7 +2362,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			{models.ServiceMemberGradeE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
 			{models.ServiceMemberGradeE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
 			{models.ServiceMemberGradeE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO1, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},

@@ -2,19 +2,39 @@ package models_test
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 
 	"github.com/jarcoal/httpmock"
+	"github.com/markbates/goth"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zaptest/observer"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) TestSearchForExistingOktaUsers() {
-	const milProviderName = "milProvider"
-	provider, err := factory.BuildOktaProvider(milProviderName)
+func setupOktaMilProvider(suite *ModelSuite) *okta.Provider {
+	provider, err := factory.BuildOktaProvider(okta.MilProviderName)
 	suite.NoError(err)
-	mockAndActivateOktaGETEndpointExistingUserNoError(provider)
+	return provider
+}
+
+func setupOktaAdminProvider(suite *ModelSuite) *okta.Provider {
+	provider, err := factory.BuildOktaProvider(okta.AdminProviderName)
+	suite.NoError(err)
+	return provider
+}
+
+func (suite *ModelSuite) TestSearchForExistingOktaUsers() {
+	provider := setupOktaMilProvider(suite)
+	httpmock.Activate()
+	mockOktaGETEndpointExistingUserNoError(provider)
 	oktaEmail := "test@example.com"
 	oktaEdipi := "1234567890"
 
@@ -26,12 +46,10 @@ func (suite *ModelSuite) TestSearchForExistingOktaUsers() {
 }
 
 func (suite *ModelSuite) TestSearchForExistingOktaUsersValidation() {
-	const milProviderName = "milProvider"
-	provider, err := factory.BuildOktaProvider(milProviderName)
-	suite.NoError(err)
+	provider := setupOktaMilProvider(suite)
 
 	// invalid email format
-	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "invalid-email", nil, nil)
+	_, err := models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "invalid-email", nil, nil)
 	suite.Error(err)
 	suite.Contains(err.Error(), "invalid email format")
 
@@ -48,9 +66,7 @@ func (suite *ModelSuite) TestSearchForExistingOktaUsersValidation() {
 }
 
 func (suite *ModelSuite) TestCreateOktaUser() {
-	const milProviderName = "milProvider"
-	provider, err := factory.BuildOktaProvider(milProviderName)
-	suite.NoError(err)
+	provider := setupOktaMilProvider(suite)
 	payload := models.OktaUserPayload{
 		Profile: models.OktaProfile{
 			FirstName:   "New",
@@ -63,7 +79,8 @@ func (suite *ModelSuite) TestCreateOktaUser() {
 		GroupIds: []string{"group-123"},
 	}
 
-	mockAndActivateOktaPOSTEndpointsNoError(provider)
+	httpmock.Activate()
+	mockOktaPOSTEndpointsNoError(provider)
 
 	createdUser, err := models.CreateOktaUser(suite.AppContextForTest(), provider, "fakeKey", payload)
 
@@ -140,13 +157,169 @@ func (suite *ModelSuite) TestAddOktaUserToGroup_Failure() {
 	suite.Contains(err.Error(), "Invalid group")
 }
 
-func mockAndActivateOktaGETEndpointExistingUserNoError(provider *okta.Provider) {
+func (suite *ModelSuite) TestDeleteOktaUser() {
+	const oktaID = "fakeOktaID"
+	provider := setupOktaMilProvider(suite)
+
+	httpmock.Activate()
+	mockOktaGetUserEndpointNoError(provider, oktaID, models.OktaStatusActive)
+	mockOktaDeleteEndpointNoError(provider, oktaID)
+
+	err := models.DeleteOktaUser(suite.AppContextForTest(), provider, "fakeOktaID", "fakeKey")
+	suite.NoError(err)
+}
+
+func (suite *ModelSuite) TestDeleteOktaUserHandled() {
+	provider := setupOktaAdminProvider(suite)
+	goth.UseProviders(provider)
+	expectedOktaUsersURL := provider.GetUsersURL()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	session := &auth.Session{
+		ApplicationName: auth.AdminApp,
+		Hostname:        "adminlocal",
+	}
+
+	suite.Run("Success - No attempt to delete Okta account for user without an OktaId", func() {
+		user := factory.BuildNonOktaUser(suite.DB(), nil, nil)
+		suite.Empty(user.OktaID)
+
+		mockOktaGetUserEndpointNoError(provider, user.OktaID, models.OktaStatusActive)
+		mockOktaDeleteEndpointNoError(provider, user.OktaID)
+
+		request := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s", user.ID.String()), nil)
+
+		ctx := auth.SetSessionInRequestContext(request, session)
+		request = request.WithContext(ctx)
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
+
+		models.DeleteOktaUserHandled(appCtx, user.OktaID)
+
+		// verify calls to okta
+		callInfo := httpmock.GetCallCountInfo()
+		getEndpoint := expectedOktaUsersURL + user.OktaID
+		getCallCount := callInfo[http.MethodGet+" "+getEndpoint]
+		deleteEndpoint := expectedOktaUsersURL + user.OktaID
+		deleteCallCount := callInfo[http.MethodDelete+" "+deleteEndpoint]
+
+		suite.Equal(0, getCallCount, "GET Okta user endpoint should NOT be called for an user with an empty oktaID")
+		suite.Equal(0, deleteCallCount, "DELETE Okta user endpoint should NOT be called for an user with an empty oktaID")
+	})
+
+	suite.Run("Success - Okta account deleted for ACTIVE Okta user", func() {
+
+		user := factory.BuildUser(suite.DB(), nil, nil)
+		suite.NotNil(user.OktaID)
+
+		mockOktaGetUserEndpointNoError(provider, user.OktaID, models.OktaStatusActive)
+		mockOktaDeleteEndpointNoError(provider, user.OktaID)
+
+		request := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s", user.ID.String()), nil)
+
+		ctx := auth.SetSessionInRequestContext(request, session)
+		request = request.WithContext(ctx)
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
+
+		models.DeleteOktaUserHandled(appCtx, user.OktaID)
+
+		// Get the call count info
+		callInfo := httpmock.GetCallCountInfo()
+
+		// Check if the GET endpoint was called
+		getEndpoint := expectedOktaUsersURL + user.OktaID
+		getCallCount := callInfo[http.MethodGet+" "+getEndpoint]
+
+		// Check if the DELETE endpoint was called
+		deleteEndpoint := expectedOktaUsersURL + user.OktaID
+		deleteCallCount := callInfo[http.MethodDelete+" "+deleteEndpoint]
+
+		suite.Equal(1, getCallCount, "GET Okta user endpoint should be called once")
+		suite.Equal(2, deleteCallCount, "DELETE Okta user endpoint should be called twice for an active user")
+	})
+
+	suite.Run("Success - Okta account deleted for DEPROVISIONED Okta user", func() {
+
+		user := factory.BuildUser(suite.DB(), nil, nil)
+		suite.NotNil(user.OktaID)
+
+		mockOktaGetUserEndpointNoError(provider, user.OktaID, models.OktaStatusDeprovisioned)
+		mockOktaDeleteEndpointNoError(provider, user.OktaID)
+
+		request := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s", user.ID.String()), nil)
+
+		ctx := auth.SetSessionInRequestContext(request, session)
+		request = request.WithContext(ctx)
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
+
+		models.DeleteOktaUserHandled(appCtx, user.OktaID)
+
+		// Get the call count info
+		callInfo := httpmock.GetCallCountInfo()
+
+		// Check if the GET endpoint was called
+		getEndpoint := expectedOktaUsersURL + user.OktaID
+		getCallCount := callInfo[http.MethodGet+" "+getEndpoint]
+
+		// Check if the DELETE endpoint was called
+		deleteEndpoint := expectedOktaUsersURL + user.OktaID
+		deleteCallCount := callInfo[http.MethodDelete+" "+deleteEndpoint]
+
+		suite.Equal(1, getCallCount, "GET Okta user endpoint should be called once")
+		suite.Equal(1, deleteCallCount, "DELETE Okta user endpoint should be called once for a deprovisioned user")
+	})
+
+	suite.Run("Success - Okta account not deleted - Okta user not found", func() {
+
+		user := factory.BuildUser(suite.DB(), nil, nil)
+		suite.NotNil(user.OktaID)
+
+		mockOktaGetUserEndpointError(provider, user.OktaID)
+		mockOktaDeleteEndpointNoError(provider, user.OktaID)
+
+		request := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s", user.ID.String()), nil)
+
+		ctx := auth.SetSessionInRequestContext(request, session)
+		request = request.WithContext(ctx)
+
+		// Create an observed logger
+		observedZapCore, observedLogs := observer.New(zap.InfoLevel)
+		testLogger := suite.Logger()
+		observedLogger := testLogger.WithOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+			return zapcore.NewTee(core, observedZapCore)
+		}))
+		appCtx := appcontext.NewAppContext(suite.DB(), observedLogger, session, request)
+
+		models.DeleteOktaUserHandled(appCtx, user.OktaID)
+
+		expectedMessage := "error deleting user from okta"
+		foundLog := false
+		for _, log := range observedLogs.All() {
+			if log.Level == zap.ErrorLevel && strings.Contains(log.Message, expectedMessage) {
+				foundLog = true
+				break
+			}
+		}
+		suite.Assert().True(foundLog, "Expected error log message not found")
+
+		callInfo := httpmock.GetCallCountInfo()
+		getEndpoint := expectedOktaUsersURL + user.OktaID
+		getCallCount := callInfo[http.MethodGet+" "+getEndpoint]
+		deleteEndpoint := expectedOktaUsersURL + user.OktaID
+		deleteCallCount := callInfo[http.MethodDelete+" "+deleteEndpoint]
+
+		suite.Equal(1, getCallCount, "GET Okta user endpoint should be called once")
+		suite.Equal(0, deleteCallCount, "DELETE Okta user endpoint should NOT be called for user not found")
+	})
+}
+
+func mockOktaGETEndpointExistingUserNoError(provider *okta.Provider) {
 	getUsersEndpoint := provider.GetUsersURL()
 	oktaID := "fakeOktaID"
+
 	response := fmt.Sprintf(`[
 		{
 			"id": "%s",
-			"status": "PROVISIONED",
+			"status": "%s",
 			"created": "2025-02-07T20:39:47.000Z",
 			"activated": "2025-02-07T20:39:47.000Z",
 			"profile": {
@@ -159,19 +332,18 @@ func mockAndActivateOktaGETEndpointExistingUserNoError(provider *okta.Provider) 
 				"cac_edipi": "1234567890"
 			}
 		}
-	]`, oktaID)
+	]`, oktaID, models.OktaStatusProvisioned)
 
-	httpmock.RegisterResponder("GET", getUsersEndpoint,
+	httpmock.RegisterResponder(http.MethodGet, getUsersEndpoint,
 		httpmock.NewStringResponder(200, response))
-	httpmock.Activate()
 }
 
-func mockAndActivateOktaPOSTEndpointsNoError(provider *okta.Provider) {
+func mockOktaPOSTEndpointsNoError(provider *okta.Provider) {
 	activate := "true"
 	createUserEndpoint := provider.GetCreateUserURL(activate)
 	oktaID := "newFakeOktaID"
 
-	httpmock.RegisterResponder("POST", createUserEndpoint,
+	httpmock.RegisterResponder(http.MethodPost, createUserEndpoint,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
 		"id": "%s",
 		"profile": {
@@ -181,6 +353,39 @@ func mockAndActivateOktaPOSTEndpointsNoError(provider *okta.Provider) {
 			"login": "email@email.com"
 		}
 	}`, oktaID)))
+}
 
-	httpmock.Activate()
+func mockOktaGetUserEndpointNoError(provider *okta.Provider, oktaID string, status models.OktaStatus) {
+	getUserEndpoint := provider.GetUserURL(oktaID)
+
+	httpmock.RegisterResponder(http.MethodGet, getUserEndpoint,
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+		"id": "%s",
+		"status": "%s",
+		"profile": {
+			"firstName": "First",
+			"lastName": "Last",
+			"email": "email@email.com",
+			"login": "email@email.com"
+		}
+	}`, oktaID, status)))
+}
+
+func mockOktaDeleteEndpointNoError(provider *okta.Provider, oktaID string) {
+	deleteUserEndpoint := provider.GetUserURL(oktaID)
+
+	httpmock.RegisterResponder(http.MethodDelete, deleteUserEndpoint,
+		httpmock.NewStringResponder(204, ""))
+}
+
+func mockOktaGetUserEndpointError(provider *okta.Provider, oktaID string) {
+	getUsersEndpoint := provider.GetUserURL(oktaID)
+	response := `[
+			{
+				"errorSummary": "didn't find the okta user"
+			}
+		]`
+
+	httpmock.RegisterResponder(http.MethodGet, getUsersEndpoint,
+		httpmock.NewStringResponder(404, response))
 }

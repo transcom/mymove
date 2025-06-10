@@ -116,6 +116,14 @@ export class TestHarness {
   }
 
   /**
+   * build office user with multirole
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithMultirole() {
+    return this.buildDefault('OfficeUserWithTOOAndTIO');
+  }
+
+  /**
    * @returns {Promise<User>}
    */
   async buildNeedsOrdersUser() {
@@ -354,6 +362,16 @@ export class TestHarness {
    */
   async buildHHGMoveWithNTSShipmentsForTOO() {
     return this.buildDefault('HHGMoveWithNTSShipmentsForTOO');
+  }
+
+  /**
+   * Use testharness to build iHHG move with iNTS basic accessory service items
+   * for TIO review
+   * eg, INPK
+   * @returns {Promise<Move>}
+   */
+  async buildInternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO() {
+    return this.buildDefault('InternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO');
   }
 
   /**

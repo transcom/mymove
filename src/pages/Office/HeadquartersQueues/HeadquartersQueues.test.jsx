@@ -156,7 +156,7 @@ jest.mock('hooks/queries', () => ({
       },
     };
   },
-  useServicesCounselingQueuePPMQueries: () => {
+  usePPMQueueQueries: () => {
     return {
       isLoading: false,
       isError: false,

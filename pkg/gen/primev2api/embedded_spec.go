@@ -3145,7 +3145,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -3181,6 +3181,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -3863,7 +3865,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },
@@ -7149,7 +7151,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -7185,6 +7187,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -7869,7 +7873,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },
