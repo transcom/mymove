@@ -95,7 +95,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 			Model:    move,
 			LinkOnly: true,
 		},
-	}, nil)
+	}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 	destAddress := factory.BuildDefaultAddress(suite.DB())
 
 	serviceItem := models.MTOServiceItem{
@@ -132,6 +132,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidIDFSITServiceItemWithValidMov
 		{
 			Model: models.MTOShipment{
 				MarketCode: models.MarketCodeInternational,
+				Status:     models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}, nil)
@@ -286,10 +287,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		var foundMove models.Move
 		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, sitShipment.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numDDFSITFound := 0
 		numDDASITFound := 0
@@ -340,10 +345,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		var foundMove models.Move
 		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, sitShipment.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numIDFSITFound := 0
 		numIDASITFound := 0
@@ -737,8 +746,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		startDate := time.Date(testdatagen.GHCTestYear, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(testdatagen.GHCTestYear, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
@@ -785,8 +794,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		startDate := time.Date(testdatagen.GHCTestYear, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(testdatagen.GHCTestYear, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
@@ -2506,20 +2515,18 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
 		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
-		startDate := time.Now().AddDate(-1, 0, 0)
-		endDate := startDate.AddDate(1, 1, 1)
 		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 		sitPostalCode := "99999"
 		reason := "lorem ipsum"
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
 					Name:                 "Test Contract Year",
 					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
+					StartDate:            testdatagen.ContractStartDate,
+					EndDate:              testdatagen.ContractEndDate,
 				},
 			})
 
@@ -2738,22 +2745,22 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
-		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(66330), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
-		suite.Equal(unit.Cents(594000), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(586080), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
-		suite.Equal(unit.Cents(46464), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(45870), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
-		suite.Equal(unit.Cents(48246), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(47652), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
-		suite.Equal(unit.Cents(13619760), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(13437600), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
-		suite.Equal(unit.Cents(11088000), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(10929600), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
 		// negative because we are using 2020 fuel rates
@@ -3037,22 +3044,22 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
-		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(66330), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
-		suite.Equal(unit.Cents(594000), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(586080), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
-		suite.Equal(unit.Cents(46464), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(45870), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
-		suite.Equal(unit.Cents(48246), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(47652), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
-		suite.Equal(unit.Cents(29990400), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(29589120), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
-		suite.Equal(unit.Cents(22176000), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(21859200), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
 		// negative because we are using 2020 fuel rate

@@ -17,6 +17,7 @@ import { getResponseError, patchMTOShipment, getMTOShipmentsForMove } from 'serv
 import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isWeightTicketComplete } from 'utils/shipments';
+import { PPM_TYPES } from 'shared/constants';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
 
@@ -30,6 +31,9 @@ const About = () => {
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const [multiMove, setMultiMove] = useState(false);
+
+  const ppmShipment = mtoShipment?.ppmShipment || {};
+  const { ppmType } = ppmShipment;
   const appName = APP_NAME.MYMOVE;
 
   useEffect(() => {
@@ -76,8 +80,6 @@ const About = () => {
         hasSecondaryDestinationAddress: values.hasSecondaryDestinationAddress === 'true',
         secondaryDestinationAddress:
           values.hasSecondaryDestinationAddress === 'true' ? values.secondaryDestinationAddress : null,
-        actualPickupPostalCode: values.pickupAddress.postalCode,
-        actualDestinationPostalCode: values.destinationAddress.postalCode,
         hasReceivedAdvance,
         advanceAmountReceived: hasReceivedAdvance ? values.advanceAmountReceived * 100 : null,
         w2Address: values.w2Address,
@@ -98,7 +100,12 @@ const About = () => {
         dispatch(updateMTOShipment(response));
 
         let path;
-        if (response.ppmShipment.weightTickets.length === 0) {
+        if (ppmType === PPM_TYPES.SMALL_PACKAGE) {
+          path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+            moveId,
+            mtoShipmentId,
+          });
+        } else if (response.ppmShipment.weightTickets.length === 0) {
           path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
             moveId,
             mtoShipmentId,

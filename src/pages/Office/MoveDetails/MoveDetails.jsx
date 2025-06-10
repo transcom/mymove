@@ -8,6 +8,7 @@ import { generatePath } from 'react-router';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -273,9 +274,11 @@ const MoveDetails = ({
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
       shipment.status === shipmentStatuses.APPROVED ||
+      shipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
       shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-      shipment.status === shipmentStatuses.CANCELED,
+      shipment.status === shipmentStatuses.CANCELED ||
+      shipment.status === shipmentStatuses.TERMINATED_FOR_CAUSE,
   );
 
   const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(
@@ -293,7 +296,8 @@ const MoveDetails = ({
     const nonDeletedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
     const nonPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const nonPpmApprovedShipments = nonPpmShipments.filter(
-      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+      (shipment) =>
+        shipment?.status === shipmentStatuses.APPROVED || shipment?.status === shipmentStatuses.APPROVALS_REQUESTED,
     );
     const onlyPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
@@ -525,6 +529,9 @@ const MoveDetails = ({
 
   return (
     <div className={styles.tabContent}>
+      <div className={styles.flashMessage}>
+        <ConnectedFlashMessage />
+      </div>
       <div className={styles.container}>
         <LeftNav sections={sections}>
           <LeftNavTag
@@ -578,7 +585,7 @@ const MoveDetails = ({
               )}
             </Grid>
             <Grid col={12} className={styles.tooMoveDetailsHeadingFlexbox}>
-              <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+              <h1 className={styles.tooMoveDetailsH1}>Move Details</h1>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div>
                   <FinancialReviewButton
@@ -735,7 +742,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

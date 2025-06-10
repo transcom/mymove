@@ -7,7 +7,7 @@ import { generatePath } from 'react-router-dom';
 import { MockProviders } from 'testUtils';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
 import {
   deleteWeightTicket,
@@ -23,14 +23,28 @@ const mockMoveId = v4();
 const mockMTOShipmentId = v4();
 const mockPPMShipmentId = v4();
 
+const pickupAddress = {
+  id: 'test1',
+  streetAddress1: 'Pickup Road',
+  city: 'PPM City',
+  state: 'CA',
+  postalCode: '90210',
+};
+
+const destinationAddress = {
+  id: 'test1',
+  streetAddress1: 'Destination Road',
+  city: 'PPM City',
+  state: 'CA',
+  postalCode: '90210',
+};
+
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: mockPPMShipmentId,
     actualMoveDate: '2022-05-01',
-    actualPickupPostalCode: '10003',
-    actualDestinationPostalCode: '10004',
     advanceReceived: true,
     advanceAmountReceived: '6000000',
     expectedDepartureDate: '2022-04-30',
@@ -43,6 +57,8 @@ const mockMTOShipment = {
     proGearWeight: null,
     spouseProGearWeight: null,
     weightTickets: [],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -55,8 +71,6 @@ const mockMTOShipmentWithWeightTicket = {
   ppmShipment: {
     id: mockPPMShipmentId,
     actualMoveDate: '2022-05-01',
-    actualPickupPostalCode: '10003',
-    actualDestinationPostalCode: '10004',
     advanceReceived: true,
     advanceAmountReceived: '6000000',
     expectedDepartureDate: '2022-04-30',
@@ -69,6 +83,8 @@ const mockMTOShipmentWithWeightTicket = {
     proGearWeight: null,
     spouseProGearWeight: null,
     weightTickets: [weightTicketOne, weightTicketTwo],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -81,8 +97,6 @@ const mockMTOShipmentWithWeightTicketDeleted = {
       ppmShipment: {
         id: mockPPMShipmentId,
         actualMoveDate: '2022-05-01',
-        actualPickupPostalCode: '10003',
-        actualDestinationPostalCode: '10004',
         advanceReceived: true,
         advanceAmountReceived: '6000000',
         expectedDepartureDate: '2022-04-30',
@@ -95,6 +109,8 @@ const mockMTOShipmentWithWeightTicketDeleted = {
         proGearWeight: null,
         spouseProGearWeight: null,
         weightTickets: [weightTicketTwo],
+        pickupAddress,
+        destinationAddress,
       },
       eTag: 'dGVzdGluZzIzNDQzMjQ',
     },
@@ -107,8 +123,6 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
   ppmShipment: {
     id: mockPPMShipmentId,
     actualMoveDate: '2022-05-01',
-    actualPickupPostalCode: '10003',
-    actualDestinationPostalCode: '10004',
     advanceReceived: true,
     advanceAmountReceived: '6000000',
     expectedDepartureDate: '2022-04-30',
@@ -121,6 +135,8 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
     proGearWeight: null,
     spouseProGearWeight: null,
     weightTickets: [createBaseWeightTicket()],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -132,8 +148,6 @@ const mockMTOShipmentWithProGear = {
   ppmShipment: {
     id: mockPPMShipmentId,
     actualMoveDate: '2022-05-01',
-    actualPickupPostalCode: '10003',
-    actualDestinationPostalCode: '10004',
     advanceReceived: true,
     advanceAmountReceived: '6000000',
     expectedDepartureDate: '2022-04-30',
@@ -146,6 +160,8 @@ const mockMTOShipmentWithProGear = {
     proGearWeight: 100,
     spouseProGearWeight: null,
     proGearWeightTickets: [proGearWeightOne],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -158,8 +174,6 @@ const mockMTOShipmentWithProGearDeleted = {
       ppmShipment: {
         id: mockPPMShipmentId,
         actualMoveDate: '2022-05-01',
-        actualPickupPostalCode: '10003',
-        actualDestinationPostalCode: '10004',
         advanceReceived: true,
         advanceAmountReceived: '6000000',
         expectedDepartureDate: '2022-04-30',
@@ -172,6 +186,8 @@ const mockMTOShipmentWithProGearDeleted = {
         proGearWeight: 100,
         spouseProGearWeight: null,
         proGearWeightTickets: [],
+        pickupAddress,
+        destinationAddress,
       },
       eTag: 'dGVzdGluZzIzNDQzMjQ',
     },
@@ -186,8 +202,6 @@ const mockMTOShipmentWithExpenses = {
   ppmShipment: {
     id: mockPPMShipmentId,
     actualMoveDate: '2022-05-01',
-    actualPickupPostalCode: '10003',
-    actualDestinationPostalCode: '10004',
     advanceReceived: true,
     advanceAmountReceived: '6000000',
     expectedDepartureDate: '2022-04-30',
@@ -200,6 +214,8 @@ const mockMTOShipmentWithExpenses = {
     proGearWeight: 100,
     spouseProGearWeight: null,
     movingExpenses: [expenseOne, expenseTwo],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -212,8 +228,6 @@ const mockMTOShipmentWithExpensesDeleted = {
       ppmShipment: {
         id: mockPPMShipmentId,
         actualMoveDate: '2022-05-01',
-        actualPickupPostalCode: '10003',
-        actualDestinationPostalCode: '10004',
         advanceReceived: true,
         advanceAmountReceived: '6000000',
         expectedDepartureDate: '2022-04-30',
@@ -226,6 +240,8 @@ const mockMTOShipmentWithExpensesDeleted = {
         proGearWeight: 100,
         spouseProGearWeight: null,
         movingExpenses: [expenseOne],
+        pickupAddress,
+        destinationAddress,
       },
       eTag: 'dGVzdGluZzIzNDQzMjQ',
     },
@@ -601,5 +617,53 @@ describe('Review page', () => {
     await waitFor(() => {
       expect(screen.getByText('Receipt 1 successfully deleted.'));
     });
+  });
+
+  it('disables the save and continue link for small package shipments with no expenses', () => {
+    const mockMTOShipmentWithSmallPackageNoExpense = {
+      id: mockMTOShipmentId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: mockPPMShipmentId,
+        ppmType: PPM_TYPES.SMALL_PACKAGE,
+        weightTickets: [],
+        movingExpenses: [],
+        proGearWeightTickets: [],
+        pickupAddress,
+        destinationAddress,
+      },
+      eTag: 'dummyETag',
+    };
+
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithSmallPackageNoExpense);
+    renderReviewPage();
+
+    const saveButton = screen.getByText('Save & Continue');
+    expect(saveButton).toHaveClass('usa-button--disabled');
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('enables the save and continue link for small package shipments when at least one expense exists', () => {
+    const mockMTOShipmentWithSmallPackageExpense = {
+      id: mockMTOShipmentId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: mockPPMShipmentId,
+        ppmType: PPM_TYPES.SMALL_PACKAGE,
+        weightTickets: [],
+        movingExpenses: [expenseOne],
+        proGearWeightTickets: [],
+        pickupAddress,
+        destinationAddress,
+      },
+      eTag: 'dummyETag',
+    };
+
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithSmallPackageExpense);
+    renderReviewPage();
+
+    const saveButton = screen.getByText('Save & Continue');
+    expect(saveButton).not.toHaveClass('usa-button--disabled');
+    expect(saveButton).toHaveAttribute('aria-disabled', 'false');
   });
 });

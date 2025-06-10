@@ -28,6 +28,7 @@ import {
   cancelMove,
   updateFinancialFlag,
   updateMTOShipment,
+  sendPPMToCustomer,
 } from 'services/ghcApi';
 import {
   MOVE_STATUSES,
@@ -207,7 +208,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
-    const submittedShipmentsNonPPMNeedsCloseout = submittedShipments.filter(
+    const submittedShipmentsPPMNonCloseout = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const ppmNeedsApprovalShipments = submittedShipments.filter(
@@ -220,7 +221,8 @@ const ServicesCounselingMoveDetails = ({
 
     const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const nonPpmApprovedShipments = nonPpmShipments.filter(
-      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+      (shipment) =>
+        shipment?.status === shipmentStatuses.APPROVED || shipment?.status === shipmentStatuses.APPROVALS_REQUESTED,
     );
     const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
       (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,
@@ -293,7 +295,7 @@ const ServicesCounselingMoveDetails = ({
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
     isMoveCancelled = move.status === MOVE_STATUSES.CANCELED;
 
-    shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
+    shipmentsInfo = submittedShipmentsPPMNonCloseout.map((shipment) => {
       const editURL =
         // This ternary checks if the shipment is a PPM. If so, PPM Shipments are editable at any time based on their ppm status.
         // If the shipment is not a PPM, it uses the existing counselorCanEdit checks for move status
@@ -552,6 +554,20 @@ const ServicesCounselingMoveDetails = ({
     },
   });
 
+  const { mutateAsync: handleSendPPMToCustomer } = useMutation(sendPPMToCustomer, {
+    onSuccess: (updatedPPMShipment) => {
+      mtoShipments?.forEach((shipment, key) => {
+        if (updatedPPMShipment.shipmentId === shipment.id) {
+          mtoShipments[key].ppmShipment = updatedPPMShipment;
+        }
+      });
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Failed to send PPM to customer.');
+    },
+  });
+
   const handleConfirmSubmitMoveDetails = async () => {
     const shipmentPromise = await mtoShipments.map((shipment) => {
       if (shipment?.ppmShipment?.estimatedIncentive === 0) {
@@ -776,7 +792,7 @@ const ServicesCounselingMoveDetails = ({
               </Grid>
             )}
             <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
-              <h1>Move details</h1>
+              <h1>Move Details</h1>
               {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
                 <div>
                   {(counselorCanEdit || counselorCanEditNonPPM) && (
@@ -866,6 +882,8 @@ const ServicesCounselingMoveDetails = ({
                     displayInfo={shipment.displayInfo}
                     editURL={shipment.editURL}
                     viewURL={shipment.viewURL}
+                    sendPpmToCustomer={handleSendPPMToCustomer}
+                    counselorCanEdit={counselorCanEdit}
                     completePpmForCustomerURL={shipment.completePpmForCustomerURL}
                     isSubmitted={false}
                     key={shipment.id}
@@ -938,7 +956,7 @@ const ServicesCounselingMoveDetails = ({
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

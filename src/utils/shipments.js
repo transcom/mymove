@@ -1,7 +1,7 @@
 // The PPM shipment creation is a multi-step flow so it's possible to get in a state with missing
 // information and get to the review screen in an incomplete state from creating another shipment
 
-import { SHIPMENT_OPTIONS } from '../shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS } from '../shared/constants';
 
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 
@@ -17,8 +17,9 @@ export function isPPMShipmentComplete(mtoShipment) {
 export function isPPMAboutInfoComplete(ppmShipment) {
   const hasBaseRequiredFields = [
     'actualMoveDate',
-    'actualPickupPostalCode',
-    'actualDestinationPostalCode',
+    'pickupAddress',
+    'destinationAddress',
+    'w2Address',
     'hasReceivedAdvance',
   ].every((fieldName) => ppmShipment[fieldName] !== null);
 
@@ -56,7 +57,11 @@ export function isWeightTicketComplete(weightTicket) {
 
 // hasCompletedAllWeightTickets - checks if every weight ticket has been completed.
 // Returns false if there are no weight tickets, or if any of them are incomplete.
-export function hasCompletedAllWeightTickets(weightTickets) {
+export function hasCompletedAllWeightTickets(weightTickets, ppmType) {
+  // PPM-SPRs don't have weight tickets
+  if (ppmType === PPM_TYPES.SMALL_PACKAGE) {
+    return true;
+  }
   if (!weightTickets?.length) {
     return false;
   }
@@ -73,8 +78,9 @@ export function isExpenseComplete(expense) {
   const hasADocumentUpload = expense.document.uploads.length > 0;
   const hasValidSITDates =
     expense.movingExpenseType !== expenseTypes.STORAGE || (expense.sitStartDate && expense.sitEndDate);
+  const requiresDescription = expense.movingExpenseType !== expenseTypes.SMALL_PACKAGE;
   return !!(
-    expense.description &&
+    (requiresDescription ? expense.description : true) &&
     expense.movingExpenseType &&
     expense.amount &&
     hasADocumentUpload &&
@@ -139,6 +145,7 @@ export const blankAddress = {
     city: '',
     state: '',
     postalCode: '',
+    usPostRegionCitiesID: '',
   },
 };
 
@@ -228,6 +235,8 @@ export const handleAddressToggleChange = (e, values, setValues, newDutyLocationA
           city: newDutyLocationAddress.city,
           state: newDutyLocationAddress.state,
           postalCode: newDutyLocationAddress.postalCode,
+          county: newDutyLocationAddress.county,
+          usPostRegionCitiesID: newDutyLocationAddress.usPostRegionCitiesID,
         },
       },
     },

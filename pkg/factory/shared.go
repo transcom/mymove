@@ -21,7 +21,7 @@ import (
 // CONSTANTS
 
 // DefaultContractCode is the default contract code for testing
-const DefaultContractCode = "TRUSS_TEST"
+const DefaultContractCode = "HTC711-22-D-R002"
 
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
@@ -82,6 +82,7 @@ var PrimeUpload CustomType = "PrimeUpload"
 var ProgearWeightTicket CustomType = "ProgearWeightTicket"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
+var ReDomesticAccessorialPrice CustomType = "ReDomesticAccessorialPrice"
 var ReDomesticOtherPrice CustomType = "ReDomesticOtherPrice"
 var ReDomesticServiceAreaPrice CustomType = "ReDomesticServiceAreaPrice"
 var Role CustomType = "Role"
@@ -152,6 +153,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ProgearWeightTicket":                      ProgearWeightTicket,
 	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
 	"models.ReService":                                ReService,
+	"models.ReDomesticAccessorialPrice":               ReDomesticAccessorialPrice,
 	"models.ReDomesticOtherPrice":                     ReDomesticOtherPrice,
 	"models.ReDomesticServiceAreaPrice":               ReDomesticServiceAreaPrice,
 	"models.ServiceItemParamKey":                      ServiceItemParamKey,
@@ -176,7 +178,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.WeightTicket":                             WeightTicket,
 	"roles.Role":                                      Role,
 	"models.UsersPrivileges":                          UsersPrivileges,
-	"models.Privilege":                                Privilege,
+	"roles.Privilege":                                 Privilege,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
