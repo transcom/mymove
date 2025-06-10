@@ -1,4 +1,4 @@
-import { Admin, AppBar, fetchUtils, Layout, Resource, CustomRoutes } from 'react-admin';
+import { Admin, AppBar, fetchUtils, Layout, Resource, CustomRoutes, defaultTheme, TitlePortal } from 'react-admin';
 import { Route } from 'react-router-dom';
 import React from 'react';
 import Cookies from 'js-cookie';
@@ -48,6 +48,10 @@ import PaymentRequest858List from 'pages/Admin/PaymentRequests/PaymentRequest858
 import PaymentRequest858Show from 'pages/Admin/PaymentRequests/PaymentRequest858Show';
 import EdiErrorsList from 'pages/Admin/PaymentRequests/EdiErrorsList';
 import EdiErrorsShow from 'pages/Admin/PaymentRequests/EdiErrorsShow';
+import { deepmerge } from '@mui/utils';
+
+import logo from '../../shared/images/milmove-logo.svg';
+import { Box } from '@material-ui/core';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -63,19 +67,103 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 };
 
+const CustomAppBar = (props) => (
+  <AppBar {...props} position="sticky">
+    {/* Logo on the left */}
+    <Box component="span" sx={{ display: 'flex', alignItems: 'center', pl: 2 }}>
+      <img src={logo} alt="logo" style={{ height: 22, paddingRight: '25px' }} />
+    </Box>
+    <TitlePortal />
+  </AppBar>
+);
+
 const CUIWrapper = () => (
   <>
     <AdminLogoutOnInactivity />
-    <AppBar position="sticky" />
+    <CustomAppBar />
   </>
 );
 
 const dataProvider = restProvider('/admin/v1', httpClient);
 const AdminLayout = (props) => <Layout {...props} menu={Menu} appBar={CUIWrapper} />;
 
+const theme = deepmerge(defaultTheme, {
+  palette: {
+    secondary: {
+      main: '#252f3e',
+    },
+  },
+  components: {
+    RaButton: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#005ea2',
+          height: '35px',
+          padding: '8px',
+          color: '#FFF !important',
+          '&:hover': {
+            backgroundColor: '#005ea2',
+            opacity: '0.8',
+          },
+          '&:visited': {
+            color: '#FFFFF',
+          },
+        },
+      },
+    },
+    RaMenuItemLink: {
+      styleOverrides: {
+        root: {
+          color: '#000 !important',
+          '&.RaMenuItemLink-active': {
+            color: '#000 !important',
+            backgroundColor: 'transparent !important',
+          },
+          '&:hover': {
+            color: '#000 !important',
+          },
+        },
+      },
+    },
+    RaSaveButton: {
+      styleOverrides: {
+        root: {
+          minHeight: '30px',
+          backgroundColor: '#005ea2',
+          color: '#fff',
+        },
+      },
+    },
+    RaConfirm: {
+      styleOverrides: {
+        root: {
+          '& .RaConfirm-confirmPrimary': {
+            minHeight: '30px',
+            backgroundColor: '#005ea2',
+            color: '#fff',
+            '&:hover': {
+              opacity: '0.8',
+            },
+          },
+          '& .MuiDialogActions-root > button:nth-of-type(1)': {
+            minHeight: '30px',
+            color: '#005ea2',
+            border: '1px solid #005ea2',
+            backgroundColor: 'transparent',
+            '&:hover': {
+              backgroundColor: '#f5f5f5',
+              borderColor: '#004a8c',
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
 const Home = () => (
   <div className={styles['admin-system-wrapper']}>
-    <Admin dataProvider={dataProvider} basename="/system" layout={AdminLayout} disableTelemetry>
+    <Admin dataProvider={dataProvider} basename="/system" layout={AdminLayout} disableTelemetry theme={theme}>
       <Resource
         name="requested-office-users"
         options={{ label: 'Requested Office Users' }}
