@@ -9,7 +9,6 @@ import ServicesCounselingQueue from './ServicesCounselingQueue';
 import {
   useUserQueries,
   useCounselingQueueQueries,
-  useServicesCounselingQueuePPMQueries,
   useServicesCounselingQueueQueries,
   usePPMQueueQueries,
 } from 'hooks/queries';
@@ -22,7 +21,6 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useCounselingQueueQueries: jest.fn(),
-  useServicesCounselingQueuePPMQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
   usePPMQueueQueries: jest.fn(),
   useBulkAssignmentQueries: () => {
@@ -491,7 +489,6 @@ describe('ServicesCounselingQueue', () => {
         isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
         useUserQueries.mockReturnValue(user);
         useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-        useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
         render(
           <MockProviders path={pagePath} params={{ queueType }}>
             <ServicesCounselingQueue isQueueManagementFFEnabled />
