@@ -7,7 +7,7 @@ import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
-import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import {
   formatCentsTruncateWhole,
@@ -52,13 +52,18 @@ const PPMShipmentCard = ({
     estimatedIncentive,
     hasRequestedAdvance,
     advanceAmountRequested,
+    gunSafeWeight,
   } = shipment?.ppmShipment || {};
 
   const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       isBooleanFlagEnabled('third_address_available').then((enabled) => {
         setIsTertiaryAddressEnabled(enabled);
+      });
+      isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE).then((enabled) => {
+        setIsGunSafeEnabled(enabled);
       });
     };
     fetchData();
@@ -181,6 +186,12 @@ const PPMShipmentCard = ({
             <dt>Spouse pro-gear</dt>
             <dd>{spouseProGearWeight ? `Yes, ${formatWeight(spouseProGearWeight)}` : 'No'}</dd>
           </div>
+          {isGunSafeEnabled && (
+            <div className={styles.row}>
+              <dt>Gun safe</dt>
+              <dd>{gunSafeWeight ? `Yes, ${formatWeight(gunSafeWeight)}` : 'No'}</dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt>Estimated incentive</dt>
             <dd>${estimatedIncentive ? formatCentsTruncateWhole(estimatedIncentive) : '0'}</dd>

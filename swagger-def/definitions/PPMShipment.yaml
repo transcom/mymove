@@ -136,6 +136,17 @@ properties:
     type: integer
     x-nullable: true
     x-omitempty: false
+  hasGunSafe:
+    description: >
+      Indicates whether PPM shipment has gun safe.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  gunSafeWeight:
+    description: The estimated weight of the gun safe being moved belonging to the service member.
+    type: integer
+    x-nullable: true
+    x-omitempty: false
   estimatedIncentive:
     description: The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
     type: integer

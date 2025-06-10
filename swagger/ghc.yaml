@@ -8356,6 +8356,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -8364,7 +8368,10 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+        x-nullable: true
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
@@ -10103,6 +10110,7 @@ definitions:
       - CANCELED
       - DIVERSION_REQUESTED
       - TERMINATED_FOR_CAUSE
+      - APPROVALS_REQUESTED
   ReweighRequester:
     type: string
     enum:
@@ -10352,7 +10360,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   OmittablePPMDocumentStatus:
@@ -11123,6 +11130,19 @@ definitions:
         description: >-
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
         x-omitempty: false
