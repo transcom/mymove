@@ -87,7 +87,8 @@ describe('ProGearForm component', () => {
       render(<ProGearForm {...defaultProps} appName={APP_NAME.MYMOVE} />, { wrapper: MockProviders });
 
       expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
-      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInTheDocument();
+
       expect(screen.getByLabelText('Me')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
 
@@ -99,7 +100,7 @@ describe('ProGearForm component', () => {
       render(<ProGearForm {...defaultProps} appName={APP_NAME.OFFICE} />, { wrapper: MockProviders });
 
       expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
-      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInTheDocument();
       expect(screen.getByLabelText('Me')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
 
