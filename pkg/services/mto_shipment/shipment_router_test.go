@@ -16,6 +16,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	validStatuses := []models.MTOShipmentStatus{
 		models.MTOShipmentStatusSubmitted,
 		models.MTOShipmentStatusDiversionRequested,
+		models.MTOShipmentStatusApprovalsRequested,
 	}
 
 	for _, validStatus := range validStatuses {
@@ -78,7 +79,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
-			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status 'APPROVED' from [\"SUBMITTED\" \"DIVERSION_REQUESTED\"]", shipment.ID))
+			suite.Contains(err.Error(), fmt.Sprintf("Shipment with id '%s' can only transition to status 'APPROVED' from [\"SUBMITTED\" \"DIVERSION_REQUESTED\" \"APPROVALS_REQUESTED\"]", shipment.ID))
 			suite.Contains(err.Error(), fmt.Sprintf("but its current status is '%s'", invalidStatus))
 		})
 	}
