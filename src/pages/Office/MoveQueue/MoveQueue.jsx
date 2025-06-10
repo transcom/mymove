@@ -17,14 +17,7 @@ import { getDestinationRequestsQueue, getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import {
-  MOVE_STATUS_OPTIONS,
-  GBLOC,
-  MOVE_STATUS_LABELS,
-  BRANCH_OPTIONS,
-  QUEUE_TYPES,
-  MOVE_STATUS_OPTIONS_DEST_QUEUE,
-} from 'constants/queues';
+import { MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS, BRANCH_OPTIONS, QUEUE_TYPES } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -48,6 +41,7 @@ export const columns = (
   isQueueManagementEnabled,
   queueType,
   setRefetchQueue,
+  isApprovalRequestTypeColEnabled,
   showBranchFilter = true,
 ) => {
   const isDestinationQueue = queueType === tooRoutes.DESTINATION_REQUESTS_QUEUE;
@@ -102,67 +96,72 @@ export const columns = (
       id: 'emplid',
       isFilterable: true,
     }),
-    createHeader(
-      'Status',
-      (row) => {
-        return MOVE_STATUS_LABELS[`${row.status}`];
-      },
-      {
-        id: 'status',
-        isFilterable: true,
-        Filter: (props) => (
-          <MultiSelectCheckBoxFilter
-            options={!isDestinationQueue ? MOVE_STATUS_OPTIONS : MOVE_STATUS_OPTIONS_DEST_QUEUE}
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...props}
-          />
+    !isDestinationQueue
+      ? createHeader(
+          'Status',
+          (row) => {
+            return MOVE_STATUS_LABELS[`${row.status}`];
+          },
+          {
+            id: 'status',
+            isFilterable: true,
+            Filter: (props) => (
+              <MultiSelectCheckBoxFilter
+                options={MOVE_STATUS_OPTIONS}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+              />
+            ),
+          },
+        )
+      : createHeader(
+          'Status',
+          (row) => {
+            return MOVE_STATUS_LABELS[`${row.status}`];
+          },
+          {
+            id: 'status',
+            disableSortBy: true,
+          },
         ),
-      },
-    ),
-    createHeader(
-      'Approval Request Type',
-      (row) => {
-        if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
-          return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
-        }
-        return '';
-      },
-      {
-        id: 'approvalRequestTypes',
-        isFilterable: false,
-        disableSortBy: true,
-      },
-    ),
+  ];
+
+  if (isApprovalRequestTypeColEnabled) {
+    cols.push(
+      createHeader(
+        'Approval Request Type',
+        (row) => {
+          if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
+            return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
+          }
+          return '';
+        },
+        {
+          id: 'approvalRequestTypes',
+          isFilterable: false,
+          disableSortBy: true,
+        },
+      ),
+    );
+  }
+
+  cols.push(
     createHeader('Move code', 'locator', {
       id: 'locator',
       isFilterable: true,
     }),
-    // destination queue will show multiple dates that the backend returns as comma separated strings
-    !isDestinationQueue
-      ? createHeader(
-          'Requested move date',
-          (row) => {
-            return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
-          },
-          {
-            id: 'requestedMoveDate',
-            isFilterable: true,
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            Filter: (props) => <DateSelectFilter dateTime {...props} />,
-          },
-        )
-      : createHeader(
-          'Requested move date(s)',
-          (row) => {
-            return row.requestedMoveDates;
-          },
-          {
-            id: 'requestedMoveDate',
-            isFilterable: true,
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            Filter: (props) => <DateSelectFilter dateTime {...props} />,
-          },
-        ),
+    createHeader(
+      'Requested move date(s)',
+      (row) => {
+        return row.requestedMoveDates;
+      },
+      {
+        id: 'requestedMoveDate',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter dateTime {...props} />,
+      },
+    ),
     createHeader(
       'Date submitted',
       (row) => {
@@ -210,7 +209,7 @@ export const columns = (
       id: 'counselingOffice',
       isFilterable: true,
     }),
-  ];
+  );
   if (isQueueManagementEnabled)
     cols.push(
       createHeader(
@@ -263,6 +262,7 @@ const MoveQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
+  isApprovalRequestTypeFFEnabled,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
@@ -403,10 +403,17 @@ const MoveQueue = ({
           showPagination
           manualSortBy
           defaultCanSort
-          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          defaultSortedColumns={[{ id: 'status', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
+          columns={columns(
+            moveLockFlag,
+            isQueueManagementFFEnabled,
+            queueType,
+            setRefetchQueue,
+            isApprovalRequestTypeFFEnabled,
+            showBranchFilter,
+          )}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
@@ -436,7 +443,14 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
+          columns={columns(
+            moveLockFlag,
+            isQueueManagementFFEnabled,
+            queueType,
+            setRefetchQueue,
+            isApprovalRequestTypeFFEnabled,
+            showBranchFilter,
+          )}
           title="Destination requests"
           handleClick={handleClick}
           useQueries={useDestinationRequestsQueueQueries}

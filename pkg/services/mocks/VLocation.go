@@ -14,14 +14,14 @@ type VLocation struct {
 	mock.Mock
 }
 
-// GetLocationsByZipCityState provides a mock function with given fields: appCtx, search, exclusionStateFilters, exactMatch
-func (_m *VLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, exactMatch ...bool) (*models.VLocations, error) {
+// GetLocationsByZipCityState provides a mock function with given fields: appCtx, search, exclusionStateFilters, includePOBoxes, exactMatch
+func (_m *VLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, includePOBoxes bool, exactMatch ...bool) (*models.VLocations, error) {
 	_va := make([]interface{}, len(exactMatch))
 	for _i := range exactMatch {
 		_va[_i] = exactMatch[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, appCtx, search, exclusionStateFilters)
+	_ca = append(_ca, appCtx, search, exclusionStateFilters, includePOBoxes)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -31,19 +31,19 @@ func (_m *VLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, se
 
 	var r0 *models.VLocations
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, []string, ...bool) (*models.VLocations, error)); ok {
-		return rf(appCtx, search, exclusionStateFilters, exactMatch...)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, []string, bool, ...bool) (*models.VLocations, error)); ok {
+		return rf(appCtx, search, exclusionStateFilters, includePOBoxes, exactMatch...)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, []string, ...bool) *models.VLocations); ok {
-		r0 = rf(appCtx, search, exclusionStateFilters, exactMatch...)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, []string, bool, ...bool) *models.VLocations); ok {
+		r0 = rf(appCtx, search, exclusionStateFilters, includePOBoxes, exactMatch...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.VLocations)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, []string, ...bool) error); ok {
-		r1 = rf(appCtx, search, exclusionStateFilters, exactMatch...)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, []string, bool, ...bool) error); ok {
+		r1 = rf(appCtx, search, exclusionStateFilters, includePOBoxes, exactMatch...)
 	} else {
 		r1 = ret.Error(1)
 	}

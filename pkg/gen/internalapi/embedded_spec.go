@@ -91,6 +91,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -2022,6 +2029,41 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
           }
         }
       }
@@ -5548,6 +5590,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeRole": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Role"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -5565,6 +5611,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "inactiveRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          },
+          "x-nullable": true
+        },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
@@ -5579,13 +5632,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Privilege"
           }
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Role"
-          },
-          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -6734,31 +6780,31 @@ func init() {
       "type": "string",
       "title": "Grade",
       "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
         "AVIATION_CADET",
         "CIVILIAN_EMPLOYEE",
         "ACADEMY_CADET",
@@ -6796,6 +6842,17 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      }
     },
     "Orders": {
       "type": "object",
@@ -7008,7 +7065,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -7305,6 +7361,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -8687,6 +8755,15 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
@@ -9002,7 +9079,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -9434,6 +9511,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -9676,6 +9770,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -11719,6 +11820,55 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
           }
         }
       }
@@ -15603,6 +15753,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeRole": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Role"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -15620,6 +15774,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "inactiveRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          },
+          "x-nullable": true
+        },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
@@ -15634,13 +15795,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Privilege"
           }
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Role"
-          },
-          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -16791,31 +16945,31 @@ func init() {
       "type": "string",
       "title": "Grade",
       "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
         "AVIATION_CADET",
         "CIVILIAN_EMPLOYEE",
         "ACADEMY_CADET",
@@ -16853,6 +17007,17 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      }
     },
     "Orders": {
       "type": "object",
@@ -17065,7 +17230,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -17363,6 +17527,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -18747,6 +18923,15 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
@@ -19066,7 +19251,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -19506,6 +19691,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",

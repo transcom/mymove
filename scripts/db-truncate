@@ -11,11 +11,15 @@ DO \$\$ DECLARE
 BEGIN
 
     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()
-            AND tablename NOT IN ('gbloc_aors',
+            AND tablename NOT IN ('country_holidays',
+                                    'country_weekends',
+                                    'gbloc_aors',
+                                    'gcc_multipliers',
                                     'ghc_diesel_fuel_prices',
                                     'hhg_allowances',
                                     'jppso_region_state_assignments',
                                     'jppso_regions',
+                                    'pay_grade_ranks',
                                     'pay_grades',
                                     'port_locations',
                                     'ports',
@@ -50,7 +54,7 @@ BEGIN
                                     'ub_allowances',
                                     'us_post_region_cities',
                                     'zip3_distances',
-                                    'pay_grade_ranks'
+                                    'ranks'
                                     ) order by tablename ) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;

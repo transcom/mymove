@@ -568,8 +568,8 @@ export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeInternalRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
 
-export async function searchLocationByZipCityState(search) {
-  return makeInternalRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
+export async function searchLocationByZipCityState(search, includePOBoxes) {
+  return makeInternalRequest('addresses.getLocationByZipCityState', { search, includePOBoxes }, { normalize: false });
 }
 
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
@@ -589,4 +589,8 @@ export async function showCounselingOffices(dutyLocationId) {
 
 export async function cancelMove(moveId) {
   return makeInternalRequestRaw('office.cancelMove', { moveId });
+}
+
+export async function getPayGradeOptions(affiliation) {
+  return makeInternalRequestRaw('orders.getPayGrades', { affiliation });
 }

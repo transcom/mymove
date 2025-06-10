@@ -436,7 +436,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 
 		body := ghcmessages.CounselingUpdateOrderPayload{
 			IssueDate:            &dateIssued,
@@ -492,7 +492,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		move := ppmShipment.Shipment.MoveTaskOrder
 
 		order := move.Orders
-		grade := ghcmessages.GradeCIVILIANEMPLOYEE
+		grade := ghcmessages.OrderPayGradeCIVILIANEMPLOYEE
 		body := ghcmessages.CounselingUpdateOrderPayload{
 			Grade: &grade,
 		}
@@ -559,7 +559,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		move := ppmShipment.Shipment.MoveTaskOrder
 		order := move.Orders
 
-		grade := ghcmessages.GradeCIVILIANEMPLOYEE
+		grade := ghcmessages.OrderPayGradeCIVILIANEMPLOYEE
 		body := ghcmessages.CounselingUpdateOrderPayload{
 			Grade: &grade,
 		}
@@ -615,7 +615,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
@@ -652,7 +652,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
@@ -805,11 +805,12 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			factory.GetTraitHasDependents,
 		}).Orders
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
 		proGearWeightSpouse := models.Int64Pointer(10)
+		gunSafeWeight := models.Int64Pointer(300)
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
@@ -819,6 +820,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
+			GunSafeWeight:                  gunSafeWeight,
 			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
@@ -832,6 +834,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.GunSafeWeight, int64(updatedOrder.Entitlement.GunSafeWeight))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 17500)
@@ -872,7 +875,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
@@ -912,11 +915,12 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
 		proGearWeightSpouse := models.Int64Pointer(10)
+		gunSafeWeight := models.Int64Pointer(300)
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 		weightRestriction := models.Int64Pointer(5000)
@@ -928,6 +932,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
+			GunSafeWeight:                  gunSafeWeight,
 			RequiredMedicalEquipmentWeight: rmeWeight,
 			WeightRestriction:              weightRestriction,
 			UbWeightRestriction:            ubWeightRestriction,
@@ -1013,7 +1018,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			factory.GetTraitHasDependents,
 		}).Orders
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
@@ -1061,7 +1066,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			},
 		}, nil)
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
@@ -1111,7 +1116,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(2001)
@@ -1147,7 +1152,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
-		grade := ghcmessages.GradeO5
+		grade := ghcmessages.OrderPayGradeODash5
 		affiliation := ghcmessages.AffiliationAIRFORCE
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)

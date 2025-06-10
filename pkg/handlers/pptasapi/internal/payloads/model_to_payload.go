@@ -113,6 +113,10 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 		payload.FinancialReviewRemarks = pptasReport.FinancialReviewRemarks
 	}
 
+	if pptasReport.MaxBillableWeight != nil {
+		payload.MaxBillableWeight = models.Float64Pointer(pptasReport.MaxBillableWeight.Float64())
+	}
+
 	return payload
 }
 

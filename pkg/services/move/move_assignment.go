@@ -27,10 +27,12 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 
 	var assign func(*models.Move, uuid.UUID)
 	switch queueType {
-	case string(models.QueueTypeCounseling), string(models.QueueTypeCloseout):
-		assign = func(move *models.Move, userID uuid.UUID) { move.SCAssignedID = &userID }
+	case string(models.QueueTypeCounseling):
+		assign = func(move *models.Move, userID uuid.UUID) { move.SCCounselingAssignedID = &userID }
+	case string(models.QueueTypeCloseout):
+		assign = func(move *models.Move, userID uuid.UUID) { move.SCCloseoutAssignedID = &userID }
 	case string(models.QueueTypeTaskOrder):
-		assign = func(move *models.Move, userID uuid.UUID) { move.TOOAssignedID = &userID }
+		assign = func(move *models.Move, userID uuid.UUID) { move.TOOTaskOrderAssignedID = &userID }
 	case string(models.QueueTypePaymentRequest):
 		assign = func(move *models.Move, userID uuid.UUID) { move.TIOAssignedID = &userID }
 	case string(models.QueueTypeDestinationRequest):

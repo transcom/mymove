@@ -365,3 +365,59 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 		suite.Assertions.Equal(600, ubAllowance)
 	})
 }
+
+func (suite *ModelSuite) TestGetMaxGunSafeAllowance() {
+	suite.Run("returns the correct max gun safe allowance when parameter exists", func() {
+		appCtx := suite.AppContextForTest()
+
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		val, err := models.GetMaxGunSafeAllowance(appCtx)
+		suite.NoError(err)
+		suite.Equal(500, val)
+	})
+
+	suite.Run("returns an error when parameter does not exist", func() {
+		appCtx := suite.AppContextForTest()
+
+		val, err := models.GetMaxGunSafeAllowance(appCtx)
+		suite.Error(err)
+		suite.Contains(err.Error(), "error fetching max gun safe allowance")
+		suite.Equal(0, val)
+	})
+}
+
+func (suite *ModelSuite) TestGunSafeWeight() {
+	suite.Run("no validation errors for GunSafeWeight", func() {
+		entitlement := models.Entitlement{
+			GunSafeWeight: 500,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.False(verrs.HasAny(), "Should not have validation errors")
+	})
+
+	suite.Run("validation errors for GunSafeWeight over max value", func() {
+		entitlement := models.Entitlement{
+			GunSafeWeight: 501,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.True(verrs.HasAny())
+		suite.NotNil(verrs.Get("gun_safe_weight"))
+	})
+
+	suite.Run("validation errors for GunSafeWeight under min value", func() {
+		entitlement := models.Entitlement{
+			GunSafeWeight: -1,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.True(verrs.HasAny())
+		suite.NotNil(verrs.Get("gun_safe_weight"))
+	})
+}

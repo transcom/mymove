@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 )
@@ -21,7 +22,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	}
 	builder := officeuser.NewOfficeUserFetcherPop()
 
-	handler := ShowLoggedInUserHandler{suite.HandlerConfig(), builder}
+	handler := ShowLoggedInUserHandler{suite.NewHandlerConfig(), builder}
 
 	response := handler.Handle(params)
 
@@ -42,7 +43,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 			HTTPRequest: req,
 		}
 		builder := officeuser.NewOfficeUserFetcherPop()
-		handler := ShowLoggedInUserHandler{suite.HandlerConfig(), builder}
+		handler := ShowLoggedInUserHandler{suite.NewHandlerConfig(), builder}
 
 		response := handler.Handle(params)
 
@@ -72,7 +73,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		}
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		builder := officeuser.NewOfficeUserFetcherPop()
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		handler := ShowLoggedInUserHandler{handlerConfig, builder}
 
@@ -102,7 +103,7 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 
 	builder := officeuser.NewOfficeUserFetcherPop()
 
@@ -112,6 +113,57 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 
 	suite.IsType(&userop.ShowLoggedInUserUnauthorized{}, response)
 
+}
+
+func (suite *HandlerSuite) TestOfficeUserWithCloseoutOfficeHandler() {
+	closeoutOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    closeoutOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CloseoutOffice,
+		},
+	}, nil)
+	orders := move.Orders
+	orders.Moves = append(orders.Moves, move)
+
+	suite.Run("will not have deleted roles as inactive", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor, roles.RoleTypeTOO})
+		var assignedSCRole roles.Role
+		for _, officeUserRole := range officeUser.User.Roles {
+			if officeUserRole.RoleType == roles.RoleTypeServicesCounselor {
+				assignedSCRole = officeUserRole
+			}
+		}
+
+		// Mark SC as deleted
+		err := suite.DB().RawQuery(
+			`UPDATE users_roles SET deleted_at = now() WHERE user_id = ? AND role_id = ?`,
+			officeUser.User.ID,
+			assignedSCRole.ID,
+		).Exec()
+		suite.NoError(err)
+
+		req := httptest.NewRequest("GET", "/users/logged_in", nil)
+		req = suite.AuthenticateUserRequest(req, officeUser.User)
+
+		params := userop.ShowLoggedInUserParams{
+			HTTPRequest: req,
+		}
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		builder := officeuser.NewOfficeUserFetcherPop()
+		handlerConfig := suite.NewHandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+
+		handler := ShowLoggedInUserHandler{handlerConfig, builder}
+
+		response := handler.Handle(params)
+
+		okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+
+		suite.True(ok)
+		suite.Equal(0, len(okResponse.Payload.InactiveRoles), "With 2 roles and 1 deleted, 1 should be current and 0 should be inactive")
+	})
 }
 
 func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
@@ -134,7 +186,7 @@ func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
 	}
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	builder := officeuser.NewOfficeUserFetcherPop()
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := ShowLoggedInUserHandler{handlerConfig, builder}
@@ -167,7 +219,7 @@ func (suite *HandlerSuite) TestServiceMemberWithNoCloseoutOfficeHandler() {
 	}
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	builder := officeuser.NewOfficeUserFetcherPop()
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := ShowLoggedInUserHandler{handlerConfig, builder}
