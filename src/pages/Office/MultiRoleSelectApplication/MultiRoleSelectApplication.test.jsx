@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, render, waitFor } from '@testing-library/react';
+import { screen, render, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
@@ -41,20 +41,14 @@ describe('MultiRoleSelectApplication component', () => {
       </MockProviders>,
     );
 
-    const roleLabel = await screen.findByText('Role:');
+    const roleLabel = await screen.findByText('none');
     expect(roleLabel).toBeInTheDocument();
   });
 
   it('renders the active role if one exists', async () => {
-    const testUserRoles = [roleLookupValues.services_counselor];
-
     const mockState = {
       entities: {
-        user: [
-          {
-            inactiveRoles: testUserRoles,
-          },
-        ],
+        user: [],
       },
       auth: {
         activeRole: roleLookupValues.services_counselor.roleType,
@@ -68,8 +62,8 @@ describe('MultiRoleSelectApplication component', () => {
       </MockProviders>,
     );
 
-    const roleLabel = await screen.findByText('Role:');
-    expect(roleLabel).toBeInTheDocument();
+    expect(await screen.findByText('Role:')).toBeInTheDocument();
+    expect(await screen.findByText(roleLookupValues.services_counselor.name)).toBeInTheDocument();
   });
 
   it('renders options for each of the user’s roles, and does not render options for roles the user doesn’t have', async () => {
@@ -138,32 +132,28 @@ describe('MultiRoleSelectApplication component', () => {
 
     const user = userEvent.setup();
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(setActiveRole).toHaveBeenCalledWith(roleLookupValues.services_counselor.roleType);
     });
+
+    const dropdown = await screen.findByRole('combobox');
+    const optionToSelect = roleLookupValues.task_invoicing_officer.roleType;
 
     await act(async () => {
       await Promise.all(
         testUserRoles.map(async ({ abbv }) => {
-          const locatedOption = await screen.findByText(abbv);
-          expect(locatedOption).toBeInTheDocument();
+          expect(await within(dropdown).findByText(abbv)).toBeInTheDocument();
         }),
       );
 
-      const dropdown = await screen.findByRole('combobox');
-      const optionToSelect = roleLookupValues.task_invoicing_officer.roleType;
       await user.selectOptions(dropdown, optionToSelect);
-      await user.tab();
-
-      waitFor(() => {
-        expect(setActiveRole).toHaveBeenCalledWith(optionToSelect);
-      });
     });
 
-    await act(async () => {
-      const optionToCompare = roleLookupValues.task_invoicing_officer.abbv;
-      const locatedOption = await screen.findByRole('option', { name: optionToCompare });
-      expect(locatedOption.selected).toBe(true);
+    await waitFor(() => {
+      expect(setActiveRole).toHaveBeenLastCalledWith(optionToSelect);
     });
+
+    const optionToCompare = roleLookupValues.task_invoicing_officer.roleType;
+    expect(dropdown).toHaveValue(optionToCompare);
   });
 });
