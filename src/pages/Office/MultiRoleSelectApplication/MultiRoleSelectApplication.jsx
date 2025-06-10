@@ -130,7 +130,11 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
   );
 
   const displayedContent =
-    inactiveRoles?.length === 0 ? <Link to="/">{roleLookupValues[assumedRoleType]?.name}</Link> : selectDropdownContent;
+    inactiveRoles?.length === 0 ? (
+      <Link to="/">{roleLookupValues[assumedRoleType]?.name || EMPTY_ROLE}</Link>
+    ) : (
+      selectDropdownContent
+    );
 
   return (
     <label className={classNames(multiRoleUlContainerStyle, multiRoleWrapperStyle)}>
