@@ -299,7 +299,7 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 
 				o.writeEventStreamMessage(rw, producer, id_counter, "message", string(uploadStatus))
 
-				if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED {
+				if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED || uploadStatus == models.ClamAVStatusCLEAN || uploadStatus == models.ClamAVStatusINFECTED {
 					return errors.New("connection_closed")
 				}
 
