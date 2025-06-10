@@ -192,7 +192,13 @@ const ExpenseForm = ({
                         {values.expenseType !== expenseTypes.SMALL_PACKAGE && (
                           <>
                             <h3>Description</h3>
-                            <TextField label="What did you buy or rent?" id="description" name="description" />
+                            <TextField
+                              label="What did you buy or rent?"
+                              id="description"
+                              name="description"
+                              showRequiredAsterisk
+                              required
+                            />
                             <Hint>Add a brief description of the expense.</Hint>
                           </>
                         )}
@@ -225,6 +231,8 @@ const ExpenseForm = ({
                               signed={false} // disallow negative
                               thousandsSeparator=","
                               lazy={false} // immediate masking evaluation
+                              showRequiredAsterisk
+                              required
                             >
                               {'  '} lbs
                             </MaskedTextField>
@@ -279,6 +287,8 @@ const ExpenseForm = ({
                               lazy={false} // immediate masking evaluation
                               prefix="$"
                               hintClassName={ppmStyles.innerHint}
+                              showRequiredAsterisk
+                              required
                             />
                             <Hint>
                               Enter the total unit price for all items on the receipt that you&apos;re claiming as part
@@ -342,8 +352,8 @@ const ExpenseForm = ({
                   {values.expenseType === 'STORAGE' && (
                     <FormGroup>
                       <h3>Dates</h3>
-                      <DatePickerInput name="sitStartDate" label="Start date" />
-                      <DatePickerInput name="sitEndDate" label="End date" />
+                      <DatePickerInput name="sitStartDate" label="Start date" showRequiredAsterisk required />
+                      <DatePickerInput name="sitEndDate" label="End date" showRequiredAsterisk required />
                       <h3 className={styles.storageTotal}>
                         Days in storage:{' '}
                         {values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate

@@ -140,14 +140,14 @@ describe('ExpenseForm component', () => {
 
       expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('heading', { level: 3, name: 'Description' })).toBeInTheDocument();
-      expect(screen.getByLabelText('What did you buy or rent?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('What did you buy or rent? *')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Add a brief description of the expense.')).toBeInTheDocument();
       expect(screen.getByText('Did you pay with your GTCC (Government Travel Charge Card)?')).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByRole('heading', { level: 3, name: 'Amount' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Amount')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Amount *')).toBeInstanceOf(HTMLInputElement);
       expect(
         screen.getByText(
           "Enter the total unit price for all items on the receipt that you're claiming as part of your PPM moving expenses.",
@@ -176,14 +176,14 @@ describe('ExpenseForm component', () => {
 
       expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('heading', { level: 3, name: 'Description' })).toBeInTheDocument();
-      expect(screen.getByLabelText('What did you buy or rent?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('What did you buy or rent? *')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Add a brief description of the expense.')).toBeInTheDocument();
       expect(screen.getByText('Did you pay with your GTCC (Government Travel Charge Card)?')).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByRole('heading', { level: 3, name: 'Amount' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Amount')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Amount *')).toBeInstanceOf(HTMLInputElement);
       expect(
         screen.getByText(
           "Enter the total unit price for all items on the receipt that you're claiming as part of your PPM moving expenses.",
@@ -205,7 +205,7 @@ describe('ExpenseForm component', () => {
       render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} appName={APP_NAME.MYMOVE} />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('bubble wrap');
+        expect(screen.getByLabelText('What did you buy or rent? *')).toHaveDisplayValue('bubble wrap');
       });
       expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getAllByRole('option')[3].selected).toBe(true);
@@ -224,7 +224,7 @@ describe('ExpenseForm component', () => {
     it('populates edit form when reciept is missing', async () => {
       render(<ExpenseForm {...defaultProps} {...missingReceiptProps} />);
       await waitFor(() => {
-        expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('bubble wrap');
+        expect(screen.getByLabelText('What did you buy or rent? *')).toHaveDisplayValue('bubble wrap');
       });
       expect(
         screen.getByText(
@@ -236,7 +236,7 @@ describe('ExpenseForm component', () => {
     it('populates edit form with SIT values', async () => {
       render(<ExpenseForm {...defaultProps} {...sitExpenseProps} appName={APP_NAME.MYMOVE} />);
       await waitFor(() => {
-        expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('10x10 storage pod');
+        expect(screen.getByLabelText('What did you buy or rent? *')).toHaveDisplayValue('10x10 storage pod');
       });
       expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('option', { name: 'Storage' }).selected).toBe(true);
@@ -248,13 +248,13 @@ describe('ExpenseForm component', () => {
 
       expect(screen.getByLabelText('Origin')).toBeChecked();
       expect(screen.getByLabelText('Destination')).not.toBeChecked();
-      expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('120');
+      expect(screen.getByLabelText('Weight Stored *')).toHaveDisplayValue('120');
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByRole('heading', { level: 3, name: 'Dates' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Start date')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Start date')).toHaveDisplayValue('24 Sep 2022');
-      expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('End date')).toHaveDisplayValue('26 Dec 2022');
+      expect(screen.getByLabelText('Start date *')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Start date *')).toHaveDisplayValue('24 Sep 2022');
+      expect(screen.getByLabelText('End date *')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('End date *')).toHaveDisplayValue('26 Dec 2022');
 
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
