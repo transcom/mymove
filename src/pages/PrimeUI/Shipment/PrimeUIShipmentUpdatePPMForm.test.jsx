@@ -183,7 +183,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
 
     expect(await screen.findByText('Origin Info')).toBeInTheDocument();
 
-    expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
       initialValues.ppmShipment.pickupAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
@@ -206,7 +206,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
       ),
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
       initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
@@ -229,7 +229,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
       ),
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
       initialValues.ppmShipment.tertiaryPickupAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(

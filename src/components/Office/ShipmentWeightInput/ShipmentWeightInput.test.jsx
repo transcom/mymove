@@ -34,7 +34,8 @@ describe('components/Office/ShipmentWeightInput', () => {
       </Formik>,
     );
 
-    expect(screen.queryByText(/Optional/)).not.toBeInTheDocument();
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+    expect(screen.getByLabelText(/Previously recorded weight \(lbs *\)/)).toBeInTheDocument();
   });
 
   it('makes Shipment Weight optional for Services Counselor', async () => {
@@ -44,6 +45,7 @@ describe('components/Office/ShipmentWeightInput', () => {
       </Formik>,
     );
 
-    expect(screen.queryByText(/Optional/)).toBeInTheDocument();
+    expect(document.querySelector('#reqAsteriskMsg')).not.toBeInTheDocument();
+    expect(screen.queryByText('Previously recorded weight (lbs)')).toBeInTheDocument();
   });
 });

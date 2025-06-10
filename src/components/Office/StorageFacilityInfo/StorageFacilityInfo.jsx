@@ -8,15 +8,23 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import TextField from 'components/form/fields/TextField/TextField';
 import { officeRoles, roleTypes } from 'constants/userRoles';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const StorageFacilityInfo = ({ userRole }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
         <h2 className={styles.SectionHeader}>Storage facility info</h2>
+        {requiredAsteriskMessage}
         <Grid row>
           <Grid col={12}>
-            <TextField label="Facility name" id="facilityName" name="storageFacility.facilityName" />
+            <TextField
+              label="Facility name"
+              id="facilityName"
+              name="storageFacility.facilityName"
+              showRequiredAsterisk
+              isRequired
+            />
           </Grid>
         </Grid>
 
@@ -29,14 +37,13 @@ const StorageFacilityInfo = ({ userRole }) => {
               type="tel"
               minimum="12"
               mask="000{-}000{-}0000"
-              optional
             />
           </Grid>
         </Grid>
 
         <Grid row>
           <Grid col={12}>
-            <TextField label="Email" id="facilityEmail" name="storageFacility.email" optional />
+            <TextField label="Email" id="facilityEmail" name="storageFacility.email" />
           </Grid>
         </Grid>
 
@@ -47,7 +54,8 @@ const StorageFacilityInfo = ({ userRole }) => {
                 label="Service order number"
                 id="facilityServiceOrderNumber"
                 name="serviceOrderNumber"
-                optional={userRole !== roleTypes.TOO}
+                showRequiredAsterisk={userRole === roleTypes.TOO}
+                required={userRole === roleTypes.TOO}
               />
             </FormGroup>
           </Grid>

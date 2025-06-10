@@ -8,6 +8,7 @@ import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
 import { contactInfoSchema } from 'utils/validation';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   return (
@@ -18,7 +19,8 @@ const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
             <h1>Your contact info</h1>
             <SectionWrapper className={formStyles.formSection}>
               <div className="tablet:margin-top-neg-3">
-                <CustomerContactInfoFields labelHint="Required" />
+                {requiredAsteriskMessage}
+                <CustomerContactInfoFields showRequiredAsterisk />
               </div>
             </SectionWrapper>
             <div className={formStyles.formActions}>

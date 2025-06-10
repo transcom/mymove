@@ -184,7 +184,6 @@ const OrdersDetailForm = ({
           warning={ntsTacWarning}
           validate={validateNTSTac}
           isDisabled={formIsDisabled}
-          optional
         />
       )}
       {showNTSSac && (
@@ -198,7 +197,6 @@ const OrdersDetailForm = ({
           data-testid="ntsSacInput"
           maxLength="80"
           validate={noStarOrQuote}
-          optional
         />
       )}
       {showNTSTac && showNTSLoa && (

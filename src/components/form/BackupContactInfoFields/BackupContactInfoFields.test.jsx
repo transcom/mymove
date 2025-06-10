@@ -5,16 +5,24 @@ import { Formik } from 'formik';
 import { BackupContactInfoFields } from './index';
 
 describe('BackupContactInfoFields component', () => {
-  it('renders a legend and all backup contact info inputs', () => {
+  it('renders a legend and all backup contact info inputs and asterisks for required fields', () => {
     render(
       <Formik>
         <BackupContactInfoFields legend="Backup contact" />
       </Formik>,
     );
+    expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
     expect(screen.getByText('Backup contact')).toBeInstanceOf(HTMLLegendElement);
-    expect(screen.getByLabelText('Name')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('Email')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('Phone')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Name *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText(/Name */)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Name */)).toBeRequired();
+    expect(screen.getByLabelText('Email *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText(/Email */)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email */)).toBeRequired();
+    expect(screen.getByLabelText('Phone *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText(/Phone */)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Phone */)).toBeRequired();
   });
 
   describe('with pre-filled values', () => {
@@ -30,9 +38,9 @@ describe('BackupContactInfoFields component', () => {
           <BackupContactInfoFields legend="Backup contact" />
         </Formik>,
       );
-      expect(await screen.findByLabelText('Name')).toHaveValue(initialValues.name);
-      expect(await screen.findByLabelText('Email')).toHaveValue(initialValues.email);
-      expect(await screen.findByLabelText('Phone')).toHaveValue(initialValues.telephone);
+      expect(await screen.findByLabelText('Name *')).toHaveValue(initialValues.name);
+      expect(await screen.findByLabelText('Email *')).toHaveValue(initialValues.email);
+      expect(await screen.findByLabelText('Phone *')).toHaveValue(initialValues.telephone);
     });
   });
 
@@ -55,8 +63,8 @@ describe('BackupContactInfoFields component', () => {
       </Formik>,
     );
 
-    expect(await screen.findByLabelText('Name')).toHaveValue(initialBackupInfo.name);
-    expect(await screen.findByLabelText('Email')).toHaveValue(initialBackupInfo.email);
-    expect(await screen.findByLabelText('Phone')).toHaveValue(initialBackupInfo.telephone);
+    expect(await screen.findByLabelText('Name *')).toHaveValue(initialBackupInfo.name);
+    expect(await screen.findByLabelText('Email *')).toHaveValue(initialBackupInfo.email);
+    expect(await screen.findByLabelText('Phone *')).toHaveValue(initialBackupInfo.telephone);
   });
 });
