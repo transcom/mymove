@@ -66,7 +66,7 @@ stages:
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
-    - export PATH=${PATH}:${GOPATH}/bin:/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
+    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
     - export REACT_APP_ERROR_LOGGING=otel
 
 .announce_failure: &announce_failure
@@ -91,6 +91,7 @@ stages:
   - unset AWS_ACCESS_KEY_ID
   - unset AWS_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
+  - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
   - export SERVICE_RESERVATION_CLIENT_MEM=4096
   - |
@@ -131,6 +132,7 @@ stages:
   - export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
+  - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
   - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
@@ -149,6 +151,7 @@ stages:
   - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
+  - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=16384
   - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
@@ -204,6 +207,8 @@ stages:
 
 .install_yarn: &install_yarn
   - |
+    git config --global url."https://github".insteadOf ssh://git@github
+    git config --global url."https://github.com/".insteadOf git@github.com:
     mkdir -p /builds/milmove/mymove/.cache
     mkdir -p /builds/milmove/mymove/.cache/yarn
     yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
@@ -395,7 +400,6 @@ pre_deps_golang:
   before_script:
     - *setup_milmove_env
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "4Gi"
     KUBERNETES_MEMORY_LIMIT: "4Gi"
   script:
@@ -595,7 +599,7 @@ build_storybook:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "10Gi"
     KUBERNETES_MEMORY_LIMIT: "10Gi"
   needs:
@@ -763,7 +767,7 @@ pre_test:
     - check_tls_certificate_stg
     - check_tls_certificate_prd
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
   before_script: *setup_milmove_env
@@ -1666,7 +1670,7 @@ push_otel_collector_image_dp3:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   image:
-    name: $DOCKER_APP_IMAGE
+    name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
   needs:
     - compile_app_server
