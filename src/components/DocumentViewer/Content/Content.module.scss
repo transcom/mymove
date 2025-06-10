@@ -4,6 +4,7 @@
 
 .DocViewerContent {
   height: 100%;
+  overflow: scroll;
   position: relative;
   @include u-bg('base-lighter');
 
@@ -28,22 +29,27 @@
     .photo-viewer-container {
       align-items: unset; // must override to get it to respect calculating padding-top
       // spacing for controls/title bar
-      padding-top: 75px;
-      padding-bottom: 75px;
+      padding-top: 35%;
+      padding-bottom: 80%;
+      aspect-ratio: 1;
+      width: 100%;
+      height: auto;
+      justify-content: space-between;
     }
   }
 }
 
 :global(.pg-viewer-wrapper) {
   .controls {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
+    margin-top: auto;
     width: 100%;
     background: rgba(255, 255, 255, 0.75);
     height: 50px;
     display: flex;
-    justify-content: center;
+    padding-left: calc(50% - 600px);
     align-items: center;
     svg {
       @include u-margin-right(1);
