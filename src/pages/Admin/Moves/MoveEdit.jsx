@@ -1,17 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { Edit, SaveButton, SelectInput, SimpleForm, TextInput, Toolbar } from 'react-admin';
+import { Edit, SelectInput, SimpleForm, TextInput } from 'react-admin';
 
-const MoveEditToolbar = (props) => (
-  <Toolbar {...props}>
-    <SaveButton />
-  </Toolbar>
-);
+import SaveToolbar from '../Shared/SaveToolbar';
 
 const MoveEdit = () => (
   <Edit>
     <SimpleForm
-      toolbar={<MoveEditToolbar />}
+      toolbar={<SaveToolbar />}
       sx={{ '& .MuiInputBase-input': { width: 232 } }}
       mode="onBlur"
       reValidateMode="onBlur"
