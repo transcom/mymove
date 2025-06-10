@@ -27,7 +27,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 // Shared layout components
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
-// import CUIHeader from 'components/CUIHeader/CUIHeader';
+import CUIHeader from 'components/CUIHeader/CUIHeader';
 import BypassBlock from 'components/BypassBlock';
 import SystemError from 'components/SystemError';
 import NotFound from 'components/NotFound/NotFound';
@@ -55,7 +55,7 @@ import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGbloc
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import TestingHeader from 'components/Office/TestingHeader/TestingHeader';
+import StickyOfficeHeader from 'components/Office/StickyOfficeHeader/StickyOfficeHeader';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -126,16 +126,8 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const [bulkAssignmentFlag, setBulkAssignmentFlag] = useState(false);
 
   const location = useLocation();
-  // const displayChangeRole =
-  //   props.userIsLoggedIn &&
-  //   props.userRoles?.length > 1 &&
-  //   !matchPath(
-  //     {
-  //       path: '/select-application',
-  //       end: true,
-  //     },
-  //     location.pathname,
-  //   );
+  const displayChangeRole = props.userRoles?.length > 1;
+
   const isFullscreenPage = matchPath(
     {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -181,8 +173,13 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
+            <CUIHeader className={styles.test} />
             {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {props.userIsLoggedIn ? <TestingHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
+            {props.userIsLoggedIn && displayChangeRole ? (
+              <StickyOfficeHeader displayChangeRole />
+            ) : (
+              <LoggedOutHeader app={pageNames.OFFICE} />
+            )}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
               {props.hasRecentError && location.pathname === '/' && (

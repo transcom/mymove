@@ -5,7 +5,8 @@
 
 .test {
   position: fixed;
-  top: 0
+  top: 0;
+  z-index: 1000; /* Ensures it stays above other content */
 }
 
 .top {

@@ -3,7 +3,7 @@ import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'reac
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
-import styles from '../../../components/Office/TestingHeader/TestingHeader.module.scss'; // './TestingHeader.module.scss';
+import styles from '../../../components/Office/StickyOfficeHeader/StickyOfficeHeader.module.scss';
 
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';

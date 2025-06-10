@@ -22,8 +22,9 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
 
   return (
     <GridContainer>
-      <h2>Current role: {activeRole || userRoleTypes[0]}</h2>
-
+      <div style={{ marginTop: '100px' }}>
+        <h2>Current role: {activeRole || userRoleTypes[0]}</h2>
+      </div>
       <ul className="usa-button-group">
         {[
           roleTypes.HQ,
