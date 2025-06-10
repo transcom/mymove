@@ -1090,6 +1090,10 @@ export async function searchLocationByZipCityState(search) {
   return makeGHCRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
 }
 
+export async function searchCountry(search) {
+  return makeGHCRequest('addresses.searchCountries', { search }, { normalize: false });
+}
+
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeGHCRequestRaw(
     'calendar.isDateWeekendHoliday',

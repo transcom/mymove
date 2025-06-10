@@ -21,6 +21,12 @@ describe('EditContactInfoForm component', () => {
         city: 'El Paso',
         state: 'TX',
         postalCode: '79912',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       backup_mailing_address: {
         streetAddress1: '9 W 2nd Ave',
@@ -28,6 +34,12 @@ describe('EditContactInfoForm component', () => {
         city: 'El Paso',
         state: 'TX',
         postalCode: '79936',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       backup_contact: {
         name: 'Peyton Wing',
