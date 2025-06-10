@@ -9,7 +9,7 @@ type QueryAssociations struct {
 	mock.Mock
 }
 
-// Preload provides a mock function with no fields
+// Preload provides a mock function with given fields:
 func (_m *QueryAssociations) Preload() bool {
 	ret := _m.Called()
 
@@ -27,7 +27,7 @@ func (_m *QueryAssociations) Preload() bool {
 	return r0
 }
 
-// StringGetAssociations provides a mock function with no fields
+// StringGetAssociations provides a mock function with given fields:
 func (_m *QueryAssociations) StringGetAssociations() []string {
 	ret := _m.Called()
 
