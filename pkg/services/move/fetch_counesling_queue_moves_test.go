@@ -33,7 +33,6 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 	specifiedTimestamp2 := time.Date(2022, 04, 03, 0, 0, 0, 0, time.UTC)
 	specifiedTimestamp3 := time.Date(2022, 04, 04, 0, 0, 0, 0, time.UTC)
 	specifiedTimestampLatest := time.Date(2022, 04, 05, 0, 0, 0, 0, time.UTC)
-	specifiedTimestamp4 := time.Date(2022, 04, 02, 11, 0, 0, 0, time.UTC)
 
 	navy := models.AffiliationNAVY
 
@@ -97,7 +96,7 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 		},
 		{
 			Model: models.MTOShipment{
-				RequestedPickupDate: &specifiedTimestamp4,
+				RequestedPickupDate: &specifiedTimestampEarliest,
 				Status:              models.MTOShipmentStatusSubmitted,
 			},
 		},
@@ -137,6 +136,11 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 				Status:      models.MoveStatusNeedsServiceCounseling,
 			},
 		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
 	}, nil)
 
 	testData.defaultLatestMoveWithShipmentsNeedsSC = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
@@ -151,6 +155,12 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 				Locator:     "AAA3T2",
 				SubmittedAt: &specifiedTimestamp1,
 				Status:      models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate: &specifiedTimestampLatest,
+				Status:              models.MTOShipmentStatusSubmitted,
 			},
 		},
 	}, nil)
@@ -191,6 +201,107 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 }
 
 func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
+
+	suite.Run("sorting by requested pickup date returns moves in correct order", func() {
+
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		suite.makeCounselingSubtestData()
+		sortBy := "requestedPickupDates"
+		orderBy := "desc"
+
+		counselingQueueParams := services.CounselingQueueParams{
+			Sort:  &sortBy,
+			Order: &orderBy,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(3))
+		suite.FatalTrue(suite.NotEmpty(returnedMoves, "No moves were found when there should have been 3"))
+		suite.Equal("AAA3T1", string(returnedMoves[0].Locator))
+		suite.Equal("AAA3T2", string(returnedMoves[1].Locator))
+		suite.Equal("AAA3T0", string(returnedMoves[2].Locator))
+
+		sortBy = "requestedPickupDates"
+		orderBy = "asc"
+		counselingQueueParams = services.CounselingQueueParams{
+			Sort:  &sortBy,
+			Order: &orderBy,
+		}
+		returnedMoves, count, err = counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(3))
+		suite.FatalTrue(suite.NotEmpty(returnedMoves, "No moves were found when there should have been 3"))
+		suite.Equal("AAA3T0", string(returnedMoves[0].Locator))
+		suite.Equal("AAA3T2", string(returnedMoves[1].Locator))
+		suite.Equal("AAA3T1", string(returnedMoves[2].Locator))
+	})
+
+	suite.Run("sorting by submittedAt returns moves in correct order", func() {
+
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		suite.makeCounselingSubtestData()
+		sortBy := "submittedAt"
+		orderBy := "asc"
+
+		counselingQueueParams := services.CounselingQueueParams{
+			Sort:  &sortBy,
+			Order: &orderBy,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(3))
+		suite.FatalTrue(suite.NotEmpty(returnedMoves, "No moves were found when there should have been 3"))
+		suite.Equal("AAA3T0", string(returnedMoves[0].Locator))
+		suite.Equal("AAA3T2", string(returnedMoves[1].Locator))
+		suite.Equal("AAA3T1", string(returnedMoves[2].Locator))
+
+		sortBy = "submittedAt"
+		orderBy = "desc"
+		counselingQueueParams = services.CounselingQueueParams{
+			Sort:  &sortBy,
+			Order: &orderBy,
+		}
+		returnedMoves, count, err = counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(3))
+		suite.FatalTrue(suite.NotEmpty(returnedMoves, "No moves were found when there should have been 3"))
+		suite.Equal("AAA3T1", string(returnedMoves[0].Locator))
+		suite.Equal("AAA3T2", string(returnedMoves[1].Locator))
+		suite.Equal("AAA3T0", string(returnedMoves[2].Locator))
+	})
+
 	suite.Run("default sort is by submitted at oldest -> newest", func() {
 
 		// Office users
@@ -449,7 +560,7 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 
 		testData := suite.makeCounselingSubtestData()
 
-		timestamp := "2022-04-02"
+		timestamp := "2022-04-01"
 		counselingQueueParams := services.CounselingQueueParams{
 			RequestedMoveDate: &timestamp,
 		}
