@@ -101,7 +101,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 				PrimeEstimatedWeight: models.PoundPointer(1500),
 			},
 		},
-	}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
+	}, nil)
 	destAddress := factory.BuildDefaultAddress(suite.DB())
 
 	serviceItem := models.MTOServiceItem{
