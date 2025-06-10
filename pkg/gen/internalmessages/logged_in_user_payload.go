@@ -20,6 +20,9 @@ import (
 // swagger:model LoggedInUserPayload
 type LoggedInUserPayload struct {
 
+	// active office
+	ActiveOffice *TransportationOffice `json:"activeOffice,omitempty"`
+
 	// active role
 	ActiveRole *Role `json:"activeRole,omitempty"`
 
@@ -60,6 +63,10 @@ type LoggedInUserPayload struct {
 func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateActiveOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateActiveRole(formats); err != nil {
 		res = append(res, err)
 	}
@@ -91,6 +98,25 @@ func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *LoggedInUserPayload) validateActiveOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActiveOffice) { // not required
+		return nil
+	}
+
+	if m.ActiveOffice != nil {
+		if err := m.ActiveOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("activeOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("activeOffice")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -232,6 +258,10 @@ func (m *LoggedInUserPayload) validateServiceMember(formats strfmt.Registry) err
 func (m *LoggedInUserPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateActiveOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateActiveRole(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -263,6 +293,27 @@ func (m *LoggedInUserPayload) ContextValidate(ctx context.Context, formats strfm
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidateActiveOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ActiveOffice != nil {
+
+		if swag.IsZero(m.ActiveOffice) { // not required
+			return nil
+		}
+
+		if err := m.ActiveOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("activeOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("activeOffice")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
