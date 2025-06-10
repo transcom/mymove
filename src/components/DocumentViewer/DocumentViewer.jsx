@@ -99,6 +99,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
           setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
           break;
         case UPLOAD_SCAN_STATUS.LEGACY_INFECTED:
+        case UPLOAD_SCAN_STATUS.THREATS_FOUND:
           setFileStatus(UPLOAD_DOC_STATUS.LEGACY_INFECTED);
           break;
         default:
