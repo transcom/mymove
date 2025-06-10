@@ -45,6 +45,7 @@ const OrdersDetailForm = ({
 
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
+  const noStarOrQuote = (value) => (/^[^*"]*$/.test(value) ? undefined : 'SAC cannot contain * or " characters');
   // The text/placeholder are different if the customer is retiring or separating.
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
   return (
@@ -147,13 +148,16 @@ const OrdersDetailForm = ({
         />
       )}
       {showHHGSac && (
-        <TextField
+        <MaskedTextField
           name="sac"
           label="SAC"
+          mask="****"
           id="hhgSacInput"
+          inputTestId="hhgSacInput"
           data-testid="hhgSacInput"
           isDisabled={formIsDisabled}
           maxLength="80"
+          validate={noStarOrQuote}
           optional
         />
       )}
@@ -187,13 +191,16 @@ const OrdersDetailForm = ({
         />
       )}
       {showNTSSac && (
-        <TextField
+        <MaskedTextField
           name="ntsSac"
           label="SAC"
           id="ntsSacInput"
+          mask="****"
           isDisabled={formIsDisabled}
+          inputTestId="ntsSacInput"
           data-testid="ntsSacInput"
           maxLength="80"
+          validate={noStarOrQuote}
           optional
         />
       )}
