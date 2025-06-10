@@ -32,7 +32,7 @@ WHERE mto_shipments.deleted_at IS NULL
         'SERVICE COUNSELING COMPLETED'
     )
     AND moves.show = TRUE
-    AND moves.too_assigned_id IS NULL
+    AND moves.too_task_order_assigned_id IS NULL
     AND orders.orders_type NOT IN ('BLUEBARK', 'WOUNDED_WARRIOR', 'SAFETY')
     AND (
         moves.ppm_type IS NULL
