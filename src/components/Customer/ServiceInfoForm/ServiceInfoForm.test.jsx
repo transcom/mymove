@@ -234,9 +234,9 @@ describe('ServiceInfoForm', () => {
     );
     const returnButton = screen.getByRole('button', { name: 'Return home' });
 
-    await userEvent.type(screen.getByLabelText('First name'), 'Leo');
-    await userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
-    await userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
+    await userEvent.type(screen.getByLabelText('First name *'), 'Leo');
+    await userEvent.type(screen.getByLabelText('Last name *'), 'Spaceman');
+    await userEvent.selectOptions(screen.getByLabelText('Branch of service *'), ['NAVY']);
 
     expect(returnButton).toBeInTheDocument();
   });
