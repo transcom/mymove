@@ -10,6 +10,20 @@ import { expect, test, forEachViewport, CustomerPpmPage } from './customerPpmTes
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 /**
+ * @param {string} dateString
+ */
+function formatDate(dateString) {
+  const [month, day, year] = dateString.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+
+  const dayFormatted = String(date.getDate()).padStart(2, '0');
+  const monthFormatted = date.toLocaleString('default', { month: 'short' });
+  const yearFormatted = date.getFullYear();
+
+  return `${dayFormatted} ${monthFormatted} ${yearFormatted}`;
+}
+
+/**
  * CustomerPpmOnboardingPage test fixture. Our linting rules (like
  * no-use-before-define) pushes us towards grouping all these helpers
  * into a class. It also follows the examples at
@@ -42,7 +56,9 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await expect(shipmentInfo.getByText('4,000 lbs')).toBeVisible();
     await expect(shipmentInfo.getByText('90210')).toBeVisible();
     await expect(shipmentInfo.getByText('76127')).toBeVisible();
-    await expect(shipmentInfo.getByText('01 Feb 2022')).toBeVisible();
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const formattedDate = formatDate(expectedDeparture);
+    await expect(shipmentInfo.getByText(formattedDate)).toBeVisible();
   }
 
   /**

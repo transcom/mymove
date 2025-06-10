@@ -25,10 +25,12 @@ test.describe('HHG', () => {
 
     // Fill in form to create HHG shipment
     await customerPage.waitForPage.hhgShipment();
-    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred pickup date').fill(pickupDate);
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred delivery date').fill(deliveryDate);
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByTestId('remarks').fill('Grandfather antique clock');
     await customerPage.navigateForward();
@@ -134,10 +136,12 @@ test.describe('(MultiMove) HHG', () => {
 
     // Fill in form to create HHG shipment
     await customerPage.waitForPage.hhgShipment();
-    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred pickup date').fill(pickupDate);
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred delivery date').fill(deliveryDate);
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByTestId('remarks').fill('Grandfather antique clock');
     await customerPage.navigateForward();
@@ -247,10 +251,12 @@ test.describe('(MultiMove) HHG', () => {
 
     // Fill in form to create HHG shipment
     await customerPage.waitForPage.hhgShipment();
-    await page.getByLabel('Preferred pickup date').fill('29 Dec 2025');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred pickup date').fill(pickupDate);
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('29 Dec 2025');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred delivery date').fill(deliveryDate);
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByTestId('remarks').fill('Going to Alaska');
     await customerPage.navigateForward();
