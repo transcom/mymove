@@ -98,11 +98,6 @@ jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
 }));
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
-
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   getTacValid: ({ tac }) => {

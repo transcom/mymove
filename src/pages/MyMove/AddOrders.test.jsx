@@ -702,7 +702,9 @@ describe('Order type: Wounded Warrior', () => {
       expect(hasWoundedWarrior).toBe(true);
     });
   });
+});
 
+describe('Order type: BLUEBARK', () => {
   it('BLUEBARK FF turned off', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);

@@ -179,11 +179,6 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
-
 const testPropsWithUploads = {
   id: 'testOrderId',
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,

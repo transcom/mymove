@@ -529,12 +529,12 @@ describe('Orders page', () => {
     });
   });
 
-  describe('BLUEBARK FF turned off', () => {
+  describe('BLUEBARK FF', () => {
     beforeEach(() => {
       jest.resetAllMocks();
     });
 
-    it('wounded warrior FF turned off', async () => {
+    it('BLUEBARK FF turned off', async () => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
@@ -547,8 +547,26 @@ describe('Orders page', () => {
       await waitFor(() => {
         const ordersTypeDropdown = screen.getByLabelText('Orders type *');
         const options = within(ordersTypeDropdown).queryAllByRole('option');
-        const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
-        expect(hasWoundedWarrior).toBe(false);
+        const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+        expect(hasBluebark).toBe(false);
+      });
+    });
+
+    it('BLUEBARK FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+        expect(hasBluebark).toBe(true);
       });
     });
   });
