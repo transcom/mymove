@@ -187,6 +187,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     '/select-application',
     '/move-queue',
     '/destination-requests',
+    '/payment-requests',
   ];
 
   // const another = [

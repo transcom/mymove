@@ -42,7 +42,7 @@ const InvalidPermissions = ({ context }) => {
   };
 
   return (
-    <div className="usa-prose grid-container padding-top-3" style={{ marginTop: '100px' }}>
+    <div className="usa-prose grid-container padding-top-3">
       <div className="grid-row">
         <div>
           <h1>You do not have permission to access this site.</h1>
