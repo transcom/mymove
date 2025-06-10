@@ -810,7 +810,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.MustSave(&csTaskOrderFee)
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: models.TimePointer(time.Now()),
+				},
+			},
 			{
 				Model:    move,
 				LinkOnly: true,
