@@ -35,7 +35,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
     const requestedRoles = [];
     const requestedPrivileges = [];
 
-    if (values.supervisorCheckbox) {
+    if (values.supervisorPrivilegeCheckbox) {
       requestedPrivileges.push({
         name: 'Supervisor',
         privilegeType: 'supervisor',
