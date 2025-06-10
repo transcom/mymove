@@ -3,6 +3,7 @@ package move
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/jinzhu/copier"
 	"github.com/lib/pq"
@@ -91,15 +92,16 @@ func getCounselingQueueDbFunc(counselingQueueParams services.CounselingQueuePara
 
 type MoveWithCount struct {
 	models.Move
-	OrdersRaw                json.RawMessage              `json:"orders" db:"orders"`
-	Orders                   *models.Order                `json:"-"`
-	MTOShipmentsRaw          json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
-	MTOShipments             *models.MTOShipments         `json:"-"`
-	CounselingOfficeRaw      json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
-	CounselingOffice         *models.TransportationOffice `json:"-"`
-	SCAssignedUserRaw        json.RawMessage              `json:"sc_assigned" db:"sc_assigned"`
-	SCCounselingAssignedUser *models.OfficeUser           `json:"-"`
-	TotalCount               int64                        `json:"total_count" db:"total_count"`
+	OrdersRaw                   json.RawMessage              `json:"orders" db:"orders"`
+	Orders                      *models.Order                `json:"-"`
+	MTOShipmentsRaw             json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
+	MTOShipments                *models.MTOShipments         `json:"-"`
+	CounselingOfficeRaw         json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	CounselingOffice            *models.TransportationOffice `json:"-"`
+	SCAssignedUserRaw           json.RawMessage              `json:"sc_assigned" db:"sc_assigned"`
+	SCCounselingAssignedUser    *models.OfficeUser           `json:"-"`
+	TotalCount                  int64                        `json:"total_count" db:"total_count"`
+	EarliestRequestedPickupDate *time.Time                   `json:"mtos_earliest_requested_pickup_date" db:"mtos_earliest_requested_pickup_date"`
 }
 
 func movesWithCountToMoves(movesWithCount []MoveWithCount) ([]models.Move, error) {
