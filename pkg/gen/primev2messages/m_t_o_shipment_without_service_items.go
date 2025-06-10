@@ -217,7 +217,7 @@ type MTOShipmentWithoutServiceItems struct {
 	// The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.
 	//
 	// Read Only: true
-	// Enum: [SUBMITTED APPROVED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED TERMINATION_FOR_CAUSE]
+	// Enum: [SUBMITTED APPROVED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED TERMINATION_FOR_CAUSE APPROVALS_REQUESTED]
 	Status string `json:"status,omitempty"`
 
 	// storage facility
@@ -804,7 +804,7 @@ var mTOShipmentWithoutServiceItemsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED","TERMINATION_FOR_CAUSE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED","TERMINATION_FOR_CAUSE","APPROVALS_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -834,6 +834,9 @@ const (
 
 	// MTOShipmentWithoutServiceItemsStatusTERMINATIONFORCAUSE captures enum value "TERMINATION_FOR_CAUSE"
 	MTOShipmentWithoutServiceItemsStatusTERMINATIONFORCAUSE string = "TERMINATION_FOR_CAUSE"
+
+	// MTOShipmentWithoutServiceItemsStatusAPPROVALSREQUESTED captures enum value "APPROVALS_REQUESTED"
+	MTOShipmentWithoutServiceItemsStatusAPPROVALSREQUESTED string = "APPROVALS_REQUESTED"
 )
 
 // prop value enum

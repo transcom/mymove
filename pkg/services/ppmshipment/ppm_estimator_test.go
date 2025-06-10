@@ -940,11 +940,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
 
 			// appending this to test functionality of the GCC multiplier
+			maxIncentive2 := unit.Cents(900000000)
 			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
 						ExpectedDepartureDate: validGccMultiplierDate,
 						Status:                models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:          &maxIncentive2,
 					},
 				},
 			}, nil)
