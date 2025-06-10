@@ -382,7 +382,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.selectOptions(screen.getByLabelText(/Rank/), ['cb0ee2b8-e852-40fe-b972-2730b53860c7']);
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await user.click(selectedOptionCurrent);
 
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
@@ -449,7 +449,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.click(screen.getByLabelText('No'));
 
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await user.click(selectedOptionCurrent);
 
     await user.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 500 });

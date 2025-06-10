@@ -20,7 +20,7 @@ import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
 import { DutyLocationShape } from 'types/dutyLocation';
 import formStyles from 'styles/form.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
@@ -369,7 +369,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label="HOR, PLEAD or HOS"
+                    label="Destination Location (As Authorized on Orders)"
                     showRequiredAsterisk
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."

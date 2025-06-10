@@ -245,6 +245,10 @@ const (
 	trustedAgentText = "Trusted Agent Requires POA \nor Letter of Authorization"
 )
 
+const (
+	safetyMoveText = "SAFETY"
+)
+
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
 func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
 	var err error
@@ -326,6 +330,11 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
+
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page1.SafetyMoveHeading = safetyMoveText
+	}
+
 	return page1, nil
 }
 
@@ -414,6 +423,10 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 		government constructed cost (GCC).`
 	}
 
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page2.SafetyMoveHeading = safetyMoveText
+	}
+
 	return page2, nil
 }
 
@@ -436,6 +449,11 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage3(data mode
 		return page3, err
 	}
 	page3.AddShipments = page3Map
+
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page3.SafetyMoveHeading = safetyMoveText
+	}
+
 	return page3, nil
 }
 
@@ -664,7 +682,7 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 	for _, cert := range signedCertifications {
 		if cert.PpmID != nil { // Required to avoid error, service members signatures have nil ppm ids
 			if *cert.PpmID == ppmid { // PPM ID needs to be checked to prevent signatures from other PPMs on the same move from populating
-				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT {
+				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT || *cert.CertificationType == models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT {
 					sswDate := FormatDate(cert.UpdatedAt) // We use updatedat to get the most recent signature dates
 					return sswDate, nil
 				}
@@ -1253,7 +1271,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
-		Creation: "2024-11-13 13:44:05 UTC",
+		Creation: "2025-05-23 17:26:58 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
