@@ -555,10 +555,7 @@ func inputReportTAC(report *models.PPTASReport, pptasShipment *pptasmessages.PPT
 
 // Country payload
 func Country(country *models.Country) *pptasmessages.Country {
-	if country == nil {
-		return nil
-	}
-	if *country == (models.Country{}) {
+	if country == nil || country.IsEmpty() {
 		return nil
 	}
 	payloadCountry := &pptasmessages.Country{

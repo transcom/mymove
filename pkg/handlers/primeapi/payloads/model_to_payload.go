@@ -310,10 +310,7 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primemessages.DutyLocation
 
 // Country payload
 func Country(country *models.Country) *primemessages.Country {
-	if country == nil {
-		return nil
-	}
-	if *country == (models.Country{}) {
+	if country == nil || country.IsEmpty() {
 		return nil
 	}
 	payloadCountry := &primemessages.Country{
@@ -1257,7 +1254,7 @@ func VLocations(vLocations models.VLocations) primemessages.VLocations {
 }
 
 func CountryCodeName(country *models.Country) *primemessages.Country {
-	if country == nil || *country == (models.Country{}) {
+	if country == nil || country.IsEmpty() {
 		return nil
 	}
 

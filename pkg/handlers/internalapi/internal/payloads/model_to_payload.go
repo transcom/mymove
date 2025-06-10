@@ -17,10 +17,7 @@ import (
 
 // Country payload
 func Country(country *models.Country) *internalmessages.Country {
-	if country == nil {
-		return nil
-	}
-	if *country == (models.Country{}) {
+	if country == nil || country.IsEmpty() {
 		return nil
 	}
 	payloadCountry := &internalmessages.Country{
@@ -754,7 +751,7 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 }
 
 func CountryCodeName(country *models.Country) *internalmessages.Country {
-	if country == nil || *country == (models.Country{}) {
+	if country == nil || country.IsEmpty() {
 		return nil
 	}
 

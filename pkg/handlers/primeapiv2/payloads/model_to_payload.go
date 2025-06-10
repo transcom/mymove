@@ -238,10 +238,7 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primev2messages.DutyLocati
 
 // Country payload
 func Country(country *models.Country) *primev2messages.Country {
-	if country == nil {
-		return nil
-	}
-	if *country == (models.Country{}) {
+	if country == nil || country.IsEmpty() {
 		return nil
 	}
 	payloadCountry := &primev2messages.Country{

@@ -24,3 +24,25 @@ type CountryWeekend struct {
 func (c CountryWeekend) TableName() string {
 	return "country_weekends"
 }
+
+func (c CountryWeekend) IsWeekend(date time.Time) bool {
+	day := date.Weekday()
+	switch day {
+	case time.Monday:
+		return c.IsMondayWeekend
+	case time.Tuesday:
+		return c.IsTuesdayWeekend
+	case time.Wednesday:
+		return c.IsWednesdayWeekend
+	case time.Thursday:
+		return c.IsThursdayWeekend
+	case time.Friday:
+		return c.IsFridayWeekend
+	case time.Saturday:
+		return c.IsSaturdayWeekend
+	case time.Sunday:
+		return c.IsSundayWeekend
+	default:
+		return false
+	}
+}

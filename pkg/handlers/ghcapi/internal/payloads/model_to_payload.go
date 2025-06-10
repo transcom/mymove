@@ -803,10 +803,7 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 
 // Country payload
 func Country(country *models.Country) *ghcmessages.Country {
-	if country == nil {
-		return nil
-	}
-	if *country == (models.Country{}) {
+	if country == nil || country.IsEmpty() {
 		return nil
 	}
 	payloadCountry := &ghcmessages.Country{
@@ -2997,7 +2994,7 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 }
 
 func CountryCodeName(country *models.Country) *ghcmessages.Country {
-	if country == nil || *country == (models.Country{}) {
+	if country == nil || country.IsEmpty() {
 		return nil
 	}
 

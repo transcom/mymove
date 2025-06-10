@@ -12,11 +12,13 @@ import (
 
 // Country is a model representing a country
 type Country struct {
-	ID          uuid.UUID `json:"id" db:"id"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
-	Country     string    `json:"country" db:"country"`
-	CountryName string    `json:"country_name" db:"country_name"`
+	ID          uuid.UUID       `json:"id" db:"id"`
+	CreatedAt   time.Time       `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at" db:"updated_at"`
+	Country     string          `json:"country" db:"country"`
+	CountryName string          `json:"country_name" db:"country_name"`
+	Holidays    CountryHolidays `has_many:"country_holidays" fk_id:"country_id"`
+	Weekends    CountryWeekend  `has_many:"country_weekends" fk_id:"country_id"`
 }
 
 type Countries []Country
@@ -60,4 +62,8 @@ func FetchCountryByID(db *pop.Connection, id uuid.UUID) (Country, error) {
 	}
 
 	return country, nil
+}
+
+func (c Country) IsEmpty() bool {
+	return c.ID == uuid.Nil && c.Country == "" && c.CountryName == ""
 }
