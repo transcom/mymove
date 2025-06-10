@@ -123,7 +123,7 @@ const smallPackageExpenseProps = {
 
 describe('ExpenseForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load with defaults - Customer page', async () => {
+    it('renders blank form on load with defaults and asterisks for required fields - Customer page', async () => {
       render(<ExpenseForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
 
       await waitFor(() => {
@@ -136,7 +136,9 @@ describe('ExpenseForm component', () => {
         ),
       ).toBeInTheDocument();
 
-      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('heading', { level: 3, name: 'Description' })).toBeInTheDocument();
       expect(screen.getByLabelText('What did you buy or rent?')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Add a brief description of the expense.')).toBeInTheDocument();
@@ -163,14 +165,16 @@ describe('ExpenseForm component', () => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
     });
 
-    it('renders blank form on load with defaults - Office page', async () => {
+    it('renders blank form on load with defaults and asterisks for required fields - Office page', async () => {
       render(<ExpenseForm {...defaultProps} appName={APP_NAME.OFFICE} />);
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Receipt 1' })).toBeInTheDocument();
       });
 
-      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('heading', { level: 3, name: 'Description' })).toBeInTheDocument();
       expect(screen.getByLabelText('What did you buy or rent?')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Add a brief description of the expense.')).toBeInTheDocument();
@@ -203,7 +207,7 @@ describe('ExpenseForm component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('bubble wrap');
       });
-      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getAllByRole('option')[3].selected).toBe(true);
       expect(screen.getByText('expenseReceipt.pdf')).toBeInTheDocument();
       const deleteButton = screen.getByRole('button', { name: 'Delete' });
@@ -234,7 +238,7 @@ describe('ExpenseForm component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('10x10 storage pod');
       });
-      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('option', { name: 'Storage' }).selected).toBe(true);
       expect(screen.getByText('uhaulReceipt.pdf')).toBeInTheDocument();
       const deleteButton = screen.getByRole('button', { name: 'Delete' });
@@ -259,7 +263,7 @@ describe('ExpenseForm component', () => {
     it('renders base expense form for small package', async () => {
       render(<ExpenseForm ppmType={PPM_TYPES.SMALL_PACKAGE} {...smallPackageProps} />);
 
-      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('option', { name: 'Small package reimbursement' }).selected).toBe(true);
       expect(screen.getByRole('option', { name: 'Small package reimbursement' })).toBeDisabled();
       expect(screen.getByTestId('smallPackageInfo')).toBeInTheDocument();
@@ -275,7 +279,7 @@ describe('ExpenseForm component', () => {
     it('renders pro gear values on existing expense form for small package', async () => {
       render(<ExpenseForm ppmType={PPM_TYPES.SMALL_PACKAGE} {...smallPackageProps} {...smallPackageExpenseProps} />);
 
-      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByLabelText('Select type *')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('option', { name: 'Small package reimbursement' }).selected).toBe(true);
       expect(screen.getByRole('option', { name: 'Small package reimbursement' })).toBeDisabled();
 

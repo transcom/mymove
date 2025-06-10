@@ -27,6 +27,7 @@ import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZone
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { PPM_TYPES } from 'shared/constants';
 import { APP_NAME } from 'constants/apps';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
@@ -173,6 +174,7 @@ const ExpenseForm = ({
                       one package carrier receipt to get paid for your Small Package Reimbursement PPM.
                     </Hint>
                   )}
+                  {requiredAsteriskMessage}
                   <FormGroup className={styles.dropdown}>
                     <DropdownInput
                       label="Select type"
@@ -180,6 +182,8 @@ const ExpenseForm = ({
                       options={availableExpenseTypes}
                       id="expenseType"
                       isDisabled={ppmType === PPM_TYPES.SMALL_PACKAGE}
+                      showRequiredAsterisk
+                      required
                     />
                   </FormGroup>
                   {values.expenseType && (
@@ -229,8 +233,13 @@ const ExpenseForm = ({
                         )}
 
                         <Fieldset>
-                          <legend className="usa-label">
-                            Did you pay with your GTCC (Government Travel Charge Card)?
+                          <legend
+                            className="usa-label"
+                            aria-label="Required: Did you pay with your GTCC (Government Travel Charge Card)?"
+                          >
+                            <span required>
+                              Did you pay with your GTCC (Government Travel Charge Card)? <RequiredAsterisk />
+                            </span>
                           </legend>
                           <Field
                             as={Radio}
@@ -239,6 +248,8 @@ const ExpenseForm = ({
                             name="paidWithGTCC"
                             value="true"
                             checked={values.paidWithGTCC === 'true'}
+                            showRequiredAsterisk
+                            required
                           />
                           <Field
                             as={Radio}
