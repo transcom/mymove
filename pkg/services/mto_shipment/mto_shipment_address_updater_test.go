@@ -318,17 +318,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
+					ShipmentType:         models.MTOShipmentTypeHHG,
 					UsesExternalVendor:   true,
 					Status:               models.MTOShipmentStatusApproved,
 					PrimeEstimatedWeight: &primeActualWeight,
 					PrimeActualWeight:    &primeEstimatedWeight,
 				},
-			},
-			{
-				Model:    address,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
 			},
 			{
 				Model:    address,
@@ -373,6 +368,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 		newAddress := address
 		newAddress.PostalCode = "67492"
+		newAddress.City = "WOODBINE"
 
 		var serviceItems []models.MTOServiceItem
 
@@ -415,7 +411,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: "177 Q st",
-					City:           "AK",
+					City:           "FAIRBANKS",
 					State:          "AK",
 					PostalCode:     "99708",
 					IsOconus:       models.BoolPointer(true), //OCONUS - prevent pricing
@@ -433,18 +429,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
+					ShipmentType:         models.MTOShipmentTypeHHG,
 					UsesExternalVendor:   true,
 					Status:               models.MTOShipmentStatusApproved,
 					PrimeEstimatedWeight: &primeActualWeight,
 					PrimeActualWeight:    &primeEstimatedWeight,
 					MarketCode:           models.MarketCodeInternational,
 				},
-			},
-			{
-				Model:    address,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
 			},
 			{
 				Model:    address,
@@ -489,6 +480,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 		newAddress := address
 		newAddress.PostalCode = "67492"
+		newAddress.City = "WOODBINE"
 
 		var serviceItems []models.MTOServiceItem
 
