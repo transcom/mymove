@@ -1,6 +1,7 @@
 -- B-23540 - Daniel Jordan - initial function creation for TOO origin queue refactor into db func
 -- B-22712 -- Paul Stonebraker - add move data for excess weight, amended orders; attach diversions and SIT extensions to mto shipments
--- B-23739 - Daniel Jordan updating returns to consider lock_expires_at
+-- B-23739 - Daniel Jordan - updating returns to consider lock_expires_at
+-- B-23767  Daniel Jordan - updating query to exclude FULL PPM types that provide SC and null PPM types
 
 DROP FUNCTION IF EXISTS get_origin_queue;
 CREATE OR REPLACE FUNCTION get_origin_queue(
@@ -219,7 +220,8 @@ BEGIN
                 SELECT ms.id FROM mto_shipments ms WHERE ms.move_id = moves.id
             )
         ) service_items ON TRUE
-        WHERE moves.show = TRUE ';
+        WHERE moves.show = TRUE
+        AND (moves.ppm_type IS NULL OR moves.ppm_type = ''PARTIAL'' OR (moves.ppm_type = ''FULL'' AND origin_duty_locations.provides_services_counseling = false)) ';
 
     IF user_gbloc IS NOT NULL THEN
         sql_query := sql_query || '
