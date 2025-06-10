@@ -278,18 +278,6 @@ const ServiceItemsTable = ({
                   <div className={styles.statusAction}>
                     <Button
                       type="button"
-                      className="usa-button--icon usa-button--small acceptButton"
-                      data-testid="acceptButton"
-                      onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
-                      disabled={isMoveLocked}
-                    >
-                      <span className="icon">
-                        <FontAwesomeIcon icon="check" />
-                      </span>
-                      <span>Accept</span>
-                    </Button>
-                    <Button
-                      type="button"
                       secondary
                       className="usa-button--small usa-button--icon margin-left-1 rejectButton"
                       data-testid="rejectButton"
@@ -300,6 +288,18 @@ const ServiceItemsTable = ({
                         <FontAwesomeIcon icon="times" />
                       </span>
                       <span>Reject</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      className="usa-button--icon usa-button--small acceptButton"
+                      data-testid="acceptButton"
+                      onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                      disabled={isMoveLocked}
+                    >
+                      <span className="icon">
+                        <FontAwesomeIcon icon="check" />
+                      </span>
+                      <span>Accept</span>
                     </Button>
                   </div>
                 </Restricted>

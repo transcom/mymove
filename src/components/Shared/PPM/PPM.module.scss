@@ -103,7 +103,8 @@
 }
 
 .buttonContainer {
-  @include u-display(flex);
+  display: flex;
+  justify-content: flex-end;
   flex-wrap: wrap;
 
   button:global(.usa-button) {

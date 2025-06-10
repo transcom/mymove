@@ -191,6 +191,9 @@ export default function EditBillableWeight({
                 </div>
               </Fieldset>
               <div className={styles.btnContainer}>
+                <Button type="button" onClick={toggleEdit} secondary>
+                  Cancel
+                </Button>
                 <Button
                   disabled={!isValid}
                   onClick={() => {
@@ -202,9 +205,6 @@ export default function EditBillableWeight({
                   }}
                 >
                   Save changes
-                </Button>
-                <Button onClick={toggleEdit} unstyled>
-                  Cancel
                 </Button>
               </div>
             </div>

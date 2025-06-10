@@ -3,6 +3,9 @@ import { Formik, Field } from 'formik';
 import { Label, Button, Textarea } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router';
+
+import styles from './CreateSITExtensionRequestForm.module.scss';
 
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -11,6 +14,7 @@ import { ShipmentShape } from 'types/shipment';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { dropdownInputOptions } from 'utils/formatters';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 
 const createSITExtensionRequestValidationSchema = Yup.object().shape({
   requestReason: Yup.string().required('Required'),
@@ -19,6 +23,7 @@ const createSITExtensionRequestValidationSchema = Yup.object().shape({
 });
 
 const CreateSITExtensionRequestForm = ({ shipment, submission }) => {
+  const navigate = useNavigate();
   const initialValues = {
     modelType: 'CreateSITExtension',
     requestReason: '',
@@ -39,43 +44,52 @@ const CreateSITExtensionRequestForm = ({ shipment, submission }) => {
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={createSITExtensionRequestValidationSchema}
-      onSubmit={onSubmit}
-    >
-      <Form data-testid="CreateSITExtensionRequestForm">
-        <input type="hidden" name="mtoShipmentID" />
-        <DropdownInput
-          label="Request Reason"
-          name="requestReason"
-          id="requestReason"
-          required
-          options={dropdownInputOptions(sitExtensionReasons)}
-        />
-        <MaskedTextField
-          data-testid="requestedDays"
-          name="requestedDays"
-          label="Requested Days"
-          id="requestedDays"
-          signed={false}
-          mask={Number}
-          scale={0}
-          thousandsSeparator=","
-          lazy={false}
-          required
-        />
-        <Label htmlFor="contractorRemarksInput">Contractor Remarks</Label>
-        <Field
-          id="contractorRemarksInput"
-          name="contractorRemarks"
-          as={Textarea}
-          required
-          className={`${formStyles.remarks}`}
-        />
-        <Button type="submit">Request SIT Extension</Button>
-      </Form>
-    </Formik>
+    <SectionWrapper>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={createSITExtensionRequestValidationSchema}
+        onSubmit={onSubmit}
+      >
+        <Form data-testid="CreateSITExtensionRequestForm">
+          <div className={styles.container}>
+            <input type="hidden" name="mtoShipmentID" />
+            <DropdownInput
+              label="Request Reason"
+              name="requestReason"
+              id="requestReason"
+              required
+              options={dropdownInputOptions(sitExtensionReasons)}
+            />
+            <MaskedTextField
+              data-testid="requestedDays"
+              name="requestedDays"
+              label="Requested Days"
+              id="requestedDays"
+              signed={false}
+              mask={Number}
+              scale={0}
+              thousandsSeparator=","
+              lazy={false}
+              required
+            />
+            <Label htmlFor="contractorRemarksInput">Contractor Remarks</Label>
+            <Field
+              id="contractorRemarksInput"
+              name="contractorRemarks"
+              as={Textarea}
+              required
+              className={`${formStyles.remarks}`}
+            />
+            <div className={styles.buttonGroup}>
+              <Button secondary onClick={() => navigate(-1)}>
+                Back
+              </Button>
+              <Button type="submit">Request SIT Extension</Button>
+            </div>
+          </div>
+        </Form>
+      </Formik>
+    </SectionWrapper>
   );
 };
 

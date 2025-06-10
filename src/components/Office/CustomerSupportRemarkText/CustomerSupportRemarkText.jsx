@@ -94,19 +94,6 @@ const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
                           'usa-button',
                           'usa-button--unstyled',
                         )}
-                        type="submit"
-                        disabled={!isValid}
-                        data-testid="edit-remark-save-button"
-                      >
-                        <small>Save</small>
-                      </Button>
-                      <small className={customerSupportRemarkStyles.buttonDivider}>|</small>
-                      <Button
-                        className={classnames(
-                          customerSupportRemarkStyles.editDeleteButtons,
-                          'usa-button',
-                          'usa-button--unstyled',
-                        )}
                         type="reset"
                         onClick={() => {
                           toggleEdit();
@@ -115,6 +102,19 @@ const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
                         data-testid="edit-remark-cancel-button"
                       >
                         <small>Cancel</small>
+                      </Button>
+                      <small className={customerSupportRemarkStyles.buttonDivider}>|</small>
+                      <Button
+                        className={classnames(
+                          customerSupportRemarkStyles.editDeleteButtons,
+                          'usa-button',
+                          'usa-button--unstyled',
+                        )}
+                        type="submit"
+                        disabled={!isValid}
+                        data-testid="edit-remark-save-button"
+                      >
+                        <small>Save</small>
                       </Button>
                     </div>
                   </Restricted>

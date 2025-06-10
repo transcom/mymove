@@ -189,58 +189,60 @@ const ShipmentDisplay = ({
           />
         )}
         <Restricted to={permissionTypes.updateShipment}>
-          {editURL && (
-            <EditButton
-              onClick={() => {
-                navigate(editURL);
-              }}
-              className={styles.editButton}
-              data-testid={editURL}
-              label="Edit shipment"
-              secondary
-              disabled={isDisabled}
-            />
-          )}
-          {reviewURL && (
-            <ReviewButton
-              onClick={() => {
-                navigate(reviewURL);
-              }}
-              className={styles.editButton}
-              data-testid={reviewURL}
-              label="Review documents"
-              secondary
-              disabled={isDisabled}
-            />
-          )}
-          {completePpmForCustomerURL && enableCompletePPMCloseoutForCustomer && (
-            <Button
-              onClick={() => {
-                navigate(completePpmForCustomerURL);
-              }}
-              className={styles.editButton}
-              data-testid="completePpmForCustomerBtn"
-              secondary
-              disabled={isDisabled}
-            >
-              Complete PPM on behalf of the Customer
-            </Button>
-          )}
-          {sendPpmToCustomer &&
-            displayInfo.ppmShipment?.status === ppmShipmentStatuses.SUBMITTED &&
-            !counselorCanEdit && (
-              <Button
+          <div className={styles.flexRight}>
+            {editURL && (
+              <EditButton
                 onClick={() => {
-                  handleShowSubmitPPMShipmentModal();
+                  navigate(editURL);
                 }}
                 className={styles.editButton}
-                data-testid="sendPpmToCustomerButton"
+                data-testid={editURL}
+                label="Edit shipment"
                 secondary
-                disabled={isMoveLocked}
+                disabled={isDisabled}
+              />
+            )}
+            {reviewURL && (
+              <ReviewButton
+                onClick={() => {
+                  navigate(reviewURL);
+                }}
+                className={styles.editButton}
+                data-testid={reviewURL}
+                label="Review documents"
+                secondary
+                disabled={isDisabled}
+              />
+            )}
+            {completePpmForCustomerURL && enableCompletePPMCloseoutForCustomer && (
+              <Button
+                onClick={() => {
+                  navigate(completePpmForCustomerURL);
+                }}
+                className={styles.editButton}
+                data-testid="completePpmForCustomerBtn"
+                secondary
+                disabled={isDisabled}
               >
-                Send PPM to the Customer
+                Complete PPM on behalf of the Customer
               </Button>
             )}
+            {sendPpmToCustomer &&
+              displayInfo.ppmShipment?.status === ppmShipmentStatuses.SUBMITTED &&
+              !counselorCanEdit && (
+                <Button
+                  onClick={() => {
+                    handleShowSubmitPPMShipmentModal();
+                  }}
+                  className={styles.editButton}
+                  data-testid="sendPpmToCustomerButton"
+                  secondary
+                  disabled={isMoveLocked}
+                >
+                  Send PPM to the Customer
+                </Button>
+              )}
+          </div>
         </Restricted>
         {viewURL && (
           <ReviewButton
