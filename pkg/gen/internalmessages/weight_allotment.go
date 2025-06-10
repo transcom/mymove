@@ -19,6 +19,11 @@ import (
 // swagger:model WeightAllotment
 type WeightAllotment struct {
 
+	// gun safe weight
+	// Example: 500
+	// Required: true
+	GunSafeWeight *int64 `json:"gun_safe_weight"`
+
 	// pro gear weight
 	// Example: 2000
 	// Required: true
@@ -44,6 +49,10 @@ type WeightAllotment struct {
 func (m *WeightAllotment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateGunSafeWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateProGearWeight(formats); err != nil {
 		res = append(res, err)
 	}
@@ -63,6 +72,15 @@ func (m *WeightAllotment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *WeightAllotment) validateGunSafeWeight(formats strfmt.Registry) error {
+
+	if err := validate.Required("gun_safe_weight", "body", m.GunSafeWeight); err != nil {
+		return err
+	}
+
 	return nil
 }
 
