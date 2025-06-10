@@ -6,7 +6,12 @@ import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
-import { useUserQueries, useCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
+import {
+  useUserQueries,
+  useCounselingQueueQueries,
+  useServicesCounselingQueueQueries,
+  usePPMQueueQueries,
+} from 'hooks/queries';
 import { MockProviders, MockRouterProvider } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -16,7 +21,8 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useCounselingQueueQueries: jest.fn(),
-  useServicesCounselingQueuePPMQueries: jest.fn(),
+  useServicesCounselingQueueQueries: jest.fn(),
+  usePPMQueueQueries: jest.fn(),
   useBulkAssignmentQueries: () => {
     return {
       availableOfficeUsers: [
@@ -483,7 +489,6 @@ describe('ServicesCounselingQueue', () => {
         isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
         useUserQueries.mockReturnValue(user);
         useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-        useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
         render(
           <MockProviders path={pagePath} params={{ queueType }}>
             <ServicesCounselingQueue isQueueManagementFFEnabled />
