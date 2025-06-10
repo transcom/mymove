@@ -25,7 +25,15 @@ export default {
   eventName: o.reviewShipmentAddressUpdate,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated move',
-  getDetails: (historyRecord) => {
-    return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
-  },
+  getDetails: (historyRecord) => (
+    <>
+      <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />
+      {historyRecord?.changedValues?.too_task_order_assigned_id !== undefined && (
+        <div>Task ordering officer unassigned</div>
+      )}
+      {historyRecord?.changedValues?.too_destination_assigned_id !== undefined && (
+        <div>Destination task ordering officer unassigned</div>
+      )}
+    </>
+  ),
 };
