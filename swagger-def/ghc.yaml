@@ -4044,7 +4044,7 @@ paths:
           name: SCCounselingAssigned
           type: string
           description: |
-            Used to illustrate which user is assigned to this payment request.
+            Used to illustrate which user is assigned to provide services counseling to this move.
         - in: query
           name: activeRole
           type: string

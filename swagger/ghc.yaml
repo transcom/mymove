@@ -4210,8 +4210,9 @@ paths:
         - in: query
           name: SCCounselingAssigned
           type: string
-          description: |
-            Used to illustrate which user is assigned to this payment request.
+          description: >
+            Used to illustrate which user is assigned to provide services
+            counseling to this move.
         - in: query
           name: activeRole
           type: string
@@ -6550,7 +6551,7 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TOOAssignedUser:
+      TOOTaskOrderAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TIOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'

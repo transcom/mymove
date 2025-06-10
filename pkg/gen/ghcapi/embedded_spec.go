@@ -5448,7 +5448,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "description": "Used to illustrate which user is assigned to provide services counseling to this move.\n",
             "name": "SCCounselingAssigned",
             "in": "query"
           },
@@ -12313,10 +12313,10 @@ func init() {
         "TIOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -24908,7 +24908,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "description": "Used to illustrate which user is assigned to provide services counseling to this move.\n",
             "name": "SCCounselingAssigned",
             "in": "query"
           },
@@ -32220,10 +32220,10 @@ func init() {
         "TIOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
