@@ -249,7 +249,7 @@ const shipments = [
 
 const allowancesInfo = {
   branch: 'NAVY',
-  grade: 'E_6',
+  grade: 'E-6',
   weightAllowance: 11000,
   authorizedWeight: 11000,
   progear: 2000,

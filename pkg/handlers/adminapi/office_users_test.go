@@ -941,8 +941,8 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.Equal(telephone, *okResponse.Payload.Telephone)
 		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeID.String())
 		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeAssignments[0].TransportationOfficeID.String())
-		suite.Equal(0, len(okResponse.Payload.Roles))                  // handler does not currently return roles upon successful update
-		suite.Equal(0, len(okResponse.Payload.Privileges))             // handler does not currently return privileges upon successful update
+		suite.Equal(tooRoleName, *okResponse.Payload.Roles[0].RoleName)
+		suite.Equal(supervisorPrivilegeName, okResponse.Payload.Privileges[0].PrivilegeName)
 		suite.Equal(officeUser.LastName, *okResponse.Payload.LastName) // should not have been updated
 		suite.Equal(officeUser.Email, *okResponse.Payload.Email)       // should not have been updated
 	})
@@ -1261,7 +1261,7 @@ func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
 		_ = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					TOOAssignedID: &officeUser.ID,
+					TOOTaskOrderAssignedID: &officeUser.ID,
 				},
 			},
 			{

@@ -135,6 +135,43 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(expectedMove.Orders.OriginDutyLocation.Address.StreetAddress1, move.Orders.OriginDutyLocation.Address.StreetAddress1)
 	})
 
+	suite.Run("returns moves with all required locked information", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			ActiveRole:      officeUser.User.Roles[0],
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
+		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		now := time.Now()
+
+		// build a move that's locked
+		lockedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					LockedByOfficeUserID: &tooUser.ID,
+					LockExpiresAt:        &now,
+					Show:                 models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		moves, moveCount, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{Page: models.Int64Pointer(1)})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Len(moves, 1)
+
+		// Check that move matches
+		move := moves[0]
+		suite.Equal(move.Locator, lockedMove.Locator)
+		suite.NotNil(move.LockedByOfficeUserID)
+		suite.NotNil(move.LockExpiresAt)
+	})
+
 	suite.Run("returns moves filtered by GBLOC", func() {
 		// Under test: ListOriginRequestsOrders
 		// Set up:           Make 2 moves, one with a pickup GBLOC that matches the office users transportation GBLOC
@@ -205,6 +242,53 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}
 		suite.Contains(moveIDs, expectedComboMove.ID)
 		suite.Contains(moveIDs, expectedMove.ID)
+	})
+
+	suite.Run("returns moves filtered by ppm_type", func() {
+		// Set up:       Make 2 moves, one with ppm_type 'PARTIAL' and another with 'FULL'
+		//               The 'FULL' type should be filtered out if the origin_duty_location provides services counseling
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			ActiveRole:      officeUser.User.Roles[0],
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		// move with ppm_type 'PARTIAL'
+		partial := models.MovePPMTypePARTIAL
+		movePartial := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: &partial,
+				},
+			},
+		}, nil)
+
+		// move with ppm_type 'FULL' and origin_duty_location that provides services counseling
+		full := models.MovePPMTypeFULL
+		moveFull := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: &full,
+				},
+			},
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+
+		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
+		suite.FatalNoError(err)
+
+		// the returned moves should not include the 'FULL' type because the origin duty location provides services counseling
+		suite.Equal(1, len(moves)) // only the 'PARTIAL' move should be returned
+		suite.Equal(movePartial.Locator, moves[0].Locator)
+		suite.NotEqual(moveFull.Locator, moves[0].Locator)
 	})
 
 	suite.Run("returns moves filtered by service member affiliation", func() {
@@ -3627,6 +3711,54 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 
 	waf := entitlements.NewWeightAllotmentFetcher()
 	orderFetcher := NewOrderFetcher(waf)
+
+	suite.Run("returns move in destination queue with all locked information", func() {
+		officeUser, session := setupTestData("MBFL")
+		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		now := time.Now()
+
+		// setting up two moves, each with requested destination SIT service items
+		// a move associated with an air force customer containing AK Zone II shipment
+		move, shipment := buildMoveZone2AK(airForce)
+		move.LockedByOfficeUserID = &tooUser.ID
+		move.LockExpiresAt = &now
+		suite.MustSave(&move)
+
+		// destination service item in SUBMITTED status so it shows in queue
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		params := services.ListOrderParams{Status: []string{string(models.MoveStatusAPPROVALSREQUESTED)}}
+		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params,
+		)
+
+		// we should get both moves back because one is in Zone II & the other is within the postal code GBLOC
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Len(moves, 1)
+		lockedMove := moves[0]
+		suite.NotNil(lockedMove.LockedByOfficeUserID)
+		suite.NotNil(lockedMove.LockExpiresAt)
+	})
 
 	suite.Run("returns moves for KKFA GBLOC when destination address is in KKFA GBLOC, and uses secondary sort column", func() {
 		officeUser, session := setupTestData("KKFA")
