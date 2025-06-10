@@ -186,11 +186,6 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 			}
 
 			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
-			if len(updatedPrivileges) == 0 {
-				err = apperror.NewBadDataError("No privileges were matched from payload")
-				appCtx.Logger().Error(err.Error())
-				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity(), err
-			}
 
 			// Enforce identification rule for this payload
 			if payload.Edipi == nil && payload.OtherUniqueID == nil {
