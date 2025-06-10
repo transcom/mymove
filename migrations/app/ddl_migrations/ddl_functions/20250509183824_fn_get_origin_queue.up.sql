@@ -1,6 +1,6 @@
 -- B-23540 - Daniel Jordan - initial function creation for TOO origin queue refactor into db func
 -- B-23739 - Daniel Jordan - updating returns to consider lock_expires_at
--- Daniel Jordan - updating query to exclude FULL PPM types that provide SC and null PPM types
+-- B-23767  Daniel Jordan - updating query to exclude FULL PPM types that provide SC and null PPM types
 
 DROP FUNCTION IF EXISTS get_origin_queue;
 CREATE OR REPLACE FUNCTION get_origin_queue(
