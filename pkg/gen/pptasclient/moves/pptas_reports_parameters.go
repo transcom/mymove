@@ -61,6 +61,12 @@ PptasReportsParams contains all the parameters to send to the API endpoint
 */
 type PptasReportsParams struct {
 
+	/* Branch.
+
+	   Return moves for this branch, defaults to NAVY.
+	*/
+	Branch *string
+
 	/* Since.
 
 	   Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
@@ -122,6 +128,17 @@ func (o *PptasReportsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithBranch adds the branch to the pptas reports params
+func (o *PptasReportsParams) WithBranch(branch *string) *PptasReportsParams {
+	o.SetBranch(branch)
+	return o
+}
+
+// SetBranch adds the branch to the pptas reports params
+func (o *PptasReportsParams) SetBranch(branch *string) {
+	o.Branch = branch
+}
+
 // WithSince adds the since to the pptas reports params
 func (o *PptasReportsParams) WithSince(since *strfmt.DateTime) *PptasReportsParams {
 	o.SetSince(since)
@@ -140,6 +157,23 @@ func (o *PptasReportsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
+
+	if o.Branch != nil {
+
+		// query param branch
+		var qrBranch string
+
+		if o.Branch != nil {
+			qrBranch = *o.Branch
+		}
+		qBranch := qrBranch
+		if qBranch != "" {
+
+			if err := r.SetQueryParam("branch", qBranch); err != nil {
+				return err
+			}
+		}
+	}
 
 	if o.Since != nil {
 

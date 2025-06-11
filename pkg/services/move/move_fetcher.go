@@ -80,7 +80,7 @@ func (f moveFetcher) FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds [
 }
 
 // Fetches moves for Navy servicemembers with approved shipments. Ignores gbloc rules
-func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MovesForPPTASFetcherParams) (models.Moves, error) {
 	var moves models.Moves
 
 	query := appCtx.DB().EagerPreload(
@@ -113,6 +113,12 @@ func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, par
 
 	if params.Since != nil {
 		query.Where("mto_shipments.updated_at >= ?", params.Since)
+	}
+
+	if params.Branch != nil && *params.Branch == models.AffiliationMARINES.String() {
+		query.Where("service_members.affiliation = ?", models.AffiliationMARINES)
+	} else {
+		query.Where("service_members.affiliation = ?", models.AffiliationNAVY)
 	}
 
 	err := query.All(&moves)

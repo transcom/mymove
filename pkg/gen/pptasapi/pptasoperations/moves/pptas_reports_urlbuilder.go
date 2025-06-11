@@ -15,7 +15,8 @@ import (
 
 // PptasReportsURL generates an URL for the pptas reports operation
 type PptasReportsURL struct {
-	Since *strfmt.DateTime
+	Branch *string
+	Since  *strfmt.DateTime
 
 	_basePath string
 	// avoid unkeyed usage
@@ -50,6 +51,14 @@ func (o *PptasReportsURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var branchQ string
+	if o.Branch != nil {
+		branchQ = *o.Branch
+	}
+	if branchQ != "" {
+		qs.Set("branch", branchQ)
+	}
 
 	var sinceQ string
 	if o.Since != nil {
