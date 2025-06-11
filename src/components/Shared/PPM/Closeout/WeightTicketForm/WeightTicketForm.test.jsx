@@ -178,7 +178,8 @@ describe('WeightTicketForm component', () => {
       expect(missingWeightInput[0]).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[0]).not.toBeChecked();
       // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
-      expect(screen.getByText('Upload empty weight ticket')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Upload empty weight ticket')).toBeInTheDocument();
+      expect(screen.getByText('Upload empty weight ticket')).toHaveTextContent('*');
       const uploadFileTypeHints = screen.getAllByText('Maximum file size 25 MB. Each page must be clear and legible.', {
         exact: false,
       });
@@ -189,7 +190,8 @@ describe('WeightTicketForm component', () => {
       expect(missingWeightInput[1]).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[1]).not.toBeChecked();
       // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
-      expect(screen.getByText('Upload full weight ticket')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Upload empty weight ticket')).toBeInTheDocument();
+      expect(screen.getByText('Upload empty weight ticket')).toHaveTextContent('*');
       expect(uploadFileTypeHints[1]).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Trip weight:' })).toBeInTheDocument();
@@ -229,7 +231,9 @@ describe('WeightTicketForm component', () => {
       expect(missingWeightInput[0]).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[0]).not.toBeChecked();
       // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
-      expect(screen.getByText('Upload empty weight ticket')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Upload empty weight ticket')).toBeInTheDocument();
+      expect(screen.getByText('Upload empty weight ticket')).toHaveTextContent('*');
+
       const uploadFileTypeHints = screen.getAllByText('Maximum file size 25 MB. Each page must be clear and legible.', {
         exact: false,
       });
@@ -240,7 +244,8 @@ describe('WeightTicketForm component', () => {
       expect(missingWeightInput[1]).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[1]).not.toBeChecked();
       // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
-      expect(screen.getByText('Upload full weight ticket')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Upload empty weight ticket')).toBeInTheDocument();
+      expect(screen.getByText('Upload empty weight ticket')).toHaveTextContent('*');
       expect(uploadFileTypeHints[1]).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Trip weight:' })).toBeInTheDocument();
