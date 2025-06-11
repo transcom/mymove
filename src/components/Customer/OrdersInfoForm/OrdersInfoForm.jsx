@@ -363,7 +363,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label="HOR, PLEAD or HOS"
+                    label="Destination Location (As Authorized on Orders)"
                     showRequiredAsterisk
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."

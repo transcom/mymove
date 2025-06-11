@@ -12,7 +12,7 @@ func (suite *ModelSuite) TestNotificationValidations() {
 			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validNotification, expErrors)
+		suite.verifyValidationErrors(&validNotification, expErrors, nil)
 	})
 
 	suite.Run("test empty Notification", func() {
@@ -20,6 +20,6 @@ func (suite *ModelSuite) TestNotificationValidations() {
 		expErrors := map[string][]string{
 			"service_member_id": {"ServiceMemberID can not be blank."},
 		}
-		suite.verifyValidationErrors(&emptyNotification, expErrors)
+		suite.verifyValidationErrors(&emptyNotification, expErrors, nil)
 	})
 }

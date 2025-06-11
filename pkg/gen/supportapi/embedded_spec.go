@@ -1881,7 +1881,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "APPROVALS_REQUESTED"
           ],
           "readOnly": true
         },
@@ -2512,7 +2513,8 @@ func init() {
             "SUBMITTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "APPROVALS_REQUESTED"
           ]
         }
       }
@@ -4897,7 +4899,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "APPROVALS_REQUESTED"
           ],
           "readOnly": true
         },
@@ -5526,7 +5529,8 @@ func init() {
             "SUBMITTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "APPROVALS_REQUESTED"
           ]
         }
       }

@@ -1578,6 +1578,39 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Nil(updatedPPM)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - cap estimated incentive to max incentive value", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(8000000))
+		newFakeMaxIncentive := models.CentPointer(unit.Cents(5000000))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, newFakeMaxIncentive, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+					SITExpected:           models.BoolPointer(false),
+					EstimatedWeight:       models.PoundPointer(4000),
+					HasProGear:            models.BoolPointer(false),
+					EstimatedIncentive:    fakeEstimatedIncentive,
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
+			SITExpected:           models.BoolPointer(true),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Verify estimated incentive is capped at the max
+		suite.Equal(*newFakeMaxIncentive, *updatedPPM.EstimatedIncentive)
+	})
+
 	suite.Run("Can update entitlement when HasGunSafe value changes", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
@@ -1617,5 +1650,46 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NotNil(updatedEntitlement.DBAuthorizedWeight)
 		suite.True(*updatedEntitlement.DBAuthorizedWeight > 0)
 	})
+	suite.Run("updating PPM with valid GCC multiplier date updates PPM", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
 
+		originalPPM := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: validGccMultiplierDate,
+			GCCMultiplierID:       nil,
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+		suite.NotNil(updatedPPM.GCCMultiplierID)
+	})
+	suite.Run("updating PPM with invalid GCC multiplier date updates PPM multiplier to nil", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		invalidGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-04-02")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: validGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: invalidGccMultiplierDate,
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+		suite.Nil(updatedPPM.GCCMultiplierID)
+	})
 }

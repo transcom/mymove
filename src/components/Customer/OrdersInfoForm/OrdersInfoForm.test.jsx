@@ -866,5 +866,31 @@ describe('OrdersInfoForm component', () => {
     );
   });
 
+  it.each([[ORDERS_TYPE.RETIREMENT], [ORDERS_TYPE.SEPARATION]])(
+    'renders correct DutyLocationInput label and hint for %s orders type',
+    async (ordersType) => {
+      render(
+        <MockProviders>
+          <OrdersInfoForm
+            {...testProps}
+            initialValues={{
+              ...testProps.initialValues,
+              orders_type: ordersType,
+            }}
+          />
+        </MockProviders>,
+      );
+
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ordersType); // Select the orders type in the dropdown
+      const destinationInput = await screen.findByLabelText(/Destination Location \(As Authorized on Orders\)/);
+      expect(destinationInput).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Enter the option closest to your destination\. Your move counselor will identify if there might be a cost to you\./,
+        ),
+      ).toBeInTheDocument();
+    },
+  );
+
   afterEach(jest.restoreAllMocks);
 });
