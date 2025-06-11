@@ -59,7 +59,10 @@ type Page1Values struct {
 	IsSmallPackageReimbursement     bool
 	GCCExpenseReimbursementType     string
 	SafetyMoveHeading               string
-	GCCMultiplier                   string
+	GCCMultiplierMax                string
+	GCCMultiplierActual             string
+	GCCMultiplierMaxAdvance         string
+	GCCMultiplierAdvance            string
 }
 
 // Page2Values is an object representing a Shipment Summary Worksheet

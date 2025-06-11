@@ -155,7 +155,7 @@ func main() {
 
 	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(planner, &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
 
-	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)
+	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher, ppmEstimator)
 
 	ssfd, err := ppmComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
 	if err != nil {
