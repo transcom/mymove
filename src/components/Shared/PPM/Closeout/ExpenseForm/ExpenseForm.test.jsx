@@ -156,7 +156,8 @@ describe('ExpenseForm component', () => {
       const missingReceipt = screen.getByLabelText("I don't have this receipt");
       expect(missingReceipt).toBeInstanceOf(HTMLInputElement);
       expect(missingReceipt).not.toBeChecked();
-      expect(screen.getByText('Upload receipt')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Upload receipt')).toBeInTheDocument();
+      expect(screen.getByText('Upload receipt')).toHaveTextContent('*');
       const uploadFileTypeHints = screen.getAllByText(DocumentAndImageUploadInstructions);
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
@@ -192,7 +193,8 @@ describe('ExpenseForm component', () => {
       const missingReceipt = screen.getByLabelText("I don't have this receipt");
       expect(missingReceipt).toBeInstanceOf(HTMLInputElement);
       expect(missingReceipt).not.toBeChecked();
-      expect(screen.getByText('Upload receipt')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Upload receipt')).toBeInTheDocument();
+      expect(screen.getByText('Upload receipt')).toHaveTextContent('*');
       const uploadFileTypeHints = screen.getAllByText(DocumentAndImageUploadInstructions);
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
