@@ -197,7 +197,7 @@ describe('successful submission of form', () => {
 
     render(mockedComponent);
 
-    await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
+    await userEvent.selectOptions(screen.getByLabelText('Shipment type *'), 'HHG');
 
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 
