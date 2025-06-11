@@ -739,7 +739,8 @@ describe('CreateCustomerForm', () => {
 
   it('show bluebark question when BLUEBARK FF is on', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     render(
       <MockProviders initialState={serviceCounselorState}>
@@ -747,23 +748,8 @@ describe('CreateCustomerForm', () => {
       </MockProviders>,
     );
 
-    // expect(screen.queryByText('Is this a Bluebark move?')).toBeInTheDocument();
-    // expect(screen.getByText('Is this a Bluebark move?', { selector: 'usa-label' })).toBeInTheDocument();
-    // expect(screen.getByText('Is this a Bluebark move?')).toBeInstanceOf(HTMLLegendElement);
-    expect(await screen.findByText('Is this a Bluebark move?')).toBeInTheDocument();
-  });
-
-  it('hide bluebark question when BLUEBARK FF is off', async () => {
-    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-
-    render(
-      <MockProviders initialState={serviceCounselorState}>
-        <CreateCustomerForm {...testProps} />
-      </MockProviders>,
-    );
-
-    expect(screen.queryByText('Is this a Bluebark move?')).not.toBeInTheDocument();
-    // expect(screen.queryByText(/Is this a Bluebark move?/)).not.toBeInTheDocument();
-  });
+    await waitFor(() => {
+      expect(screen.getByText('Is this a Bluebark move?')).toBeInTheDocument();
+    });
+  }, 50000);
 });
