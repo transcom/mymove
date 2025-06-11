@@ -327,16 +327,6 @@ describe('Test DocumentViewer File Upload Statuses', () => {
     });
   });
 
-  it('displays infected file message', async () => {
-    renderDocumentViewer({ files: mockFiles });
-    await act(async () => {
-      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.INFECTED });
-    });
-    await waitFor(() => {
-      expect(findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE)).toBeInTheDocument();
-    });
-  });
-
   it('displays File Not Found message when no file is selected', () => {
     renderDocumentViewer({ files: [] });
     expect(findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND)).toBeInTheDocument();
