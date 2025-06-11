@@ -816,7 +816,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 
 		now := time.Now()
 		army := models.AffiliationARMY
-		navy := models.AffiliationNAVY
+		airForce := models.AffiliationAIRFORCE
 		serviceMemberArmy := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{
@@ -825,10 +825,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 			},
 		}, nil)
 
-		serviceMemberNavy := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		serviceMemberAirforce := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{
-					Affiliation: &navy,
+					Affiliation: &airForce,
 				},
 			},
 		}, nil)
@@ -854,20 +854,20 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 			},
 		)
 
-		ppmShipmentNavy := factory.BuildPPMShipmentThatNeedsCloseout(
+		ppmShipmentAirforce := factory.BuildPPMShipmentThatNeedsCloseout(
 			suite.DB(),
 			nil,
 			[]factory.Customization{
 				{
 					Model: models.Order{
-						ServiceMemberID: serviceMemberNavy.ID,
+						ServiceMemberID: serviceMemberAirforce.ID,
 					},
 				},
 				{
 					Model: models.Move{
 						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
 						SubmittedAt:      &now,
-						Locator:          "NAVYNA",
+						Locator:          "AIRFOR",
 						CloseoutOfficeID: &transportationOffice.ID,
 					},
 					Type: &factory.Move,
@@ -887,9 +887,9 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		)
 		suite.Equal(count, 2)
 		suite.FatalNoError(err)
-		// Army should be the first move
-		suite.Equal(filteredMoves[0].Locator, ppmShipmentArmy.Shipment.MoveTaskOrder.Locator, "Army move not sorted properly it should be the first in the slice")
-		suite.Equal(filteredMoves[1].Locator, ppmShipmentNavy.Shipment.MoveTaskOrder.Locator, "The navy move should be the second in the slice")
+		// Air force should be the first move
+		suite.Equal(filteredMoves[0].Locator, ppmShipmentAirforce.Shipment.MoveTaskOrder.Locator, "Air force move not sorted properly it should be the first in the slice")
+		suite.Equal(filteredMoves[1].Locator, ppmShipmentArmy.Shipment.MoveTaskOrder.Locator, "The ARmy move should be the second in the slice")
 	})
 
 	suite.Run("GBLOC results should be driven by closeout location, not origin location", func() {
@@ -1097,4 +1097,100 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 			})
 		}
 	})
+
+	suite.Run("Branch filter prevents leaks", func() {
+		// This test is used because service members affiliated with:
+		// USMC/NAVY/USCG should only ever appear in their designated, special
+		// PPM closeout transportation offices. These branches can not appear
+		// for any other GBLOC besides TVCB/NAVY/USCG
+		buildMove := func() *models.Move {
+			navy := models.AffiliationNAVY
+
+			sm := factory.BuildServiceMember(
+				suite.DB(),
+				[]factory.Customization{{Model: models.ServiceMember{Affiliation: &navy}}},
+				nil,
+			)
+
+			closeoutTO := factory.BuildTransportationOffice(
+				suite.DB(),
+				[]factory.Customization{{
+					Model: models.TransportationOffice{
+						Name: "HAFC closeout", Gbloc: "HAFC", ProvidesCloseout: true,
+					}}},
+				nil,
+			)
+
+			now := time.Now()
+			ppm := factory.BuildPPMShipmentThatNeedsCloseout(
+				suite.DB(), nil,
+				[]factory.Customization{
+					{Model: models.Order{ServiceMemberID: sm.ID}},
+					{Model: models.Move{
+						Locator:          "LOCATO",
+						CloseoutOfficeID: &closeoutTO.ID,
+						SubmittedAt:      &now,
+					}},
+				},
+			)
+			return &ppm.Shipment.MoveTaskOrder
+		}
+
+		testCases := []struct {
+			name          string
+			userGBLOC     string
+			expectVisible bool
+		}{
+			{
+				name:          "HAFC counselor should NOT see NAVY move even though GBLOC matches", // GBLOC should NEVER be assigned in the first place, but this covers an edge case
+				userGBLOC:     "HAFC",
+				expectVisible: false,
+			},
+			{
+				name:          "NAVY counselor still sees NAVY move even with HAFC GBLOC", // Should also never happen, but just covering the edge case
+				userGBLOC:     "NAVY",
+				expectVisible: true,
+			},
+		}
+
+		for _, tc := range testCases {
+			suite.Run(tc.name, func() {
+				move := buildMove()
+
+				to := factory.BuildTransportationOffice(
+					suite.DB(),
+					[]factory.Customization{{
+						Model: models.TransportationOffice{
+							Name:  fmt.Sprintf("%s closeout", tc.userGBLOC),
+							Gbloc: tc.userGBLOC, ProvidesCloseout: true,
+						}}},
+					nil)
+
+				user := factory.BuildOfficeUserWithRoles(
+					suite.DB(),
+					[]factory.Customization{{
+						Model: models.OfficeUser{TransportationOfficeID: to.ID},
+					}},
+					[]roles.RoleType{roles.RoleTypeServicesCounselor},
+				)
+
+				session := setupAuthSession(user.ID)
+				appCtx := suite.AppContextWithSessionForTest(&session)
+
+				moves, count, err := orderFetcher.ListPPMCloseoutOrders(
+					appCtx, user.ID,
+					&services.ListOrderParams{NeedsPPMCloseout: models.BoolPointer(true)},
+				)
+				suite.NoError(err)
+
+				if tc.expectVisible {
+					suite.Equal(1, count, "move should be visible")
+					suite.Equal(move.Locator, moves[0].Locator)
+				} else {
+					suite.Equal(0, count, "move should NOT be visible")
+				}
+			})
+		}
+	})
+
 }
