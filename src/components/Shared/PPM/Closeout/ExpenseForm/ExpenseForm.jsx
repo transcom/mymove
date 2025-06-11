@@ -204,7 +204,11 @@ const ExpenseForm = ({
                         )}
                         {values.expenseType === expenseTypes.STORAGE && (
                           <FormGroup>
-                            <legend className="usa-label">Where did you store your items?</legend>
+                            <legend className="usa-label" aria-label="Required: Where did you store your items?">
+                              <span required>
+                                Where did you store your items? <RequiredAsterisk />
+                              </span>
+                            </legend>
                             <Field
                               as={Radio}
                               id="sitLocationOrigin"
@@ -318,7 +322,9 @@ const ExpenseForm = ({
                             error={formikProps.touched?.document && formikProps.errors?.document}
                             htmlFor="document"
                           >
-                            Upload receipt
+                            <span>
+                              Upload receipt <RequiredAsterisk />
+                            </span>
                           </Label>
                         </div>
                         {formikProps.touched?.document && formikProps.errors?.document && (
