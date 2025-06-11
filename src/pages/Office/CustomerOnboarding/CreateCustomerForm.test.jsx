@@ -742,4 +742,20 @@ describe('CreateCustomerForm', () => {
       });
     });
   }, 50000);
+
+  it('show bluebark question when BLUEBARK FF is on', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+
+    render(
+      <MockProviders initialState={serviceCounselorState}>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Is this a Bluebark move?')).toBeInTheDocument();
+    });
+  }, 50000);
 });

@@ -220,6 +220,7 @@ const testProps = {
     { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
     { key: ORDERS_TYPE.WOUNDED_WARRIOR, value: ORDERS_TYPE_OPTIONS.WOUNDED_WARRIOR },
+    { key: ORDERS_TYPE.BLUEBARK, value: ORDERS_TYPE_OPTIONS.BLUEBARK },
   ],
 };
 
@@ -328,6 +329,9 @@ describe('OrdersInfoForm component', () => {
 
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
   });
 
   it('allows new and current duty location to be the same', async () => {

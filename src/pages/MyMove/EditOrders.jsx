@@ -64,6 +64,7 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
     const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
 
       setOrderTypesOptions((prevOptions) => {
         const options = { ...prevOptions };
@@ -74,6 +75,9 @@ const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlas
         }
         if (!isWoundedWarriorEnabled) {
           delete options.WOUNDED_WARRIOR;
+        }
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
         }
 
         return options;
