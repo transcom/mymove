@@ -31,6 +31,7 @@ properties:
     type: string
     enum:
       - INFECTED
+      - CLEAN
       - NO_THREATS_FOUND
       - PROCESSING
     readOnly: true
