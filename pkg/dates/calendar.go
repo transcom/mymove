@@ -55,6 +55,7 @@ func NewCalendar(appCtx appcontext.AppContext, countryCode string) (*cal.Busines
 	setWorkdays(calendar, &country.Weekends)
 
 	return calendar, &country, nil
+
 }
 
 // NextWorkday returns the next workday after the given date, using the given calendar

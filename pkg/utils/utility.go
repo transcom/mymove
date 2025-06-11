@@ -5,6 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const (
@@ -24,4 +27,8 @@ func AppendTimestampToFilename(fileName string) string {
 	name := strings.TrimSuffix(fileName, ext)
 	newFileName := fmt.Sprintf("%s-%s%s", name, timestamp, ext)
 	return newFileName
+}
+
+func ToTitleCase(s string) string {
+	return cases.Title(language.English).String(strings.ToLower(s))
 }

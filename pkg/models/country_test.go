@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"errors"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -72,4 +73,32 @@ func (suite *ModelSuite) TestFetchCountryByID() {
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound, err)
 	})
+}
+
+func (suite *ModelSuite) TestCountryIsEmpty() {
+
+	emptyCountry := models.Country{
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Holidays: models.CountryHolidays{
+			models.CountryHoliday{},
+		},
+		Weekends: models.CountryWeekend{},
+	}
+	suite.True(emptyCountry.IsEmpty(), "country should be considered empty when it's missing an ID, Country, and CountryName")
+
+	validCountry := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	suite.False(validCountry.IsEmpty(), "country should not be considered empty when it has required fields")
+
+	countryEmptyId := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	countryEmptyId.ID = uuid.Nil
+	suite.False(countryEmptyId.IsEmpty(), "country should not be considered empty when only it's ID is empty")
+
+	countryEmptyCode := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	countryEmptyCode.Country = ""
+	suite.False(countryEmptyCode.IsEmpty(), "country should not be considered empty when only it's Country field is empty")
+
+	countryEmptyName := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	countryEmptyName.CountryName = ""
+	suite.False(countryEmptyName.IsEmpty(), "country should not be considered empty when only it's CountryName is empty")
 }

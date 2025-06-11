@@ -79,3 +79,44 @@ func (suite *UtilitySuite) TestAppendTimestampToFilename() {
 		suite.True(matched, "Result does not match expected pattern")
 	})
 }
+
+func (suite *UtilitySuite) TestToTitleCase() {
+	testCases := []struct {
+		name     string
+		actual   string
+		expected string
+	}{
+		{
+			name:     "all upper case",
+			actual:   "UNITED STATES",
+			expected: "United States",
+		},
+		{
+			name:     "all lower case",
+			actual:   "great britain",
+			expected: "Great Britain",
+		},
+		{
+			name:     "a mix of upper and lower case",
+			actual:   "mR. jOhn SMIth jr.",
+			expected: "Mr. John Smith Jr.",
+		},
+		{
+			name:     "an empty string",
+			actual:   "",
+			expected: "",
+		},
+		{
+			name:     "white space",
+			actual:   "     ",
+			expected: "     ",
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run("Convert string to title case for "+tc.name, func() {
+			result := utils.ToTitleCase(tc.actual)
+			suite.Equal(tc.expected, result, "the string should be converted to title case")
+		})
+	}
+}

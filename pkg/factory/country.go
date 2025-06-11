@@ -67,32 +67,31 @@ func FetchOrBuildCountry(db *pop.Connection, customs []Customization, traits []T
 		}
 	}
 
-	var country models.Country
-	if !country.ID.IsNil() {
-		err := db.Where("ID = $1", country.ID).First(&country)
+	if !cCountry.ID.IsNil() {
+		err := db.Where("ID = $1", cCountry.ID).First(&cCountry)
 		if err != nil && err != sql.ErrNoRows {
 			log.Panic(err)
 		} else if err == nil {
-			return country
+			return cCountry
 		}
 	}
 
-	if !country.ID.IsNil() {
-		err := db.Where("ID = $1", country.ID).First(&country)
+	if cCountry.Country != "" {
+		err := db.Where("Country = $1", cCountry.Country).First(&cCountry)
 		if err != nil && err != sql.ErrNoRows {
 			log.Panic(err)
 		} else if err == nil {
-			return country
+			return cCountry
 		}
 	}
 
 	// search for the default code if one is not provided
 	defaultCountryCode := "US"
-	err := db.Where("country = $1", defaultCountryCode).First(&country)
+	err := db.Where("country = $1", defaultCountryCode).First(&cCountry)
 	if err != nil && err != sql.ErrNoRows {
 		log.Panic(err)
 	} else if err == nil {
-		return country
+		return cCountry
 	}
 
 	return BuildCountry(db, customs, traits)

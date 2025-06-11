@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -47,4 +49,30 @@ func (suite *ModelSuite) TestCountryWeekendUpdateFails() {
 
 	suite.Error(err)
 	suite.Contains(err.Error(), "syntax error at or near \"WHERE\"", "All model fields are readonly which should trigger a syntax error on the update statement")
+}
+
+func (suite *ModelSuite) TestIsWeekend() {
+
+	weekends := models.CountryWeekend{
+		IsSaturdayWeekend: true,
+		IsSundayWeekend:   true,
+	}
+
+	testCases := []struct {
+		date     time.Time
+		expected bool
+	}{
+		{time.Date(2025, 6, 9, 0, 0, 0, 0, time.UTC), false},  // Monday
+		{time.Date(2025, 6, 10, 0, 0, 0, 0, time.UTC), false}, // Tuesday
+		{time.Date(2025, 6, 11, 0, 0, 0, 0, time.UTC), false}, // Wednesday
+		{time.Date(2025, 6, 12, 0, 0, 0, 0, time.UTC), false}, // Thursday
+		{time.Date(2025, 6, 13, 0, 0, 0, 0, time.UTC), false}, // Friday
+		{time.Date(2025, 6, 14, 0, 0, 0, 0, time.UTC), true},  // Saturday
+		{time.Date(2025, 6, 15, 0, 0, 0, 0, time.UTC), true},  // Sunday
+	}
+
+	for _, tc := range testCases {
+		result := weekends.IsWeekend(tc.date)
+		suite.Equal(tc.expected, result, "IsWeekend should correctly identify a weekend day")
+	}
 }
