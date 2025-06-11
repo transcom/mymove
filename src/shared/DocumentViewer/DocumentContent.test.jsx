@@ -22,7 +22,7 @@ describe('DocumentContent', () => {
           contentType="application/pdf"
           url="www"
           filename="filename"
-          status={UPLOAD_SCAN_STATUS.INFECTED}
+          status={UPLOAD_SCAN_STATUS.LEGACY_INFECTED}
         />,
       );
       expect(wrapper.find(Alert)).toHaveLength(1);
