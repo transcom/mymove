@@ -1792,12 +1792,70 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 	}
 
+	setupTestInternationalData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:           models.MarketCodeInternational,
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+				},
+			},
+		}, nil)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(125, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		reServiceIDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDFSIT)
+		return shipment, creator, reServiceIDFSIT
+	}
+
 	setupAdditionalSIT := func() (models.ReService, models.ReService, models.ReService) {
 		// These codes will be needed for the following tests:
 		reServiceDDASIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
 		reServiceDDDSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 		reServiceDDSFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
 		return reServiceDDASIT, reServiceDDDSIT, reServiceDDSFSC
+	}
+
+	setupAdditionalInternationalSIT := func() (models.ReService, models.ReService, models.ReService) {
+		// These codes will be needed for the following tests:
+		reServiceIDASIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDASIT)
+		reServiceIDDSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDDSIT)
+		reServiceIDSFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDSFSC)
+		return reServiceIDASIT, reServiceIDDSIT, reServiceIDSFSC
 	}
 
 	getCustomerContacts := func() models.MTOServiceItemCustomerContacts {
@@ -1818,6 +1876,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		var contacts models.MTOServiceItemCustomerContacts
 		contacts = append(contacts, contact1, contact2)
 		return contacts
+	}
+
+	convertCustomerIDsToFindTestMap := func(contacts models.MTOServiceItemCustomerContacts) map[uuid.UUID]bool {
+		customerContactIDMap := make(map[uuid.UUID]bool, len(contacts))
+		// load all known customer IDs into map
+		for _, contact := range contacts {
+			customerContactIDMap[contact.ID] = true
+		}
+		return customerContactIDMap
 	}
 
 	sitEntryDate := time.Now().AddDate(0, 0, 1)
@@ -1941,10 +2008,95 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// We create one set of customer contacts and attach them to each destination service item.
 		// This portion verifies that.
-		suite.Equal(createdServiceItemList[1].CustomerContacts[0], serviceItemDDFSIT.CustomerContacts[0])
-		suite.Equal(createdServiceItemList[1].CustomerContacts[1], serviceItemDDFSIT.CustomerContacts[1])
-		suite.Equal(createdServiceItemList[2].CustomerContacts[0], serviceItemDDFSIT.CustomerContacts[0])
-		suite.Equal(createdServiceItemList[2].CustomerContacts[1], serviceItemDDFSIT.CustomerContacts[1])
+		customerContactIDMap := convertCustomerIDsToFindTestMap(serviceItemDDFSIT.CustomerContacts)
+		// Verify there are only 2 customers created
+		suite.Equal(len(customerContactIDMap), 2)
+		for _, createdServiceItem := range createdServiceItemList {
+			for _, item := range createdServiceItem.CustomerContacts {
+				// remove ID from map to denote it was found
+				delete(customerContactIDMap, item.ID)
+			}
+		}
+		// found all expected IDs. expect empty map
+		suite.Equal(len(customerContactIDMap), 0)
+	})
+
+	// Successful creation of IDFSIT service item and the extra IDASIT/IDDSIT items
+	suite.Run("Success - IDFSIT creation approved - no SITDestinationFinalAddress", func() {
+		shipment, creator, reServiceIDFSIT := setupTestInternationalData()
+		setupAdditionalInternationalSIT()
+
+		serviceItemIDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceIDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			SITDepartureDate: &sitDepartureDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		createdServiceItemList := *createdServiceItems
+		suite.Equal(len(createdServiceItemList), 4)
+
+		// check the returned items for the correct data
+		numIDASITFound := 0
+		numIDDSITFound := 0
+		numIDFSITFound := 0
+		numIDSFSCFound := 0
+		for _, item := range createdServiceItemList {
+			suite.Equal(item.MoveTaskOrderID, serviceItemIDFSIT.MoveTaskOrderID)
+			suite.Equal(item.MTOShipmentID, serviceItemIDFSIT.MTOShipmentID)
+			suite.Equal(item.SITEntryDate, serviceItemIDFSIT.SITEntryDate)
+			suite.Equal(item.SITDepartureDate, serviceItemIDFSIT.SITDepartureDate)
+
+			suite.Equal(item.SITDestinationOriginalAddressID, serviceItemIDFSIT.SITDestinationOriginalAddressID)
+			suite.Equal(item.SITDestinationFinalAddressID, serviceItemIDFSIT.SITDestinationFinalAddressID)
+
+			if item.ReService.Code == models.ReServiceCodeIDDSIT || item.ReService.Code == models.ReServiceCodeIDSFSC {
+				// if this fails check the mock in the setupdata func and/or if destination address is OCONUS
+				suite.Equal(*item.SITDeliveryMiles, 125)
+			}
+
+			if item.ReService.Code == models.ReServiceCodeIDASIT {
+				numIDASITFound++
+			}
+			if item.ReService.Code == models.ReServiceCodeIDDSIT {
+				numIDDSITFound++
+			}
+			if item.ReService.Code == models.ReServiceCodeIDFSIT {
+				numIDFSITFound++
+				suite.Equal(len(item.CustomerContacts), len(serviceItemIDFSIT.CustomerContacts))
+			}
+			if item.ReService.Code == models.ReServiceCodeIDDSIT {
+				numIDSFSCFound++
+			}
+		}
+		suite.Equal(numIDASITFound, 1)
+		suite.Equal(numIDDSITFound, 1)
+		suite.Equal(numIDFSITFound, 1)
+		suite.Equal(numIDSFSCFound, 1)
+
+		// We create one set of customer contacts and attach them to each destination service item.
+		// This portion verifies that.
+		customerContactIDMap := convertCustomerIDsToFindTestMap(serviceItemIDFSIT.CustomerContacts)
+		// Verify there are only 2 customers created
+		suite.Equal(len(customerContactIDMap), 2)
+		for _, createdServiceItem := range createdServiceItemList {
+			for _, item := range createdServiceItem.CustomerContacts {
+				// remove ID from map to denote it was found
+				delete(customerContactIDMap, item.ID)
+			}
+		}
+
+		// found all expected IDs. expect empty map
+		suite.Equal(len(customerContactIDMap), 0)
 	})
 
 	// Failed creation of DDFSIT because of duplicate service for shipment
@@ -2611,6 +2763,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.Equal(unit.Cents(10929600), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
+		// negative because we are using 2020 fuel rates
 		suite.Equal(unit.Cents(-168), fscEstimatedPriceInCents)
 	})
 
@@ -2909,6 +3062,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.Equal(unit.Cents(21859200), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
+		// negative because we are using 2020 fuel rate
 		suite.Equal(unit.Cents(-335), fscEstimatedPriceInCents)
 	})
 
