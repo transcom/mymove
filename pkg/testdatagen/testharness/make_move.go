@@ -5970,7 +5970,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 			ID:                    uuid.Must(uuid.NewV4()),
 			ApprovedAt:            &approvedAt,
 			Status:                models.PPMShipmentStatusNeedsCloseout,
-			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualMoveDate:        models.TimePointer(time.Date(time.Now().Year(), time.March, 16, 0, 0, 0, 0, time.UTC)),
 			HasReceivedAdvance:    models.BoolPointer(true),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
