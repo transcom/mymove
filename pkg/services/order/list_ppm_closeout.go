@@ -173,26 +173,32 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 		move.OrdersID = order.ID
 		move.Orders = order
 
-		var counselOffice models.TransportationOffice
+		var counselOffice *models.TransportationOffice
 		if err := json.Unmarshal(queueItem.CounselingTransportationOffice, &counselOffice); err != nil {
 			return nil, fmt.Errorf("unmarshal CounselingTransportationOffice JSON: %w", err)
 		}
-		move.CounselingOfficeID = &counselOffice.ID
-		move.CounselingOffice = &counselOffice
+		if counselOffice != nil {
+			move.CounselingOfficeID = &counselOffice.ID
+			move.CounselingOffice = counselOffice
+		}
 
-		var closeOffice models.TransportationOffice
+		var closeOffice *models.TransportationOffice
 		if err := json.Unmarshal(queueItem.PpmCloseoutLocation, &closeOffice); err != nil {
 			return nil, fmt.Errorf("unmarshal PpmCloseoutLocation JSON: %w", err)
 		}
-		move.CloseoutOfficeID = &closeOffice.ID
-		move.CloseoutOffice = &closeOffice
+		if closeOffice != nil {
+			move.CloseoutOfficeID = &closeOffice.ID
+			move.CloseoutOffice = closeOffice
+		}
 
-		var scUser models.OfficeUser
+		var scUser *models.OfficeUser
 		if err := json.Unmarshal(queueItem.ScAssigned, &scUser); err != nil {
 			return nil, fmt.Errorf("unmarshal ScAssigned JSON: %w", err)
 		}
-		move.SCCloseoutAssignedID = &scUser.ID
-		move.SCCloseoutAssignedUser = &scUser
+		if scUser != nil {
+			move.SCCloseoutAssignedID = &scUser.ID
+			move.SCCloseoutAssignedUser = scUser
+		}
 
 		// Account for the json agg of multiple mts
 		var mtoShipments models.MTOShipments
