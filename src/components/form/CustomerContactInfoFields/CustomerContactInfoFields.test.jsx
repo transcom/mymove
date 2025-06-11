@@ -5,16 +5,21 @@ import { Formik } from 'formik';
 import { CustomerContactInfoFields } from './index';
 
 describe('ContactInfoFields component', () => {
-  it('renders a legend and all service member contact info inputs', () => {
+  it('renders a legend and all service member contact info inputs and asterisks for required fields', () => {
     render(
       <Formik>
         <CustomerContactInfoFields legend="Your contact info" />
       </Formik>,
     );
     expect(screen.getByText('Your contact info')).toBeInstanceOf(HTMLLegendElement);
-    expect(screen.getByLabelText('Best contact phone')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Best contact phone *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Best contact phone *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Best contact phone *')).toBeRequired();
+
     expect(screen.getByLabelText(/Alt. phone/)).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('Personal email')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Personal email *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Personal email *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Personal email *')).toBeRequired();
     expect(screen.getByLabelText('Phone')).not.toBeChecked();
     expect(screen.getByLabelText('Email')).not.toBeChecked();
   });
@@ -34,9 +39,9 @@ describe('ContactInfoFields component', () => {
           <CustomerContactInfoFields legend="Your contact info" name="contact" />
         </Formik>,
       );
-      expect(await screen.findByLabelText('Best contact phone')).toHaveValue(initialValues.telephone);
+      expect(screen.getByLabelText('Best contact phone *')).toHaveValue(initialValues.telephone);
       expect(screen.getByLabelText(/Alt. phone/)).toHaveValue(initialValues.secondary_telephone);
-      expect(screen.getByLabelText('Personal email')).toHaveValue(initialValues.personal_email);
+      expect(screen.getByLabelText('Personal email *')).toHaveValue(initialValues.personal_email);
       expect(screen.getByLabelText('Phone')).toBeChecked();
       expect(screen.getByLabelText('Email')).toBeChecked();
     });

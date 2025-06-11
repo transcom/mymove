@@ -3,6 +3,8 @@ import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
+import { requiredAsteriskMessage } from '../RequiredAsterisk';
+
 import Hint from 'components/Hint/index';
 import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
@@ -35,19 +37,6 @@ export const AddressFields = ({
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
 
-  const getAddress1LabelHintText = (labelHint, address1Label) => {
-    if (address1Label === null) {
-      return labelHint;
-    }
-
-    // Override default and use what is passed in.
-    if (address1Label && address1Label.trim().length > 0) {
-      return address1Label;
-    }
-
-    return null;
-  };
-
   const handleOnLocationChange = (value) => {
     const city = value ? value.city : null;
     const state = value ? value.state : null;
@@ -72,21 +61,27 @@ export const AddressFields = ({
     });
   };
 
+  // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
+  // this field is usually always required other than PPMs
+  // a value for address1LabelHint is passed in when we want address 1 to be optional
+  const showRequiredAsteriskForAddress1 = address1LabelHint === null || labelHintProp === 'Required';
+
   return (
     <Fieldset legend={legend} className={className}>
+      {requiredAsteriskMessage}
       {render(
         <>
           <TextField
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
-            labelHint={getAddress1LabelHintText(labelHintProp, address1LabelHint)}
+            required={showRequiredAsteriskForAddress1}
+            showRequiredAsterisk={showRequiredAsteriskForAddress1}
             data-testid={`${name}.streetAddress1`}
             validate={validators?.streetAddress1}
           />
           <TextField
             label="Address 2"
-            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress2`}
             data-testid={`${name}.streetAddress2`}
@@ -94,7 +89,6 @@ export const AddressFields = ({
           />
           <TextField
             label="Address 3"
-            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress3_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress3`}
             data-testid={`${name}.streetAddress3`}
@@ -120,7 +114,6 @@ export const AddressFields = ({
                 label="City"
                 id={`city_${addressFieldsUUID.current}`}
                 name={`${name}.city`}
-                labelHint={labelHintProp}
                 data-testid={`${name}.city`}
                 display="readonly"
                 validate={validators?.city}
@@ -130,7 +123,6 @@ export const AddressFields = ({
                 id={`state_${addressFieldsUUID.current}`}
                 name={`${name}.state`}
                 data-testid={`${name}.state`}
-                labelHint={labelHintProp}
                 display="readonly"
                 validate={validators?.state}
                 styles="margin-top: 1.5em"
@@ -143,7 +135,6 @@ export const AddressFields = ({
                 name={`${name}.postalCode`}
                 data-testid={`${name}.postalCode`}
                 maxLength={10}
-                labelHint={labelHintProp}
                 display="readonly"
                 validate={validators?.postalCode}
               />
@@ -151,7 +142,6 @@ export const AddressFields = ({
                 label="County"
                 id={`county_${addressFieldsUUID.current}`}
                 name={`${name}.county`}
-                labelHint={labelHintProp}
                 data-testid={`${name}.county`}
                 display="readonly"
                 validate={validators?.county}

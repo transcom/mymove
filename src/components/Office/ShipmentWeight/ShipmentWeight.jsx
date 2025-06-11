@@ -6,6 +6,7 @@ import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
@@ -32,6 +33,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
         <h3 className={styles.SectionHeader}>Weight</h3>
+        {requiredAsteriskMessage}
 
         <Grid row gap>
           <Grid col={6}>
@@ -40,6 +42,8 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
               label="Estimated PPM weight"
               data-testid="estimatedWeight"
               id="estimatedWeight"
+              showRequiredAsterisk
+              required
               mask={Number}
               scale={0} // digits after point, 0 for integers
               signed={false} // disallow negative
@@ -48,7 +52,11 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
               suffix="lbs"
               onInput={handleEstimatedWeight}
             />
-            <Label className={styles.Label}>Pro-gear?</Label>
+            <Label>
+              <span required>
+                Pro-gear? <RequiredAsterisk />
+              </span>
+            </Label>
             <FormGroup>
               <Radio
                 id="hasProGearYes"

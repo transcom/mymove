@@ -169,11 +169,11 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByText('You must upload at least one set of weight tickets to get paid for your PPM.'));
 
       expect(screen.getByRole('heading', { level: 3, name: 'Vehicle' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Vehicle description')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Vehicle description *')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Car make and model, type of truck or van, etc.')).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Empty weight' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Empty weight')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Empty weight *')).toBeInstanceOf(HTMLInputElement);
       const missingWeightInput = screen.getAllByLabelText("I don't have this weight ticket");
       expect(missingWeightInput[0]).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[0]).not.toBeChecked();
@@ -185,7 +185,7 @@ describe('WeightTicketForm component', () => {
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Full weight' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Full weight')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Full weight *')).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[1]).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[1]).not.toBeChecked();
       // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
@@ -195,9 +195,7 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByRole('heading', { level: 3, name: 'Trip weight:' })).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Trailer' })).toBeInTheDocument();
-      expect(screen.getByText('On this trip, were you using a trailer that you own?')).toBeInstanceOf(
-        HTMLLegendElement,
-      );
+      expect(screen.getByText('On this trip, were you using a trailer that you own?')).toBeInTheDocument();
       expect(screen.getByLabelText('No')).toBeChecked();
 
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
@@ -222,11 +220,11 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByText('You must upload at least one set of weight tickets to get paid for your PPM.'));
 
       expect(screen.getByRole('heading', { level: 3, name: 'Vehicle' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Vehicle description')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Vehicle description *')).toBeInTheDocument();
       expect(screen.getByText('Car make and model, type of truck or van, etc.')).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Empty weight' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Empty weight')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Empty weight *')).toBeInTheDocument();
       const missingWeightInput = screen.getAllByLabelText("I don't have this weight ticket");
       expect(missingWeightInput[0]).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[0]).not.toBeChecked();
@@ -238,7 +236,7 @@ describe('WeightTicketForm component', () => {
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Full weight' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Full weight')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Full weight *')).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[1]).toBeInstanceOf(HTMLInputElement);
       expect(missingWeightInput[1]).not.toBeChecked();
       // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
@@ -248,9 +246,7 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByRole('heading', { level: 3, name: 'Trip weight:' })).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Trailer' })).toBeInTheDocument();
-      expect(screen.getByText('On this trip, were you using a trailer that you own?')).toBeInstanceOf(
-        HTMLLegendElement,
-      );
+      expect(screen.getByText('On this trip, were you using a trailer that you own?')).toBeInTheDocument();
       expect(screen.getByLabelText('No')).toBeChecked();
 
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
@@ -261,7 +257,7 @@ describe('WeightTicketForm component', () => {
       render(<WeightTicketForm {...defaultProps} {...weightTicketRequiredProps} appName={APP_NAME.OFFICE} />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Empty weight')).toHaveDisplayValue('3,999');
+        expect(screen.getByLabelText('Empty weight *')).toHaveDisplayValue('3,999');
       });
 
       expect(screen.getByText('empty_weight.jpg')).toBeInTheDocument();
@@ -270,7 +266,7 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByText('800KB')).toBeInTheDocument();
       expect(screen.getByText('Uploaded 22 Jun 2022 11:25 PM')).toBeInTheDocument();
 
-      expect(screen.getByLabelText('Full weight')).toHaveDisplayValue('7,111');
+      expect(screen.getByLabelText('Full weight *')).toHaveDisplayValue('7,111');
       expect(screen.getByText('full_weight.pdf')).toBeInTheDocument();
       expect(deleteButtons[1]).toBeInTheDocument();
       expect(screen.getByText('400KB')).toBeInTheDocument();
@@ -319,7 +315,7 @@ describe('WeightTicketForm component', () => {
       expect(trailerCheckboxes[0]).toBeChecked();
       expect(trailerCheckboxes[1]).toBeChecked();
 
-      expect(screen.getByText('Upload proof of ownership')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Upload proof of ownership')).toBeInTheDocument();
 
       expect(screen.getByText('trailer_title.pdf')).toBeInTheDocument();
       expect(deleteButtons[1]).toBeInTheDocument();
@@ -344,15 +340,15 @@ describe('WeightTicketForm component', () => {
       expect(invalidAlerts).toHaveLength(3);
 
       expect(invalidAlerts[0].nextSibling).toHaveAttribute('name', 'vehicleDescription');
-      expect(within(invalidAlerts[1].nextSibling).getByLabelText('Empty weight')).toBeInTheDocument();
-      expect(within(invalidAlerts[2].nextSibling).getByLabelText('Full weight')).toBeInTheDocument();
+      expect(within(invalidAlerts[1].nextSibling).getByLabelText('Empty weight *')).toBeInTheDocument();
+      expect(within(invalidAlerts[2].nextSibling).getByLabelText('Full weight *')).toBeInTheDocument();
     });
 
     it('triggers error if the full weight is less than or equal to the empty weight', async () => {
       render(<WeightTicketForm {...defaultProps} />);
 
-      await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-      await userEvent.type(screen.getByLabelText('Full weight'), '4999');
+      await userEvent.type(screen.getByLabelText('Empty weight *'), '4999');
+      await userEvent.type(screen.getByLabelText('Full weight *'), '4999');
 
       await waitFor(() => {
         expect(screen.getByText('The full weight must be greater than the empty weight')).toBeInTheDocument();
@@ -363,29 +359,9 @@ describe('WeightTicketForm component', () => {
     it('calls the onSubmit callback with required fields', async () => {
       render(<WeightTicketForm {...defaultProps} {...weightTicketUploadsOnlyProps} />);
 
-      await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-      await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-      await userEvent.type(screen.getByLabelText('Full weight'), '6999');
-
-      /* testing-library's upload helper doesn't seem to be detected with our use of filepond
-
-      // we can't query for the file inputs because they aren't accessible roles and the hidden aria-labelledby
-      // isn't found by testing-library
-      const uploadFileHints = screen.getAllByText(DocumentAndImageUploadInstructions);
-      const uploadEmptyWeight = uploadFileHints[0].nextSibling.firstChild;
-
-      const emptyWeightFile = new File(['empty weight'], 'empty weight.png', { type: 'image/png' });
-      await userEvent.upload(uploadEmptyWeight, emptyWeightFile);
-
-      expect(uploadEmptyWeight.files[0]).toBe(emptyWeightFile);
-      expect(uploadEmptyWeight.files.item(0)).toBe(emptyWeightFile);
-      expect(uploadEmptyWeight.files).toHaveLength(1);
-
-      const uploadFullWeight = uploadFileHints[1].nextSibling.firstChild;
-
-      const fullWeightFile = new File(['full weight'], 'full weight.png', { type: 'image/png' });
-      await userEvent.upload(uploadFullWeight, fullWeightFile);
-      */
+      await userEvent.type(screen.getByLabelText('Vehicle description *'), 'DMC Delorean');
+      await userEvent.type(screen.getByLabelText('Empty weight *'), '4999');
+      await userEvent.type(screen.getByLabelText('Full weight *'), '6999');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 

@@ -19,8 +19,10 @@ afterEach(() => {
 const mockSubmit = jest.fn();
 
 describe('ValidationCode', () => {
-  test('it should render all text for the component', async () => {
+  test('it should render all text for the component and asterisks for required fields', async () => {
     renderWithProviders(<ValidationCode onSuccess={jest.fn()} />);
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     expect(screen.getByText('Please enter a validation code to begin creating a move')).toBeInTheDocument();
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
@@ -45,7 +47,9 @@ describe('ValidationCode', () => {
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     expect(nextBtn).toBeDisabled();
-    await userEvent.type(screen.getByLabelText('Validation code'), 'TestCode123123');
+    await userEvent.type(screen.getByLabelText('Validation code *'), 'TestCode123123');
+    expect(screen.getByLabelText('Validation code *')).toBeRequired();
+
     expect(nextBtn).toBeEnabled();
     await userEvent.click(nextBtn);
 
@@ -70,7 +74,7 @@ describe('ValidationCode', () => {
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     expect(nextBtn).toBeDisabled();
-    await userEvent.type(screen.getByLabelText('Validation code'), 'TestCode123123');
+    await userEvent.type(screen.getByLabelText('Validation code *'), 'TestCode123123');
     expect(nextBtn).toBeEnabled();
     await userEvent.click(nextBtn);
 

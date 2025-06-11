@@ -201,10 +201,10 @@ describe('Expenses page', () => {
 
     // renders form content
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
-    expect(screen.getByLabelText('Select type')).toHaveDisplayValue('Packing materials');
-    expect(screen.getByLabelText('What did you buy or rent?')).toHaveValue('Peanuts and wrapping paper');
+    expect(screen.getByLabelText('Select type *')).toHaveDisplayValue('Packing materials');
+    expect(screen.getByLabelText('What did you buy or rent? *')).toHaveValue('Peanuts and wrapping paper');
     expect(screen.getByLabelText('No')).toBeChecked();
-    expect(screen.getByLabelText('Amount')).toHaveValue('85.00');
+    expect(screen.getByLabelText('Amount *')).toHaveValue('85.00');
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
     expect(screen.getByText('an_expense.jpg')).toBeInTheDocument();
 
@@ -265,7 +265,7 @@ describe('Expenses page', () => {
 
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
 
-    expect(screen.getByLabelText('Select type')).toHaveDisplayValue('- Select -');
+    expect(screen.getByLabelText('Select type *')).toHaveDisplayValue('- Select -');
 
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
@@ -286,12 +286,12 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
     });
-    await userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
-    await userEvent.clear(screen.getByLabelText('What did you buy or rent?'));
-    await userEvent.type(screen.getByLabelText('What did you buy or rent?'), 'Boxes and tape');
+    await userEvent.selectOptions(screen.getByLabelText('Select type *'), ['CONTRACTED_EXPENSE']);
+    await userEvent.clear(screen.getByLabelText('What did you buy or rent? *'));
+    await userEvent.type(screen.getByLabelText('What did you buy or rent? *'), 'Boxes and tape');
     await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.clear(screen.getByLabelText('Amount'));
-    await userEvent.type(screen.getByLabelText('Amount'), '12.34');
+    await userEvent.clear(screen.getByLabelText('Amount *'));
+    await userEvent.type(screen.getByLabelText('Amount *'), '12.34');
     await userEvent.click(screen.getByLabelText("I don't have this receipt"));
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
@@ -339,8 +339,8 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
     });
-    await userEvent.clear(screen.getByLabelText('Amount'));
-    await userEvent.type(screen.getByLabelText('Amount'), '12');
+    await userEvent.clear(screen.getByLabelText('Amount *'));
+    await userEvent.type(screen.getByLabelText('Amount *'), '12');
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
@@ -388,11 +388,11 @@ describe('Expenses page', () => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
     });
 
-    await userEvent.selectOptions(screen.getByLabelText('Select type'), ['STORAGE']);
-    await userEvent.type(screen.getByLabelText('Start date'), '10/10/2022');
-    await userEvent.type(screen.getByLabelText('End date'), '10/11/2022');
+    await userEvent.selectOptions(screen.getByLabelText('Select type *'), ['STORAGE']);
+    await userEvent.type(screen.getByLabelText('Start date *'), '10/10/2022');
+    await userEvent.type(screen.getByLabelText('End date *'), '10/11/2022');
     await userEvent.click(screen.getByLabelText('Origin'));
-    await userEvent.type(screen.getByLabelText('Weight Stored'), '120');
+    await userEvent.type(screen.getByLabelText('Weight Stored *'), '120');
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
@@ -438,11 +438,11 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 5');
     });
-    await userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
-    await userEvent.type(screen.getByLabelText('What did you buy or rent?'), 'Boxes and tape');
+    await userEvent.selectOptions(screen.getByLabelText('Select type *'), ['CONTRACTED_EXPENSE']);
+    await userEvent.type(screen.getByLabelText('What did you buy or rent? *'), 'Boxes and tape');
     await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.clear(screen.getByLabelText('Amount'));
-    await userEvent.type(screen.getByLabelText('Amount'), '12.34');
+    await userEvent.clear(screen.getByLabelText('Amount *'));
+    await userEvent.type(screen.getByLabelText('Amount *'), '12.34');
     await userEvent.click(screen.getByLabelText("I don't have this receipt"));
 
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
