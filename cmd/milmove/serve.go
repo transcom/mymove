@@ -160,9 +160,9 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	// 	return err
 	// }
 
-	if err := cli.CheckListeners(v); err != nil {
-		return err
-	}
+	// if err := cli.CheckListeners(v); err != nil {
+	// 	return err
+	// }
 
 	if err := cli.CheckPorts(v); err != nil {
 		return err
