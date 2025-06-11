@@ -1,5 +1,7 @@
 --B-22462  M.Inthavongsay Adding initial migration file for update_service_item_pricing stored procedure using new migration process.
 --Also updating to allow IOSFSC and IDSFSC SIT service items.
+--B-22463  M.Inthavongsay updating to allow IOASIT and IDASIT SIT service items.
+--B-22466  M.Inthavongsay updating to allow IOPSIT and IDDSIT SIT service items.
 --B-22742  C. Kleinjan  Add pricing calculation for ICRT and IUCRT service items
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
@@ -63,7 +65,7 @@ BEGIN
 
     -- loop through service items in the shipment
     FOR service_item IN
-        SELECT si.id, si.re_service_id, si.sit_delivery_miles,
+        SELECT si.id, si.re_service_id, si.sit_delivery_miles, si.sit_departure_date, si.sit_entry_date,
         sit_origin_hhg_actual_address_id, sit_destination_final_address_id
         FROM mto_service_items si
         WHERE si.mto_shipment_id = shipment_id

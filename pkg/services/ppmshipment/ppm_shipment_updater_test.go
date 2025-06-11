@@ -848,12 +848,14 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
+		approved := models.PPMAdvanceStatusApproved
 		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					EstimatedIncentive:     fakeEstimatedIncentive,
 					HasRequestedAdvance:    models.BoolPointer(true),
 					AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+					AdvanceStatus:          &approved,
 				},
 			},
 		}, nil)
@@ -878,10 +880,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
-		edited := models.PPMAdvanceStatusEdited
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
-		suite.Equal(&edited, updatedPPM.AdvanceStatus)
+		suite.Equal(&approved, updatedPPM.AdvanceStatus)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - office user approves advance request", func() {
@@ -1006,50 +1007,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
-		edited := models.PPMAdvanceStatusEdited
 		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
-		suite.Equal(&edited, updatedPPM.AdvanceStatus)
-	})
-
-	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested yes to no", func() {
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			OfficeUserID: uuid.Must(uuid.NewV4()),
-		})
-
-		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					EstimatedIncentive:     fakeEstimatedIncentive,
-					HasRequestedAdvance:    models.BoolPointer(true),
-					AdvanceAmountRequested: models.CentPointer(unit.Cents(300000)),
-				},
-			},
-		}, nil)
-		newPPM := models.PPMShipment{
-			HasRequestedAdvance: models.BoolPointer(false),
-		}
-
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil, nil)
-
-		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
-
-		suite.NilOrNoVerrs(err)
-
-		// Fields that shouldn't have changed
-		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
-		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
-		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
-		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
-		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
-		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
-		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
-
-		// Fields that should now be updated
-		edited := models.PPMAdvanceStatusEdited
-		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
-		suite.Nil(updatedPPM.AdvanceAmountRequested)
-		suite.Equal(&edited, updatedPPM.AdvanceStatus)
+		suite.Equal(&approved, updatedPPM.AdvanceStatus)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit SIT - yes to no", func() {
@@ -1616,5 +1576,120 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.Error(err)
 		suite.Nil(updatedPPM)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - cap estimated incentive to max incentive value", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(8000000))
+		newFakeMaxIncentive := models.CentPointer(unit.Cents(5000000))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, newFakeMaxIncentive, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+					SITExpected:           models.BoolPointer(false),
+					EstimatedWeight:       models.PoundPointer(4000),
+					HasProGear:            models.BoolPointer(false),
+					EstimatedIncentive:    fakeEstimatedIncentive,
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
+			SITExpected:           models.BoolPointer(true),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Verify estimated incentive is capped at the max
+		suite.Equal(*newFakeMaxIncentive, *updatedPPM.EstimatedIncentive)
+	})
+
+	suite.Run("Can update entitlement when HasGunSafe value changes", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasGunSafe: models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			HasGunSafe: models.BoolPointer(true),
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NotNil(updatedPPM)
+		suite.NilOrNoVerrs(err)
+
+		var updatedEntitlement models.Entitlement
+		err = appCtx.DB().Find(&updatedEntitlement, originalPPM.Shipment.MoveTaskOrder.Orders.EntitlementID)
+		suite.NoError(err)
+
+		suite.True(updatedEntitlement.GunSafe)
+		suite.Equal(500, updatedEntitlement.GunSafeWeight)
+		suite.NotNil(updatedEntitlement.DBAuthorizedWeight)
+		suite.True(*updatedEntitlement.DBAuthorizedWeight > 0)
+	})
+	suite.Run("updating PPM with valid GCC multiplier date updates PPM", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		originalPPM := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: validGccMultiplierDate,
+			GCCMultiplierID:       nil,
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+		suite.NotNil(updatedPPM.GCCMultiplierID)
+	})
+	suite.Run("updating PPM with invalid GCC multiplier date updates PPM multiplier to nil", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		invalidGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-04-02")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: validGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: invalidGccMultiplierDate,
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+		suite.Nil(updatedPPM.GCCMultiplierID)
 	})
 }
