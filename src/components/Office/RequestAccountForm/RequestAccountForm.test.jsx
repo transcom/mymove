@@ -83,31 +83,35 @@ describe('RequestAccountForm component', () => {
     expect(transportationOffice).toBeInstanceOf(HTMLInputElement);
     expect(transportationOffice).toHaveTextContent('');
 
-    const hqCheckbox = screen.getByTestId('headquartersCheckBox');
+    const hqCheckbox = screen.getByTestId('headquartersCheckbox');
     expect(hqCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(hqCheckbox).not.toBeChecked(false);
 
-    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
     expect(tooCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(tooCheckbox).not.toBeChecked(false);
 
-    const tioCheckbox = screen.getByTestId('taskInvoicingOfficerCheckBox');
+    const tioCheckbox = screen.getByTestId('task_invoicing_officerCheckbox');
     expect(tioCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(tioCheckbox).not.toBeChecked(false);
 
-    const tcoCheckbox = screen.getByTestId('transportationContractingOfficerCheckBox');
-    expect(tcoCheckbox).toBeInstanceOf(HTMLInputElement);
-    expect(tcoCheckbox).not.toBeChecked(false);
+    const coCheckbox = screen.getByTestId('contracting_officerCheckbox');
+    expect(coCheckbox).toBeInstanceOf(HTMLInputElement);
+    expect(coCheckbox).not.toBeChecked(false);
 
-    const scCheckbox = screen.getByTestId('servicesCounselorCheckBox');
+    const csrCheckbox = screen.getByTestId('customer_service_representativeCheckbox');
+    expect(csrCheckbox).toBeInstanceOf(HTMLInputElement);
+    expect(csrCheckbox).not.toBeChecked(false);
+
+    const scCheckbox = screen.getByTestId('services_counselorCheckbox');
     expect(scCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(scCheckbox).not.toBeChecked(false);
 
-    const qsaCheckbox = screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
+    const qsaCheckbox = screen.getByTestId('qaeCheckbox');
     expect(qsaCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(qsaCheckbox).not.toBeChecked(false);
 
-    const gsrCheckbox = screen.getByTestId('governmentSurveillanceRepresentativeCheckbox');
+    const gsrCheckbox = screen.getByTestId('gsrCheckbox');
     expect(gsrCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(gsrCheckbox).not.toBeChecked(false);
   });
@@ -159,7 +163,7 @@ describe('RequestAccountForm component', () => {
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
     await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
-    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
     await userEvent.click(tooCheckbox);
 
     const submitButton = await screen.getByTestId('requestOfficeAccountSubmitButton');
@@ -197,7 +201,7 @@ describe('RequestAccountForm component', () => {
     await userEvent.type(screen.getByTestId('officeAccountRequestLastName'), 'Banks');
     await userEvent.type(screen.getByTestId('officeAccountRequestEmail'), 'banks@gmail.com');
 
-    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
     await userEvent.click(tooCheckbox);
 
     expect(screen.getAllByText('Domain must be .mil, .gov or .edu').length).toBe(1);
@@ -205,14 +209,14 @@ describe('RequestAccountForm component', () => {
 
   describe('Role selection validation', () => {
     const checkboxTestIds = [
-      'headquartersCheckBox',
-      'taskOrderingOfficerCheckBox',
-      'taskInvoicingOfficerCheckBox',
-      'transportationContractingOfficerCheckBox',
-      'servicesCounselorCheckBox',
-      'qualityAssuranceEvaluatorCheckBox',
-      'customerSupportRepresentativeCheckBox',
-      'governmentSurveillanceRepresentativeCheckbox',
+      'headquartersCheckbox',
+      'task_ordering_officerCheckbox',
+      'task_invoicing_officerCheckbox',
+      'contracting_officerCheckbox',
+      'services_counselorCheckbox',
+      'qaeCheckbox',
+      'customer_service_representativeCheckbox',
+      'gsrCheckbox',
     ];
 
     it.each(checkboxTestIds)('shows and clears error for %s', async (testId) => {
@@ -234,8 +238,8 @@ describe('RequestAccountForm component', () => {
   it('shows policy error when both TOO and TIO checkboxes are both selected, and goes away after unselecting one of them', async () => {
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
-    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
-    const tioCheckbox = screen.getByTestId('taskInvoicingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
+    const tioCheckbox = screen.getByTestId('task_invoicing_officerCheckbox');
 
     // Click both the TOO and TIO role checkboxes
     await userEvent.click(tooCheckbox);

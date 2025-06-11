@@ -4,6 +4,7 @@ import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
 
 import RequiredAsterisk from '../RequiredAsterisk';
+import OptionalTag from '../OptionalTag';
 
 import styles from './OfficeAccountRequestFields.module.scss';
 
@@ -11,11 +12,39 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
+import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { useRolesPrivilegesQueriesOfficeApp } from 'hooks/queries';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 export const OfficeAccountRequestFields = ({ render }) => {
   const { values, errors, touched, setFieldTouched, validateField } = useFormikContext();
   const [edipiRequired, setEdipiRequired] = useState(false);
   const [uniqueIdRequired, setUniqueIdRequired] = useState(false);
+  const [enableRequestAccountPrivileges, setEnableRequestAccountPrivileges] = useState(false);
+
+  const { result } = useRolesPrivilegesQueriesOfficeApp();
+  const { privileges, rolesWithPrivs } = result;
+
+  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== 'customer');
+  const hasAnyRoleSelected = React.useMemo(
+    () => availableRoles.some(({ roleType }) => !!values[`${roleType}Checkbox`]),
+    [availableRoles, values],
+  );
+  const hasTransportConflict = !!values.task_ordering_officerCheckbox && !!values.task_invoicing_officerCheckbox;
+
+  const showRequestedRolesError = touched.requestedRolesGroup && !hasAnyRoleSelected;
+
+  const showTransportConflictError = touched.transportationOfficerRoleConflict && hasTransportConflict;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabledUnauthenticatedOffice(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES)?.then((enabled) => {
+        setEnableRequestAccountPrivileges(enabled);
+      });
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (values.officeAccountRequestEdipi !== '') {
@@ -33,14 +62,14 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const firstInteractionOccurred = useRef(false);
   useEffect(() => {
     const anyChecked = [
-      values.taskOrderingOfficerCheckBox,
-      values.taskInvoicingOfficerCheckBox,
-      values.servicesCounselorCheckBox,
-      values.transportationContractingOfficerCheckBox,
-      values.qualityAssuranceEvaluatorCheckBox,
-      values.headquartersCheckBox,
-      values.customerSupportRepresentativeCheckBox,
-      values.governmentSurveillanceRepresentativeCheckbox,
+      values.task_ordering_officerCheckbox,
+      values.task_invoicing_officerCheckbox,
+      values.services_counselorCheckbox,
+      values.contracting_officerCheckbox,
+      values.qaeCheckbox,
+      values.headquartersCheckbox,
+      values.customer_services_representativeCheckbox,
+      values.gsrCheckbox,
     ].some(Boolean);
 
     // only start marking the field as touched after initial mount
@@ -54,21 +83,21 @@ export const OfficeAccountRequestFields = ({ render }) => {
     setFieldTouched('requestedRolesGroup', true, false);
     validateField('requestedRolesGroup');
   }, [
-    values.taskOrderingOfficerCheckBox,
-    values.taskInvoicingOfficerCheckBox,
-    values.servicesCounselorCheckBox,
-    values.transportationContractingOfficerCheckBox,
-    values.qualityAssuranceEvaluatorCheckBox,
-    values.headquartersCheckBox,
-    values.customerSupportRepresentativeCheckBox,
-    values.governmentSurveillanceRepresentativeCheckbox,
+    values.task_ordering_officerCheckbox,
+    values.task_invoicing_officerCheckbox,
+    values.services_counselorCheckbox,
+    values.contracting_officerCheckbox,
+    values.qaeCheckbox,
+    values.headquartersCheckbox,
+    values.customer_services_representativeCheckbox,
+    values.gsrCheckbox,
     setFieldTouched,
     validateField,
   ]);
 
   const transportationOfficerTouched = useRef(false);
   useEffect(() => {
-    const bothChecked = values.taskOrderingOfficerCheckBox || values.taskInvoicingOfficerCheckBox;
+    const bothChecked = values.task_ordering_officerCheckbox || values.task_invoicing_officerCheckbox;
 
     if (!transportationOfficerTouched.current) {
       if (bothChecked) {
@@ -79,7 +108,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
 
     setFieldTouched('transportationOfficerRoleConflict', true, false);
     validateField('transportationOfficerRoleConflict');
-  }, [values.taskOrderingOfficerCheckBox, values.taskInvoicingOfficerCheckBox, setFieldTouched, validateField]);
+  }, [values.task_ordering_officerCheckbox, values.task_invoicing_officerCheckbox, setFieldTouched, validateField]);
 
   const firstNameFieldName = 'officeAccountRequestFirstName';
   const middleInitialFieldName = 'officeAccountRequestMiddleInitial';
@@ -89,6 +118,13 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const edipiFieldName = 'officeAccountRequestEdipi';
   const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
+
+  const filteredPrivileges = privileges.filter((privilege) => {
+    if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <Fieldset>
@@ -202,7 +238,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             Requested Role(s)
             <RequiredAsterisk />
           </Label>
-          {errors.requestedRolesGroup && touched.requestedRolesGroup && (
+          {showRequestedRolesError && (
             <ErrorMessage
               id="requestedRolesGroupError"
               className={styles.errorText}
@@ -211,15 +247,8 @@ export const OfficeAccountRequestFields = ({ render }) => {
               {errors.requestedRolesGroup}
             </ErrorMessage>
           )}
-          <CheckboxField
-            id="headquartersCheckBox"
-            data-testid="headquartersCheckBox"
-            name="headquartersCheckBox"
-            label="Headquarters"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          {errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict && (
+
+          {showTransportConflictError && (
             <ErrorMessage
               id="transportationOfficerRoleConflictError"
               className={styles.errorText}
@@ -228,77 +257,45 @@ export const OfficeAccountRequestFields = ({ render }) => {
               {errors.transportationOfficerRoleConflict}
             </ErrorMessage>
           )}
-          <CheckboxField
-            id="taskOrderingOfficerCheckBox"
-            data-testid="taskOrderingOfficerCheckBox"
-            name="taskOrderingOfficerCheckBox"
-            label="Task Ordering Officer"
-            aria-describedby={[
-              errors.requestedRolesGroup && touched.requestedRolesGroup ? 'requestedRolesGroupError' : null,
-              errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict
-                ? 'transportationOfficerRoleConflictError'
-                : null,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            aria-invalid={!!errors.requestedRolesGroup || !!errors.transportationOfficerRoleConflict}
-          />
-          <CheckboxField
-            id="taskInvoicingOfficerCheckBox"
-            data-testid="taskInvoicingOfficerCheckBox"
-            name="taskInvoicingOfficerCheckBox"
-            label="Task Invoicing Officer"
-            aria-describedby={[
-              errors.requestedRolesGroup && touched.requestedRolesGroup ? 'requestedRolesGroupError' : null,
-              errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict
-                ? 'transportationOfficerRoleConflictError'
-                : null,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            aria-invalid={!!errors.requestedRolesGroup || !!errors.transportationOfficerRoleConflict}
-          />
+          {availableRoles.map(({ roleType, roleName }) => {
+            const fieldName = `${roleType}Checkbox`;
+            const isTransportRole = roleType === 'task_ordering_officer' || roleType === 'task_invoicing_officer';
 
-          <CheckboxField
-            id="transportationContractingOfficerCheckBox"
-            data-testid="transportationContractingOfficerCheckBox"
-            name="transportationContractingOfficerCheckBox"
-            label="Contracting Officer"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          <CheckboxField
-            id="servicesCounselorCheckBox"
-            data-testid="servicesCounselorCheckBox"
-            name="servicesCounselorCheckBox"
-            label="Services Counselor"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          <CheckboxField
-            id="qualityAssuranceEvaluatorCheckBox"
-            data-testid="qualityAssuranceEvaluatorCheckBox"
-            name="qualityAssuranceEvaluatorCheckBox"
-            label="Quality Assurance Evaluator"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          <CheckboxField
-            id="customerSupportRepresentativeCheckBox"
-            data-testid="customerSupportRepresentativeCheckBox"
-            name="customerSupportRepresentativeCheckBox"
-            label="Customer Support Representative"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          <CheckboxField
-            id="governmentSurveillanceRepresentativeCheckbox"
-            data-testid="governmentSurveillanceRepresentativeCheckbox"
-            name="governmentSurveillanceRepresentativeCheckbox"
-            label="Government Surveillance Representative"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
+            const describedBy = [
+              showRequestedRolesError && 'requestedRolesGroupError',
+              isTransportRole && showTransportConflictError && 'transportationOfficerRoleConflictError',
+            ]
+              .filter(Boolean)
+              .join(' ');
+
+            return (
+              <CheckboxField
+                key={fieldName}
+                id={fieldName}
+                data-testid={fieldName}
+                name={fieldName}
+                label={roleName}
+                aria-describedby={describedBy || undefined}
+                aria-invalid={showRequestedRolesError || (isTransportRole && showTransportConflictError)}
+              />
+            );
+          })}
+          {enableRequestAccountPrivileges && (
+            <>
+              <Label data-testid="requestedPrivilegesHeading">
+                Privilege(s)
+                <OptionalTag />
+              </Label>
+              {filteredPrivileges.map(({ privilegeType, privilegeName }) => (
+                <CheckboxField
+                  id={`${privilegeType}PrivilegeCheckbox`}
+                  data-testid={`${privilegeType}PrivilegeCheckbox`}
+                  name={`${privilegeType}PrivilegeCheckbox`}
+                  label={privilegeName}
+                />
+              ))}
+            </>
+          )}
         </>,
       )}
     </Fieldset>
