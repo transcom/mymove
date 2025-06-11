@@ -19,7 +19,6 @@ const (
 	islhTestIsPeakPeriod         = true
 	islhTestEscalationCompounded = 1.11000
 	islhTestWeight               = unit.Pound(2100)
-	islhTestDistance             = unit.Miles(1201)
 )
 
 var islhTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)
@@ -46,25 +45,21 @@ func (suite *GHCRateEngineServiceSuite) TestIntlShippingAndLinehaulPricer() {
 	suite.Run("invalid parameters to PriceUsingParams", func() {
 		paymentServiceItem := suite.setupIntlShippingAndLinehaulServiceItem()
 
-		// PerUnitCents
 		paymentServiceItem.PaymentServiceItemParams[3].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNamePerUnitCents))
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameWeightBilled))
 
-		// ReferenceDate
 		paymentServiceItem.PaymentServiceItemParams[2].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.Error(err)
+		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameWeightBilled))
+
+		paymentServiceItem.PaymentServiceItemParams[1].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
 		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a time", models.ServiceItemParamNameReferenceDate))
 
-		// DistanceZip
-		paymentServiceItem.PaymentServiceItemParams[1].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		suite.Error(err)
-		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameDistanceZip))
-
-		// ContractCode
 		paymentServiceItem.PaymentServiceItemParams[0].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
 		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
@@ -74,22 +69,22 @@ func (suite *GHCRateEngineServiceSuite) TestIntlShippingAndLinehaulPricer() {
 	suite.Run("Price validation errors", func() {
 
 		// No contract code
-		_, _, err := pricer.Price(suite.AppContextForTest(), "", islhTestRequestedPickupDate, islhTestDistance, islhTestWeight, islhTestPerUnitCents.Int())
+		_, _, err := pricer.Price(suite.AppContextForTest(), "", islhTestRequestedPickupDate, islhTestWeight, islhTestPerUnitCents.Int())
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No reference date
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, islhTestDistance, islhTestWeight, islhTestPerUnitCents.Int())
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, islhTestWeight, islhTestPerUnitCents.Int())
 		suite.Error(err)
 		suite.Equal("referenceDate is required", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, islhTestRequestedPickupDate, islhTestDistance, 0, islhTestPerUnitCents.Int())
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, islhTestRequestedPickupDate, 0, islhTestPerUnitCents.Int())
 		suite.Error(err)
 		suite.Equal(fmt.Sprintf("weight must be at least %d", minIntlWeightHHG), err.Error())
 
 		// No per unit cents
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, islhTestRequestedPickupDate, islhTestDistance, islhTestWeight, 0)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, islhTestRequestedPickupDate, islhTestWeight, 0)
 		suite.Error(err)
 		suite.Equal("PerUnitCents is required", err.Error())
 
@@ -118,11 +113,6 @@ func (suite *GHCRateEngineServiceSuite) setupIntlShippingAndLinehaulServiceItem(
 				Key:     models.ServiceItemParamNameContractCode,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   contract.Code,
-			},
-			{
-				Key:     models.ServiceItemParamNameDistanceZip,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   fmt.Sprintf("%d", int(islhTestDistance)),
 			},
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,

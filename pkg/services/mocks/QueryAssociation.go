@@ -9,7 +9,7 @@ type QueryAssociation struct {
 	mock.Mock
 }
 
-// Field provides a mock function with no fields
+// Field provides a mock function with given fields:
 func (_m *QueryAssociation) Field() string {
 	ret := _m.Called()
 
