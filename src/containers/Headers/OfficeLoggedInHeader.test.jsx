@@ -1,5 +1,4 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -26,11 +25,11 @@ jest.mock('services/ghcApi', () => ({
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(),
+  useLocation: jest.fn().mockReturnValue({ pathname: '/' }),
 }));
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const localStorageMock = (() => {
@@ -250,8 +249,6 @@ describe('OfficeLoggedInHeader', () => {
         },
       },
     };
-
-    useLocation.mockReturnValue({ pathname: '/' });
 
     render(
       <MockProviders initialState={testState}>
