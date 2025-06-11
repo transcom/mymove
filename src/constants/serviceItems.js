@@ -165,7 +165,6 @@ const SERVICE_ITEM_CODES = {
   DCRT: 'DCRT',
   DUCRT: 'DUCRT',
   ICRT: 'ICRT',
-  INPK: 'INPK',
   IUCRT: 'IUCRT',
   MS: 'MS',
   DOSFSC: 'DOSFSC',
