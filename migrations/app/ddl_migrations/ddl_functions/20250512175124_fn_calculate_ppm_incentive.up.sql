@@ -1,5 +1,7 @@
 -- B-23736 Daniel Jordan  updating func to consider GCC multipliers
 
+-- db func that will calculate a PPM's incentives
+-- this is used for estimated/final/max incentives
 DROP FUNCTION IF EXISTS calculate_ppm_incentive;
 CREATE OR REPLACE FUNCTION calculate_ppm_incentive(
     ppm_id UUID,
@@ -66,7 +68,8 @@ BEGIN
             service_id,
             contract_id,
             'ISLH',
-            move_date
+            move_date,
+            NULL
         ) * (weight / 100)::NUMERIC * 100, 0
     );
 
@@ -79,7 +82,8 @@ BEGIN
             service_id,
             contract_id,
             'IHPK',
-            move_date
+            move_date,
+            NULL
         ) * (weight / 100)::NUMERIC * 100, 0
     );
 
@@ -92,7 +96,8 @@ BEGIN
             service_id,
             contract_id,
             'IHUPK',
-            move_date
+            move_date,
+            NULL
         ) * (weight / 100)::NUMERIC * 100, 0
     );
 
