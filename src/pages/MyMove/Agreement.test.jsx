@@ -122,7 +122,7 @@ describe('Agreement page', () => {
     const checkbox = await screen.findByRole('checkbox', {
       name: /I have read and understand the agreement as shown above/i,
     });
-    const signatureInput = screen.getByLabelText('SIGNATURE');
+    const signatureInput = screen.getByLabelText('SIGNATURE *');
     const completeButton = screen.getByRole('button', { name: 'Complete' });
 
     // all controls should start of disabled

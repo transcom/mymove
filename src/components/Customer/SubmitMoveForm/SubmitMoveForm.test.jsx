@@ -114,7 +114,7 @@ describe('SubmitMoveForm component', () => {
     userEvent.click(checkbox);
 
     // Type into the signature input (should now be enabled)
-    const signatureInput = await screen.findByLabelText('SIGNATURE');
+    const signatureInput = await screen.findByLabelText('SIGNATURE *');
     await waitFor(() => expect(signatureInput).toBeEnabled());
     await userEvent.type(signatureInput, testProps.currentUser);
 
