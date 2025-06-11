@@ -52,7 +52,9 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		return value, nil
 	case models.ReServiceCodeDDSFSC,
 		models.ReServiceCodeDOSFSC,
-		models.ReServiceCodeFSC:
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeIDSFSC,
+		models.ReServiceCodeIOSFSC:
 
 		var weightBilled string
 
@@ -245,7 +247,9 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeIDSHUT,
 			models.ReServiceCodeFSC,
 			models.ReServiceCodePODFSC,
-			models.ReServiceCodePOEFSC:
+			models.ReServiceCodePOEFSC,
+			models.ReServiceCodeIOSFSC,
+			models.ReServiceCodeIDSFSC:
 			if weight < 500 {
 				result = 500
 			}
