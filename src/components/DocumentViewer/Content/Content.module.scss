@@ -31,11 +31,14 @@
 
     .photo-viewer-image-container {
       align-items: center;
-      padding-top: 85%;
-      padding-bottom: 25%;
+      padding-top: 30%;
       aspect-ratio: 1;
       width: 100%;
       height: auto;
+    }
+
+    .photo{
+      padding: 15%;
     }
   }
   .zoomDisplayButton {
