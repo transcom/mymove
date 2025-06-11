@@ -131,20 +131,18 @@ describe('ServiceItemsTable', () => {
 
     expect(wrapper.find('td').at(0).text()).toContain('International Crating - Standalone');
     expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
-    expect(wrapper.find('dt').at(0).text()).toBe('Estimated Price:');
-    expect(wrapper.find('dd').at(0).text()).toBe('-');
-    expect(wrapper.find('dt').at(1).text()).toBe('Description:');
-    expect(wrapper.find('dd').at(1).text()).toBe('grandfather clock');
-    expect(wrapper.find('dt').at(2).text()).toBe('Item size:');
-    expect(wrapper.find('dd').at(2).text()).toBe('7"x2"x3.5"');
-    expect(wrapper.find('dt').at(3).text()).toBe('Crate size:');
-    expect(wrapper.find('dd').at(3).text()).toBe('10"x2.5"x5"');
-    expect(wrapper.find('dt').at(4).text()).toBe('External crate:');
-    expect(wrapper.find('dd').at(4).text()).toBe('Yes');
-    expect(wrapper.find('dt').at(5).text()).toBe('Market:');
-    expect(wrapper.find('dd').at(5).text()).toBe('OCONUS');
-    expect(wrapper.find('dt').at(6).text()).toBe('Reason:');
-    expect(wrapper.find('dd').at(6).text()).toBe('-');
+    expect(wrapper.find('dt').at(0).text()).toBe('Description:');
+    expect(wrapper.find('dd').at(0).text()).toBe('grandfather clock');
+    expect(wrapper.find('dt').at(1).text()).toBe('Item size:');
+    expect(wrapper.find('dd').at(1).text()).toBe('7"x2"x3.5"');
+    expect(wrapper.find('dt').at(2).text()).toBe('Crate size:');
+    expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
+    expect(wrapper.find('dt').at(3).text()).toBe('External crate:');
+    expect(wrapper.find('dd').at(3).text()).toBe('Yes');
+    expect(wrapper.find('dt').at(4).text()).toBe('Market:');
+    expect(wrapper.find('dd').at(4).text()).toBe('OCONUS');
+    expect(wrapper.find('dt').at(5).text()).toBe('Reason:');
+    expect(wrapper.find('dd').at(5).text()).toBe('-');
   });
 
   it('renders details for international crating (IUCRT)', () => {
@@ -175,18 +173,16 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
-    expect(wrapper.find('dt').at(0).text()).toBe('Estimated Price:');
-    expect(wrapper.find('dd').at(0).text()).toBe('-');
-    expect(wrapper.find('dt').at(1).text()).toBe('Description:');
-    expect(wrapper.find('dd').at(1).text()).toBe('grandfather clock');
-    expect(wrapper.find('dt').at(2).text()).toBe('Item size:');
-    expect(wrapper.find('dd').at(2).text()).toBe('7"x2"x3.5"');
-    expect(wrapper.find('dt').at(3).text()).toBe('Crate size:');
-    expect(wrapper.find('dd').at(3).text()).toBe('10"x2.5"x5"');
-    expect(wrapper.find('dt').at(4).text()).toBe('Market:');
-    expect(wrapper.find('dd').at(4).text()).toBe('OCONUS');
-    expect(wrapper.find('dt').at(5).text()).toBe('Reason:');
-    expect(wrapper.find('dd').at(5).text()).toBe('-');
+    expect(wrapper.find('dt').at(0).text()).toBe('Description:');
+    expect(wrapper.find('dd').at(0).text()).toBe('grandfather clock');
+    expect(wrapper.find('dt').at(1).text()).toBe('Item size:');
+    expect(wrapper.find('dd').at(1).text()).toBe('7"x2"x3.5"');
+    expect(wrapper.find('dt').at(2).text()).toBe('Crate size:');
+    expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
+    expect(wrapper.find('dt').at(3).text()).toBe('Market:');
+    expect(wrapper.find('dd').at(3).text()).toBe('OCONUS');
+    expect(wrapper.find('dt').at(4).text()).toBe('Reason:');
+    expect(wrapper.find('dd').at(4).text()).toBe('-');
   });
 
   it('renders with authorized price for MS item', () => {
