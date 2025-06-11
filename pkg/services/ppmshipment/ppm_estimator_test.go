@@ -3212,9 +3212,6 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 				},
 			}, nil)
 
-			newPPM := ppm
-			newEstimatedWeight := models.PoundPointer(5500)
-			newPPM.SITEstimatedWeight = newEstimatedWeight
 			setupPricerData()
 
 			estimatedSITCost, err := ppmEstimator.CalculatePPMSITEstimatedCost(suite.AppContextForTest(), &ppm)
@@ -3263,9 +3260,6 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 				},
 			}, nil)
 
-			newPPM := ppm
-			newEstimatedWeight := models.PoundPointer(5500)
-			newPPM.SITEstimatedWeight = newEstimatedWeight
 			setupPricerData()
 
 			sitCosts, err := ppmEstimator.CalculatePPMSITEstimatedCostBreakdown(suite.AppContextForTest(), &ppm)
