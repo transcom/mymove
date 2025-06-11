@@ -136,7 +136,6 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
       },
       location.pathname,
     );
-
   const isFullscreenPage = matchPath(
     {
       path: '/moves/:moveCode/payment-requests/:id',

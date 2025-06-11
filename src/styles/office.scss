@@ -13,14 +13,12 @@
   left: 0;
   width: 100%; /* Full width */
   height: 60px; /* Adjust as needed */
-  // background-color: black; /* Background color */
   color: white; /* Text color */
   flex-direction: column;
   display: block;
   flex: gr;
   align-items: center;
   justify-content: space-around;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000; /* Ensures it stays above other content */
   margin-bottom: 100px;
 }
