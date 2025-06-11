@@ -26,7 +26,6 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
@@ -77,7 +76,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			err := suite.DB().Save(&subtestData.mtoShipment)
 			suite.NoError(err)
 		}
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
@@ -147,7 +145,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := makeSubtestData()
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -197,7 +195,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		}
 
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -243,7 +241,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		}
 
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -262,7 +260,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -290,7 +288,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -320,7 +318,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -347,7 +345,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -373,7 +371,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mtoNotAvailable := factory.BuildMove(suite.DB(), nil, nil)
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -409,7 +407,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			},
 		}, nil)
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -438,7 +436,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -465,7 +463,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -503,7 +501,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	suite.Run("POST failure - Shipment fetch not found", func() {
 		subtestData := makeSubtestDataWithPPMShipmentType(true)
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -527,7 +525,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	suite.Run("POST failure - 422 - PPM not allowed to create service item", func() {
 		subtestData := makeSubtestDataWithPPMShipmentType(true)
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -625,7 +623,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	suite.Run("Successful POST - Integration Test - Domestic Crating", func() {
 		subtestData := makeSubtestData()
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -654,7 +652,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	suite.Run("Successful POST - Integration Test - Domestic Uncrating", func() {
 		subtestData := makeSubtestData()
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -684,7 +682,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			mtoChecker,
 		}
@@ -746,10 +744,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+
 		sitDepartureDate := time.Now().Add(time.Hour * 72)
-
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -805,7 +801,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -843,7 +839,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -904,7 +900,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -1007,7 +1003,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requstedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -1064,8 +1060,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -1141,7 +1135,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -1271,8 +1265,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
@@ -1337,7 +1329,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := makeSubtestData()
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -1403,7 +1395,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			Reason:          models.StringPointer("lorem ipsum"),
 		}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -1428,7 +1420,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 	suite.Run("Failure POST - Integration Test - Missing reason", func() {
 		subtestData := makeSubtestData()
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -1476,7 +1468,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -1532,7 +1524,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}
@@ -1560,7 +1552,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		// Create the payload
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDDDSIT
 		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			creator,
 			mtoChecker,
 		}

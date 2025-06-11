@@ -1053,7 +1053,7 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 	if err != nil || tags == nil {
 		payload.Status = "PROCESSING"
 	} else {
-		status, ok := tags["av-status"]
+		status, ok := tags["GuardDutyMalwareScanStatus"]
 		if !ok {
 			status = "PROCESSING"
 		}
@@ -1240,6 +1240,26 @@ func VLocations(vLocations models.VLocations) primemessages.VLocations {
 	for i, vLocation := range vLocations {
 		copyOfVLocation := vLocation
 		payload[i] = VLocation(&copyOfVLocation)
+	}
+	return payload
+}
+
+func CountryCodeName(country *models.Country) *primemessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &primemessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+}
+
+func Countries(countries models.Countries) primemessages.Countries {
+	payload := make(primemessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
 }

@@ -42,6 +42,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	}
 
 	isActualExpenseReimbursement := true
+	hasGunSafe := models.BoolPointer(true)
+	gunSafeWeight := models.PoundPointer(333)
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
@@ -49,6 +51,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
+		HasGunSafe:                   hasGunSafe,
+		GunSafeWeight:                gunSafeWeight,
 	}
 
 	suite.Run("Success -", func() {
@@ -75,6 +79,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 
 		suite.Equal(internalmessages.PPMType(models.PPMTypeActualExpense), returnedPPMShipment.PpmType)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(handlers.FmtBool(*hasGunSafe), returnedPPMShipment.HasGunSafe)
+		suite.Equal(handlers.FmtPoundPtr(gunSafeWeight), returnedPPMShipment.GunSafeWeight)
 	})
 }
 
@@ -338,6 +344,28 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 	})
 }
 
+func (suite *PayloadsSuite) TestCountriesPayload() {
+	suite.Run("Correctly transform array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		countries = append(countries, models.Country{Country: "US", CountryName: "UNITED STATES"})
+		payload := Countries(countries)
+		suite.True(len(payload) == 1)
+		suite.Equal(payload[0].Code, "US")
+		suite.Equal(payload[0].Name, "UNITED STATES")
+	})
+
+	suite.Run("empty array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		payload := Countries(countries)
+		suite.True(len(payload) == 0)
+	})
+
+	suite.Run("nil countries into payload", func() {
+		payload := Countries(nil)
+		suite.True(len(payload) == 0)
+	})
+}
+
 func (suite *PayloadsSuite) TestPayGrades() {
 	payGrades := models.PayGrades{
 		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
@@ -345,10 +373,18 @@ func (suite *PayloadsSuite) TestPayGrades() {
 		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
 	}
 
-	result := PayGrades(payGrades)
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
 
-	suite.Equal(len(payGrades), len(result))
-	suite.Equal(payGrades[0].Grade, result[0].Grade)
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
 }
 
 func (suite *PayloadsSuite) TestGetRankDropdownOptions() {

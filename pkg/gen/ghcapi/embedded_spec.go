@@ -36,6 +36,44 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/addresses/countries": {
+      "get": {
+        "description": "Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.\n",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns the countries matching the search query",
+        "operationId": "searchCountries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for countries",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "countries matching the search query",
+            "schema": {
+              "$ref": "#/definitions/Countries"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -50,6 +88,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5765,6 +5810,231 @@ func init() {
         }
       }
     },
+    "/queues/ppmCloseout": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. Personally procured moves will show up here once they are pending closeout by the services counselor. The services counselor is the designated role to action the items in this queue.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing PPM closeout by GBLOC origin",
+        "operationId": "getPPMCloseoutQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "requestedMoveDate",
+              "submittedAt",
+              "originGBLOC",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation",
+              "ppmStatus",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "As of right now the only ppm_shipments status is \"NEEDS_CLOSEOUT\". But we allow the frontend to \"filter\" this, it may be useful in the future. For now it'll always just be in need of closeout. If null we still show PPM moves needing closeout. Don't confuse this with the move's status. Move status and ppm shipment status are different.\n",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/prime-moves": {
       "get": {
         "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
@@ -7389,7 +7659,7 @@ func init() {
               "type": "string",
               "enum": [
                 "INFECTED",
-                "CLEAN",
+                "NO_THREATS_FOUND",
                 "PROCESSING"
               ],
               "readOnly": true
@@ -8120,6 +8390,14 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -8262,6 +8540,579 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "Countries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Country"
+      }
+    },
+    "Country": {
+      "description": "Country code and name",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "Country Code",
+          "enum": [
+            "A2",
+            "AD",
+            "AE",
+            "AF",
+            "AG",
+            "AI",
+            "AL",
+            "AM",
+            "AN",
+            "AO",
+            "AQ",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "AW",
+            "AZ",
+            "BA",
+            "BB",
+            "BD",
+            "BE",
+            "BF",
+            "BG",
+            "BH",
+            "BI",
+            "BJ",
+            "BL",
+            "BM",
+            "BN",
+            "BO",
+            "BQ",
+            "BR",
+            "BS",
+            "BT",
+            "BV",
+            "BW",
+            "BY",
+            "BZ",
+            "CA",
+            "CC",
+            "CD",
+            "CF",
+            "CG",
+            "CH",
+            "CI",
+            "CK",
+            "CL",
+            "CM",
+            "CN",
+            "CO",
+            "CP",
+            "CR",
+            "CU",
+            "CV",
+            "CW",
+            "CX",
+            "CY",
+            "CZ",
+            "DE",
+            "DG",
+            "DJ",
+            "DK",
+            "DM",
+            "DO",
+            "DZ",
+            "EC",
+            "EE",
+            "EG",
+            "ER",
+            "ES",
+            "ET",
+            "FI",
+            "FJ",
+            "FK",
+            "FM",
+            "FO",
+            "FR",
+            "GA",
+            "GB",
+            "GD",
+            "GE",
+            "GF",
+            "GG",
+            "GH",
+            "GI",
+            "GL",
+            "GM",
+            "GN",
+            "GP",
+            "GQ",
+            "GR",
+            "GS",
+            "GT",
+            "GU",
+            "GW",
+            "GY",
+            "HK",
+            "HM",
+            "HN",
+            "HR",
+            "HT",
+            "HU",
+            "ID",
+            "IE",
+            "IL",
+            "IM",
+            "IN",
+            "IO",
+            "IQ",
+            "IR",
+            "IS",
+            "IT",
+            "JE",
+            "JM",
+            "JO",
+            "JP",
+            "KE",
+            "KG",
+            "KH",
+            "KI",
+            "KM",
+            "KN",
+            "KP",
+            "KR",
+            "KW",
+            "KY",
+            "KZ",
+            "LA",
+            "LB",
+            "LC",
+            "LI",
+            "LK",
+            "LR",
+            "LS",
+            "LT",
+            "LV",
+            "LY",
+            "MA",
+            "MD",
+            "ME",
+            "MF",
+            "MG",
+            "MH",
+            "MK",
+            "ML",
+            "MM",
+            "MN",
+            "MO",
+            "MP",
+            "MQ",
+            "MS",
+            "MT",
+            "MU",
+            "MV",
+            "MW",
+            "MY",
+            "MZ",
+            "NA",
+            "NC",
+            "NE",
+            "NG",
+            "NL",
+            "NO",
+            "NP",
+            "NU",
+            "NZ",
+            "OM",
+            "PA",
+            "PF",
+            "PG",
+            "PH",
+            "PL",
+            "PM",
+            "PN",
+            "PR",
+            "PW",
+            "PY",
+            "QA",
+            "QM",
+            "QS",
+            "QU",
+            "QW",
+            "QX",
+            "QZ",
+            "RO",
+            "RS",
+            "RW",
+            "SA",
+            "SB",
+            "SC",
+            "SD",
+            "SE",
+            "SG",
+            "SH",
+            "SI",
+            "SK",
+            "SM",
+            "SN",
+            "SO",
+            "SR",
+            "SS",
+            "ST",
+            "SV",
+            "SX",
+            "SZ",
+            "TC",
+            "TD",
+            "TF",
+            "TH",
+            "TJ",
+            "TK",
+            "TN",
+            "TO",
+            "TR",
+            "TT",
+            "TV",
+            "TW",
+            "UA",
+            "UG",
+            "US",
+            "UY",
+            "VA",
+            "VC",
+            "VG",
+            "VI",
+            "VN",
+            "VU",
+            "WS",
+            "XA",
+            "XB",
+            "XC",
+            "XD",
+            "XE",
+            "XG",
+            "XH",
+            "XJ",
+            "XK",
+            "XL",
+            "XM",
+            "XP",
+            "XQ",
+            "XR",
+            "XS",
+            "XU",
+            "XV",
+            "XW",
+            "YE",
+            "YT",
+            "ZA",
+            "ZM",
+            "LU",
+            "EH",
+            "MC",
+            "ZW",
+            "VE",
+            "WF",
+            "XT",
+            "MR",
+            "MX",
+            "NF",
+            "NI",
+            "NR",
+            "PE",
+            "PK",
+            "PT",
+            "RE",
+            "RU",
+            "SL",
+            "SY",
+            "TG",
+            "TL",
+            "TM",
+            "TZ",
+            "UZ"
+          ],
+          "x-display-value": {
+            "A2": "A2",
+            "AD": "AD",
+            "AE": "AE",
+            "AF": "AF",
+            "AG": "AG",
+            "AI": "AI",
+            "AL": "AL",
+            "AM": "AM",
+            "AN": "AN",
+            "AO": "AO",
+            "AQ": "AQ",
+            "AR": "AR",
+            "AS": "AS",
+            "AT": "AT",
+            "AU": "AU",
+            "AW": "AW",
+            "AZ": "AZ",
+            "BA": "BA",
+            "BB": "BB",
+            "BD": "BD",
+            "BE": "BE",
+            "BF": "BF",
+            "BG": "BG",
+            "BH": "BH",
+            "BI": "BI",
+            "BJ": "BJ",
+            "BL": "BL",
+            "BM": "BM",
+            "BN": "BN",
+            "BO": "BO",
+            "BQ": "BQ",
+            "BR": "BR",
+            "BS": "BS",
+            "BT": "BT",
+            "BV": "BV",
+            "BW": "BW",
+            "BY": "BY",
+            "BZ": "BZ",
+            "CA": "CA",
+            "CC": "CC",
+            "CD": "CD",
+            "CF": "CF",
+            "CG": "CG",
+            "CH": "CH",
+            "CI": "CI",
+            "CK": "CK",
+            "CL": "CL",
+            "CM": "CM",
+            "CN": "CN",
+            "CO": "CO",
+            "CP": "CP",
+            "CR": "CR",
+            "CU": "CU",
+            "CV": "CV",
+            "CW": "CW",
+            "CX": "CX",
+            "CY": "CY",
+            "CZ": "CZ",
+            "DE": "DE",
+            "DG": "DG",
+            "DJ": "DJ",
+            "DK": "DK",
+            "DM": "DM",
+            "DO": "DO",
+            "DZ": "DZ",
+            "EC": "EC",
+            "EE": "EE",
+            "EG": "EG",
+            "EH": "EH",
+            "ER": "ER",
+            "ES": "ES",
+            "ET": "ET",
+            "FI": "FI",
+            "FJ": "FJ",
+            "FK": "FK",
+            "FM": "FM",
+            "FO": "FO",
+            "FR": "FR",
+            "GA": "GA",
+            "GB": "GB",
+            "GD": "GD",
+            "GE": "GE",
+            "GF": "GF",
+            "GG": "GG",
+            "GH": "GH",
+            "GI": "GI",
+            "GL": "GL",
+            "GM": "GM",
+            "GN": "GN",
+            "GP": "GP",
+            "GQ": "GQ",
+            "GR": "GR",
+            "GS": "GS",
+            "GT": "GT",
+            "GU": "GU",
+            "GW": "GW",
+            "GY": "GY",
+            "HK": "HK",
+            "HM": "HM",
+            "HN": "HN",
+            "HR": "HR",
+            "HT": "HT",
+            "HU": "HU",
+            "ID": "ID",
+            "IE": "IE",
+            "IL": "IL",
+            "IM": "IM",
+            "IN": "IN",
+            "IO": "IO",
+            "IQ": "IQ",
+            "IR": "IR",
+            "IS": "IS",
+            "IT": "IT",
+            "JE": "JE",
+            "JM": "JM",
+            "JO": "JO",
+            "JP": "JP",
+            "KE": "KE",
+            "KG": "KG",
+            "KH": "KH",
+            "KI": "KI",
+            "KM": "KM",
+            "KN": "KN",
+            "KP": "KP",
+            "KR": "KR",
+            "KW": "KW",
+            "KY": "KY",
+            "KZ": "KZ",
+            "LA": "LA",
+            "LB": "LB",
+            "LC": "LC",
+            "LI": "LI",
+            "LK": "LK",
+            "LR": "LR",
+            "LS": "LS",
+            "LT": "LT",
+            "LU": "LU",
+            "LV": "LV",
+            "LY": "LY",
+            "MA": "MA",
+            "MC": "MC",
+            "MD": "MD",
+            "ME": "ME",
+            "MF": "MF",
+            "MG": "MG",
+            "MH": "MH",
+            "MK": "MK",
+            "ML": "ML",
+            "MM": "MM",
+            "MN": "MN",
+            "MO": "MO",
+            "MP": "MP",
+            "MQ": "MQ",
+            "MR": "MR",
+            "MS": "MS",
+            "MT": "MT",
+            "MU": "MU",
+            "MV": "MV",
+            "MW": "MW",
+            "MX": "MX",
+            "MY": "MY",
+            "MZ": "MZ",
+            "NA": "NA",
+            "NC": "NC",
+            "NE": "NE",
+            "NF": "NF",
+            "NG": "NG",
+            "NI": "NI",
+            "NL": "NL",
+            "NO": "NO",
+            "NP": "NP",
+            "NR": "NR",
+            "NU": "NU",
+            "NZ": "NZ",
+            "OM": "OM",
+            "PA": "PA",
+            "PE": "PE",
+            "PF": "PF",
+            "PG": "PG",
+            "PH": "PH",
+            "PK": "PK",
+            "PL": "PL",
+            "PM": "PM",
+            "PN": "PN",
+            "PR": "PR",
+            "PT": "PT",
+            "PW": "PW",
+            "PY": "PY",
+            "QA": "QA",
+            "QM": "QM",
+            "QS": "QS",
+            "QU": "QU",
+            "QW": "QW",
+            "QX": "QX",
+            "QZ": "QZ",
+            "RE": "RE",
+            "RO": "RO",
+            "RS": "RS",
+            "RU": "RU",
+            "RW": "RW",
+            "SA": "SA",
+            "SB": "SB",
+            "SC": "SC",
+            "SD": "SD",
+            "SE": "SE",
+            "SG": "SG",
+            "SH": "SH",
+            "SI": "SI",
+            "SK": "SK",
+            "SL": "SL",
+            "SM": "SM",
+            "SN": "SN",
+            "SO": "SO",
+            "SR": "SR",
+            "SS": "SS",
+            "ST": "ST",
+            "SV": "SV",
+            "SX": "SX",
+            "SY": "SY",
+            "SZ": "SZ",
+            "TC": "TC",
+            "TD": "TD",
+            "TF": "TF",
+            "TG": "TG",
+            "TH": "TH",
+            "TJ": "TJ",
+            "TK": "TK",
+            "TL": "TL",
+            "TM": "TM",
+            "TN": "TN",
+            "TO": "TO",
+            "TR": "TR",
+            "TT": "TT",
+            "TV": "TV",
+            "TW": "TW",
+            "TZ": "TZ",
+            "UA": "UA",
+            "UG": "UG",
+            "US": "US",
+            "UY": "UY",
+            "UZ": "UZ",
+            "VA": "VA",
+            "VC": "VC",
+            "VE": "VE",
+            "VG": "VG",
+            "VI": "VI",
+            "VN": "VN",
+            "VU": "VU",
+            "WF": "WF",
+            "WS": "WS",
+            "XA": "XA",
+            "XB": "XB",
+            "XC": "XC",
+            "XD": "XD",
+            "XE": "XE",
+            "XG": "XG",
+            "XH": "XH",
+            "XJ": "XJ",
+            "XK": "XK",
+            "XL": "XL",
+            "XM": "XM",
+            "XP": "XP",
+            "XQ": "XQ",
+            "XR": "XR",
+            "XS": "XS",
+            "XT": "XT",
+            "XU": "XU",
+            "XV": "XV",
+            "XW": "XW",
+            "YE": "YE",
+            "YT": "YT",
+            "ZA": "ZA",
+            "ZM": "ZM",
+            "ZW": "ZW"
+          }
+        },
+        "name": {
+          "type": "string",
+          "title": "Country Name",
+          "example": "UNITED STATES"
         }
       }
     },
@@ -8811,7 +9662,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -8834,6 +9686,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -9350,6 +10210,11 @@ func init() {
         "gunSafe": {
           "type": "boolean",
           "example": false
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         },
         "id": {
           "type": "string",
@@ -11072,7 +11937,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -11167,7 +12033,10 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TIOAssignedUser": {
@@ -12474,7 +13343,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -12541,6 +13409,14 @@ func init() {
           "title": "GCC",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gccMultiplier": {
+          "description": "Multiplier applied to incentives",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 1.3
         },
         "grossIncentive": {
           "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
@@ -13050,6 +13926,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -13962,6 +14850,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "closeoutInitiatedDates": {
+          "description": "comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)",
+          "type": "string",
+          "x-nullable": true
+        },
         "closeoutLocation": {
           "type": "string",
           "x-nullable": true
@@ -13982,7 +14875,11 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "id": {
           "type": "string",
@@ -14030,6 +14927,11 @@ func init() {
         "requestedMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "requestedMoveDates": {
+          "description": "comma‑separated list of shipment dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -14818,7 +15720,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -15358,6 +16260,14 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -15858,6 +16768,16 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
@@ -16306,7 +17226,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -16865,6 +17785,56 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/addresses/countries": {
+      "get": {
+        "description": "Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.\n",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns the countries matching the search query",
+        "operationId": "searchCountries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for countries",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "countries matching the search query",
+            "schema": {
+              "$ref": "#/definitions/Countries"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -16879,6 +17849,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -24040,6 +25017,237 @@ func init() {
         }
       }
     },
+    "/queues/ppmCloseout": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. Personally procured moves will show up here once they are pending closeout by the services counselor. The services counselor is the designated role to action the items in this queue.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing PPM closeout by GBLOC origin",
+        "operationId": "getPPMCloseoutQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "requestedMoveDate",
+              "submittedAt",
+              "originGBLOC",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation",
+              "ppmStatus",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "As of right now the only ppm_shipments status is \"NEEDS_CLOSEOUT\". But we allow the frontend to \"filter\" this, it may be useful in the future. For now it'll always just be in need of closeout. If null we still show PPM moves needing closeout. Don't confuse this with the move's status. Move status and ppm shipment status are different.\n",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/prime-moves": {
       "get": {
         "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
@@ -26072,7 +27280,7 @@ func init() {
               "type": "string",
               "enum": [
                 "INFECTED",
-                "CLEAN",
+                "NO_THREATS_FOUND",
                 "PROCESSING"
               ],
               "readOnly": true
@@ -26807,6 +28015,15 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -26953,6 +28170,579 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "Countries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Country"
+      }
+    },
+    "Country": {
+      "description": "Country code and name",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "Country Code",
+          "enum": [
+            "A2",
+            "AD",
+            "AE",
+            "AF",
+            "AG",
+            "AI",
+            "AL",
+            "AM",
+            "AN",
+            "AO",
+            "AQ",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "AW",
+            "AZ",
+            "BA",
+            "BB",
+            "BD",
+            "BE",
+            "BF",
+            "BG",
+            "BH",
+            "BI",
+            "BJ",
+            "BL",
+            "BM",
+            "BN",
+            "BO",
+            "BQ",
+            "BR",
+            "BS",
+            "BT",
+            "BV",
+            "BW",
+            "BY",
+            "BZ",
+            "CA",
+            "CC",
+            "CD",
+            "CF",
+            "CG",
+            "CH",
+            "CI",
+            "CK",
+            "CL",
+            "CM",
+            "CN",
+            "CO",
+            "CP",
+            "CR",
+            "CU",
+            "CV",
+            "CW",
+            "CX",
+            "CY",
+            "CZ",
+            "DE",
+            "DG",
+            "DJ",
+            "DK",
+            "DM",
+            "DO",
+            "DZ",
+            "EC",
+            "EE",
+            "EG",
+            "ER",
+            "ES",
+            "ET",
+            "FI",
+            "FJ",
+            "FK",
+            "FM",
+            "FO",
+            "FR",
+            "GA",
+            "GB",
+            "GD",
+            "GE",
+            "GF",
+            "GG",
+            "GH",
+            "GI",
+            "GL",
+            "GM",
+            "GN",
+            "GP",
+            "GQ",
+            "GR",
+            "GS",
+            "GT",
+            "GU",
+            "GW",
+            "GY",
+            "HK",
+            "HM",
+            "HN",
+            "HR",
+            "HT",
+            "HU",
+            "ID",
+            "IE",
+            "IL",
+            "IM",
+            "IN",
+            "IO",
+            "IQ",
+            "IR",
+            "IS",
+            "IT",
+            "JE",
+            "JM",
+            "JO",
+            "JP",
+            "KE",
+            "KG",
+            "KH",
+            "KI",
+            "KM",
+            "KN",
+            "KP",
+            "KR",
+            "KW",
+            "KY",
+            "KZ",
+            "LA",
+            "LB",
+            "LC",
+            "LI",
+            "LK",
+            "LR",
+            "LS",
+            "LT",
+            "LV",
+            "LY",
+            "MA",
+            "MD",
+            "ME",
+            "MF",
+            "MG",
+            "MH",
+            "MK",
+            "ML",
+            "MM",
+            "MN",
+            "MO",
+            "MP",
+            "MQ",
+            "MS",
+            "MT",
+            "MU",
+            "MV",
+            "MW",
+            "MY",
+            "MZ",
+            "NA",
+            "NC",
+            "NE",
+            "NG",
+            "NL",
+            "NO",
+            "NP",
+            "NU",
+            "NZ",
+            "OM",
+            "PA",
+            "PF",
+            "PG",
+            "PH",
+            "PL",
+            "PM",
+            "PN",
+            "PR",
+            "PW",
+            "PY",
+            "QA",
+            "QM",
+            "QS",
+            "QU",
+            "QW",
+            "QX",
+            "QZ",
+            "RO",
+            "RS",
+            "RW",
+            "SA",
+            "SB",
+            "SC",
+            "SD",
+            "SE",
+            "SG",
+            "SH",
+            "SI",
+            "SK",
+            "SM",
+            "SN",
+            "SO",
+            "SR",
+            "SS",
+            "ST",
+            "SV",
+            "SX",
+            "SZ",
+            "TC",
+            "TD",
+            "TF",
+            "TH",
+            "TJ",
+            "TK",
+            "TN",
+            "TO",
+            "TR",
+            "TT",
+            "TV",
+            "TW",
+            "UA",
+            "UG",
+            "US",
+            "UY",
+            "VA",
+            "VC",
+            "VG",
+            "VI",
+            "VN",
+            "VU",
+            "WS",
+            "XA",
+            "XB",
+            "XC",
+            "XD",
+            "XE",
+            "XG",
+            "XH",
+            "XJ",
+            "XK",
+            "XL",
+            "XM",
+            "XP",
+            "XQ",
+            "XR",
+            "XS",
+            "XU",
+            "XV",
+            "XW",
+            "YE",
+            "YT",
+            "ZA",
+            "ZM",
+            "LU",
+            "EH",
+            "MC",
+            "ZW",
+            "VE",
+            "WF",
+            "XT",
+            "MR",
+            "MX",
+            "NF",
+            "NI",
+            "NR",
+            "PE",
+            "PK",
+            "PT",
+            "RE",
+            "RU",
+            "SL",
+            "SY",
+            "TG",
+            "TL",
+            "TM",
+            "TZ",
+            "UZ"
+          ],
+          "x-display-value": {
+            "A2": "A2",
+            "AD": "AD",
+            "AE": "AE",
+            "AF": "AF",
+            "AG": "AG",
+            "AI": "AI",
+            "AL": "AL",
+            "AM": "AM",
+            "AN": "AN",
+            "AO": "AO",
+            "AQ": "AQ",
+            "AR": "AR",
+            "AS": "AS",
+            "AT": "AT",
+            "AU": "AU",
+            "AW": "AW",
+            "AZ": "AZ",
+            "BA": "BA",
+            "BB": "BB",
+            "BD": "BD",
+            "BE": "BE",
+            "BF": "BF",
+            "BG": "BG",
+            "BH": "BH",
+            "BI": "BI",
+            "BJ": "BJ",
+            "BL": "BL",
+            "BM": "BM",
+            "BN": "BN",
+            "BO": "BO",
+            "BQ": "BQ",
+            "BR": "BR",
+            "BS": "BS",
+            "BT": "BT",
+            "BV": "BV",
+            "BW": "BW",
+            "BY": "BY",
+            "BZ": "BZ",
+            "CA": "CA",
+            "CC": "CC",
+            "CD": "CD",
+            "CF": "CF",
+            "CG": "CG",
+            "CH": "CH",
+            "CI": "CI",
+            "CK": "CK",
+            "CL": "CL",
+            "CM": "CM",
+            "CN": "CN",
+            "CO": "CO",
+            "CP": "CP",
+            "CR": "CR",
+            "CU": "CU",
+            "CV": "CV",
+            "CW": "CW",
+            "CX": "CX",
+            "CY": "CY",
+            "CZ": "CZ",
+            "DE": "DE",
+            "DG": "DG",
+            "DJ": "DJ",
+            "DK": "DK",
+            "DM": "DM",
+            "DO": "DO",
+            "DZ": "DZ",
+            "EC": "EC",
+            "EE": "EE",
+            "EG": "EG",
+            "EH": "EH",
+            "ER": "ER",
+            "ES": "ES",
+            "ET": "ET",
+            "FI": "FI",
+            "FJ": "FJ",
+            "FK": "FK",
+            "FM": "FM",
+            "FO": "FO",
+            "FR": "FR",
+            "GA": "GA",
+            "GB": "GB",
+            "GD": "GD",
+            "GE": "GE",
+            "GF": "GF",
+            "GG": "GG",
+            "GH": "GH",
+            "GI": "GI",
+            "GL": "GL",
+            "GM": "GM",
+            "GN": "GN",
+            "GP": "GP",
+            "GQ": "GQ",
+            "GR": "GR",
+            "GS": "GS",
+            "GT": "GT",
+            "GU": "GU",
+            "GW": "GW",
+            "GY": "GY",
+            "HK": "HK",
+            "HM": "HM",
+            "HN": "HN",
+            "HR": "HR",
+            "HT": "HT",
+            "HU": "HU",
+            "ID": "ID",
+            "IE": "IE",
+            "IL": "IL",
+            "IM": "IM",
+            "IN": "IN",
+            "IO": "IO",
+            "IQ": "IQ",
+            "IR": "IR",
+            "IS": "IS",
+            "IT": "IT",
+            "JE": "JE",
+            "JM": "JM",
+            "JO": "JO",
+            "JP": "JP",
+            "KE": "KE",
+            "KG": "KG",
+            "KH": "KH",
+            "KI": "KI",
+            "KM": "KM",
+            "KN": "KN",
+            "KP": "KP",
+            "KR": "KR",
+            "KW": "KW",
+            "KY": "KY",
+            "KZ": "KZ",
+            "LA": "LA",
+            "LB": "LB",
+            "LC": "LC",
+            "LI": "LI",
+            "LK": "LK",
+            "LR": "LR",
+            "LS": "LS",
+            "LT": "LT",
+            "LU": "LU",
+            "LV": "LV",
+            "LY": "LY",
+            "MA": "MA",
+            "MC": "MC",
+            "MD": "MD",
+            "ME": "ME",
+            "MF": "MF",
+            "MG": "MG",
+            "MH": "MH",
+            "MK": "MK",
+            "ML": "ML",
+            "MM": "MM",
+            "MN": "MN",
+            "MO": "MO",
+            "MP": "MP",
+            "MQ": "MQ",
+            "MR": "MR",
+            "MS": "MS",
+            "MT": "MT",
+            "MU": "MU",
+            "MV": "MV",
+            "MW": "MW",
+            "MX": "MX",
+            "MY": "MY",
+            "MZ": "MZ",
+            "NA": "NA",
+            "NC": "NC",
+            "NE": "NE",
+            "NF": "NF",
+            "NG": "NG",
+            "NI": "NI",
+            "NL": "NL",
+            "NO": "NO",
+            "NP": "NP",
+            "NR": "NR",
+            "NU": "NU",
+            "NZ": "NZ",
+            "OM": "OM",
+            "PA": "PA",
+            "PE": "PE",
+            "PF": "PF",
+            "PG": "PG",
+            "PH": "PH",
+            "PK": "PK",
+            "PL": "PL",
+            "PM": "PM",
+            "PN": "PN",
+            "PR": "PR",
+            "PT": "PT",
+            "PW": "PW",
+            "PY": "PY",
+            "QA": "QA",
+            "QM": "QM",
+            "QS": "QS",
+            "QU": "QU",
+            "QW": "QW",
+            "QX": "QX",
+            "QZ": "QZ",
+            "RE": "RE",
+            "RO": "RO",
+            "RS": "RS",
+            "RU": "RU",
+            "RW": "RW",
+            "SA": "SA",
+            "SB": "SB",
+            "SC": "SC",
+            "SD": "SD",
+            "SE": "SE",
+            "SG": "SG",
+            "SH": "SH",
+            "SI": "SI",
+            "SK": "SK",
+            "SL": "SL",
+            "SM": "SM",
+            "SN": "SN",
+            "SO": "SO",
+            "SR": "SR",
+            "SS": "SS",
+            "ST": "ST",
+            "SV": "SV",
+            "SX": "SX",
+            "SY": "SY",
+            "SZ": "SZ",
+            "TC": "TC",
+            "TD": "TD",
+            "TF": "TF",
+            "TG": "TG",
+            "TH": "TH",
+            "TJ": "TJ",
+            "TK": "TK",
+            "TL": "TL",
+            "TM": "TM",
+            "TN": "TN",
+            "TO": "TO",
+            "TR": "TR",
+            "TT": "TT",
+            "TV": "TV",
+            "TW": "TW",
+            "TZ": "TZ",
+            "UA": "UA",
+            "UG": "UG",
+            "US": "US",
+            "UY": "UY",
+            "UZ": "UZ",
+            "VA": "VA",
+            "VC": "VC",
+            "VE": "VE",
+            "VG": "VG",
+            "VI": "VI",
+            "VN": "VN",
+            "VU": "VU",
+            "WF": "WF",
+            "WS": "WS",
+            "XA": "XA",
+            "XB": "XB",
+            "XC": "XC",
+            "XD": "XD",
+            "XE": "XE",
+            "XG": "XG",
+            "XH": "XH",
+            "XJ": "XJ",
+            "XK": "XK",
+            "XL": "XL",
+            "XM": "XM",
+            "XP": "XP",
+            "XQ": "XQ",
+            "XR": "XR",
+            "XS": "XS",
+            "XT": "XT",
+            "XU": "XU",
+            "XV": "XV",
+            "XW": "XW",
+            "YE": "YE",
+            "YT": "YT",
+            "ZA": "ZA",
+            "ZM": "ZM",
+            "ZW": "ZW"
+          }
+        },
+        "name": {
+          "type": "string",
+          "title": "Country Name",
+          "example": "UNITED STATES"
         }
       }
     },
@@ -27502,7 +29292,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -27525,6 +29316,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -28041,6 +29840,11 @@ func init() {
         "gunSafe": {
           "type": "boolean",
           "example": false
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         },
         "id": {
           "type": "string",
@@ -29763,7 +31567,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -29858,7 +31663,10 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TIOAssignedUser": {
@@ -31165,7 +32973,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -31232,6 +33039,14 @@ func init() {
           "title": "GCC",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gccMultiplier": {
+          "description": "Multiplier applied to incentives",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 1.3
         },
         "grossIncentive": {
           "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
@@ -31815,6 +33630,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -32729,6 +34556,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "closeoutInitiatedDates": {
+          "description": "comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)",
+          "type": "string",
+          "x-nullable": true
+        },
         "closeoutLocation": {
           "type": "string",
           "x-nullable": true
@@ -32749,7 +34581,11 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "id": {
           "type": "string",
@@ -32797,6 +34633,11 @@ func init() {
         "requestedMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "requestedMoveDates": {
+          "description": "comma‑separated list of shipment dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -33635,7 +35476,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -34177,6 +36018,15 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -34682,6 +36532,16 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
@@ -35134,7 +36994,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true

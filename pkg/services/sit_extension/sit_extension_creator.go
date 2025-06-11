@@ -23,6 +23,7 @@ func NewSitExtensionCreator(moveRouter services.MoveRouter) services.SITExtensio
 			checkShipmentID(),
 			checkRequiredFields(),
 			checkSITExtensionPending(),
+			checkDepartureDate(),
 		},
 		moveRouter,
 	}
@@ -34,7 +35,7 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 	shipment := &models.MTOShipment{}
 	// Find the shipment, return error if not found (or if using an external vendor since this is called
 	// by the prime API).
-	err := appCtx.DB().Where("uses_external_vendor = FALSE").Find(shipment, sitExtension.MTOShipmentID)
+	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "MTOServiceItems.ReService").Where("uses_external_vendor = FALSE").Find(shipment, sitExtension.MTOShipmentID)
 
 	if err != nil {
 		switch err {
@@ -64,33 +65,45 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 	}
 
 	// If the status is set to pending, then the TOO needs to review the sit extensions
-	// Which means the move status needs to be set to approvals requested
+	// Which means the shipment and move status needs to be set to approvals requested
 	if sitExtension.Status == models.SITExtensionStatusPending {
-		// Get the move
-		var move models.Move
-		err := appCtx.DB().Find(&move, shipment.MoveTaskOrderID)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(shipment.MoveTaskOrderID, "looking for Move")
-			default:
-				return nil, apperror.NewQueryError("Move", err, "")
+		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			if _, err := f.moveRouter.UpdateShipmentStatusToApprovalsRequested(txnAppCtx, *shipment); err != nil {
+				return err
 			}
-		}
 
-		existingMoveStatus := move.Status
-		err = f.moveRouter.SendToOfficeUser(appCtx, &move)
-		if err != nil {
-			return nil, err
-		}
-
-		// only update if the move status has actually changed
-		if existingMoveStatus != move.Status {
-			err = appCtx.DB().Update(&move)
+			// Get the move
+			var move models.Move
+			err := appCtx.DB().Find(&move, shipment.MoveTaskOrderID)
 			if err != nil {
-				return nil, err
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(shipment.MoveTaskOrderID, "looking for Move")
+				default:
+					return apperror.NewQueryError("Move", err, "")
+				}
 			}
+
+			existingMoveStatus := move.Status
+			err = f.moveRouter.SendToOfficeUser(appCtx, &move)
+			if err != nil {
+				return err
+			}
+
+			// only update if the move status has actually changed
+			if existingMoveStatus != move.Status {
+				err = appCtx.DB().Update(&move)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+
+		if transactionError != nil {
+			return nil, transactionError
 		}
+
 	}
 
 	return sitExtension, nil

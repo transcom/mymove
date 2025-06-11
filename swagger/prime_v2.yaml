@@ -2136,7 +2136,7 @@ definitions:
         type: string
         enum:
           - INFECTED
-          - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
       createdAt:
         type: string
@@ -2193,7 +2193,7 @@ definitions:
       - IsPeak
       - MarketDest
       - MarketOrigin
-      - MTOAvailableToPrimeAt
+      - MTOEarliestRequestedPickup
       - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
@@ -3271,6 +3271,7 @@ definitions:
           - CANCELED
           - DIVERSION_REQUESTED
           - TERMINATION_FOR_CAUSE
+          - APPROVALS_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:

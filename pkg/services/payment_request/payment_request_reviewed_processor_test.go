@@ -220,7 +220,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession,
-			mockNotificationSender)
+			mockNotificationSender,
+		)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		var ediProcessing models.EDIProcessing

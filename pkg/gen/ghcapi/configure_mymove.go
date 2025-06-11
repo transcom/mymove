@@ -369,6 +369,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		})
 	}
+	if api.QueuesGetPPMCloseoutQueueHandler == nil {
+		api.QueuesGetPPMCloseoutQueueHandler = queues.GetPPMCloseoutQueueHandlerFunc(func(params queues.GetPPMCloseoutQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetPPMCloseoutQueue has not yet been implemented")
+		})
+	}
 	if api.PpmGetPPMDocumentsHandler == nil {
 		api.PpmGetPPMDocumentsHandler = ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
@@ -522,6 +527,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.EvaluationReportsSaveEvaluationReportHandler == nil {
 		api.EvaluationReportsSaveEvaluationReportHandler = evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
+		})
+	}
+	if api.AddressesSearchCountriesHandler == nil {
+		api.AddressesSearchCountriesHandler = addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
 		})
 	}
 	if api.CustomerSearchCustomersHandler == nil {

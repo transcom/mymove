@@ -306,8 +306,12 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 		}
 
 		daysSIT := 0
-		if serviceItem.SITDepartureDate != nil && serviceItem.SITEntryDate != nil {
-			daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+		if serviceItem.SITEntryDate != nil {
+			if serviceItem.SITDepartureDate == nil {
+				daysSIT = 89
+			} else {
+				daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+			}
 		}
 
 		price, _, err = o.destinationAddlPricer.Price(
@@ -407,8 +411,12 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 		}
 
 		daysSIT := 0
-		if serviceItem.SITDepartureDate != nil && serviceItem.SITEntryDate != nil {
-			daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+		if serviceItem.SITEntryDate != nil {
+			if serviceItem.SITDepartureDate == nil {
+				daysSIT = 89
+			} else {
+				daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+			}
 		}
 
 		price, _, err = o.originAddlPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, daysSIT, false)
@@ -1047,6 +1055,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 
 		if _, err = o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
+			return err
+		}
+		if _, err = o.moveRouter.UpdateShipmentStatusToApprovalsRequested(txnAppCtx, mtoShipment); err != nil {
 			return err
 		}
 

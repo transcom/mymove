@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 import QAEReportTable from './QAEReportTable';
 
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { MockProviders } from 'testUtils';
 
 const submittedReport = {
@@ -68,7 +69,7 @@ describe('QAEReportTable', () => {
           emptyText="no reports for this"
           shipments={[]}
           moveCode="FAKEIT"
-          grade="E-4"
+          grade={ORDERS_PAY_GRADE_TYPE.E_4}
           customerInfo={customerInfo}
           deleteReport={jest.fn()}
           setReportToDelete={jest.fn()}
@@ -92,7 +93,7 @@ describe('QAEReportTable', () => {
           emptyText=""
           shipments={[]}
           moveCode="FAKEIT"
-          grade="E-4"
+          grade={ORDERS_PAY_GRADE_TYPE.E_4}
           customerInfo={customerInfo}
           deleteReport={jest.fn()}
           setReportToDelete={jest.fn()}
@@ -120,7 +121,7 @@ describe('QAEReportTable', () => {
           emptyText="no reports for this"
           shipments={[]}
           moveCode="FAKEIT"
-          grade="E-4"
+          grade={ORDERS_PAY_GRADE_TYPE.E_4}
           customerInfo={customerInfo}
           deleteReport={jest.fn()}
           setReportToDelete={jest.fn()}
@@ -142,7 +143,7 @@ describe('QAEReportTable', () => {
           emptyText="no reports for this"
           shipments={[]}
           moveCode="FAKEIT"
-          grade="E-4"
+          grade={ORDERS_PAY_GRADE_TYPE.E_4}
           customerInfo={customerInfo}
           deleteReport={jest.fn()}
           setReportToDelete={jest.fn()}

@@ -3751,7 +3751,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -4563,7 +4563,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },
@@ -8455,7 +8455,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -9269,7 +9269,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
-            "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },

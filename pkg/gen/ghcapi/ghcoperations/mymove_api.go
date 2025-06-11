@@ -250,6 +250,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmGetPPMCloseoutHandler: ppm.GetPPMCloseoutHandlerFunc(func(params ppm.GetPPMCloseoutParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		}),
+		QueuesGetPPMCloseoutQueueHandler: queues.GetPPMCloseoutQueueHandlerFunc(func(params queues.GetPPMCloseoutQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetPPMCloseoutQueue has not yet been implemented")
+		}),
 		PpmGetPPMDocumentsHandler: ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
 		}),
@@ -342,6 +345,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsSaveEvaluationReportHandler: evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
+		}),
+		AddressesSearchCountriesHandler: addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
 		}),
 		CustomerSearchCustomersHandler: customer.SearchCustomersHandlerFunc(func(params customer.SearchCustomersParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.SearchCustomers has not yet been implemented")
@@ -616,6 +622,8 @@ type MymoveAPI struct {
 	PpmGetPPMActualWeightHandler ppm.GetPPMActualWeightHandler
 	// PpmGetPPMCloseoutHandler sets the operation handler for the get p p m closeout operation
 	PpmGetPPMCloseoutHandler ppm.GetPPMCloseoutHandler
+	// QueuesGetPPMCloseoutQueueHandler sets the operation handler for the get p p m closeout queue operation
+	QueuesGetPPMCloseoutQueueHandler queues.GetPPMCloseoutQueueHandler
 	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
 	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
 	// PpmGetPPMSITEstimatedCostHandler sets the operation handler for the get p p m s i t estimated cost operation
@@ -678,6 +686,8 @@ type MymoveAPI struct {
 	QueuesSaveBulkAssignmentDataHandler queues.SaveBulkAssignmentDataHandler
 	// EvaluationReportsSaveEvaluationReportHandler sets the operation handler for the save evaluation report operation
 	EvaluationReportsSaveEvaluationReportHandler evaluation_reports.SaveEvaluationReportHandler
+	// AddressesSearchCountriesHandler sets the operation handler for the search countries operation
+	AddressesSearchCountriesHandler addresses.SearchCountriesHandler
 	// CustomerSearchCustomersHandler sets the operation handler for the search customers operation
 	CustomerSearchCustomersHandler customer.SearchCustomersHandler
 	// MoveSearchMovesHandler sets the operation handler for the search moves operation
@@ -1010,6 +1020,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmGetPPMCloseoutHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMCloseoutHandler")
 	}
+	if o.QueuesGetPPMCloseoutQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetPPMCloseoutQueueHandler")
+	}
 	if o.PpmGetPPMDocumentsHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMDocumentsHandler")
 	}
@@ -1102,6 +1115,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsSaveEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SaveEvaluationReportHandler")
+	}
+	if o.AddressesSearchCountriesHandler == nil {
+		unregistered = append(unregistered, "addresses.SearchCountriesHandler")
 	}
 	if o.CustomerSearchCustomersHandler == nil {
 		unregistered = append(unregistered, "customer.SearchCustomersHandler")
@@ -1540,6 +1556,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/queues/ppmCloseout"] = queues.NewGetPPMCloseoutQueue(o.context, o.QueuesGetPPMCloseoutQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/shipments/{shipmentID}/ppm-documents"] = ppm.NewGetPPMDocuments(o.context, o.PpmGetPPMDocumentsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1661,6 +1681,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewSaveEvaluationReport(o.context, o.EvaluationReportsSaveEvaluationReportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/countries"] = addresses.NewSearchCountries(o.context, o.AddressesSearchCountriesHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

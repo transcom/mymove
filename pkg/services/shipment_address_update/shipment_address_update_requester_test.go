@@ -364,7 +364,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.NotNil(update)
 	})
 
-	suite.Run("Should not be able to update NTS shipment", func() {
+	suite.Run("Should not be able to update invalid shipments delivery address", func() {
 		move := setupTestData()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -372,18 +372,40 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			State:          "CA",
 			PostalCode:     "90210",
 		}
-		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
-		suite.Error(err)
-		suite.Nil(update)
+		contractRemarks := "we really need to change the address"
+
+		// NTS and PPM
+		invalidTypes := []models.MTOShipment{
+			factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil),
+			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: models.MTOShipmentTypePPM,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil),
+		}
+
+		for i := 0; i < len(invalidTypes); i++ {
+			update, err :=
+				addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(),
+					invalidTypes[i].ID, newAddress, contractRemarks,
+					etag.GenerateEtag(invalidTypes[i].UpdatedAt))
+			suite.Error(err)
+			suite.Nil(update)
+		}
 	})
 
-	suite.Run("Should be able to update NTSr shipment", func() {
+	suite.Run("Should be able to update valid shipments delivery address", func() {
 		move := setupTestData()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -392,19 +414,76 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     "90210",
 		}
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
-		shipment := factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    storageFacility,
-				LinkOnly: true,
-			},
-		}, nil)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
-		suite.NoError(err)
-		suite.NotNil(update)
+		contractRemarks := "we really need to change the address"
+
+		// NTS-R, Mobile Home, Boat, UB, HHG
+		validTypes := []models.MTOShipment{
+			factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    storageFacility,
+					LinkOnly: true,
+				},
+			}, nil),
+			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: models.MTOShipmentTypeMobileHome,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil),
+			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil),
+			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+						MarketCode:   models.MarketCodeInternational,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil),
+			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: models.MTOShipmentTypeHHG,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil),
+		}
+
+		for i := 0; i < len(validTypes); i++ {
+			update, err :=
+				addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(
+					suite.AppContextForTest(), validTypes[i].ID, newAddress,
+					contractRemarks,
+					etag.GenerateEtag(validTypes[i].UpdatedAt))
+			suite.NoError(err)
+			suite.NotNil(update)
+		}
 	})
 
 	suite.Run("Request destination address changes on the same shipment multiple times", func() {
@@ -1051,6 +1130,128 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.Equal(updatedShipment.MarketCode, models.MarketCodeInternational)
 	})
 
+	suite.Run("TOO approves address change on invalid ShipmentType Mobile Home", func() {
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeMobileHome,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: models.StringPointer("Apt 2"),
+					StreetAddress3: models.StringPointer("Suite 200"),
+					City:           "New York",
+					State:          "NY",
+					PostalCode:     "10001",
+				},
+				Type: &factory.Addresses.OriginalAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "456 Northern Lights Blvd",
+					StreetAddress2: models.StringPointer("Apt 5B"),
+					StreetAddress3: models.StringPointer("Suite 300"),
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99503",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.NewAddress,
+			},
+		}, nil)
+		shipment := addressChange.Shipment
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		sitDestinationOriginalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ID: shipment.MoveTaskOrderID,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    reService,
+				LinkOnly: true,
+			},
+			{
+				Model:    sitDestinationOriginalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+		}, nil)
+		officeRemarks := "Changing to OCONUS address"
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+		suite.ErrorContains(err, "Shipment type must be HHG, NTSr or UB")
+		suite.Nil(update)
+	})
+
+	suite.Run("TOO approves address change on invalid ShipmentType Boat", func() {
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: models.StringPointer("Apt 2"),
+					StreetAddress3: models.StringPointer("Suite 200"),
+					City:           "New York",
+					State:          "NY",
+					PostalCode:     "10001",
+				},
+				Type: &factory.Addresses.OriginalAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "456 Northern Lights Blvd",
+					StreetAddress2: models.StringPointer("Apt 5B"),
+					StreetAddress3: models.StringPointer("Suite 300"),
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99503",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.NewAddress,
+			},
+		}, nil)
+		shipment := addressChange.Shipment
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		sitDestinationOriginalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ID: shipment.MoveTaskOrderID,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    reService,
+				LinkOnly: true,
+			},
+			{
+				Model:    sitDestinationOriginalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+		}, nil)
+		officeRemarks := "Changing to OCONUS address"
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+		suite.ErrorContains(err, "Shipment type must be HHG, NTSr or UB")
+		suite.Nil(update)
+	})
+
 	suite.Run("Successfully update estiamted pricing on service items when address update is approved by TOO", func() {
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 			MaxDaysTransitTime: 12,
@@ -1469,6 +1670,225 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			}
 		}
 	})
+
+	suite.Run("On delivery address change approval - successfully update estimated pricing on all FSC and DDDSIT service items", func() {
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+
+		estimatedWeight := unit.Pound(5000)
+		newDestUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "22603")
+		suite.NoError(err)
+
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "23435")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Suffolk",
+					State:              "VA",
+					PostalCode:         "23435",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "Quantico",
+					State:              "VA",
+					PostalCode:         "22134",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		now := time.Now()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeEstimatedWeight: models.PoundPointer(4000),
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+					ScheduledPickupDate:  &now,
+					RequestedPickupDate:  &now,
+					MarketCode:           models.MarketCodeDomestic,
+					PrimeActualWeight:    models.PoundPointer(4000),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		sitFinalDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Cold Ave.",
+					City:               "Winchester",
+					State:              "VA",
+					PostalCode:         "22603",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &newDestUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:                    models.TimePointer(time.Now()),
+					SITPostalCode:                   models.StringPointer("22603"),
+					Reason:                          models.StringPointer("New Delivery Address"),
+					SITOriginHHGOriginalAddressID:   &pickupAddress.ID,
+					SITDestinationOriginalAddressID: &destinationAddress.ID,
+					SITDestinationFinalAddressID:    &sitFinalDeliveryAddress.ID,
+					Status:                          models.MTOServiceItemStatusApproved,
+					EstimatedWeight:                 &estimatedWeight,
+					PricingEstimate:                 models.CentPointer(350),
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:                          models.MTOServiceItemStatusApproved,
+					SITEntryDate:                    models.TimePointer(time.Now()),
+					SITPostalCode:                   models.StringPointer("22603"),
+					Reason:                          models.StringPointer("New Delivery Address"),
+					SITOriginHHGOriginalAddressID:   &pickupAddress.ID,
+					SITDestinationOriginalAddressID: &destinationAddress.ID,
+					SITDestinationFinalAddressID:    &sitFinalDeliveryAddress.ID,
+					EstimatedWeight:                 &estimatedWeight,
+					PricingEstimate:                 models.CentPointer(1000),
+				},
+			},
+		}, nil)
+
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"23435",
+			"22134",
+		).Return(300, nil)
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"23435",
+			"22603",
+		).Return(600, nil)
+
+		suite.FatalNoError(err)
+		factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1:     "Cold Ave.",
+					City:               "Winchester",
+					State:              "VA",
+					PostalCode:         "22603",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &newDestUSPRC.ID,
+				},
+				Type: &factory.Addresses.NewAddress,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
+		officeRemarks := "Changing to another CONUS address"
+
+		var completeShipment models.MTOShipment
+		var addressUpdate models.ShipmentAddressUpdate
+		lookupErr := suite.AppContextForTest().DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipment.ID).First(&addressUpdate)
+		suite.NoError(lookupErr)
+		completeShipment = addressUpdate.Shipment
+		suite.Equal(350, completeShipment.MTOServiceItems[0].PricingEstimate.Int())
+		suite.Equal(1000, completeShipment.MTOServiceItems[1].PricingEstimate.Int())
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), shipment.ID, "APPROVED", officeRemarks)
+
+		var completeShipmentPostUpdate models.MTOShipment
+		var postAddressUpdate models.ShipmentAddressUpdate
+		postAddressUpdatelookupErr := suite.AppContextForTest().DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipment.ID).First(&postAddressUpdate)
+		suite.NoError(postAddressUpdatelookupErr)
+		completeShipmentPostUpdate = postAddressUpdate.Shipment
+
+		prices := []int{5350400, -112}
+		suite.Contains(prices, completeShipmentPostUpdate.MTOServiceItems[0].PricingEstimate.Int())
+		suite.Contains(prices, completeShipmentPostUpdate.MTOServiceItems[1].PricingEstimate.Int())
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+
+		// checking out the service items
+		var serviceItems []models.MTOServiceItem
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(2, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			if serviceItems[i].ReService.Code != models.ReServiceCodePOEFSC {
+				suite.NotNil(serviceItems[i].PricingEstimate)
+			} else if serviceItems[i].ReService.Code == models.ReServiceCodePOEFSC {
+				suite.Nil(serviceItems[i].PricingEstimate)
+			}
+		}
+	})
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequestChangedPricing() {
@@ -1796,8 +2216,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 
 		// Trigger the prime address update to get move in correct state for DSH -> DLH
-		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressChange, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"
+		suite.NoError(err)
 
 		// TOO Approves address change
 		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)

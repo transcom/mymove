@@ -264,6 +264,11 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
 
+			maxGunSafeWeightAllowance, err := models.GetMaxGunSafeAllowance(appCtx)
+			if err == nil {
+				weightAllotment.GunSafeWeight = maxGunSafeWeightAllowance
+			}
+
 			// Assign default SIT allowance based on customer type.
 			// We only have service members right now, but once we introduce more, this logic will have to change.
 			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
@@ -278,6 +283,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				ProGearWeight:           weightAllotment.ProGearWeight,
 				ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
 				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+				GunSafeWeight:           weightAllotment.GunSafeWeight,
 			}
 
 			/*
@@ -576,6 +582,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					DependentsTwelveAndOver: dependentsTwelveAndOver,
 					AccompaniedTour:         payload.AccompaniedTour,
 					UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+					GunSafe:                 order.Entitlement.GunSafe,
+					GunSafeWeight:           order.Entitlement.GunSafeWeight,
 				}
 
 				/*

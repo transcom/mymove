@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -24,6 +25,7 @@ import (
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	"github.com/transcom/mymove/pkg/uploader"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 const weightEstimatePages = 11
@@ -292,6 +294,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 
 			// extract extension from filename
 			filename := file.Header.Filename
+
 			timestampPattern := regexp.MustCompile(`-(\d{14})$`)
 
 			timestamp := ""
@@ -315,6 +318,18 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
+				// if isWeightEstimatorFile is false, throw an error, and send message to front end to let user know.
+				if !isWeightEstimatorFile {
+					title := "Incorrect Xlsx Template"
+					detail := "The uploaded .xlsx file does not match the expected weight estimator file format. Please visit https://www.ustranscom.mil/dp3/weightestimator.cfm to download the weight estimator template file."
+					instance := params.DocumentID
+					return ppmop.NewCreatePPMUploadForbidden().WithPayload(&internalmessages.ClientError{
+						Title:    &title,
+						Detail:   &detail,
+						Instance: &instance,
+					}), nil
+
+				}
 
 				_, err = file.Data.Seek(0, io.SeekStart)
 
@@ -330,7 +345,8 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				pdfFileName := strings.TrimSuffix(filenameWithoutTimestamp, filepath.Ext(filenameWithoutTimestamp)) + ".pdf" + "-" + timestamp
+				pdfFileName := utils.AppendTimestampToFilename(filename)
+
 				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
 
 				// Ensure weight receipt PDF is not corrupted
@@ -369,6 +385,12 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					}
 				}
 
+				newUserUpload, verrs, err := h.UserUploader.UpdateUserXlsxUploadFilename(appCtx, newUserUpload, filename)
+
+				if verrs.HasAny() || err != nil {
+					appCtx.Logger().Error("failed to rename uploaded filename", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+				}
+
 				err = h.WeightTicketGenerator.CleanupFile(aFile)
 
 				if err != nil {
@@ -377,10 +399,10 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				}
 
 				url, err = h.UserUploader.PresignedURL(appCtx, newUserUpload)
-
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
+
 			} else {
 				newUserUpload, url, verrs, createErr = uploaderpkg.CreateUserUploadForDocumentWrapper(
 					appCtx,
@@ -410,7 +432,6 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					}
 				}
 			}
-
 			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 			return ppmop.NewCreatePPMUploadCreated().WithPayload(uploadPayload), nil
 		})

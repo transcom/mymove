@@ -24,15 +24,27 @@ type ShowLoggedInUserHandler struct {
 	officeUserFetcherPop services.OfficeUserFetcherPop
 }
 
-// decoratePayloadWithRoles will add session roles to the logged in user payload and return it
-func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload) {
-	for _, role := range s.Roles {
-		p.Roles = append(p.Roles, &internalmessages.Role{
-			ID:        handlers.FmtUUID(s.UserID),
-			RoleType:  handlers.FmtString(string(role.RoleType)),
-			CreatedAt: handlers.FmtDateTime(role.CreatedAt),
-			UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),
-		})
+// decoratePayloadWithCurrentAndInactiveRoles will add session role to the logged in user payload and return it
+func decoratePayloadWithCurrentAndInactiveRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload, allUserRoles roles.Roles) {
+	if s == nil || p == nil {
+		return
+	}
+	p.ActiveRole = &internalmessages.Role{
+		ID:        handlers.FmtUUID(s.ActiveRole.ID),
+		RoleType:  handlers.FmtString(string(s.ActiveRole.RoleType)),
+		CreatedAt: handlers.FmtDateTime(s.ActiveRole.CreatedAt),
+		UpdatedAt: handlers.FmtDateTime(s.ActiveRole.UpdatedAt),
+	}
+	for _, role := range allUserRoles {
+		// Make sure we don't accidentally mark the current role as inactive
+		if role.RoleType != s.ActiveRole.RoleType {
+			p.InactiveRoles = append(p.InactiveRoles, &internalmessages.Role{
+				ID:        handlers.FmtUUID(role.ID),
+				RoleType:  handlers.FmtString(string(role.RoleType)),
+				CreatedAt: handlers.FmtDateTime(role.CreatedAt),
+				UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),
+			})
+		}
 	}
 }
 
@@ -52,10 +64,57 @@ func decoratePayloadWithPrivileges(appCtx appcontext.AppContext, p *internalmess
 	}
 }
 
+// Helper function explicitly for these handlers.
+// We'll take the session UserID, fetch roles from the DB,
+// and return a default if found as well as all roles.
+// Returning no rows is ok!
+// The app supports authenticating users with no role.
+// The app also handles the authorization of role-specific routes and action
+// This helper function is due to how verbose the err checking is and to keep the parent funcs clean
+func getDefaultAndAllRoles(appCtx appcontext.AppContext, userID uuid.UUID) (*roles.Role, roles.Roles, error) {
+	if userID != uuid.Nil {
+		userRoles, err := roles.FetchRolesForUser(appCtx.DB(), appCtx.Session().UserID)
+		if err != nil && errors.Cause(err).Error() != models.RecordNotFoundErrorString {
+			// An err is not thrown when empty in this check.
+			// An err is only thrown when there is an actual database problem,
+			// as the query FetchRolesForUser uses does not return SqlErrNoRows
+			appCtx.Logger().Error("database error when fetching roles for user",
+				zap.String("userID", appCtx.Session().UserID.String()),
+				zap.Error(err),
+			)
+			return nil, nil, err
+		} else {
+			// They have roles and their session doesn't have one yet
+			// Set a default
+			defaultRole, err := userRoles.Default()
+			if err != nil {
+				// This err occurs when no roles. Let them proceed
+				appCtx.Logger().Error("could not find a default role for the logged in user, proceeding without a role",
+					zap.String("userID", appCtx.Session().UserID.String()),
+					zap.Error(err))
+			} else {
+				return defaultRole, userRoles, nil
+			}
+		}
+	}
+	return nil, nil, nil
+}
+
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			// Pull latest roles from the DB in case the administrators
+			// changed something. Additionally set a default role if not
+			// done yet.
+			defaultRole, userRoles, err := getDefaultAndAllRoles(appCtx, appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving user roles", zap.Error(err))
+				return userop.NewIsLoggedInUserInternalServerError(), err
+			}
+			if (appCtx.Session().ActiveRole.RoleType == roles.Role{}.RoleType) && defaultRole != nil {
+				appCtx.Session().ActiveRole = *defaultRole
+			}
 
 			if !appCtx.Session().IsServiceMember() {
 				var officeUser models.OfficeUser
@@ -75,7 +134,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					OfficeUser: payloads.OfficeUser(&officeUser),
 				}
 
-				decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+				decoratePayloadWithCurrentAndInactiveRoles(appCtx.Session(), &userPayload, userRoles)
 				decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
 				decoratePayloadWithPrivileges(appCtx, &userPayload)
 
@@ -128,7 +187,8 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				FirstName:     appCtx.Session().FirstName,
 				Email:         appCtx.Session().Email,
 			}
-			decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+
+			decoratePayloadWithCurrentAndInactiveRoles(appCtx.Session(), &userPayload, userRoles)
 			decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
 			decoratePayloadWithPrivileges(appCtx, &userPayload)
 			return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil

@@ -103,7 +103,7 @@ func TestProcessTPPSSuccess(t *testing.T) {
 	mockS3.On("GetObjectTagging", mock.Anything, mock.Anything).
 		Return(&s3.GetObjectTaggingOutput{
 			TagSet: []types.Tag{
-				{Key: aws.String("av-status"), Value: aws.String(AVStatusCLEAN)},
+				{Key: aws.String("GuardDutyMalwareScanStatus"), Value: aws.String(AVStatusCLEAN)},
 			},
 		}, nil).Once()
 

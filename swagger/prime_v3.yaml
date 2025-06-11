@@ -2243,7 +2243,7 @@ definitions:
         type: string
         enum:
           - INFECTED
-          - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
       createdAt:
         type: string
@@ -2300,7 +2300,7 @@ definitions:
       - IsPeak
       - MarketDest
       - MarketOrigin
-      - MTOAvailableToPrimeAt
+      - MTOEarliestRequestedPickup
       - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest

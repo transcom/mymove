@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import OrdersList from './OrdersList';
 
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
+
 const ordersInfo = {
   currentDutyLocation: { name: 'JBSA Lackland' },
   newDutyLocation: { name: 'JB Lewis-McChord' },
@@ -30,7 +32,7 @@ const ordersInfo = {
   ],
   tacMDC: '9999',
   sacSDN: '999 999999 999',
-  payGrade: 'E-7',
+  payGrade: ORDERS_PAY_GRADE_TYPE.E_7,
 };
 
 const moveInfo = {
@@ -53,7 +55,7 @@ const expectedRenderedOrdersInfo = {
   ordersDocuments: 'File(s) Uploaded',
   tacMDC: '9999',
   sacSDN: '999 999999 999',
-  payGrade: 'E-7',
+  payGrade: ORDERS_PAY_GRADE_TYPE.E_7,
 };
 
 const ordersInfoMissing = {

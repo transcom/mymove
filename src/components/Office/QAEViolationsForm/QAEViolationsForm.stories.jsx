@@ -60,7 +60,7 @@ const mockViolation = {
 
 const mockCustomerInfo = {
   agency: 'ARMY',
-  grade: 'E_4',
+  grade: 'E-4',
 };
 
 export const Default = () => (

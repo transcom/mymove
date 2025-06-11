@@ -27,9 +27,11 @@ import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [displayHelpDeskLink, setDisplayHelpDeskLink] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -47,10 +49,12 @@ const WeightTickets = () => {
   const toggleErrorModal = () => {
     setIsErrorModalVisible((prev) => !prev);
   };
+
   const appName = APP_NAME.MYMOVE;
 
-  const errorModalMessage =
-    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
+  const [errorModalMessage, setErrorModalMessage] = useState(
+    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ",
+  );
 
   useEffect(() => {
     if (!weightTicketId) {
@@ -126,24 +130,7 @@ const WeightTickets = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
-
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, true)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, appendTimestampToFilename(file), true)
       .then((upload) => {
         mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -151,9 +138,16 @@ const WeightTickets = () => {
         setIsErrorModalVisible(false);
         return upload;
       })
-      .catch(() => {
-        // setErrorMessage('Failed to save the file upload');
-        setIsErrorModalVisible(true);
+      .catch((err) => {
+        if (err.response.obj.title === 'Incorrect Xlsx Template') {
+          setErrorModalMessage(
+            'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+          );
+          setIsErrorModalVisible(true);
+        } else {
+          setDisplayHelpDeskLink(true);
+          setIsErrorModalVisible(true);
+        }
       });
   };
 
@@ -251,7 +245,12 @@ const WeightTickets = () => {
               onBack={handleBack}
               appName={appName}
             />
-            <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
+            <ErrorModal
+              isOpen={isErrorModalVisible}
+              closeModal={toggleErrorModal}
+              errorMessage={errorModalMessage}
+              displayHelpDeskLink={displayHelpDeskLink}
+            />
           </Grid>
         </Grid>
       </GridContainer>
