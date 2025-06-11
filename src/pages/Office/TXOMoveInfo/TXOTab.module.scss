@@ -82,6 +82,11 @@
   max-width: calc(230px + 40px + 1024px); // sidebar + 5units margin + desktop container
   margin-left: auto;
   margin-right: auto;
+  margin-top: 100px;
+
+  .leftNav {
+   top: 200px;
+  }
 
   .gridContainer {
     flex-grow: 1;

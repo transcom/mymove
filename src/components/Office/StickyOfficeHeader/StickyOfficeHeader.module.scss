@@ -1,0 +1,20 @@
+.stickyHeader {
+  position: fixed; /* Keeps it at the top while scrolling */
+  top: 0px; /* Stick to the top */
+  left: 0;
+  width: 100%; /* Full width */
+  flex-direction: column;
+  display: block;
+  flex: gr;
+  align-items: center;
+  justify-content: space-around;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensures it stays above other content */
+  margin-bottom: 100px;
+}
+
+.changeRole {
+  background-color: white;
+  margin-top: 79px;
+  z-index: 1000;
+}

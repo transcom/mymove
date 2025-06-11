@@ -219,13 +219,15 @@ const ServicesCounselingMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader
-        move={move}
-        order={order}
-        customer={customerData}
-        moveCode={moveCode}
-        userRole={roleTypes.SERVICES_COUNSELOR}
-      />
+      <div className="custHeader">
+        <CustomerHeader
+          move={move}
+          order={order}
+          customer={customerData}
+          moveCode={moveCode}
+          userRole={roleTypes.SERVICES_COUNSELOR}
+        />
+      </div>
       {renderLockedBanner()}
 
       {hasRecentError && (

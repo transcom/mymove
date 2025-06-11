@@ -131,8 +131,10 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
-      {renderLockedBanner()}
+      <div className="custHeader">
+        <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
+        {renderLockedBanner()}
+      </div>
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
