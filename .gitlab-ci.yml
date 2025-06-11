@@ -796,7 +796,7 @@ server_test:
   retry:
      max: 2
   variables:
-    KUBERNETES_CPU_REQUEST: "32"
+    KUBERNETES_CPU_REQUEST: "3"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
     APPLICATION: app
