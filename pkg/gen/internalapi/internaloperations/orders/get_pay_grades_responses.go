@@ -17,7 +17,7 @@ import (
 const GetPayGradesOKCode int = 200
 
 /*
-GetPayGradesOK list all ranks for specified affiliation
+GetPayGradesOK list all pay grades for specified affiliation
 
 swagger:response getPayGradesOK
 */
@@ -115,7 +115,7 @@ func (o *GetPayGradesUnauthorized) WriteResponse(rw http.ResponseWriter, produce
 const GetPayGradesNotFoundCode int = 404
 
 /*
-GetPayGradesNotFound ranks not found
+GetPayGradesNotFound pay grades not found
 
 swagger:response getPayGradesNotFound
 */

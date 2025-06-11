@@ -19,7 +19,6 @@ BEGIN
                                     'hhg_allowances',
                                     'jppso_region_state_assignments',
                                     'jppso_regions',
-                                    'pay_grade_ranks',
                                     'pay_grades',
                                     'port_locations',
                                     'ports',
