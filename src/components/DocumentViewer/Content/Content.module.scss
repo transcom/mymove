@@ -30,6 +30,8 @@
     }
 
     .photo-viewer-image-container {
+      display: flex;
+      justify-content: center;
       align-items: center;
       padding-top: 30%;
       aspect-ratio: 1;
