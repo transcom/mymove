@@ -6,6 +6,7 @@ import { Formik } from 'formik';
 import OfficeAccountRequestFields from './OfficeAccountRequestFields';
 
 import { officeAccountRequestSchema } from 'utils/validation';
+import { ReactQueryWrapper } from 'testUtils';
 
 const initialValues = {
   officeAccountRequestEdipi: '',
@@ -19,9 +20,11 @@ const initialValues = {
 describe('OfficeAccountRequestFields component', () => {
   it('renders the form inputs', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     expect(screen.getByTestId('officeAccountRequestFirstName')).toBeInTheDocument();
@@ -46,9 +49,11 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('validates that EDIPI and EDIPI confirmation match', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     const edipiInput = screen.getByTestId('officeAccountRequestEdipi');
@@ -69,9 +74,11 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('validates that Other Unique ID and its confirmation match', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     const uniqueIdInput = screen.getByTestId('officeAccountRequestOtherUniqueId');
@@ -92,9 +99,11 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('validates that email and email confirmation match', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     const emailInput = screen.getByTestId('officeAccountRequestEmail');
@@ -115,9 +124,11 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('shows a validation error if no roles are selected after interaction', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     const headquartersCheckbox = screen.getByTestId('headquartersCheckbox');
@@ -131,9 +142,11 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('shows a validation error if both Task Ordering and Task Invoicing Officer are selected', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
