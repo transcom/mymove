@@ -48,7 +48,7 @@ type UploadWithOmissions struct {
 	Rotation int64 `json:"rotation,omitempty"`
 
 	// status
-	// Enum: [INFECTED NO_THREATS_FOUND PROCESSING]
+	// Enum: [INFECTED CLEAN NO_THREATS_FOUND PROCESSING]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -159,7 +159,7 @@ var uploadWithOmissionsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["INFECTED","NO_THREATS_FOUND","PROCESSING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["INFECTED","CLEAN","NO_THREATS_FOUND","PROCESSING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -171,6 +171,9 @@ const (
 
 	// UploadWithOmissionsStatusINFECTED captures enum value "INFECTED"
 	UploadWithOmissionsStatusINFECTED string = "INFECTED"
+
+	// UploadWithOmissionsStatusCLEAN captures enum value "CLEAN"
+	UploadWithOmissionsStatusCLEAN string = "CLEAN"
 
 	// UploadWithOmissionsStatusNOTHREATSFOUND captures enum value "NO_THREATS_FOUND"
 	UploadWithOmissionsStatusNOTHREATSFOUND string = "NO_THREATS_FOUND"

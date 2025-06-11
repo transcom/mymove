@@ -13,7 +13,7 @@ import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 const DocumentContent = (props) => {
   const { contentType, filename, url, status } = props;
 
-  if (status === UPLOAD_SCAN_STATUS.INFECTED) {
+  if (status === UPLOAD_SCAN_STATUS.THREATS_FOUND || status === UPLOAD_SCAN_STATUS.LEGACY_INFECTED) {
     return (
       <Alert type="error" className="usa-width-one-whole" heading="Ask for a new file">
         Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a

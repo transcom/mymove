@@ -49,7 +49,7 @@ func TestFakeS3ReturnsSuccessful(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not fetch from fakeS3: %s", err)
 	}
-	if len(tags) != 1 {
+	if len(tags) != 2 {
 		t.Fatal("return tags must have GuardDutyMalwareScanStatus key assigned for fakeS3")
 	}
 
