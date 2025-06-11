@@ -129,7 +129,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <AddressFields
         name="ppmShipment.destinationAddress"
         legend="Delivery Address"
-        address1LabelHint="Optional"
+        optionalAddress1
         formikProps={{
           setFieldTouched,
           setFieldValue,
