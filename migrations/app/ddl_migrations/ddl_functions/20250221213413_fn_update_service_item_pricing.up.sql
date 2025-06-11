@@ -395,6 +395,7 @@ BEGIN
                 ELSE
                     RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
                 END IF;
+
             ELSE
                 RAISE warning ''Unsupported service code: %'', service_code;
         END CASE;
@@ -402,3 +403,4 @@ BEGIN
 END;
 '
 LANGUAGE plpgsql;
+
