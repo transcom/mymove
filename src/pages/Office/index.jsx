@@ -189,6 +189,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     '/move-queue',
     '/destination-requests',
     '/payment-requests',
+    '/invalid-permissions',
   ];
   if (!notStickyList.includes(location.pathname) && !location.pathname.includes('simulator')) {
     isSticky = true;
@@ -202,12 +203,13 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
           <div className={siteClasses}>
             <BypassBlock />
             {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {!props.userIsLoggedIn && !location.pathname.includes('/sign-in') && (
-              <LoggedOutHeader app={pageNames.OFFICE} />
+            {!props.userIsLoggedIn && (
+              <div>
+                <CUIHeader /> <LoggedOutHeader app={pageNames.OFFICE} />
+              </div>
             )}
-            {props.userIsLoggedIn && isSticky ? (
-              <StickyOfficeHeader displayChangeRole={displayChangeRole} />
-            ) : (
+            {props.userIsLoggedIn && isSticky && <StickyOfficeHeader displayChangeRole={displayChangeRole} />}
+            {props.userIsLoggedIn && !isSticky && (
               <div>
                 <CUIHeader />
                 {displayChangeRole && <Link to="/select-application">Change user role</Link>}
