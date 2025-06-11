@@ -51,6 +51,8 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		oldestCloseoutInitiatedDate := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
 		latestCloseoutInitiatedDate := time.Date(2023, 04, 02, 0, 0, 0, 0, time.UTC)
 
+		servicesCounselorAssignedForCloseoutForBothMoves := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
 		macDillTransportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -83,9 +85,11 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 				},
 				{
 					Model: models.Move{
-						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
-						Locator:          "LATEST",
-						CloseoutOfficeID: &macDillTransportationOffice.ID,
+						PPMType:              models.StringPointer(models.MovePPMTypeFULL),
+						Locator:              "LATEST",
+						CloseoutOfficeID:     &macDillTransportationOffice.ID,
+						CounselingOfficeID:   &macDillTransportationOffice.ID,
+						SCCloseoutAssignedID: &servicesCounselorAssignedForCloseoutForBothMoves.ID,
 					},
 					Type: &factory.Move,
 				},
@@ -105,9 +109,11 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 				},
 				{
 					Model: models.Move{
-						PPMType:          models.StringPointer(models.MovePPMTypePARTIAL),
-						Locator:          "OLDEST",
-						CloseoutOfficeID: &patrickTransportationOffice.ID,
+						PPMType:              models.StringPointer(models.MovePPMTypePARTIAL),
+						Locator:              "OLDEST",
+						CloseoutOfficeID:     &patrickTransportationOffice.ID,
+						CounselingOfficeID:   &patrickTransportationOffice.ID,
+						SCCloseoutAssignedID: &servicesCounselorAssignedForCloseoutForBothMoves.ID,
 					},
 					Type: &factory.Move,
 				},
@@ -137,6 +143,26 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		suite.FatalTrue(suite.NotEmpty(defaultMoves, "No moves were found when there should be 2"))
 		suite.Equal("OLDEST", defaultMoves[0].Locator)
 		suite.Equal("LATEST", defaultMoves[1].Locator)
+	})
+
+	suite.Run("jsonb mapping from the db func holds the ID values", func() {
+		defaultOffice := setupOrdersToFilterBy(suite.DB())
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), defaultOffice)
+
+		defaultMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{NeedsPPMCloseout: models.BoolPointer(true)},
+		)
+		suite.FatalNoError(err)
+		suite.Equal(count, 2)
+		suite.FatalTrue(suite.NotEmpty(defaultMoves, "No moves were found when there should be 2"))
+		for _, move := range defaultMoves {
+			suite.True(move.CloseoutOfficeID != nil && *move.CloseoutOfficeID != uuid.Nil)
+			suite.True(move.OrdersID != uuid.Nil)
+			suite.True(move.CounselingOfficeID != nil && *move.CounselingOfficeID != uuid.Nil)
+			suite.True(move.SCCloseoutAssignedID != nil && *move.CloseoutOfficeID != uuid.Nil)
+		}
 	})
 
 	suite.Run("can sort descending showing newest first and oldest last", func() {
