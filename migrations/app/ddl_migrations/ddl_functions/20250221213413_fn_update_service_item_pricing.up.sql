@@ -395,32 +395,6 @@ BEGIN
                 ELSE
                     RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
                 END IF;
-
-			WHEN service_code IN (''IOFSIT'', ''IDFSIT'') THEN
-				contract_id := get_contract_id(shipment.requested_pickup_date);
-
-				IF service_code = ''IOFSIT'' THEN
-                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
-                ELSE
-                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
-                END IF;
-
-				IF escalated_price IS NOT NULL THEN
-                    RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
-
-                    -- multiply by 110% of estimated weight
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
-
-                    -- update the pricing_estimate value in mto_service_items
-			        UPDATE mto_service_items
-			        SET pricing_estimate = estimated_price
-			        WHERE id = service_item.id;
-                ELSE
-                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
-                END IF;
             ELSE
                 RAISE warning ''Unsupported service code: %'', service_code;
         END CASE;
