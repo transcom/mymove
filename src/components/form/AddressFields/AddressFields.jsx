@@ -18,8 +18,8 @@ import LocationInput from 'components/form/fields/LocationInput';
  * @param render
  * @param validators
  * @param zipCity
- * @param address1LabelHint string to override display labelHint if street 1 is Optional/Required per context.
- * This is specifically designed to handle unique display between customer and office/prime sim for address 1.
+ * @param optionalAddress1
+ * @param optionalLocationLookup
  * @return {JSX.Element}
  * @constructor
  */
@@ -31,7 +31,8 @@ export const AddressFields = ({
   validators,
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
-  address1LabelHint,
+  optionalAddress1,
+  optionalLocationLookup,
   includePOBoxes,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
@@ -64,12 +65,14 @@ export const AddressFields = ({
 
   // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
   // this field is usually always required other than PPMs
-  // a value for address1LabelHint is passed in when we want address 1 to be optional
-  const showRequiredAsteriskForAddress1 = address1LabelHint === null || labelHintProp === 'Required';
+  const showRequiredAsteriskForAddress1 = !optionalAddress1 || labelHintProp === 'Required';
+
+  // For some cases (such as some pages of the  prime UI) the location lookup field is also optional
+  const showRequiredAsteriskForLocationLookup = !optionalLocationLookup;
 
   return (
     <Fieldset legend={legend} className={className}>
-      {requiredAsteriskMessage}
+      {(showRequiredAsteriskForAddress1 || showRequiredAsteriskForLocationLookup) && requiredAsteriskMessage}
       {render(
         <>
           <TextField
@@ -101,6 +104,7 @@ export const AddressFields = ({
             label="Location Lookup"
             handleLocationChange={handleOnLocationChange}
             includePOBoxes={includePOBoxes}
+            showRequiredAsteriskForLocationLookup={showRequiredAsteriskForLocationLookup}
           />
 
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
@@ -170,7 +174,7 @@ AddressFields.propTypes = {
     county: PropTypes.func,
     usPostRegionCitiesID: PropTypes.func,
   }),
-  address1LabelHint: PropTypes.string,
+  optionalAddress1: PropTypes.bool,
   formikProps: shape({
     touched: shape({}),
     errors: shape({}),
@@ -178,6 +182,7 @@ AddressFields.propTypes = {
     setFieldValue: PropTypes.func,
   }),
   includePOBoxes: PropTypes.bool,
+  optionalLocationLookup: PropTypes.bool,
 };
 
 AddressFields.defaultProps = {
@@ -185,9 +190,10 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   validators: {},
-  address1LabelHint: null,
+  optionalAddress1: null,
   formikProps: {},
   includePOBoxes: false,
+  optionalLocationLookup: null,
 };
 
 export default AddressFields;
