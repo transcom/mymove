@@ -142,6 +142,7 @@ export default {
   sit_location: 'SIT location',
   sit_estimated_cost: 'SIT estimated cost',
   estimated_incentive: 'PPM estimated incentive',
+  max_incentive: 'PPM max incentive',
   ppm_type: 'PPM type',
   actual_move_date: 'Departure date',
   actual_pickup_postal_code: 'Starting ZIP',
@@ -176,4 +177,5 @@ export default {
   available_to_prime_at: 'Available to Prime at',
   terminated_at: 'Terminated at',
   termination_comments: 'Comments',
+  required_delivery_date: 'Required delivery date',
 };
