@@ -381,7 +381,6 @@ describe('validates form fields and displays error messages', () => {
 
         // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
         // this field is usually always required other than PPMs
-        // if a value is passed in for address1LabelHint, we will know it is optional and won't show the red asterisk
         const labelsWithAsterisk = screen.queryAllByText((content) => content.trim().endsWith('*'));
         expect(labelsWithAsterisk.length).toBe(13);
       });

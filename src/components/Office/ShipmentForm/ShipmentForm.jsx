@@ -1641,7 +1641,7 @@ const ShipmentForm = (props) => {
                         name="destination.address"
                         legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                         formikProps={formikProps}
-                        address1LabelHint="Optional"
+                        optionalAddress1
                         render={(fields) => (
                           <>
                             {fields}
