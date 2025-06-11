@@ -61,8 +61,8 @@ func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGener
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
-	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData, isPaymentPacket)
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(appCtx appcontext.AppContext, shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
+	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(appCtx, shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
 		return page1, services.Page2Values{}, services.Page3Values{}, errors.WithStack(err)
 	}
@@ -251,7 +251,7 @@ const (
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
+func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(appCtx appcontext.AppContext, data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
 	var err error
 	page1 := services.Page1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
@@ -336,6 +336,30 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 		page1.SafetyMoveHeading = safetyMoveText
 	}
 
+	// for payment packets we use the actual move date for the multiplier
+	// AOAs we use the expected departure date for the multiplier
+	// since the multiplier on the PPM is what is "current", we need to manually check the multiplier since it can be different for each
+	var gccMultiplier models.GCCMultiplier
+	if isPaymentPacket {
+		if data.PPMShipment.ActualMoveDate != nil {
+			gccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), *data.PPMShipment.ActualMoveDate)
+			if err != nil {
+				return page1, err
+			}
+		} else {
+			gccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), data.PPMShipment.ExpectedDepartureDate)
+			if err != nil {
+				return page1, err
+			}
+		}
+	} else {
+		gccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), data.PPMShipment.ExpectedDepartureDate)
+		if err != nil {
+			return page1, err
+		}
+	}
+	// setting the GCC multiplier on the PPM
+	data.PPMShipment.GCCMultiplier = &gccMultiplier
 	if data.PPMShipment.GCCMultiplier != nil && data.PPMShipment.GCCMultiplier.Multiplier != 0 {
 		// the "g" here tells us to not use trailing zeros (1.3 instead of 1.30000)
 		// -1 is to use the most concise represenation

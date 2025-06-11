@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -657,7 +658,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 			oldCentsValue := centsValue
 			multiplier := gccMultiplier.Multiplier
 			multipliedPrice := float64(centsValue) * multiplier
-			centsValue = unit.Cents(int(multipliedPrice))
+			centsValue = unit.Cents(int(math.Round(multipliedPrice)))
 			logger.Debug(fmt.Sprintf("Applying GCC multiplier: %f to service item price %s, original price: %d, new price: %d", multiplier, serviceItem.ReService.Code, oldCentsValue, centsValue))
 		} else {
 			logger.Debug(fmt.Sprintf("Service item price %s %d, no GCC multiplier applied (negative price or no multiplier)",
@@ -846,7 +847,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		if gccMultiplier != nil && gccMultiplier.Multiplier > 0 && centsValue > 0 {
 			multiplier := gccMultiplier.Multiplier
 			multipliedPrice := float64(centsValue) * multiplier
-			centsValue = unit.Cents(int(multipliedPrice))
+			centsValue = unit.Cents(int(math.Round(multipliedPrice)))
 		}
 
 		if err != nil {
