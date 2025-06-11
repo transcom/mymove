@@ -15,6 +15,7 @@
 20250319152232_tbl_B-27700_drop_duty_location_names.up.sql
 20250324195020_tbl_mto_shipments.up.sql
 20250326163727_tbl_alter_audit_history.up.sql
+20250328154338_tbl_B-22466_alter_re_intl_other_prices.up.sql
 20250407153103_tbl_ppm_closeouts_B-22656.up.sql
 20250408195326_tr_sit_extensions_B-22924.up.sql
 20250415153046_tbl_create_reflagged_payment_requests.up.sql
