@@ -9,19 +9,18 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func BuildRank(db *pop.Connection, customs []Customization, traits []Trait) models.Rank {
+func FetchOrBuildRank(db *pop.Connection, customs []Customization, traits []Trait) models.Rank {
 	customs = setupCustomizations(customs, traits)
 
-	var cRank models.Rank
+	var rank models.Rank
 	if result := findValidCustomization(customs, Rank); result != nil {
-		cRank = result.Model.(models.Rank)
+		rank = result.Model.(models.Rank)
 		if result.LinkOnly {
-			return cRank
+			return rank
 		}
 	}
 
-	var rank models.Rank
-
+	// cannot get a rank unless there is a provided pay grade id or it's provided link only
 	if db != nil {
 		var existingPayGrade models.PayGrade
 		err := db.Where("grade = ?", models.ServiceMemberGradeE1).First(&existingPayGrade)

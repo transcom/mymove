@@ -153,6 +153,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PrimeUpload":                              PrimeUpload,
 	"models.ProgearWeightTicket":                      ProgearWeightTicket,
 	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
+	"models.Rank":                                     Rank,
 	"models.ReService":                                ReService,
 	"models.ReDomesticAccessorialPrice":               ReDomesticAccessorialPrice,
 	"models.ReDomesticOtherPrice":                     ReDomesticOtherPrice,

@@ -1447,7 +1447,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 	})
 	suite.Run("Success with fetching a MTO with RankID", func() {
 		// Create a rank
-		rank := factory.BuildRank(suite.DB(), nil, nil)
+		rank := factory.FetchOrBuildRank(suite.DB(), nil, nil)
 
 		rankID := rank.ID
 		orders := models.Order{

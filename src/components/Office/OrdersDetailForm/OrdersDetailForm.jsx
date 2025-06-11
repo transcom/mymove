@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { func, string, bool } from 'prop-types';
-import { useLocation } from 'react-router';
 
 import styles from './OrdersDetailForm.module.scss';
 
@@ -41,8 +40,6 @@ const OrdersDetailForm = ({
   hhgLongLineOfAccounting,
   ntsLongLineOfAccounting,
 }) => {
-  const location = useLocation();
-
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
   const noStarOrQuote = (value) => (/^[^*"]*$/.test(value) ? undefined : 'SAC cannot contain * or " characters');
@@ -71,7 +68,7 @@ const OrdersDetailForm = ({
         name="payGrade"
         label="Pay grade"
         id="payGradeInput"
-        options={payGradeOptions || location.state.payGradeOptions}
+        options={payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
