@@ -52,6 +52,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
+	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
@@ -72,12 +73,14 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
 		newRolesFetcher,
+		userPrivilegesCreator,
 		query.NewQueryFilter,
 	}
 
 	adminAPI.RequestedOfficeUsersUpdateRequestedOfficeUserHandler = UpdateRequestedOfficeUserHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserUpdater(queryBuilder),
+		userPrivilegesCreator,
 		userRolesCreator,
 		newRolesFetcher,
 	}
@@ -109,7 +112,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
-	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
 	transportaionOfficeAssignmentUpdater := transportationofficeassignments.NewTransportaionOfficeAssignmentUpdater()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,

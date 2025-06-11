@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from 'react';
 import { Alert, Button, Label, TextInput } from '@trussworks/react-uswds';
-import React, { useState } from 'react';
 import {
   ArrayField,
   Datagrid,
@@ -13,10 +13,14 @@ import {
 } from 'react-admin';
 import { useNavigate } from 'react-router';
 
+import RequestedOfficeUserPrivilegeConfirm from './RequestedOfficeUserPrivilegeConfirm';
 import styles from './RequestedOfficeUserShow.module.scss';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { updateRequestedOfficeUser } from 'services/adminApi';
 import { adminRoutes } from 'constants/routes';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 const RequestedOfficeUserShowTitle = () => {
   const record = useRecordContext();
@@ -24,15 +28,27 @@ const RequestedOfficeUserShowTitle = () => {
   return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
 };
 
-const RequestedOfficeUserShowRoles = () => {
+/**
+ * Displays a list of requested roles or privileges for an office user.
+ * If displaying privileges, only shows those with privilegeType 'SUPERVISOR'.
+ * If no items are present after filtering, displays a message indicating none were requested.
+ * Used in the Requested Office User Show view for both roles and privileges.
+ */
+const RequestedOfficeUserShowRolesPrivileges = ({ recordSource, recordLabel, recordField }) => {
   const record = useRecordContext();
-  if (!record?.roles) return <p>This user has not requested any roles.</p>;
+  const sourceLabel = typeof recordSource === 'string' ? recordSource.toLowerCase() : '';
+  if (!record?.[recordSource]) return <p>This user has not requested any {sourceLabel}.</p>;
+  let items = record[recordSource] || [];
+  if (recordSource === 'privileges') {
+    items = items.filter((priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR);
+  }
+  if (!items.length) return <p>This user has not requested any {sourceLabel}.</p>;
 
   return (
-    <ArrayField source="roles">
-      <span>Requested roles:</span>
+    <ArrayField source={recordSource} record={{ ...record, [recordSource]: items }}>
+      <span>{recordLabel}:</span>
       <Datagrid bulkActionButtons={false}>
-        <TextField source="roleName" />
+        <TextField source={recordField} />
       </Datagrid>
     </ArrayField>
   );
@@ -45,9 +61,15 @@ const RequestedOfficeUserActionButtons = () => {
   const [serverError, setServerError] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectionReasonCheck, setRejectionReasonCheck] = useState('');
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+  const [checkedPrivileges, setCheckedPrivileges] = useState([]);
   const navigate = useNavigate();
   const record = useRecordContext();
+  const [isRequestAccountPrivilegesFF, setRequestAccountPrivilegesFF] = useState(false);
 
+  useEffect(() => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES).then(setRequestAccountPrivilegesFF);
+  }, []);
   // if approved here, all values are good, but we want to change status to APPROVED
   const approve = async (user) => {
     setRejectionReasonCheck('');
@@ -60,6 +82,7 @@ const RequestedOfficeUserActionButtons = () => {
       otherUniqueId: user.otherUniqueId,
       rejectionReason: null,
       roles: user.roles,
+      privileges: user.privileges,
       status: 'APPROVED',
       telephone: user.telephone,
       transportationOfficeId: user.transportationOfficeId,
@@ -87,6 +110,7 @@ const RequestedOfficeUserActionButtons = () => {
         otherUniqueId: user.otherUniqueId,
         rejectionReason: rejectionReasonInput,
         roles: user.roles,
+        privileges: user.privileges,
         status: 'REJECTED',
         telephone: user.telephone,
         transportationOfficeId: user.transportationOfficeId,
@@ -99,6 +123,30 @@ const RequestedOfficeUserActionButtons = () => {
           setServerError(error);
         });
     }
+  };
+
+  // Handler for privilege confirmation dialog
+  const handlePrivilegeConfirm = async () => {
+    setApproveDialogOpen(false);
+    // Only include checked privileges in approval, and only SUPERVISOR privileges
+    const filteredPrivileges = (record.privileges || []).filter(
+      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
+    );
+    const approvedPrivileges = filteredPrivileges.filter((priv) => checkedPrivileges.includes(priv.id)) || [];
+    await approve({ ...record, privileges: approvedPrivileges });
+  };
+
+  // Handler for Approve button click
+  const handleOnClickApprove = () => {
+    const filteredPrivileges = (record.privileges || []).filter(
+      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
+    );
+    if (isRequestAccountPrivilegesFF && filteredPrivileges.length) {
+      setCheckedPrivileges(filteredPrivileges.map((priv) => priv.id));
+      setApproveDialogOpen(true);
+      return;
+    }
+    approve(record);
   };
 
   return (
@@ -127,12 +175,7 @@ const RequestedOfficeUserActionButtons = () => {
         />
       </div>
       <div className={styles.btnContainer}>
-        <Button
-          className={styles.approveBtn}
-          onClick={async () => {
-            await approve(record);
-          }}
-        >
+        <Button className={styles.approveBtn} onClick={handleOnClickApprove}>
           Approve
         </Button>
         <Button
@@ -145,11 +188,24 @@ const RequestedOfficeUserActionButtons = () => {
         </Button>
         <EditButton />
       </div>
+      <RequestedOfficeUserPrivilegeConfirm
+        isOpen={approveDialogOpen}
+        privileges={record?.privileges || []}
+        checkedPrivileges={checkedPrivileges}
+        setCheckedPrivileges={setCheckedPrivileges}
+        onConfirm={handlePrivilegeConfirm}
+        onClose={() => setApproveDialogOpen(false)}
+      />
     </>
   );
 };
 
 const RequestedOfficeUserShow = () => {
+  const [isRequestAccountPrivilegesFF, setRequestAccountPrivilegesFF] = useState(false);
+  useEffect(() => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES).then(setRequestAccountPrivilegesFF);
+  }, []);
+
   return (
     <Show title={<RequestedOfficeUserShowTitle />}>
       <SimpleShowLayout>
@@ -163,7 +219,18 @@ const RequestedOfficeUserShow = () => {
         <TextField source="telephone" />
         <TextField source="edipi" label="DODID#" />
         <TextField source="otherUniqueId" label="Other unique Id" />
-        <RequestedOfficeUserShowRoles />
+        <RequestedOfficeUserShowRolesPrivileges
+          recordSource="roles"
+          recordLabel="Requested roles"
+          recordField="roleName"
+        />
+        {isRequestAccountPrivilegesFF && (
+          <RequestedOfficeUserShowRolesPrivileges
+            recordSource="privileges"
+            recordLabel="Requested privileges"
+            recordField="privilegeName"
+          />
+        )}
         <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" sortBy="name">
           <TextField component="pre" source="name" />
         </ReferenceField>

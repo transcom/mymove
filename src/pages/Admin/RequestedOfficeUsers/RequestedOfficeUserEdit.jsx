@@ -1,5 +1,5 @@
 import { Alert } from '@trussworks/react-uswds';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Edit,
   SimpleForm,
@@ -9,23 +9,41 @@ import {
   SaveButton,
   AutocompleteInput,
   ReferenceInput,
-  useRecordContext,
   useRedirect,
   DeleteButton,
   Confirm,
+  useRecordContext,
 } from 'react-admin';
 
 import styles from './RequestedOfficeUserShow.module.scss';
+import RequestedOfficeUserPrivilegeConfirm from './RequestedOfficeUserPrivilegeConfirm';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { edipiValidator, phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { deleteOfficeUser, updateRequestedOfficeUser } from 'services/adminApi';
 import { roleTypes } from 'constants/userRoles';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const RequestedOfficeUserShowTitle = () => {
   const record = useRecordContext();
 
   return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
+};
+
+// RecordInitializer: Initializes userData and isOfficeUserRequestedPrivileges state from the current record context.
+// Sets userData to the current record and sets isOfficeUserRequestedPrivileges to true if privileges(Supervisor) was requested/exist.
+const RecordInitializer = ({ setUserData, setIsOfficeUserRequestedPrivileges }) => {
+  const record = useRecordContext();
+  useEffect(() => {
+    const filteredPrivileges = (record?.privileges || []).filter(
+      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
+    );
+    setUserData(record || {});
+    setIsOfficeUserRequestedPrivileges(filteredPrivileges.length > 0);
+  }, [record, setUserData, setIsOfficeUserRequestedPrivileges]);
+  return null;
 };
 
 const validateForm = (values) => {
@@ -66,9 +84,16 @@ const RequestedOfficeUserEdit = () => {
   const [validationCheck, setValidationCheck] = useState('');
   const [open, setOpen] = useState(false);
   const [userData, setUserData] = useState({});
-
+  const [checkedPrivileges, setCheckedPrivileges] = useState([]);
+  const [isOfficeUserRequestedPrivileges, setIsOfficeUserRequestedPrivileges] = useState(false);
+  const [isRequestAccountPrivilegesFF, setRequestAccountPrivilegesFF] = useState(false);
   const handleClick = () => setOpen(true);
   const handleDialogClose = () => setOpen(false);
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES).then(setRequestAccountPrivilegesFF);
+  }, []);
 
   // rejects the user with all relevant updates made by admin
   // performs validation to ensure the rejection reason was provided
@@ -86,6 +111,7 @@ const RequestedOfficeUserEdit = () => {
         otherUniqueId: user.otherUniqueId,
         rejectionReason: user.rejectionReason,
         roles: user.roles,
+        privileges: user.privileges,
         status: 'REJECTED',
         telephone: user.telephone,
         transportationOfficeId: user.transportationOfficeId,
@@ -117,6 +143,7 @@ const RequestedOfficeUserEdit = () => {
         otherUniqueId: user.otherUniqueId,
         rejectionReason: user.rejectionReason,
         roles: user.roles,
+        privileges: user.privileges,
         status: 'APPROVED',
         telephone: user.telephone,
         transportationOfficeId: user.transportationOfficeId,
@@ -150,6 +177,31 @@ const RequestedOfficeUserEdit = () => {
     setOpen(false);
   };
 
+  // Approve button success handler
+  const handleOnClickApprove = async (data) => {
+    const filteredPrivileges = (data.privileges || []).filter(
+      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
+    );
+    if (isRequestAccountPrivilegesFF && filteredPrivileges.length > 0 && isOfficeUserRequestedPrivileges) {
+      setUserData(data);
+      setCheckedPrivileges(filteredPrivileges.map((priv) => priv.id));
+      setApproveDialogOpen(true);
+      return;
+    }
+    await approve(data);
+  };
+
+  // Handler for privilege confirmation dialog
+  const handlePrivilegeConfirm = async () => {
+    setApproveDialogOpen(false);
+    // Only include checked privileges in approval, and only SUPERVISOR privileges
+    const filteredPrivileges = (userData.privileges || []).filter(
+      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
+    );
+    const approvedPrivileges = filteredPrivileges.filter((priv) => checkedPrivileges.includes(priv.id)) || [];
+    await approve({ ...userData, privileges: approvedPrivileges });
+  };
+
   // rendering tool bar with added error/validation alerts
   const renderToolBar = () => {
     return (
@@ -170,9 +222,7 @@ const RequestedOfficeUserEdit = () => {
             alwaysEnable
             label="Approve"
             mutationOptions={{
-              onSuccess: async (data) => {
-                await approve(data);
-              },
+              onSuccess: handleOnClickApprove,
             }}
           />
           <SaveButton
@@ -209,6 +259,22 @@ const RequestedOfficeUserEdit = () => {
         onConfirm={handleConfirm}
         onClose={handleDialogClose}
       />
+
+      <RequestedOfficeUserPrivilegeConfirm
+        isOpen={approveDialogOpen}
+        privileges={userData?.privileges || []}
+        checkedPrivileges={checkedPrivileges}
+        setCheckedPrivileges={setCheckedPrivileges}
+        onConfirm={handlePrivilegeConfirm}
+        onClose={() => setApproveDialogOpen(false)}
+      />
+
+      {isRequestAccountPrivilegesFF && (
+        <RecordInitializer
+          setUserData={setUserData}
+          setIsOfficeUserRequestedPrivileges={setIsOfficeUserRequestedPrivileges}
+        />
+      )}
       <SimpleForm
         toolbar={renderToolBar()}
         sx={{ '& .MuiInputBase-input': { width: 232 } }}
