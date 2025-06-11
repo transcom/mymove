@@ -348,8 +348,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   name="destinationAddress.address"
                   formikProps={formikProps}
                   // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
-                  // a value for address1LabelHint is passed in when we want address 1 to be optional
-                  address1LabelHint=" "
+                  // this field is usually always required other than PPMs
+                  optionalAddress1
                   render={(fields) => (
                     <>
                       <p>Please input your delivery address.</p>

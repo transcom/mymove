@@ -1554,7 +1554,7 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           isCreatePage
           userRole={roleTypes.SERVICES_COUNSELOR}
-          address1LabelHint={' '}
+          optionalAddress1
         />,
       );
 
@@ -1653,7 +1653,7 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           mtoShipment={mockPPMShipment}
           userRole={roleTypes.TOO}
-          // address1LabelHint="optional"
+          optionalAddress1
         />,
       );
 
@@ -1800,7 +1800,7 @@ describe('ShipmentForm component', () => {
             shipmentType={SHIPMENT_OPTIONS.PPM}
             mtoShipment={mockPPMShipment}
             userRole={roleTypes.SERVICES_COUNSELOR}
-            address1LabelHint="optional"
+            optionalAddress1
           />,
         );
 
