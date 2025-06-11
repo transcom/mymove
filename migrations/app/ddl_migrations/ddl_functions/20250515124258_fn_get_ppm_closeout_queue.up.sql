@@ -120,8 +120,8 @@ BEGIN
                         )
                     )
                 )::JSONB AS orders,
-                json_build_object(''name'', counseling_to.name)::JSONB AS counseling_transportation_office,
-                json_build_object(''name'', closeout_to.name)::JSONB AS ppm_closeout_location,
+                json_build_object(''name'', counseling_to.name, ''ID'', counseling_to.ID)::JSONB AS counseling_transportation_office,
+                json_build_object(''name'', closeout_to.name, ''ID'', closeout_to.ID)::JSONB AS ppm_closeout_location,
                 json_build_object(''first_name'', sc.first_name, ''last_name'', sc.last_name, ''id'', sc.id)::JSONB AS sc_assigned,
                 COALESCE(ms_agg.mto_shipments, ''[]''::jsonb)          AS mto_shipments,
                 COALESCE(ppm_agg.ppm_shipments, ''[]''::jsonb)         AS ppm_shipments,
