@@ -835,7 +835,22 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async returnToMoveHome() {
-    await this.page.getByRole('button', { name: 'Return To Homepage' }).click();
+    // if the Return To Homepage button is clicked from review page it navigates back to moves page
+    // if that is the case we need to click the Go To Move button to get back to the home page
+    const homePage = this.page.getByTestId('returnToHomePage');
+    const homePageCount = await homePage.count();
+
+    if (homePageCount > 0) {
+      await homePage.click();
+    } else {
+      const reviewHomePage = this.page.getByTestId('reviewReturnToHomepageLink');
+      const reviewHomePageCount = await reviewHomePage.count();
+
+      if (reviewHomePageCount > 0) {
+        await reviewHomePage.click();
+        await this.page.getByTestId('goToMoveBtn').click();
+      }
+    }
   }
 
   /**

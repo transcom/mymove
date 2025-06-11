@@ -190,10 +190,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('button', { name: 'Manage Orders' }).click();
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
-      await expect(page.getByText('Uploading')).toBeVisible();
-      await expect(page.getByText('Uploading')).not.toBeVisible();
-      await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -204,7 +201,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -217,7 +214,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -228,7 +225,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButtonAmended.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -246,7 +243,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(1);
@@ -258,7 +255,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
     });
   });

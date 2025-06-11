@@ -7,6 +7,20 @@
 // @ts-check
 import { test, expect } from './ppmTestFixture';
 
+/**
+ * @param {string} dateString
+ */
+function formatDate(dateString) {
+  const [month, day, year] = dateString.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+
+  const dayFormatted = String(date.getDate()).padStart(2, '0');
+  const monthFormatted = date.toLocaleString('default', { month: 'short' });
+  const yearFormatted = date.getFullYear();
+
+  return `${dayFormatted} ${monthFormatted} ${yearFormatted}`;
+}
+
 test.describe('Services counselor user', () => {
   test.beforeEach(async ({ ppmPage }) => {
     const move = await ppmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
@@ -100,7 +114,8 @@ test.describe('Services counselor user', () => {
     shipmentContainer = page.locator('[data-testid="ShipmentContainer"]').last();
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
     const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText(expectedDeparture);
+    const formattedDate = formatDate(expectedDeparture);
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText(formattedDate);
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('BEVERLY HILLS');
