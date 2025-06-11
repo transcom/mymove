@@ -184,7 +184,9 @@ BEGIN
                 -- Default query, match the office user GBLOC to the move closeout GBLOC
                 -- unless the user GBLOC is of NAVY, TVCB (Marines), or USCG. These
                 -- will use special filters
-                OR (closeout_gbloc = $1 AND $1 NOT IN (''NAVY'', ''TVCB'',''USCG''))
+                OR (closeout_gbloc = $1
+                    AND $1 NOT IN (''NAVY'', ''TVCB'',''USCG'')
+                    AND branch_out NOT IN (''NAVY'',''MARINES'',''COAST_GUARD'')) -- Do not let these branches show up anywhere else outside of their dedicated PPM closeout offices
                 -- Special closeout GBLOC handling
                 OR ($1 = ''NAVY'' AND branch_out = ''NAVY'')        -- Navy -> Navy moves
                 OR ($1 = ''TVCB'' AND branch_out = ''MARINES'')     -- TVCB -> Marine moves (USMC GBLOC is used for HHG moves. USMC uses TVCB closeout GBLOC explicitly for PPMs)
