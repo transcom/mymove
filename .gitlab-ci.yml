@@ -1014,8 +1014,8 @@ integration_test_devseed:
     - name: $redis
   variables:
     KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
-    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
@@ -1114,8 +1114,8 @@ integration_test_mtls:
   variables:
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
-    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
     FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
@@ -1211,10 +1211,8 @@ integration_test_mtls:
     SERVE_API_PRIME: true
 
     DB_DEBUG: false
-  # needs:
-  #  - prep_integration_docker_microservice
-  #   - pre_deps_yarn
-  #   - compile_app_server
+  needs:
+    - prep_integration_docker_microservice
   before_script:
     - *setup_milmove_env
     - *setup_env_intergration_mtls
@@ -1265,9 +1263,9 @@ integration_test_admin:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
-    # KUBERNETES_CPU_REQUEST: "2"
-    # KUBERNETES_MEMORY_REQUEST: "6Gi"
-    # KUBERNETES_MEMORY_LIMIT: "6Gi"
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
     # FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
@@ -1297,11 +1295,8 @@ integration_test_admin:
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
-  # needs:
-  #   - pre_deps_yarn
-  #   - pre_deps_golang
-  #   - compile_app_client
-  #   - compile_app_server
+  needs:
+    - prep_integration_docker_microservice
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
@@ -1350,9 +1345,9 @@ integration_test_my:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
-    # KUBERNETES_CPU_REQUEST: "2"
-    # KUBERNETES_MEMORY_REQUEST: "6Gi"
-    # KUBERNETES_MEMORY_LIMIT: "6Gi"
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
     MIL_MOVE_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
     MIL_MOVE_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
     MIL_MOVE_DOD_TLS_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
@@ -1389,11 +1384,8 @@ integration_test_my:
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
-  # needs:
-  #   - pre_deps_yarn
-  #   - pre_deps_golang
-  #   - compile_app_client
-  #   - compile_app_server
+  needs:
+    - prep_integration_docker_microservice
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
@@ -1440,9 +1432,9 @@ integration_test_office:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
-    # KUBERNETES_CPU_REQUEST: "2"
-    # KUBERNETES_MEMORY_REQUEST: "6Gi"
-    # KUBERNETES_MEMORY_LIMIT: "6Gi"
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
     MIL_MOVE_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
     MIL_MOVE_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
     MIL_MOVE_DOD_TLS_KEY: $(cat /builds/milmove/mymove//tls/devlocal-https.key)
@@ -1479,11 +1471,8 @@ integration_test_office:
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
-  # needs:
-  #   - pre_deps_yarn
-  #   - pre_deps_golang
-  #   - compile_app_client
-  #   - compile_app_server
+  needs:
+    - prep_integration_docker_microservice
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
@@ -1530,8 +1519,8 @@ integration_test_e2e_generic:
   variables:
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
-    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
@@ -1548,11 +1537,8 @@ integration_test_e2e_generic:
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
-  # needs:
-  #   - pre_deps_yarn
-  #   - pre_deps_golang
-  #   - compile_app_client
-  #   - compile_app_server
+  needs:
+    - prep_integration_docker_microservice
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
