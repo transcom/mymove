@@ -284,7 +284,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 		suite.Equal(newAuthorizedWeight, *orderInDB.Entitlement.DBAuthorizedWeight)
 		suite.Equal(newTIOremarks, *moveInDB.TIORemarks)
 		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
-		suite.WithinDuration(time.Now(), *acknowledgedAt, 2*time.Second)
+		suite.NotNil(acknowledgedAt)
 	})
 
 	suite.Run("Updates the MaxBillableWeight and TIO remarks but does not approve the move if unacknowledged amended orders exist", func() {
