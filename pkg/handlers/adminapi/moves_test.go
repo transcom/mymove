@@ -3,6 +3,7 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -169,6 +170,49 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		// Run handler and check response
 		response := setupHandler().Handle(params)
 		suite.IsType(&moveop.UpdateMoveNotFound{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestMovePayload() {
+	suite.Run("Verify available to Prime date nil", func() {
+		defaultMove := factory.BuildMove(suite.DB(), nil, nil)
+		params := moveop.GetMoveParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID)),
+			MoveID:      *handlers.FmtUUID(defaultMove.ID),
+		}
+		handler := GetMoveHandler{
+			HandlerConfig: suite.HandlerConfig(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&moveop.GetMoveOK{}, response)
+		okResponse := response.(*moveop.GetMoveOK)
+		suite.Nil(okResponse.Payload.AvailableToPrimeAt)
+	})
+
+	suite.Run("Verify available to Prime is returned with the payload", func() {
+		availableToPrime := time.Now()
+		defaultMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &availableToPrime,
+				},
+			},
+		}, nil)
+		params := moveop.GetMoveParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID)),
+			MoveID:      *handlers.FmtUUID(defaultMove.ID),
+		}
+		handler := GetMoveHandler{
+			HandlerConfig: suite.HandlerConfig(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&moveop.GetMoveOK{}, response)
+		okResponse := response.(*moveop.GetMoveOK)
+		suite.Equal(strfmt.DateTime(availableToPrime).String(), (*okResponse.Payload.AvailableToPrimeAt).String())
 	})
 }
 
