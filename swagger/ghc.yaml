@@ -5524,6 +5524,7 @@ paths:
             type: string
             enum:
               - INFECTED
+              - CLEAN
               - NO_THREATS_FOUND
               - PROCESSING
             readOnly: true
@@ -9986,6 +9987,7 @@ definitions:
         type: string
         enum:
           - INFECTED
+          - CLEAN
           - NO_THREATS_FOUND
           - PROCESSING
         readOnly: true
