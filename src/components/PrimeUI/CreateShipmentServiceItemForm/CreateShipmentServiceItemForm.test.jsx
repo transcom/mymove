@@ -73,13 +73,15 @@ const approvedMoveTaskOrder = {
 };
 
 describe('CreateShipmentServiceItemForm component', () => {
-  it('renders service item type dropdown', () => {
+  it('renders service item type dropdown and asterisks for required fields', async () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
     render(
       <MockProviders>
         <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />
       </MockProviders>,
     );
+
+    expect(screen.getByLabelText('Service item type *')).toBeInTheDocument();
 
     expect(screen.getByRole('combobox', { name: 'Service item type' })).toBeInTheDocument();
   });

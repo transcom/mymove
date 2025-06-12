@@ -45,8 +45,9 @@ const InternationalShuttleServiceItemForm = ({ shipment, submission }) => {
           id="reServiceCode"
           required
           options={internationalShuttleServiceItemCodeOptions}
+          showRequiredAsterisk
         />
-        <TextField name="reason" id="reason" label="Reason" />
+        <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk reason />
         <MaskedTextField
           data-testid="estimatedWeightInput"
           name="estimatedWeight"

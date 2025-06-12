@@ -101,7 +101,7 @@ describe('DestinationSITServiceItemForm component', () => {
     );
   });
 
-  it('renders the Create Service Item button', async () => {
+  it('renders the Create Service Item button and asterisks for required fields', async () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
     render(<DestinationSITServiceItemForm shipment={shipment} submission={jest.fn()} />);
@@ -109,6 +109,9 @@ describe('DestinationSITServiceItemForm component', () => {
     // Check if the button renders
     const createBtn = screen.getByRole('button', { name: 'Create service item' });
     expect(createBtn).toBeInTheDocument();
+
+    expect(screen.getByLabelText('Reason *')).toBeInTheDocument();
+    expect(screen.getByLabelText('SIT entry date *')).toBeInTheDocument();
   });
 
   it('submits values when create service item button is clicked', async () => {
@@ -117,14 +120,14 @@ describe('DestinationSITServiceItemForm component', () => {
 
     render(<DestinationSITServiceItemForm shipment={shipment} submission={submissionMock} />);
 
-    await userEvent.type(screen.getByLabelText('Reason'), 'Testing');
+    await userEvent.type(screen.getByLabelText('Reason *'), 'Testing');
     await userEvent.type(screen.getByLabelText('First available delivery date'), '01 Feb 2024');
     await userEvent.type(screen.getByLabelText('First date of attempted contact'), '28 Dec 2023');
     await userEvent.type(screen.getByLabelText('First time of attempted contact'), '1400Z');
     await userEvent.type(screen.getByLabelText('Second available delivery date'), '05 Feb 2024');
     await userEvent.type(screen.getByLabelText('Second date of attempted contact'), '05 Jan 2024');
     await userEvent.type(screen.getByLabelText('Second time of attempted contact'), '1400Z');
-    await userEvent.type(screen.getByLabelText('SIT entry date'), '10 Jan 2024');
+    await userEvent.type(screen.getByLabelText('SIT entry date *'), '10 Jan 2024');
     await userEvent.type(screen.getByLabelText('SIT departure date'), '24 Jan 2024');
 
     // Submit form

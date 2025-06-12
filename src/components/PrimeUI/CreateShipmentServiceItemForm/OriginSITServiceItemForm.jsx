@@ -73,15 +73,17 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
             <input type="hidden" name="mtoShipmentID" />
             <input type="hidden" name="modelType" />
             <input type="hidden" name="reServiceCode" />
-            <TextField name="reason" id="reason" label="Reason" />
+            <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk required />
             <MaskedTextField
               id="sitPostalCode"
               name="sitPostalCode"
               label="SIT postal code"
               mask="00000[{-}0000]"
               placeholder="62225"
+              showRequiredAsterisk
+              required
             />
-            <DatePickerInput label="SIT entry Date" name="sitEntryDate" />
+            <DatePickerInput label="SIT entry Date" name="sitEntryDate" showRequiredAsterisk required />
             <DatePickerInput label="SIT departure Date" name="sitDepartureDate" />
             <AddressFields legend="SIT HHG actual origin" name="sitHHGActualOrigin" formikProps={formikProps} />
             <Button onClick={handleSubmit} disabled={isSubmitting || !isValid} type="submit">
