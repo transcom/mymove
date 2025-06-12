@@ -13,7 +13,7 @@ type SFTPFiler struct {
 	mock.Mock
 }
 
-// Close provides a mock function with no fields
+// Close provides a mock function with given fields:
 func (_m *SFTPFiler) Close() error {
 	ret := _m.Called()
 
