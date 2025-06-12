@@ -260,6 +260,7 @@ class MtoShipmentForm extends Component {
                   pickup: {
                     ...values.pickup,
                     agent: {
+                      ...values.pickup.agent,
                       ...backupContact,
                       phone: backupContact.telephone,
                     },
@@ -275,6 +276,7 @@ class MtoShipmentForm extends Component {
                   pickup: {
                     ...values.pickup,
                     agent: {
+                      ...values.pickup.agent,
                       ...blankContact.contact,
                       phone: blankContact.contact.telephone,
                     },
@@ -295,6 +297,7 @@ class MtoShipmentForm extends Component {
                   delivery: {
                     ...values.delivery,
                     agent: {
+                      ...values.delivery.agent,
                       ...backupContact,
                       phone: backupContact.telephone,
                     },
@@ -310,6 +313,7 @@ class MtoShipmentForm extends Component {
                   delivery: {
                     ...values.delivery,
                     agent: {
+                      ...values.delivery.agent,
                       ...blankContact.contact,
                       phone: blankContact.contact.telephone,
                     },
