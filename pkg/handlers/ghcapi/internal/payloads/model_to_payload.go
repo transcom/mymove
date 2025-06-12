@@ -2626,6 +2626,10 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 			if shipment.RequestedPickupDate != nil {
 				formattedDates = append(formattedDates, shipment.RequestedPickupDate.Format("Jan 2 2006"))
 			}
+
+			if shipment.PPMShipment != nil {
+				formattedDates = append(formattedDates, shipment.PPMShipment.ExpectedDepartureDate.Format("Jan 2 2006"))
+			}
 		}
 
 		if len(formattedDates) > 0 {
