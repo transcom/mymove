@@ -1,8 +1,9 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-
 import 'styles/office.scss';
+import PropTypes from 'prop-types';
+
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
@@ -32,7 +33,7 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
 const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
-const TXOMoveInfo = () => {
+const TXOMoveInfo = ({ isMultiRole }) => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [shipmentsWithDeliveryAddressUpdateRequestedCount, setShipmentsWithDeliveryAddressUpdateRequestedCount] =
@@ -140,10 +141,17 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <div className="custHeader">
-        <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
-        {renderLockedBanner()}
-      </div>
+      {isMultiRole ? (
+        <div className="custHeader" style={{ marginTop: '25px' }}>
+          <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
+          {renderLockedBanner()}
+        </div>
+      ) : (
+        <div className="custHeader" style={{ marginTop: 0 }}>
+          <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
+          {renderLockedBanner()}
+        </div>
+      )}
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
@@ -311,6 +319,14 @@ const TXOMoveInfo = () => {
       </Suspense>
     </>
   );
+};
+
+TXOMoveInfo.propTypes = {
+  isMultiRole: PropTypes.bool,
+};
+
+TXOMoveInfo.defaultProps = {
+  isMultiRole: false,
 };
 
 export default TXOMoveInfo;

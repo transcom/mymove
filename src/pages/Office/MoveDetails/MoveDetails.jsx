@@ -640,7 +640,7 @@ const MoveDetails = ({
             onSubmit={handleCancelMove}
           />
           {submittedShipments?.length > 0 && (
-            <div className={styles.section} id="requested-shipments">
+            <div className={styles.section}>
               <SubmittedRequestedShipments
                 mtoShipments={submittedShipments}
                 closeoutOffice={closeoutOffice}

@@ -188,7 +188,6 @@ const ShipmentDisplay = ({
             isShipment
           />
         )}
-        <div id="orders" />
         <Restricted to={permissionTypes.updateShipment}>
           {editURL && (
             <EditButton

@@ -921,6 +921,7 @@ const ServicesCounselingMoveDetails = ({
             </DetailsPanel>
           </div>
 
+          <div id="orders" style={{ paddingTop: '150px' }} />
           <div className={styles.section}>
             <DetailsPanel
               title="Orders"
