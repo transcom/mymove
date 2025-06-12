@@ -265,7 +265,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(rejectedOfficeUser.ID.String()),
 		}
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -309,7 +309,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 			mock.Anything,
 		).Return(rejectedOfficeUser, nil).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -353,7 +353,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 			mock.Anything,
 		).Return(models.OfficeUser{}, expectedError).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),

@@ -4,7 +4,6 @@ import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
 
 import RequiredAsterisk from '../RequiredAsterisk';
-import OptionalTag from '../OptionalTag';
 
 import styles from './OfficeAccountRequestFields.module.scss';
 
@@ -260,10 +259,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
           })}
           {enableRequestAccountPrivileges && (
             <>
-              <Label data-testid="requestedPrivilegesHeading">
-                Privilege(s)
-                <OptionalTag />
-              </Label>
+              <Label data-testid="requestedPrivilegesHeading">Privilege(s)</Label>
               {filteredPrivileges.map(({ privilegeType, privilegeName }) => (
                 <CheckboxField
                   id={`${privilegeType}PrivilegeCheckbox`}

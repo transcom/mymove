@@ -7,9 +7,10 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
-// PrivilegeAssociater is the service object interface for fetching privileges for a user id
+// PrivilegeAssociator is the service object interface for fetching privileges for a user id
 //
-//go:generate mockery --name PrivilegeAssociater
-type PrivilegeAssociater interface {
+//go:generate mockery --name PrivilegeAssociator
+type PrivilegeAssociator interface {
 	FetchPrivilegesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Privileges, error)
+	FetchPrivilegeTypes(appCtx appcontext.AppContext) ([]roles.PrivilegeType, error)
 }
