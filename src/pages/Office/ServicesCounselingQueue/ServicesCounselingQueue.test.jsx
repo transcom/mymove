@@ -316,6 +316,9 @@ describe('ServicesCounselingQueue', () => {
         <ServicesCounselingQueue isQueueManagementFFEnabled />
       </MockRouterProvider>,
     );
+    it('renders a lock icon', () => {
+      expect(wrapper.find({ 'data-testid': 'lock-0' }).exists()).toBe(true);
+    });
     it('displays move header with needs service counseling count', () => {
       expect(wrapper.find('h1').text()).toBe('Moves (3)');
     });

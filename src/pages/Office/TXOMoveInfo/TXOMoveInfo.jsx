@@ -42,7 +42,6 @@ const TXOMoveInfo = () => {
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [missingOrdersInfoCount, setMissingOrdersInfoCount] = useState(0);
   const [shipmentErrorConcernCount, setShipmentErrorConcernCount] = useState(0);
-  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
@@ -52,23 +51,17 @@ const TXOMoveInfo = () => {
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
 
-  // checking for the move_lock flag, if it's turned on we need to assess if the move should be locked to the user
-  useEffect(() => {
-    isBooleanFlagEnabled('move_lock').then(setMoveLockFlag);
-  }, []);
-
   useEffect(() => {
     const checkLock = async () => {
       const now = new Date();
       const isLocked =
-        moveLockFlag &&
         move?.lockedByOfficeUserID &&
         officeUserID !== move?.lockedByOfficeUserID &&
         now < new Date(move?.lockExpiresAt);
       setIsMoveLocked(isLocked);
     };
     checkLock();
-  }, [move, officeUserID, moveLockFlag]);
+  }, [move, officeUserID]);
 
   const [supportingDocsFF, setSupportingDocsFF] = useState(false);
 
@@ -129,7 +122,7 @@ const TXOMoveInfo = () => {
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
     const now = new Date();
-    if (move?.lockedByOfficeUserID && move?.lockExpiresAt && moveLockFlag) {
+    if (move?.lockedByOfficeUserID && move?.lockExpiresAt) {
       if (move?.lockedByOfficeUserID !== officeUserID && now < new Date(move?.lockExpiresAt)) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">
