@@ -84,7 +84,11 @@ const SubmitMoveForm = (props) => {
                       }}
                     />
                   }
-                  label="I have read and understand the agreement as shown above"
+                  label={
+                    <>
+                      <RequiredAsterisk /> I have read and understand the agreement as shown above
+                    </>
+                  }
                 />
               </FormGroup>
 
