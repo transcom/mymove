@@ -1,3 +1,4 @@
+
 --B-22462  M.Inthavongsay Adding initial migration file for update_service_item_pricing stored procedure using new migration process.
 --Also updating to allow IOSFSC and IDSFSC SIT service items.
 --B-22463  M.Inthavongsay updating to allow IOASIT and IDASIT SIT service items.
