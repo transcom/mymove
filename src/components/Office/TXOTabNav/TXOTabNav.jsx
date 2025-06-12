@@ -121,6 +121,7 @@ const TXOTabNav = ({
         }
       >
         <TabNav items={items} />
+        <div id="billable-weights" />
       </div>
     </header>
   );

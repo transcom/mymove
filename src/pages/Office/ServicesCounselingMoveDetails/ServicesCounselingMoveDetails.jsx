@@ -705,7 +705,7 @@ const ServicesCounselingMoveDetails = ({
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav className={styles.leftNav} sections={sections}>
+        <LeftNav sections={sections}>
           <LeftNavTag
             associatedSectionName="shipments"
             showTag={shipmentWarnConcernCount !== 0}
@@ -844,7 +844,7 @@ const ServicesCounselingMoveDetails = ({
             </div>
           ) : null}
 
-          <div className={styles.section} id="shipments">
+          <div className={styles.section}>
             <DetailsPanel
               editButton={
                 !isMoveLocked &&
@@ -921,7 +921,7 @@ const ServicesCounselingMoveDetails = ({
             </DetailsPanel>
           </div>
 
-          <div className={styles.section} id="orders">
+          <div className={styles.section}>
             <DetailsPanel
               title="Orders"
               editButton={
@@ -940,7 +940,7 @@ const ServicesCounselingMoveDetails = ({
               <OrdersList ordersInfo={ordersInfo} moveInfo={move} />
             </DetailsPanel>
           </div>
-          <div className={styles.section} id="allowances">
+          <div className={styles.section}>
             <DetailsPanel
               title="Allowances"
               editButton={
