@@ -66,13 +66,18 @@
     @include u-position('relative');
 
     display: flex;
+    justify-content: space-around;
     align-items: center;
+
+    .navBtns {
+      display: flex;
+    }
 
     .totalApproved {
       display: flex;
       flex-direction: column;
       flex-grow: 1;
-      text-align: right;
+      text-align: left;
 
       .totalLabel {
         @include u-font-size('body', '3xs');
