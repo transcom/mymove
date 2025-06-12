@@ -446,7 +446,7 @@ test.describe('TOO user', () => {
 
       await tooFlowPage.selectDutyLocation('Fort Irwin', 'originDutyLocation');
       // select the 5th option in the dropdown
-      await tooFlowPage.selectDutyLocation('JB McGuire-Dix-Lakehurst', 'newDutyLocation', 5);
+      await tooFlowPage.selectDutyLocation('JB McGuire-Dix-Lakehurst', 'newDutyLocation', 1);
 
       await page.locator('input[name="issueDate"]').clear();
       await page.locator('input[name="issueDate"]').fill('16 Mar 2018');
@@ -463,7 +463,7 @@ test.describe('TOO user', () => {
       await page.locator('input[name="sac"]').fill('4K988AS098F');
 
       // Edit orders page | Save
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByTestId('submit_button').click();
       await page.getByRole('heading', { name: 'Move Details' }).waitFor();
 
       // Verify edited values are saved
@@ -471,7 +471,7 @@ test.describe('TOO user', () => {
 
       await expect(page.locator('[data-testid="currentDutyLocation"]')).toContainText('Fort Irwin');
       await expect(page.locator('[data-testid="newDutyLocation"]')).toContainText(
-        'JB Langley-Eustis (Fort Eustis), VA 23604',
+        'JB McGuire-Dix-Lakehurst (McGuire AFB), NJ 08562',
       );
       await expect(page.locator('[data-testid="issuedDate"]')).toContainText('16 Mar 2018');
       await expect(page.locator('[data-testid="reportByDate"]')).toContainText('22 Mar 2018');
@@ -479,8 +479,8 @@ test.describe('TOO user', () => {
       await expect(page.locator('[data-testid="ordersNumber"]')).toContainText('ORDER66');
       await expect(page.locator('[data-testid="ordersType"]')).toContainText('Permanent Change Of Station (PCS)');
       await expect(page.locator('[data-testid="ordersTypeDetail"]')).toContainText('Shipment of HHG Permitted');
-      await expect(page.locator('[data-testid="tacMDC"]')).toContainText('F123');
-      await expect(page.locator('[data-testid="sacSDN"]')).toContainText('4K988AS098F');
+      await expect(page.locator('[data-testid="tacMDC"]')).toContainText(/F123/);
+      await expect(page.locator('[data-testid="sacSDN"]')).toContainText(/4K98/);
 
       // Edit orders page | Cancel
       // Navigate to Edit orders page

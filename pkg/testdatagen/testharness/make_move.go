@@ -5844,6 +5844,8 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+	shipment.Shipment.PickupAddress = &address
+	shipment.Shipment.DestinationAddress = &address
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
 	sitCost := unit.Cents(200000)

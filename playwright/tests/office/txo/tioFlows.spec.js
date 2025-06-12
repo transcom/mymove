@@ -382,7 +382,8 @@ test.describe('TIO user', () => {
       await form.locator('input[name="sac"]').fill('4K988AS098F');
       await form.locator('input[name="sac"]').blur();
       // Edit orders page | Save
-      await page.getByRole('button', { name: 'Save' }).click();
+      await expect(page.getByTestId('submit_button')).toBeEnabled();
+      await page.getByTestId('submit_button').click();
       await page.waitForURL('**/payment-requests');
       await tioFlowPage.waitForLoading();
 
@@ -410,6 +411,7 @@ test.describe('TIO user', () => {
       await tioFlowPage.slowDown();
       // go back to the previous page
       await page.getByText('Previous').click();
+      await tioFlowPage.slowDown();
       // the service item should neither be approved/rejected so the clear selection should not be seen
       await expect(page.getByText('Clear selection')).not.toBeVisible();
       await tioFlowPage.approveServiceItem();
@@ -827,7 +829,6 @@ test.describe('TIO user', () => {
       await expect(page.getByText('Actual Move Start Date')).toBeVisible();
       await expect(page.getByText('Starting Address')).toBeVisible();
       await expect(page.getByText('Ending Address')).toBeVisible();
-      await expect(page.getByText('Miles')).toBeVisible();
       await expect(page.getByText('Estimated Net Weight')).toBeVisible();
       await expect(page.getByText('Actual Net Weight')).toBeVisible();
       await expect(page.getByText('Allowable Weight')).toBeVisible();

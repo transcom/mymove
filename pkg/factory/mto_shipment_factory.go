@@ -13,7 +13,7 @@ import (
 )
 
 // GHCTestYear is the default for GHC rate engine testing
-var GHCTestYear = 2024
+var GHCTestYear = 2025
 
 type mtoShipmentBuildType byte
 
@@ -86,12 +86,15 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		MarketCode:      defaultMarketCode,
 	}
 
+	defaultDate := time.Now()
+
 	if newMTOShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS && newMTOShipment.StorageFacility != nil {
 		newMTOShipment.DestinationAddress = &newMTOShipment.StorageFacility.Address
 	}
 
 	if cMtoShipment.Status == models.MTOShipmentStatusApproved {
-		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+
+		approvedDate := time.Date(GHCTestYear, defaultDate.Month(), defaultDate.Day(), 0, 0, 0, 0, time.UTC)
 		newMTOShipment.ApprovedDate = &approvedDate
 	}
 
@@ -117,17 +120,18 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		newMTOShipment.CustomerRemarks = models.StringPointer("Please treat gently")
 
 		if shipmentHasPickupDetails {
+			pickupDate := defaultDate.AddDate(0, 0, 5)
 			if cMtoShipment.RequestedPickupDate == nil {
-				newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+				newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, pickupDate.Month(), pickupDate.Day(), 0, 0, 0, 0, time.UTC))
 			} else {
 				newMTOShipment.RequestedPickupDate = cMtoShipment.RequestedPickupDate
 			}
 			if cMtoShipment.ScheduledPickupDate == nil {
-				newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+				newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, pickupDate.Month(), pickupDate.Day(), 0, 0, 0, 0, time.UTC))
 			} else {
 				newMTOShipment.ScheduledPickupDate = cMtoShipment.ScheduledPickupDate
 			}
-			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, pickupDate.Month(), pickupDate.Day(), 0, 0, 0, 0, time.UTC))
 		}
 
 		if shipmentHasPickupDetails || findValidCustomization(customs, Addresses.PickupAddress) != nil {
@@ -177,8 +181,9 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		}
 
 		if shipmentHasDeliveryDetails {
-			newMTOShipment.RequestedDeliveryDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
-			newMTOShipment.ScheduledDeliveryDate = models.TimePointer(time.Date(GHCTestYear, time.March, 17, 0, 0, 0, 0, time.UTC))
+			deliveryDate := defaultDate.AddDate(0, 0, 5)
+			newMTOShipment.RequestedDeliveryDate = models.TimePointer(time.Date(GHCTestYear, deliveryDate.Month(), deliveryDate.Day(), 0, 0, 0, 0, time.UTC))
+			newMTOShipment.ScheduledDeliveryDate = models.TimePointer(time.Date(GHCTestYear, deliveryDate.Month(), deliveryDate.Day(), 0, 0, 0, 0, time.UTC))
 
 			// Find/create the Delivery Address
 			tempDeliveryAddressCustoms := customs
@@ -226,7 +231,8 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			if cMtoShipment.RequiredDeliveryDate != nil {
 				newMTOShipment.RequiredDeliveryDate = cMtoShipment.RequiredDeliveryDate
 			} else {
-				requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+				deliveryDate := defaultDate.AddDate(0, 0, 5)
+				requiredDeliveryDate := time.Date(GHCTestYear, deliveryDate.Month(), deliveryDate.Day(), 0, 0, 0, 0, time.UTC)
 				newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
 			}
 		}
