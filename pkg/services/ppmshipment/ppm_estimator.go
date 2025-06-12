@@ -146,6 +146,20 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 	}
 }
 
+func shouldSkipMaxIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
+	// check if GCC multipliers have changed or do not match
+	if newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID {
+		return false
+	}
+	// if the max incentive is nil or 0, we want to update it
+	if oldPPMShipment.MaxIncentive == nil || *oldPPMShipment.MaxIncentive == 0 {
+		return false
+	} else {
+		// if the departure date has changed, we want to recalculate
+		return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate)
+	}
+}
+
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
 	// If oldPPMShipment field value is nil we know that the value has been updated and we should return false - the adjusted net weight is accounted for in the
 	// SumWeights function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
@@ -327,13 +341,19 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		return nil, err
 	}
 
+	maxIncentive := oldPPMShipment.MaxIncentive
+
 	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
 
-		// since the max incentive is based off of the authorized weight entitlement and that value CAN change
-		// we will calculate the max incentive each time it is called
-		maxIncentive, err := f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
-		if err != nil {
-			return nil, err
+		skipCalculatingMaxIncentive := shouldSkipMaxIncentive(newPPMShipment, &oldPPMShipment)
+
+		if !skipCalculatingMaxIncentive {
+			// since the max incentive is based off of the authorized weight entitlement and that value CAN change
+			// we will calculate the max incentive each time it is called
+			maxIncentive, err = f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		return maxIncentive, nil
