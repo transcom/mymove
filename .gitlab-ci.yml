@@ -1550,6 +1550,8 @@ integration_test_e2e_generic:
       #- ./myapp migrate up # Run database migrations
       - npm install
   script:
+    - echo "Listing all environment variables:"
+    - printenv
     - echo "TODO Add steps"
     - echo "integration_test_office"
     - ./node_modules/.bin/playwright test playwright/tests/office \
