@@ -1,0 +1,9 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.Profile {
+  background: $bg-gray;
+  scroll-behavior: smooth;
+  flex-grow: 1;
+  padding-top: 26px;
+}

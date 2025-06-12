@@ -10,7 +10,7 @@ test.describe('Additional Documents', () => {
   test('Users can download documents uploaded to Additional Documents', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
 
     // Sign-in and navigate to move home page
     await customerPage.signInAsExistingCustomer(userId);
@@ -18,7 +18,7 @@ test.describe('Additional Documents', () => {
     await customerPage.waitForPage.home();
 
     // Go to the Upload Additional Documents page
-    await page.getByRole('button', { name: 'Upload Additional Documents' }).click();
+    await page.getByRole('button', { name: 'Upload/Manage Additional Documentation' }).click();
 
     // Upload document
     const filepondContainer = page.locator('.filepond--wrapper');

@@ -25,6 +25,8 @@ func NewPPMShipmentFetcher() services.PPMShipmentFetcher {
 const (
 	// EagerPreloadAssociationShipment is the name of the association for the shipment
 	EagerPreloadAssociationShipment = "Shipment"
+	// EagerPreloadAssociationMove is the name of the association for the Move
+	EagerPreloadAssociationMove = "Shipment.MoveTaskOrder"
 	// EagerPreloadAssociationServiceMember is the name of the association for the service member
 	EagerPreloadAssociationServiceMember = "Shipment.MoveTaskOrder.Orders.ServiceMember"
 	// EagerPreloadAssociationWeightTickets is the name of the association for the weight tickets
@@ -72,6 +74,7 @@ const (
 func GetListOfAllPreloadAssociations() []string {
 	return []string{
 		EagerPreloadAssociationShipment,
+		EagerPreloadAssociationMove,
 		EagerPreloadAssociationServiceMember,
 		EagerPreloadAssociationWeightTickets,
 		EagerPreloadAssociationProgearWeightTickets,
@@ -250,6 +253,8 @@ func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID)
 		EagerPreload(
 			"Shipment",
 			"WeightTickets",
+			"PickupAddress",
+			"DestinationAddress",
 		).
 		Find(&ppmShipment, id)
 
@@ -282,6 +287,7 @@ func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*mod
 			"DestinationAddress.Country",
 			"SecondaryDestinationAddress.Country",
 			"TertiaryDestinationAddress.Country",
+			"GCCMultiplier",
 		).
 		Where("shipment_id = ?", mtoID).First(&ppmShipment)
 

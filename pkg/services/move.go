@@ -34,6 +34,7 @@ type MoveFetcherBulkAssignment interface {
 	FetchMovesForBulkAssignmentCounseling(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 	FetchMovesForBulkAssignmentCloseout(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 	FetchMovesForBulkAssignmentTaskOrder(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
+	FetchMovesForBulkAssignmentDestination(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 	FetchMovesForBulkAssignmentPaymentRequest(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 }
 
@@ -54,6 +55,7 @@ type MoveFetcherParams struct {
 type MoveRouter interface {
 	Approve(appCtx appcontext.AppContext, move *models.Move) error
 	ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error)
+	UpdateShipmentStatusToApprovalsRequested(appCtx appcontext.AppContext, shipment models.MTOShipment) (*models.MTOShipment, error)
 	Cancel(appCtx appcontext.AppContext, move *models.Move) error
 	CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error
 	RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error

@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -159,6 +160,10 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment",
+				"PPMShipment.WeightTickets",
+				"PPMShipment.FinalIncentive",
+				"PPMShipment.ProGearWeight",
+				"PPMShipment.SpouseProGearWeight",
 				"BoatShipment",
 				"MobileHome",
 				"Distance"}
@@ -176,6 +181,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 					"SecondaryPickupAddress",
 					"SecondaryDestinationAddress",
 					"W2Address",
+					"MovingExpenses",
 				}
 
 				ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
@@ -190,6 +196,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				mtoShipment.PPMShipment.SecondaryPickupAddress = ppmShipment.SecondaryPickupAddress
 				mtoShipment.PPMShipment.SecondaryDestinationAddress = ppmShipment.SecondaryDestinationAddress
 				mtoShipment.PPMShipment.W2Address = ppmShipment.W2Address
+				mtoShipment.PPMShipment.MovingExpenses = ppmShipment.MovingExpenses
 			}
 
 			var agents []models.MTOAgent
@@ -594,6 +601,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			if reweighActiveForMove {
 				for _, shipment := range move.MTOShipments {
 					if (shipment.Status == models.MTOShipmentStatusApproved ||
+						shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 						shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 						shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 						shipment.Reweigh.ID == uuid.Nil &&
@@ -815,6 +823,7 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 					for i := range move.MTOShipments {
 						shipment := move.MTOShipments[i]
 						if (shipment.Status == models.MTOShipmentStatusApproved ||
+							shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 							shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 							shipment.Reweigh.ID == uuid.Nil &&
@@ -956,6 +965,7 @@ type ApproveShipmentDiversionHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentDiversionApprover
 	services.ShipmentSITStatus
+	services.MoveRouter
 }
 
 // Handle approves a shipment diversion
@@ -1001,7 +1011,10 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 				return handleError(err)
 			}
 
-			h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			err = h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			if err != nil {
+				return handleError(err)
+			}
 
 			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
@@ -1014,9 +1027,26 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 		})
 }
 
-func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) {
+func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) error {
 
-	_, err := event.TriggerEvent(event.Event{
+	move := &models.Move{}
+	err := appCtx.DB().Find(move, moveID)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(moveID, "while looking for move")
+		default:
+			return apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
+		if _, err = h.ApproveOrRequestApproval(appCtx, *move); err != nil {
+			return err
+		}
+	}
+
+	_, err = event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcApproveShipmentDiversionEndpointKey,
 		// Endpoint that is being handled
 		EventKey:        event.ShipmentApproveDiversionEventKey, // Event that you want to trigger
@@ -1030,6 +1060,8 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(a
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.ApproveShipmentDiversionHandler could not generate the event", zap.Error(err))
 	}
+
+	return nil
 }
 
 // RejectShipmentHandler rejects a shipment
@@ -1257,22 +1289,6 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 
 			moveID := shipment.MoveTaskOrderID
 			h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
-
-			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), shipment.MoveTaskOrderID)
-			if err != nil {
-				return nil, err
-			}
-
-			/* Don't send emails for BLUEBARK/SAFETY moves */
-			if move.Orders.CanSendEmailWithOrdersType() {
-				err = h.NotificationSender().SendNotification(appCtx,
-					notifications.NewReweighRequested(moveID, *shipment),
-				)
-				if err != nil {
-					appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-			}
 
 			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
 			if err != nil {
@@ -1666,5 +1682,69 @@ func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.Create
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 			returnPayload := payloads.MTOShipment(h.FileStorer(), shipment, sitStatusPayload)
 			return shipmentops.NewCreateApprovedSITDurationUpdateOK().WithPayload(returnPayload), nil
+		})
+}
+
+// TerminateShipmentHandler terminates a shipment
+type TerminateShipmentHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentTermination
+}
+
+// Terminates a shipment
+// updates shipment's status to TERMINATION_FOR_CAUSE
+func (h TerminateShipmentHandler) Handle(params shipmentops.CreateTerminationParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			if !appCtx.Session().Roles.HasRole(roles.RoleTypeContractingOfficer) {
+				forbiddenError := apperror.NewForbiddenError("user is not authenticated with the authorized office role to terminate shipments")
+				appCtx.Logger().Error(forbiddenError.Error())
+				return shipmentops.NewCreateTerminationForbidden(), forbiddenError
+			}
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("error terminating shipment for cause", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewCreateTerminationNotFound(), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(
+						handlers.ValidationErrMessage,
+						err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return shipmentops.NewCreateTerminationUnprocessableEntity().WithPayload(payload), err
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						appCtx.Logger().Error("ghcapi.TerminateShipmentHandler query error", zap.Error(e.Unwrap()))
+					}
+					return shipmentops.NewCreateTerminationInternalServerError(), err
+				default:
+					return shipmentops.NewCreateTerminationInternalServerError(), err
+				}
+			}
+
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			updatedShipment, err := h.ShipmentTermination.TerminateShipment(appCtx, shipmentID, *params.Body.TerminationReason)
+			if err != nil {
+				return handleError(err)
+			}
+
+			_, err = event.TriggerEvent(event.Event{
+				EventKey:        event.ShipmentTerminateEventKey,
+				MtoID:           updatedShipment.MoveTaskOrderID,
+				UpdatedObjectID: updatedShipment.ID,
+				EndpointKey:     event.GhcTerminateShipmentEndpointKey,
+				AppContext:      appCtx,
+				TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+			})
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.TerminateShipmentHandler could not generate the event")
+			}
+
+			shipmentPayload := payloads.MTOShipment(h.FileStorer(), updatedShipment, nil)
+
+			return shipmentops.NewCreateTerminationOK().WithPayload(shipmentPayload), nil
 		})
 }

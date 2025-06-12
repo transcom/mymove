@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -22,15 +23,21 @@ import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
 import { calculateWeightRequested } from 'hooks/custom';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
-import { PPM_DOCUMENT_TYPES } from 'shared/constants';
+import { PPM_TYPES, PPM_DOCUMENT_TYPES } from 'shared/constants';
+import { PPM_DOCUMENT_STATUS } from 'constants/ppms';
+import { fetchPaymentPacketBlob } from 'services/ghcApi';
+import CompletePPMCloseoutConfirmationModal from 'components/Office/PPM/CompletePPMCloseoutConfirmationModal/CompletePPMCloseoutConfirmationModal';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 
-export const ReviewDocuments = ({ readOnly }) => {
+export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
-  const [isFileUploading, setFileUploading] = useState(false);
+  const [serverError, setServerError] = useState(null);
   const [showOverview, setShowOverview] = useState(false);
+
+  const [isFileUploading, setFileUploading] = useState(false);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
@@ -40,24 +47,65 @@ export const ReviewDocuments = ({ readOnly }) => {
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
-  const [ppmShipmentInfo, setPpmShipmentInfo] = useState({});
+  const [paymentPacketFile, setPaymentPacketFile] = useState(null);
+  const [packetLoading, setPacketLoading] = useState(false);
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+
   const [allWeightTicketsRejected, setAllWeightTicketsRejected] = useState(false);
+  const [allMovingExpensesRejected, setAllMovingExpensesRejected] = useState(false);
   let documentSets = useMemo(() => [], []);
   const weightTickets = useMemo(() => documents?.WeightTickets ?? [], [documents?.WeightTickets]);
+  const movingExpenses = useMemo(() => documents?.MovingExpenses ?? [], [documents?.MovingExpenses]);
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
-  const movingExpenses = documents?.MovingExpenses ?? [];
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
 
+  const ppmShipmentInfo = useMemo(() => {
+    if (mtoShipment && mtoShipment.ppmShipment) {
+      return {
+        ...mtoShipment.ppmShipment,
+        miles: mtoShipment.distance,
+        actualWeight: ppmActualWeight?.actualWeight ?? currentTotalWeight,
+      };
+    }
+    return {};
+  }, [mtoShipment, ppmActualWeight, currentTotalWeight]);
+  const isPPMSPR = ppmShipmentInfo?.ppmType === PPM_TYPES.SMALL_PACKAGE;
+
   useEffect(() => {
     if (weightTickets.length > 0) {
-      const allRejected = weightTickets.every((ticket) => ticket.status === 'REJECTED');
+      const allRejected = weightTickets.every((ticket) => ticket.status === PPM_DOCUMENT_STATUS.REJECTED);
       setAllWeightTicketsRejected(allRejected);
     } else {
       setAllWeightTicketsRejected(false);
     }
   }, [weightTickets]);
+
+  useEffect(() => {
+    if (movingExpenses.length > 0) {
+      const allRejected = movingExpenses.every((ticket) => ticket.status === PPM_DOCUMENT_STATUS.REJECTED);
+      setAllMovingExpensesRejected(allRejected);
+    } else {
+      setAllMovingExpensesRejected(false);
+    }
+  }, [movingExpenses]);
+
+  useEffect(() => {
+    if (showOverview) {
+      if (allWeightTicketsRejected && weightTickets.length > 0) {
+        setServerError(
+          'Cannot closeout PPM. All weight tickets have been rejected. At least one approved weight ticket is required.',
+        );
+      } else if (allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR) {
+        setServerError(
+          'Cannot closeout PPM. All moving expenses have been rejected. At least one approved moving expense is required for a PPM-SPR.',
+        );
+      } else {
+        setServerError(null);
+      }
+    }
+  }, [showOverview, allWeightTicketsRejected, weightTickets, allMovingExpensesRejected, movingExpenses, isPPMSPR]);
 
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
@@ -136,8 +184,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const formRef = useRef();
   const mainRef = useRef();
 
-  const [serverError, setServerError] = useState(null);
-
   const queryClient = useQueryClient();
 
   const onClose = () => {
@@ -186,14 +232,35 @@ export const ReviewDocuments = ({ readOnly }) => {
   const onContinue = () => {
     setServerError(null);
 
-    if (showOverview && allWeightTicketsRejected && weightTickets.length > 0) {
-      setServerError(
-        'Cannot closeout PPM. All weight tickets have been rejected. At least one approved weight ticket is required.',
-      );
-      return;
-    }
     if (formRef.current) {
       formRef.current.handleSubmit();
+    }
+  };
+
+  // when a payment packet is previewed in the doc viewer, we can use browser memory to store and view the file using JS "blobs"
+  // this stores the file in the browser memory and then we can point to the blob URL when previewing the file
+  // using React State, we can just load the PDF via the temp URL
+  const handleDownloadPaymentPacket = async () => {
+    try {
+      setPacketLoading(true);
+      setShowLoadingSpinner(true, null);
+      const blob = await fetchPaymentPacketBlob(mtoShipment.ppmShipment.id);
+      const fileUrl = window.URL.createObjectURL(blob);
+
+      setPaymentPacketFile({
+        id: `payment-packet-${shipmentId}`,
+        filename: `payment-packet-${shipmentId}.pdf`,
+        url: fileUrl,
+        createdAt: new Date().toISOString(),
+        rotation: 0,
+        contentType: 'application/pdf',
+      });
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      setServerError(msg);
+    } finally {
+      setPacketLoading(false);
+      setShowLoadingSpinner(false, null);
     }
   };
 
@@ -211,18 +278,15 @@ export const ReviewDocuments = ({ readOnly }) => {
   const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
 
   const formatDocumentSetDisplay = documentSetIndex + 1;
-
-  let nextButton = 'Continue';
-  if (showOverview) {
-    nextButton = readOnly ? 'Close' : 'PPM Review Complete';
-  }
-
   const currentTripNumber = currentDocumentSet?.tripNumber != null ? currentDocumentSet.tripNumber + 1 : 0;
   const currentDocumentCategoryIndex =
     currentDocumentSet?.categoryIndex != null ? currentDocumentSet.categoryIndex + 1 : 0;
 
   useEffect(() => {
-    if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
+    if (
+      currentTotalWeight === 0 &&
+      documentSets[documentSetIndex]?.documentSet.status !== PPM_DOCUMENT_STATUS.REJECTED
+    ) {
       updateTotalWeight(ppmActualWeight?.actualWeight || 0);
     }
   }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
@@ -237,17 +301,6 @@ export const ReviewDocuments = ({ readOnly }) => {
     setCurrentMtoShipments(mtoShipments);
   }, [mtoShipments]);
 
-  useEffect(() => {
-    if (mtoShipment) {
-      const updatedPpmShipmentInfo = {
-        ...mtoShipment.ppmShipment,
-        miles: mtoShipment.distance,
-        actualWeight: currentTotalWeight,
-      };
-      setPpmShipmentInfo(updatedPpmShipmentInfo);
-    }
-  }, [mtoShipment, currentTotalWeight]);
-
   const getAllUploads = () => {
     return documentSets.reduce((acc, documentSet) => {
       return acc.concat(documentSet.uploads);
@@ -256,13 +309,28 @@ export const ReviewDocuments = ({ readOnly }) => {
 
   const uploads = showOverview ? getAllUploads() : currentDocumentSet?.uploads;
 
+  const handleSubmitPPMShipmentModal = () => {
+    onContinue();
+  };
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   return (
     <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
+      <CompletePPMCloseoutConfirmationModal
+        isOpen={isConfirmModalVisible}
+        onClose={setIsConfirmModalVisible}
+        onSubmit={handleSubmitPPMShipmentModal}
+      />
       <div className={styles.embed}>
-        <DocumentViewer files={uploads} allowDownload isFileUploading={isFileUploading} />
+        {paymentPacketFile ? (
+          // View the payment packet preview, allowing full unmount of the uploads
+          <DocumentViewer key="packet" files={[paymentPacketFile]} allowDownload isFileUploading={false} />
+        ) : (
+          // View the uploads
+          <DocumentViewer key="docs" files={uploads} allowDownload isFileUploading={isFileUploading} />
+        )}
       </div>
       <DocumentViewerSidebar
         title={readOnly ? 'View documents' : 'Review documents'}
@@ -294,9 +362,6 @@ export const ReviewDocuments = ({ readOnly }) => {
               </Alert>
             </Grid>
           )}
-          <ErrorMessage className={styles.errorMessage} display={!!serverError}>
-            {serverError}
-          </ErrorMessage>
           <div className={classNames(styles.top, styles.noBottomBorder)}>
             {!readOnly && !showOverview && currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET && (
               <>
@@ -423,6 +488,9 @@ export const ReviewDocuments = ({ readOnly }) => {
               })}
           </div>
           <br />
+          <ErrorMessage className={styles.errorMessage} display={!!serverError}>
+            {serverError}
+          </ErrorMessage>
           {documentSets &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
@@ -496,20 +564,79 @@ export const ReviewDocuments = ({ readOnly }) => {
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
-          <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
-            Back
-          </Button>
-          <Button
-            type="submit"
-            onClick={onContinue}
-            data-testid="reviewDocumentsContinueButton"
-            disabled={showOverview && allWeightTicketsRejected && weightTickets.length > 0}
-          >
-            {nextButton}
-          </Button>
+          {!paymentPacketFile && (
+            <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
+              Back
+            </Button>
+          )}
+
+          {showOverview && !paymentPacketFile && !readOnly && (
+            <Button
+              onClick={handleDownloadPaymentPacket}
+              disabled={
+                packetLoading ||
+                (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
+                (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
+              }
+            >
+              Preview PPM Payment Packet
+            </Button>
+          )}
+
+          {showOverview && paymentPacketFile && (
+            <>
+              <Button
+                className="usa-button--secondary"
+                onClick={() => {
+                  // reset back to document review
+                  setPaymentPacketFile(null);
+                  setDocumentSetIndex(0);
+                  setShowOverview(false);
+                }}
+              >
+                Edit PPM
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsConfirmModalVisible(true);
+                }}
+              >
+                Complete PPM Review
+              </Button>
+            </>
+          )}
+
+          {!showOverview && (
+            <Button
+              type="submit"
+              onClick={onContinue}
+              data-testid="reviewDocumentsContinueButton"
+              disabled={
+                (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
+                (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
+              }
+            >
+              Continue
+            </Button>
+          )}
+
+          {readOnly && showOverview && (
+            <Button type="submit" onClick={onClose} data-testid="closeBtn">
+              Close
+            </Button>
+          )}
         </DocumentViewerSidebar.Footer>
       </DocumentViewerSidebar>
     </div>
   );
 };
-export default ReviewDocuments;
+
+ReviewDocuments.defaultProps = {
+  loadingMessage: null,
+};
+
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(ReviewDocuments);

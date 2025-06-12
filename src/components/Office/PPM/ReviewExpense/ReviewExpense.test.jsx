@@ -17,6 +17,9 @@ import {
   useEditShipmentQueries,
   usePPMShipmentDocsQueries,
 } from 'hooks/queries';
+import { formatWeight } from 'utils/formatters';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
+import { hasProGearSPR, hasSpouseProGearSPR } from 'utils/ppmCloseout';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -279,8 +282,6 @@ const defaultProps = {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     expectedDepartureDate: '2022-12-02',
     actualMoveDate: '2022-12-06',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
     miles: 300,
     estimatedWeight: 3000,
     actualWeight: 3500,
@@ -471,7 +472,7 @@ describe('ReviewExpenseForm component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'Receipt 1' })).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Expense Type')).toBeInTheDocument();
+      expect(screen.getAllByText('Expense Type')).toHaveLength(2);
       expect(screen.getByText('Description')).toBeInTheDocument();
       expect(screen.getByLabelText('Amount Requested')).toBeInstanceOf(HTMLInputElement);
 
@@ -502,7 +503,7 @@ describe('ReviewExpenseForm component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Expense Type')).toBeInTheDocument();
+        expect(screen.getAllByText('Expense Type')).toHaveLength(2);
       });
       expect(screen.getByText('Packing materials')).toBeInTheDocument();
       expect(screen.getByDisplayValue('boxes, tape, bubble wrap'));
@@ -718,7 +719,7 @@ describe('ReviewExpenseForm component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Expense Type')).toBeInTheDocument();
+        expect(screen.getAllByText('Expense Type')).toHaveLength(2);
       });
       expect(screen.getByText('Packing materials')).toBeDisabled();
       expect(screen.getByDisplayValue('boxes, tape, bubble wrap'));
@@ -766,6 +767,58 @@ describe('ReviewExpenseForm component', () => {
       });
       expect(screen.getByText('Rejection reason')).toBeInTheDocument();
       expect(screen.getByText('484 characters')).toBeInTheDocument();
+    });
+  });
+
+  describe('ReviewExpense - small package expense changes', () => {
+    useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+    usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+    usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+    useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+    it('renders small package details when ppmType is SMALL_PACKAGE', async () => {
+      const smallPackagePPMInfo = {
+        ...defaultProps.ppmShipmentInfo,
+        ppmType: PPM_TYPES.SMALL_PACKAGE,
+        allowableWeight: 4000,
+        movingExpenses: [
+          { weightShipped: 1000, isProGear: false },
+          { weightShipped: 500, isProGear: true, proGearBelongsToSelf: false },
+        ],
+      };
+
+      render(
+        <ReviewExpense
+          {...defaultProps}
+          ppmShipmentInfo={smallPackagePPMInfo}
+          {...expenseRequiredProps}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+        />,
+        { wrapper: MockProviders },
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('smallPackageTag')).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId('smallPackageTag')).toHaveTextContent(getPPMTypeLabel(PPM_TYPES.SMALL_PACKAGE));
+      expect(screen.getByText('Allowable Weight')).toBeInTheDocument();
+      expect(screen.getByText(formatWeight(4000))).toBeInTheDocument();
+
+      // add up the total weight shipped from moving expenses
+      const totalWeightShipped =
+        smallPackagePPMInfo.movingExpenses[0].weightShipped + smallPackagePPMInfo.movingExpenses[1].weightShipped; // 1500 lbs
+      expect(screen.getByText('Total Weight Shipped')).toBeInTheDocument();
+      expect(screen.getByText(formatWeight(totalWeightShipped))).toBeInTheDocument();
+
+      expect(screen.getByText('Pro-gear')).toBeInTheDocument();
+      expect(screen.getByText('Spouse Pro-gear')).toBeInTheDocument();
+
+      // there will be TWO of these (returns 'Yes')
+      // hasProGearSPR should return "Yes" because one expense has isProGear true
+      // hasSpouseProGearSPR should return "Yes" since the expense with pro-gear has proGearBelongsToSelf false
+      expect(screen.getAllByText(hasProGearSPR(smallPackagePPMInfo.movingExpenses))).toHaveLength(2);
+      expect(screen.getAllByText(hasSpouseProGearSPR(smallPackagePPMInfo.movingExpenses))).toHaveLength(2);
     });
   });
 });
