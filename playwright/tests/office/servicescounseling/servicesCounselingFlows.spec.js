@@ -641,28 +641,26 @@ test.describe('Services counselor user', () => {
     test.describe('is able to view/edit actual expense reimbursement for non-civilian moves', () => {
       test('view/edit actual expense reimbursement - edit shipments page', async ({ page, scPage }) => {
         test.slow();
-        const move = await scPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+        const move = await scPage.testHarness.buildSubmittedMoveWithAerPPMShipmentForSC();
         await scPage.navigateToMove(move.locator);
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
 
         await page.getByRole('button', { name: 'Edit shipment' }).click();
         await expect(page.locator('h1').getByText('Edit shipment details')).toBeVisible();
 
-        expect(await page.locator('[data-testid="actualExpenseReimbursementTag"]').count()).toBe(0);
+        expect(await page.locator('[data-testid="actualExpenseReimbursementTag"]').count()).toBe(1);
 
         await page.getByText('Yes').first().click();
         await page.getByTestId('submitForm').click();
-        await expect(page.getByTestId('actualExpenseReimbursementTag')).toContainText('Actual Expense Reimbursement');
         await page.getByText('Approve').click();
         await page.getByTestId('counselor-remarks').click();
         await page.getByTestId('counselor-remarks').fill('test');
         await page.getByTestId('submitForm').click();
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByTestId('ShipmentContainer').getByTestId('actualReimbursementTag')).toContainText(
-          'actual expense reimbursement',
+        await expect(page.getByTestId('ShipmentContainer').getByTestId('ppmType')).toContainText(
+          /actual expense reimbursement/i,
         );
 
         await page.getByRole('button', { name: 'Edit shipment' }).click();
@@ -676,36 +674,40 @@ test.describe('Services counselor user', () => {
         await scPage.navigateToMoveUsingMoveSearch(move.locator);
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
+        await expect(page.getByTestId('ppmType')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toHaveText(/actual expense reimbursement/i);
 
         await page.getByText('Review documents').click();
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
 
         expect(await page.locator('[data-testid="tag"]').count()).toBe(0);
-        await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
-        await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').click();
+        await expect(page.getByTestId('expenseType')).toBeVisible();
+        await expect(page.getByTestId('expenseType')).toHaveText(/actual expense reimbursement/i);
+        await page.getByTestId('expenseType').getByTestId('editTextButton').click();
 
-        await expect(page.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeVisible();
-        await page.getByTestId('modal').getByText('Yes').click();
+        await expect(page.getByText(/What is the PPM type?/i)).toBeVisible();
+        await expect(page.getByTestId('modal').getByTestId('isActualExpense')).toBeVisible();
+        await page.getByTestId('modal').getByTestId('isActualExpense').check();
         await page.getByTestId('modal').getByTestId('button').click();
 
         await expect(page.getByText('Is this PPM an Actual Expense Reimbursement?')).not.toBeVisible();
         await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
+        await page.waitForSelector('[data-testid="tag"]');
         expect(await page.locator('[data-testid="tag"]').count()).toBe(1);
         await page.getByText('Accept').click();
         await page.getByTestId('closeSidebar').click();
         await expect(page.getByRole('heading', { name: 'Move Details' })).toBeVisible();
-        await expect(page.getByText('actual expense reimbursement')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toHaveText(/actual expense reimbursement/i);
       });
     });
 
     test.describe('is unable to edit actual expense reimbursement for civilian moves', () => {
       test('cannot edit actual expense reimbursement - edit shipments page', async ({ page, scPage }) => {
         test.slow();
-        const move = await scPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+        const move = await scPage.testHarness.buildSubmittedMoveWithAerPPMShipmentForSC();
         await scPage.navigateToMove(move.locator);
 
-        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
         await page.getByTestId('view-edit-orders').click();
         await page.getByTestId('payGradeInput').selectOption('AVIATION_CADET');
         await page.getByTestId('payGradeInput').selectOption('CIVILIAN_EMPLOYEE');

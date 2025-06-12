@@ -4872,6 +4872,14 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 }
 
 func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.Move {
+	return makeSubmittedMoveWithPPMShipmentForSC(appCtx, models.PPMTypeIncentiveBased)
+}
+
+func MakeSubmittedMoveWithAerPPMShipmentForSC(appCtx appcontext.AppContext) models.Move {
+	return makeSubmittedMoveWithPPMShipmentForSC(appCtx, models.PPMTypeActualExpense)
+}
+
+func makeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, ppmType models.PPMType) models.Move {
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
@@ -4887,7 +4895,12 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
-	move := scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+	var move = models.Move{}
+	if ppmType == models.PPMTypeActualExpense {
+		move = scenario.CreateSubmittedMoveWithAerPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+	} else {
+		move = scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+	}
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -5206,6 +5219,8 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 			HasReceivedAdvance:    models.BoolPointer(true),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
+			PPMType:               models.PPMTypeActualExpense,
+			FinalIncentive:        models.CentPointer(50000000),
 		},
 	}
 

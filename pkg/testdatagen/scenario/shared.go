@@ -3155,7 +3155,16 @@ func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
-func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+// Default PPM is incentive based
+func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+	return createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo, models.PPMTypeIncentiveBased)
+}
+
+func CreateSubmittedMoveWithAerPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+	return createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo, models.PPMTypeActualExpense)
+}
+
+func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo, ppmType models.PPMType) models.Move {
 	oktaID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
@@ -3235,7 +3244,8 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 		},
 		{
 			Model: models.PPMShipment{
-				Status: models.PPMShipmentStatusSubmitted,
+				Status:  models.PPMShipmentStatusSubmitted,
+				PPMType: ppmType,
 			},
 		},
 	}, nil)
