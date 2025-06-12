@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 import selectEvent from 'react-select-event';
@@ -8,7 +8,7 @@ import RequestAccountForm from './RequestAccountForm';
 
 import { renderWithRouter } from 'testUtils';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
-// import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
+import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -39,10 +39,10 @@ jest.mock('hooks/queries', () => ({
   }),
 }));
 
-// jest.mock('utils/featureFlags', () => ({
-//   ...jest.requireActual('utils/featureFlags'),
-//   isBooleanFlagEnabledUnauthenticatedOffice: jest.fn().mockImplementation(() => Promise.resolve()),
-// }));
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabledUnauthenticatedOffice: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
 
 describe('RequestAccountForm component', () => {
   const testProps = {
@@ -61,7 +61,7 @@ describe('RequestAccountForm component', () => {
   };
 
   it('renders the form inputs', async () => {
-    // isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
+    isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
     const firstName = screen.getByTestId('officeAccountRequestFirstName');
@@ -141,9 +141,11 @@ describe('RequestAccountForm component', () => {
     expect(gsrCheckbox).not.toBeChecked(false);
 
     // Need to fix this - Saki
-    // const supervisorPrivilegeCheckbox = screen.getByTestId('supervisorPrivilegeCheckbox');
-    // expect(supervisorPrivilegeCheckbox).toBeInstanceOf(HTMLInputElement);
-    // expect(supervisorPrivilegeCheckbox).not.toBeChecked(false);
+    await waitFor(() => {
+      const supervisorPrivilegeCheckbox = screen.getByTestId('supervisorPrivilegeCheckbox');
+      expect(supervisorPrivilegeCheckbox).toBeInstanceOf(HTMLInputElement);
+      expect(supervisorPrivilegeCheckbox).not.toBeChecked(false);
+    });
   });
 
   it('cancels requesting office account when cancel button is clicked', async () => {
