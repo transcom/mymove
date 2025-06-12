@@ -22,6 +22,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
 	ppmEstimator := NewEstimatePPM(mockedPlanner, mockedPaymentRequestHelper)
 	validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+	invalidGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-05-14")
 
 	// To avoid creating all of the re_services and their corresponding params using factories, we can create this
 	// mapping to help mock the response
@@ -925,6 +926,72 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			maxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NoError(err)
 			suite.Equal(*oldPPMShipment.MaxIncentive, *maxIncentive)
+		})
+
+		suite.Run("Max Incentive - recalculates when old multiplier is nil and new is valid", func() {
+			validMultiplierID := uuid.Must(uuid.NewV4())
+			maxIncentive2 := unit.Cents(123456789)
+
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						GCCMultiplierID:       nil,
+						MaxIncentive:          &maxIncentive2,
+						ExpectedDepartureDate: time.Date(2025, 5, 10, 0, 0, 0, 0, time.UTC),
+					},
+				},
+			}, nil)
+
+			newPPM := oldPPMShipment
+			estimatedWeight := unit.Pound(5000)
+			newPPM.EstimatedWeight = &estimatedWeight
+			newPPM.GCCMultiplierID = &validMultiplierID // introduce a new multiplier
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil).Once()
+
+			maxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NoError(err)
+
+			suite.NotEqual(*oldPPMShipment.MaxIncentive, *maxIncentive)
+		})
+
+		suite.Run("Max Incentive - recalculates when actual move date is being updated", func() {
+			maxIncentive2 := unit.Cents(123456789)
+
+			// expected departure date is set to a multiplier of 1.3x
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						MaxIncentive:          &maxIncentive2,
+						ExpectedDepartureDate: validGccMultiplierDate,
+					},
+				},
+			}, nil)
+
+			// now we are updating the actual move date
+			newPPM := oldPPMShipment
+			// simulating an actual move date being updated with GCC multiplier of 1x
+			newPPM.ActualMoveDate = &invalidGccMultiplierDate
+			newPPM.GCCMultiplier = &models.GCCMultiplier{Multiplier: 1}
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil).Once()
+
+			maxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NoError(err)
+
+			suite.NotEqual(*oldPPMShipment.MaxIncentive, *maxIncentive)
 		})
 	})
 

@@ -151,8 +151,30 @@ func shouldSkipMaxIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *
 	if newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID {
 		return false
 	}
+
+	// handle mismatches including nil and uuid.Nil
+	newMultiplier := uuid.Nil
+	if newPPMShipment.GCCMultiplierID != nil {
+		newMultiplier = *newPPMShipment.GCCMultiplierID
+	}
+
+	oldMultiplier := uuid.Nil
+	if oldPPMShipment.GCCMultiplierID != nil {
+		oldMultiplier = *oldPPMShipment.GCCMultiplierID
+	}
+
+	if newMultiplier != oldMultiplier {
+		return false
+	}
+
 	// if the max incentive is nil or 0, we want to update it
 	if oldPPMShipment.MaxIncentive == nil || *oldPPMShipment.MaxIncentive == 0 {
+		return false
+	}
+
+	// if the actual move date is being updated/added we want to re-run the max incentive
+	if (oldPPMShipment.ActualMoveDate == nil && newPPMShipment.ActualMoveDate != nil) ||
+		(oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate != nil && !newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) {
 		return false
 	} else {
 		// if the departure date has changed, we want to recalculate
