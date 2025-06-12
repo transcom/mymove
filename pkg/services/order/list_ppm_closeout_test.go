@@ -165,6 +165,49 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		}
 	})
 
+	suite.Run("locked by information comes back with the move", func() {
+		macDillTransportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name:  "MacDill AFB",
+					Gbloc: "SHARED",
+				},
+			},
+		}, nil)
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), macDillTransportationOffice)
+
+		now := time.Now()
+		factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(), nil,
+			[]factory.Customization{
+				{
+					Model: models.Order{ServiceMemberID: sm.ID},
+				},
+				{
+					Model: models.Move{
+						Locator:              "LOCKED",
+						SubmittedAt:          &now,
+						LockedByOfficeUserID: models.UUIDPointer(servicesCounselor.ID),
+						LockExpiresAt:        &now,
+						CloseoutOfficeID:     models.UUIDPointer(macDillTransportationOffice.ID),
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		defaultMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{NeedsPPMCloseout: models.BoolPointer(true), Locator: models.StringPointer("LOCKED")},
+		)
+		suite.FatalNoError(err)
+		suite.Equal(1, count)
+		suite.NotNil(defaultMoves[0].LockExpiresAt)
+		suite.NotNil(defaultMoves[0].LockedByOfficeUserID)
+	})
+
 	suite.Run("can sort descending showing newest first and oldest last", func() {
 		defaultOffice := setupOrdersToFilterBy(suite.DB())
 		servicesCounselor, appCtx := createUserAndCtx(suite.DB(), defaultOffice)
