@@ -1268,7 +1268,7 @@ integration_test_admin:
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
     KUBERNETES_MEMORY_LIMIT: "12Gi"
-    # FF_NETWORK_PER_BUILD: "true"
+    FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1347,6 +1347,7 @@ integration_test_my:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
+    FF_NETWORK_PER_BUILD: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
     KUBERNETES_MEMORY_LIMIT: "12Gi"
@@ -1434,6 +1435,7 @@ integration_test_office:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
+    FF_NETWORK_PER_BUILD: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
     KUBERNETES_MEMORY_LIMIT: "12Gi"
