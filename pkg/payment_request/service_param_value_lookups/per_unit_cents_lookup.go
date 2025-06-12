@@ -273,6 +273,57 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 		}
 		return reIntlPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
 
+	case models.ReServiceCodeIOPSIT:
+		// IOPSIT: Need rate area ID for origin
+		if p.ServiceItem.SITOriginHHGActualAddressID == nil {
+			return "", fmt.Errorf("ServiceItem.SITOriginHHGActualAddressID is not set. serviceID %s", serviceID)
+		}
+		originRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.ServiceItem.SITOriginHHGActualAddressID, &serviceID, contractID)
+		if err != nil {
+			return "", fmt.Errorf("error fetching rate area id for SIT origin address for shipment ID: %s, service ID %s, addressID: %s: %s", shipmentID, serviceID, p.ServiceItem.SITOriginHHGActualAddressID, err)
+		}
+		isPeakPeriod := ghcrateengine.IsPeakPeriod(moveDate)
+		if p.ServiceItem.SITDeliveryMiles == nil {
+			return "", fmt.Errorf("ServiceItem.SITDeliveryMiles is not set. serviceID %s", serviceID)
+		}
+		var reIntlOtherPrice models.ReIntlOtherPrice
+		err = appCtx.DB().Q().
+			Where("contract_id = ?", contractID).
+			Where("service_id = ?", serviceID).
+			Where("is_peak_period = ?", isPeakPeriod).
+			Where("rate_area_id = ?", originRateAreaID).
+			Where("is_less_50_miles = ?", (*p.ServiceItem.SITDeliveryMiles <= 50)).
+			First(&reIntlOtherPrice)
+		if err != nil {
+			return "", fmt.Errorf("error fetching IOPSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, originRateAreaID: %s, SITDeliveryMiles: %d: %s", contractID, serviceID, isPeakPeriod, originRateAreaID, int(*p.ServiceItem.SITDeliveryMiles), err)
+		}
+		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
+	case models.ReServiceCodeIDDSIT:
+		// IDDSIT: Need rate area ID for destination
+		if p.ServiceItem.SITDestinationFinalAddressID == nil {
+			return "", fmt.Errorf("ServiceItem.SITDestinationFinalAddressID is not set. serviceID %s", serviceID)
+		}
+		destinationRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.ServiceItem.SITDestinationFinalAddressID, &serviceID, contractID)
+		if err != nil {
+			return "", fmt.Errorf("error fetching rate area id for SIT destination address for shipment ID: %s, service ID %s, addressID: %s: %s", shipmentID, serviceID, p.ServiceItem.SITDestinationFinalAddressID, err)
+		}
+		isPeakPeriod := ghcrateengine.IsPeakPeriod(moveDate)
+		if p.ServiceItem.SITDeliveryMiles == nil {
+			return "", fmt.Errorf("ServiceItem.SITDeliveryMiles is not set. serviceID %s", serviceID)
+		}
+		var reIntlOtherPrice models.ReIntlOtherPrice
+		err = appCtx.DB().Q().
+			Where("contract_id = ?", contractID).
+			Where("service_id = ?", serviceID).
+			Where("is_peak_period = ?", isPeakPeriod).
+			Where("rate_area_id = ?", destinationRateAreaID).
+			Where("is_less_50_miles = ?", (*p.ServiceItem.SITDeliveryMiles <= 50)).
+			First(&reIntlOtherPrice)
+		if err != nil {
+			return "", fmt.Errorf("error fetching IDDSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, destRateAreaID: %s, SITDeliveryMiles: %d: %s", contractID, serviceID, isPeakPeriod, destinationRateAreaID, int(*p.ServiceItem.SITDeliveryMiles), err)
+		}
+		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
+
 	default:
 		return "", fmt.Errorf("unsupported service code to retrieve service item param PerUnitCents")
 	}

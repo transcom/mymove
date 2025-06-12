@@ -44,10 +44,11 @@ func (suite *PayloadsSuite) TestReport() {
 			PostalCode:     "10001",
 			County:         models.StringPointer("Some County"),
 		},
-		OrdersDate:   &now,
-		TAC:          models.StringPointer("CACI"),
-		OrdersType:   internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber: models.StringPointer("123456"),
+		OrdersDate:        &now,
+		TAC:               models.StringPointer("CACI"),
+		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:      models.StringPointer("123456"),
+		MaxBillableWeight: models.PoundPointer(1000),
 	}
 
 	suite.Run("valid report", func() {
@@ -56,12 +57,13 @@ func (suite *PayloadsSuite) TestReport() {
 		suite.NotNil(payload)
 		suite.Equal(*report.FirstName, payload.FirstName)
 		suite.Equal(*report.LastName, payload.LastName)
-		suite.Equal("A", *payload.MiddleInitial)
+		suite.Equal(*report.MiddleInitial, *payload.MiddleInitial)
 		suite.Equal(*report.Edipi, payload.Edipi)
 		suite.Equal(*report.PhonePrimary, payload.PhonePrimary)
 		suite.Equal(*report.EmailPrimary, payload.EmailPrimary)
 		suite.Equal(*report.OrdersNumber, payload.OrdersNumber)
 		suite.Equal(int64(report.ShipmentNum), payload.ShipmentNum)
+		suite.Equal(report.MaxBillableWeight.Float64(), *payload.MaxBillableWeight)
 	})
 
 	suite.Run("nil report", func() {
