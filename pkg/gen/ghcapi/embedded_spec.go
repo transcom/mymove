@@ -11104,7 +11104,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -12494,6 +12495,14 @@ func init() {
           "title": "GCC",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gccMultiplier": {
+          "description": "Multiplier applied to incentives",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 1.3
         },
         "grossIncentive": {
           "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
@@ -29736,7 +29745,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -31126,6 +31136,14 @@ func init() {
           "title": "GCC",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gccMultiplier": {
+          "description": "Multiplier applied to incentives",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 1.3
         },
         "grossIncentive": {
           "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
