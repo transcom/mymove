@@ -16,6 +16,8 @@ import {
 } from 'react-admin';
 import { useNavigate } from 'react-router';
 
+import adminStyles from '../adminStyles.module.scss';
+
 import styles from './RejectedOfficeUserShow.module.scss';
 
 import { deleteOfficeUser } from 'services/adminApi';
@@ -100,13 +102,20 @@ const RejectedOfficeUserShow = () => {
           {serverError}
         </Alert>
       )}
-      <Toolbar sx={{ display: 'flex', gap: '10px' }}>
+      <Toolbar className={adminStyles.flexRight}>
         <DeleteButton
           mutationOptions={{
             onSuccess: async (data) => {
               // setting user data so we can use it in the delete function
               setUserData(data);
               handleClick();
+            },
+          }}
+          sx={{
+            backgroundColor: '#e1400a !important',
+            width: 120,
+            '&:hover': {
+              opacity: '0.8',
             },
           }}
         />
