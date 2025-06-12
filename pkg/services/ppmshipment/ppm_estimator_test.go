@@ -840,12 +840,21 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 	suite.Run("Max Incentive", func() {
 		suite.Run("Max Incentive - Success", func() {
-			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+			maxIncentive2 := unit.Cents(900000000)
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						MaxIncentive: &maxIncentive2,
+					},
+				},
+			}, nil)
 			setupPricerData()
 
 			estimatedWeight := unit.Pound(5000)
 			newPPM := oldPPMShipment
 			newPPM.EstimatedWeight = &estimatedWeight
+			newDate, _ := time.Parse("2006-01-02", "2025-05-02")
+			newPPM.ExpectedDepartureDate = newDate
 
 			mockedPaymentRequestHelper.On(
 				"FetchServiceParamsForServiceItems",
@@ -869,11 +878,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				{
 					Model: models.PPMShipment{
 						ExpectedDepartureDate: validGccMultiplierDate,
+						MaxIncentive:          &maxIncentive2,
 					},
 				},
 			}, nil)
 			newPPMWithMultiplier := ppmWithMultiplier
 			newPPMWithMultiplier.EstimatedWeight = &estimatedWeight
+			newDateInMultiplier, _ := time.Parse("2006-01-02", "2025-05-30")
+			newPPMWithMultiplier.ExpectedDepartureDate = newDateInMultiplier
 			ppmMaxWithMultiplier, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), ppmWithMultiplier, &newPPMWithMultiplier)
 			suite.NilOrNoVerrs(err)
 
@@ -889,6 +901,30 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			_, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NoError(err)
 			suite.Nil(newPPM.MaxIncentive)
+		})
+
+		suite.Run("Max Incentive - Skips recalculation when GCC multiplier and departure date unchanged", func() {
+			existingMaxIncentive := unit.Cents(123456789)
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ExpectedDepartureDate: time.Date(2025, 6, 10, 0, 0, 0, 0, time.UTC),
+						MaxIncentive:          &existingMaxIncentive,
+					},
+				},
+			}, nil)
+
+			newPPM := oldPPMShipment
+			estimatedWeight := unit.Pound(5000)
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			// make sure departure date and GCC multiplier are the same
+			newPPM.ExpectedDepartureDate = oldPPMShipment.ExpectedDepartureDate
+			newPPM.GCCMultiplierID = oldPPMShipment.GCCMultiplierID
+
+			maxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NoError(err)
+			suite.Equal(*oldPPMShipment.MaxIncentive, *maxIncentive)
 		})
 	})
 
