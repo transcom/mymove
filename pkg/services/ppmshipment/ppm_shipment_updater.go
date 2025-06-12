@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -222,6 +224,29 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			updatedPPMShipment.TertiaryDestinationAddress = updatedAddress
 		}
 
+		// if the expected departure date falls within a multiplier window, we need to apply that here
+		// but only if the expected departure date is being changed
+		updatedDate := updatedPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+		oldDate := oldPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+		if !updatedDate.Equal(oldDate) {
+			gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *updatedPPMShipment)
+			if err != nil {
+				return err
+			}
+			// check if there's a valid gccMultiplier and if it's different from the current one (if there is one)
+			if gccMultiplier.ID != uuid.Nil &&
+				(updatedPPMShipment.GCCMultiplierID == nil || *oldPPMShipment.GCCMultiplierID != gccMultiplier.ID) {
+				updatedPPMShipment.GCCMultiplierID = &gccMultiplier.ID
+				updatedPPMShipment.GCCMultiplier = &gccMultiplier
+			} else {
+				// only reset if there is no valid GCCMultiplierID and there's currently one on the PPM
+				if updatedPPMShipment.GCCMultiplierID != nil {
+					updatedPPMShipment.GCCMultiplierID = nil
+					updatedPPMShipment.GCCMultiplier = nil
+				}
+			}
+		}
+
 		// if the actual move date is being provided, we no longer need to calculate the estimate - it has already happened
 		if updatedPPMShipment.ActualMoveDate == nil {
 			estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
@@ -242,24 +267,15 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			updatedPPMShipment.MaxIncentive = maxIncentive
+
+			// Estimated Incentive cannot be more than maxIncentive
+			if updatedPPMShipment.EstimatedIncentive != nil && updatedPPMShipment.MaxIncentive != nil &&
+				*updatedPPMShipment.EstimatedIncentive > *updatedPPMShipment.MaxIncentive {
+				updatedPPMShipment.EstimatedIncentive = updatedPPMShipment.MaxIncentive
+			}
 		}
 
 		if appCtx.Session() != nil {
-			if appCtx.Session().IsOfficeUser() {
-				edited := models.PPMAdvanceStatusEdited
-				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
-					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
-					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-			}
 			if appCtx.Session().IsMilApp() {
 				if isPrimeCounseled && updatedPPMShipment.HasRequestedAdvance != nil {
 					received := models.PPMAdvanceStatusReceived
@@ -311,6 +327,42 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			ppmShipment.Shipment = mtoShipment
+		}
+
+		// authorize gunsafe in orders.Entitlement if customer has selected that they have gun safe when creating a ppm shipment
+		if ppmShipment.HasGunSafe != nil {
+			oldHasGunSafeValue := false
+
+			if oldPPMShipment.HasGunSafe != nil {
+				oldHasGunSafeValue = *oldPPMShipment.HasGunSafe
+			}
+
+			if oldHasGunSafeValue != *ppmShipment.HasGunSafe {
+				move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), mtoShipment.MoveTaskOrderID)
+				if err != nil {
+					return err
+				}
+
+				entitlement := move.Orders.Entitlement
+				entitlement.GunSafe = *updatedPPMShipment.HasGunSafe
+
+				maxGunSafeWeight := 0
+				if updatedPPMShipment.HasGunSafe != nil && *updatedPPMShipment.HasGunSafe {
+					maxGunSafeWeight, err = models.GetMaxGunSafeAllowance(appCtx)
+					if err != nil {
+						return err
+					}
+				}
+				entitlement.GunSafeWeight = maxGunSafeWeight
+
+				verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the Entitlement.")
+				}
+				if err != nil {
+					return apperror.NewQueryError("Entitlement", err, "")
+				}
+			}
 		}
 
 		return nil

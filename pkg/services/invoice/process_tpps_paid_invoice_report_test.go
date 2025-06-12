@@ -1,11 +1,16 @@
 package invoice
 
 import (
+	"bytes"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	tppsResponse "github.com/transcom/mymove/pkg/edi/tpps_paid_invoice_report"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -163,6 +168,128 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50057")
 
 			}
+			suite.NotNil(tppsEntries[tppsEntryIndex].ID)
+			suite.NotNil(tppsEntries[tppsEntryIndex].CreatedAt)
+			suite.NotNil(tppsEntries[tppsEntryIndex].UpdatedAt)
+			suite.Equal(*tppsEntries[tppsEntryIndex].SecondNoteCode, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].SecondNoteDescription, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].SecondNoteCodeTo, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].SecondNoteCodeMessage, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].ThirdNoteCode, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].ThirdNoteDescription, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].ThirdNoteCodeTo, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].ThirdNoteCodeMessage, "")
+		}
+	})
+
+	suite.Run("successfully stores valid entries to database even if invalid liens (no matching payment request number) found in file", func() {
+		// 1841-7267-3 is a payment request that the test TPPS file references
+		// 9436-4123-3 is a payment request that the test TPPS file references, but we WON'T create it
+		paymentRequestOne := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:               models.PaymentRequestStatusPaid,
+					PaymentRequestNumber: "1841-7267-3",
+				},
+			},
+		}, nil)
+		suite.NotNil(paymentRequestOne)
+
+		testTPPSPaidInvoiceReportFilePath := "../../../pkg/services/invoice/fixtures/tpps_paid_invoice_report_testfile.csv"
+
+		err := tppsPaidInvoiceReportProcessor.ProcessFile(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath, "")
+		suite.NoError(err)
+
+		tppsEntries := []models.TPPSPaidInvoiceReportEntry{}
+		err = suite.DB().All(&tppsEntries)
+		suite.NoError(err)
+		// instead of 5 entries, we only have 4 since line 6 in the test file references a payment request number that doesn't exist: 9436-4123-3
+		suite.Equal(4, len(tppsEntries))
+
+		// find the paymentRequests and verify that they have all been updated to have a status of PAID after processing the report
+		paymentRequests := []models.PaymentRequest{}
+		err = suite.DB().All(&paymentRequests)
+		suite.NoError(err)
+		// only 1 payment request should have its status updated to PAID
+		suite.Equal(len(paymentRequests), 1)
+
+		for _, paymentRequest := range paymentRequests {
+			suite.Equal(models.PaymentRequestStatusPaid, paymentRequest.Status)
+		}
+
+		for tppsEntryIndex := range tppsEntries {
+
+			if tppsEntryIndex == 0 {
+				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "1841-7267-3")
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(115155000)) // 1151.55
+				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "DDP")
+				suite.Equal(tppsEntries[tppsEntryIndex].ProductDescription, "DDP")
+				suite.Equal(tppsEntries[tppsEntryIndex].LineBillingUnits, 3760)
+				suite.Equal(tppsEntries[tppsEntryIndex].LineUnitPrice, unit.Millicents(770))     // 0.0077
+				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(2895000)) // 28.95
+				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "1841-7267-826285fc")
+				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "1")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
+			}
+			if tppsEntryIndex == 1 {
+				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "1841-7267-3")
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(115155000)) // 1151.55
+				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "FSC")
+				suite.Equal(tppsEntries[tppsEntryIndex].ProductDescription, "FSC")
+				suite.Equal(tppsEntries[tppsEntryIndex].LineBillingUnits, 3760)
+				suite.Equal(tppsEntries[tppsEntryIndex].LineUnitPrice, unit.Millicents(140))    // 0.0014
+				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(539000)) // 5.39
+				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "1841-7267-aeb3cfea")
+				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "4")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
+
+			}
+			if tppsEntryIndex == 2 {
+				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "1841-7267-3")
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(115155000)) // 1151.55
+				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "DLH")
+				suite.Equal(tppsEntries[tppsEntryIndex].ProductDescription, "DLH")
+				suite.Equal(tppsEntries[tppsEntryIndex].LineBillingUnits, 3760)
+				suite.Equal(tppsEntries[tppsEntryIndex].LineUnitPrice, unit.Millicents(26560))    // 0.2656
+				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(99877000)) // 998.77
+				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "1841-7267-c8ea170b")
+				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "2")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
+
+			}
+			if tppsEntryIndex == 3 {
+				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "1841-7267-3")
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(115155000)) // 1151.55
+				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "DUPK")
+				suite.Equal(tppsEntries[tppsEntryIndex].ProductDescription, "DUPK")
+				suite.Equal(tppsEntries[tppsEntryIndex].LineBillingUnits, 3760)
+				suite.Equal(tppsEntries[tppsEntryIndex].LineUnitPrice, unit.Millicents(3150))     // 0.0315
+				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(11844000)) // 118.44
+				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "1841-7267-265c16d7")
+				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "3")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
+			}
+
 			suite.NotNil(tppsEntries[tppsEntryIndex].ID)
 			suite.NotNil(tppsEntries[tppsEntryIndex].CreatedAt)
 			suite.NotNil(tppsEntries[tppsEntryIndex].UpdatedAt)
@@ -493,7 +620,13 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		}
 	})
 
-	suite.Run("error opening filepath returns descriptive error for failing to parse TPPS paid invoice report", func() {
+	suite.Run("returns nil when file path is empty", func() {
+		tppsPaidInvoiceReportProcessor := NewTPPSPaidInvoiceReportProcessor()
+		err := tppsPaidInvoiceReportProcessor.ProcessFile(suite.AppContextForTest(), "", "")
+		suite.NoError(err)
+	})
+
+	suite.Run("returns error for failing to parse TPPS paid invoice report", func() {
 		// given a path to a nonexistent file
 		testTPPSPaidInvoiceReportFilePath := "../../../pkg/services/invoice/AFileThatDoesNotExist.csv"
 
@@ -506,5 +639,188 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		err = suite.DB().All(&tppsEntries)
 		suite.NoError(err)
 		suite.Equal(len(tppsEntries), 0)
+	})
+
+	suite.Run("Logs message if invalid TPPSCreatedDocumentDate found", func() {
+		var logBuffer bytes.Buffer
+		core := zapcore.NewCore(
+			zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+			zapcore.AddSync(&logBuffer),
+			zap.DebugLevel,
+		)
+		logger := zap.New(core)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
+
+		tppsData := []tppsResponse.TPPSData{
+			{
+				TPPSCreatedDocumentDate: "INVALID_DATE-01-14",
+			},
+		}
+
+		verrs, processedCount, errorCount, err := tppsPaidInvoiceReportProcessor.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
+
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.Equal(0, processedCount)
+		suite.Equal(0, errorCount)
+
+		logOutput := logBuffer.String()
+		suite.Contains(logOutput, "unable to parse TPPSCreatedDocumentDate")
+
+	})
+
+	suite.Run("Logs message if invalid SellerPaidDate found", func() {
+		var logBuffer bytes.Buffer
+		core := zapcore.NewCore(
+			zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+			zapcore.AddSync(&logBuffer),
+			zap.DebugLevel,
+		)
+		logger := zap.New(core)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
+
+		tppsData := []tppsResponse.TPPSData{
+			{
+				TPPSCreatedDocumentDate: "2025-01-14",
+				SellerPaidDate:          "INVALID_DATE",
+			},
+		}
+
+		verrs, processedCount, errorCount, err := tppsPaidInvoiceReportProcessor.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
+
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.Equal(0, processedCount)
+		suite.Equal(0, errorCount)
+
+		logOutput := logBuffer.String()
+		suite.Contains(logOutput, "unable to parse SellerPaidDate")
+
+	})
+
+	suite.Run("Logs message if invalid InvoiceTotalCharges found", func() {
+		var logBuffer bytes.Buffer
+		core := zapcore.NewCore(
+			zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+			zapcore.AddSync(&logBuffer),
+			zap.DebugLevel,
+		)
+		logger := zap.New(core)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
+
+		tppsData := []tppsResponse.TPPSData{
+			{
+				TPPSCreatedDocumentDate: "2025-01-14",
+				SellerPaidDate:          "2025-01-14",
+				InvoiceTotalCharges:     "abc",
+			},
+		}
+
+		verrs, processedCount, errorCount, err := tppsPaidInvoiceReportProcessor.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
+
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.Equal(0, processedCount)
+		suite.Equal(0, errorCount)
+
+		logOutput := logBuffer.String()
+		suite.Contains(logOutput, "unable to parse InvoiceTotalCharges")
+
+	})
+
+	suite.Run("Logs message if invalid LineBillingUnits found", func() {
+		var logBuffer bytes.Buffer
+		core := zapcore.NewCore(
+			zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+			zapcore.AddSync(&logBuffer),
+			zap.DebugLevel,
+		)
+		logger := zap.New(core)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
+
+		tppsData := []tppsResponse.TPPSData{
+			{
+				TPPSCreatedDocumentDate: "2025-01-14",
+				SellerPaidDate:          "2025-01-14",
+				InvoiceTotalCharges:     "009823",
+				LineBillingUnits:        "abc",
+			},
+		}
+
+		verrs, processedCount, errorCount, err := tppsPaidInvoiceReportProcessor.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
+
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.Equal(0, processedCount)
+		suite.Equal(0, errorCount)
+
+		logOutput := logBuffer.String()
+		suite.Contains(logOutput, "unable to parse LineBillingUnits")
+
+	})
+
+	suite.Run("Logs message if invalid LineUnitPrice found", func() {
+		var logBuffer bytes.Buffer
+		core := zapcore.NewCore(
+			zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+			zapcore.AddSync(&logBuffer),
+			zap.DebugLevel,
+		)
+		logger := zap.New(core)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
+
+		tppsData := []tppsResponse.TPPSData{
+			{
+				TPPSCreatedDocumentDate: "2025-01-14",
+				SellerPaidDate:          "2025-01-14",
+				InvoiceTotalCharges:     "009823",
+				LineBillingUnits:        "1234",
+				LineUnitPrice:           "abc",
+			},
+		}
+
+		verrs, processedCount, errorCount, err := tppsPaidInvoiceReportProcessor.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
+
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.Equal(0, processedCount)
+		suite.Equal(0, errorCount)
+
+		logOutput := logBuffer.String()
+		suite.Contains(logOutput, "unable to parse LineUnitPrice")
+
+	})
+
+	suite.Run("Logs message if invalid LineNetCharge found", func() {
+		var logBuffer bytes.Buffer
+		core := zapcore.NewCore(
+			zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+			zapcore.AddSync(&logBuffer),
+			zap.DebugLevel,
+		)
+		logger := zap.New(core)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
+
+		tppsData := []tppsResponse.TPPSData{
+			{
+				TPPSCreatedDocumentDate: "2025-01-14",
+				SellerPaidDate:          "2025-01-14",
+				InvoiceTotalCharges:     "009823",
+				LineBillingUnits:        "1234",
+				LineUnitPrice:           "1234",
+				LineNetCharge:           "abc",
+			},
+		}
+
+		verrs, processedCount, errorCount, err := tppsPaidInvoiceReportProcessor.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
+
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.Equal(0, processedCount)
+		suite.Equal(0, errorCount)
+
+		logOutput := logBuffer.String()
+		suite.Contains(logOutput, "unable to parse LineNetCharge")
+
 	})
 }

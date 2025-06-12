@@ -3,30 +3,35 @@ import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
+import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
+import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './OrdersInfoForm.module.scss';
 
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
 import { DutyLocationShape } from 'types/dutyLocation';
 import formStyles from 'styles/form.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 import { showCounselingOffices } from 'services/internalApi';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import retryPageLoading from 'utils/retryPageLoading';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 let originMeta;
 let newDutyMeta = '';
-const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
+const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -36,6 +41,10 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   const [hasDependents, setHasDependents] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [ordersType, setOrdersType] = useState('');
+  const [grade, setGrade] = useState('');
+  const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
+  const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
 
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
@@ -67,7 +76,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     dependents_twelve_and_over: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
       : Yup.number().notRequired(),
+    civilian_tdy_ub_allowance: isCivilianTDYMove
+      ? Yup.number()
+          .transform((value) => (Number.isNaN(value) ? 0 : value))
+          .min(0, 'UB weight allowance must be 0 or more')
+          .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.')
+      : Yup.number().notRequired(),
   });
+
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -79,28 +95,40 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     };
     checkUBFeatureFlag();
   }, []);
+
   useEffect(() => {
-    // If current duty location is defined, show the counseling offices
-    if (currentDutyLocation?.id) {
-      showCounselingOffices(currentDutyLocation.id).then((fetchedData) => {
-        if (fetchedData.body) {
-          const counselingOffices = fetchedData.body.map((item) => ({
-            key: item.id,
-            value: item.name,
-          }));
-          setCounselingOfficeOptions(counselingOffices);
+    const fetchCounselingOffices = async () => {
+      if (currentDutyLocation?.id && !counselingOfficeOptions) {
+        setShowLoadingSpinner(true, 'Loading counseling offices');
+        try {
+          const fetchedData = await showCounselingOffices(currentDutyLocation.id);
+          if (fetchedData.body) {
+            const counselingOffices = fetchedData.body.map((item) => ({
+              key: item.id,
+              value: item.name,
+            }));
+            setCounselingOfficeOptions(counselingOffices);
+          }
+        } catch (error) {
+          const { message } = error;
+          milmoveLogger.error({ message, info: null });
+          retryPageLoading(error);
         }
-      });
-    }
+        setShowLoadingSpinner(false, null);
+      }
+    };
+    fetchCounselingOffices();
+  }, [counselingOfficeOptions, currentDutyLocation.id, setShowLoadingSpinner]);
+
+  useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
       setIsOconusMove(true);
     } else {
       setIsOconusMove(false);
     }
+
     if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
-      // Only if one of the duty locations is OCONUS should accompanied tour and dependent
-      // age fields display
       if (isOconusMove && hasDependents) {
         setShowAccompaniedTourField(true);
         setShowDependentAgeFields(true);
@@ -110,6 +138,29 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
       }
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
+
+  useEffect(() => {
+    if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
+      if (
+        isOconusMove &&
+        ordersType === ORDERS_TYPE.TEMPORARY_DUTY &&
+        grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE
+      ) {
+        setIsCivilianTDYMove(true);
+      } else {
+        setIsCivilianTDYMove(false);
+      }
+    }
+  }, [
+    currentDutyLocation,
+    newDutyLocation,
+    isOconusMove,
+    hasDependents,
+    enableUB,
+    ordersType,
+    grade,
+    isCivilianTDYMove,
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -172,6 +223,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
         const handleOrderTypeChange = (e) => {
           const { value } = e.target;
+          setOrdersType(value);
           if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
             setHasDependentsDisabled(true);
             handleHasDependentsChange({ target: { value: 'yes' } });
@@ -187,17 +239,31 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
           setPrevOrderType(value);
         };
 
+        // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
+        const showcivilianTDYUBAllowanceWarning =
+          values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
+
+        let civilianTDYUBAllowanceWarning = '';
+        if (showcivilianTDYUBAllowanceWarning) {
+          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+        }
+
+        const toggleCivilianTDYUBTooltip = () => {
+          setShowCivilianTDYUBTooltip((prev) => !prev);
+        };
+
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
                 options={filteredOrderTypeOptions}
                 required
-                hint="Required"
+                showRequiredAsterisk
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
@@ -207,7 +273,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 name="issue_date"
                 label="Orders date"
                 required
-                hint="Required"
+                showRequiredAsterisk
                 renderInput={(input) => (
                   <>
                     {input}
@@ -218,14 +284,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 )}
               />
               <DatePickerInput
-                hint="Required"
                 name="report_by_date"
                 label={formatLabelReportByDate(values.orders_type)}
                 required
+                showRequiredAsterisk
               />
               <DutyLocationInput
                 label="Current duty location"
-                hint="Required"
                 name="origin_duty_location"
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
@@ -233,23 +298,24 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   handleCounselingOfficeChange();
                 }}
                 required
+                showRequiredAsterisk
                 metaOverride={originMeta}
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
-                  <Label>
-                    Select an origin duty location that most closely represents your current physical location, not
-                    where your shipment will originate, if different. This will allow a nearby transportation office to
-                    assist you.
-                  </Label>
                   <DropdownInput
                     label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
-                    hint="Required"
                     required
+                    showRequiredAsterisk
                     options={counselingOfficeOptions}
                   />
+                  <Hint>
+                    Select an origin duty location that most closely represents your current physical location, not
+                    where your shipment will originate, if different. This will allow a nearby transportation office to
+                    assist you.
+                  </Hint>
                 </div>
               )}
               {isRetirementOrSeparation ? (
@@ -277,9 +343,10 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label="HOR, PLEAD or HOS"
+                    label="Destination Location (As Authorized on Orders)"
+                    showRequiredAsterisk
                     displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
                     onDutyLocationChange={(e) => {
@@ -291,8 +358,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 <DutyLocationInput
                   name="new_duty_location"
                   label="New duty location"
+                  showRequiredAsterisk
                   displayAddress={false}
-                  hint="Required"
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -301,7 +368,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in your orders?</Label>
+                <Label>
+                  <span>
+                    Are dependents included in your orders? <RequiredAsterisk />
+                  </span>
+                </Label>
                 <div>
                   <Field
                     as={Radio}
@@ -336,7 +407,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>
+                    <span>
+                      Is this an accompanied tour? <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -388,6 +463,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     name="dependents_under_twelve"
                     label="Number of dependents under the age of 12"
                     id="dependentsUnderTwelve"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -401,6 +477,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     name="dependents_twelve_and_over"
                     label="Number of dependents of the age 12 or over"
                     id="dependentsTwelveAndOver"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -411,13 +488,55 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
               )}
 
               <DropdownInput
-                hint="Required"
                 label="Pay grade"
                 name="grade"
                 id="grade"
                 required
+                showRequiredAsterisk
                 options={payGradeOptions}
+                onChange={(e) => {
+                  setGrade(e.target.value);
+                  handleChange(e);
+                }}
               />
+
+              {isCivilianTDYMove && (
+                <FormGroup>
+                  <div>
+                    <MaskedTextField
+                      data-testid="civilianTDYUBAllowance"
+                      warning={civilianTDYUBAllowanceWarning}
+                      defaultValue="0"
+                      name="civilian_tdy_ub_allowance"
+                      id="civilianTDYUBAllowance"
+                      mask={Number}
+                      scale={0}
+                      signed={false}
+                      thousandsSeparator=","
+                      lazy={false}
+                      labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
+                      label={
+                        <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
+                          If your orders specify a UB weight allowance, enter it here.
+                          <ToolTip
+                            text={
+                              <span className={styles.toolTipText}>
+                                If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                              </span>
+                            }
+                            position="left"
+                            icon="info-circle"
+                            color="blue"
+                            data-testid="civilianTDYUBAllowanceToolTip"
+                            isVisible={showCivilianTDYUBTooltip}
+                            closeOnLeave
+                          />
+                        </Label>
+                      }
+                    />
+                  </div>
+                </FormGroup>
+              )}
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -441,16 +560,21 @@ OrdersInfoForm.propTypes = {
     issue_date: PropTypes.string,
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
-    new_duty_location: PropTypes.shape({}),
+    new_duty_location: DutyLocationShape,
     grade: PropTypes.string,
     origin_duty_location: DutyLocationShape,
     dependents_under_twelve: PropTypes.string,
     dependents_twelve_and_over: PropTypes.string,
     accompanied_tour: PropTypes.string,
     counseling_office_id: PropTypes.string,
+    civilian_tdy_ub_allowance: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
 };
 
-export default OrdersInfoForm;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(OrdersInfoForm);

@@ -148,7 +148,7 @@ type PatchServiceMemberHandler struct {
 // Check to see if a move is in draft state. If there are no orders, then the
 // move still counts as in draft state.
 func (h PatchServiceMemberHandler) isDraftMove(serviceMember *models.ServiceMember) bool {
-	if serviceMember.Orders == nil || len(serviceMember.Orders) <= 0 {
+	if len(serviceMember.Orders) == 0 {
 		return true
 	}
 

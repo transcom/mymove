@@ -19,6 +19,7 @@ const serviceMember = {
       postalCode: '90210',
       streetAddress1: '123 Main',
       streetAddress2: '',
+      county: 'Muscogee',
     },
     affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
   },
@@ -32,8 +33,9 @@ const defaultProps = {
       city: 'Fort Benning',
       state: 'GA',
       postalCode: '94611',
-      streetAddress1: '123 Main',
+      streetAddress1: '658 West Ave',
       streetAddress2: '',
+      county: 'Muscogee',
     },
   },
   postalCodeValidator: jest.fn(),
@@ -56,6 +58,7 @@ describe('DateAndLocationForm component', () => {
       );
       expect(screen.getByRole('heading', { level: 2, name: 'Pickup Address' })).toBeInTheDocument();
       const postalCodes = screen.getAllByTestId('ZIP');
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
       const address1 = screen.getAllByLabelText(/Address 1/);
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
@@ -68,6 +71,7 @@ describe('DateAndLocationForm component', () => {
       expect(state[0]).toBeInstanceOf(HTMLLabelElement);
       expect(city[0]).toBeInstanceOf(HTMLLabelElement);
       expect(postalCodes[0]).toBeInstanceOf(HTMLLabelElement);
+      expect(locationLookups[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Delivery Address' })).toBeInTheDocument();
@@ -77,6 +81,7 @@ describe('DateAndLocationForm component', () => {
       expect(state[1]).toBeInstanceOf(HTMLLabelElement);
       expect(city[1]).toBeInstanceOf(HTMLLabelElement);
       expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+      expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Closeout Office' })).toBeInTheDocument();
@@ -103,6 +108,11 @@ describe('DateAndLocationForm component', () => {
       });
       await waitFor(() => {
         expect(postalCodes[0]).toHaveTextContent(defaultProps.serviceMember.residential_address.postalCode);
+        expect(
+          screen.getAllByText(
+            `${defaultProps.serviceMember.residential_address.city}, ${defaultProps.serviceMember.residential_address.state} ${defaultProps.serviceMember.residential_address.postalCode} (${defaultProps.serviceMember.residential_address.county})`,
+          ),
+        );
       });
     });
 
@@ -119,6 +129,15 @@ describe('DateAndLocationForm component', () => {
 
       await waitFor(() => {
         expect(postalCodes[0]).toHaveTextContent(defaultProps.serviceMember.residential_address.postalCode);
+        expect(screen.getAllByText('Start typing a Zip or City, State Zip').length).toBe(1);
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByText(
+            `${defaultProps.serviceMember.residential_address.city}, ${defaultProps.serviceMember.residential_address.state} ${defaultProps.serviceMember.residential_address.postalCode} (${defaultProps.serviceMember.residential_address.county})`,
+          ),
+        );
       });
 
       await act(async () => {
@@ -127,6 +146,7 @@ describe('DateAndLocationForm component', () => {
 
       await waitFor(() => {
         expect(postalCodes[0]).toHaveTextContent('');
+        expect(screen.getAllByText('Start typing a Zip or City, State Zip').length).toBe(2);
       });
     });
 
@@ -141,6 +161,7 @@ describe('DateAndLocationForm component', () => {
 
         await userEvent.click(hasSecondaryPickupAddress);
         const postalCodes = screen.getAllByTestId(/ZIP/);
+        const locationLookups = screen.getAllByLabelText(/Location Lookup/);
         const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
         const address2 = screen.getAllByLabelText('Address 2', { exact: false });
         const state = screen.getAllByTestId(/State/);
@@ -151,6 +172,7 @@ describe('DateAndLocationForm component', () => {
           expect(city[1]).toBeInstanceOf(HTMLLabelElement);
           expect(state[1]).toBeInstanceOf(HTMLLabelElement);
           expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+          expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
         });
       });
     });
@@ -173,6 +195,11 @@ describe('DateAndLocationForm component', () => {
         expect(city[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.city);
         expect(state[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.state);
         expect(postalCodes[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.postalCode);
+        expect(
+          screen.getAllByText(
+            `${defaultProps.destinationDutyLocation.address.city}, ${defaultProps.destinationDutyLocation.address.state} ${defaultProps.destinationDutyLocation.address.postalCode} (${defaultProps.destinationDutyLocation.address.county})`,
+          ),
+        );
       });
     });
   });
@@ -197,11 +224,17 @@ describe('DateAndLocationForm component', () => {
       expect(city[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.city);
       expect(state[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.state);
       expect(postalCodes[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.postalCode);
+      expect(
+        screen.getAllByText(
+          `${defaultProps.destinationDutyLocation.address.city}, ${defaultProps.destinationDutyLocation.address.state} ${defaultProps.destinationDutyLocation.address.postalCode} (${defaultProps.destinationDutyLocation.address.county})`,
+        ),
+      );
 
       const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
 
       await userEvent.click(hasSecondaryDestinationAddress);
       const secondaryPostalCodes = screen.getAllByTestId(/ZIP/);
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
       const secondaryAddress1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const secondaryAddress2 = screen.getAllByLabelText('Address 2', { exact: false });
       const secondaryAddress3 = screen.getAllByLabelText('Address 3', { exact: false });
@@ -215,6 +248,7 @@ describe('DateAndLocationForm component', () => {
         expect(secondaryState[2]).toBeInstanceOf(HTMLLabelElement);
         expect(secondaryCity[2]).toBeInstanceOf(HTMLLabelElement);
         expect(secondaryPostalCodes[2]).toBeInstanceOf(HTMLLabelElement);
+        expect(locationLookups[2]).toBeInstanceOf(HTMLInputElement);
       });
     });
   });
@@ -348,7 +382,7 @@ describe('validates form fields and displays error messages', () => {
         // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
         // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
         const hints = document.getElementsByClassName('usa-hint');
-        expect(hints.length).toBe(11);
+        expect(hints.length).toBe(13);
         // verify labelHints are actually 'Optional'
         for (let i = 0; i < hints.length; i += 1) {
           expect(hints[i]).toHaveTextContent('Required');
@@ -369,16 +403,19 @@ describe('validates form fields and displays error messages', () => {
 
       await userEvent.click(hasTertiaryPickupAddress);
       const postalCodes = screen.getAllByTestId(/ZIP/);
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
       const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const state = screen.getAllByTestId(/State/);
       const city = screen.getAllByTestId(/City/);
+
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
         expect(address2[1]).toBeInstanceOf(HTMLInputElement);
         expect(city[1]).toBeInstanceOf(HTMLLabelElement);
         expect(state[1]).toBeInstanceOf(HTMLLabelElement);
         expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
       });
     });
   });
@@ -398,6 +435,7 @@ describe('validates form fields and displays error messages', () => {
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
       const state = screen.getAllByTestId(/State/);
       const city = screen.getAllByTestId(/City/);
+      const locationLookup = screen.getAllByLabelText('Location Lookup', { exact: false });
 
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
@@ -406,7 +444,120 @@ describe('validates form fields and displays error messages', () => {
         expect(state[1]).toBeInstanceOf(HTMLLabelElement);
         expect(city[1]).toBeInstanceOf(HTMLLabelElement);
         expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(locationLookup[1]).toBeInstanceOf(HTMLInputElement);
       });
+    });
+  });
+
+  it('remove Required alert when secondary pickup/delivery streetAddress1 is cleared but the toggle is switched to No', async () => {
+    await act(async () => {
+      const newPPM = {
+        ...defaultProps,
+        mtoShipment: {
+          ppmShipment: {
+            secondaryPickupAddress: {
+              streetAddress1: '777 Test Street',
+              city: 'ELIZABETHTOWN',
+              state: 'KY',
+              postalCode: '42702',
+              county: 'Hardin',
+            },
+            secondaryDestinationAddress: {
+              streetAddress1: '68 West Elm',
+              city: 'Fort Benning',
+              state: 'GA',
+              postalCode: '94611',
+              county: 'Muscogee',
+            },
+            expectedDepartureDate: '2025-03-08',
+          },
+        },
+      };
+      const navyServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
+      };
+      render(
+        <Provider store={mockStore.store}>
+          <DateAndLocationForm {...newPPM} serviceMember={navyServiceMember} />
+        </Provider>,
+      );
+      await act(async () => {
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
+      });
+
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+      await act(async () => {
+        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
+      });
+      await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
+
+      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
+
+      // verify pickup address is populated
+      expect(address1[0]).toHaveValue('123 Main');
+      expect(screen.getByText('Fort Benning, GA 90210 (Muscogee)'));
+
+      await waitFor(() => {
+        expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+        expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
+      });
+
+      // verify 2nd pickup is populated
+      expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
+      expect(address1[1]).toHaveValue('777 Test Street');
+      expect(screen.getByText('ELIZABETHTOWN, KY 42702 (Hardin)'));
+
+      // verify delivery address is populated
+      expect(address1[2]).toHaveValue('658 West Ave');
+      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[0]);
+
+      await waitFor(() => {
+        expect(address1[3]).toBeInstanceOf(HTMLInputElement);
+        expect(locationLookups[3]).toBeInstanceOf(HTMLInputElement);
+      });
+
+      // verify 2nd delivery address is populated
+      expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
+      expect(address1[3]).toHaveValue('68 West Elm');
+      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[1]);
+
+      // now clear out 2nd pickup address1 text, should raise required alert
+      await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
+      await userEvent.keyboard('[Tab]');
+
+      await waitFor(() => {
+        const requiredAlerts = screen.queryAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+        requiredAlerts.forEach((alert) => {
+          expect(alert).toHaveTextContent('Required');
+        });
+      });
+
+      // toggle second pickup address to No, should get rid of Required error
+      await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
+
+      const alerts = screen.queryAllByRole('alert');
+      expect(alerts.length).toBe(0);
+
+      // now clear out 2nd delivery address1 text, should raise required alert
+      await userEvent.clear(document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'));
+      await userEvent.keyboard('[Tab]');
+
+      await waitFor(() => {
+        const requiredAlerts = screen.queryAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+        requiredAlerts.forEach((alert) => {
+          expect(alert).toHaveTextContent('Required');
+        });
+      });
+
+      // toggle second delivery address to No, should get rid of Required error
+      await userEvent.click(screen.getByTitle('No, I do not have a second delivery address'));
+
+      const newAlerts = screen.queryAllByRole('alert');
+      expect(newAlerts.length).toBe(0);
     });
   });
 });

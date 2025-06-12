@@ -882,6 +882,10 @@ definitions:
         example: 1500
         type: integer
         x-nullable: true
+      ubWeightRestriction:
+        example: 1200
+        type: integer
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1546,6 +1550,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - APPROVALS_REQUESTED
       diversion:
         type: boolean
       rejectionReason:
@@ -1887,6 +1892,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - APPROVALS_REQUESTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough

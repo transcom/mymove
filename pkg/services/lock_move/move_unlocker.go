@@ -42,15 +42,12 @@ func (m moveUnlocker) UnlockMove(appCtx appcontext.AppContext, move *models.Move
 		move.LockedByOfficeUser = nil
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		verrs, saveErr := appCtx.DB().ValidateAndSave(move)
-		if verrs != nil && verrs.HasAny() {
-			invalidInputError := apperror.NewInvalidInputError(move.ID, nil, verrs, "Could not validate move while unlocking it.")
+	// Store move before update
+	var moveBeforeUpdate = *move
 
-			return invalidInputError
-		}
-		if saveErr != nil {
-			return saveErr
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := appCtx.DB().RawQuery("UPDATE moves SET locked_by=?, lock_expires_at=?, updated_at=? WHERE id=?", nil, nil, moveBeforeUpdate.UpdatedAt, move.ID).Exec(); err != nil {
+			return err
 		}
 
 		return nil

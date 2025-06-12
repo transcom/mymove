@@ -24,6 +24,22 @@ const AdminUserSuperAttribute = () => {
   );
 };
 
+const validateAdminuser = (values) => {
+  const errors = {};
+  if (!values.email) {
+    errors.email = 'Email is required';
+  } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(values.email)) {
+    errors.email = 'Must be a valid email';
+  }
+  if (!values.firstName) {
+    errors.firstName = 'First name is required';
+  }
+  if (!values.lastName) {
+    errors.lastName = 'Last name is required';
+  }
+  return errors;
+};
+
 const AdminUserEdit = ({ adminUser }) => (
   <Edit>
     <SimpleForm
@@ -31,10 +47,11 @@ const AdminUserEdit = ({ adminUser }) => (
       sx={{ '& .MuiInputBase-input': { width: 232 } }}
       mode="onBlur"
       reValidateMode="onBlur"
+      validate={validateAdminuser}
     >
       <TextInput source="id" disabled />
       <TextInput source="userId" label="User Id" disabled />
-      <TextInput source="email" disabled />
+      <TextInput source="email" />
       <TextInput source="firstName" validate={required()} />
       <TextInput source="lastName" validate={required()} />
       <SelectInput

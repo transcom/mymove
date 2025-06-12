@@ -73,7 +73,7 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 		DoneChannel:         make(chan bool, 1),
 	}
 
-	appCtx := appcontext.NewAppContext(db, logger, nil)
+	appCtx := appcontext.NewAppContext(db, logger, nil, nil)
 
 	// Wait for interrupt signal to gracefully shutdown the client
 	signal.Notify(webhookEngine.QuitChannel, os.Interrupt)

@@ -2,8 +2,9 @@ import * as Yup from 'yup';
 
 import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
-import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { PPM_TYPES } from 'shared/constants';
 
 function closeoutOfficeSchema(showCloseoutOffice, isAdvancePage) {
   if (showCloseoutOffice && !isAdvancePage) {
@@ -28,6 +29,9 @@ const ppmShipmentSchema = ({
   const proGearSpouseWeightLimit = weightAllotment.proGearWeightSpouse || 0;
 
   const formSchema = Yup.object().shape({
+    ppmType: Yup.string()
+      .oneOf([PPM_TYPES.INCENTIVE_BASED, PPM_TYPES.ACTUAL_EXPENSE, PPM_TYPES.SMALL_PACKAGE], 'Invalid PPM Type')
+      .required('Required'),
     pickup: Yup.object().shape({
       address: requiredAddressSchema,
     }),
@@ -126,7 +130,6 @@ const ppmShipmentSchema = ({
         (isAdvancePage && ADVANCE_STATUSES[advanceStatus] === ADVANCE_STATUSES.REJECTED),
       then: (schema) => schema.required('Required'),
     }),
-    isActualExpenseReimbursement: Yup.boolean().required('Required'),
   });
 
   return formSchema;

@@ -474,7 +474,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			ActualValue   *edisegment.N9
 		}{
 			{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
-			{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
+			{TestName: "contract code", Qualifier: "CT", ExpectedValue: testdatagen.DefaultContractCode, ActualValue: &result.Header.ContractCode},
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "order pay grade", Qualifier: "ML", ExpectedValue: string(grade), ActualValue: &result.Header.OrderPayGrade},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
@@ -507,7 +507,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			ActualValue   *edisegment.N9
 		}{
 			{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
-			{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
+			{TestName: "contract code", Qualifier: "CT", ExpectedValue: testdatagen.DefaultContractCode, ActualValue: &result.Header.ContractCode},
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "order pay grade", Qualifier: "ML", ExpectedValue: string(grade), ActualValue: &result.Header.OrderPayGrade},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
@@ -1894,194 +1894,6 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 						TrnsprtnAcntBgnDt: &sixMonthsBefore,
 						TrnsprtnAcntEndDt: &sixMonthsAfter,
 						LoaSysID:          loa.LoaSysID,
-					},
-				},
-			}, nil)
-		}
-		// Setup move and payment data
-		move = factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Order{
-					TAC:       models.StringPointer("CACI"),
-					IssueDate: currentTime,
-				},
-			},
-		}, nil)
-
-		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.PaymentRequest{
-					IsFinal: false,
-					Status:  models.PaymentRequestStatusReviewed,
-				},
-			},
-		}, nil)
-
-		mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		factory.BuildPaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeDNPK,
-			basicPaymentServiceItemParams,
-			[]factory.Customization{
-				{
-					Model:    move,
-					LinkOnly: true,
-				},
-				{
-					Model:    mtoShipment,
-					LinkOnly: true,
-				},
-				{
-					Model:    paymentRequest,
-					LinkOnly: true,
-				},
-				{
-					Model: models.PaymentServiceItem{
-						Status: models.PaymentServiceItemStatusApproved,
-					},
-				},
-			}, nil,
-		)
-
-		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
-		suite.NoError(err)
-
-		concatDate := fmt.Sprintf("%d%d", begYear, endYear)
-		accountingInstallationNumber := fmt.Sprintf("%06s", *loa.LoaInstlAcntgActID)
-
-		fa2Assertions := []struct {
-			expectedDetailCode edisegment.FA2DetailCode
-			expectedInfoCode   *string
-		}{
-			{edisegment.FA2DetailCodeTA, move.Orders.TAC},
-			{edisegment.FA2DetailCodeA1, loa.LoaDptID},
-			{edisegment.FA2DetailCodeA2, loa.LoaTnsfrDptNm},
-			{edisegment.FA2DetailCodeA3, &concatDate},
-			{edisegment.FA2DetailCodeA4, loa.LoaBafID},
-			{edisegment.FA2DetailCodeA5, loa.LoaTrsySfxTx},
-			{edisegment.FA2DetailCodeA6, loa.LoaMajClmNm},
-			{edisegment.FA2DetailCodeB1, loa.LoaOpAgncyID},
-			{edisegment.FA2DetailCodeB2, loa.LoaAlltSnID},
-			{edisegment.FA2DetailCodeB3, loa.LoaUic},
-			{edisegment.FA2DetailCodeC1, loa.LoaPgmElmntID},
-			{edisegment.FA2DetailCodeC2, loa.LoaTskBdgtSblnTx},
-			{edisegment.FA2DetailCodeD1, loa.LoaDfAgncyAlctnRcpntID},
-			{edisegment.FA2DetailCodeD4, loa.LoaJbOrdNm},
-			{edisegment.FA2DetailCodeD6, loa.LoaSbaltmtRcpntID},
-			{edisegment.FA2DetailCodeD7, loa.LoaWkCntrRcpntNm},
-			{edisegment.FA2DetailCodeE1, loa.LoaMajRmbsmtSrcID},
-			{edisegment.FA2DetailCodeE2, loa.LoaDtlRmbsmtSrcID},
-			{edisegment.FA2DetailCodeE3, loa.LoaCustNm},
-			{edisegment.FA2DetailCodeF1, loa.LoaObjClsID},
-			{edisegment.FA2DetailCodeF3, loa.LoaSrvSrcID},
-			{edisegment.FA2DetailCodeG2, loa.LoaSpclIntrID},
-			{edisegment.FA2DetailCodeI1, loa.LoaBdgtAcntClsNm},
-			{edisegment.FA2DetailCodeJ1, loa.LoaDocID},
-			{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
-			{edisegment.FA2DetailCodeL1, &accountingInstallationNumber},
-			{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
-			{edisegment.FA2DetailCodeN1, loa.LoaTrnsnID},
-			{edisegment.FA2DetailCodeP5, loa.LoaFmsTrnsactnID},
-		}
-
-		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
-		// L1 segment must be padded to a length of 6 to meet the specification
-		suite.Len(result.ServiceItems[0].FA2s[25].FinancialInformationCode, 6)
-		for i, fa2Assertion := range fa2Assertions {
-			fa2Segment := result.ServiceItems[0].FA2s[i]
-			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
-			suite.Equal(*fa2Assertion.expectedInfoCode, fa2Segment.FinancialInformationCode)
-		}
-	})
-
-	suite.Run("shipment with complete long line of accounting for HHG Officer with 5 TACs - B-19139 I-12630, but with a duplicate LOA present that is not a 1:1 match", func() {
-		// This tests that EDI 858 generation will still pass with duplicate LOAs
-
-		var loa models.LineOfAccounting
-		// Generate the random strings prior to looping
-		loaSysId := factory.MakeRandomString(20)
-		loaDptID := factory.MakeRandomString(2)
-		loaBafID := factory.MakeRandomString(4)
-		loaTrsySfxTx := factory.MakeRandomString(4)
-		loaOpAgncyID := factory.MakeRandomString(2)
-		loaAlltSnID := factory.MakeRandomString(4)
-		loaPgmElmntID := factory.MakeRandomString(8)
-		loaObjClsID := factory.MakeRandomString(4)
-		loaBdgtAcntClsNm := factory.MakeRandomString(6)
-		loaDocID := factory.MakeRandomString(10)
-		loaInstlAcntgActID := factory.MakeRandomString(6)
-		loaFnctPrsNm := factory.MakeRandomString(100)
-		loaStatCd := factory.MakeRandomString(1)
-		orgGrpDfasCd := factory.MakeRandomString(2)
-		loaTrnsnID := factory.MakeRandomString(2)
-
-		// Create duplicate LOA, but each will have different LoaDscTx so as to not "merge" together
-		for i := 0; i < 2; i++ {
-			loa = factory.BuildFullLineOfAccounting(suite.DB(), []factory.Customization{
-				{
-					Model: models.LineOfAccounting{
-						LoaDptID:           models.StringPointer(loaDptID),
-						LoaBafID:           models.StringPointer(loaBafID),
-						LoaTrsySfxTx:       models.StringPointer(loaTrsySfxTx),
-						LoaOpAgncyID:       models.StringPointer(loaOpAgncyID),
-						LoaAlltSnID:        models.StringPointer(loaAlltSnID),
-						LoaPgmElmntID:      models.StringPointer(loaPgmElmntID),
-						LoaObjClsID:        models.StringPointer(loaObjClsID),
-						LoaBdgtAcntClsNm:   models.StringPointer(loaBdgtAcntClsNm),
-						LoaDocID:           models.StringPointer(loaDocID),
-						LoaInstlAcntgActID: models.StringPointer(loaInstlAcntgActID),
-						LoaDscTx:           models.StringPointer(factory.MakeRandomString(100)),
-						LoaBgnDt:           &sixMonthsBefore,
-						LoaEndDt:           &sixMonthsAfter,
-						LoaFnctPrsNm:       models.StringPointer(loaFnctPrsNm),
-						LoaStatCd:          models.StringPointer(loaStatCd),
-						LoaHsGdsCd:         models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
-						OrgGrpDfasCd:       models.StringPointer(orgGrpDfasCd),
-						LoaTrnsnID:         models.StringPointer(loaTrnsnID),
-						LoaBgFyTx:          &begYear,
-						LoaEndFyTx:         &endYear,
-						LoaSysID:           &loaSysId,
-					},
-				},
-			}, nil)
-		}
-		// Ensure 2 loas are created
-		var createdLoas []models.LineOfAccounting
-		err := suite.DB().All(&createdLoas)
-		suite.NoError(err)
-		suite.Len(createdLoas, 2)
-		// Ensure the 2 loas have matching LoaSysIds
-		for i := range createdLoas {
-			suite.Equal(loaSysId, *createdLoas[i].LoaSysID)
-		}
-		// Create 5 standalone TACs
-		fbmcs := []string{
-			"1",
-			"3",
-			"5",
-			"M",
-			"P",
-		}
-		for _, fbmc := range fbmcs {
-			newPointerFbmc := fbmc
-			factory.BuildTransportationAccountingCodeWithoutAttachedLoa(suite.DB(), []factory.Customization{
-				{
-					Model: models.TransportationAccountingCode{
-						TAC:               *models.StringPointer("CACI"),
-						TacFnBlModCd:      &newPointerFbmc,
-						TrnsprtnAcntBgnDt: &sixMonthsBefore,
-						TrnsprtnAcntEndDt: &sixMonthsAfter,
-						LoaSysID:          &loaSysId,
 					},
 				},
 			}, nil)

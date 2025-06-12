@@ -16,7 +16,7 @@ import { updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS } from 'constants/queryKeys';
 import { permissionTypes } from 'constants/permissions';
@@ -55,6 +55,22 @@ const validationSchema = Yup.object({
       otherwise: (schema) => schema.notRequired().nullable(),
     }),
   adminRestrictedWeightLocation: Yup.boolean().notRequired(),
+  ubWeightRestriction: Yup.number()
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .when('adminRestrictedUBWeightLocation', {
+      is: true,
+      then: (schema) =>
+        schema
+          .min(1, 'UB weight restriction must be greater than 0')
+          .max(2000, 'UB weight restriction cannot exceed 2,000 lbs')
+          .required('UB weight restriction is required when Admin Restricted UB Weight Location is enabled'),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
+  adminRestrictedUBWeightLocation: Yup.boolean().notRequired(),
+  ubAllowance: Yup.number()
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .min(0, 'UB weight allowance must be 0 or more')
+    .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.'),
 });
 
 const MoveAllowances = () => {
@@ -103,7 +119,6 @@ const MoveAllowances = () => {
     const {
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight,
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
@@ -112,6 +127,8 @@ const MoveAllowances = () => {
       gunSafe,
       adminRestrictedWeightLocation,
       weightRestriction,
+      adminRestrictedUBWeightLocation,
+      ubWeightRestriction,
       accompaniedTour,
       dependentsTwelveAndOver,
       dependentsUnderTwelve,
@@ -126,7 +143,6 @@ const MoveAllowances = () => {
       reportByDate: order.report_by_date,
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight: Number(proGearWeight),
       proGearWeightSpouse: Number(proGearWeightSpouse),
       requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
@@ -134,9 +150,11 @@ const MoveAllowances = () => {
       storageInTransit: Number(storageInTransit),
       gunSafe,
       weightRestriction: adminRestrictedWeightLocation && weightRestriction ? Number(weightRestriction) : null,
+      ubWeightRestriction: adminRestrictedUBWeightLocation && ubWeightRestriction ? Number(ubWeightRestriction) : null,
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
+      ubAllowance: Number(values.ubAllowance),
     };
 
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
@@ -144,13 +162,13 @@ const MoveAllowances = () => {
 
   const { entitlement, grade, agency } = order;
   const {
-    dependentsAuthorized,
     proGearWeight,
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
     weightRestriction,
+    ubWeightRestriction,
     storageInTransit,
     dependentsUnderTwelve,
     dependentsTwelveAndOver,
@@ -160,7 +178,6 @@ const MoveAllowances = () => {
   const initialValues = {
     grade,
     agency,
-    dependentsAuthorized,
     proGearWeight: `${proGearWeight}`,
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
@@ -168,11 +185,18 @@ const MoveAllowances = () => {
     gunSafe,
     adminRestrictedWeightLocation: weightRestriction > 0,
     weightRestriction: weightRestriction ? `${weightRestriction}` : '0',
+    adminRestrictedUBWeightLocation: ubWeightRestriction > 0,
+    ubWeightRestriction: ubWeightRestriction ? `${ubWeightRestriction}` : '0',
     storageInTransit: `${storageInTransit}`,
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,
     dependentsTwelveAndOver: `${dependentsTwelveAndOver}`,
   };
+
+  const civilianTDYUBMove =
+    order.order_type === ORDERS_TYPE.TEMPORARY_DUTY &&
+    order.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE &&
+    (order.originDutyLocation?.address?.isOconus || order.destinationDutyLocation?.address?.isOconus);
 
   return (
     <div className={styles.sidebar}>
@@ -206,12 +230,17 @@ const MoveAllowances = () => {
                     <AllowancesDetailForm
                       entitlements={order.entitlement}
                       branchOptions={branchDropdownOption}
+                      civilianTDYUBMove={civilianTDYUBMove}
                       editableAuthorizedWeight
                       formIsDisabled
                     />
                   }
                 >
-                  <AllowancesDetailForm entitlements={order.entitlement} branchOptions={branchDropdownOption} />
+                  <AllowancesDetailForm
+                    entitlements={order.entitlement}
+                    branchOptions={branchDropdownOption}
+                    civilianTDYUBMove={civilianTDYUBMove}
+                  />
                 </Restricted>
               </div>
               <Restricted to={permissionTypes.updateAllowances}>

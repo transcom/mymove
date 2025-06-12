@@ -20,19 +20,22 @@ import (
 type FetchLineOfAccountingPayload struct {
 
 	// department indicator
-	DepartmentIndicator *DepartmentIndicator `json:"departmentIndicator,omitempty"`
+	// Required: true
+	DepartmentIndicator *DepartmentIndicator `json:"departmentIndicator"`
 
 	// The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find "Active" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).
 	//
 	// Example: 2023-01-01
+	// Required: true
 	// Format: date
-	EffectiveDate strfmt.Date `json:"effectiveDate,omitempty"`
+	EffectiveDate *strfmt.Date `json:"effectiveDate"`
 
 	// tac code
 	// Example: F8J1
+	// Required: true
 	// Max Length: 4
 	// Min Length: 4
-	TacCode string `json:"tacCode,omitempty"`
+	TacCode *string `json:"tacCode"`
 }
 
 // Validate validates this fetch line of accounting payload
@@ -58,8 +61,13 @@ func (m *FetchLineOfAccountingPayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *FetchLineOfAccountingPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
-	if swag.IsZero(m.DepartmentIndicator) { // not required
-		return nil
+
+	if err := validate.Required("departmentIndicator", "body", m.DepartmentIndicator); err != nil {
+		return err
+	}
+
+	if err := validate.Required("departmentIndicator", "body", m.DepartmentIndicator); err != nil {
+		return err
 	}
 
 	if m.DepartmentIndicator != nil {
@@ -77,8 +85,9 @@ func (m *FetchLineOfAccountingPayload) validateDepartmentIndicator(formats strfm
 }
 
 func (m *FetchLineOfAccountingPayload) validateEffectiveDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.EffectiveDate) { // not required
-		return nil
+
+	if err := validate.Required("effectiveDate", "body", m.EffectiveDate); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("effectiveDate", "body", "date", m.EffectiveDate.String(), formats); err != nil {
@@ -89,15 +98,16 @@ func (m *FetchLineOfAccountingPayload) validateEffectiveDate(formats strfmt.Regi
 }
 
 func (m *FetchLineOfAccountingPayload) validateTacCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.TacCode) { // not required
-		return nil
-	}
 
-	if err := validate.MinLength("tacCode", "body", m.TacCode, 4); err != nil {
+	if err := validate.Required("tacCode", "body", m.TacCode); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("tacCode", "body", m.TacCode, 4); err != nil {
+	if err := validate.MinLength("tacCode", "body", *m.TacCode, 4); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("tacCode", "body", *m.TacCode, 4); err != nil {
 		return err
 	}
 
@@ -121,10 +131,6 @@ func (m *FetchLineOfAccountingPayload) ContextValidate(ctx context.Context, form
 func (m *FetchLineOfAccountingPayload) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DepartmentIndicator != nil {
-
-		if swag.IsZero(m.DepartmentIndicator) { // not required
-			return nil
-		}
 
 		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

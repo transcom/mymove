@@ -8,8 +8,8 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -27,12 +27,14 @@ type MoveListFetcher interface {
 type MoveFetcher interface {
 	FetchMove(appCtx appcontext.AppContext, locator string, searchParams *MoveFetcherParams) (*models.Move, error)
 	FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Moves, error)
+	FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds []ghcmessages.BulkAssignmentMoveData) (models.Moves, error)
 }
 
 type MoveFetcherBulkAssignment interface {
 	FetchMovesForBulkAssignmentCounseling(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 	FetchMovesForBulkAssignmentCloseout(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 	FetchMovesForBulkAssignmentTaskOrder(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
+	FetchMovesForBulkAssignmentDestination(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 	FetchMovesForBulkAssignmentPaymentRequest(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 }
 
@@ -53,6 +55,7 @@ type MoveFetcherParams struct {
 type MoveRouter interface {
 	Approve(appCtx appcontext.AppContext, move *models.Move) error
 	ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error)
+	UpdateShipmentStatusToApprovalsRequested(appCtx appcontext.AppContext, shipment models.MTOShipment) (*models.MTOShipment, error)
 	Cancel(appCtx appcontext.AppContext, move *models.Move) error
 	CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error
 	RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error
@@ -65,7 +68,8 @@ type MoveRouter interface {
 //go:generate mockery --name MoveWeights
 type MoveWeights interface {
 	CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error)
-	CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error)
+	CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) error
+	GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (*models.MTOShipments, error)
 }
 
 // MoveExcessWeightUploader is the exported interface for uploading an excess weight document for a move
@@ -129,10 +133,17 @@ type MoveCanceler interface {
 }
 
 type MoveAssignedOfficeUserUpdater interface {
-	UpdateAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, officeUser *models.OfficeUser, role roles.RoleType) (*models.Move, error)
-	DeleteAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, role roles.RoleType) (*models.Move, error)
+	UpdateAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, officeUser *models.OfficeUser, queueType models.QueueType) (*models.Move, error)
+	DeleteAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, queueType models.QueueType) (*models.Move, error)
 }
 
 type CheckForLockedMovesAndUnlockHandler interface {
 	CheckForLockedMovesAndUnlock(appCtx appcontext.AppContext, officeUserID uuid.UUID) error
+}
+
+// MoveAssigner is the exported interface for bulk assigning moves to office users
+//
+//go:generate mockery --name MoveAssigner
+type MoveAssigner interface {
+	BulkMoveAssignment(appCtx appcontext.AppContext, queueType string, officeUserData []*ghcmessages.BulkAssignmentForUser, movesToAssign models.Moves) (*models.Moves, error)
 }

@@ -88,6 +88,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		if order.Entitlement.WeightRestriction != nil {
 			entitlement.WeightRestriction = models.Int64Pointer(int64(*order.Entitlement.WeightRestriction))
 		}
+		if order.Entitlement.UBWeightRestriction != nil {
+			entitlement.UbWeightRestriction = models.Int64Pointer(int64(*order.Entitlement.UBWeightRestriction))
+		}
 	}
 	var originDutyLocation models.DutyLocation
 	originDutyLocation = models.DutyLocation{}
@@ -242,8 +245,13 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
 			}
+
+			civilianTDYUBAllowance := 0
+			if payload.CivilianTdyUbAllowance != nil {
+				civilianTDYUBAllowance = int(*payload.CivilianTdyUbAllowance)
+			}
 			// Calculate UB allowance for the order entitlement
-			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver, &civilianTDYUBAllowance)
 			if err == nil {
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
@@ -538,9 +546,13 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					grade = order.Grade
 				}
 
+				civilianTDYUBAllowance := 0
+				if payload.CivilianTdyUbAllowance != nil {
+					civilianTDYUBAllowance = int(*payload.CivilianTdyUbAllowance)
+				}
 				// Calculate UB allowance for the order entitlement
 				if order.Entitlement != nil {
-					unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+					unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver, &civilianTDYUBAllowance)
 					if err == nil {
 						weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 					}
@@ -556,6 +568,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					DependentsTwelveAndOver: dependentsTwelveAndOver,
 					AccompaniedTour:         payload.AccompaniedTour,
 					UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+					GunSafe:                 order.Entitlement.GunSafe,
+					GunSafeWeight:           order.Entitlement.GunSafeWeight,
 				}
 
 				/*
@@ -572,26 +586,47 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.Entitlement = &entitlement
 
 				// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
-				if payload.Grade != nil && *payload.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
+				// if not, do the opposite and make the PPM type INCENTIVE_BASED
+				if payload.Grade != nil && *payload.Grade != *order.Grade {
 					moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
 					if fetchErr != nil {
 						appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(fetchErr))
 					} else {
-						move := moves[0]
-						for i := range move.MTOShipments {
-							shipment := &move.MTOShipments[i]
+						var move *models.Move
+						for i := range moves {
+							if moves[i].OrdersID == order.ID {
+								move = &moves[i]
+								break
+							}
+						}
+						if move == nil {
+							appCtx.Logger().Error("no move found matching order ID", zap.String("orderID", order.ID.String()))
+						} else {
+							// look at the values and see if the grade is CIVILIAN_EMPLOYEE
+							isCivilian := *payload.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE
+							reimbursementVal := isCivilian
+							var ppmType models.PPMType
+							// setting the default ppmType
+							if isCivilian {
+								ppmType = models.PPMTypeActualExpense
+							} else {
+								ppmType = models.PPMTypeIncentiveBased
+							}
 
-							if shipment.ShipmentType == models.MTOShipmentTypePPM {
-								if shipment.PPMShipment == nil {
-									appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
-									continue
-								}
-								// actual expense reimbursement is always true for civilian moves
-								shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(true)
+							for i := range move.MTOShipments {
+								shipment := &move.MTOShipments[i]
+								if shipment.ShipmentType == models.MTOShipmentTypePPM {
+									if shipment.PPMShipment == nil {
+										appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
+										continue
+									}
+									shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(reimbursementVal)
+									shipment.PPMShipment.PPMType = ppmType
 
-								if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
-									msg := "failure saving PPM shipment when updating orders"
-									appCtx.Logger().Error(msg, zap.Error(err))
+									if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
+										msg := "failure saving PPM shipment when updating orders"
+										appCtx.Logger().Error(msg, zap.Error(err))
+									}
 								}
 							}
 						}

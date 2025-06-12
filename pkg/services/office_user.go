@@ -1,14 +1,22 @@
 package services
 
 import (
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
+
+// OfficeUserListFetcher is the exported interface for fetching multiple  office users
+//
+//go:generate mockery --name OfficeUserListFetcher
+type OfficeUserListFetcher interface {
+	FetchOfficeUsersList(appCtx appcontext.AppContext, filterFuncs []func(*pop.Query), pagination Pagination, ordering QueryOrder) (models.OfficeUsers, int, error)
+	FetchOfficeUsersCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)
+}
 
 // OfficeUserFetcher is the exported interface for fetching a single office user
 //
@@ -25,7 +33,7 @@ type OfficeUserFetcherPop interface {
 	FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
 	FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error)
 	FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error)
-	FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUserWithWorkload, error)
+	FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID, queueType string) ([]models.OfficeUserWithWorkload, error)
 }
 
 // OfficeUserGblocFetcher is the exported interface for fetching the GBLOC of the
@@ -47,7 +55,7 @@ type OfficeUserCreator interface {
 //
 //go:generate mockery --name OfficeUserUpdater
 type OfficeUserUpdater interface {
-	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error)
+	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *models.OfficeUser, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error)
 }
 
 // OfficeUserDeleter is the exported interface for hard deleting an office user and its associations (roles, privileges)

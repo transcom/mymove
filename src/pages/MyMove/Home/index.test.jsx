@@ -6,6 +6,7 @@ import { mount } from 'enzyme';
 import moment from 'moment';
 import { generatePath, MemoryRouter } from 'react-router-dom';
 import { v4 } from 'uuid';
+import { Provider } from 'react-redux';
 
 import { Home } from './index';
 
@@ -24,6 +25,9 @@ import {
   createSubmittedPPMShipment,
 } from 'utils/test/factories/ppmShipment';
 import { downloadPPMAOAPacket } from 'services/internalApi';
+import { configureStore } from 'shared/store';
+
+const mockStore = configureStore({});
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -160,8 +164,6 @@ const approvedPPMShipment = {
     ...submittedPPMShipment.ppmShipment,
     status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
     actualMoveDate: null,
-    actualPickupPostalCode: null,
-    actualDestinationPostalCode: null,
     hasReceivedAdvance: null,
     advanceAmountReceived: null,
     weightTickets: [],
@@ -194,8 +196,6 @@ const ppmShipmentWithActualShipmentInfo = {
   ppmShipment: {
     ...approvedPPMShipment.ppmShipment,
     actualMoveDate: approvedPPMShipment.ppmShipment.expectedDepartureDate,
-    actualPickupPostalCode: approvedPPMShipment.ppmShipment.pickupAddress.postalCode,
-    actualDestinationPostalCode: approvedPPMShipment.ppmShipment.destinationAddress.postalCode,
     hasReceivedAdvance: approvedPPMShipment.ppmShipment.hasRequestedAdvance,
     advanceAmountReceived: approvedPPMShipment.ppmShipment.advanceAmountRequested,
   },
@@ -601,7 +601,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -616,7 +618,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -631,7 +635,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -647,7 +653,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -671,7 +679,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -704,7 +714,9 @@ describe('Home component', () => {
 
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
 

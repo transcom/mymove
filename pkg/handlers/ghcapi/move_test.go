@@ -1093,12 +1093,12 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 
 		officeUserID := strfmt.UUID(officeUser.ID.String())
 		moveID := strfmt.UUID(move.ID.String())
-		roleType := string(roles.RoleTypeServicesCounselor)
+		queueType := string(models.QueueTypeCounseling)
 		params := moveops.UpdateAssignedOfficeUserParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.AssignOfficeUserBody{
 				OfficeUserID: &officeUserID,
-				RoleType:     &roleType,
+				QueueType:    &queueType,
 			},
 			MoveID: moveID,
 		}
@@ -1116,12 +1116,12 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 
 		officeUserID := strfmt.UUID(officeUser.ID.String())
 		moveID := strfmt.UUID(move.ID.String())
-		roleType := string(roles.RoleTypeTOO)
+		queueType := string(models.QueueTypeTaskOrder)
 		params := moveops.UpdateAssignedOfficeUserParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.AssignOfficeUserBody{
 				OfficeUserID: &officeUserID,
-				RoleType:     &roleType,
+				QueueType:    &queueType,
 			},
 			MoveID: moveID,
 		}
@@ -1139,12 +1139,12 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 
 		officeUserID := strfmt.UUID(officeUser.ID.String())
 		moveID := strfmt.UUID(move.ID.String())
-		roleType := string(roles.RoleTypeTIO)
+		queueType := string(models.QueueTypePaymentRequest)
 		params := moveops.UpdateAssignedOfficeUserParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.AssignOfficeUserBody{
 				OfficeUserID: &officeUserID,
-				RoleType:     &roleType,
+				QueueType:    &queueType,
 			},
 			MoveID: moveID,
 		}
@@ -1156,6 +1156,28 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Equal(officeUserID, payload.TIOAssignedUser.OfficeUserID)
+	})
+	suite.Run("Successful update of a move for TOO on Destination Request Queue", func() {
+		req, handler, move, officeUser := setupTestData()
+		officeUserID := strfmt.UUID(officeUser.ID.String())
+		moveID := strfmt.UUID(move.ID.String())
+		queueType := string(models.QueueTypeDestinationRequest)
+		params := moveops.UpdateAssignedOfficeUserParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.AssignOfficeUserBody{
+				OfficeUserID: &officeUserID,
+				QueueType:    &queueType,
+			},
+			MoveID: moveID,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateAssignedOfficeUserOK{}, response)
+		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(officeUserID, payload.TOODestinationAssignedUser.OfficeUserID)
 	})
 	suite.Run("Successful unassign of an office user", func() {
 		move = factory.BuildMove(suite.DB(), nil, nil)
@@ -1169,11 +1191,11 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		}
 
 		moveID := strfmt.UUID(move.ID.String())
-		roleType := string(roles.RoleTypeTIO)
+		queueType := string(models.QueueTypePaymentRequest)
 		params := moveops.DeleteAssignedOfficeUserParams{
 			HTTPRequest: req,
 			Body: moveops.DeleteAssignedOfficeUserBody{
-				RoleType: &roleType,
+				QueueType: &queueType,
 			},
 			MoveID: moveID,
 		}
@@ -1268,4 +1290,24 @@ func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
 		payload := response.(*moveops.CheckForLockedMovesAndUnlockInternalServerError).Payload
 		suite.Nil(payload)
 	})
+}
+func (suite *HandlerSuite) TestGetQueue() {
+	testCases := []struct {
+		name     string
+		input    string
+		expected models.QueueType
+	}{
+		{"Counseling queue", "COUNSELING", models.QueueTypeCounseling},
+		{"Closeout queue", "CLOSEOUT", models.QueueTypeCloseout},
+		{"Task Order queue", "TASK_ORDER", models.QueueTypeTaskOrder},
+		{"Payment Request queue", "PAYMENT_REQUEST", models.QueueTypePaymentRequest},
+		{"Destination Requests queue", "DESTINATION_REQUESTS", models.QueueTypeDestinationRequest},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			result := getQueue(tc.input)
+			suite.Equal(tc.expected, result)
+		})
+	}
 }

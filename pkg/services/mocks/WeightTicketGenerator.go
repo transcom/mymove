@@ -16,6 +16,24 @@ type WeightTicketGenerator struct {
 	mock.Mock
 }
 
+// CleanupFile provides a mock function with given fields: weightFile
+func (_m *WeightTicketGenerator) CleanupFile(weightFile afero.File) error {
+	ret := _m.Called(weightFile)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CleanupFile")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(afero.File) error); ok {
+		r0 = rf(weightFile)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // FillWeightEstimatorPDFForm provides a mock function with given fields: PageValues, fileName
 func (_m *WeightTicketGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
 	ret := _m.Called(PageValues, fileName)

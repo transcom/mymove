@@ -5,14 +5,7 @@ import userEvent from '@testing-library/user-event';
 import ValidationCode from './ValidationCode';
 
 import { MockProviders, renderWithProviders } from 'testUtils';
-import { customerRoutes } from 'constants/routes';
 import { validateCode } from 'services/internalApi';
-
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}));
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -23,9 +16,11 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
+const mockSubmit = jest.fn();
+
 describe('ValidationCode', () => {
   test('it should render all text for the component', async () => {
-    renderWithProviders(<ValidationCode />);
+    renderWithProviders(<ValidationCode onSuccess={jest.fn()} />);
 
     expect(screen.getByText('Please enter a validation code to begin creating a move')).toBeInTheDocument();
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
@@ -44,7 +39,7 @@ describe('ValidationCode', () => {
 
     render(
       <MockProviders>
-        <ValidationCode />
+        <ValidationCode onSuccess={mockSubmit} />
       </MockProviders>,
     );
 
@@ -54,7 +49,7 @@ describe('ValidationCode', () => {
     expect(nextBtn).toBeEnabled();
     await userEvent.click(nextBtn);
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.DOD_INFO_PATH);
+    expect(mockSubmit).toHaveBeenCalled();
   });
 
   test('it displays error when code is not correct', async () => {
@@ -69,7 +64,7 @@ describe('ValidationCode', () => {
 
     render(
       <MockProviders>
-        <ValidationCode />
+        <ValidationCode onSuccess={mockSubmit} />
       </MockProviders>,
     );
 
@@ -79,7 +74,7 @@ describe('ValidationCode', () => {
     expect(nextBtn).toBeEnabled();
     await userEvent.click(nextBtn);
 
-    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockSubmit).not.toHaveBeenCalled();
     expect(screen.getByText('Incorrect validation code')).toBeInTheDocument();
     expect(screen.getByText('Please try again')).toBeInTheDocument();
   });

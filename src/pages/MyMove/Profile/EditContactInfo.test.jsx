@@ -50,6 +50,7 @@ describe('EditContactInfo page', () => {
       residential_address: {
         streetAddress1: '148 S East St',
         streetAddress2: '',
+        streetAddress3: '',
         city: 'Fake City',
         state: 'TX',
         postalCode: '79936',
@@ -59,6 +60,7 @@ describe('EditContactInfo page', () => {
       backup_mailing_address: {
         streetAddress1: '10642 N Second Ave',
         streetAddress2: '',
+        streetAddress3: '',
         city: 'Fake City',
         state: 'TX',
         postalCode: '79936',

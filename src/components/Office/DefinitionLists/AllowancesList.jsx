@@ -11,7 +11,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatWeight } from 'utils/formatters';
 import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 
-const AllowancesList = ({ info, showVisualCues }) => {
+const AllowancesList = ({ info, showVisualCues, isOconusMove }) => {
   const [enableUB, setEnableUB] = useState(false);
   const visualCuesStyle = classNames(descriptionListStyles.row, {
     [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
@@ -41,10 +41,6 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dt>Storage in transit (SIT)</dt>
           <dd data-testid="storageInTransit">{info.storageInTransit} days</dd>
         </div>
-        <div className={descriptionListStyles.row}>
-          <dt>Dependents</dt>
-          <dd data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</dd>
-        </div>
         {/* Begin OCONUS fields */}
         {/* As these fields are grouped together and only apply to OCONUS orders
         They will all be NULL for CONUS orders. If one of these fields are present,
@@ -72,7 +68,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
               </div>
             </>
           )}
-        {enableUB && info?.ubAllowance >= 0 && (
+        {enableUB && isOconusMove && info?.ubAllowance >= 0 && (
           <div className={descriptionListStyles.row}>
             <dt>Unaccompanied baggage allowance</dt>
             <dd data-testid="unaccompaniedBaggageAllowance">
@@ -107,13 +103,26 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dt>Admin Weight Restricted Location</dt>
           <dd data-testid="adminRestrictedWtLoc">{info.weightRestriction > 0 ? 'Yes' : 'No'}</dd>
         </div>
-
+        {info.weightRestriction > 0 && (
+          <div className={visualCuesStyle}>
+            <dt>Weight Restriction</dt>
+            <dd data-testid="weightRestriction">
+              {info.weightRestriction ? formatWeight(info.weightRestriction) : DEFAULT_EMPTY_VALUE}
+            </dd>
+          </div>
+        )}
         <div className={visualCuesStyle}>
-          <dt>Weight Restriction</dt>
-          <dd data-testid="weightRestriction">
-            {info.weightRestriction ? formatWeight(info.weightRestriction) : DEFAULT_EMPTY_VALUE}
-          </dd>
+          <dt>Admin Restricted UB Weight Location</dt>
+          <dd data-testid="adminRestrictedUBWtLoc">{info.ubWeightRestriction > 0 ? 'Yes' : 'No'}</dd>
         </div>
+        {info.ubWeightRestriction > 0 && (
+          <div className={visualCuesStyle}>
+            <dt>UB Weight Restriction</dt>
+            <dd data-testid="ubWeightRestriction">
+              {info.ubWeightRestriction ? formatWeight(info.ubWeightRestriction) : DEFAULT_EMPTY_VALUE}
+            </dd>
+          </div>
+        )}
       </dl>
     </div>
   );
@@ -132,10 +141,12 @@ AllowancesList.propTypes = {
     ubAllowance: PropTypes.number,
   }).isRequired,
   showVisualCues: PropTypes.bool,
+  isOconusMove: PropTypes.bool,
 };
 
 AllowancesList.defaultProps = {
   showVisualCues: false,
+  isOconusMove: false,
 };
 
 export default AllowancesList;

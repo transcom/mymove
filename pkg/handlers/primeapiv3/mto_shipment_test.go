@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primev3api/primev3operations/mto_shipment"
@@ -20,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
@@ -37,6 +39,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -44,7 +47,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
@@ -54,12 +57,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
+	now := time.Now()
+	futureDate := models.TimePointer(now.Add(24 * time.Hour))
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	vLocationServices := address.NewVLocation()
 
@@ -93,9 +97,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mtoServiceItemCreator,
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
-	mockCreator := mocks.ShipmentCreator{}
+	mockSender := suite.TestNotificationSender()
 	waf := entitlements.NewWeightAllotmentFetcher()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
+	mockCreator := mocks.ShipmentCreator{}
 
 	var pickupAddress primev3messages.Address
 	var secondaryPickupAddress primev3messages.Address
@@ -108,7 +114,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
@@ -295,7 +300,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -313,7 +318,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Validate outgoing payload
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
-		// check that the mto shipment status is Submitted
+		// check that the mto shipment status is submitted
 		suite.Require().Equal(createMTOShipmentPayload.Status, primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
@@ -328,6 +333,28 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler, move := setupTestData(true, true)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "International St.",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		oconusDestAddress := primev3messages.Address{
+			City:           &oconusAddress.City,
+			PostalCode:     &oconusAddress.PostalCode,
+			State:          &oconusAddress.State,
+			StreetAddress1: &oconusAddress.StreetAddress1,
+			StreetAddress2: oconusAddress.StreetAddress2,
+			StreetAddress3: oconusAddress.StreetAddress3,
+		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -336,10 +363,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
+				DestinationAddress:   struct{ primev3messages.Address }{oconusDestAddress},
 			},
 		}
 
@@ -355,8 +382,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
 		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, "MTO Shipment should have been submitted")
-		suite.Require().Equal(createMTOShipmentPayload.Status, primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, createMTOShipmentPayload.ShipmentType, "MTO Shipment type should be unaccompanied baggage")
+		suite.Require().Equal(primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, createMTOShipmentPayload.Status, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
@@ -469,8 +496,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress3: expectedTertiaryDestinationAddress.StreetAddress3,
 		}
 
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
-			HTTPRequest: req,
+			HTTPRequest: req.WithContext(ctx),
 			Body: &primev3messages.CreateMTOShipment{
 				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
 				ShipmentType:     primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
@@ -527,7 +570,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(&counselorRemarks, createdShipment.CounselorRemarks)
 
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
-		suite.Equal(primev3messages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
+		suite.Equal(primev3messages.PPMShipmentStatusWAITINGONCUSTOMER, createdPPM.Status)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), createdPPM.ExpectedDepartureDate)
 		suite.Equal(address1.PostalCode, *createdPPM.PickupAddress.PostalCode)
 		suite.Equal(address1.PostalCode, *createdPPM.DestinationAddress.PostalCode)
@@ -772,8 +815,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress3: addressWithEmptyStreet1.StreetAddress3,
 		}
 
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
-			HTTPRequest: req,
+			HTTPRequest: req.WithContext(ctx),
 			Body: &primev3messages.CreateMTOShipment{
 				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
 				ShipmentType:     primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
@@ -941,7 +1000,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				Agents:              nil,
 				CustomerRemarks:     nil,
 				PointOfContact:      "John Doe",
-				RequestedPickupDate: handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate: handlers.FmtDatePtr(futureDate),
 				ShipmentType:        primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:       struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:  struct{ primev3messages.Address }{destinationAddress},
@@ -990,7 +1049,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1024,6 +1083,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			MtoShipmentID: badID,
 			FirstName:     handlers.FmtString("Mary"),
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1031,7 +1091,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				Agents:               primev3messages.MTOAgents{agent},
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1067,7 +1127,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1107,7 +1167,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      &badID,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1162,7 +1222,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID:      handlers.FmtUUID(unavailableMove.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1205,7 +1265,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				Agents:              nil,
 				CustomerRemarks:     nil,
 				PointOfContact:      "John Doe",
-				RequestedPickupDate: handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate: handlers.FmtDatePtr(futureDate),
 				ShipmentType:        primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:       struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:  struct{ primev3messages.Address }{destinationAddress},
@@ -1242,7 +1302,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1285,13 +1345,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				UpdatedAt:        time.Now(),
 			},
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 			},
 		}
@@ -1330,7 +1391,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeBOATHAULAWAY),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1366,7 +1427,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1432,7 +1493,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:            nil,
 				PointOfContact:             "John Doe",
 				PrimeEstimatedWeight:       handlers.FmtInt64(1200),
-				RequestedPickupDate:        handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:        handlers.FmtDatePtr(futureDate),
 				ShipmentType:               primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:              struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:         struct{ primev3messages.Address }{destinationAddress},
@@ -1491,7 +1552,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1541,6 +1602,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			HasProGear:                 &hasProGear,
 			SitExpected:                &sitExpected,
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1549,7 +1611,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1578,9 +1640,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			planner,
 			vLocationServices,
 		}
-
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
@@ -1706,8 +1771,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
@@ -1799,8 +1868,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -1913,7 +1986,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
 				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
@@ -1950,8 +2023,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2075,8 +2152,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2200,8 +2281,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2334,8 +2419,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2470,7 +2559,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:             nil,
 				PointOfContact:              "John Doe",
 				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
-				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:         handlers.FmtDatePtr(futureDate),
 				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
 				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
@@ -2506,7 +2595,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:             nil,
 				PointOfContact:              "John Doe",
 				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
-				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:         handlers.FmtDatePtr(futureDate),
 				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
 				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
@@ -2568,7 +2657,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:             nil,
 				PointOfContact:              "John Doe",
 				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
-				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:         handlers.FmtDatePtr(futureDate),
 				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
 				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
@@ -2630,7 +2719,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:             nil,
 				PointOfContact:              "John Doe",
 				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
-				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:         handlers.FmtDatePtr(futureDate),
 				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
 				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
@@ -2692,7 +2781,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				CustomerRemarks:             nil,
 				PointOfContact:              "John Doe",
 				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
-				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				RequestedPickupDate:         handlers.FmtDatePtr(futureDate),
 				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
 				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
 				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},

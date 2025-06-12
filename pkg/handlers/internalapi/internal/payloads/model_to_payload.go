@@ -113,6 +113,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 
 	payloadPPMShipment := &internalmessages.PPMShipment{
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		PpmType:                        internalmessages.PPMType(ppmShipment.PPMType),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
@@ -127,13 +128,11 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -142,6 +141,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
@@ -533,6 +534,26 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.SITReimburseableAmount != nil {
 		payload.SitReimburseableAmount = handlers.FmtCost(movingExpense.SITReimburseableAmount)
+	}
+
+	if movingExpense.TrackingNumber != nil {
+		payload.TrackingNumber = movingExpense.TrackingNumber
+	}
+
+	if movingExpense.WeightShipped != nil {
+		payload.WeightShipped = handlers.FmtPoundPtr(movingExpense.WeightShipped)
+	}
+
+	if movingExpense.IsProGear != nil {
+		payload.IsProGear = movingExpense.IsProGear
+	}
+
+	if movingExpense.ProGearBelongsToSelf != nil {
+		payload.ProGearBelongsToSelf = movingExpense.ProGearBelongsToSelf
+	}
+
+	if movingExpense.ProGearDescription != nil {
+		payload.ProGearDescription = *movingExpense.ProGearDescription
 	}
 
 	return payload

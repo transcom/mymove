@@ -44,6 +44,7 @@ type PPMCloseout struct {
 	IntlUnpackPrice       *unit.Cents
 	IntlLinehaulPrice     *unit.Cents
 	SITReimbursement      *unit.Cents
+	GCCMultiplier         *float64
 }
 
 type PPMActualWeight struct {
@@ -112,8 +113,6 @@ type PPMAdvanceStatus string
 const (
 	// PPMAdvanceStatusApproved captures enum value "APPROVED"
 	PPMAdvanceStatusApproved PPMAdvanceStatus = "APPROVED"
-	// PPMAdvanceStatusEdited captures enum value "EDITED"
-	PPMAdvanceStatusEdited PPMAdvanceStatus = "EDITED"
 	// PPMAdvanceStatusRejected captures enum value "REJECTED"
 	PPMAdvanceStatusRejected PPMAdvanceStatus = "REJECTED"
 	// PPMAdvanceStatusReceived captures enum value "RECEIVED"
@@ -126,7 +125,6 @@ const (
 // for validation.
 var AllowedPPMAdvanceStatuses = []string{
 	string(PPMAdvanceStatusApproved),
-	string(PPMAdvanceStatusEdited),
 	string(PPMAdvanceStatusRejected),
 	string(PPMAdvanceStatusReceived),
 	string(PPMAdvanceStatusNotReceived),
@@ -180,9 +178,29 @@ type PPMDocuments struct {
 	ProgearWeightTickets
 }
 
+// PPMType represents the type of a PPM shipment
+type PPMType string
+
+const (
+	// PPMTypeIncentiveBased captures enum value "INCENTIVE_BASED"
+	PPMTypeIncentiveBased PPMType = "INCENTIVE_BASED"
+	// PPMTypeActualExpense captures enum value "ACTUAL_EXPENSE"
+	PPMTypeActualExpense PPMType = "ACTUAL_EXPENSE"
+	// PPMTypeSmallPackage captures enum value "SMALL_PACKAGE"
+	PPMTypeSmallPackage PPMType = "SMALL_PACKAGE"
+)
+
+// AllowedPPMTypes is a list of all the allowed values for PPM types
+var AllowedPPMTypes = []string{
+	string(PPMTypeIncentiveBased),
+	string(PPMTypeActualExpense),
+	string(PPMTypeSmallPackage),
+}
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID            `json:"id" db:"id"`
+	PPMType                        PPMType              `json:"ppm_type" db:"ppm_type"`
 	ShipmentID                     uuid.UUID            `json:"shipment_id" db:"shipment_id"`
 	Shipment                       MTOShipment          `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	CreatedAt                      time.Time            `json:"created_at" db:"created_at"`
@@ -204,7 +222,6 @@ type PPMShipment struct {
 	TertiaryPickupAddress          *Address             `belongs_to:"addresses" fk_id:"tertiary_pickup_postal_address_id"`
 	TertiaryPickupAddressID        *uuid.UUID           `db:"tertiary_pickup_postal_address_id"`
 	HasTertiaryPickupAddress       *bool                `db:"has_tertiary_pickup_address"`
-	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
 	DestinationAddress             *Address             `belongs_to:"addresses" fk_id:"destination_postal_address_id"`
 	DestinationAddressID           *uuid.UUID           `db:"destination_postal_address_id"`
 	SecondaryDestinationAddress    *Address             `belongs_to:"addresses" fk_id:"secondary_destination_postal_address_id"`
@@ -213,7 +230,6 @@ type PPMShipment struct {
 	TertiaryDestinationAddress     *Address             `belongs_to:"addresses" fk_id:"tertiary_destination_postal_address_id"`
 	TertiaryDestinationAddressID   *uuid.UUID           `db:"tertiary_destination_postal_address_id"`
 	HasTertiaryDestinationAddress  *bool                `db:"has_tertiary_destination_address"`
-	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
 	AllowableWeight                *unit.Pound          `json:"allowable_weight" db:"allowable_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
@@ -242,6 +258,10 @@ type PPMShipment struct {
 	PaymentPacketID                *uuid.UUID           `json:"payment_packet_id" db:"payment_packet_id"`
 	PaymentPacket                  *Document            `belongs_to:"documents" fk_id:"payment_packet_id"`
 	IsActualExpenseReimbursement   *bool                `json:"is_actual_expense_reimbursement" db:"is_actual_expense_reimbursement"`
+	HasGunSafe                     *bool                `json:"has_gun_safe" db:"has_gun_safe"`
+	GunSafeWeight                  *unit.Pound          `json:"gun_safe_weight" db:"gun_safe_weight"`
+	GCCMultiplierID                *uuid.UUID           `json:"gcc_multiplier_id" db:"gcc_multiplier_id"`
+	GCCMultiplier                  *GCCMultiplier       `belongs_to:"gcc_multipliers" fk_id:"gcc_multiplier_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -264,6 +284,7 @@ type PPMShipments []PPMShipment
 func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "ShipmentID", Field: p.ShipmentID},
+		&validators.StringInclusion{Name: "PPMType", Field: string(p.PPMType), List: AllowedPPMTypes},
 		&OptionalTimeIsPresent{Name: "DeletedAt", Field: p.DeletedAt},
 		&validators.TimeIsPresent{Name: "ExpectedDepartureDate", Field: p.ExpectedDepartureDate},
 		&validators.StringInclusion{Name: "Status", Field: string(p.Status), List: AllowedPPMShipmentStatuses},
@@ -274,14 +295,14 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalUUIDIsPresent{Name: "W2AddressID", Field: p.W2AddressID},
 		&OptionalUUIDIsPresent{Name: "PickupAddressID", Field: p.PickupAddressID},
 		&OptionalUUIDIsPresent{Name: "SecondaryPickupAddressID", Field: p.SecondaryPickupAddressID},
-		&StringIsNilOrNotBlank{Name: "ActualPickupPostalCode", Field: p.ActualPickupPostalCode},
 		&OptionalUUIDIsPresent{Name: "DestinationAddressID", Field: p.DestinationAddressID},
 		&OptionalUUIDIsPresent{Name: "SecondaryDestinationAddressID", Field: p.SecondaryDestinationAddressID},
-		&StringIsNilOrNotBlank{Name: "ActualDestinationPostalCode", Field: p.ActualDestinationPostalCode},
 		&OptionalPoundIsNonNegative{Name: "EstimatedWeight", Field: p.EstimatedWeight},
 		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: p.AllowableWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
+		&OptionalPoundIsNonNegative{Name: "GunSafeWeight", Field: p.GunSafeWeight},
+		&OptionalPoundIsMax{Name: "GunSafeWeight", Field: p.GunSafeWeight, Max: 500},
 		&OptionalCentIsNotNegative{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
 		&OptionalCentIsNotNegative{Name: "MaxIncentive", Field: p.MaxIncentive},
 		&OptionalCentIsPositive{Name: "FinalIncentive", Field: p.FinalIncentive},
@@ -295,12 +316,30 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalCentIsPositive{Name: "SITEstimatedCost", Field: p.SITEstimatedCost},
 		&OptionalUUIDIsPresent{Name: "AOAPacketID", Field: p.AOAPacketID},
 		&OptionalUUIDIsPresent{Name: "PaymentPacketID", Field: p.PaymentPacketID},
+		&OptionalUUIDIsPresent{Name: "GCCMultiplierID", Field: p.GCCMultiplierID},
 	), nil
 
 }
 func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
 	totalNetWeight := unit.Pound(0)
-	for _, weightTicket := range ppm.WeightTickets {
+
+	// small package PPMs do not have weight tickets so we will add up approved moving expenses
+	if ppm.PPMType == PPMTypeSmallPackage {
+		if len(ppm.MovingExpenses) >= 1 {
+			for _, movingExpense := range ppm.MovingExpenses {
+				if movingExpense.WeightShipped != nil && movingExpense.Status != nil && *movingExpense.Status != PPMDocumentStatusRejected {
+					totalNetWeight += *movingExpense.WeightShipped
+				}
+			}
+			return totalNetWeight
+		} else {
+			return unit.Pound(0)
+		}
+	}
+
+	// incentive-based and actual expense PPMs have weight tickets
+	weightTickets := ppm.WeightTickets.FilterRejected()
+	for _, weightTicket := range weightTickets {
 		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
 			totalNetWeight += *weightTicket.AdjustedNetWeight
 		} else {

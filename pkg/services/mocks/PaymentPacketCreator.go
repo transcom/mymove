@@ -3,11 +3,9 @@
 package mocks
 
 import (
-	io "io"
-
-	appcontext "github.com/transcom/mymove/pkg/appcontext"
-
+	afero "github.com/spf13/afero"
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -17,64 +15,114 @@ type PaymentPacketCreator struct {
 	mock.Mock
 }
 
-// Generate provides a mock function with given fields: appCtx, ppmShipmentID, addBookmarks, addWaterMarks
-func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (io.ReadCloser, error) {
-	ret := _m.Called(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+// CleanupPaymentPacketDir provides a mock function with given fields: dirName
+func (_m *PaymentPacketCreator) CleanupPaymentPacketDir(dirName string) error {
+	ret := _m.Called(dirName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CleanupPaymentPacketDir")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(dirName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CleanupPaymentPacketFile provides a mock function with given fields: packetDir, closeFile
+func (_m *PaymentPacketCreator) CleanupPaymentPacketFile(packetDir afero.File, closeFile bool) error {
+	ret := _m.Called(packetDir, closeFile)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CleanupPaymentPacketFile")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(afero.File, bool) error); ok {
+		r0 = rf(packetDir, closeFile)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Generate provides a mock function with given fields: appCtx, ppmShipmentID, addWaterMarks
+func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addWaterMarks bool) (afero.File, string, error) {
+	ret := _m.Called(appCtx, ppmShipmentID, addWaterMarks)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Generate")
 	}
 
-	var r0 io.ReadCloser
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool, bool) (io.ReadCloser, error)); ok {
-		return rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	var r0 afero.File
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) (afero.File, string, error)); ok {
+		return rf(appCtx, ppmShipmentID, addWaterMarks)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool, bool) io.ReadCloser); ok {
-		r0 = rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) afero.File); ok {
+		r0 = rf(appCtx, ppmShipmentID, addWaterMarks)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(io.ReadCloser)
+			r0 = ret.Get(0).(afero.File)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool, bool) error); ok {
-		r1 = rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool) string); ok {
+		r1 = rf(appCtx, ppmShipmentID, addWaterMarks)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, bool) error); ok {
+		r2 = rf(appCtx, ppmShipmentID, addWaterMarks)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // GenerateDefault provides a mock function with given fields: appCtx, ppmShipmentID
-func (_m *PaymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error) {
+func (_m *PaymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, string, error) {
 	ret := _m.Called(appCtx, ppmShipmentID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateDefault")
 	}
 
-	var r0 io.ReadCloser
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (io.ReadCloser, error)); ok {
+	var r0 afero.File
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (afero.File, string, error)); ok {
 		return rf(appCtx, ppmShipmentID)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) io.ReadCloser); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) afero.File); ok {
 		r0 = rf(appCtx, ppmShipmentID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(io.ReadCloser)
+			r0 = ret.Get(0).(afero.File)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) string); ok {
 		r1 = rf(appCtx, ppmShipmentID)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r2 = rf(appCtx, ppmShipmentID)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // NewPaymentPacketCreator creates a new instance of PaymentPacketCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

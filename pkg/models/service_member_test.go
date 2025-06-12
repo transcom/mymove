@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -20,7 +19,7 @@ func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
 		"user_id": {"UserID can not be blank."},
 	}
 
-	suite.verifyValidationErrors(servicemember, expErrors)
+	suite.verifyValidationErrors(servicemember, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
@@ -176,7 +175,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
 
-		newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation2.Address.PostalCode)
+		newGBLOC, gblocErr := m.FetchGBLOCForPostalCode(suite.DB(), dutyLocation2.Address.PostalCode)
 		suite.NoError(gblocErr)
 		grade := m.ServiceMemberGradeE1
 		order := m.Order{
@@ -366,4 +365,14 @@ func (suite *ModelSuite) TestSaveServiceMember() {
 	verrs, err = m.SaveServiceMember(appCtx, &sm)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
+}
+
+func (suite *ModelSuite) TestFetchServiceMemberByUserID() {
+	existingServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+	serviceMember, err := m.FetchServiceMemberByUserID(suite.DB(), existingServiceMember.UserID.String())
+	if suite.NoError(err) {
+		suite.Equal(serviceMember.ID, existingServiceMember.ID)
+		suite.Equal(serviceMember.UserID, existingServiceMember.UserID)
+	}
 }

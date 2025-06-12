@@ -21,6 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certificates"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/e_d_i_errors"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
@@ -28,7 +29,9 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_file"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_files"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/rejected_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/single_e_d_i_error"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/user"
@@ -73,11 +76,20 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersDeleteOfficeUserHandler: office_users.DeleteOfficeUserHandlerFunc(func(params office_users.DeleteOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
 		}),
+		UsersDeleteUserHandler: users.DeleteUserHandlerFunc(func(params users.DeleteUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.DeleteUser has not yet been implemented")
+		}),
+		EdiErrorsFetchEdiErrorsHandler: e_d_i_errors.FetchEdiErrorsHandlerFunc(func(params e_d_i_errors.FetchEdiErrorsParams) middleware.Responder {
+			return middleware.NotImplemented("operation e_d_i_errors.FetchEdiErrors has not yet been implemented")
+		}),
 		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
 		}),
 		ClientCertificatesGetClientCertificateHandler: client_certificates.GetClientCertificateHandlerFunc(func(params client_certificates.GetClientCertificateParams) middleware.Responder {
 			return middleware.NotImplemented("operation client_certificates.GetClientCertificate has not yet been implemented")
+		}),
+		SingleediErrorGetEdiErrorHandler: single_e_d_i_error.GetEdiErrorHandlerFunc(func(params single_e_d_i_error.GetEdiErrorParams) middleware.Responder {
+			return middleware.NotImplemented("operation single_e_d_i_error.GetEdiError has not yet been implemented")
 		}),
 		ElectronicOrdersGetElectronicOrdersTotalsHandler: electronic_orders.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_orders.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_orders.GetElectronicOrdersTotals has not yet been implemented")
@@ -94,8 +106,14 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		}),
+		RejectedOfficeUsersGetRejectedOfficeUserHandler: rejected_office_users.GetRejectedOfficeUserHandlerFunc(func(params rejected_office_users.GetRejectedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation rejected_office_users.GetRejectedOfficeUser has not yet been implemented")
+		}),
 		RequestedOfficeUsersGetRequestedOfficeUserHandler: requested_office_users.GetRequestedOfficeUserHandlerFunc(func(params requested_office_users.GetRequestedOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation requested_office_users.GetRequestedOfficeUser has not yet been implemented")
+		}),
+		OfficeUsersGetRolesPrivilegesHandler: office_users.GetRolesPrivilegesHandlerFunc(func(params office_users.GetRolesPrivilegesParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.GetRolesPrivileges has not yet been implemented")
 		}),
 		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
@@ -132,6 +150,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler: payment_request_syncada_files.IndexPaymentRequestSyncadaFilesHandlerFunc(func(params payment_request_syncada_files.IndexPaymentRequestSyncadaFilesParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request_syncada_files.IndexPaymentRequestSyncadaFiles has not yet been implemented")
+		}),
+		RejectedOfficeUsersIndexRejectedOfficeUsersHandler: rejected_office_users.IndexRejectedOfficeUsersHandlerFunc(func(params rejected_office_users.IndexRejectedOfficeUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation rejected_office_users.IndexRejectedOfficeUsers has not yet been implemented")
 		}),
 		RequestedOfficeUsersIndexRequestedOfficeUsersHandler: requested_office_users.IndexRequestedOfficeUsersHandlerFunc(func(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation requested_office_users.IndexRequestedOfficeUsers has not yet been implemented")
@@ -219,10 +240,16 @@ type MymoveAPI struct {
 	WebhookSubscriptionsCreateWebhookSubscriptionHandler webhook_subscriptions.CreateWebhookSubscriptionHandler
 	// OfficeUsersDeleteOfficeUserHandler sets the operation handler for the delete office user operation
 	OfficeUsersDeleteOfficeUserHandler office_users.DeleteOfficeUserHandler
+	// UsersDeleteUserHandler sets the operation handler for the delete user operation
+	UsersDeleteUserHandler users.DeleteUserHandler
+	// EdiErrorsFetchEdiErrorsHandler sets the operation handler for the fetch edi errors operation
+	EdiErrorsFetchEdiErrorsHandler e_d_i_errors.FetchEdiErrorsHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
 	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
 	// ClientCertificatesGetClientCertificateHandler sets the operation handler for the get client certificate operation
 	ClientCertificatesGetClientCertificateHandler client_certificates.GetClientCertificateHandler
+	// SingleediErrorGetEdiErrorHandler sets the operation handler for the get edi error operation
+	SingleediErrorGetEdiErrorHandler single_e_d_i_error.GetEdiErrorHandler
 	// ElectronicOrdersGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
 	ElectronicOrdersGetElectronicOrdersTotalsHandler electronic_orders.GetElectronicOrdersTotalsHandler
 	// UserGetLoggedInAdminUserHandler sets the operation handler for the get logged in admin user operation
@@ -233,8 +260,12 @@ type MymoveAPI struct {
 	TransportationOfficesGetOfficeByIDHandler transportation_offices.GetOfficeByIDHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
 	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
+	// RejectedOfficeUsersGetRejectedOfficeUserHandler sets the operation handler for the get rejected office user operation
+	RejectedOfficeUsersGetRejectedOfficeUserHandler rejected_office_users.GetRejectedOfficeUserHandler
 	// RequestedOfficeUsersGetRequestedOfficeUserHandler sets the operation handler for the get requested office user operation
 	RequestedOfficeUsersGetRequestedOfficeUserHandler requested_office_users.GetRequestedOfficeUserHandler
+	// OfficeUsersGetRolesPrivilegesHandler sets the operation handler for the get roles privileges operation
+	OfficeUsersGetRolesPrivilegesHandler office_users.GetRolesPrivilegesHandler
 	// UploadsGetUploadHandler sets the operation handler for the get upload operation
 	UploadsGetUploadHandler uploads.GetUploadHandler
 	// UsersGetUserHandler sets the operation handler for the get user operation
@@ -259,6 +290,8 @@ type MymoveAPI struct {
 	OrganizationsIndexOrganizationsHandler organizations.IndexOrganizationsHandler
 	// PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler sets the operation handler for the index payment request syncada files operation
 	PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler payment_request_syncada_files.IndexPaymentRequestSyncadaFilesHandler
+	// RejectedOfficeUsersIndexRejectedOfficeUsersHandler sets the operation handler for the index rejected office users operation
+	RejectedOfficeUsersIndexRejectedOfficeUsersHandler rejected_office_users.IndexRejectedOfficeUsersHandler
 	// RequestedOfficeUsersIndexRequestedOfficeUsersHandler sets the operation handler for the index requested office users operation
 	RequestedOfficeUsersIndexRequestedOfficeUsersHandler requested_office_users.IndexRequestedOfficeUsersHandler
 	// UsersIndexUsersHandler sets the operation handler for the index users operation
@@ -375,11 +408,20 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeUsersDeleteOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.DeleteOfficeUserHandler")
 	}
+	if o.UsersDeleteUserHandler == nil {
+		unregistered = append(unregistered, "users.DeleteUserHandler")
+	}
+	if o.EdiErrorsFetchEdiErrorsHandler == nil {
+		unregistered = append(unregistered, "e_d_i_errors.FetchEdiErrorsHandler")
+	}
 	if o.AdminUsersGetAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
 	}
 	if o.ClientCertificatesGetClientCertificateHandler == nil {
 		unregistered = append(unregistered, "client_certificates.GetClientCertificateHandler")
+	}
+	if o.SingleediErrorGetEdiErrorHandler == nil {
+		unregistered = append(unregistered, "single_e_d_i_error.GetEdiErrorHandler")
 	}
 	if o.ElectronicOrdersGetElectronicOrdersTotalsHandler == nil {
 		unregistered = append(unregistered, "electronic_orders.GetElectronicOrdersTotalsHandler")
@@ -396,8 +438,14 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
 	}
+	if o.RejectedOfficeUsersGetRejectedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "rejected_office_users.GetRejectedOfficeUserHandler")
+	}
 	if o.RequestedOfficeUsersGetRequestedOfficeUserHandler == nil {
 		unregistered = append(unregistered, "requested_office_users.GetRequestedOfficeUserHandler")
+	}
+	if o.OfficeUsersGetRolesPrivilegesHandler == nil {
+		unregistered = append(unregistered, "office_users.GetRolesPrivilegesHandler")
 	}
 	if o.UploadsGetUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.GetUploadHandler")
@@ -434,6 +482,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler == nil {
 		unregistered = append(unregistered, "payment_request_syncada_files.IndexPaymentRequestSyncadaFilesHandler")
+	}
+	if o.RejectedOfficeUsersIndexRejectedOfficeUsersHandler == nil {
+		unregistered = append(unregistered, "rejected_office_users.IndexRejectedOfficeUsersHandler")
 	}
 	if o.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {
 		unregistered = append(unregistered, "requested_office_users.IndexRequestedOfficeUsersHandler")
@@ -579,6 +630,14 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/office-users/{officeUserId}"] = office_users.NewDeleteOfficeUser(o.context, o.OfficeUsersDeleteOfficeUserHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/users/{userId}"] = users.NewDeleteUser(o.context, o.UsersDeleteUserHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/edi-errors"] = e_d_i_errors.NewFetchEdiErrors(o.context, o.EdiErrorsFetchEdiErrorsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -587,6 +646,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/client-certificates/{clientCertificateId}"] = client_certificates.NewGetClientCertificate(o.context, o.ClientCertificatesGetClientCertificateHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/edi-errors/{ediErrorId}"] = single_e_d_i_error.NewGetEdiError(o.context, o.SingleediErrorGetEdiErrorHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -610,7 +673,15 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/rejected-office-users/{officeUserId}"] = rejected_office_users.NewGetRejectedOfficeUser(o.context, o.RejectedOfficeUsersGetRejectedOfficeUserHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/requested-office-users/{officeUserId}"] = requested_office_users.NewGetRequestedOfficeUser(o.context, o.RequestedOfficeUsersGetRequestedOfficeUserHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/office-users/roles-privileges"] = office_users.NewGetRolesPrivileges(o.context, o.OfficeUsersGetRolesPrivilegesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -659,6 +730,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-request-syncada-files"] = payment_request_syncada_files.NewIndexPaymentRequestSyncadaFiles(o.context, o.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/rejected-office-users"] = rejected_office_users.NewIndexRejectedOfficeUsers(o.context, o.RejectedOfficeUsersIndexRejectedOfficeUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

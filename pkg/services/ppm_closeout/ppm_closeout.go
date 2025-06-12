@@ -55,11 +55,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	if err != nil {
 		return nil, err
 	}
+	previousFinalIncentive := ppmShipment.FinalIncentive
 
-	actualWeight, err := p.GetActualWeight(ppmShipment)
-	if err != nil {
-		return nil, err
-	}
+	actualWeight := p.GetActualWeight(ppmShipment)
 
 	proGearWeightCustomer, proGearWeightSpouse := p.GetProGearWeights(*ppmShipment)
 
@@ -78,6 +76,19 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		}
 	} else {
 		remainingIncentive = unit.Cents(0)
+	}
+
+	// in cases where the PPM is a small package, the final incentive isn't able to be calculated until after TIO reviews/approves their expenses
+	// because of this, we will update the final incentive here if the value is nil or different
+	if ppmShipment.PPMType == models.PPMTypeSmallPackage &&
+		ppmShipment.FinalIncentive != nil &&
+		(previousFinalIncentive == nil || *previousFinalIncentive != *ppmShipment.FinalIncentive) {
+		verrs, err := appCtx.DB().ValidateAndUpdate(ppmShipment)
+		if verrs.HasAny() {
+			return nil, apperror.NewInvalidInputError(ppmShipment.ID, err, verrs, "unable to validate PPMShipment")
+		} else if err != nil {
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to update PPMShipment final incentive")
+		}
 	}
 
 	proGearCustomerMax := unit.Pound(2000)
@@ -101,6 +112,12 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	}
 	if serviceItems.storageReimbursementCosts != nil {
 		gcc = gcc.AddCents(*serviceItems.storageReimbursementCosts)
+	}
+
+	if ppmShipment.GCCMultiplier != nil {
+		ppmCloseoutObj.GCCMultiplier = &ppmShipment.GCCMultiplier.Multiplier
+	} else {
+		ppmCloseoutObj.GCCMultiplier = models.Float64Pointer(1.00)
 	}
 
 	ppmCloseoutObj.ID = &ppmShipmentID
@@ -153,8 +170,14 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 
 	// Create a single weight ticket with the max weight, and use that to price the GCC
 	// GCC is priced as if all was moved in one lot and must be to/from the authorized ZIPs/addresses
-	fullEntitlementPPM.WeightTickets = models.WeightTickets{ppmShipment.WeightTickets[0]}
-	fullEntitlementPPM.WeightTickets[0].AdjustedNetWeight = &fullEntitlementWeight
+	var weightTicket models.WeightTicket
+	if (ppmShipment.WeightTickets != nil) && len(ppmShipment.WeightTickets) > 0 {
+		weightTicket = ppmShipment.WeightTickets[0]
+	} else {
+		weightTicket = models.WeightTicket{}
+	}
+	weightTicket.AdjustedNetWeight = &fullEntitlementWeight
+	fullEntitlementPPM.WeightTickets = models.WeightTickets{weightTicket}
 
 	finalIncentive, err := p.estimator.FinalIncentiveWithDefaultChecks(appCtx, ppmShipment, &fullEntitlementPPM)
 	if err != nil {
@@ -195,12 +218,14 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			"ActualMoveDate",
 			"EstimatedWeight",
 			"WeightTickets",
+			"MovingExpenses",
 			"ProgearWeightTickets",
 			"FinalIncentive",
 			"AdvanceAmountReceived",
 			"Shipment.Distance",
 			"PickupAddress",
 			"DestinationAddress",
+			"GCCMultiplier",
 		).
 		Find(&ppmShipment, ppmShipmentID)
 
@@ -245,14 +270,28 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 
 	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status or if weight ticket was reviewed already, if not, it's not ready for closeout
 	if weightTicket.Status == nil && ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
-		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
+		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "PPM is not ready for closeout - must be in NEEDS_CLOSEOUT or CLOSEOUT_COMPLETE status")
 	}
 
 	return &ppmShipment, err
 }
 
-func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (unit.Pound, error) {
+func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) unit.Pound {
 	var totalWeight unit.Pound
+	// small package PPMs do not have weight tickets so we will add up moving expenses
+	if ppmShipment.PPMType == models.PPMTypeSmallPackage {
+		if len(ppmShipment.MovingExpenses) >= 1 {
+			for _, movingExpense := range ppmShipment.MovingExpenses {
+				if movingExpense.WeightShipped != nil && *movingExpense.Status != models.PPMDocumentStatusRejected {
+					totalWeight += *movingExpense.WeightShipped
+				}
+			}
+			return totalWeight
+		} else {
+			return unit.Pound(0)
+		}
+	}
+
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
 			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil && (weightTicket.Status == nil || *weightTicket.Status != models.PPMDocumentStatusRejected) {
@@ -260,9 +299,9 @@ func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (u
 			}
 		}
 	} else {
-		return unit.Pound(0), apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, "")
+		return unit.Pound(0)
 	}
-	return totalWeight, nil
+	return totalWeight
 }
 
 func (p *ppmCloseoutFetcher) GetExpenseStoragePrice(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (unit.Cents, error) {
@@ -274,7 +313,7 @@ func (p *ppmCloseoutFetcher) GetExpenseStoragePrice(appCtx appcontext.AppContext
 	}
 
 	for _, movingExpense := range expenseItems {
-		if movingExpense.MovingExpenseType != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage && *movingExpense.Status == models.PPMDocumentStatusApproved {
+		if movingExpense.MovingExpenseType != nil && movingExpense.Status != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage && *movingExpense.Status == models.PPMDocumentStatusApproved {
 			storageExpensePrice += *movingExpense.Amount
 		}
 	}
@@ -299,9 +338,14 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 
 	isInternationalShipment := ppmShipment.Shipment.MarketCode == models.MarketCodeInternational
 	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment)
+	gccMultiplier := ppmShipment.GCCMultiplier
 
-	actualPickupPostal := *ppmShipment.ActualPickupPostalCode
-	actualDestPostal := *ppmShipment.ActualDestinationPostalCode
+	if ppmShipment.PickupAddress == nil || ppmShipment.DestinationAddress == nil {
+		return serviceItemPrices{}, apperror.NewBadDataError("Cannot have a nil address")
+	}
+
+	actualPickupPostal := ppmShipment.PickupAddress.PostalCode
+	actualDestPostal := ppmShipment.DestinationAddress.PostalCode
 	// Change DLH to DSH if move within same Zip3 (only for domestic shipments - intl uses ISLH)
 	if !isInternationalShipment && actualPickupPostal[0:3] == actualDestPostal[0:3] {
 		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
@@ -318,21 +362,12 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	}
 
 	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice, haulPrice, haulFSC, intlPackPrice, intlUnpackPrice, intlLinehaulPrice unit.Cents
-	var totalWeight unit.Pound
 	var ppmToMtoShipment models.MTOShipment
 
+	var blankPPM models.PPMShipment
 	// adding all the weight tickets together to get the total weight of the moved PPM
-	if len(ppmShipment.WeightTickets) >= 1 {
-		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
-				totalWeight += 0
-			} else if weightTicket.AdjustedNetWeight != nil {
-				totalWeight += *weightTicket.AdjustedNetWeight
-			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
-			}
-		}
-	}
+	// or if PPM-SPR - total the moving expenses
+	_, totalWeight := ppmshipment.SumWeights(blankPPM, ppmShipment)
 
 	if ppmShipment.AllowableWeight != nil && *ppmShipment.AllowableWeight < totalWeight {
 		totalWeight = *ppmShipment.AllowableWeight
@@ -434,6 +469,12 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
 		if err != nil {
 			return serviceItemPrices{}, err
+		}
+		// apply multiplier if it's there
+		if gccMultiplier != nil && gccMultiplier.Multiplier > 0 && centsValue > 0 {
+			multiplier := gccMultiplier.Multiplier
+			multipliedPrice := float64(centsValue) * multiplier
+			centsValue = unit.Cents(int(multipliedPrice))
 		}
 
 		totalPrice = totalPrice.AddCents(centsValue)

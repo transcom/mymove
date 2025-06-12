@@ -1,0 +1,53 @@
+@import 'shared/styles/colors.scss';
+
+.btnContainer {
+  display: flex;
+  justify-content: flex-start;
+  align-self: center;
+  gap: 10px;
+
+  .approveBtn {
+    width: 125px;
+    margin-left: 15px;
+    background-color: $primary;
+
+    &:active,
+    &:hover,
+    &:focus {
+      background-color: $primary;
+      opacity: 80%;
+    }
+  }
+
+  .rejectBtn {
+    width: 125px;
+    background-color: $error;
+
+    &:active,
+    &:hover,
+    &:focus {
+      background-color: $error;
+      opacity: 80%;
+    }
+  }
+}
+
+.rejectionInput {
+  margin-left: 15px;
+  margin-bottom: 10px;
+}
+
+.error {
+  width: auto;
+  background-color: $error;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.rejErrorEdit {
+  width: auto;
+  background-color: $error;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 10px;
+}

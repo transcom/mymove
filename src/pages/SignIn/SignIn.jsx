@@ -13,13 +13,19 @@ import '@trussworks/react-uswds/lib/index.css';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
-import { isDevelopment } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
+import { generalRoutes } from 'constants/routes';
 
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   const location = useLocation();
   const [showEula, setShowEula] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [customerRegistrationFF, setCustomerRegistrationFF] = useState(false);
+
   const navigate = useNavigate();
 
   const { error } = qs.parse(location.search);
@@ -35,12 +41,22 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
     return () => window.removeEventListener('beforeunload', unload);
   }, [navigate]);
 
+  useEffect(() => {
+    isBooleanFlagEnabledUnauthenticated(FEATURE_FLAG_KEYS.CUSTOMER_REGISTRATION)?.then((enabled) => {
+      setCustomerRegistrationFF(enabled);
+    });
+  }, []);
+
   return (
     <div className={classNames(styles.center, 'usa-prose grid-container padding-top-3')}>
       <ConnectedEulaModal
         isOpen={showEula}
         acceptTerms={() => {
-          window.location.href = '/auth/okta';
+          if (isSigningIn) {
+            window.location.href = '/auth/okta';
+          } else if (isSigningUp) {
+            navigate(generalRoutes.CREATE_ACCOUNT_PATH);
+          }
         }}
         closeModal={() => setShowEula(false)}
       />
@@ -65,6 +81,14 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
             <div>
               <Alert type="success" heading="You have signed out of MilMove">
                 Sign in again when you&apos;re ready to start a new session.
+              </Alert>
+            </div>
+          )}
+          {location.state && location.state.noValidCAC && (
+            <div>
+              <Alert type="warning" heading="CAC Validation is required at first sign-in">
+                If you do not have a Common Access Card (CAC) do not request your account here. You must visit your
+                nearest personal property office where they will assist you with creating your MilMove account.
               </Alert>
             </div>
           )}
@@ -110,11 +134,30 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
                 aria-label="Sign In"
                 className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
                 data-testid="signin"
-                onClick={() => setShowEula(!showEula)}
+                onClick={() => {
+                  setIsSigningUp(false);
+                  setIsSigningIn(true);
+                  setShowEula(!showEula);
+                }}
                 type="button"
               >
                 Sign in
               </Button>
+              {siteName === 'my.move.mil' && customerRegistrationFF ? (
+                <Button
+                  aria-label="Create account"
+                  className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+                  data-testid="createAccount"
+                  onClick={() => {
+                    setIsSigningIn(false);
+                    setIsSigningUp(true);
+                    setShowEula(!showEula);
+                  }}
+                  type="button"
+                >
+                  Create Account
+                </Button>
+              ) : null}
 
               {showLocalDevLogin && (
                 <a className="usa-button" data-testid="devlocal-signin" href="/devlocal-auth/login">

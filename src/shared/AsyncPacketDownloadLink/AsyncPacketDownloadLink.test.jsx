@@ -1,11 +1,18 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AsyncPacketDownloadLink, { onPacketDownloadSuccessHandler } from './AsyncPacketDownloadLink';
+import { setShowLoadingSpinner } from 'store/general/actions';
+import { renderWithProviders } from 'testUtils';
 
-afterEach(() => {
-  jest.resetAllMocks();
-});
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
+  })),
+}));
 
 describe('AsyncPacketDownloadLink success', () => {
   it('success', async () => {
@@ -14,12 +21,13 @@ describe('AsyncPacketDownloadLink success', () => {
     const onErrorHandler = jest.fn();
     const expectedId = 'testID';
     const expectedLabel = 'test';
-    render(
+
+    renderWithProviders(
       <AsyncPacketDownloadLink
         id={expectedId}
         label={expectedLabel}
         asyncRetrieval={asyncRetrieval}
-        onSucccess={onSuccessHandler}
+        onSuccess={onSuccessHandler}
         onFailure={onErrorHandler}
       />,
     );
@@ -33,6 +41,7 @@ describe('AsyncPacketDownloadLink success', () => {
       expect(asyncRetrieval).toHaveBeenCalledTimes(1);
       expect(onSuccessHandler).toHaveBeenCalledTimes(1);
       expect(onErrorHandler).toHaveBeenCalledTimes(0);
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
     });
   });
 
@@ -42,7 +51,7 @@ describe('AsyncPacketDownloadLink success', () => {
     const onErrorHandler = jest.fn();
     const expectedId = 'testID';
     const expectedLabel = 'test';
-    render(
+    renderWithProviders(
       <AsyncPacketDownloadLink
         id={expectedId}
         label={expectedLabel}
@@ -62,6 +71,7 @@ describe('AsyncPacketDownloadLink success', () => {
       expect(asyncRetrieval).toHaveBeenCalledWith(expectedId);
       expect(onSuccessHandler).toHaveBeenCalledTimes(0);
       expect(onErrorHandler).toHaveBeenCalledTimes(1);
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
     });
   });
 

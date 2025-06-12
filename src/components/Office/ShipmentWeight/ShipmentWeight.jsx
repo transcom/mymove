@@ -5,7 +5,7 @@ import { useField } from 'formik';
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 
 const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
@@ -31,7 +31,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
-        <h2 className={styles.SectionHeader}>Weight</h2>
+        <h3 className={styles.SectionHeader}>Weight</h3>
 
         <Grid row gap>
           <Grid col={6}>

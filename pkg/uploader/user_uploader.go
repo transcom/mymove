@@ -101,6 +101,17 @@ func (u *UserUploader) CreateUserUploadForDocument(appCtx appcontext.AppContext,
 		appCtx.Logger().Info("created a user upload with id and key", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
 	}
 
+	defer func() {
+		if file.File != nil {
+			file.File.Close()
+		}
+		err := u.uploader.Storer.TempFileSystem().Remove(file.File.Name())
+
+		if err != nil {
+			appCtx.Logger().Error("error removing file from memory", zap.Error(err))
+		}
+	}()
+
 	return userUpload, verrs, uploadError
 }
 

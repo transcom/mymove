@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -30,11 +31,13 @@ type Entitlement struct {
 	DependentsTwelveAndOver                      *int             `db:"dependents_twelve_and_over"`
 	UBAllowance                                  *int             `db:"ub_allowance"`
 	GunSafe                                      bool             `db:"gun_safe"`
+	GunSafeWeight                                int              `db:"gun_safe_weight"`
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
 	ProGearWeight                                int              `db:"pro_gear_weight"`
 	ProGearWeightSpouse                          int              `db:"pro_gear_weight_spouse"`
 	WeightRestriction                            *int             `db:"weight_restriction"`
+	UBWeightRestriction                          *int             `db:"ub_weight_restriction"`
 	CreatedAt                                    time.Time        `db:"created_at"`
 	UpdatedAt                                    time.Time        `db:"updated_at"`
 }
@@ -126,7 +129,7 @@ func (e *Entitlement) UBWeightAllowance() *int {
 }
 
 // GetUBWeightAllowance returns the UB weight allowance for a UB shipment, part of the overall entitlements for an order
-func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOconus *bool, newDutyLocationIsOconus *bool, branch *ServiceMemberAffiliation, grade *internalmessages.OrderPayGrade, orderType *internalmessages.OrdersType, dependentsAuthorized *bool, isAccompaniedTour *bool, dependentsUnderTwelve *int, dependentsTwelveAndOver *int) (int, error) {
+func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOconus *bool, newDutyLocationIsOconus *bool, branch *ServiceMemberAffiliation, grade *internalmessages.OrderPayGrade, orderType *internalmessages.OrdersType, dependentsAuthorized *bool, isAccompaniedTour *bool, dependentsUnderTwelve *int, dependentsTwelveAndOver *int, civilianTDYUBAllowance *int) (int, error) {
 	originDutyLocationIsOconusValue := false
 	if originDutyLocationIsOconus != nil {
 		originDutyLocationIsOconusValue = *originDutyLocationIsOconus
@@ -163,6 +166,10 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 	if dependentsTwelveAndOver != nil {
 		twelveAndOverDependents = *dependentsTwelveAndOver
 	}
+	civilianTDYProvidedUBAllowance := 0
+	if civilianTDYUBAllowance != nil {
+		civilianTDYProvidedUBAllowance = *civilianTDYUBAllowance
+	}
 
 	// only calculate UB allowance if either origin or new duty locations are OCONUS
 	if originDutyLocationIsOconusValue || newDutyLocationIsOconusValue {
@@ -176,6 +183,9 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 
 		if typeOfOrder == string(internalmessages.OrdersTypeSTUDENTTRAVEL) {
 			ubAllowance = studentTravelMaxAllowance
+		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && typeOfOrder == string(internalmessages.OrdersTypeTEMPORARYDUTY) {
+			ubAllowance = civilianTDYProvidedUBAllowance
+			return ubAllowance, nil
 		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
 			ubAllowance = civilianBaseUBAllowance
 		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && (underTwelveDependents > 0 || twelveAndOverDependents > 0) {
@@ -229,6 +239,17 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 	}
 }
 
+func GetMaxGunSafeAllowance(appCtx appcontext.AppContext) (int, error) {
+	var maxGunSafeAllowance int
+	err := appCtx.DB().
+		RawQuery(`SELECT parameter_value::int FROM application_parameters WHERE parameter_name = 'maxGunSafeAllowance' LIMIT 1`).
+		First(&maxGunSafeAllowance)
+	if err != nil {
+		return maxGunSafeAllowance, apperror.NewQueryError("ApplicationParameters", err, "error fetching max gun safe allowance")
+	}
+	return maxGunSafeAllowance, nil
+}
+
 // WeightAllotment represents the weights allotted for a rank
 type WeightAllotment struct {
 	TotalWeightSelf               int
@@ -236,4 +257,5 @@ type WeightAllotment struct {
 	ProGearWeight                 int
 	ProGearWeightSpouse           int
 	UnaccompaniedBaggageAllowance int
+	GunSafeWeight                 int
 }

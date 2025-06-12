@@ -8,7 +8,7 @@ test.describe('Boat shipment', () => {
   test('A customer can create a Boat shipment - Tow-Away', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -52,7 +52,7 @@ test.describe('Boat shipment', () => {
   test('A customer can create a Boat shipment - Haul-Away', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -94,7 +94,7 @@ test.describe('Boat shipment', () => {
   test('A customer is redirected to HHG if dimension requirement is not met', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -125,13 +125,13 @@ test.describe('Boat shipment', () => {
     ).toBeVisible();
     await page.getByTestId('boatConfirmationContinue').click();
 
-    await expect(page.getByText('HHG')).toBeVisible();
+    await expect(page.getByTestId('tag')).toHaveText('HHG');
   });
 
   test('Is able to delete a boat shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -181,7 +181,7 @@ test.describe('Boat shipment', () => {
   test('Deletes existing boat shipment and is redirected to HHG after edit', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -236,7 +236,7 @@ test.describe('Boat shipment', () => {
     await expect(
       page.getByRole('heading', { name: 'Movers pack and ship it, paid by the government (HHG)' }),
     ).not.toBeVisible();
-    await expect(page.getByText('HHG')).toBeVisible();
+    await expect(page.getByTestId('tag')).toHaveText('HHG');
     await expect(page.getByText('Movers pack and transport this shipment')).toBeVisible();
     await page.getByTestId('wizardNextButton').click();
     await customerPage.waitForPage.reviewShipments();
@@ -247,7 +247,7 @@ test.describe('Boat shipment', () => {
   test('A customer is unable to sign if boat shipment is incomplete', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -327,7 +327,7 @@ test.describe('(MultiMove) Boat shipment', () => {
   test('A customer can create a Boat shipment - Tow-Away', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
@@ -373,7 +373,7 @@ test.describe('(MultiMove) Boat shipment', () => {
   test('A customer can create a Boat shipment - Haul-Away', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
@@ -418,7 +418,7 @@ test.describe('(MultiMove) Boat shipment', () => {
   test('A customer is redirected to HHG if dimension requirement is not met', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
@@ -452,13 +452,13 @@ test.describe('(MultiMove) Boat shipment', () => {
     ).toBeVisible();
     await page.getByTestId('boatConfirmationContinue').click();
 
-    await expect(page.getByText('HHG')).toBeVisible();
+    await expect(page.getByTestId('tag')).toHaveText('HHG');
   });
 
   test('Is able to delete a boat shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
@@ -511,7 +511,7 @@ test.describe('(MultiMove) Boat shipment', () => {
   test('Deletes existing boat shipment and is redirected to HHG after edit', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
@@ -569,7 +569,7 @@ test.describe('(MultiMove) Boat shipment', () => {
     await expect(
       page.getByRole('heading', { name: 'Movers pack and ship it, paid by the government (HHG)' }),
     ).not.toBeVisible();
-    await expect(page.getByText('HHG')).toBeVisible();
+    await expect(page.getByTestId('tag')).toHaveText('HHG');
     await expect(page.getByText('Movers pack and transport this shipment')).toBeVisible();
     await page.getByTestId('wizardNextButton').click();
     await customerPage.waitForPage.reviewShipments();
@@ -580,7 +580,7 @@ test.describe('(MultiMove) Boat shipment', () => {
   test('A customer is unable to sign if boat shipment is incomplete', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move

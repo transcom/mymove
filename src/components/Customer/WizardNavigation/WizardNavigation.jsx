@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './WizardNavigation.module.scss';
 
 const WizardNavigation = ({
+  isReviewPage,
   isFirstPage,
   isLastPage,
   disableNext,
@@ -12,6 +14,7 @@ const WizardNavigation = ({
   editMode,
   readOnly,
   onBackClick,
+  onAddShipment,
   onNextClick,
   onCancelClick,
 }) => {
@@ -39,6 +42,26 @@ const WizardNavigation = ({
           Back
         </Button>
       )}
+
+      {(showFinishLater || editMode) && (
+        <Button
+          type="button"
+          secondary
+          className={styles.button}
+          onClick={onCancelClick}
+          data-testid="wizardCancelButton"
+        >
+          {cancelButtonText}
+        </Button>
+      )}
+
+      {isReviewPage && (
+        <Button type="button" onClick={onAddShipment} className={styles.button} data-testid="wizardAddShipmentButton">
+          <FontAwesomeIcon icon="plus" className={styles.addShipmentIcon} />
+          &nbsp;&nbsp;Add shipment
+        </Button>
+      )}
+
       <Button
         type="button"
         onClick={onNextClick}
@@ -48,23 +71,12 @@ const WizardNavigation = ({
       >
         {submitButtonText}
       </Button>
-
-      {(showFinishLater || editMode) && (
-        <Button
-          type="button"
-          className={styles.button}
-          unstyled
-          onClick={onCancelClick}
-          data-testid="wizardCancelButton"
-        >
-          {cancelButtonText}
-        </Button>
-      )}
     </div>
   );
 };
 
 WizardNavigation.propTypes = {
+  isReviewPage: PropTypes.bool,
   isFirstPage: PropTypes.bool,
   isLastPage: PropTypes.bool,
   disableNext: PropTypes.bool,
@@ -72,11 +84,13 @@ WizardNavigation.propTypes = {
   editMode: PropTypes.bool,
   readOnly: PropTypes.bool,
   onBackClick: PropTypes.func,
+  onAddShipment: PropTypes.func,
   onNextClick: PropTypes.func,
   onCancelClick: PropTypes.func,
 };
 
 WizardNavigation.defaultProps = {
+  isReviewPage: false,
   isFirstPage: false,
   isLastPage: false,
   disableNext: false,
@@ -84,6 +98,7 @@ WizardNavigation.defaultProps = {
   editMode: false,
   readOnly: false,
   onBackClick: () => {},
+  onAddShipment: () => {},
   onNextClick: () => {},
   onCancelClick: () => {},
 };

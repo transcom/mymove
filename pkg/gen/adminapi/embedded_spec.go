@@ -496,6 +496,97 @@ func init() {
         }
       }
     },
+    "/edi-errors": {
+      "get": {
+        "description": "Returns a list of EDI errors tied to payment requests that are in EDI_ERROR status. This endpoint is for Admin UI use only.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "EDI Errors"
+        ],
+        "summary": "List of EDI Errors",
+        "operationId": "fetchEdiErrors",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiErrors"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/edi-errors/{ediErrorId}": {
+      "get": {
+        "description": "Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Single EDI Error"
+        ],
+        "summary": "Get information on a specific EDI Error by the ID of the EDI Error",
+        "operationId": "getEdiError",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "EDI Error ID",
+            "name": "ediErrorId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiError"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "EDI error not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -955,6 +1046,39 @@ func init() {
         }
       }
     },
+    "/office-users/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Role"
+              }
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/office-users/{officeUserId}": {
       "get": {
         "description": "This endpoint returns a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
@@ -1076,6 +1200,9 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update an Office User"
+          },
+          "404": {
+            "description": "Office User not found"
           },
           "500": {
             "description": "Server error"
@@ -1392,6 +1519,114 @@ func init() {
           },
           "404": {
             "description": "Payment Request EDI Files not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/rejected-office-users": {
+      "get": {
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Rejected office users"
+        ],
+        "summary": "List of Office Rejected Requesting Office Users Accounts",
+        "operationId": "indexRejectedOfficeUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/rejected-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Rejected office users"
+        ],
+        "summary": "Get a Rejected Office User",
+        "operationId": "getRejectedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -1731,6 +1966,46 @@ func init() {
           },
           "404": {
             "description": "User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single user (including Roles, Privileges, and BackupContacts) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes a User",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "User cannot be deleted, forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "409": {
+            "description": "User cannot be deleted due to associated data"
           },
           "500": {
             "description": "server error"
@@ -2277,6 +2552,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -2557,6 +2838,50 @@ func init() {
         }
       }
     },
+    "EdiError": {
+      "type": "object",
+      "required": [
+        "id",
+        "paymentRequestID",
+        "ediType"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediType": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paymentRequestNumber": {
+          "type": "string",
+          "example": "1234-5678-1"
+        }
+      }
+    },
+    "EdiErrors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EdiError"
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -2812,6 +3137,11 @@ func init() {
             "$ref": "#/definitions/Privilege"
           }
         },
+        "rejectedOn": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -2959,6 +3289,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "firstName": {
@@ -3134,6 +3470,10 @@ func init() {
           "type": "string",
           "example": "supervisor"
         },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -3149,7 +3489,9 @@ func init() {
         },
         "email": {
           "type": "string",
-          "example": "user@userdomain.com"
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -3221,6 +3563,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roleName": {
           "type": "string",
           "example": "Task Ordering Officer"
@@ -3228,6 +3576,10 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",
@@ -3295,16 +3647,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
         },
         "name": {
           "type": "string",
@@ -3508,6 +3850,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "oktaEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -3688,6 +4036,13 @@ func init() {
     {
       "description": "Information about requested office users",
       "name": "Requested office users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about rejected office users",
+      "name": "Rejected office users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
@@ -4187,6 +4542,97 @@ func init() {
         }
       }
     },
+    "/edi-errors": {
+      "get": {
+        "description": "Returns a list of EDI errors tied to payment requests that are in EDI_ERROR status. This endpoint is for Admin UI use only.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "EDI Errors"
+        ],
+        "summary": "List of EDI Errors",
+        "operationId": "fetchEdiErrors",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiErrors"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/edi-errors/{ediErrorId}": {
+      "get": {
+        "description": "Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Single EDI Error"
+        ],
+        "summary": "Get information on a specific EDI Error by the ID of the EDI Error",
+        "operationId": "getEdiError",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "EDI Error ID",
+            "name": "ediErrorId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiError"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "EDI error not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -4646,6 +5092,39 @@ func init() {
         }
       }
     },
+    "/office-users/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Role"
+              }
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/office-users/{officeUserId}": {
       "get": {
         "description": "This endpoint returns a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
@@ -4767,6 +5246,9 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update an Office User"
+          },
+          "404": {
+            "description": "Office User not found"
           },
           "500": {
             "description": "Server error"
@@ -5083,6 +5565,114 @@ func init() {
           },
           "404": {
             "description": "Payment Request EDI Files not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/rejected-office-users": {
+      "get": {
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Rejected office users"
+        ],
+        "summary": "List of Office Rejected Requesting Office Users Accounts",
+        "operationId": "indexRejectedOfficeUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/rejected-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Rejected office users"
+        ],
+        "summary": "Get a Rejected Office User",
+        "operationId": "getRejectedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -5422,6 +6012,46 @@ func init() {
           },
           "404": {
             "description": "User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single user (including Roles, Privileges, and BackupContacts) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes a User",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "User cannot be deleted, forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "409": {
+            "description": "User cannot be deleted due to associated data"
           },
           "500": {
             "description": "server error"
@@ -5968,6 +6598,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -6248,6 +6884,50 @@ func init() {
         }
       }
     },
+    "EdiError": {
+      "type": "object",
+      "required": [
+        "id",
+        "paymentRequestID",
+        "ediType"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediType": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paymentRequestNumber": {
+          "type": "string",
+          "example": "1234-5678-1"
+        }
+      }
+    },
+    "EdiErrors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EdiError"
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -6504,6 +7184,11 @@ func init() {
             "$ref": "#/definitions/Privilege"
           }
         },
+        "rejectedOn": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -6651,6 +7336,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "firstName": {
@@ -6826,6 +7517,10 @@ func init() {
           "type": "string",
           "example": "supervisor"
         },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -6841,7 +7536,9 @@ func init() {
         },
         "email": {
           "type": "string",
-          "example": "user@userdomain.com"
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -6913,6 +7610,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roleName": {
           "type": "string",
           "example": "Task Ordering Officer"
@@ -6920,6 +7623,10 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",
@@ -6987,16 +7694,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
         },
         "name": {
           "type": "string",
@@ -7200,6 +7897,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "oktaEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -7384,6 +8087,13 @@ func init() {
     {
       "description": "Information about requested office users",
       "name": "Requested office users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about rejected office users",
+      "name": "Rejected office users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

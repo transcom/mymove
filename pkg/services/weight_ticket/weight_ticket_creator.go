@@ -21,6 +21,13 @@ func NewCustomerWeightTicketCreator() services.WeightTicketCreator {
 	}
 }
 
+// NewOfficeWeightTicketCreator creates a new weightTicketCreator struct with the basic checks
+func NewOfficeWeightTicketCreator() services.WeightTicketCreator {
+	return &weightTicketCreator{
+		checks: basicChecksForCreate(),
+	}
+}
+
 func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.WeightTicket, error) {
 	err := validateWeightTicket(appCtx, nil, nil, f.checks...)
 
@@ -37,9 +44,12 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 	if ppmShipmentErr != nil {
 		return nil, ppmShipmentErr
 	}
+	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
 
-	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
-		return nil, apperror.NewNotFoundError(ppmShipmentID, "No such shipment found for this service member")
+	if appCtx.Session().IsMilApp() {
+		if serviceMemberID != appCtx.Session().ServiceMemberID {
+			return nil, apperror.NewNotFoundError(ppmShipmentID, "Service member ID in the Orders does not match Service member ID in the current session")
+		}
 	}
 
 	var weightTicket models.WeightTicket
@@ -47,7 +57,7 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 
 		document := models.Document{
-			ServiceMemberID: appCtx.Session().ServiceMemberID,
+			ServiceMemberID: serviceMemberID,
 		}
 		allDocs := models.Documents{document, document, document}
 		verrs, err := appCtx.DB().ValidateAndCreate(allDocs)

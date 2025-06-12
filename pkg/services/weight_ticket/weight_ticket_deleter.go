@@ -41,10 +41,12 @@ func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, p
 		return apperror.NewQueryError("WeightTicket fetch original", err, "")
 	}
 
-	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID && !appCtx.Session().IsOfficeUser() {
-		wrongServiceMemberIDErr := apperror.NewForbiddenError("Attempted delete by wrong service member")
-		appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
-		return wrongServiceMemberIDErr
+	if appCtx.Session().IsMilApp() {
+		if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID && !appCtx.Session().IsOfficeUser() {
+			wrongServiceMemberIDErr := apperror.NewForbiddenError("Attempted delete by wrong service member")
+			appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
+			return wrongServiceMemberIDErr
+		}
 	}
 
 	found := false

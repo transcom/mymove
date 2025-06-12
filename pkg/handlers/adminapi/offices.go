@@ -22,8 +22,6 @@ func payloadForOfficeModel(o models.TransportationOffice) *adminmessages.Transpo
 		Address:    payloadForAddressModel(&o.Address),
 		Gbloc:      o.Gbloc,
 		PhoneLines: payloadForPhoneLines(o.PhoneLines),
-		Latitude:   o.Latitude,
-		Longitude:  o.Longitude,
 	}
 }
 

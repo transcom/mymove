@@ -13,7 +13,7 @@ import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
@@ -187,6 +187,14 @@ const MoveDetails = ({ setFlashMessage }) => {
                     {!moveTaskOrder.primeCounselingCompletedAt && (
                       <Button onClick={handleCompleteCounseling}>Complete Counseling</Button>
                     )}
+                    <Link
+                      to="../acknowledge"
+                      relative="path"
+                      aria-label="Acknowledge Move"
+                      className="usa-button usa-button-secondary"
+                    >
+                      Acknowledge Move
+                    </Link>
                   </div>
                   {errorMessage?.detail && (
                     <div className={primeStyles.errorContainer}>
@@ -213,6 +221,14 @@ const MoveDetails = ({ setFlashMessage }) => {
                     <dd>
                       {moveTaskOrder.order.entitlement.weightRestriction > 0
                         ? formatWeight(moveTaskOrder.order.entitlement.weightRestriction)
+                        : 'no'}
+                    </dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Admin Restricted UB Weight:</dt>
+                    <dd>
+                      {moveTaskOrder.order.entitlement.ubWeightRestriction > 0
+                        ? formatWeight(moveTaskOrder.order.entitlement.ubWeightRestriction)
                         : 'no'}
                     </dd>
                   </div>

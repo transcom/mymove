@@ -3,6 +3,7 @@ import React from 'react';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { ORDERS_TYPE } from 'constants/orders';
+import { MockProviders } from 'testUtils';
 
 const testInitialValues = {
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
@@ -76,32 +77,40 @@ const testProps = {
 };
 
 export const EmptyValues = (argTypes) => (
-  <OrdersInfoForm {...testProps} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+  <MockProviders>
+    <OrdersInfoForm {...testProps} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+  </MockProviders>
 );
 
 export const PrefillNoDependents = (argTypes) => (
-  <OrdersInfoForm
-    {...testProps}
-    initialValues={testInitialValues}
-    onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
-  />
+  <MockProviders>
+    <OrdersInfoForm
+      {...testProps}
+      initialValues={testInitialValues}
+      onSubmit={argTypes.onSubmit}
+      onBack={argTypes.onBack}
+    />
+  </MockProviders>
 );
 
 export const PrefillYesDependents = (argTypes) => (
-  <OrdersInfoForm
-    {...testProps}
-    initialValues={{ ...testInitialValues, has_dependents: 'yes' }}
-    onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
-  />
+  <MockProviders>
+    <OrdersInfoForm
+      {...testProps}
+      initialValues={{ ...testInitialValues, has_dependents: 'yes' }}
+      onSubmit={argTypes.onSubmit}
+      onBack={argTypes.onBack}
+    />
+  </MockProviders>
 );
 
 export const PCSOnly = (argTypes) => (
-  <OrdersInfoForm
-    {...testProps}
-    ordersTypeOptions={[testProps.ordersTypeOptions[0]]}
-    onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
-  />
+  <MockProviders>
+    <OrdersInfoForm
+      {...testProps}
+      ordersTypeOptions={[testProps.ordersTypeOptions[0]]}
+      onSubmit={argTypes.onSubmit}
+      onBack={argTypes.onBack}
+    />
+  </MockProviders>
 );

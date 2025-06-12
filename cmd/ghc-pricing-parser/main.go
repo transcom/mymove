@@ -97,7 +97,7 @@ func main() {
 		}
 	}()
 
-	appCtx := appcontext.NewAppContext(db, logger, nil)
+	appCtx := appcontext.NewAppContext(db, logger, nil, nil)
 
 	// Ensure we've been given a spreadsheet to parse
 	if params.XlsxFilename == "" {

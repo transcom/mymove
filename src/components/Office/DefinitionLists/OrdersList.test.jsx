@@ -12,6 +12,7 @@ const ordersInfo = {
   ordersNumber: '999999999',
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
   ordersTypeDetail: 'HHG_PERMITTED',
+  dependents: true,
   ordersDocuments: [
     {
       'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -76,6 +77,17 @@ describe('OrdersList', () => {
     Object.keys(expectedRenderedOrdersInfo).forEach((key) => {
       expect(screen.getByText(expectedRenderedOrdersInfo[key])).toBeInTheDocument();
     });
+  });
+
+  it('renders authorized dependents', () => {
+    render(<OrdersList ordersInfo={ordersInfo} />);
+    expect(screen.getByTestId('dependents').textContent).toEqual('Authorized');
+  });
+
+  it('renders unauthorized dependents', () => {
+    const withUnauthorizedDependents = { ...ordersInfo, dependents: false };
+    render(<OrdersList ordersInfo={withUnauthorizedDependents} />);
+    expect(screen.getByTestId('dependents').textContent).toEqual('Unauthorized');
   });
 
   it('renders missing orders info as warning if showMissingWarnings is included', () => {

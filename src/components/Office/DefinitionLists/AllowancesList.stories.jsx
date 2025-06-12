@@ -21,14 +21,13 @@ const info = {
   progear: 2000,
   spouseProgear: 500,
   storageInTransit: 90,
-  dependents: true,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
   ubAllowance: 400,
 };
 
-export const Basic = () => <AllowancesList info={object('info', info)} />;
+export const Basic = () => <AllowancesList info={object('info', info)} isOconusMove={false} />;
 
 export const VisualCues = (argTypes) => (
-  <AllowancesList info={object('info', info)} showVisualCues={argTypes.showVisualCues} />
+  <AllowancesList info={object('info', info)} showVisualCues={argTypes.showVisualCues} isOconusMove={false} />
 );

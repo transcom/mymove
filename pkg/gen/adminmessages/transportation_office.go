@@ -41,14 +41,6 @@ type TransportationOffice struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
-	// latitude
-	// Example: 29.382973
-	Latitude float32 `json:"latitude,omitempty"`
-
-	// longitude
-	// Example: -98.62759
-	Longitude float32 `json:"longitude,omitempty"`
-
 	// name
 	// Example: Fort Bragg North Station
 	// Required: true

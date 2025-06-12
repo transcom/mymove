@@ -11,6 +11,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/payment_request"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	"github.com/transcom/mymove/pkg/services/clientcert"
+	edierrors "github.com/transcom/mymove/pkg/services/edi_errors"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -24,6 +25,7 @@ import (
 	prsff "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	rejectedofficeusers "github.com/transcom/mymove/pkg/services/rejected_office_users"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
@@ -80,9 +82,23 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		newRolesFetcher,
 	}
 
+	adminAPI.RejectedOfficeUsersIndexRejectedOfficeUsersHandler = IndexRejectedOfficeUsersHandler{
+		handlerConfig,
+		rejectedofficeusers.NewRejectedOfficeUsersListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.RejectedOfficeUsersGetRejectedOfficeUserHandler = GetRejectedOfficeUserHandler{
+		handlerConfig,
+		rejectedofficeusers.NewRejectedOfficeUserFetcher(queryBuilder),
+		newRolesFetcher,
+		query.NewQueryFilter,
+	}
+
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		handlerConfig,
-		fetch.NewListFetcher(queryBuilder),
+		officeuser.NewOfficeUsersListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
@@ -118,6 +134,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserDeleter(queryBuilder),
+	}
+
+	adminAPI.OfficeUsersGetRolesPrivilegesHandler = GetRolesPrivilegesHandler{
+		handlerConfig,
+		roles.NewRolesFetcher(),
 	}
 
 	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
@@ -165,6 +186,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		user.NewUserSessionRevocation(queryBuilder),
 		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
+	}
+
+	adminAPI.UsersDeleteUserHandler = DeleteUserHandler{
+		handlerConfig,
+		user.NewUserDeleter(queryBuilder),
 	}
 
 	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
@@ -216,7 +242,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	adminAPI.MovesUpdateMoveHandler = UpdateMoveHandler{
@@ -306,5 +332,17 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		prsff.NewPaymentRequestSyncadaFileFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
+
+	adminAPI.EdiErrorsFetchEdiErrorsHandler = FetchEdiErrorsHandler{
+		HandlerConfig:   handlerConfig,
+		ediErrorFetcher: edierrors.NewEDIErrorFetcher(),
+		NewPagination:   pagination.NewPagination,
+	}
+
+	adminAPI.SingleediErrorGetEdiErrorHandler = GetEdiErrorHandler{
+		HandlerConfig:   handlerConfig,
+		ediErrorFetcher: edierrors.NewEDIErrorFetcher(),
+	}
+
 	return adminAPI
 }

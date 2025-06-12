@@ -82,7 +82,7 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, logger)
 	if notificationSenderErr != nil {

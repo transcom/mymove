@@ -3,6 +3,8 @@ package ppmshipment
 import (
 	"fmt"
 	"io"
+	"os"
+	"syscall"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -71,27 +73,29 @@ func (a *aoaPacketCreator) VerifyAOAPacketInternal(appCtx appcontext.AppContext,
 
 // CreateAOAPacket creates an AOA packet for a PPM Shipment, containing the shipment summary worksheet (SSW) and
 // uploaded orders.
-func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, error) {
+func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (mergedPdf afero.File, dirPath string, returnErr error) {
 	errMsgPrefix := "error creating AOA packet"
+	dirName := uuid.Must(uuid.NewV4()).String()
+	dirPath = a.pdfGenerator.GetWorkDir() + "/" + dirName
 
 	// First we begin by fetching SSW Data, computing obligations, formatting, and filling the SSWPDF
 	ssfd, err := a.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	page1Data, page2Data, page3Data, err := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, isPaymentPacket)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data, page3Data)
+	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data, page3Data, dirName)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 	// Ensure SSW PDF is not corrupted
 	if SSWPDFInfo.PageCount != 3 {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	// Now that SSW is retrieved, find, convert to pdf, and append all orders and amendments
@@ -103,23 +107,23 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, dbQErr)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, dbQErr)
 	}
 
 	// Find move attached to PPM Shipment
 	move := models.Move(ppmShipment.Shipment.MoveTaskOrder)
-	// This function retrieves all orders and amendments, converts and merges them into one PDF with bookmarks
-	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move, false)
+	// This function retrieves all orders and amendments, converts and merges them into one PDF
+	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move, dirName)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 	// Ensure SSW PDF is not corrupted
 	ordersFileInfo, err := a.pdfGenerator.GetPdfFileInfoByContents(ordersFile)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 	if !(ordersFileInfo.PageCount > 0) {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	// Calling the PDF merge function in Generator with these filepaths creates issues due to instancing of the memory filesystem
@@ -129,12 +133,58 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	files = append(files, SSWPPMWorksheet)
 	files = append(files, ordersFile)
 	// Take all of generated PDFs and merge into a single PDF.
-	mergedPdf, err := a.pdfGenerator.MergePDFFilesByContents(appCtx, files)
+	mergedPdf, err = a.pdfGenerator.MergePDFFilesByContents(appCtx, files, dirName)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	return mergedPdf, nil
+	defer func() {
+		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
+		if r := recover(); r != nil {
+			appCtx.Logger().Error("aoa packet files panic", zap.Error(err))
+			returnErr = fmt.Errorf("%s: panic", errMsgPrefix)
+		}
+	}()
+
+	return mergedPdf, dirPath, nil
+}
+
+// remove all of the packet files from the temp directory associated with creating the AOA packet
+func (a *aoaPacketCreator) CleanupAOAPacketFile(packetFile afero.File, closeFile bool) error {
+	if closeFile {
+		if err := packetFile.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
+			return err
+		}
+	}
+
+	fs := a.pdfGenerator.FileSystem()
+	exists, err := afero.Exists(fs, packetFile.Name())
+
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		err := fs.Remove(packetFile.Name())
+
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+				// File does not exist treat it as non-error:
+				return nil
+			}
+
+			// Return the error if it's not a "file not found" error
+			return err
+		}
+	}
+
+	return nil
+}
+
+// remove all of the packet files from the temp directory associated with creating the AOA packet
+func (a *aoaPacketCreator) CleanupAOAPacketDir(dirPath string) error {
+	// RemoveAll does not return an error if the directory doesn't exist it will just do nothing and return nil
+	return a.pdfGenerator.FileSystem().RemoveAll(dirPath)
 }
 
 // saveAOAPacket uploads the AOA packet to S3 and saves the document data to the database, associating it with the PPM

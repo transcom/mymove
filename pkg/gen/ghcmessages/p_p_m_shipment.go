@@ -20,25 +20,9 @@ import (
 // swagger:model PPMShipment
 type PPMShipment struct {
 
-	// ZIP
-	//
-	// The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
-	//
-	// Example: 90210
-	// Pattern: ^(\d{5})$
-	ActualDestinationPostalCode *string `json:"actualDestinationPostalCode"`
-
 	// The actual start date of when the PPM shipment left the origin.
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
-
-	// ZIP
-	//
-	// The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
-	//
-	// Example: 90210
-	// Pattern: ^(\d{5})$
-	ActualPickupPostalCode *string `json:"actualPickupPostalCode"`
 
 	// The amount received for an advance, or null if no advance is received.
 	//
@@ -92,6 +76,13 @@ type PPMShipment struct {
 	// Read Only: true
 	FinalIncentive *int64 `json:"finalIncentive"`
 
+	// The estimated weight of the gun safe being moved belonging to the service member.
+	GunSafeWeight *int64 `json:"gunSafeWeight"`
+
+	// Indicates whether PPM shipment has gun safe.
+	//
+	HasGunSafe *bool `json:"hasGunSafe"`
+
 	// Indicates whether PPM shipment has pro gear for themselves or their spouse.
 	//
 	HasProGear *bool `json:"hasProGear"`
@@ -135,6 +126,9 @@ type PPMShipment struct {
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
+
+	// ppm type
+	PpmType PPMType `json:"ppmType,omitempty"`
 
 	// The estimated weight of the pro-gear being moved belonging to the service member.
 	ProGearWeight *int64 `json:"proGearWeight"`
@@ -220,15 +214,7 @@ type PPMShipment struct {
 func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateActualDestinationPostalCode(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateActualMoveDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateActualPickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -269,6 +255,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -346,36 +336,12 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PPMShipment) validateActualDestinationPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.ActualDestinationPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("actualDestinationPostalCode", "body", *m.ActualDestinationPostalCode, `^(\d{5})$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *PPMShipment) validateActualMoveDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ActualMoveDate) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("actualMoveDate", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPMShipment) validateActualPickupPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.ActualPickupPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("actualPickupPostalCode", "body", *m.ActualPickupPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 
@@ -532,6 +498,23 @@ func (m *PPMShipment) validatePickupAddress(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validatePpmType(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	if err := m.PpmType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ppmType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ppmType")
+		}
+		return err
 	}
 
 	return nil
@@ -849,6 +832,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateProGearWeightTickets(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1022,6 +1009,24 @@ func (m *PPMShipment) contextValidatePickupAddress(ctx context.Context, formats 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidatePpmType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	if err := m.PpmType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ppmType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ppmType")
+		}
+		return err
 	}
 
 	return nil

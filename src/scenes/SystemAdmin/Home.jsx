@@ -42,8 +42,12 @@ import WebhookSubscriptionCreate from 'pages/Admin/WebhookSubscriptions/WebhookS
 import RequestedOfficeUserList from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserList';
 import RequestedOfficeUserShow from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserShow';
 import RequestedOfficeUserEdit from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserEdit';
+import RejectedOfficeUserList from 'pages/Admin/RejectedOfficeUsers/RejectedOfficeUserList';
+import RejectedOfficeUserShow from 'pages/Admin/RejectedOfficeUsers/RejectedOfficeUserShow';
 import PaymentRequest858List from 'pages/Admin/PaymentRequests/PaymentRequest858List';
 import PaymentRequest858Show from 'pages/Admin/PaymentRequests/PaymentRequest858Show';
+import EdiErrorsList from 'pages/Admin/PaymentRequests/EdiErrorsList';
+import EdiErrorsShow from 'pages/Admin/PaymentRequests/EdiErrorsShow';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -80,6 +84,12 @@ const Home = () => (
         edit={RequestedOfficeUserEdit}
       />
       <Resource
+        name="rejected-office-users"
+        options={{ label: 'Rejected Office Users' }}
+        list={RejectedOfficeUserList}
+        show={RejectedOfficeUserShow}
+      />
+      <Resource
         name="office-users"
         options={{ label: 'Office Users' }}
         list={OfficeUserList}
@@ -104,6 +114,13 @@ const Home = () => (
         list={PaymentRequest858List}
         show={PaymentRequest858Show}
       />
+      <Resource
+        name="edi-errors"
+        options={{ label: 'EDI Error Payment Requests' }}
+        list={EdiErrorsList}
+        show={EdiErrorsShow}
+      />
+
       <Resource name="electronic-orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />

@@ -43,9 +43,19 @@ var allSITServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeDOFSIT,
 	models.ReServiceCodeDOASIT,
 	models.ReServiceCodeDOSFSC,
+	models.ReServiceCodeIDDSIT,
+	models.ReServiceCodeIDASIT,
+	models.ReServiceCodeIDFSIT,
+	models.ReServiceCodeIDSFSC,
+	models.ReServiceCodeIOPSIT,
+	models.ReServiceCodeIOFSIT,
+	models.ReServiceCodeIOASIT,
+	models.ReServiceCodeIOSFSC,
 }
 
 var allAccessorialServiceItemsToCheck = []models.ReServiceCode{
+	models.ReServiceCodeDDSHUT,
+	models.ReServiceCodeDOSHUT,
 	models.ReServiceCodeIDSHUT,
 	models.ReServiceCodeIOSHUT,
 	models.ReServiceCodeICRT,

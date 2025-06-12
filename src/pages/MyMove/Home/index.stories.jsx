@@ -161,6 +161,7 @@ const propsForApprovedPPMShipment = {
     new_duty_location: {
       name: 'NAS Jacksonville',
     },
+    report_by_date: '2020-12-25',
   },
 };
 

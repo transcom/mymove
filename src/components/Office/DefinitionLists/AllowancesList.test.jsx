@@ -20,6 +20,7 @@ const info = {
   organizationalClothingAndIndividualEquipment: true,
   ubAllowance: 400,
   weightRestriction: 1500,
+  ubWeightRestriction: 1100,
 };
 
 const initialValuesOconusAdditions = {
@@ -107,17 +108,6 @@ describe('AllowancesList', () => {
     expect(screen.getByText('90 days')).toBeInTheDocument();
   });
 
-  it('renders authorized dependents', () => {
-    render(<AllowancesList info={info} />);
-    expect(screen.getByTestId('dependents').textContent).toEqual('Authorized');
-  });
-
-  it('renders unauthorized dependents', () => {
-    const withUnauthorizedDependents = { ...info, dependents: false };
-    render(<AllowancesList info={withUnauthorizedDependents} />);
-    expect(screen.getByTestId('dependents').textContent).toEqual('Unauthorized');
-  });
-
   it('renders formatted pro-gear', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByText('2,000 lbs')).toBeInTheDocument();
@@ -160,12 +150,30 @@ describe('AllowancesList', () => {
     expect(screen.queryByText('Unaccompanied baggage allowance')).not.toBeInTheDocument();
   });
 
+  it('does not render ub allowance field if not oconous move', async () => {
+    render(<AllowancesList info={info} showVisualCues isOconusMove={false} />);
+    expect(screen.queryByText('Unaccompanied baggage allowance')).not.toBeInTheDocument();
+  });
+
+  it('does render ub allowance field if oconous move', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    await act(async () => {
+      render(
+        <Formik initialValues={initialValuesOconusAdditions}>
+          <AllowancesList info={{ ...oconusInfo }} showVisualCues isOconusMove />
+        </Formik>,
+      );
+    });
+    expect(screen.getByTestId('unaccompaniedBaggageAllowance')).toBeInTheDocument();
+    expect(screen.getByTestId('unaccompaniedBaggageAllowance').textContent).toEqual('400 lbs');
+  });
+
   it('does render oconus fields when present', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     await act(async () => {
       render(
         <Formik initialValues={initialValuesOconusAdditions}>
-          <AllowancesList info={{ ...oconusInfo }} showVisualCues />
+          <AllowancesList info={{ ...oconusInfo }} showVisualCues isOconusMove />
         </Formik>,
       );
     });
@@ -173,12 +181,15 @@ describe('AllowancesList', () => {
     await waitFor(() => expect(screen.getByTestId('ordersAccompaniedTour')).toBeInTheDocument());
     expect(screen.getByTestId('ordersDependentsUnderTwelve')).toBeInTheDocument();
     expect(screen.getByTestId('ordersDependentsTwelveAndOver')).toBeInTheDocument();
-    expect(screen.getByTestId('unaccompaniedBaggageAllowance')).toBeInTheDocument();
-    expect(screen.getByTestId('unaccompaniedBaggageAllowance').textContent).toEqual('400 lbs');
   });
   it('renders weight restriction', () => {
     const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };
     render(<AllowancesList info={adminRestrictedWtLoc} />);
     expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,500 lbs');
+  });
+  it('renders UB weight restriction', () => {
+    const adminRestrictedUBWtLoc = { ...info, adminrestrictedUBWeightLocation: true };
+    render(<AllowancesList info={adminRestrictedUBWtLoc} />);
+    expect(screen.getByTestId('ubWeightRestriction').textContent).toEqual('1,100 lbs');
   });
 });

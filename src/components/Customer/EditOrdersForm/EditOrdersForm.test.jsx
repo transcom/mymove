@@ -8,7 +8,8 @@ import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { MockProviders } from 'testUtils';
 
 jest.setTimeout(60000);
 
@@ -154,8 +155,9 @@ jest.mock('components/LocationSearchBox/api', () => ({
   ),
 }));
 
-jest.mock('../../../utils/featureFlags', () => ({
-  isBooleanFlagEnabled: jest.fn(),
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const testProps = {
@@ -246,6 +248,38 @@ const initialValues = {
   accompanied_tour: '',
   dependents_under_twelve: '',
   dependents_twelve_and_over: '',
+  civilian_tdy_ub_allowance: '',
+};
+
+const civilianTDYTestProps = {
+  onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+  initialValues: {
+    orders_type: ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY,
+    issue_date: '',
+    report_by_date: '',
+    has_dependents: '',
+    uploaded_orders: [],
+    grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+    origin_duty_location: { name: 'Luke AFB', address: { isOconus: false } },
+    new_duty_location: { name: 'Luke AFB', provides_services_counseling: false, address: { isOconus: true } },
+  },
+  onCancel: jest.fn(),
+  onUploadComplete: jest.fn(),
+  createUpload: jest.fn(),
+  onDelete: jest.fn(),
+  filePond: {},
+  ordersTypeOptions: [
+    { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+    { key: 'LOCAL_MOVE', value: 'Local Move' },
+    { key: 'RETIREMENT', value: 'Retirement' },
+    { key: 'SEPARATION', value: 'Separation' },
+    { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+    { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+    { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
+  ],
+  currentDutyLocation: { name: 'Luke AFB', address: { isOconus: false } },
+  grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+  orders_type: ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY,
 };
 
 jest.mock('utils/featureFlags', () => ({
@@ -265,20 +299,50 @@ describe('EditOrdersForm component', () => {
       [/Pay grade/, true, HTMLSelectElement],
       [/Current duty location/, false, HTMLInputElement],
     ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
-      render(<EditOrdersForm {...testProps} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} />
+        </MockProviders>,
+      );
 
-      expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+      waitFor(async () => {
+        expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+      });
+
       if (required) {
-        expect(await screen.findByLabelText(formInput)).toBeRequired();
+        waitFor(async () => {
+          expect(await screen.findByLabelText(formInput)).toBeRequired();
+        });
       }
+
+      waitFor(() => {
+        expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+        // check for asterisks on required fields
+        const formGroups = screen.getAllByTestId('formGroup');
+
+        formGroups.forEach((group) => {
+          const hasRequiredField = group.querySelector('[required]') !== null;
+
+          if (hasRequiredField) {
+            expect(group.textContent).toContain('*');
+          }
+        });
+      });
     });
 
     it('rendering the upload area', async () => {
       showCounselingOffices.mockImplementation(() => Promise.resolve({}));
 
-      render(<EditOrdersForm {...testProps} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} />
+        </MockProviders>,
+      );
 
-      expect(await screen.findByText(documentSizeLimitMsg)).toBeInTheDocument();
+      waitFor(async () => {
+        expect(screen.getByText(documentSizeLimitMsg)).toBeInTheDocument();
+      });
     });
   });
 
@@ -294,7 +358,11 @@ describe('EditOrdersForm component', () => {
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-      render(<EditOrdersForm {...testProps} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} />
+        </MockProviders>,
+      );
 
       const ordersTypeDropdown = await screen.findByLabelText(/Orders type/);
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
@@ -309,33 +377,35 @@ describe('EditOrdersForm component', () => {
   it('allows new and current duty location to be the same', async () => {
     // Render the component
     render(
-      <EditOrdersForm
-        {...testProps}
-        initialValues={{
-          ...initialValues,
-          origin_duty_location: {
-            name: 'Luke AFB',
-            provides_services_counseling: false,
-            address: { isOconus: false },
-          },
-          new_duty_location: {
-            name: 'Luke AFB',
-            provides_services_counseling: false,
-            address: { isOconus: false },
-          },
-          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
-          uploaded_orders: [
-            {
-              id: '123',
-              createdAt: '2020-11-08',
-              bytes: 1,
-              url: 'url',
-              filename: 'Test Upload',
-              contentType: 'application/pdf',
+      <MockProviders>
+        <EditOrdersForm
+          {...testProps}
+          initialValues={{
+            ...initialValues,
+            origin_duty_location: {
+              name: 'Luke AFB',
+              provides_services_counseling: false,
+              address: { isOconus: false },
             },
-          ],
-        }}
-      />,
+            new_duty_location: {
+              name: 'Luke AFB',
+              provides_services_counseling: false,
+              address: { isOconus: false },
+            },
+            counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+            uploaded_orders: [
+              {
+                id: '123',
+                createdAt: '2020-11-08',
+                bytes: 1,
+                url: 'url',
+                filename: 'Test Upload',
+                contentType: 'application/pdf',
+              },
+            ],
+          }}
+        />
+      </MockProviders>,
     );
 
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
@@ -361,7 +431,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('shows an error message if the form is invalid', async () => {
-    render(<EditOrdersForm {...testProps} initialValues={initialValues} />);
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} initialValues={initialValues} />
+      </MockProviders>,
+    );
     const submitButton = await screen.findByRole('button', { name: 'Save' });
 
     const ordersTypeDropdown = screen.getByLabelText(/Orders type/);
@@ -379,27 +453,29 @@ describe('EditOrdersForm component', () => {
   it('submits the form when its valid', async () => {
     // Not testing the upload interaction, so give uploaded orders to the props.
     render(
-      <EditOrdersForm
-        {...testProps}
-        initialValues={{
-          origin_duty_location: {
-            name: 'Altus AFB',
-            provides_services_counseling: true,
-            address: { isOconus: false },
-          },
-          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
-          uploaded_orders: [
-            {
-              id: '123',
-              createdAt: '2020-11-08',
-              bytes: 1,
-              url: 'url',
-              filename: 'Test Upload',
-              contentType: 'application/pdf',
+      <MockProviders>
+        <EditOrdersForm
+          {...testProps}
+          initialValues={{
+            origin_duty_location: {
+              name: 'Altus AFB',
+              provides_services_counseling: true,
+              address: { isOconus: false },
             },
-          ],
-        }}
-      />,
+            counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+            uploaded_orders: [
+              {
+                id: '123',
+                createdAt: '2020-11-08',
+                bytes: 1,
+                url: 'url',
+                filename: 'Test Upload',
+                contentType: 'application/pdf',
+              },
+            ],
+          }}
+        />
+      </MockProviders>,
     );
 
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
@@ -470,7 +546,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {
-    render(<EditOrdersForm {...testProps} />);
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
@@ -534,7 +614,11 @@ describe('EditOrdersForm component', () => {
     };
 
     it('pre-fills the inputs', async () => {
-      render(<EditOrdersForm {...testProps} initialValues={testInitialValues} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} initialValues={testInitialValues} />
+        </MockProviders>,
+      );
 
       expect(await screen.findByRole('form')).toHaveFormValues({
         new_duty_location: 'Yuma AFB',
@@ -552,7 +636,11 @@ describe('EditOrdersForm component', () => {
     });
 
     it('renders the uploads table with an existing upload', async () => {
-      render(<EditOrdersForm {...testProps} initialValues={testInitialValues} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} initialValues={testInitialValues} />
+        </MockProviders>,
+      );
 
       await waitFor(() => {
         expect(screen.queryByText('Test Upload')).toBeInTheDocument();
@@ -628,41 +716,49 @@ describe('EditOrdersForm component', () => {
 
       modifiedProps.initialValues[attributeName] = valueToReplaceIt;
 
-      render(<EditOrdersForm {...modifiedProps} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...modifiedProps} />
+        </MockProviders>,
+      );
 
       const save = await screen.findByRole('button', { name: 'Save' });
       await waitFor(() => {
         expect(save).toBeInTheDocument();
       });
 
-      expect(save).toBeDisabled();
+      waitFor(() => {
+        expect(save).toBeDisabled();
+      });
     });
   });
 
   it('submits the form when temporary duty orders type is selected', async () => {
     // Not testing the upload interaction, so give uploaded orders to the props.
     render(
-      <EditOrdersForm
-        {...testProps}
-        initialValues={{
-          origin_duty_location: {
-            name: 'Altus AFB',
-            provides_services_counseling: true,
-            address: { isOconus: false },
-          },
-          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
-          uploaded_orders: [
-            {
-              id: '123',
-              createdAt: '2020-11-08',
-              bytes: 1,
-              url: 'url',
-              filename: 'Test Upload',
-              contentType: 'application/pdf',
+      <MockProviders>
+        <EditOrdersForm
+          {...testProps}
+          initialValues={{
+            origin_duty_location: {
+              name: 'Altus AFB',
+              provides_services_counseling: true,
+              address: { isOconus: false },
             },
-          ],
-        }}
-      />,
+            counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+            uploaded_orders: [
+              {
+                id: '123',
+                createdAt: '2020-11-08',
+                bytes: 1,
+                url: 'url',
+                filename: 'Test Upload',
+                contentType: 'application/pdf',
+              },
+            ],
+          }}
+        />
+      </MockProviders>,
     );
 
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
@@ -702,8 +798,11 @@ describe('EditOrdersForm component', () => {
   it('has dependents is yes and disabled when order type is student travel', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-    render(<EditOrdersForm {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
@@ -719,8 +818,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('has dependents is yes and disabled when order type is early return', async () => {
-    render(<EditOrdersForm {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
@@ -736,8 +838,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
-    render(<EditOrdersForm {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     // set order type to perm change and verify the "has dependents" state
@@ -771,8 +876,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
-    render(<EditOrdersForm {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     // set order type to perm change and verify the "has dependents" state
@@ -804,6 +912,108 @@ describe('EditOrdersForm component', () => {
       expect(hasDependentsNoLocalMove).toBeEnabled();
     });
   });
+
+  it('renders civilian TDY UB Allowance field when TDY orders type and civilian pay grade are selected ', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    render(
+      <MockProviders>
+        <EditOrdersForm
+          {...civilianTDYTestProps}
+          initialValues={{
+            ...civilianTDYTestProps.initialValues,
+          }}
+        />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+    });
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/If your orders specify a UB weight allowance, enter it here./)).toBeInTheDocument();
+    });
+  });
+
+  it('does not render civilian TDY UB Allowance field if orders type is not TDY', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    render(
+      <MockProviders>
+        <EditOrdersForm
+          {...civilianTDYTestProps}
+          initialValues={{
+            ...civilianTDYTestProps.initialValues,
+          }}
+        />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+    });
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
+    await waitFor(() =>
+      expect(
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('does not render civilian TDY UB Allowance field if grade is not CIVILIAN_EMPLOYEE', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    render(
+      <MockProviders>
+        <EditOrdersForm
+          {...civilianTDYTestProps}
+          initialValues={{
+            ...civilianTDYTestProps.initialValues,
+          }}
+        />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+    });
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
+    await waitFor(() =>
+      expect(
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it.each([[ORDERS_TYPE.RETIREMENT], [ORDERS_TYPE.SEPARATION]])(
+    'renders correct DutyLocationInput label and hint for %s orders type',
+    async (ordersType) => {
+      render(
+        <MockProviders>
+          <EditOrdersForm
+            {...testProps}
+            initialValues={{
+              ...testProps.initialValues,
+              orders_type: ordersType,
+            }}
+          />
+        </MockProviders>,
+      );
+
+      const destinationInput = await screen.findByLabelText(/Destination Location \(As Authorized on Orders\)/);
+      expect(destinationInput).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Enter the option closest to your destination\. Your move counselor will identify if there might be a cost to you\./,
+        ),
+      ).toBeInTheDocument();
+    },
+  );
 
   afterEach(jest.restoreAllMocks);
 });

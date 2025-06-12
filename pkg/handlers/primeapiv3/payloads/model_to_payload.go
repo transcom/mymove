@@ -63,6 +63,7 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 		ContractNumber:                                 moveTaskOrder.Contractor.ContractNumber,
 		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		PrimeAcknowledgedAt:                            handlers.FmtDateTimePtr(moveTaskOrder.PrimeAcknowledgedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -93,12 +94,15 @@ func MoveTaskOrderWithShipmentRateAreas(appCtx appcontext.AppContext, moveTaskOr
 		}
 		// Origin/Destination RateArea will be present on root shipment level for all non-PPM shipment types
 		for _, shipment := range payload.MtoShipments {
-			if shipment.PpmShipment != nil {
-				shipment.PpmShipment.OriginRateArea = PostalCodeToRateArea(shipment.PpmShipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
-				shipment.PpmShipment.DestinationRateArea = PostalCodeToRateArea(shipment.PpmShipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
-			} else {
-				shipment.OriginRateArea = PostalCodeToRateArea(shipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
-				shipment.DestinationRateArea = PostalCodeToRateArea(shipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+			// B-22767: We want both domestic and international rate area info but only for international shipments
+			if shipment.MarketCode == string(models.MarketCodeInternational) {
+				if shipment.PpmShipment != nil {
+					shipment.PpmShipment.OriginRateArea = PostalCodeToRateArea(shipment.PpmShipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+					shipment.PpmShipment.DestinationRateArea = PostalCodeToRateArea(shipment.PpmShipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				} else {
+					shipment.OriginRateArea = PostalCodeToRateArea(shipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+					shipment.DestinationRateArea = PostalCodeToRateArea(shipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				}
 			}
 		}
 	}
@@ -223,6 +227,10 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 	if entitlement.WeightRestriction != nil {
 		weightRestriction = int64(*entitlement.WeightRestriction)
 	}
+	var ubWeightRestriction int64
+	if entitlement.UBWeightRestriction != nil {
+		ubWeightRestriction = int64(*entitlement.UBWeightRestriction)
+	}
 	return &primev3messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -234,11 +242,12 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		StorageInTransit:  sit,
-		TotalDependents:   totalDependents,
-		TotalWeight:       totalWeight,
-		WeightRestriction: &weightRestriction,
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		StorageInTransit:    sit,
+		TotalDependents:     totalDependents,
+		TotalWeight:         totalWeight,
+		WeightRestriction:   &weightRestriction,
+		UbWeightRestriction: &ubWeightRestriction,
+		ETag:                etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -530,8 +539,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
 		SitEstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
 		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
@@ -673,6 +680,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDeliveryAddress),
 		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
 		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
+		PrimeAcknowledgedAt:              handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt),
 	}
 
 	// Set up address payloads
@@ -760,6 +768,20 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
 			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
 		}
+	case models.ReServiceCodeIOFSIT, models.ReServiceCodeIOASIT, models.ReServiceCodeIOPSIT, models.ReServiceCodeIOSFSC:
+		var sitDepartureDate time.Time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+		payload = &primev3messages.MTOServiceItemInternationalOriginSIT{
+			ReServiceCode:        handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:               mtoServiceItem.Reason,
+			SitDepartureDate:     handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:         handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:        mtoServiceItem.SITPostalCode,
+			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
+			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
+		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time
 		var timeMilitary1, timeMilitary2 *string
@@ -804,7 +826,50 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			SitCustomerContacted:        handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
 			SitRequestedDelivery:        handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
+	case models.ReServiceCodeIDFSIT, models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT, models.ReServiceCodeIDSFSC:
+		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time
+		var timeMilitary1, timeMilitary2 *string
 
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+
+		firstContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
+		secondContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
+		timeMilitary1 = &firstContact.TimeMilitary
+		timeMilitary2 = &secondContact.TimeMilitary
+
+		if !firstContact.DateOfContact.IsZero() {
+			dateOfContact1 = firstContact.DateOfContact
+		}
+
+		if !secondContact.DateOfContact.IsZero() {
+			dateOfContact2 = secondContact.DateOfContact
+		}
+
+		if !firstContact.FirstAvailableDeliveryDate.IsZero() {
+			firstAvailableDeliveryDate1 = firstContact.FirstAvailableDeliveryDate
+		}
+
+		if !secondContact.FirstAvailableDeliveryDate.IsZero() {
+			firstAvailableDeliveryDate2 = secondContact.FirstAvailableDeliveryDate
+		}
+
+		payload = &primev3messages.MTOServiceItemInternationalDestSIT{
+			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                      mtoServiceItem.Reason,
+			DateOfContact1:              handlers.FmtDate(dateOfContact1),
+			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(timeMilitary1),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(firstAvailableDeliveryDate1),
+			DateOfContact2:              handlers.FmtDate(dateOfContact2),
+			TimeMilitary2:               handlers.FmtStringPtrNonEmpty(timeMilitary2),
+			FirstAvailableDeliveryDate2: handlers.FmtDate(firstAvailableDeliveryDate2),
+			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
+			SitCustomerContacted:        handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
+			SitRequestedDelivery:        handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
+		}
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
@@ -869,10 +934,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primev3messages.MTOServiceItemDomesticShuttle{
-			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:          mtoServiceItem.Reason,
-			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
-			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
 	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
 		shuttleSI := &primev3messages.MTOServiceItemInternationalShuttle{

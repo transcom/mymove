@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useFormikContext } from 'formik';
+import { Label } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -13,8 +14,9 @@ import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/order';
 import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
-const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled }) => {
+const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled, civilianTDYUBMove }) => {
   const [enableUB, setEnableUB] = useState(false);
   const renderOconusFields = !!(
     entitlements?.accompaniedTour ||
@@ -23,6 +25,9 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
   );
   const { values, setFieldValue } = useFormikContext();
   const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(entitlements?.weightRestriction > 0);
+  const [isAdminUBWeightLocationChecked, setIsAdminUBWeightLocationChecked] = useState(
+    entitlements?.ubWeightRestriction > 0,
+  );
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -41,6 +46,12 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     }
   }, [setFieldValue, values.weightRestriction, isAdminWeightLocationChecked]);
 
+  useEffect(() => {
+    if (!isAdminUBWeightLocationChecked) {
+      setFieldValue('ubWeightRestriction', `${values.ubWeightRestriction}`);
+    }
+  }, [setFieldValue, values.ubWeightRestriction, isAdminUBWeightLocationChecked]);
+
   const handleAdminWeightLocationChange = (e) => {
     const isChecked = e.target.checked;
     setIsAdminWeightLocationChecked(isChecked);
@@ -53,6 +64,37 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       setFieldValue('weightRestriction', null);
     }
   };
+
+  const handleAdminUBWeightLocationChange = (e) => {
+    const isChecked = e.target.checked;
+    setIsAdminUBWeightLocationChecked(isChecked);
+
+    if (!isChecked) {
+      setFieldValue('ubWeightRestriction', `${values.ubWeightRestriction}`);
+    } else if (isChecked && values.ubWeightRestriction) {
+      setFieldValue('ubWeightRestriction', `${values.ubWeightRestriction}`);
+    } else {
+      setFieldValue('ubWeightRestriction', null);
+    }
+  };
+
+  useEffect(() => {
+    if (civilianTDYUBMove) {
+      setFieldValue('ubAllowance', `${entitlements.unaccompaniedBaggageAllowance}`);
+    }
+  }, [setFieldValue, entitlements.unaccompaniedBaggageAllowance, civilianTDYUBMove]);
+
+  // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
+  const showcivilianTDYUBAllowanceWarning = values.ubAllowance > 350 && values.ubAllowance <= 2000;
+
+  let civilianTDYUBAllowanceWarning = '';
+  if (showcivilianTDYUBAllowanceWarning) {
+    civilianTDYUBAllowanceWarning = (
+      <div className={styles.civilianUBAllowanceWarning}>
+        350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.
+      </div>
+    );
+  }
 
   return (
     <div className={styles.AllowancesDetailForm}>
@@ -172,6 +214,38 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         <dt>Standard weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
       </dl>
+      {enableUB && civilianTDYUBMove && (
+        <MaskedTextField
+          data-testid="civilianTdyUbAllowance"
+          warning={civilianTDYUBAllowanceWarning}
+          defaultValue="0"
+          name="ubAllowance"
+          id="civilianTdyUbAllowance"
+          mask={Number}
+          scale={0}
+          signed={false}
+          thousandsSeparator=","
+          lazy={false}
+          isDisabled={formIsDisabled}
+          label={
+            <Label className={styles.labelwithToolTip}>
+              If the customer&apos;s orders specify a UB weight allowance, enter it here.
+              <ToolTip
+                text={
+                  <span className={styles.toolTipText}>
+                    Optional. If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                  </span>
+                }
+                position="left"
+                icon="info-circle"
+                color="blue"
+                data-testid="civilianTDYUBAllowanceToolTip"
+                closeOnLeave
+              />
+            </Label>
+          }
+        />
+      )}
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           data-testid="ocieInput"
@@ -217,6 +291,31 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       )}
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
+          data-testid="adminUBWeightLocation"
+          id="adminUBWeightLocation"
+          name="adminRestrictedUBWeightLocation"
+          label="Admin restricted UB weight location"
+          isDisabled={formIsDisabled}
+          onChange={handleAdminUBWeightLocationChange}
+          checked={isAdminUBWeightLocationChecked}
+        />
+      </div>
+      {isAdminUBWeightLocationChecked && (
+        <MaskedTextField
+          data-testid="ubWeightRestrictionInput"
+          id="ubWeightRestrictionId"
+          name="ubWeightRestriction"
+          label="UB Weight Restriction (lbs)"
+          mask={Number}
+          scale={0}
+          signed={false}
+          thousandsSeparator=","
+          lazy={false}
+          isDisabled={formIsDisabled}
+        />
+      )}
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
           id="dependentsAuthorizedInput"
           data-testid="dependentsAuthorizedInput"
           name="dependentsAuthorized"
@@ -232,11 +331,13 @@ AllowancesDetailForm.propTypes = {
   branchOptions: DropdownArrayOf.isRequired,
   header: PropTypes.string,
   formIsDisabled: PropTypes.bool,
+  civilianTDYUBMove: PropTypes.bool,
 };
 
 AllowancesDetailForm.defaultProps = {
   header: null,
   formIsDisabled: false,
+  civilianTDYUBMove: false,
 };
 
 export default AllowancesDetailForm;

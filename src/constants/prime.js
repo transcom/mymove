@@ -4,6 +4,8 @@ import { serviceItemCodes } from 'content/serviceItems';
 export const createServiceItemModelTypes = {
   MTOServiceItemOriginSIT: 'MTOServiceItemOriginSIT',
   MTOServiceItemDestSIT: 'MTOServiceItemDestSIT',
+  MTOServiceItemInternationalOriginSIT: 'MTOServiceItemInternationalOriginSIT',
+  MTOServiceItemInternationalDestSIT: 'MTOServiceItemInternationalDestSIT',
   MTOServiceItemDomesticShuttle: 'MTOServiceItemDomesticShuttle',
   MTOServiceItemDomesticCrating: 'MTOServiceItemDomesticCrating',
   MTOServiceItemInternationalCrating: 'MTOServiceItemInternationalCrating',

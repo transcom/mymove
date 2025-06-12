@@ -64,6 +64,21 @@ paths:
           type: string
           format: date-time
           description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
+        - in: query
+          name: acknowledged
+          type: boolean
+          x-nullable: true
+          description: 'When set to true, only moves where both the move and all its shipments are acknowledged will be included in the results. When set to false, only moves where either the move or any one (or more) of its shipments are NOT acknowledged will be included in the results.'
+        - in: query
+          name: acknowledgedAfter
+          type: string
+          format: date-time
+          description: Only return moves where the move or any one (or more) of its shipments was acknowledged after this time. Formatted like "2021-07-23T18:30:47.116Z"
+        - in: query
+          name: acknowledgedBefore
+          type: string
+          format: date-time
+          description: Only return moves where the move or any one (or more) of its shipments was acknowledged before this time. Formatted like "2021-07-23T18:30:47.116Z"
       responses:
         '200':
           description: Successfully retrieved moves. A successful fetch might still return zero moves.
@@ -190,6 +205,35 @@ paths:
           $ref: 'responses/Conflict.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: 'responses/UnprocessableEntity.yaml'
+        '500':
+          $ref: '#/responses/ServerError'
+  /move-task-orders/acknowledge:
+    patch:
+      summary: acknowledgeMovesAndShipments
+      description: |
+        ### Functionality
+        This endpoint **updates** the Moves and Shipments to indicate that the Prime has acknowledged the Moves and Shipments have been received.
+        The Move and Shipment data is expected to be sent in the request body.
+      operationId: acknowledgeMovesAndShipments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: 'definitions/prime/AcknowledgeMoves.yaml'
+      tags:
+        - moveTaskOrder
+      responses:
+        '200':
+          description: Successfully updated Move and Shipment Acknowledgements.
+          schema:
+            $ref: 'definitions/prime/AcknowledgeMovesShipmentsSuccessResponse.yaml'
         '422':
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
@@ -756,6 +800,82 @@ paths:
 
         **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
         Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
+
+        ---
+
+        **`MTOServiceItemInternationalOriginSIT`**
+
+        MTOServiceItemInternationalOriginSIT is a subtype of MTOServiceItem.
+
+        This model type describes a international origin SIT service item. Items can be created using this
+        model type with the following codes:
+
+        **IOFSIT**
+
+        **1st day origin SIT service item**. When a IOFSIT is requested, the API will auto-create the following group of service items:
+          * IOFSIT - International origin 1st day SIT
+          * IOASIT - International origin Additional day SIT
+          * IOPSIT - International origin SIT pickup
+          * IOSFSC - International origin SIT fuel surcharge
+
+        **IOASIT**
+
+        **Addt'l days origin SIT service item**. This represents an additional day of storage for the same item.
+        Additional IOASIT service items can be created and added to an existing shipment that **includes a IOFSIT service item**.
+
+        ---
+
+        **`MTOServiceItemInternationalDestSIT`**
+
+        MTOServiceItemInternationalDestSIT is a subtype of MTOServiceItem.
+
+        This model type describes a international destination SIT service item. Items can be created using this
+        model type with the following codes:
+
+        **IDFSIT**
+
+        **1st day destination SIT service item**.
+
+        These additional fields are optional for creating a IDFSIT:
+          * `firstAvailableDeliveryDate1`
+            * string <date>
+            * First available date that Prime can deliver SIT service item.
+            * firstAvailableDeliveryDate1, dateOfContact1, and timeMilitary1 are required together
+          * `dateOfContact1`
+            * string <date>
+            * Date of attempted contact by the prime corresponding to `timeMilitary1`
+            * dateOfContact1, timeMilitary1, and firstAvailableDeliveryDate1 are required together
+          * `timeMilitary1`
+            * string\d{4}Z
+            * Time of attempted contact corresponding to `dateOfContact1`, in military format.
+            * timeMilitary1, dateOfContact1, and firstAvailableDeliveryDate1 are required together
+          * `firstAvailableDeliveryDate2`
+            * string <date>
+            * Second available date that Prime can deliver SIT service item.
+            * firstAvailableDeliveryDate2, dateOfContact2, and timeMilitary2 are required together
+          * `dateOfContact2`
+            * string <date>
+            * Date of attempted contact delivery by the prime corresponding to `timeMilitary2`
+            * dateOfContact2, timeMilitary2, and firstAvailableDeliveryDate2 are required together
+          * `timeMilitary2`
+            * string\d{4}Z
+            * Time of attempted contact corresponding to `dateOfContact2`, in military format.
+            * timeMilitary2, dateOfContact2, and firstAvailableDeliveryDate2 are required together
+
+        When a IDFSIT is requested, the API will auto-create the following group of service items:
+          * IDFSIT - International destination 1st day SIT
+          * IDASIT - International destination Additional day SIT
+          * IDDSIT - International destination SIT delivery
+          * IDSFSC - International destination SIT fuel surcharge
+
+        **NOTE** When providing the `sitEntryDate` value in the payload, please ensure that the date is not BEFORE
+        `firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it is, you will receive an error response.
+
+        **IDASIT**
+
+        **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
+        Additional IDASIT service items can be created and added to an existing shipment that **includes a IDFSIT service item**.
+
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -822,6 +942,14 @@ paths:
         - DOFSIT
         - DDSFSC
         - DOSFSC
+        - IDASIT
+        - IDDSIT
+        - IDFSIT
+        - IOASIT
+        - IOPSIT
+        - IOFSIT
+        - IDSFSC
+        - IOSFSC
 
         The following Accessorial service items can be resubmitted following a rejection:
         - IOSHUT
@@ -1269,6 +1397,37 @@ paths:
             }
           ]
         ```
+
+        **IUBPK - International UB Pack**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        **IUBUPK - International UB Unpack**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        **UBP - International UB**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
         ---
 
         International Basic Service Items & Accepted Payment Request Parameters:
@@ -1459,15 +1618,15 @@ paths:
       tags:
         - addresses
       parameters:
-      - in: path
-        name: search
-        type: string
-        required: true
+        - in: path
+          name: search
+          type: string
+          required: true
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
-            $ref: "#/definitions/VLocations"
+            $ref: '#/definitions/VLocations'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -1738,6 +1897,11 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       ppmType:
         type: string
         enum:
@@ -1758,12 +1922,16 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemBasic.yaml'
   MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
+  MTOServiceItemInternationalDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalDestSIT.yaml'
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDomesticCrating.yaml'
   MTOServiceItemInternationalCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemInternationalCrating.yaml'
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
+  MTOServiceItemInternationalOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
   MTOServiceItemDomesticShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
@@ -1808,6 +1976,8 @@ definitions:
           This should be populated for the following service items:
             * DOASIT(Domestic origin Additional day SIT)
             * DDASIT(Domestic destination Additional day SIT)
+            * IOASIT(International origin Additional day SIT)
+            * IDASIT(International destination Additional day SIT)
 
           Both take in the following param keys:
             * `SITPaymentRequestStart`
@@ -1852,6 +2022,14 @@ definitions:
         * DOFSIT - UpdateMTOServiceItemSIT
         * DOSFSC - UpdateMTOServiceItemSIT
         * DDSFSC - UpdateMTOServiceItemSIT
+        * IDDSIT - UpdateMTOServiceItemSIT
+        * IDFSIT - UpdateMTOServiceItemSIT
+        * IDASIT - UpdateMTOServiceItemSIT
+        * IOPSIT - UpdateMTOServiceItemSIT
+        * IOASIT - UpdateMTOServiceItemSIT
+        * IOFSIT - UpdateMTOServiceItemSIT
+        * IOSFSC - UpdateMTOServiceItemSIT
+        * IDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
         * PODFSC - UpdateMTOServiceItemInternationalPortFSC
@@ -1894,6 +2072,10 @@ definitions:
             enum:
               - DDSHUT # Domestic Destination Shuttle
               - DOSHUT # Domestic Origin Shuttle
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
   UpdateMTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
       Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
@@ -1942,6 +2124,14 @@ definitions:
               - DOASIT # Domestic Origin Add'l Days SIT
               - DOFSIT # Domestic Origin 1st Day SIT
               - DOSFSC # Domestic Origin Fuel Surcharge
+              - IDDSIT # International Destination SIT Delivery
+              - IDASIT # International Destination Add'l Days SIT
+              - IDFSIT # International Destination 1st Day SIT
+              - IDSFSC # International Destination Fuel Surcharge
+              - IOPSIT # International Origin SIT Pickup
+              - IOASIT # International Origin Add'l Days SIT
+              - IOFSIT # International Origin 1st Day SIT
+              - IOSFSC # International Origin Fuel Surcharge
           sitDepartureDate:
             format: date
             type: string
@@ -2271,7 +2461,7 @@ definitions:
   VLocations:
     type: array
     items:
-      $ref: "definitions/VLocation.yaml"
+      $ref: 'definitions/VLocation.yaml'
 responses:
   InvalidRequest:
     description: The request payload is invalid.

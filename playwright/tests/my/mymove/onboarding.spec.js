@@ -11,9 +11,6 @@ test.describe('Onboarding', () => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
 
-    // Input validation code
-    await customerPage.submitParameterValue();
-
     // Branch/DOD ID section
     await customerPage.waitForPage.onboardingDodId();
     await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Space Force' });
@@ -36,7 +33,7 @@ test.describe('Onboarding', () => {
     // Current address section
     await customerPage.waitForPage.onboardingCurrentAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.locator('input[id="current_residence-location-input"]').fill('08004');
+    await page.locator('input[id="current_residence-input"]').fill('08004');
     await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
@@ -44,7 +41,7 @@ test.describe('Onboarding', () => {
     // Backup mailing address section
     await customerPage.waitForPage.onboardingBackupAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.locator('input[id="backup_mailing_address-location-input"]').fill('08004');
+    await page.locator('input[id="backup_mailing_address-input"]').fill('08004');
     await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
@@ -66,12 +63,6 @@ test.describe('(MultiMove) Onboarding', () => {
   test('A customer can go through onboarding', async ({ page, customerPage }) => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
-
-    // if the user needs to input a validation code
-    const validationCodeInput = page.locator('[name="code"]');
-    if (await validationCodeInput.isVisible()) {
-      await customerPage.submitParameterValue();
-    }
 
     // Branch/DOD ID/Rank section
     await customerPage.waitForPage.onboardingDodId();
@@ -95,7 +86,7 @@ test.describe('(MultiMove) Onboarding', () => {
     await customerPage.waitForPage.onboardingCurrentAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
     await page.getByLabel('Address 1').blur();
-    await page.locator('input[id="current_residence-location-input"]').fill('08004');
+    await page.locator('input[id="current_residence-input"]').fill('08004');
     await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
@@ -104,7 +95,7 @@ test.describe('(MultiMove) Onboarding', () => {
     await customerPage.waitForPage.onboardingBackupAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
     await page.getByLabel('Address 1').blur();
-    await page.locator('input[id="backup_mailing_address-location-input"]').fill('08004');
+    await page.locator('input[id="backup_mailing_address-input"]').fill('08004');
     await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();

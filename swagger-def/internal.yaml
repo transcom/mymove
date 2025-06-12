@@ -37,6 +37,7 @@ tags:
   - name: featureFlags
   - name: okta_profile
   - name: application_parameters
+  - name: registration
 definitions:
   ApplicationParameters:
     type: object
@@ -475,6 +476,25 @@ definitions:
         description: The amount of SIT that will be reimbursed
         type: integer
         x-nullable: true
+      weightShipped:
+        description: The total weight shipped for a small package
+        type: integer
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      isProGear:
+        description: Indicates if the customer is claiming an expense as pro-gear or not
+        type: boolean
+        x-nullable: true
+      proGearBelongsToSelf:
+        description: Indicates if the pro-gear belongs to the customer or their spouse
+        type: boolean
+        x-nullable: true
+      proGearDescription:
+        description: A brief description of the pro-gear
+        type: string
     required:
       - movingExpenseType
       - description
@@ -586,11 +606,11 @@ definitions:
   TransportationOffices:
     type: array
     items:
-      $ref: "definitions/TransportationOffice.yaml"
+      $ref: 'definitions/TransportationOffice.yaml'
   VLocations:
     type: array
     items:
-      $ref: "definitions/VLocation.yaml"
+      $ref: 'definitions/VLocation.yaml'
   OfficeUser:
     type: object
     properties:
@@ -634,8 +654,8 @@ definitions:
       transportation_office:
         $ref: 'definitions/TransportationOffice.yaml'
       transportation_office_assignments:
-         type: array
-         items:
+        type: array
+        items:
           $ref: 'definitions/TransportationOfficeAssignment.yaml'
       created_at:
         type: string
@@ -1411,6 +1431,9 @@ definitions:
       weightRestriction:
         type: integer
         x-nullable: true
+      ubWeightRestriction:
+        type: integer
+        x-nullable: true
     required:
       - id
       - service_member_id
@@ -1463,6 +1486,11 @@ definitions:
         example: 1500
         x-nullable: true
         description: Indicates the weight restricted to a specific location.
+      ub_weight_restriction:
+        type: integer
+        example: 1100
+        x-nullable: true
+        description: Indicates the UB weight restricted to a specific location.
   CreateUpdateOrders:
     type: object
     properties:
@@ -1543,6 +1571,11 @@ definitions:
         example: 3
         x-nullable: true
         description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      civilian_tdy_ub_allowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.
     required:
       - service_member_id
       - issue_date
@@ -1984,6 +2017,8 @@ definitions:
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
+      ppmType:
+        $ref: 'definitions/PPMType.yaml'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -1994,7 +2029,7 @@ definitions:
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       destinationAddress:
-        $ref: "definitions/PPMDestinationAddress.yaml"
+        $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
@@ -2025,6 +2060,8 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
+      ppmType:
+        $ref: 'definitions/PPMType.yaml'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -2049,17 +2086,8 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       destinationAddress:
-        $ref: "definitions/PPMDestinationAddress.yaml"
+        $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:
@@ -2071,15 +2099,6 @@ definitions:
       hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
-        x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
         x-nullable: true
       w2Address:
         x-nullable: true
@@ -2101,7 +2120,7 @@ definitions:
         x-nullable: true
       hasProGear:
         description: >
-          Indicates whether PPM shipment has pro gear.
+          Indicates whether PPM shipment has pro-gear.
         type: boolean
         x-nullable: true
       proGearWeight:
@@ -2137,6 +2156,14 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
+      hasGunSafe:
+        description: >
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+      gunSafeWeight:
+        type: integer
         x-nullable: true
   CreateBoatShipment:
     description: Boat shipment information for the move.
@@ -2477,6 +2504,65 @@ definitions:
       - id
       - name
 paths:
+  /open/register:
+    post:
+      summary: Self registration of a customer. This creates a MilMove and Okta profile using the information provided.
+      description: Creates an Okta profile and MilMove profile using the information provided.
+      operationId: customerRegistration
+      tags:
+        - registration
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: registration
+          required: true
+          description: registration information
+          schema:
+            $ref: 'definitions/CreateOktaAndMilMoveUser.yaml'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: successfully registered service member
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          description: internal server error
+  /open/feature-flags/boolean/{key}:
+    post:
+      summary: Determines if a feature flag is enabled. Only used for unauthenticated users.
+      description: Determines if a feature flag is enabled.
+      operationId: booleanFeatureFlagUnauthenticated
+      tags:
+        - featureFlags
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: Feature Flag Key
+        - in: body
+          name: flagContext
+          required: true
+          description: context for the feature flag request
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Boolean Feature Flag Status
+          schema:
+            $ref: 'definitions/FeatureFlagBoolean.yaml'
+        '401':
+          description: request requires user authentication
+        '500':
+          description: internal server error
   /feature-flags/user-boolean/{key}:
     post:
       summary: Determines if a user has a feature flag enabled
@@ -2584,6 +2670,35 @@ paths:
             properties:
               isLoggedIn:
                 type: boolean
+        '400':
+          description: invalid request
+        '500':
+          description: server error
+  /open/validation_code:
+    post:
+      summary: Verifies if the provided validation code is active
+      description: Verifies if the provided validation code is active
+      operationId: validateCode
+      tags:
+        - validation_code
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - validationCode
+            properties:
+              validationCode:
+                type: string
+      responses:
+        '200':
+          description: Application Parameters
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+        '401':
+          description: request was not made with a supported session - it must come from the customer app
         '400':
           description: invalid request
         '500':
@@ -4445,15 +4560,15 @@ paths:
       tags:
         - addresses
       parameters:
-      - in: path
-        name: search
-        type: string
-        required: true
+        - in: path
+          name: search
+          type: string
+          required: true
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
-            $ref: "#/definitions/VLocations"
+            $ref: '#/definitions/VLocations'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -4462,7 +4577,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  "/mto_shipments":
+  '/mto_shipments':
     post:
       summary: createMTOShipment
       description: |

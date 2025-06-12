@@ -1,6 +1,6 @@
-import React, { useEffect, useReducer, useCallback } from 'react';
+import React, { useEffect, useReducer, useCallback, useState } from 'react';
 import { Link, useNavigate, useParams, useLocation, generatePath } from 'react-router-dom';
-import { Button } from '@trussworks/react-uswds';
+import { Button, ErrorMessage } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +9,7 @@ import ordersFormValidationSchema from './ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { getTacValid, getLoa, updateOrder } from 'services/ghcApi';
+import { getTacValid, getLoa, updateOrder, getResponseError } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { tooRoutes, tioRoutes } from 'constants/routes';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -33,11 +33,12 @@ const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
+const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
   const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
+  const [serverError, setServerError] = useState(null);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { state } = useLocation();
@@ -71,6 +72,11 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
       handleClose();
     },
     onError: (error) => {
+      const message = getResponseError(
+        error,
+        'Something went wrong, and your changes were not saved. Please refresh the page and try again.',
+      );
+      setServerError(message);
       const errorMsg = error?.response?.body;
       milmoveLogger.error(errorMsg);
     },
@@ -190,6 +196,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
+    dependentsAuthorized,
   } = entitlement;
 
   useEffect(() => {
@@ -310,11 +317,17 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     ntsSac: order?.ntsSac,
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
     payGrade: order?.grade,
+    dependentsAuthorized,
   };
 
   return (
     <div className={styles.sidebar}>
-      <Formik initialValues={initialValues} validationSchema={ordersFormValidationSchema} onSubmit={onSubmit}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={ordersFormValidationSchema}
+        onSubmit={onSubmit}
+        validateOnChange
+      >
         {(formik) => {
           // onBlur, if the value has 4 digits, run validator and show warning if invalid
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
@@ -375,6 +388,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                       documentId={documentId}
                       files={ordersDocuments}
                       documentType={MOVE_DOCUMENT_TYPE.ORDERS}
+                      onAddFile={onAddFile}
                     />
                     <DocumentViewerFileManager
                       orderId={orderId}
@@ -382,6 +396,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                       files={amendedDocuments}
                       documentType={MOVE_DOCUMENT_TYPE.AMENDMENTS}
                       updateAmendedDocument={updateAmendedDocument}
+                      onAddFile={onAddFile}
                     />
                   </Restricted>
                 </div>
@@ -432,6 +447,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                     />
                   </Restricted>
                 </div>
+                {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
                 <Restricted to={permissionTypes.updateOrders}>
                   <div className={styles.bottom}>
                     <div className={styles.buttonGroup}>

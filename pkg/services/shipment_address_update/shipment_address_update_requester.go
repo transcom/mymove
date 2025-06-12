@@ -38,10 +38,10 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 	}
 }
 
-func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate, isInternationalShipment bool) (bool, error) {
+func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate) (bool, error) {
 
 	// We calculate and set the distance between the old and new address
-	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, isInternationalShipment)
+	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
 	if err != nil {
 		return false, err
 	}
@@ -122,11 +122,12 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 		return false, nil
 	}
 
-	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode, false)
+	// this only runs for domestic shipments so putting false for the isInternationalShipment value here
+	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode)
 	if err != nil {
 		return false, err
 	}
-	newDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, newDeliveryAddress.PostalCode, false)
+	newDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, newDeliveryAddress.PostalCode)
 	if err != nil {
 		return false, err
 	}
@@ -178,7 +179,14 @@ func (f *shipmentAddressUpdateRequester) doesShipmentContainApprovedDestinationS
 		for _, serviceItem := range serviceItems {
 			serviceCode := serviceItem.ReService.Code
 			status := serviceItem.Status
-			if (serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC) &&
+			if (serviceCode == models.ReServiceCodeDDASIT ||
+				serviceCode == models.ReServiceCodeDDDSIT ||
+				serviceCode == models.ReServiceCodeDDFSIT ||
+				serviceCode == models.ReServiceCodeDDSFSC ||
+				serviceCode == models.ReServiceCodeIDASIT ||
+				serviceCode == models.ReServiceCodeIDDSIT ||
+				serviceCode == models.ReServiceCodeIDFSIT ||
+				serviceCode == models.ReServiceCodeIDSFSC) &&
 				status == models.MTOServiceItemStatusApproved {
 				return true
 			}
@@ -272,11 +280,21 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
 
+	// Check if shipmentType's delivery address can be updated and set pickup address.
+	var originalPickupAddress models.Address
+	canUpdateDestAddress := models.PrimeCanUpdateDeliveryAddress(shipment.ShipmentType)
+	if canUpdateDestAddress {
+		originalPickupAddress = *shipment.PickupAddress
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
+			originalPickupAddress = shipment.StorageFacility.Address
+		}
+	}
+
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
-	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
-		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG and NTS-Release shipments")
+	if !canUpdateDestAddress {
+		return nil, apperror.NewUnprocessableEntityError("\ndestination address cannot be created or updated for PPM and NTS shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
@@ -317,7 +335,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		serviceItems := shipment.MTOServiceItems
 		for _, serviceItem := range serviceItems {
 			serviceCode := serviceItem.ReService.Code
-			if serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC {
+			if serviceCode == models.ReServiceCodeDDASIT ||
+				serviceCode == models.ReServiceCodeDDDSIT ||
+				serviceCode == models.ReServiceCodeDDFSIT ||
+				serviceCode == models.ReServiceCodeDDSFSC ||
+				serviceCode == models.ReServiceCodeIDASIT ||
+				serviceCode == models.ReServiceCodeIDDSIT ||
+				serviceCode == models.ReServiceCodeIDFSIT ||
+				serviceCode == models.ReServiceCodeIDSFSC {
 				if serviceItem.SITDestinationOriginalAddressID != nil {
 					addressUpdate.SitOriginalAddressID = serviceItem.SITDestinationOriginalAddressID
 				}
@@ -340,14 +365,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		if addressUpdate.NewSitDistanceBetween != nil {
 			distanceBetweenOld = *addressUpdate.NewSitDistanceBetween
 		} else {
-			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode, false)
+			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode)
 		}
 		if err != nil {
 			return nil, err
 		}
 
 		// calculating distance between the new address update & the SIT
-		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, false)
+		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
 		if err != nil {
 			return nil, err
 		}
@@ -372,39 +397,29 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	// international shipments don't need to be concerned with shorthaul/linehaul
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-			if err != nil {
-				return nil, err
-			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+		if canUpdateDestAddress {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "destination address cannot be updated for PPM and NTS shipments")
 		}
 	}
 
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-			if err != nil {
-				return nil, err
-			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+		if canUpdateDestAddress {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "destination address update requests cannot be updated for PPM and NTS shipments")
 		}
 	}
 
 	if !updateNeedsTOOReview {
-		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate, isInternationalShipment)
+		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate)
 		if err != nil {
 			return nil, err
 		}
@@ -437,6 +452,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 		existingMoveStatus := move.Status
 		if updateNeedsTOOReview {
+			shipment.Status = models.MTOShipmentStatusApprovalsRequested
+
 			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 			if err != nil {
 				return err
@@ -487,7 +504,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.SITDurationUpdates", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -509,7 +526,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
 
 		var haulPricingTypeHasChanged bool
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
+		if shipment.ShipmentType == models.MTOShipmentTypeHHG || shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			haulPricingTypeHasChanged, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
@@ -520,7 +537,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be HHG, NTSr or UB")
 		}
 
 		var shipmentDetails models.MTOShipment
@@ -630,6 +647,14 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		addressUpdate.OfficeRemarks = &tooRemarks
 	}
 
+	if models.IsShipmentApprovable(shipment) {
+		shipment.Status = models.MTOShipmentStatusApproved
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
+	} else {
+		shipment.Status = models.MTOShipmentStatusApprovalsRequested
+	}
+
 	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		verrs, txnErr := appCtx.DB().ValidateAndSave(&addressUpdate)
 		if verrs.HasAny() {
@@ -684,8 +709,8 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 					pickupZip = *portZip
 					destZip = shipment.DestinationAddress.PostalCode
 				}
-				// we need to get the mileage from DTOD first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
+				// we need to get the mileage first, the db proc will consume that
+				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip)
 				if err != nil {
 					return err
 				}

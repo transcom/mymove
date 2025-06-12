@@ -28,6 +28,7 @@ import {
   cancelMove,
   updateFinancialFlag,
   updateMTOShipment,
+  sendPPMToCustomer,
 } from 'services/ghcApi';
 import {
   MOVE_STATUSES,
@@ -36,6 +37,7 @@ import {
   FEATURE_FLAG_KEYS,
   technicalHelpDeskURL,
 } from 'shared/constants';
+import { isPPMAboutInfoComplete } from 'utils/shipments';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -89,6 +91,7 @@ const ServicesCounselingMoveDetails = ({
   const hasOrderDocuments = validOrdersDocuments?.length > 0;
 
   const { customer, entitlement: allowances, originDutyLocation, destinationDutyLocation } = order;
+  const isLocalMove = order?.order_type === ORDERS_TYPE.LOCAL_MOVE;
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
 
@@ -97,6 +100,7 @@ const ServicesCounselingMoveDetails = ({
   let counselorCanEdit;
   let counselorCanCancelMove;
   let counselorCanEditNonPPM;
+  let isMoveCancelled;
 
   const sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -204,7 +208,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
-    const submittedShipmentsNonPPM = submittedShipments.filter(
+    const submittedShipmentsPPMNonCloseout = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const ppmNeedsApprovalShipments = submittedShipments.filter(
@@ -217,7 +221,8 @@ const ServicesCounselingMoveDetails = ({
 
     const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const nonPpmApprovedShipments = nonPpmShipments.filter(
-      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+      (shipment) =>
+        shipment?.status === shipmentStatuses.APPROVED || shipment?.status === shipmentStatuses.APPROVALS_REQUESTED,
     );
     const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
       (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,
@@ -288,22 +293,52 @@ const ServicesCounselingMoveDetails = ({
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
+    isMoveCancelled = move.status === MOVE_STATUSES.CANCELED;
 
-    shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
+    shipmentsInfo = submittedShipmentsPPMNonCloseout.map((shipment) => {
       const editURL =
-        counselorCanEdit || counselorCanEditNonPPM
+        // This ternary checks if the shipment is a PPM. If so, PPM Shipments are editable at any time based on their ppm status.
+        // If the shipment is not a PPM, it uses the existing counselorCanEdit checks for move status
+        (shipment.shipmentType !== 'PPM' && (counselorCanEdit || counselorCanEditNonPPM)) ||
+        (shipment.shipmentType === 'PPM' &&
+          (shipment.ppmShipment.status === ppmShipmentStatuses.DRAFT ||
+            shipment.ppmShipment.status === ppmShipmentStatuses.SUBMITTED ||
+            shipment.ppmShipment.status === ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL))
           ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               shipmentId: shipment.id,
             })}`
           : '';
-      const viewURL = // Read only view of approved documents
-        shipment?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
-        (shipment?.ppmShipment?.weightTickets && shipment?.ppmShipment?.weightTickets[0]?.status)
-          ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH, {
+      let viewURL = '';
+      let completePpmForCustomerURL = '';
+
+      if (shipment?.shipmentType === 'PPM') {
+        // Read only view of approved documents
+        if (
+          shipment?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
+          (shipment?.ppmShipment?.weightTickets && shipment?.ppmShipment?.weightTickets[0]?.status)
+        ) {
+          viewURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH, {
+            moveCode,
+            shipmentId: shipment.id,
+          })}`;
+        }
+        // Complete PPM for Customer URL
+        if (shipment?.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) {
+          const aboutInfoComplete = isPPMAboutInfoComplete(shipment.ppmShipment);
+          if (!aboutInfoComplete) {
+            completePpmForCustomerURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_PPM_ABOUT_PATH, {
               moveCode,
               shipmentId: shipment.id,
-            })}`
-          : '';
+            })}`;
+          } else {
+            completePpmForCustomerURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+              moveCode,
+              shipmentId: shipment.id,
+            })}`;
+          }
+        }
+      }
+
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
@@ -358,6 +393,7 @@ const ServicesCounselingMoveDetails = ({
         displayInfo,
         editURL,
         viewURL,
+        completePpmForCustomerURL,
         shipmentType: shipment.shipmentType,
       };
     });
@@ -383,11 +419,11 @@ const ServicesCounselingMoveDetails = ({
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
-    dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
     weightRestriction: allowances.weightRestriction,
+    ubWeightRestriction: allowances.ubWeightRestriction,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
@@ -403,6 +439,7 @@ const ServicesCounselingMoveDetails = ({
     ordersType: order.order_type,
     ordersNumber: order.order_number,
     ordersTypeDetail: order.order_type_detail,
+    dependents: allowances.dependentsAuthorized,
     ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     tacMDC: order.tac,
     sacSDN: order.sac,
@@ -514,6 +551,20 @@ const ServicesCounselingMoveDetails = ({
     },
     onError: (error) => {
       setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
+    },
+  });
+
+  const { mutateAsync: handleSendPPMToCustomer } = useMutation(sendPPMToCustomer, {
+    onSuccess: (updatedPPMShipment) => {
+      mtoShipments?.forEach((shipment, key) => {
+        if (updatedPPMShipment.shipmentId === shipment.id) {
+          mtoShipments[key].ppmShipment = updatedPPMShipment;
+        }
+      });
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Failed to send PPM to customer.');
     },
   });
 
@@ -631,19 +682,24 @@ const ServicesCounselingMoveDetails = ({
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
 
   const allowedShipmentOptions = () => {
-    return (
-      <>
-        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-          HHG
-        </option>
-        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
-        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
-        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
-        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
-      </>
-    );
+    if (counselorCanEdit || counselorCanEditNonPPM) {
+      return (
+        <>
+          <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+            HHG
+          </option>
+          <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+          {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+          {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
+          {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+          {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+          {!isLocalMove && enableUB && isOconusMove && (
+            <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+          )}
+        </>
+      );
+    }
+    return <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>;
   };
 
   return (
@@ -736,7 +792,7 @@ const ServicesCounselingMoveDetails = ({
               </Grid>
             )}
             <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
-              <h1>Move details</h1>
+              <h1>Move Details</h1>
               {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
                 <div>
                   {(counselorCanEdit || counselorCanEditNonPPM) && (
@@ -791,8 +847,8 @@ const ServicesCounselingMoveDetails = ({
           <div className={styles.section} id="shipments">
             <DetailsPanel
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) &&
-                !isMoveLocked && (
+                !isMoveLocked &&
+                !isMoveCancelled && (
                   <ButtonDropdown
                     ariaLabel="Add a new shipment"
                     data-testid="addShipmentButton"
@@ -826,6 +882,9 @@ const ServicesCounselingMoveDetails = ({
                     displayInfo={shipment.displayInfo}
                     editURL={shipment.editURL}
                     viewURL={shipment.viewURL}
+                    sendPpmToCustomer={handleSendPPMToCustomer}
+                    counselorCanEdit={counselorCanEdit}
+                    completePpmForCustomerURL={shipment.completePpmForCustomerURL}
                     isSubmitted={false}
                     key={shipment.id}
                     shipmentId={shipment.id}
@@ -866,14 +925,13 @@ const ServicesCounselingMoveDetails = ({
             <DetailsPanel
               title="Orders"
               editButton={
-                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="view-edit-orders"
                     to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
                   >
-                    View and edit orders
+                    View {counselorCanEditOrdersAndAllowances() && 'and edit'} orders
                   </Link>
                 )
               }
@@ -886,20 +944,19 @@ const ServicesCounselingMoveDetails = ({
             <DetailsPanel
               title="Allowances"
               editButton={
-                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
                     to={`../${servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}`}
                   >
-                    Edit allowances
+                    {counselorCanEditOrdersAndAllowances() ? 'Edit ' : 'View'} allowances
                   </Link>
                 )
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

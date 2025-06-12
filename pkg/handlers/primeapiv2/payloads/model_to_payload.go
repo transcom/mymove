@@ -61,6 +61,7 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 		ContractNumber:                                 moveTaskOrder.Contractor.ContractNumber,
 		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		PrimeAcknowledgedAt:                            handlers.FmtDateTimePtr(moveTaskOrder.PrimeAcknowledgedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -195,6 +196,10 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 	if entitlement.WeightRestriction != nil {
 		weightRestriction = int64(*entitlement.WeightRestriction)
 	}
+	var ubWeightRestriction int64
+	if entitlement.UBWeightRestriction != nil {
+		ubWeightRestriction = int64(*entitlement.UBWeightRestriction)
+	}
 	return &primev2messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -207,11 +212,12 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		StorageInTransit:  sit,
-		TotalDependents:   totalDependents,
-		TotalWeight:       totalWeight,
-		WeightRestriction: &weightRestriction,
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		StorageInTransit:    sit,
+		TotalDependents:     totalDependents,
+		TotalWeight:         totalWeight,
+		WeightRestriction:   &weightRestriction,
+		UbWeightRestriction: &ubWeightRestriction,
+		ETag:                etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -476,8 +482,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 		SubmittedAt:                  handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                   handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                   handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		ActualPickupPostalCode:       ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:  ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                  ppmShipment.SITExpected,
 		SitEstimatedWeight:           handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
 		SitEstimatedEntryDate:        handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
@@ -549,6 +553,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
+		PrimeAcknowledgedAt:              handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt),
 	}
 
 	// Set up address payloads
@@ -617,6 +622,20 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
 			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
 		}
+	case models.ReServiceCodeIOFSIT, models.ReServiceCodeIOASIT, models.ReServiceCodeIOPSIT, models.ReServiceCodeIOSFSC:
+		var sitDepartureDate time.Time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+		payload = &primev2messages.MTOServiceItemInternationalOriginSIT{
+			ReServiceCode:        handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:               mtoServiceItem.Reason,
+			SitDepartureDate:     handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:         handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:        mtoServiceItem.SITPostalCode,
+			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
+			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
+		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time
 		var timeMilitary1, timeMilitary2 *string
@@ -647,6 +666,50 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 		}
 
 		payload = &primev2messages.MTOServiceItemDestSIT{
+			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                      mtoServiceItem.Reason,
+			DateOfContact1:              handlers.FmtDate(dateOfContact1),
+			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(timeMilitary1),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(firstAvailableDeliveryDate1),
+			DateOfContact2:              handlers.FmtDate(dateOfContact2),
+			TimeMilitary2:               handlers.FmtStringPtrNonEmpty(timeMilitary2),
+			FirstAvailableDeliveryDate2: handlers.FmtDate(firstAvailableDeliveryDate2),
+			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
+			SitCustomerContacted:        handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
+			SitRequestedDelivery:        handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
+		}
+	case models.ReServiceCodeIDFSIT, models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT, models.ReServiceCodeIDSFSC:
+		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time
+		var timeMilitary1, timeMilitary2 *string
+
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+
+		firstContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
+		secondContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
+		timeMilitary1 = &firstContact.TimeMilitary
+		timeMilitary2 = &secondContact.TimeMilitary
+
+		if !firstContact.DateOfContact.IsZero() {
+			dateOfContact1 = firstContact.DateOfContact
+		}
+
+		if !secondContact.DateOfContact.IsZero() {
+			dateOfContact2 = secondContact.DateOfContact
+		}
+
+		if !firstContact.FirstAvailableDeliveryDate.IsZero() {
+			firstAvailableDeliveryDate1 = firstContact.FirstAvailableDeliveryDate
+		}
+
+		if !secondContact.FirstAvailableDeliveryDate.IsZero() {
+			firstAvailableDeliveryDate2 = secondContact.FirstAvailableDeliveryDate
+		}
+
+		payload = &primev2messages.MTOServiceItemInternationalDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:                      mtoServiceItem.Reason,
 			DateOfContact1:              handlers.FmtDate(dateOfContact1),
@@ -726,10 +789,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primev2messages.MTOServiceItemDomesticShuttle{
-			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:          mtoServiceItem.Reason,
-			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
-			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
 	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
 		shuttleSI := &primev2messages.MTOServiceItemInternationalShuttle{

@@ -9,32 +9,27 @@ import (
 )
 
 type TPPSPaidInvoiceSuite struct {
-	testingsuite.BaseTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestTPPSPaidInvoiceSuite(t *testing.T) {
-	hs := &TPPSPaidInvoiceSuite{}
+	ts := &TPPSPaidInvoiceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
+	}
 
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }
 
 func (suite *TPPSPaidInvoiceSuite) TestParse() {
 
-	suite.Run("successfully parse simple TPPS Paid Invoice string", func() {
-		// This is a string representation of a test .csv file. Rows are new-line delimited, columns in each row are tab delimited, file ends in a empty row.
-		sampleTPPSPaidInvoiceString := `Invoice Number From Invoice	Document Create Date	Seller Paid Date	Invoice Total Charges	Line Description	Product Description	Line Billing Units	Line Unit Price	Line Net Charge	PO/TCN	Line Number	First Note Code	First Note Code Description	First Note To	First Note Message	Second Note Code	Second Note Code Description	Second Note To	Second Note Message	Third Note Code	Third Note Code Description	Third Note To	Third Note Message
-1841-7267-3	2024-07-29	2024-07-30	1151.55	DDP	DDP	3760	0.0077	28.95	1841-7267-826285fc	1                   	INT                                                                        	Notes to My Company - INT                                                            	CARR                	HQ50066								
-1841-7267-3	2024-07-29	2024-07-30	1151.55	FSC	FSC	3760	0.0014	5.39	1841-7267-aeb3cfea	4                   	INT                                                                        	Notes to My Company - INT                                                            	CARR                	HQ50066								
-1841-7267-3	2024-07-29	2024-07-30	1151.55	DLH	DLH	3760	0.2656	998.77	1841-7267-c8ea170b	2                   	INT                                                                        	Notes to My Company - INT                                                            	CARR                	HQ50066								
-1841-7267-3	2024-07-29	2024-07-30	1151.55	DUPK	DUPK	3760	0.0315	118.44	1841-7267-265c16d7	3                   	INT                                                                        	Notes to My Company - INT                                                            	CARR                	HQ50066								
-9436-4123-3	2024-07-29	2024-07-30	125.25	DDP	DDP	7500	0.0167	125.25	9436-4123-93761f93	1                   	INT                                                                        	Notes to My Company - INT                                                            	CARR                	HQ50057								
-
-`
-
+	suite.Run("successfully parse simple TPPS Paid Invoice file", func() {
+		testTPPSPaidInvoiceReportFilePath := "../../services/invoice/fixtures/tpps_paid_invoice_report_testfile.csv"
 		tppsPaidInvoice := TPPSData{}
-		tppsEntries, err := tppsPaidInvoice.Parse("", sampleTPPSPaidInvoiceString)
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath)
 		suite.NoError(err, "Successful parse of TPPS Paid Invoice string")
-		suite.Equal(len(tppsEntries), 5)
+		suite.Equal(5, len(tppsEntries))
 
 		for tppsEntryIndex := range tppsEntries {
 			if tppsEntryIndex == 0 {
@@ -137,4 +132,29 @@ func (suite *TPPSPaidInvoiceSuite) TestParse() {
 		}
 	})
 
+	suite.Run("successfully parse large TPPS Paid Invoice .csv file", func() {
+		testTPPSPaidInvoiceReportFilePath := "../../services/invoice/fixtures/tpps_paid_invoice_report_testfile_large_encoded.csv"
+		tppsPaidInvoice := TPPSData{}
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath)
+		suite.NoError(err, "Successful parse of TPPS Paid Invoice string")
+		suite.Equal(842, len(tppsEntries))
+	})
+
+	suite.Run("fails when TPPS data file path is empty", func() {
+		tppsPaidInvoice := TPPSData{}
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), "")
+
+		suite.Nil(tppsEntries)
+		suite.Error(err)
+		suite.Contains(err.Error(), "TPPS data file path is empty")
+	})
+
+	suite.Run("fails when file is not found", func() {
+		tppsPaidInvoice := TPPSData{}
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), "non_existent_file.csv")
+
+		suite.Nil(tppsEntries)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Unable to read TPPS paid invoice report from path non_existent_file.csv")
+	})
 }

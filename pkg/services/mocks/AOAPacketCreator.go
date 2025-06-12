@@ -15,8 +15,44 @@ type AOAPacketCreator struct {
 	mock.Mock
 }
 
+// CleanupAOAPacketDir provides a mock function with given fields: dirName
+func (_m *AOAPacketCreator) CleanupAOAPacketDir(dirName string) error {
+	ret := _m.Called(dirName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CleanupAOAPacketDir")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(dirName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CleanupAOAPacketFile provides a mock function with given fields: packetFile, closeFile
+func (_m *AOAPacketCreator) CleanupAOAPacketFile(packetFile afero.File, closeFile bool) error {
+	ret := _m.Called(packetFile, closeFile)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CleanupAOAPacketFile")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(afero.File, bool) error); ok {
+		r0 = rf(packetFile, closeFile)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateAOAPacket provides a mock function with given fields: appCtx, ppmShipmentID, isPaymentPacket
-func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, error) {
+func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, string, error) {
 	ret := _m.Called(appCtx, ppmShipmentID, isPaymentPacket)
 
 	if len(ret) == 0 {
@@ -24,8 +60,9 @@ func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShi
 	}
 
 	var r0 afero.File
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) (afero.File, error)); ok {
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) (afero.File, string, error)); ok {
 		return rf(appCtx, ppmShipmentID, isPaymentPacket)
 	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) afero.File); ok {
@@ -36,13 +73,19 @@ func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShi
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool) string); ok {
 		r1 = rf(appCtx, ppmShipmentID, isPaymentPacket)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, bool) error); ok {
+		r2 = rf(appCtx, ppmShipmentID, isPaymentPacket)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // VerifyAOAPacketInternal provides a mock function with given fields: appCtx, ppmShipmentID

@@ -7,6 +7,7 @@ import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS, MOVE_STATUSES } from '../../shared/constants';
 
 import { SelectShipmentType } from 'pages/MyMove/SelectShipmentType';
+import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('../../utils/featureFlags', () => ({
   ...jest.requireActual('../../utils/featureFlags'),
@@ -56,6 +57,30 @@ describe('SelectShipmentType', () => {
     mtoShipments: [],
     orders: [
       {
+        origin_duty_location: {
+          address: {
+            isOconus: false,
+          },
+        },
+        new_duty_location: {
+          address: {
+            isOconus: true,
+          },
+        },
+      },
+    ],
+  };
+
+  const oconusLocalMoveProps = {
+    updateMove: jest.fn(),
+    router: { navigate: jest.fn() },
+
+    loadMTOShipments: jest.fn(),
+    move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
+    mtoShipments: [],
+    orders: [
+      {
+        orders_type: ORDERS_TYPE.LOCAL_MOVE,
         origin_duty_location: {
           address: {
             isOconus: false,
@@ -298,6 +323,20 @@ describe('SelectShipmentType', () => {
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+    });
+
+    it('UB option does not show when orders type is local move', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      const props = {};
+      const wrapper = shallow(<SelectShipmentType {...oconusLocalMoveProps} {...props} />);
+      await wrapper;
+      expect(wrapper.state('enableUB')).toEqual(true);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+
+      // even if there is an OCONUS duty location, if the orders are local move we shouldn't see the UB option
+      const ubCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE}"]`);
+      expect(ubCard.length).toBe(0);
     });
   });
 

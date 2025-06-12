@@ -464,6 +464,96 @@ definitions:
           - reServiceCode
           - sitEntryDate
           - reason
+  MTOServiceItemInternationalDestSIT:
+    description: >-
+      Describes a international destination SIT service item. Subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IDFSIT
+              - IDASIT
+          dateOfContact1:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary1`.
+            x-nullable: true
+          dateOfContact2:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary2`.
+            x-nullable: true
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of attempted contact corresponding to `dateOfContact1`, in
+              military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of attempted contact corresponding to `dateOfContact2`, in
+              military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
+            x-nullable: true
+          sitDestinationFinalAddress:
+            $ref: '#/definitions/Address'
+          reason:
+            type: string
+            description: |
+              The reason item has been placed in SIT.
+            x-nullable: true
+            x-omitempty: false
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
+        required:
+          - reServiceCode
+          - sitEntryDate
+          - reason
   MTOServiceItemDomesticCrating:
     description: >-
       Describes a domestic crating/uncrating service item subtype of a
@@ -622,6 +712,64 @@ definitions:
           - reason
           - sitPostalCode
           - sitEntryDate
+  MTOServiceItemInternationalOriginSIT:
+    description: >-
+      Describes a international origin SIT service item. Subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IOFSIT
+              - IOASIT
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up SIT item.
+          sitPostalCode:
+            type: string
+            format: zip
+            example: '90210'
+            pattern: ^(\d{5}([\-]\d{4})?)$
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            x-nullable: true
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
+          sitHHGActualOrigin:
+            $ref: '#/definitions/Address'
+          sitHHGOriginalOrigin:
+            $ref: '#/definitions/Address'
+          requestApprovalsRequestedStatus:
+            type: boolean
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
+        required:
+          - reServiceCode
+          - reason
+          - sitPostalCode
+          - sitEntryDate
   MTOServiceItemShuttle:
     description: Describes a shuttle service item.
     allOf:
@@ -701,6 +849,10 @@ definitions:
               movers, based on weight tickets.
             x-nullable: true
             x-omitempty: false
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
         required:
           - reason
           - reServiceCode
@@ -1099,6 +1251,10 @@ definitions:
         * DOPSIT - UpdateMTOServiceItemSIT
         * DOASIT - UpdateMTOServiceItemSIT
         * DOFSIT - UpdateMTOServiceItemSIT
+        * IDDSIT - UpdateMTOServiceItemSIT
+        * IOPSIT - UpdateMTOServiceItemSIT
+        * IOASIT - UpdateMTOServiceItemSIT
+        * IOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
         * IDSHUT - UpdateMTOServiceItemInternationalShuttle
@@ -1157,6 +1313,10 @@ definitions:
             enum:
               - DDSHUT
               - DOSHUT
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
   UpdateMTOServiceItemInternationalShuttle:
     description: >
       Subtype used to provide the estimated weight and actual weight for
@@ -1536,6 +1696,10 @@ definitions:
               - DOPSIT
               - DOASIT
               - DOFSIT
+              - IDDSIT
+              - IOPSIT
+              - IOASIT
+              - IOFSIT
           sitDepartureDate:
             format: date
             type: string
@@ -1929,6 +2093,11 @@ definitions:
         type: integer
       weightRestriction:
         example: 1500
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      ubWeightRestriction:
+        example: 1200
         type: integer
         x-formatting: weight
         x-nullable: true
@@ -2328,6 +2497,8 @@ definitions:
       corresponding to the service item type.
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
+        * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT
+        * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle
         * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
@@ -2341,6 +2512,8 @@ definitions:
       - MTOServiceItemBasic
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
+      - MTOServiceItemInternationalOriginSIT
+      - MTOServiceItemInternationalDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticShuttle
       - MTOServiceItemInternationalShuttle
@@ -2947,17 +3120,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       destinationAddress:
         $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
@@ -2972,17 +3134,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require
@@ -3710,6 +3861,11 @@ definitions:
         $ref: '#/definitions/RateArea'
       destinationRateArea:
         $ref: '#/definitions/RateArea'
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -3821,6 +3977,11 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
   ClientError:
     type: object
     properties:
@@ -3908,6 +4069,9 @@ definitions:
       - MS
       - NSTH
       - NSTUB
+      - PODFSC
+      - POEFSC
+      - UBP
   MTOServiceItemDimension:
     description: >-
       The dimensions for either the item or the crate associated with a crating

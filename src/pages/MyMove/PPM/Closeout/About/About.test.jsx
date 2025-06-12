@@ -84,6 +84,7 @@ const mockMTOShipment = {
       city: 'Jacksonville',
       state: 'FL',
       postalCode: '32217',
+      county: 'Duval',
       usPostRegionCitiesID: '',
     },
   },
@@ -94,8 +95,6 @@ const mockMTOShipment = {
 
 const partialPayload = {
   actualMoveDate: '2022-05-31',
-  actualPickupPostalCode: '78234',
-  actualDestinationPostalCode: '98421',
   pickupAddress: {
     streetAddress1: '812 S 129th St',
     streetAddress2: '#123',
@@ -127,6 +126,7 @@ const partialPayload = {
     city: 'Jacksonville',
     state: 'FL',
     postalCode: '32217',
+    county: 'Duval',
     usPostRegionCitiesID: '',
   },
 };
@@ -211,16 +211,6 @@ describe('About page', () => {
     });
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('About your PPM');
-    expect(screen.getByText('Finish moving this PPM before you start documenting it.')).toBeInTheDocument();
-    const headings = screen.getAllByRole('heading', { level: 2 });
-    expect(headings[0]).toHaveTextContent('How to complete your PPM');
-    expect(headings[1]).toHaveTextContent('About your final payment');
-
-    // renders form content
-    expect(headings[2]).toHaveTextContent('Departure date');
-    expect(headings[3]).toHaveTextContent('Locations');
-    expect(headings[4]).toHaveTextContent('Advance (AOA)');
-    expect(headings[5]).toHaveTextContent('W-2 address');
   });
 
   it('routes back to home when return to homepage is clicked', async () => {

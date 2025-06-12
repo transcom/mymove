@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate, generatePath } from 'react-router-dom';
 import { Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
 
 import styles from './MoveQueue.module.scss';
 
@@ -31,10 +32,18 @@ import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import handleQueueAssignment from 'utils/queues';
+import { handleQueueAssignment, getQueue } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
-export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter = true) => {
+export const columns = (
+  moveLockFlag,
+  isQueueManagementEnabled,
+  queueType,
+  setRefetchQueue,
+  showBranchFilter = true,
+) => {
+  const isDestinationQueue = queueType === tooRoutes.DESTINATION_REQUESTS_QUEUE;
   const cols = [
     createHeader('ID', 'id', { id: 'id' }),
     createHeader(
@@ -86,26 +95,42 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
       id: 'emplid',
       isFilterable: true,
     }),
-    createHeader(
-      'Status',
-      (row) => {
-        return MOVE_STATUS_LABELS[`${row.status}`];
-      },
-      {
-        id: 'status',
-        isFilterable: true,
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
-      },
-    ),
+    !isDestinationQueue
+      ? createHeader(
+          'Status',
+          (row) => {
+            return MOVE_STATUS_LABELS[`${row.status}`];
+          },
+          {
+            id: 'status',
+            isFilterable: true,
+            Filter: (props) => (
+              <MultiSelectCheckBoxFilter
+                options={MOVE_STATUS_OPTIONS}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+              />
+            ),
+          },
+        )
+      : createHeader(
+          'Status',
+          (row) => {
+            return MOVE_STATUS_LABELS[`${row.status}`];
+          },
+          {
+            id: 'status',
+            disableSortBy: true,
+          },
+        ),
     createHeader('Move code', 'locator', {
       id: 'locator',
       isFilterable: true,
     }),
     createHeader(
-      'Requested move date',
+      'Requested move date(s)',
       (row) => {
-        return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
+        return row.requestedMoveDates;
       },
       {
         id: 'requestedMoveDate',
@@ -141,14 +166,22 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
       },
     ),
     createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
-    createHeader('Origin duty location', 'originDutyLocation.name', {
-      id: 'originDutyLocation',
-      isFilterable: true,
-      exportValue: (row) => {
-        return row.originDutyLocation?.name;
-      },
-    }),
-    createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    !isDestinationQueue
+      ? createHeader('Origin duty location', 'originDutyLocation.name', {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
+        })
+      : createHeader('Destination duty location', 'destinationDutyLocation.name', {
+          id: 'destinationDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.newDutyLocation?.name;
+          },
+        }),
+    ...(!isDestinationQueue ? [createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true })] : []),
     createHeader('Counseling office', 'counselingOffice', {
       id: 'counselingOffice',
       isFilterable: true,
@@ -167,11 +200,14 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 key={row.id}
-                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.TOO)}
+                onChange={(e) => {
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
+                  setRefetchQueue(true);
+                }}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
                   <option
                     value={officeUserId}
                     key={officeUserId}
@@ -197,7 +233,13 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
   return cols;
 };
 
-const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmentFFEnabled, activeRole }) => {
+const MoveQueue = ({
+  isQueueManagementFFEnabled,
+  userPrivileges,
+  isBulkAssignmentFFEnabled,
+  activeRole,
+  setRefetchQueue,
+}) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -275,7 +317,7 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
         className={styles.tableTabs}
         items={[
           <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={tooRoutes.BASE_MOVE_QUEUE}>
-            <span data-testid="closeout-tab-link" className="tab-title" title="Move Queue">
+            <span data-testid="task-orders-tab-link" className="tab-title" title="Move Queue">
               Task Order Queue
             </span>
           </NavLink>,
@@ -284,7 +326,7 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
             to={tooRoutes.BASE_DESTINATION_REQUESTS_QUEUE}
           >
-            <span className="tab-title" title="Destination Requests Queue">
+            <span data-testid="destination-requests-tab-link" className="tab-title" title="Destination Requests Queue">
               Destination Requests Queue
             </span>
           </NavLink>,
@@ -337,10 +379,10 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
           showPagination
           manualSortBy
           defaultCanSort
-          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          defaultSortedColumns={[{ id: 'status', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
@@ -370,16 +412,20 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
           title="Destination requests"
           handleClick={handleClick}
           useQueries={useDestinationRequestsQueueQueries}
           showCSVExport
           csvExportFileNamePrefix="Destination-Requests-Queue"
           csvExportQueueFetcher={getDestinationRequestsQueue}
-          csvExportQueueFetcherKey="destinationQueueMoves"
+          csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType={QUEUE_TYPES.DESTINATION_REQUESTS}
+          activeRole={activeRole}
         />
       </div>
     );
@@ -387,4 +433,12 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
   return <NotFound />;
 };
 
-export default MoveQueue;
+const mapStateToProps = (state) => {
+  return {
+    setRefetchQueue: state.generalState.setRefetchQueue,
+  };
+};
+
+const mapDispatchToProps = { setRefetchQueue: setRefetchQueueAction };
+
+export default connect(mapStateToProps, mapDispatchToProps)(MoveQueue);

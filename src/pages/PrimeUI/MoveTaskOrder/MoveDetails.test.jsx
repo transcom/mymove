@@ -196,6 +196,7 @@ const moveTaskOrder = {
     entitlement: {
       gunSafe: true,
       weightRestriction: 500,
+      ubWeightRestriction: 350,
     },
   },
 };
@@ -242,6 +243,11 @@ describe('PrimeUI MoveDetails page', () => {
         expect(adminRestrictedWeight.nextElementSibling.textContent).toBe(
           formatWeight(moveTaskOrder.order.entitlement.weightRestriction),
         );
+        const adminRestrictedUBWeight = screen.getByText('Admin Restricted UB Weight:');
+        expect(adminRestrictedUBWeight).toBeInTheDocument();
+        expect(adminRestrictedUBWeight.nextElementSibling.textContent).toBe(
+          formatWeight(moveTaskOrder.order.entitlement.ubWeightRestriction),
+        );
       });
     });
 
@@ -254,6 +260,16 @@ describe('PrimeUI MoveDetails page', () => {
 
       const uploadButton = screen.getByRole('link', { name: 'Upload Document' });
       expect(uploadButton).toBeInTheDocument();
+    });
+
+    it('displays the move acknowledge button', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      renderWithProviders(<MoveDetails />);
+
+      const acknowledgeButton = screen.getByLabelText('Acknowledge Move');
+      expect(acknowledgeButton).toBeInTheDocument();
+      expect(acknowledgeButton).toHaveAttribute('href');
+      expect(acknowledgeButton.textContent).toBe('Acknowledge Move');
     });
 
     it('counseling ready to be completed', async () => {

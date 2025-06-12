@@ -34,7 +34,7 @@ func BuildPaymentRequestToInterchangeControlNumber(db *pop.Connection, customs [
 	}
 
 	// for now, hack together an appcontext, so we don't have to change all of testdatagen
-	appCtx := appcontext.NewAppContext(db, nil, nil)
+	appCtx := appcontext.NewAppContext(db, nil, nil, nil)
 	icn, err := icnSequencer.NextVal(appCtx)
 	if err != nil {
 		log.Panic(fmt.Errorf("errors encountered getting random interchange control number: %v", err))

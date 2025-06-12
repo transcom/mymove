@@ -67,7 +67,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		_, userInfo := setupTestData()
 		transportationOffice := userInfo.TransportationOffice
 
-		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		queryBuilder := query.NewQueryBuilder()
 
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
@@ -106,7 +106,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	suite.Run("Finds existing user by email and associates with office user", func() {
 		existingUser, userInfo := setupTestData()
 		transportationOffice := userInfo.TransportationOffice
-		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		queryBuilder := query.NewQueryBuilder()
 
 		existingUserInfo := models.OfficeUser{
@@ -182,7 +182,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
 
-		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		queryBuilder := query.NewQueryBuilder()
 
 		officeUserInfo := models.OfficeUser{
@@ -269,7 +269,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
 
-		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		queryBuilder := query.NewQueryBuilder()
 
 		officeUserInfo := models.OfficeUser{
@@ -325,7 +325,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	// Bad transportation office ID
 	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
 		_, userInfo := setupTestData()
-		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return models.ErrFetchNotFound
@@ -346,7 +346,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	suite.Run("CreateOne validation error should rollback transaction", func() {
 		_, userInfo := setupTestData()
 		transportationOffice := userInfo.TransportationOffice
-		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
@@ -394,7 +394,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	suite.Run("CreateOne error should rollback transaction", func() {
 		_, userInfo := setupTestData()
 		transportationOffice := userInfo.TransportationOffice
-		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
@@ -453,7 +453,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			if tc.shouldOtherUniqueIDBeNil {
 				userInfo.OtherUniqueID = nil
 			}
-			appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+			appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 
 			fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 				switch model.(type) {

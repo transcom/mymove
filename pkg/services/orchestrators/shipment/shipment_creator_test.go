@@ -8,20 +8,40 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
+	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/move"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
+
+func setUpMockNotificationSender() notifications.NotificationSender {
+	// The UserUpdater needs a NotificationSender for sending user activity emails to system admins.
+	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
+	mockSender := notificationMocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("*notifications.UserAccountModified"),
+	).Return(nil)
+
+	return &mockSender
+}
 
 func (suite *ShipmentSuite) TestCreateShipment() {
 
 	// Setup in this area should only be for objects that can be created once for all the sub-tests. Any model data,
 	// mocks, or objects that can be modified in subtests should instead be set up in makeSubtestData.
 
-	createMTOShipmentMethodName := "CreateMTOShipment"
-	createPPMShipmentMethodName := "CreatePPMShipmentWithDefaultCheck"
-	updatePPMTypeMethodName := "UpdatePPMType"
+	const createMTOShipmentMethodName = "CreateMTOShipment"
+	const createPPMShipmentMethodName = "CreatePPMShipmentWithDefaultCheck"
+	const signCertificationMethodName = "SignCertificationPPMCounselingCompleted"
+	const updatePPMTypeMethodName = "UpdatePPMType"
 
 	type subtestDataObjects struct {
 		mockMTOShipmentCreator        *mocks.MTOShipmentCreator
@@ -33,7 +53,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		fakeError                     error
 	}
 
-	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool) (subtestData subtestDataObjects) {
+	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForSC bool) (subtestData subtestDataObjects) {
 		mockMTOShipmentCreator := mocks.MTOShipmentCreator{}
 		subtestData.mockMTOShipmentCreator = &mockMTOShipmentCreator
 
@@ -49,7 +69,10 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		mockMoveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
 		subtestData.mockMoveTaskOrderUpdater = &mockMoveTaskOrderUpdater
 
-		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, subtestData.mockBoatShipmentCreator, subtestData.mockMobileHomeShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater)
+		waf := entitlements.NewWeightAllotmentFetcher()
+		mockSender := setUpMockNotificationSender()
+		moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
+		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, subtestData.mockBoatShipmentCreator, subtestData.mockMobileHomeShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater, moveWeights)
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")
@@ -106,6 +129,26 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 					},
 				)
 		}
+
+		if returnErrorForSC {
+			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Invalid input found while validating the PPM shipment.")
+
+			subtestData.mockMoveTaskOrderUpdater.
+				On(
+					signCertificationMethodName,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("uuid.UUID"),
+					mock.AnythingOfType("uuid.UUID")).Return(subtestData.fakeError)
+
+		} else {
+			subtestData.mockMoveTaskOrderUpdater.
+				On(
+					signCertificationMethodName,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("uuid.UUID"),
+					mock.AnythingOfType("uuid.UUID")).Return(nil)
+		}
+
 		subtestData.mockMoveTaskOrderUpdater.
 			On(
 				updatePPMTypeMethodName,
@@ -118,7 +161,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 	}
 
 	suite.Run("Returns an InvalidInputError if there is an error with the shipment info that was input", func() {
-		subtestData := makeSubtestData(false, false)
+		subtestData := makeSubtestData(false, false, false)
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &models.MTOShipment{})
 
@@ -173,15 +216,58 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		tc := tc
 
 		suite.Run(fmt.Sprintf("Sets status as expected: %s", name), func() {
-			subtestData := makeSubtestData(false, false)
+			subtestData := makeSubtestData(false, false, false)
+			// Need a logged in user
+			lgu := uuid.Must(uuid.NewV4()).String()
+			user := models.User{
+				OktaID:    lgu,
+				OktaEmail: "email@example.com",
+			}
+			suite.MustSave(&user)
 
-			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &tc.shipment)
+			session := &auth.Session{
+				ApplicationName: auth.OfficeApp,
+				UserID:          user.ID,
+				IDToken:         "fake token",
+				Roles:           roles.Roles{},
+			}
+
+			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), &tc.shipment)
 
 			suite.Nil(err)
 
 			suite.Equal(tc.expectedStatus, mtoShipment.Status)
 		})
 	}
+
+	suite.Run("Sets SC PPM-specific status as expected:", func() {
+		subtestData := makeSubtestData(false, false, false)
+		shipment := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypePPM,
+			Status:       models.MTOShipmentStatusSubmitted,
+			PPMShipment:  &models.PPMShipment{},
+		}
+		expectedStatus := models.MTOShipmentStatusSubmitted
+
+		// Need a logged in user
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		identity, err := models.FetchUserIdentity(suite.DB(), scOfficeUser.User.OktaID)
+		suite.NoError(err)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *scOfficeUser.UserID,
+			IDToken:         "fake token",
+		}
+		session.Roles = append(session.Roles, identity.Roles...)
+		appCtx := suite.AppContextWithSessionForTest(session)
+
+		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)
+
+		suite.Nil(err)
+
+		suite.Equal(expectedStatus, mtoShipment.Status)
+	})
 
 	shipmentCreationTestCases := []models.MTOShipment{
 		{
@@ -203,9 +289,24 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		shipment := shipment
 
 		suite.Run(fmt.Sprintf("Calls necessary service objects for %s shipments", shipment.ShipmentType), func() {
-			appCtx := suite.AppContextForTest()
+			// Need a logged in user
+			lgu := uuid.Must(uuid.NewV4()).String()
+			user := models.User{
+				OktaID:    lgu,
+				OktaEmail: "email@example.com",
+			}
+			suite.MustSave(&user)
 
-			subtestData := makeSubtestData(false, false)
+			session := &auth.Session{
+				ApplicationName: auth.OfficeApp,
+				UserID:          user.ID,
+				IDToken:         "fake token",
+				Roles:           roles.Roles{},
+			}
+
+			appCtx := suite.AppContextWithSessionForTest(session)
+
+			subtestData := makeSubtestData(false, false, false)
 
 			// Need to start a transaction so we can assert the call with the correct appCtx
 			err := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
@@ -245,14 +346,29 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 	}
 
 	suite.Run("Sets MTOShipment info on PPMShipment", func() {
-		subtestData := makeSubtestData(false, false)
+		subtestData := makeSubtestData(false, false, false)
 
 		shipment := &models.MTOShipment{
 			ShipmentType: models.MTOShipmentTypePPM,
 			PPMShipment:  &models.PPMShipment{},
 		}
 
-		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), shipment)
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+
+		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), shipment)
 
 		suite.NoError(err)
 
@@ -267,16 +383,25 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		shipmentType              models.MTOShipmentType
 		returnErrorForMTOShipment bool
 		returnErrorForPPMShipment bool
+		returnErrorForSC          bool
 	}{
 		"error updating MTOShipment": {
 			shipmentType:              models.MTOShipmentTypeHHG,
 			returnErrorForMTOShipment: true,
 			returnErrorForPPMShipment: false,
+			returnErrorForSC:          false,
 		},
 		"error updating PPMShipment": {
 			shipmentType:              models.MTOShipmentTypePPM,
 			returnErrorForMTOShipment: false,
 			returnErrorForPPMShipment: true,
+			returnErrorForSC:          false,
+		},
+		"error updating as SC": {
+			shipmentType:              models.MTOShipmentTypePPM,
+			returnErrorForMTOShipment: false,
+			returnErrorForPPMShipment: false,
+			returnErrorForSC:          true,
 		},
 	}
 
@@ -285,7 +410,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		tc := tc
 
 		suite.Run(fmt.Sprintf("Returns transaction error if there is an %s", name), func() {
-			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment)
+			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment, tc.returnErrorForSC)
 
 			shipment := models.MTOShipment{
 				ShipmentType: tc.shipmentType,
@@ -295,7 +420,20 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 				shipment.PPMShipment = &models.PPMShipment{}
 			}
 
-			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &shipment)
+			// Need a logged in user
+			scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+			identity, err := models.FetchUserIdentity(suite.DB(), scOfficeUser.User.OktaID)
+			suite.NoError(err)
+
+			session := &auth.Session{
+				ApplicationName: auth.OfficeApp,
+				UserID:          *scOfficeUser.UserID,
+				IDToken:         "fake token",
+			}
+			session.Roles = append(session.Roles, identity.Roles...)
+			appCtx := suite.AppContextWithSessionForTest(session)
+
+			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)
 
 			suite.Nil(mtoShipment)
 
@@ -305,7 +443,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 	}
 
 	suite.Run("Returns error early if MTOShipment can't be created", func() {
-		subtestData := makeSubtestData(true, false)
+		subtestData := makeSubtestData(true, false, false)
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &models.MTOShipment{
 			ShipmentType: models.MTOShipmentTypePPM,

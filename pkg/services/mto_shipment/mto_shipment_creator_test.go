@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -14,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -29,7 +31,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(customs []factory.Custom
 	subtestData.move = factory.BuildMove(suite.DB(), customs, nil)
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 
@@ -45,7 +47,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestDataV2(customs []factory.Cust
 	subtestData.move = factory.BuildMove(suite.DB(), customs, nil)
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 
@@ -55,6 +57,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestDataV2(customs []factory.Cust
 }
 
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
+	futureDate := models.TimePointer(time.Now().AddDate(0, 0, 3)) //adds 3 days to current date
 	// Invalid ID fields set
 	suite.Run("invalid IDs found", func() {
 		subtestData := suite.createSubtestData(nil)
@@ -64,6 +67,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
 			},
 		}, nil)
 
@@ -77,78 +85,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NotEmpty(invalidErr.ValidationErrors)
 	})
 
-	suite.Run("Test requested pickup date requirement for various shipment types", func() {
-		subtestData := suite.createSubtestDataV2(nil)
-		creator := subtestData.shipmentCreator
-
-		// Default is HHG, but we set it explicitly below via the test cases
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    subtestData.move,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		testCases := []struct {
-			input        *time.Time
-			shipmentType models.MTOShipmentType
-			shouldError  bool
-		}{
-			{nil, models.MTOShipmentTypeHHG, true},
-			{&time.Time{}, models.MTOShipmentTypeHHG, true},
-			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHG, false},
-			{nil, models.MTOShipmentTypeHHGOutOfNTS, false},
-			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTS, false},
-			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHGOutOfNTS, false},
-			{nil, models.MTOShipmentTypePPM, false},
-			{models.TimePointer(time.Now()), models.MTOShipmentTypePPM, false},
-		}
-
-		for _, testCase := range testCases {
-			var err error
-			if testCase.shipmentType == models.MTOShipmentTypeHHGOutOfNTS || testCase.shipmentType == models.MTOShipmentTypeHHGIntoNTS {
-				storageFacility := factory.BuildStorageFacility(nil, nil, nil)
-				storageFacility.ID = uuid.Must(uuid.NewV4())
-
-				mtoShipmentWithStorageFacility := factory.BuildMTOShipment(nil, []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType: testCase.shipmentType,
-							Status:       models.MTOShipmentStatusSubmitted,
-						},
-					},
-					{
-						Model:    storageFacility,
-						LinkOnly: true,
-					},
-				}, nil)
-
-				mtoShipmentWithStorageFacilityClear := clearShipmentIDFields(&mtoShipmentWithStorageFacility)
-
-				_, err = creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentWithStorageFacilityClear)
-			} else {
-				mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-				mtoShipmentClear.ShipmentType = testCase.shipmentType
-				mtoShipmentClear.RequestedPickupDate = testCase.input
-
-				_, err = creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-			}
-
-			if testCase.shouldError {
-				if suite.Errorf(err, "should have errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input) {
-					suite.IsType(apperror.InvalidInputError{}, err)
-					suite.Contains(err.Error(), "RequestedPickupDate")
-				}
-			} else {
-				suite.NoErrorf(err, "should have not errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input)
-			}
-		}
-	})
-
 	// Happy path
 	suite.Run("If a domestic shipment is created successfully it should be returned", func() {
 		subtestData := suite.createSubtestData(nil)
@@ -158,6 +94,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
 			},
 		}, nil)
 
@@ -197,6 +138,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					State: "HI",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
 			},
 		}, nil)
 
@@ -240,40 +186,10 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				Model:    internationalAddress,
 				LinkOnly: true,
 			},
-		}, nil)
-
-		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
-
-		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-
-		suite.Error(err)
-		suite.Equal("failed to create pickup address - the country GB is not supported at this time - only US is allowed", err.Error())
-	})
-
-	suite.Run("If the shipment has an international address it should be returned", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
-
-		internationalAddress := factory.BuildAddress(nil, []factory.Customization{
 			{
-				Model: models.Country{
-					Country:     "GB",
-					CountryName: "UNITED KINGDOM",
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
 				},
-			},
-		}, nil)
-		// stubbed countries need an ID
-		internationalAddress.ID = uuid.Must(uuid.NewV4())
-
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    subtestData.move,
-				LinkOnly: true,
-			},
-			{
-				Model:    internationalAddress,
-				LinkOnly: true,
 			},
 		}, nil)
 
@@ -295,11 +211,21 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				Model:    subtestData.move,
 				LinkOnly: true,
 			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 		}, nil)
 		mtoShipment2 := factory.BuildMTOShipment(nil, []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
 			},
 		}, nil)
 
@@ -330,14 +256,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		destinationType := models.DestinationTypeHomeOfRecord
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
-
 		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
 			},
 			{
-				Model: models.MTOShipment{DestinationType: &destinationType},
+				Model: models.MTOShipment{DestinationType: &destinationType, RequestedPickupDate: futureDate},
 			},
 		}, nil)
 
@@ -381,7 +306,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{models.MTOShipmentTypeHHGOutOfNTS, false},
 			{models.MTOShipmentTypePPM, false},
 		}
-
 		for _, testCase := range testCases {
 			mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
 				{
@@ -390,7 +314,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				},
 				{
 					Model: models.MTOShipment{
-						ShipmentType: testCase.shipmentType,
+						ShipmentType:        testCase.shipmentType,
+						RequestedPickupDate: futureDate,
 					},
 				},
 			}, nil)
@@ -441,7 +366,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: futureDate,
 				},
 			},
 		}, nil)
@@ -471,8 +397,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
-					Status:       models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: futureDate,
 				},
 			},
 			{
@@ -506,6 +433,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					Status:                models.MTOShipmentStatusSubmitted,
 					NTSRecordedWeight:     &ntsRecordedWeight,
 					RequestedDeliveryDate: &requestedDeliveryDate,
+					RequestedPickupDate:   futureDate,
 				},
 			},
 		}, nil)
@@ -560,13 +488,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status:            models.MTOShipmentStatusSubmitted,
-					NTSRecordedWeight: &ntsRecordedWeight,
+					Status:              models.MTOShipmentStatusSubmitted,
+					NTSRecordedWeight:   &ntsRecordedWeight,
+					RequestedPickupDate: futureDate,
 				},
 			},
 		}, nil)
 		ntsrShipmentNoIDs := clearShipmentIDFields(&mtoShipment)
-		ntsrShipmentNoIDs.RequestedPickupDate = models.TimePointer(time.Now())
+		ntsrShipmentNoIDs.RequestedPickupDate = futureDate
 
 		// We don't need the shipment because it only returns data that wasn't saved.
 		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), ntsrShipmentNoIDs)
@@ -611,6 +540,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
 			},
 		}, nil)
 
@@ -658,7 +592,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MTOAgents: agents,
+					MTOAgents:           agents,
+					RequestedPickupDate: futureDate,
 				},
 			},
 		}, nil)
@@ -697,6 +632,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					ID: uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a"),
 				},
 			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 		}, nil)
 
 		mtoShipmentClear := clearShipmentIDFields(&shipment)
@@ -732,6 +672,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				Model:    subtestData.move,
 				LinkOnly: true,
 			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 		}, nil)
 		clearedShipment := clearShipmentIDFields(&shipment)
 
@@ -756,7 +701,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 		creator := subtestData.shipmentCreator
 		move := subtestData.move
-
 		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
 			{
 				Model:    move,
@@ -764,7 +708,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: futureDate,
 				},
 			},
 		}, nil)
@@ -806,17 +751,34 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		for _, tt := range testCases {
 			tt := tt
-			mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType: tt.shipmentType,
+
+			var mtoShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							RequestedPickupDate: futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:        tt.shipmentType,
+							RequestedPickupDate: futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedShipment := clearShipmentIDFields(&mtoShipment)
 
@@ -849,17 +811,34 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			var err error
-			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType: tt.shipmentType,
+
+			var parentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				parentShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							RequestedPickupDate: futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:        tt.shipmentType,
+							RequestedPickupDate: futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
@@ -867,19 +846,37 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.NoError(err)
 
 			// Create a new shipment, diverting from the parent
-			childShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              true,
-						DivertedFromShipmentID: &createdParentShipment.ID,
+			var childShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				childShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              true,
+							DivertedFromShipmentID: &createdParentShipment.ID,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				childShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              true,
+							DivertedFromShipmentID: &createdParentShipment.ID,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedChildShipment := clearShipmentIDFields(&childShipment)
 			clearedChildShipment.PrimeActualWeight = nil
@@ -910,17 +907,34 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			var err error
-			unDivertedParentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType: tt.shipmentType,
+
+			var unDivertedParentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				unDivertedParentShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							RequestedPickupDate: futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				unDivertedParentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:        tt.shipmentType,
+							RequestedPickupDate: futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedUndivertedParentShipment := clearShipmentIDFields(&unDivertedParentShipment)
 
@@ -928,19 +942,37 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.NoError(err)
 
 			// Create a new shipment, diverting from the parent
-			childFromParentDivertedShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              true,
-						DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+			var childFromParentDivertedShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				childFromParentDivertedShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              true,
+							DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				childFromParentDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              true,
+							DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedChildFromParentDivertedShipment := clearShipmentIDFields(&childFromParentDivertedShipment)
 			clearedChildFromParentDivertedShipment.PrimeActualWeight = nil
@@ -949,19 +981,37 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.NoError(err)
 
 			// Create a new shipment, diverting from the parent
-			childOfDivertedShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              true,
-						DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+			var childOfDivertedShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				childOfDivertedShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              true,
+							DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				childOfDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              true,
+							DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedChildOfDivertedShipment := clearShipmentIDFields(&childOfDivertedShipment)
 			clearedChildOfDivertedShipment.PrimeActualWeight = nil
@@ -991,19 +1041,38 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			uuid, _ := uuid.NewV4()
-			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              true,
-						DivertedFromShipmentID: &uuid,
+
+			var parentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				parentShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              true,
+							DivertedFromShipmentID: &uuid,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              true,
+							DivertedFromShipmentID: &uuid,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
@@ -1033,19 +1102,37 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			uuid, _ := uuid.NewV4()
-			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              false,
-						DivertedFromShipmentID: &uuid,
+			var parentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				parentShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              false,
+							DivertedFromShipmentID: &uuid,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              false,
+							DivertedFromShipmentID: &uuid,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
@@ -1075,18 +1162,35 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			uuid, _ := uuid.NewV4()
-			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						DivertedFromShipmentID: &uuid,
+			var parentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				parentShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							DivertedFromShipmentID: &uuid,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			} else {
+				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							DivertedFromShipmentID: &uuid,
+							RequestedPickupDate:    futureDate,
+						},
+					},
+				}, nil)
+			}
 
 			clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
@@ -1097,6 +1201,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	suite.Run("Child diversion shipment creation should inherit parent's weight", func() {
 		currentTime := time.Now()
+
 		parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1108,6 +1213,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				Model: models.MTOShipment{
 					Diversion:              true,
 					DivertedFromShipmentID: nil,
+					RequestedPickupDate:    futureDate,
 				},
 			},
 		}, nil)
@@ -1122,6 +1228,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				Model: models.MTOShipment{
 					Diversion:              true,
 					DivertedFromShipmentID: &parentShipment.ID,
+					RequestedPickupDate:    futureDate,
 				},
 			},
 		}, nil)
@@ -1147,6 +1254,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				Model: models.MTOShipment{
 					Diversion:              true,
 					DivertedFromShipmentID: nil,
+					RequestedPickupDate:    futureDate,
 				},
 			},
 		}, nil)
@@ -1161,6 +1269,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				Model: models.MTOShipment{
 					Diversion:              true,
 					DivertedFromShipmentID: &parentShipment.ID,
+					RequestedPickupDate:    futureDate,
 				},
 			},
 		}, nil)
@@ -1198,7 +1307,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+					ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+					RequestedPickupDate: futureDate,
 				},
 			},
 		}, nil)
@@ -1237,7 +1347,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
+					ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
+					RequestedPickupDate: futureDate,
 				},
 			},
 		}, nil)
@@ -1248,6 +1359,160 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Error(err)
 		suite.Equal("Secondary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTS), err.Error())
 		suite.IsType(apperror.InvalidInputError{}, err)
+	})
+
+	suite.Run("UB shipments will return an error if both addresses are CONUS", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					RequestedPickupDate: futureDate,
+				},
+			},
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+
+		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+		suite.Error(err)
+		suite.Equal("At least one address for a UB shipment must be OCONUS", err.Error())
+	})
+
+	suite.Run("RequestedPickupDate validation check - must be in the future for shipment types other than PPM", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		now := time.Now()
+		yesterday := now.AddDate(0, 0, -1)
+		tomorrow := now.AddDate(0, 0, 1)
+
+		testCases := []struct {
+			input        *time.Time
+			shipmentType models.MTOShipmentType
+			shouldError  bool
+		}{
+			// HHG
+			{nil, models.MTOShipmentTypeHHG, true},
+			{&time.Time{}, models.MTOShipmentTypeHHG, true},
+			{&yesterday, models.MTOShipmentTypeHHG, true},
+			{&now, models.MTOShipmentTypeHHG, true},
+			{&tomorrow, models.MTOShipmentTypeHHG, false},
+			// NTS
+			{nil, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&time.Time{}, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&now, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
+			// NTSR
+			{nil, models.MTOShipmentTypeHHGOutOfNTS, false},
+			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTS, false},
+			{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&now, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
+			// BOAT HAUL AWAY
+			{nil, models.MTOShipmentTypeBoatHaulAway, false},
+			{&time.Time{}, models.MTOShipmentTypeBoatHaulAway, false},
+			{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+			{&now, models.MTOShipmentTypeBoatHaulAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
+			// BOAT TOW AWAY
+			{nil, models.MTOShipmentTypeBoatTowAway, false},
+			{&time.Time{}, models.MTOShipmentTypeBoatTowAway, false},
+			{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+			{&now, models.MTOShipmentTypeBoatTowAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
+			// MOBILE HOME
+			{nil, models.MTOShipmentTypeMobileHome, false},
+			{&time.Time{}, models.MTOShipmentTypeMobileHome, false},
+			{&yesterday, models.MTOShipmentTypeMobileHome, true},
+			{&now, models.MTOShipmentTypeMobileHome, true},
+			{&tomorrow, models.MTOShipmentTypeMobileHome, false},
+			// UB
+			{nil, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&time.Time{}, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+			// PPM - should always pass validation
+			{nil, models.MTOShipmentTypePPM, false},
+			{&time.Time{}, models.MTOShipmentTypePPM, false},
+			{&yesterday, models.MTOShipmentTypePPM, false},
+			{&now, models.MTOShipmentTypePPM, false},
+			{&tomorrow, models.MTOShipmentTypePPM, false},
+		}
+
+		for _, testCase := range testCases {
+			// Default is HHG, but we set it explicitly below via the test cases
+			var mtoShipment models.MTOShipment
+			if testCase.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				mtoShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ShipmentType: testCase.shipmentType,
+						},
+					},
+				}, nil)
+			} else {
+				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType: testCase.shipmentType,
+						},
+					},
+				}, nil)
+			}
+
+			mtoShipment.RequestedPickupDate = testCase.input // Zero case does not merge correctly on customization
+
+			mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+			mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+
+			shipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+			testCaseInputString := ""
+			if testCase.input == nil {
+				testCaseInputString = "nil"
+			} else {
+				testCaseInputString = (*testCase.input).String()
+			}
+
+			if testCase.shouldError {
+				suite.Nil(shipment, "Should error for %s | %s", testCase.shipmentType, testCaseInputString)
+				suite.Error(err)
+				if testCase.input != nil && !(*testCase.input).IsZero() {
+					suite.Equal("RequestedPickupDate must be greater than or equal to tomorrow's date.", err.Error())
+				} else {
+					suite.Contains(err.Error(), fmt.Sprintf("RequestedPickupDate is required to create or modify %s %s shipment", GetAorAnByShipmentType(testCase.shipmentType), testCase.shipmentType))
+				}
+			} else {
+				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, testCaseInputString)
+				suite.NotNil(shipment)
+			}
+		}
 	})
 }
 

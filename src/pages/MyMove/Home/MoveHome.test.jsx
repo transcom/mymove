@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { v4 } from 'uuid';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { act, waitFor } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
@@ -382,9 +382,7 @@ const defaultPropsOrdersWithUnsubmittedShipments = {
             id: '0c7f88b8-75a9-41fe-b884-ea39e6024f24',
             moveTaskOrderID: 'cf2508aa-2b0a-47e9-8688-37b41623837d',
             ppmShipment: {
-              actualDestinationPostalCode: null,
               actualMoveDate: null,
-              actualPickupPostalCode: null,
               advanceAmountReceived: null,
               advanceAmountRequested: null,
               approvedAt: null,
@@ -597,9 +595,7 @@ const defaultPropsOrdersWithSubmittedShipments = {
             id: '0c7f88b8-75a9-41fe-b884-ea39e6024f24',
             moveTaskOrderID: 'cf2508aa-2b0a-47e9-8688-37b41623837d',
             ppmShipment: {
-              actualDestinationPostalCode: null,
               actualMoveDate: null,
-              actualPickupPostalCode: null,
               advanceAmountReceived: null,
               advanceAmountRequested: null,
               approvedAt: null,
@@ -782,9 +778,7 @@ const defaultPropsAmendedOrdersWithAdvanceRequested = {
             id: '322ebc9f-0ca8-4943-a7a8-39235f4e680b',
             moveTaskOrderID: '4918b8c9-5e0a-4d65-a6b8-6a7a6ce265d4',
             ppmShipment: {
-              actualDestinationPostalCode: null,
               actualMoveDate: null,
-              actualPickupPostalCode: null,
               advanceAmountReceived: null,
               advanceAmountRequested: 400000,
               approvedAt: null,
@@ -985,9 +979,7 @@ const defaultPropsWithAdvanceAndPPMApproved = {
             id: '322ebc9f-0ca8-4943-a7a8-39235f4e680b',
             moveTaskOrderID: '4918b8c9-5e0a-4d65-a6b8-6a7a6ce265d4',
             ppmShipment: {
-              actualDestinationPostalCode: null,
               actualMoveDate: null,
-              actualPickupPostalCode: null,
               advanceAmountReceived: null,
               advanceAmountRequested: 400000,
               advanceStatus: 'APPROVED',
@@ -1323,12 +1315,12 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
-      // shipment step button should now be "Add another shipment"
+      // shipment step button should now be "Add Shipment"
       const shipmentStep = wrapper.find('Step[step="3"]');
-      expect(shipmentStep.prop('actionBtnLabel')).toBe('Add another shipment');
+
       // confirm move request step should now be enabled
-      const confirmMoveRequest = wrapper.find('Step[step="4"]');
-      expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
+      const actionBtnWrapper = shallow(shipmentStep.prop('actionBtnLabel'));
+      expect(actionBtnWrapper.text()).toContain('Add another shipment');
     });
 
     it('cancel move button is visible', async () => {
@@ -1348,6 +1340,7 @@ describe('Home component', () => {
   });
 
   describe('with default props, orders with HHG & PPM shipments and NEEDS_SERVICE_COUNSELING move status', () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithSubmittedShipments);
 
     it('renders Home with the right amount of components', () => {
@@ -1379,10 +1372,19 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // check that the label of the button to Upload additional documents that aren't orders has the correct labeling
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
+
       // confirm move request step should now be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
       expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
+    });
+
+    it('has specific text for PPM moves in the Helper Header', () => {
+      expect(wrapper.text()).toContain('(check your email for approval notification)');
     });
 
     it('cancel move button is not visible', () => {
@@ -1428,6 +1430,11 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
+
       // confirm move request step should now be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
@@ -1473,6 +1480,10 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
       // confirm move request step should be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
@@ -1530,9 +1541,7 @@ describe('Home component', () => {
               id: '322ebc9f-0ca8-4943-a7a8-39235f4e680b',
               moveTaskOrderID: '4918b8c9-5e0a-4d65-a6b8-6a7a6ce265d4',
               ppmShipment: {
-                actualDestinationPostalCode: null,
                 actualMoveDate: null,
-                actualPickupPostalCode: null,
                 advanceAmountReceived: null,
                 advanceAmountRequested: 400000,
                 advanceStatus: 'APPROVED',
@@ -1756,6 +1765,10 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
       // confirm move request step should be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();

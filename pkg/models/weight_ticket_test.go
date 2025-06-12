@@ -68,7 +68,58 @@ func (suite *ModelSuite) TestWeightTicketValidation() {
 		tc := tc
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&tc.weightTicket, tc.expectedErrs)
+			suite.verifyValidationErrors(&tc.weightTicket, tc.expectedErrs, nil)
 		})
 	}
+}
+func (suite *ModelSuite) TestWeightTickets_FilterRejected() {
+	suite.Run("returns empty slice when input is empty", func() {
+		emptyTickets := models.WeightTickets{}
+		filtered := emptyTickets.FilterRejected()
+		suite.Equal(0, len(filtered))
+	})
+
+	suite.Run("returns all tickets when none are rejected", func() {
+		status := models.PPMDocumentStatusApproved
+		tickets := models.WeightTickets{
+			{Status: &status},
+			{Status: &status},
+		}
+		filtered := tickets.FilterRejected()
+		suite.Equal(2, len(filtered))
+	})
+
+	suite.Run("filters out rejected tickets only", func() {
+		approved := models.PPMDocumentStatusApproved
+		rejected := models.PPMDocumentStatusRejected
+		tickets := models.WeightTickets{
+			{Status: &approved},
+			{Status: &rejected},
+			{Status: &rejected},
+			{Status: nil},
+		}
+		filtered := tickets.FilterRejected()
+		suite.Equal(2, len(filtered))
+
+		for _, ticket := range filtered {
+			if ticket.Status != nil {
+				suite.NotEqual(models.PPMDocumentStatusRejected, *ticket.Status)
+			}
+		}
+	})
+
+	suite.Run("handles nil status values correctly", func() {
+		rejected := models.PPMDocumentStatusRejected
+		tickets := models.WeightTickets{
+			{Status: nil},
+			{Status: &rejected},
+			{Status: nil},
+		}
+		filtered := tickets.FilterRejected()
+		suite.Equal(2, len(filtered))
+
+		for _, ticket := range filtered {
+			suite.Nil(ticket.Status)
+		}
+	})
 }

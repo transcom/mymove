@@ -36,37 +36,40 @@ func (f mtoShipmentRateAreaFetcher) GetPrimeMoveShipmentRateAreas(appCtx appcont
 	var oconusPostalCodes = make([]string, 0)
 	var conusPostalCodes = make([]string, 0)
 	for _, shipment := range moveTaskOrder.MTOShipments {
-		if shipment.PickupAddress != nil {
-			if !slices.Contains(oconusPostalCodes, shipment.PickupAddress.PostalCode) &&
-				shipment.PickupAddress.IsOconus != nil && *shipment.PickupAddress.IsOconus {
-				oconusPostalCodes = append(oconusPostalCodes, shipment.PickupAddress.PostalCode)
-			} else if !slices.Contains(conusPostalCodes, shipment.PickupAddress.PostalCode) {
-				conusPostalCodes = append(conusPostalCodes, shipment.PickupAddress.PostalCode)
-			}
-		}
-		if shipment.DestinationAddress != nil {
-			if !slices.Contains(oconusPostalCodes, shipment.DestinationAddress.PostalCode) &&
-				shipment.DestinationAddress.IsOconus != nil && *shipment.DestinationAddress.IsOconus {
-				oconusPostalCodes = append(oconusPostalCodes, shipment.DestinationAddress.PostalCode)
-			} else if !slices.Contains(conusPostalCodes, shipment.DestinationAddress.PostalCode) {
-				conusPostalCodes = append(conusPostalCodes, shipment.DestinationAddress.PostalCode)
-			}
-		}
-		if shipment.PPMShipment != nil {
-			if shipment.PPMShipment.PickupAddress != nil {
-				if !slices.Contains(oconusPostalCodes, shipment.PPMShipment.PickupAddress.PostalCode) &&
-					shipment.PPMShipment.PickupAddress.IsOconus != nil && *shipment.PPMShipment.PickupAddress.IsOconus {
-					oconusPostalCodes = append(oconusPostalCodes, shipment.PPMShipment.PickupAddress.PostalCode)
-				} else if !slices.Contains(conusPostalCodes, shipment.PPMShipment.PickupAddress.PostalCode) {
-					conusPostalCodes = append(conusPostalCodes, shipment.PPMShipment.PickupAddress.PostalCode)
+		// B-22767: We want both domestic and international rate area info but only for international shipments
+		if shipment.MarketCode == models.MarketCodeInternational {
+			if shipment.PickupAddress != nil {
+				if !slices.Contains(oconusPostalCodes, shipment.PickupAddress.PostalCode) &&
+					shipment.PickupAddress.IsOconus != nil && *shipment.PickupAddress.IsOconus {
+					oconusPostalCodes = append(oconusPostalCodes, shipment.PickupAddress.PostalCode)
+				} else if !slices.Contains(conusPostalCodes, shipment.PickupAddress.PostalCode) {
+					conusPostalCodes = append(conusPostalCodes, shipment.PickupAddress.PostalCode)
 				}
 			}
-			if shipment.PPMShipment.DestinationAddress != nil {
-				if !slices.Contains(oconusPostalCodes, shipment.PPMShipment.DestinationAddress.PostalCode) &&
-					shipment.PPMShipment.DestinationAddress.IsOconus != nil && *shipment.PPMShipment.DestinationAddress.IsOconus {
-					oconusPostalCodes = append(oconusPostalCodes, shipment.PPMShipment.DestinationAddress.PostalCode)
-				} else if !slices.Contains(conusPostalCodes, shipment.PPMShipment.DestinationAddress.PostalCode) {
-					conusPostalCodes = append(conusPostalCodes, shipment.PPMShipment.DestinationAddress.PostalCode)
+			if shipment.DestinationAddress != nil {
+				if !slices.Contains(oconusPostalCodes, shipment.DestinationAddress.PostalCode) &&
+					shipment.DestinationAddress.IsOconus != nil && *shipment.DestinationAddress.IsOconus {
+					oconusPostalCodes = append(oconusPostalCodes, shipment.DestinationAddress.PostalCode)
+				} else if !slices.Contains(conusPostalCodes, shipment.DestinationAddress.PostalCode) {
+					conusPostalCodes = append(conusPostalCodes, shipment.DestinationAddress.PostalCode)
+				}
+			}
+			if shipment.PPMShipment != nil {
+				if shipment.PPMShipment.PickupAddress != nil {
+					if !slices.Contains(oconusPostalCodes, shipment.PPMShipment.PickupAddress.PostalCode) &&
+						shipment.PPMShipment.PickupAddress.IsOconus != nil && *shipment.PPMShipment.PickupAddress.IsOconus {
+						oconusPostalCodes = append(oconusPostalCodes, shipment.PPMShipment.PickupAddress.PostalCode)
+					} else if !slices.Contains(conusPostalCodes, shipment.PPMShipment.PickupAddress.PostalCode) {
+						conusPostalCodes = append(conusPostalCodes, shipment.PPMShipment.PickupAddress.PostalCode)
+					}
+				}
+				if shipment.PPMShipment.DestinationAddress != nil {
+					if !slices.Contains(oconusPostalCodes, shipment.PPMShipment.DestinationAddress.PostalCode) &&
+						shipment.PPMShipment.DestinationAddress.IsOconus != nil && *shipment.PPMShipment.DestinationAddress.IsOconus {
+						oconusPostalCodes = append(oconusPostalCodes, shipment.PPMShipment.DestinationAddress.PostalCode)
+					} else if !slices.Contains(conusPostalCodes, shipment.PPMShipment.DestinationAddress.PostalCode) {
+						conusPostalCodes = append(conusPostalCodes, shipment.PPMShipment.DestinationAddress.PostalCode)
+					}
 				}
 			}
 		}

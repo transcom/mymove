@@ -29,7 +29,7 @@ import {
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
 import PrimeUIShipmentUpdatePPMForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdatePPMForm';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
@@ -382,6 +382,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       destinationAddress: addressSchema,
       scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
       actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+      scheduledDeliveryDate: Yup.date().nullable().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+      actualDeliveryDate: Yup.date().nullable().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     });
   }
 

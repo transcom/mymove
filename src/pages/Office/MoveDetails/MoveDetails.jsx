@@ -8,6 +8,7 @@ import { generatePath } from 'react-router';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -46,6 +47,61 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS_URL, technicalHelpDeskURL } from 'shared/constants';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatDateWithUTC } from 'shared/dates';
+
+export function useErrorIfMissing(isRetirementOrSeparation) {
+  return useMemo(() => {
+    const fieldRequestedPickupDate = {
+      fieldName: 'requestedPickupDate',
+      condition: (shipment) =>
+        new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null).setHours(0, 0, 0, 0) <=
+          new Date().setHours(0, 0, 0, 0) && shipment?.status === shipmentStatuses.SUBMITTED,
+      optional: true, // bypass to use condition, triggers condition if not present
+    };
+
+    const fields = {
+      HHG: [
+        {
+          ...fieldRequestedPickupDate,
+        },
+      ],
+      HHG_INTO_NTS: [
+        { fieldName: 'storageFacility' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+        { ...fieldRequestedPickupDate },
+      ],
+      HHG_OUTOF_NTS: [
+        { fieldName: 'storageFacility' },
+        { fieldName: 'ntsRecordedWeight' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+        { ...fieldRequestedPickupDate },
+      ],
+      MOBILE_HOME: [{ ...fieldRequestedPickupDate }],
+      BOAT_HAUL_AWAY: [{ ...fieldRequestedPickupDate }],
+      BOAT_TOW_AWAY: [{ ...fieldRequestedPickupDate }],
+      UNACCOMPANIED_BAGGAGE: [{ ...fieldRequestedPickupDate }],
+      PPM: [
+        {
+          fieldName: 'advanceStatus',
+          condition: (mtoShipment) =>
+            mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue &&
+            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.REJECTED.apiValue,
+        },
+      ],
+    };
+
+    if (isRetirementOrSeparation) {
+      // destination type must be set for for HHG, NTSR shipments only
+      fields.HHG.push({ fieldName: 'destinationType' });
+      fields.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
+    }
+
+    return fields;
+  }, [isRetirementOrSeparation]);
+}
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
@@ -77,24 +133,6 @@ const MoveDetails = ({
   // RA Validator Status: CODEOWNER ACCEPTED
   // RA Modified Severity: N/A
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const errorIfMissing = {
-    HHG_INTO_NTS: [{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }],
-    HHG_OUTOF_NTS: [
-      { fieldName: 'storageFacility' },
-      { fieldName: 'ntsRecordedWeight' },
-      { fieldName: 'serviceOrderNumber' },
-      { fieldName: 'requestedPickupDate' },
-      { fieldName: 'tacType' },
-    ],
-    PPM: [
-      {
-        fieldName: 'advanceStatus',
-        condition: (mtoShipment) =>
-          mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
-          mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
-      },
-    ],
-  };
 
   const navigate = useNavigate();
 
@@ -112,18 +150,15 @@ const MoveDetails = ({
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
 
-  // for now we are only showing dest type on retiree and separatee orders
-  let isRetirementOrSeparation = false;
   let numberOfShipmentsNotAllowedForCancel = 0;
 
-  isRetirementOrSeparation =
-    order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
+  // for now we are only showing dest type on retiree and separatee orders
+  const isRetirementOrSeparation = useMemo(
+    () => order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION,
+    [order],
+  );
 
-  if (isRetirementOrSeparation) {
-    // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
-  }
+  const errorIfMissing = useErrorIfMissing(isRetirementOrSeparation);
 
   let sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -244,9 +279,11 @@ const MoveDetails = ({
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
       shipment.status === shipmentStatuses.APPROVED ||
+      shipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
       shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-      shipment.status === shipmentStatuses.CANCELED,
+      shipment.status === shipmentStatuses.CANCELED ||
+      shipment.status === shipmentStatuses.TERMINATED_FOR_CAUSE,
   );
 
   const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(
@@ -264,7 +301,8 @@ const MoveDetails = ({
     const nonDeletedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
     const nonPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const nonPpmApprovedShipments = nonPpmShipments.filter(
-      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+      (shipment) =>
+        shipment?.status === shipmentStatuses.APPROVED || shipment?.status === shipmentStatuses.APPROVALS_REQUESTED,
     );
     const onlyPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
@@ -361,7 +399,7 @@ const MoveDetails = ({
 
     // Set the error concern count after processing
     setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
-  }, [errorIfMissing, mtoShipments, setShipmentErrorConcernCount]);
+  }, [mtoShipments, setShipmentErrorConcernCount, errorIfMissing]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
@@ -410,6 +448,7 @@ const MoveDetails = ({
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
+  const isLocalMove = order?.order_type === ORDERS_TYPE.LOCAL_MOVE;
 
   if (submittedShipments?.length > 0 && approvedOrCanceledShipments?.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
@@ -428,6 +467,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    dependents: allowances.dependentsAuthorized,
     ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
@@ -444,11 +484,11 @@ const MoveDetails = ({
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
-    dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
     weightRestriction: allowances.weightRestriction,
+    ubWeightRestriction: allowances.ubWeightRestriction,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
@@ -485,13 +525,18 @@ const MoveDetails = ({
         <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+        {!isLocalMove && enableUB && isOconusMove && (
+          <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+        )}
       </>
     );
   };
 
   return (
     <div className={styles.tabContent}>
+      <div className={styles.flashMessage}>
+        <ConnectedFlashMessage />
+      </div>
       <div className={styles.container}>
         <LeftNav sections={sections}>
           <LeftNavTag
@@ -545,7 +590,7 @@ const MoveDetails = ({
               )}
             </Grid>
             <Grid col={12} className={styles.tooMoveDetailsHeadingFlexbox}>
-              <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+              <h1 className={styles.tooMoveDetailsH1}>Move Details</h1>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div>
                   <FinancialReviewButton
@@ -702,7 +747,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

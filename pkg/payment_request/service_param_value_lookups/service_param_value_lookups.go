@@ -149,7 +149,10 @@ func ServiceParamLookupInitialize(
 			return nil, err
 		}
 		serviceItemDimensions = mtoServiceItem.Dimensions
-	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT,
+		models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC,
+		models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT,
+		models.ReServiceCodeIDFSIT, models.ReServiceCodeIDSFSC:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
 			err := appCtx.DB().Load(&mtoServiceItem, "SITDestinationFinalAddress")
@@ -165,6 +168,13 @@ func ServiceParamLookupInitialize(
 				return nil, err
 			}
 			sitDestinationOriginalAddress = *mtoServiceItem.SITDestinationOriginalAddress
+		}
+	}
+
+	if mtoServiceItem.SITOriginHHGActualAddressID != nil && mtoServiceItem.SITOriginHHGActualAddress == nil {
+		err := appCtx.DB().Load(&mtoServiceItem, "SITOriginHHGActualAddress")
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -416,6 +426,7 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 
 	lookups[models.ServiceItemParamNameDistanceZipSITOrigin] = DistanceZipSITOriginLookup{
 		ServiceItem: serviceItem,
+		MTOShipment: shipment,
 	}
 
 	lookups[models.ServiceItemParamNameCubicFeetCrating] = CubicFeetCratingLookup{
@@ -615,7 +626,10 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 			}
 
 			switch siCopy.ReService.Code {
-			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT,
+				models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC,
+				models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT,
+				models.ReServiceCodeIDFSIT, models.ReServiceCodeIDSFSC:
 				if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
 					if siCopy.ApprovedAt != nil && shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
 						return shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil

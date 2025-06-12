@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/move"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -204,6 +205,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			AccompaniedTour:         models.BoolPointer(true),
 			DependentsTwelveAndOver: models.Int64Pointer(5),
 			DependentsUnderTwelve:   models.Int64Pointer(5),
+			CivilianTdyUbAllowance:  models.Int64Pointer(350),
 		}
 
 		params := ordersop.CreateOrdersParams{
@@ -243,7 +245,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.NotNil(createdEntitlement.AccompaniedTour)
 		suite.NotNil(createdEntitlement.DependentsTwelveAndOver)
 		suite.NotNil(createdEntitlement.DependentsUnderTwelve)
-
+		suite.NotNil(createdEntitlement.UBAllowance)
 	})
 
 	suite.Run("properly handles entitlement validation", func() {
@@ -619,7 +621,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
-	orderUpdater := orderservice.NewOrderUpdater(move.NewMoveRouter())
+	orderUpdater := orderservice.NewOrderUpdater(move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()))
 
 	setUpRequestAndParams := func(orders models.Order) *ordersop.UploadAmendedOrdersParams {
 		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())
@@ -983,25 +985,153 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		suite.NotNil(updatedEntitlement.DependentsUnderTwelve)
 	})
 
+	suite.Run("Updating order grade to civilian changes PPM type to ACTUAL_EXPENSE", func() {
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					Grade: models.ServiceMemberGradeE7.Pointer(),
+				},
+			},
+		}, nil)
+
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PPMShipment{
+					PPMType: models.PPMTypeIncentiveBased,
+					Status:  models.PPMShipmentStatusDraft,
+				},
+			},
+		}, nil)
+
+		newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		newOrdersNumber := "123456"
+		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+		deptIndicator := internalmessages.DeptIndicatorARMY
+		payload := &internalmessages.CreateUpdateOrders{
+			OrdersNumber:         handlers.FmtString(newOrdersNumber),
+			OrdersType:           &newOrdersType,
+			NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
+			OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+			IssueDate:            handlers.FmtDate(issueDate),
+			ReportByDate:         handlers.FmtDate(reportByDate),
+			DepartmentIndicator:  &deptIndicator,
+			HasDependents:        handlers.FmtBool(false),
+			SpouseHasProGear:     handlers.FmtBool(false),
+			Grade:                models.ServiceMemberGradeCIVILIANEMPLOYEE.Pointer(),
+			MoveID:               *handlers.FmtUUID(ppmShipment.Shipment.MoveTaskOrderID),
+			CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
+			ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+		}
+
+		path := fmt.Sprintf("/orders/%v", order.ID.String())
+		req := httptest.NewRequest("PUT", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := ordersop.UpdateOrdersParams{
+			HTTPRequest:  req,
+			OrdersID:     *handlers.FmtUUID(order.ID),
+			UpdateOrders: payload,
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+
+		handler := UpdateOrdersHandler{handlerConfig}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&ordersop.UpdateOrdersOK{}, response)
+		okResponse := response.(*ordersop.UpdateOrdersOK)
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		updatedPPM, err := models.FetchPPMShipmentByPPMShipmentID(suite.DB(), ppmShipment.ID)
+		suite.NoError(err)
+		suite.Equal(updatedPPM.PPMType, models.PPMTypeActualExpense)
+		suite.True(*updatedPPM.IsActualExpenseReimbursement)
+	})
+
+	suite.Run("Updating order grade FROM civilian to non-civilian changes PPM type to INCENTIVE_BASED", func() {
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					Grade: models.ServiceMemberGradeCIVILIANEMPLOYEE.Pointer(),
+				},
+			},
+		}, nil)
+
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PPMShipment{
+					PPMType: models.PPMTypeActualExpense,
+					Status:  models.PPMShipmentStatusDraft,
+				},
+			},
+		}, nil)
+
+		newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		newOrdersNumber := "123456"
+		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+		deptIndicator := internalmessages.DeptIndicatorARMY
+		payload := &internalmessages.CreateUpdateOrders{
+			OrdersNumber:         handlers.FmtString(newOrdersNumber),
+			OrdersType:           &newOrdersType,
+			NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
+			OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+			IssueDate:            handlers.FmtDate(issueDate),
+			ReportByDate:         handlers.FmtDate(reportByDate),
+			DepartmentIndicator:  &deptIndicator,
+			HasDependents:        handlers.FmtBool(false),
+			SpouseHasProGear:     handlers.FmtBool(false),
+			Grade:                models.ServiceMemberGradeE7.Pointer(),
+			MoveID:               *handlers.FmtUUID(ppmShipment.Shipment.MoveTaskOrderID),
+			CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
+			ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+		}
+
+		path := fmt.Sprintf("/orders/%v", order.ID.String())
+		req := httptest.NewRequest("PUT", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := ordersop.UpdateOrdersParams{
+			HTTPRequest:  req,
+			OrdersID:     *handlers.FmtUUID(order.ID),
+			UpdateOrders: payload,
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+
+		handler := UpdateOrdersHandler{handlerConfig}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&ordersop.UpdateOrdersOK{}, response)
+		okResponse := response.(*ordersop.UpdateOrdersOK)
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		updatedPPM, err := models.FetchPPMShipmentByPPMShipmentID(suite.DB(), ppmShipment.ID)
+		suite.NoError(err)
+		suite.Equal(updatedPPM.PPMType, models.PPMTypeIncentiveBased)
+		suite.False(*updatedPPM.IsActualExpenseReimbursement)
+	})
+
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
-	factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
-		{
-			Model: models.PostalCodeToGBLOC{
-				PostalCode: "90210",
-				GBLOC:      "KKFA",
-			},
-		},
-	}, nil)
-	factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
-		{
-			Model: models.PostalCodeToGBLOC{
-				PostalCode: "35023",
-				GBLOC:      "CNNQ",
-			},
-		},
-	}, nil)
 
 	firstAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
@@ -1041,6 +1171,12 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 			},
 		},
 	}, nil)
+
+	factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		}}, nil)
 
 	fetchedOrder, err := models.FetchOrder(suite.DB(), order.ID)
 	suite.NoError(err)
@@ -1185,8 +1321,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 	}, nil)
 
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-	newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-	newDutyLocation.TransportationOffice = newTransportationOffice
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	newOrdersNumber := "123456"

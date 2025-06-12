@@ -43,9 +43,12 @@ const moveData = [
     originDutyLocation: {
       name: 'Area 51',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-10',
+    requestedMoveDates: '10 Feb 2023, 10 Mar 2023',
     appearedInTooAt: '2023-02-10T00:00:00.000Z',
     lockExpiresAt: '2099-02-10T00:00:00.000Z',
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
@@ -83,9 +86,12 @@ const moveData = [
     originDutyLocation: {
       name: 'Los Alamos',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-12',
+    requestedMoveDates: '12 Feb 2023',
     appearedInTooAt: '2023-02-12T00:00:00.000Z',
     assignedTo: {
       officeUserId: 'exampleId2',
@@ -120,9 +126,12 @@ const moveData = [
     originDutyLocation: {
       name: 'Area 52',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-03-12',
+    requestedMoveDates: '12 Mar 2023',
     appearedInTooAt: '2023-03-12T00:00:00.000Z',
     lockExpiresAt: '2099-03-12T00:00:00.000Z',
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
@@ -157,6 +166,16 @@ jest.mock('hooks/queries', () => ({
     };
   },
   useMovesQueueQueries: () => {
+    return {
+      isLoading: false,
+      isError: false,
+      queueResult: {
+        totalCount: 3,
+        data: moveData,
+      },
+    };
+  },
+  useDestinationRequestsQueueQueries: () => {
     return {
       isLoading: false,
       isError: false,
@@ -203,20 +222,24 @@ const GetMountedComponent = (queueTypeToMount) => {
   return wrapper;
 };
 const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
-describe('MoveQueue', () => {
+describe('MoveQueue & DestinationRequestsQueue', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('should render the h1', () => {
+  it('should render the h1 on each queue', () => {
     expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('h1').text()).toBe('All moves (3)');
+    expect(GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE).find('h1').text()).toBe(
+      'Destination requests (3)',
+    );
   });
 
-  it('should render the table', () => {
+  it('should render the table on each queue', () => {
     expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('Table').exists()).toBe(true);
+    expect(GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE).find('Table').exists()).toBe(true);
   });
 
-  it('should format the column data', () => {
+  it('should format the column data - MoveQueue', () => {
     let currentIndex = 0;
     let currentMove;
     const moves = GetMountedComponent(tooRoutes.MOVE_QUEUE).find('tbody tr');
@@ -245,7 +268,9 @@ describe('MoveQueue', () => {
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('10 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe(
+      '10 Feb 2023, 10 Mar 2023',
+    );
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
 
     currentIndex += 1;
@@ -312,29 +337,123 @@ describe('MoveQueue', () => {
     expect(currentMove.find({ 'data-testid': `assignedTo-${currentIndex}` }).text()).toBe('John, Jimmy');
   });
 
-  it('should render the pagination component', () => {
-    expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'pagination' }).exists()).toBe(true);
+  it('should format the column data - DestinationRequestsQueue', () => {
+    let currentIndex = 0;
+    let currentMove;
+    const moves = GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE).find('tbody tr');
+
+    currentMove = moves.at(currentIndex);
+    expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
+      `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
+    );
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
+    );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
+    expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
+    expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
+      BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
+    );
+    expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].shipmentsCount.toString(),
+    );
+    expect(currentMove.find({ 'data-testid': `destinationDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].destinationDutyLocation.name,
+    );
+    expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].counselingOffice,
+    );
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe(
+      '10 Feb 2023, 10 Mar 2023',
+    );
+    expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
+
+    currentIndex += 1;
+    currentMove = moves.at(currentIndex);
+    expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
+      'test another last, test another first',
+    );
+    expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
+      `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
+    );
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
+    );
+    expect(currentMove.find({ 'data-testid': `emplid-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.emplid,
+    );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('Move approved');
+    expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
+    expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
+      BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
+    );
+    expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].shipmentsCount.toString(),
+    );
+    expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].counselingOffice,
+    );
+    expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('12 Feb 2023');
+
+    currentIndex += 1;
+    currentMove = moves.at(currentIndex);
+    expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
+      `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
+    );
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
+    );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
+    expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
+    expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.agency.toString(),
+    );
+    expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].shipmentsCount.toString(),
+    );
+    expect(currentMove.find({ 'data-testid': `destinationDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].destinationDutyLocation.name,
+    );
+    expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].counselingOffice,
+    );
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('12 Mar 2023');
+    expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('12 Mar 2023');
+    expect(currentMove.find({ 'data-testid': `assignedTo-${currentIndex}` }).text()).toBe('John, Jimmy');
   });
 
-  it('applies the sort to the status column in descending direction', () => {
+  it('should render the pagination component on both queues', () => {
+    expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'pagination' }).exists()).toBe(true);
     expect(
-      GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending'),
+      GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE).find({ 'data-testid': 'pagination' }).exists(),
     ).toBe(true);
   });
 
-  it('toggles the sort direction when clicked', () => {
+  it('applies the sort to the status column in descending direction on both queues', () => {
+    expect(
+      GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending'),
+    ).toBe(false);
+    expect(
+      GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE)
+        .find({ 'data-testid': 'status' })
+        .at(0)
+        .hasClass('sortAscending'),
+    ).toBe(true);
+  });
+
+  it('toggles the sort direction when clicked - MovesQueue', () => {
     const wrapper = GetMountedComponent(tooRoutes.MOVE_QUEUE);
     const statusHeading = wrapper.find({ 'data-testid': 'status' }).at(0);
-
     statusHeading.simulate('click');
-    GetMountedComponent(tooRoutes.MOVE_QUEUE).update();
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     statusHeading.simulate('click');
     wrapper.update();
 
-    // no sort direction should be applied
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
+    // asc should be applied
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(true);
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
@@ -342,9 +461,30 @@ describe('MoveQueue', () => {
     wrapper.update();
 
     expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
+
+    const assignedHeading = wrapper.find({ 'data-testid': 'assignedTo' }).at(0);
+    assignedHeading?.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'assignedTo' }).at(0).hasClass('sortAscending')).toBe(true);
+  });
+  it('toggles the sort direction when clicked - DestinationRequestsQueue', () => {
+    const wrapper = GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE);
+
+    const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
+    nameHeading.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
+
+    const assignedHeading = wrapper.find({ 'data-testid': 'assignedTo' }).at(0);
+    assignedHeading?.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'assignedTo' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 
-  it('filters the queue', () => {
+  it('filters the queue - MovesQueue', () => {
     const wrapper = GetMountedComponent(tooRoutes.MOVE_QUEUE);
     const input = wrapper.find(Select).at(0).find('input');
     input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
@@ -353,6 +493,7 @@ describe('MoveQueue', () => {
     wrapper.update();
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
   });
+
   it('renders Search, Destination Queue and Move Queue tabs', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
@@ -360,14 +501,24 @@ describe('MoveQueue', () => {
         <MoveQueue />
       </MockProviders>,
     );
-    expect(screen.getByTestId('closeout-tab-link')).toBeInTheDocument();
+    expect(screen.getByTestId('task-orders-tab-link')).toBeInTheDocument();
     expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
     expect(screen.getByText('Task Order Queue', { selector: 'span' })).toBeInTheDocument();
     expect(screen.getByText('Destination Requests Queue', { selector: 'span' })).toBeInTheDocument();
     expect(screen.getByText('Search', { selector: 'span' })).toBeInTheDocument();
   });
-  it('renders TableQueue when Search tab is selected', () => {
+  it('renders TableQueue when Search tab is selected - MoveQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue />
+      </MockProviders>,
+    );
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+    expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
+  });
+  it('renders TableQueue when Search tab is selected - DestinationRequestsQueue', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
     render(
       <MockProviders>
         <MoveQueue />
@@ -404,6 +555,16 @@ describe('MoveQueue', () => {
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
+  it('Has all status options for destination requests queue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue />
+      </MockProviders>,
+    );
+    MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+  });
+
   it('renders a 404 if a bad route is provided', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
     render(
@@ -414,7 +575,8 @@ describe('MoveQueue', () => {
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
   });
-  it('renders a lock icon when move lock flag is on', async () => {
+
+  it('renders a lock icon when move lock flag is on - MoveQueue', async () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
@@ -427,7 +589,21 @@ describe('MoveQueue', () => {
       expect(lockIcon).toBeInTheDocument();
     });
   });
-  it('does NOT render a lock icon when move lock flag is off', async () => {
+  it('renders a lock icon when move lock flag is on - DestinationRequestsQueue', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const lockIcon = screen.queryAllByTestId('lock-icon')[0];
+      expect(lockIcon).toBeInTheDocument();
+    });
+  });
+
+  it('does NOT render a lock icon when move lock flag is off - MoveQueue', async () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
@@ -440,7 +616,21 @@ describe('MoveQueue', () => {
       expect(lockIcon).not.toBeInTheDocument();
     });
   });
-  it('renders an assigned column when the queue management flag is on', async () => {
+  it('does NOT render a lock icon when move lock flag is off - DestinationRequestsQueue', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue />
+      </MockProviders>,
+    );
+    await await waitFor(() => {
+      const lockIcon = screen.queryByTestId('lock-icon');
+      expect(lockIcon).not.toBeInTheDocument();
+    });
+  });
+
+  it('renders an assigned column when the queue management flag is on - MoveQueue', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
       <MockProviders>
@@ -452,8 +642,33 @@ describe('MoveQueue', () => {
       expect(assignedSelect).toBeInTheDocument();
     });
   });
-  it('renders an assigned column when the queue management flag is off', async () => {
+  it('renders an assigned column when the queue management flag is on - DestinationRequestsQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isQueueManagementFFEnabled />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const assignedSelect = screen.queryAllByTestId('assigned-col')[0];
+      expect(assignedSelect).toBeInTheDocument();
+    });
+  });
+
+  it('renders an assigned column when the queue management flag is off - MoveQueue', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isQueueManagementFFEnabled={false} />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const assignedSelect = screen.queryByTestId('assigned-col');
+      expect(assignedSelect).not.toBeInTheDocument();
+    });
+  });
+  it('renders an assigned column when the queue management flag is off - DestinationRequestsQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
     render(
       <MockProviders>
         <MoveQueue isQueueManagementFFEnabled={false} />

@@ -40,6 +40,11 @@ export async function updateRequestedOfficeUser(officeUserId, body) {
   );
 }
 
+export async function getTransportationOfficeByID(officeId) {
+  const operationPath = 'Transportation offices.getOfficeById';
+  return makeAdminRequest(operationPath, { officeId }, { normalize: false });
+}
+
 export async function deleteOfficeUser(officeUserId) {
   const operationPath = 'Office users.deleteOfficeUser';
 
@@ -47,6 +52,36 @@ export async function deleteOfficeUser(officeUserId) {
     operationPath,
     {
       officeUserId,
+    },
+    { normalize: false },
+  );
+}
+
+export async function getRolesPrivileges() {
+  const operationPath = 'Office users.getRolesPrivileges';
+  return makeAdminRequest(operationPath, {}, { normalize: false });
+}
+
+export async function deleteUser(userId) {
+  const operationPath = 'Users.deleteUser';
+
+  return makeAdminRequest(
+    operationPath,
+    {
+      userId,
+    },
+    { normalize: false },
+  );
+}
+
+export async function updateUser(userId, user) {
+  const operationPath = 'Users.updateUser';
+
+  return makeAdminRequest(
+    operationPath,
+    {
+      userId,
+      User: user,
     },
     { normalize: false },
   );

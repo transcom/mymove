@@ -1178,6 +1178,11 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1200
+        },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
@@ -1876,7 +1881,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "APPROVALS_REQUESTED"
           ],
           "readOnly": true
         },
@@ -2438,7 +2444,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "UpdateMTOServiceItemStatus": {
@@ -2469,7 +2478,8 @@ func init() {
             "SUBMITTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "APPROVALS_REQUESTED"
           ]
         }
       }
@@ -4151,6 +4161,11 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1200
+        },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
@@ -4849,7 +4864,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "APPROVALS_REQUESTED"
           ],
           "readOnly": true
         },
@@ -5411,7 +5427,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "UpdateMTOServiceItemStatus": {
@@ -5442,7 +5461,8 @@ func init() {
             "SUBMITTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "APPROVALS_REQUESTED"
           ]
         }
       }

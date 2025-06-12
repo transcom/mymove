@@ -248,6 +248,97 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.Equal(secondMove.Locator, moves[0].Locator)
 		suite.Equal(2, totalCount)
 	})
+	suite.Run("filtering mto shipments search results", func() {
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		moveWithShipmentsOfEveryStatus := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "AAAAAA",
+				},
+			},
+		}, nil)
+
+		shipmentWithSubmittedStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveWithShipmentsOfEveryStatus,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+		shipmentWithCanceledStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveWithShipmentsOfEveryStatus,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusCanceled,
+				},
+			},
+		}, nil)
+		rejectionReason := "bad shipment"
+		shipmentWithRejectedStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveWithShipmentsOfEveryStatus,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:          models.MTOShipmentStatusRejected,
+					RejectionReason: &rejectionReason,
+				},
+			},
+		}, nil)
+		shipmentWithCancellationRequestedStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveWithShipmentsOfEveryStatus,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusCancellationRequested,
+				},
+			},
+		}, nil)
+		shipmentWithApprovedStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveWithShipmentsOfEveryStatus,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+		moveWithShipmentsOfEveryStatus.MTOShipments = models.MTOShipments{
+			shipmentWithSubmittedStatus,
+			shipmentWithCanceledStatus,
+			shipmentWithRejectedStatus,
+			shipmentWithCancellationRequestedStatus,
+			shipmentWithApprovedStatus,
+		}
+		filteredShipments := models.FilterDeletedRejectedCanceledMtoShipments(moveWithShipmentsOfEveryStatus.MTOShipments)
+		moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{Locator: &moveWithShipmentsOfEveryStatus.Locator})
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.Len(moves[0].MTOShipments, 3)
+		suite.Equal(len(filteredShipments), 3)
+
+	})
 }
 
 func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MTOShipment) {

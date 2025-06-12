@@ -19,6 +19,7 @@ describe('ContactInfoDisplay component', () => {
     residentialAddress: {
       streetAddress1: '1292 Orchard Terrace',
       streetAddress2: 'Building C, Unit 10',
+      streetAddress3: 'third',
       city: 'El Paso',
       state: 'TX',
       postalCode: '79912',
@@ -26,6 +27,7 @@ describe('ContactInfoDisplay component', () => {
     backupMailingAddress: {
       streetAddress1: '448 Washington Blvd NE',
       streetAddress2: '',
+      streetAddress3: 'third',
       city: 'El Paso',
       state: 'TX',
       postalCode: '79936',

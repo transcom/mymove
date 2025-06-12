@@ -64,7 +64,8 @@ const ContactInfoDisplay = ({
           <div className={descriptionListStyles.row}>
             <dt>Current address</dt>
             <dd>
-              {residentialAddress.streetAddress1} {residentialAddress.streetAddress2}
+              {residentialAddress.streetAddress1} {residentialAddress.streetAddress2}{' '}
+              {residentialAddress.streetAddress3}
               <br />
               {residentialAddress.city}, {residentialAddress.state} {residentialAddress.postalCode}
             </dd>
@@ -73,7 +74,8 @@ const ContactInfoDisplay = ({
           <div className={descriptionListStyles.row}>
             <dt>Backup address</dt>
             <dd>
-              {backupMailingAddress.streetAddress1} {backupMailingAddress.streetAddress2}
+              {backupMailingAddress.streetAddress1} {backupMailingAddress.streetAddress2}{' '}
+              {backupMailingAddress.streetAddress3}
               <br />
               {backupMailingAddress.city}, {backupMailingAddress.state} {backupMailingAddress.postalCode}
             </dd>

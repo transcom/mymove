@@ -427,7 +427,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v3")
 			if err != nil {
-				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHnadler error", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
@@ -443,7 +443,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				default:
 					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
-						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
 			mtoShipmentPayload := payloads.MTOShipment(mtoShipment)

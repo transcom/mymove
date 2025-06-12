@@ -51,7 +51,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 				return linesofaccountingop.NewRequestLineOfAccountingBadRequest(), err
 			}
 
-			loas, err := h.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicator(*payload.DepartmentIndicator), time.Time(payload.EffectiveDate), payload.TacCode, appCtx)
+			loas, err := h.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicator(*payload.DepartmentIndicator), time.Time(*payload.EffectiveDate), *payload.TacCode, appCtx)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					// Either TAC or LOA service objects triggered a sql err for now rows
@@ -59,7 +59,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 					// of the service object being updated in the future, this will catch it and keep the API giving good errors
 					// instead of defaulting to an internal server error
 
-					errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: departmentIndicator=%s, ordersIssueDate=%s, tacCode=%s", *payload.DepartmentIndicator, time.Time(payload.EffectiveDate), payload.TacCode)
+					errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: departmentIndicator=%s, effectiveDate=%s, tacCode=%s", *payload.DepartmentIndicator, time.Time(*payload.EffectiveDate), *payload.TacCode)
 					appCtx.Logger().Info(errMsg)
 					// Do not return any payload here as no LOA was found
 					return linesofaccountingop.NewRequestLineOfAccountingOK(), nil
@@ -69,7 +69,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 			if len(loas) == 0 {
 				// No LOAs were identified with the provided parameters
 				// Return an empty 200 and log the error
-				errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: departmentIndicator=%s, ordersIssueDate=%s, tacCode=%s", *payload.DepartmentIndicator, time.Time(payload.EffectiveDate), payload.TacCode)
+				errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: departmentIndicator=%s, effectiveDate=%s, tacCode=%s", *payload.DepartmentIndicator, time.Time(*payload.EffectiveDate), *payload.TacCode)
 				appCtx.Logger().Info(errMsg)
 				return linesofaccountingop.NewRequestLineOfAccountingOK(), nil
 			}

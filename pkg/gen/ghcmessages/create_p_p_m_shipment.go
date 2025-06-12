@@ -19,6 +19,11 @@ import (
 // swagger:model CreatePPMShipment
 type CreatePPMShipment struct {
 
+	// closeout office ID
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Format: uuid
+	CloseoutOfficeID strfmt.UUID `json:"closeoutOfficeID,omitempty"`
+
 	// destination address
 	// Required: true
 	DestinationAddress struct {
@@ -36,7 +41,7 @@ type CreatePPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate"`
 
-	// Indicates whether PPM shipment has pro gear.
+	// Indicates whether PPM shipment has pro-gear.
 	//
 	// Required: true
 	HasProGear *bool `json:"hasProGear"`
@@ -62,6 +67,9 @@ type CreatePPMShipment struct {
 	PickupAddress struct {
 		Address
 	} `json:"pickupAddress"`
+
+	// ppm type
+	PpmType PPMType `json:"ppmType,omitempty"`
 
 	// pro gear weight
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
@@ -113,6 +121,10 @@ type CreatePPMShipment struct {
 func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCloseoutOfficeID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
@@ -130,6 +142,10 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -171,6 +187,18 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *CreatePPMShipment) validateCloseoutOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CloseoutOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("closeoutOfficeID", "body", "uuid", m.CloseoutOfficeID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *CreatePPMShipment) validateDestinationAddress(formats strfmt.Registry) error {
 
 	return nil
@@ -208,6 +236,23 @@ func (m *CreatePPMShipment) validateHasProGear(formats strfmt.Registry) error {
 }
 
 func (m *CreatePPMShipment) validatePickupAddress(formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreatePPMShipment) validatePpmType(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	if err := m.PpmType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ppmType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ppmType")
+		}
+		return err
+	}
 
 	return nil
 }
@@ -308,6 +353,10 @@ func (m *CreatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -340,6 +389,24 @@ func (m *CreatePPMShipment) contextValidateDestinationAddress(ctx context.Contex
 }
 
 func (m *CreatePPMShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidatePpmType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	if err := m.PpmType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ppmType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ppmType")
+		}
+		return err
+	}
 
 	return nil
 }

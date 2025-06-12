@@ -25,6 +25,7 @@ export const BackupAddress = ({ serviceMember, updateServiceMember }) => {
     [formFieldsName]: {
       streetAddress1: serviceMember.backup_mailing_address?.streetAddress1 || '',
       streetAddress2: serviceMember.backup_mailing_address?.streetAddress2 || '',
+      streetAddress3: serviceMember.backup_mailing_address?.streetAddress3 || '',
       city: serviceMember.backup_mailing_address?.city || '',
       state: serviceMember.backup_mailing_address?.state || '',
       postalCode: serviceMember.backup_mailing_address?.postalCode || '',

@@ -2,6 +2,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Formik } from 'formik';
+import userEvent from '@testing-library/user-event';
 
 import OrdersDetailForm from './OrdersDetailForm';
 
@@ -37,6 +38,7 @@ const initialValues = {
   tac: 'Tac',
   sac: 'Sac',
   ordersAcknowledgement: true,
+  dependentsAuthorized: true,
 };
 
 const deptOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
@@ -70,30 +72,80 @@ function renderOrdersDetailForm(props) {
 describe('OrdersDetailForm', () => {
   it('renders the Form', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+    expect(await screen.findByText('Current duty location')).toBeInTheDocument();
 
     // hidden fields are default visible
-    expect(screen.getByLabelText('Department indicator')).toBeInTheDocument();
-    expect(screen.getByLabelText('Orders number')).toBeInTheDocument();
-    expect(screen.getByLabelText('Orders type detail')).toBeInTheDocument();
-    expect(screen.queryAllByLabelText('TAC').length).toBe(2);
+    expect(screen.getByLabelText('Department indicator *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Orders number *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Orders type detail *')).toBeInTheDocument();
+    expect(screen.getByLabelText('TAC *')).toBeInTheDocument();
     expect(screen.queryAllByLabelText('SAC').length).toBe(2);
     expect(screen.getByLabelText('I have read the new orders')).toBeInTheDocument();
+    expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+    expect(screen.getByTestId('reqAsteriskMsg').textContent).toContain('Fields marked with * are required.');
+  });
+
+  it('renders the Form disabled with all information if flag is passed', async () => {
+    renderOrdersDetailForm({ formIsDisabled: true });
+    const currentDutyLocationInput = screen.getByLabelText(/Current duty location/);
+    expect(currentDutyLocationInput).toBeInTheDocument();
+    expect(currentDutyLocationInput).toBeDisabled();
+    const newDutyLocationInput = screen.getByLabelText(/New duty location/);
+    expect(newDutyLocationInput).toBeInTheDocument();
+    expect(newDutyLocationInput).toBeDisabled();
+    const payGradeInput = screen.getByLabelText(/Pay grade/);
+    expect(payGradeInput).toBeInTheDocument();
+    expect(payGradeInput).toBeDisabled();
+    const dateIssuedInput = screen.getByLabelText(/Date issued/);
+    expect(dateIssuedInput).toBeInTheDocument();
+    expect(dateIssuedInput).toBeDisabled();
+    const reportByDateInput = screen.getByLabelText(/Report by date/);
+    expect(reportByDateInput).toBeInTheDocument();
+    expect(reportByDateInput).toBeDisabled();
+    const departmentIndicatorInput = screen.getByLabelText(/Department indicator/);
+    expect(departmentIndicatorInput).toBeInTheDocument();
+    expect(departmentIndicatorInput).toBeDisabled();
+    const ordersNumberInput = screen.getByLabelText(/Orders number/);
+    expect(ordersNumberInput).toBeInTheDocument();
+    expect(ordersNumberInput).toBeDisabled();
+    const ordersTypeInputs = screen.getAllByLabelText(/Orders type/);
+    ordersTypeInputs.forEach((input) => {
+      expect(input).toBeDisabled();
+    });
+    const ordersTypeDetailInput = screen.getByLabelText(/Orders type detail/);
+    expect(ordersTypeDetailInput).toBeInTheDocument();
+    expect(ordersTypeDetailInput).toBeDisabled();
+    const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
+    expect(dependentsAuthorizedInput).toBeInTheDocument();
+    expect(dependentsAuthorizedInput).toBeDisabled();
+    const tacInput = screen.getByLabelText('TAC');
+    expect(tacInput).toBeInTheDocument();
+    expect(tacInput).toBeDisabled();
+    const tacInputRequired = screen.getByLabelText('TAC *');
+    expect(tacInputRequired).toBeInTheDocument();
+    expect(tacInputRequired).toBeDisabled();
+    const sacInputs = screen.queryAllByLabelText('SAC');
+    const tacInputs = screen.queryAllByLabelText('TAC');
+    expect(tacInputs.length).toBe(1);
+    expect(sacInputs.length).toBe(2);
+    expect(tacInputs[0]).toBeDisabled();
+    expect(sacInputs[0]).toBeDisabled();
+    expect(sacInputs[1]).toBeDisabled();
   });
 
   it('accepts deptIndicatorOptions prop', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Department indicator')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Department indicator *')).toBeInTheDocument();
   });
 
   it('accepts ordersTypeOptions prop', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Orders type')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Orders type *')).toBeInTheDocument();
   });
 
   it('accepts ordersTypeDetailOptions prop', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Orders type detail')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Orders type detail *')).toBeInTheDocument();
   });
 
   it('accepts showOrdersAcknowledgement prop', async () => {
@@ -137,13 +189,13 @@ describe('OrdersDetailForm', () => {
     });
 
     // fields are visible
-    expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
 
     // fields are hidden
-    expect(screen.queryByLabelText('Department indicator')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Orders number')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Orders type detail')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('TAC')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Department indicator *')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Orders number *')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Orders type detail *')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('TAC *')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('SAC')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('I have read the new orders')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Line of Accounting Preview')).not.toBeInTheDocument();
@@ -164,8 +216,8 @@ describe('OrdersDetailForm', () => {
     });
 
     // correct labels are visible
-    expect(await screen.findByLabelText('Date of retirement')).toBeInTheDocument();
-    expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Date of retirement *')).toBeInTheDocument();
+    expect(await screen.findByLabelText('HOR, HOS or PLEAD *')).toBeInTheDocument();
   });
 
   it('has the right labels for a separatee', async () => {
@@ -182,8 +234,8 @@ describe('OrdersDetailForm', () => {
     });
 
     // correct labels are visible
-    expect(await screen.findByLabelText('Date of separation')).toBeInTheDocument();
-    expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Date of separation *')).toBeInTheDocument();
+    expect(await screen.findByLabelText('HOR, HOS or PLEAD *')).toBeInTheDocument();
   });
 
   it('has orders type dropdown disabled if safety move', async () => {
@@ -200,7 +252,7 @@ describe('OrdersDetailForm', () => {
     });
 
     // correct labels are visible
-    expect(await screen.findByLabelText('Orders type')).toBeDisabled();
+    expect(await screen.findByLabelText('Orders type *')).toBeDisabled();
   });
   it('has orders type dropdown disabled if bluebark move', async () => {
     renderOrdersDetailForm({
@@ -216,6 +268,29 @@ describe('OrdersDetailForm', () => {
     });
 
     // correct labels are visible
-    expect(await screen.findByLabelText('Orders type')).toBeDisabled();
+    expect(await screen.findByLabelText('Orders type *')).toBeDisabled();
+  });
+
+  it('renders dependents authorized checkbox field', async () => {
+    renderOrdersDetailForm();
+    expect(await screen.findByTestId('dependentsAuthorizedInput')).toBeInTheDocument();
+  });
+
+  it('allows typing more than 4 characters into a SAC field', async () => {
+    renderOrdersDetailForm();
+
+    // there are two SAC fields (HHG SAC and NTS SAC)
+    const sacInputs = screen.getAllByLabelText('SAC');
+    expect(sacInputs.length).toBeGreaterThanOrEqual(1);
+
+    const firstSacInput = sacInputs[0];
+    await userEvent.type(firstSacInput, 'ABCDE');
+    // Sac is already in the initial values, so we can confirm we can append to that
+    expect(firstSacInput).toHaveValue('SacABCDE');
+
+    // NTS SAC is not in the initial values, so we can check for exactly what we put in
+    const secondSacInput = sacInputs[1];
+    await userEvent.type(secondSacInput, 'FGHIJ123');
+    expect(secondSacInput).toHaveValue('FGHIJ123');
   });
 });

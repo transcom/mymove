@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
@@ -130,7 +131,7 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	gexURL := v.GetString(cli.GEXURLFlag)
 	logger.Info(fmt.Sprintf("GEX URL is %v", gexURL))
@@ -237,23 +238,16 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 
 	// Process 824s
 	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, lastReadTime, invoice.NewEDI824Processor())
+	notificationSender, notificationErr := notifications.InitEmail(v, appCtx.Logger())
+	if notificationErr != nil {
+		logger.Error("Error initializing email notification", zap.Error(notificationErr))
+	}
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, lastReadTime, invoice.NewEDI824Processor(notificationSender))
 	if err != nil {
 		logger.Error("Error reading EDI824 application advice responses", zap.Error(err))
 	} else {
 		logger.Info("Successfully processed EDI824 application advice responses")
 	}
 
-	// Pending completion of B-20560, uncomment the code below
-	/*
-		// Process TPPS paid invoice report
-		pathTPPSPaidInvoiceReport := v.GetString(cli.SFTPTPPSPaidInvoiceReportPickupDirectory)
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, pathTPPSPaidInvoiceReport, lastReadTime, invoice.NewTPPSPaidInvoiceReportProcessor())
-		if err != nil {
-			logger.Error("Error reading TPPS Paid Invoice Report application advice responses", zap.Error(err))
-		} else {
-			logger.Info("Successfully processed TPPS Paid Invoice Report application advice responses")
-		}
-	*/
 	return nil
 }

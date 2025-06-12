@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { Checkbox, Tag } from '@trussworks/react-uswds';
+import { Checkbox, Tag, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
+import { connect } from 'react-redux';
 
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, getPPMTypeLabel, PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
@@ -21,6 +22,8 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import affiliation from 'content/serviceMemberAgencies';
 import { fieldValidationShape, objectIsMissingFieldWithCondition } from 'utils/displayFlags';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -31,6 +34,9 @@ const ShipmentDisplay = ({
   allowApproval,
   editURL,
   reviewURL,
+  sendPpmToCustomer,
+  counselorCanEdit,
+  completePpmForCustomerURL,
   viewURL,
   ordersLOA,
   warnIfMissing,
@@ -44,7 +50,11 @@ const ShipmentDisplay = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
+  const [isSubmitPPMShipmentModalVisible, setIsSubmitPPMShipmentModalVisible] = useState(false);
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
+  const [ppmSprFF, setPpmSprFF] = useState(false);
+  const isDisabled = isMoveLocked || displayInfo.shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE;
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -62,8 +72,27 @@ const ShipmentDisplay = ({
     setIsErrorModalVisible((prev) => !prev);
   };
 
+  const handleShowSubmitPPMShipmentModal = () => {
+    setIsSubmitPPMShipmentModalVisible(true);
+  };
+
+  const handleSubmitPPMShipmentModal = () => {
+    sendPpmToCustomer({ ppmShipmentId: displayInfo.ppmShipment.id, eTag: displayInfo.ppmShipment.eTag });
+    setIsSubmitPPMShipmentModalVisible();
+  };
+
   const errorModalMessage =
     "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableCompletePPMCloseoutForCustomer(
+        await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER),
+      );
+      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
@@ -79,7 +108,7 @@ const ShipmentDisplay = ({
                 label="&nbsp;"
                 value={shipmentId}
                 aria-labelledby={`shipment-display-label-${shipmentId}`}
-                disabled={disableApproval || isMoveLocked}
+                disabled={disableApproval || isDisabled}
               />
             )}
           </Restricted>
@@ -96,13 +125,20 @@ const ShipmentDisplay = ({
                 </label>
               </h3>
               <div className={styles.tagWrapper}>
-                {displayInfo.isActualExpenseReimbursement && (
-                  <Tag data-testid="actualReimbursementTag">actual expense reimbursement</Tag>
+                {displayInfo.shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE && (
+                  <Tag data-testid="terminatedTag" className="usa-tag--cancellation">
+                    terminated for cause
+                  </Tag>
+                )}
+                {ppmSprFF && displayInfo.ppmShipment?.ppmType === PPM_TYPES.SMALL_PACKAGE && (
+                  <Tag data-testid="smallPackageTag">{getPPMTypeLabel(displayInfo.ppmShipment.ppmType)}</Tag>
+                )}
+                {displayInfo.ppmShipment?.ppmType === PPM_TYPES.ACTUAL_EXPENSE && (
+                  <Tag data-testid="actualReimbursementTag">{getPPMTypeLabel(displayInfo.ppmShipment.ppmType)}</Tag>
                 )}
                 {displayInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
                 {(displayInfo.shipmentStatus === shipmentStatuses.CANCELED ||
-                  displayInfo.status === shipmentStatuses.CANCELED ||
-                  displayInfo.ppmShipment?.status === ppmShipmentStatuses.CANCELED) && (
+                  displayInfo.status === shipmentStatuses.CANCELED) && (
                   <Tag className="usa-tag--cancellation">canceled</Tag>
                 )}
                 {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
@@ -113,7 +149,14 @@ const ShipmentDisplay = ({
                 )}
                 {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
                 {displayInfo.ppmShipment?.status && (
-                  <Tag className="usa-tag--ppmStatus" data-testid="ppmStatusTag">
+                  <Tag
+                    className={
+                      displayInfo.ppmShipment.status !== ppmShipmentStatuses.CANCELED
+                        ? 'usa-tag--ppmStatus'
+                        : 'usa-tag--cancellation'
+                    }
+                    data-testid="ppmStatusTag"
+                  >
                     {ppmShipmentStatusLabels[displayInfo.ppmShipment?.status]}
                   </Tag>
                 )}
@@ -138,6 +181,13 @@ const ShipmentDisplay = ({
           onErrorModalToggle={toggleErrorModal}
         />
         <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
+        {isSubmitPPMShipmentModalVisible && (
+          <SubmitMoveConfirmationModal
+            onClose={setIsSubmitPPMShipmentModalVisible}
+            onSubmit={handleSubmitPPMShipmentModal}
+            isShipment
+          />
+        )}
         <Restricted to={permissionTypes.updateShipment}>
           {editURL && (
             <EditButton
@@ -148,7 +198,7 @@ const ShipmentDisplay = ({
               data-testid={editURL}
               label="Edit shipment"
               secondary
-              disabled={isMoveLocked}
+              disabled={isDisabled}
             />
           )}
           {reviewURL && (
@@ -160,9 +210,37 @@ const ShipmentDisplay = ({
               data-testid={reviewURL}
               label="Review documents"
               secondary
-              disabled={isMoveLocked}
+              disabled={isDisabled}
             />
           )}
+          {completePpmForCustomerURL && enableCompletePPMCloseoutForCustomer && (
+            <Button
+              onClick={() => {
+                navigate(completePpmForCustomerURL);
+              }}
+              className={styles.editButton}
+              data-testid="completePpmForCustomerBtn"
+              secondary
+              disabled={isDisabled}
+            >
+              Complete PPM on behalf of the Customer
+            </Button>
+          )}
+          {sendPpmToCustomer &&
+            displayInfo.ppmShipment?.status === ppmShipmentStatuses.SUBMITTED &&
+            !counselorCanEdit && (
+              <Button
+                onClick={() => {
+                  handleShowSubmitPPMShipmentModal();
+                }}
+                className={styles.editButton}
+                data-testid="sendPpmToCustomerButton"
+                secondary
+                disabled={isMoveLocked}
+              >
+                Send PPM to the Customer
+              </Button>
+            )}
         </Restricted>
         {viewURL && (
           <ReviewButton
@@ -173,7 +251,7 @@ const ShipmentDisplay = ({
             data-testid={viewURL}
             label="View documents"
             secondary
-            disabled={isMoveLocked}
+            disabled={isDisabled}
           />
         )}
       </ShipmentContainer>
@@ -246,6 +324,8 @@ ShipmentDisplay.propTypes = {
   allowApproval: PropTypes.bool,
   editURL: PropTypes.string,
   reviewURL: PropTypes.string,
+  sendPpmToCustomer: PropTypes.func,
+  counselorCanEdit: PropTypes.bool,
   ordersLOA: OrdersLOAShape,
   warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
   errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
@@ -259,6 +339,8 @@ ShipmentDisplay.defaultProps = {
   allowApproval: true,
   editURL: '',
   reviewURL: '',
+  sendPpmToCustomer: null,
+  counselorCanEdit: false,
   ordersLOA: {
     tac: '',
     sac: '',
@@ -271,4 +353,4 @@ ShipmentDisplay.defaultProps = {
   neverShow: [],
 };
 
-export default ShipmentDisplay;
+export default connect(() => ({}))(ShipmentDisplay);

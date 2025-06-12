@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	paperwork "github.com/transcom/mymove/pkg/paperwork"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	acknowledgemovesshipments "github.com/transcom/mymove/pkg/services/acknowledge_moves_shipments"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -29,6 +30,7 @@ import (
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -46,11 +48,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI := primeoperations.NewMymoveAPI(primeSpec)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
-	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf)
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -200,6 +202,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		move.NewMoveSearcher(),
 		order.NewOrderFetcher(waf),
 		primeDownloadMoveUploadPDFGenerator,
+	}
+
+	primeAPI.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler = AcknowledgeMovesAndShipmentsHandler{
+		handlerConfig,
+		acknowledgemovesshipments.NewMoveAndShipmentAcknowledgementUpdater(),
 	}
 
 	return primeAPI

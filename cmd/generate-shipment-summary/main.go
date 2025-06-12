@@ -119,7 +119,7 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	moveID := v.GetString(PPMShipmentIDFlag)
 	if moveID == "" {
@@ -180,7 +180,7 @@ func main() {
 	noErr(err)
 	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	noErr(err)
-	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, page3Data)
+	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, page3Data, "")
 	noErr(err)
 	fmt.Println(ssw.Name())     // Should always return
 	fmt.Println(info.PageCount) // Page count should always be 2

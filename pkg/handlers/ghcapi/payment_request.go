@@ -283,9 +283,15 @@ func (h PaymentRequestBulkDownloadHandler) Handle(params paymentrequestop.BulkDo
 				return paymentrequestop.NewBulkDownloadBadRequest().WithPayload(errPayload), err
 			}
 
-			paymentRequestPacket, err := h.PaymentRequestBulkDownloadCreator.CreatePaymentRequestBulkDownload(appCtx, paymentRequestID)
+			paymentRequestPacket, requestPath, err := h.PaymentRequestBulkDownloadCreator.CreatePaymentRequestBulkDownload(appCtx, paymentRequestID)
 			if err != nil {
 				logger.Error("Error creating Payment Request Downloads Packet", zap.Error(err))
+
+				// need to cleanup any files created prior to the request failure
+				if err = h.PaymentRequestBulkDownloadCreator.CleanupPaymentRequestBulkDir(requestPath); err != nil {
+					logger.Error("Error cleaning up bulk payment request files", zap.Error(err))
+				}
+
 				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
 				errPayload := &ghcmessages.Error{Message: &errInstance}
 				return paymentrequestop.NewBulkDownloadInternalServerError().
@@ -293,6 +299,12 @@ func (h PaymentRequestBulkDownloadHandler) Handle(params paymentrequestop.BulkDo
 			}
 
 			payload := io.NopCloser(paymentRequestPacket)
+
+			// we have copied the created files into the payload so we can remove them from memory
+			if err = h.PaymentRequestBulkDownloadCreator.CleanupPaymentRequestBulkDir(requestPath); err != nil {
+				logger.Error("Error deleting temp bulk payment request files", zap.Error(err))
+			}
+
 			filename := fmt.Sprintf("inline; filename=\"PaymentRequestBulkPacket-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
 
 			return paymentrequestop.NewBulkDownloadOK().WithContentDisposition(filename).WithPayload(payload), nil

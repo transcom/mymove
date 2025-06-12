@@ -6,8 +6,11 @@ import { connect } from 'react-redux';
 
 import PrimeUIUpdateOriginSITForm from './PrimeUIUpdateOriginSITForm';
 import PrimeUIUpdateDestSITForm from './PrimeUIUpdateDestSITForm';
+import PrimeUIUpdateInternationalOriginSITForm from './PrimeUIUpdateInternationalOriginSITForm';
+import PrimeUIUpdateInternationalDestSITForm from './PrimeUIUpdateInternationalDestSITForm';
 import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternationalFuelSurchargeForm';
 import PrimeUIUpdateInternationalShuttleForm from './PrimeUIUpdateInternationalShuttleForm';
+import PrimeUIUpdateDomesticShuttleForm from './PrimeUIUpdateDomesticShuttleform';
 
 import { updateMTOServiceItem } from 'services/primeApi';
 import scrollToTop from 'shared/scrollToTop';
@@ -72,7 +75,12 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
   const { modelType } = serviceItem;
   let initialValues;
   let onSubmit;
-  if (modelType === 'MTOServiceItemOriginSIT' || modelType === 'MTOServiceItemDestSIT') {
+  if (
+    modelType === 'MTOServiceItemOriginSIT' ||
+    modelType === 'MTOServiceItemDestSIT' ||
+    modelType === 'MTOServiceItemInternationalDestSIT' ||
+    modelType === 'MTOServiceItemInternationalOriginSIT'
+  ) {
     initialValues = {
       sitEntryDate: formatDateWithUTC(serviceItem.sitEntryDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
@@ -145,11 +153,32 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
                   onSubmit={onSubmit}
                 />
               ) : null}
+              {modelType === 'MTOServiceItemInternationalDestSIT' ? (
+                <PrimeUIUpdateInternationalDestSITForm
+                  name="sitDestinationFinalAddress"
+                  serviceItem={serviceItem}
+                  initialValues={initialValues}
+                  onSubmit={onSubmit}
+                />
+              ) : null}
+              {modelType === 'MTOServiceItemInternationalOriginSIT' ? (
+                <PrimeUIUpdateInternationalOriginSITForm
+                  serviceItem={serviceItem}
+                  initialValues={initialValues}
+                  onSubmit={onSubmit}
+                />
+              ) : null}
               {modelType === 'MTOServiceItemInternationalFuelSurcharge' ? (
                 <PrimeUIUpdateInternationalFuelSurchargeForm
                   moveTaskOrder={moveTaskOrder}
                   mtoServiceItemId={mtoServiceItemId}
                   onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                />
+              ) : null}
+              {modelType === 'MTOServiceItemDomesticShuttle' ? (
+                <PrimeUIUpdateDomesticShuttleForm
+                  onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                  serviceItem={serviceItem}
                 />
               ) : null}
               {modelType === 'MTOServiceItemInternationalShuttle' ? (

@@ -26,6 +26,7 @@ import determineShipmentInfo from 'utils/shipmentInfo';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
 import { selectMove } from 'shared/Entities/modules/moves';
+import { ORDERS_TYPE } from 'constants/orders';
 
 export class SelectShipmentType extends Component {
   constructor(props) {
@@ -159,6 +160,8 @@ export class SelectShipmentType extends Component {
       ? 'Certain personal property items are packed and moved by professionals, paid for by the government. Subject to item type and weight limitations. This is an unaccompanied baggage shipment (UB).'
       : 'Talk with your movers directly if you want to add or change shipments.';
 
+    const isLocalMove = orders[0]?.orders_type === ORDERS_TYPE.LOCAL_MOVE;
+
     const hasOconusDutyLocation = orders[0]
       ? orders[0].origin_duty_location.address.isOconus || orders[0].new_duty_location.address.isOconus
       : false;
@@ -229,7 +232,7 @@ export class SelectShipmentType extends Component {
                 />
               )}
 
-              {enableUB && hasOconusDutyLocation && (
+              {!isLocalMove && enableUB && hasOconusDutyLocation && (
                 <SelectableCard
                   {...selectableCardDefaultProps}
                   label="Movers pack and ship limited, essential personal property to arrive earlier (UB)"

@@ -1,12 +1,14 @@
 package user
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
@@ -35,85 +37,126 @@ func NewUserUpdater(
 	}
 }
 
-// UpdateUser updates any user
 func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
-	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
-	var foundUser models.User
-	var userActivityEmail notifications.Notification
 	if user == nil {
-		return nil, nil, nil
+		return nil, nil, fmt.Errorf("user cannot be nil")
 	}
-	// Find the existing user to update
-	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 
+	var foundUser models.User
+	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
+	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Update user's new status for Active
-	userWasActive := foundUser.Active
+	// determine if we are updating email, activating, or deactivating the user
+	updatingEmail := foundUser.OktaEmail != user.OktaEmail
+	activatingUser := user.Active && !foundUser.Active
+	deactivatingUser := !user.Active && foundUser.Active
+
+	foundUser.OktaEmail = user.OktaEmail
 	foundUser.Active = user.Active
 
-	verrs, err := o.builder.UpdateOne(appCtx, &foundUser, nil)
-	if verrs != nil || err != nil {
-		return nil, verrs, err
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		verrs, err := o.builder.UpdateOne(txnCtx, &foundUser, nil)
+		if err != nil || (verrs != nil && verrs.HasAny()) {
+			appCtx.Logger().Error("could not update user as admin", zap.Error(err), zap.Error(verrs))
+			return err
+		}
+
+		// finding existing users based off the
+		var existingOfficeUser models.OfficeUser
+		var existingAdminUser models.AdminUser
+		var existingServiceMemberUser models.ServiceMember
+		userFilters := []services.QueryFilter{query.NewQueryFilter("user_id", "=", user.ID.String())}
+
+		_ = o.builder.FetchOne(txnCtx, &existingOfficeUser, userFilters)
+		_ = o.builder.FetchOne(txnCtx, &existingAdminUser, userFilters)
+		_ = o.builder.FetchOne(txnCtx, &existingServiceMemberUser, userFilters)
+
+		// update office user if found
+		if existingOfficeUser.ID != uuid.Nil {
+			existingOfficeUser.Active = user.Active
+			existingOfficeUser.Email = user.OktaEmail
+			verrs, err := o.builder.UpdateOne(txnCtx, &existingOfficeUser, nil)
+			if err != nil || (verrs != nil && verrs.HasAny()) {
+				appCtx.Logger().Error("could not update existing office user as admin", zap.Error(err), zap.Error(verrs))
+				return err
+			}
+		}
+
+		// update admin user if found
+		if existingAdminUser.ID != uuid.Nil {
+			existingAdminUser.Active = user.Active
+			existingAdminUser.Email = user.OktaEmail
+			verrs, err := o.builder.UpdateOne(txnCtx, &existingAdminUser, nil)
+			if err != nil || (verrs != nil && verrs.HasAny()) {
+				appCtx.Logger().Error("could not update existing admin user as admin", zap.Error(err), zap.Error(verrs))
+				return err
+			}
+		}
+
+		// update service member user if found
+		// only need to update if the email is being updated
+		if existingServiceMemberUser.ID != uuid.Nil && updatingEmail {
+			existingServiceMemberUser.PersonalEmail = &user.OktaEmail
+			verrs, err := o.builder.UpdateOne(txnCtx, &existingServiceMemberUser, nil)
+			if err != nil || (verrs != nil && verrs.HasAny()) {
+				appCtx.Logger().Error("could not update existing service member user as admin", zap.Error(err), zap.Error(verrs))
+				return err
+			}
+		}
+
+		// if the user email is being updated, we need to also update the Okta profile
+		if updatingEmail && foundUser.OktaEmail != "" && appCtx.Session().IDToken != "devlocal" {
+			req := appCtx.HTTPRequest()
+			if req == nil {
+				return fmt.Errorf("failed to retrieve HTTP request from session")
+			}
+			provider, err := okta.GetOktaProviderForRequest(req)
+			if err != nil {
+				return fmt.Errorf("error retrieving Okta provider: %w", err)
+			}
+
+			apiKey := models.GetOktaAPIKey()
+			oktaID := foundUser.OktaID
+
+			existingOktaUser, err := models.GetOktaUser(txnCtx, provider, oktaID, apiKey)
+			if err != nil || existingOktaUser == nil {
+				return fmt.Errorf("failed to fetch Okta user before update")
+			}
+
+			existingOktaUser.Profile.Email = foundUser.OktaEmail
+			existingOktaUser.Profile.Login = foundUser.OktaEmail
+
+			_, err = models.UpdateOktaUser(txnCtx, provider, oktaID, apiKey, *existingOktaUser)
+			if err != nil {
+				return fmt.Errorf("error updating Okta user: %w", err)
+			}
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, nil, transactionError
 	}
 
-	// If the update was successful and we are deactivating the user,
-	// update the office and admin statuses to match.
-
-	// Check if we are deactivating the user
-	if !user.Active {
-
-		// Check for Office User
-		foundOfficeUser := models.OfficeUser{}
-		filters = []services.QueryFilter{query.NewQueryFilter("user_id", "=", id.String())}
-		err = o.builder.FetchOne(appCtx, &foundOfficeUser, filters)
-
-		// If we find a matching Office User, update their status
-		if err == nil {
-			payload := adminmessages.OfficeUserUpdate{
-				Active: &user.Active,
-			}
-			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(appCtx, foundOfficeUser.ID, &payload, uuid.Nil)
-
-			if verrs != nil {
-				appCtx.Logger().Error("Could not update office user", zap.Error(verrs))
-			} else if err != nil {
-				appCtx.Logger().Error("Could not update office user", zap.Error(err))
-			}
-		}
-
-		// Check for Admin User
-		foundAdminUser := models.AdminUser{}
-		err = o.builder.FetchOne(appCtx, &foundAdminUser, filters)
-		// If we find a matching Admin User, update their status
-		if err == nil {
-			payload := adminmessages.AdminUserUpdate{
-				Active: &user.Active,
-			}
-			_, verrs, err = o.adminUserUpdater.UpdateAdminUser(appCtx, foundAdminUser.ID, &payload)
-			if verrs != nil {
-				appCtx.Logger().Error("Could not update admin user", zap.Error(verrs))
-			} else if err != nil {
-				appCtx.Logger().Error("Could not update admin user", zap.Error(err))
-			}
-		}
-
-		if userWasActive {
-			email, emailErr := notifications.NewUserAccountDeactivated(
-				appCtx, notifications.GetSysAdminEmail(o.sender), foundUser.ID, foundUser.UpdatedAt)
-			if emailErr != nil {
-				appCtx.Logger().Error("Could not send user deactivation email", zap.Error(emailErr))
-			} else {
-				userActivityEmail = notifications.Notification(email)
-			}
-		}
-	} else if !userWasActive {
+	// sending notifications based on if the user is being activated/deactivated
+	var userActivityEmail notifications.Notification
+	if activatingUser && !deactivatingUser {
 		email, emailErr := notifications.NewUserAccountActivated(
 			appCtx, notifications.GetSysAdminEmail(o.sender), foundUser.ID, foundUser.UpdatedAt)
 		if emailErr != nil {
 			appCtx.Logger().Error("Could not send user activation email", zap.Error(emailErr))
+		} else {
+			userActivityEmail = notifications.Notification(email)
+		}
+	} else if !activatingUser && deactivatingUser {
+		email, emailErr := notifications.NewUserAccountDeactivated(
+			appCtx, notifications.GetSysAdminEmail(o.sender), foundUser.ID, foundUser.UpdatedAt)
+		if emailErr != nil {
+			appCtx.Logger().Error("Could not send user deactivation email", zap.Error(emailErr))
 		} else {
 			userActivityEmail = notifications.Notification(email)
 		}

@@ -6,8 +6,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	tppsResponse "github.com/transcom/mymove/pkg/edi/tpps_paid_invoice_report"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -72,4 +75,12 @@ type SyncadaSFTPReader interface {
 type SyncadaFileProcessor interface {
 	ProcessFile(appCtx appcontext.AppContext, syncadaPath string, text string) error
 	EDIType() models.EDIType
+}
+
+// TPPSPaidInvoiceReportProcessor defines an interface for storing TPPS payment files in the database
+//
+//go:generate mockery --name TPPSPaidInvoiceReportProcessor
+type TPPSPaidInvoiceReportProcessor interface {
+	ProcessFile(appCtx appcontext.AppContext, syncadaPath string, text string) error
+	StoreTPPSPaidInvoiceReportInDatabase(appCtx appcontext.AppContext, tppsData []tppsResponse.TPPSData) (*validate.Errors, int, int, error)
 }

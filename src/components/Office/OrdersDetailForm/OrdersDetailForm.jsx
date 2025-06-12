@@ -5,6 +5,7 @@ import styles from './OrdersDetailForm.module.scss';
 
 import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
 import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
@@ -41,15 +42,18 @@ const OrdersDetailForm = ({
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
+  const noStarOrQuote = (value) => (/^[^*"]*$/.test(value) ? undefined : 'SAC cannot contain * or " characters');
   // The text/placeholder are different if the customer is retiring or separating.
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
   return (
     <div className={styles.OrdersDetailForm}>
+      {requiredAsteriskMessage}
       <DutyLocationInput
         name="originDutyLocation"
         label="Current duty location"
         displayAddress={false}
         isDisabled={formIsDisabled}
+        showRequiredAsterisk
       />
       <DutyLocationInput
         name="newDutyLocation"
@@ -57,6 +61,7 @@ const OrdersDetailForm = ({
         displayAddress={false}
         placeholder={isRetirementOrSeparation ? 'Enter a city or ZIP' : 'Start typing a duty location...'}
         isDisabled={formIsDisabled}
+        showRequiredAsterisk
       />
       <DropdownInput
         data-testid="payGradeInput"
@@ -66,23 +71,32 @@ const OrdersDetailForm = ({
         options={payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
+        showRequiredAsterisk
       />
-      <DatePickerInput name="issueDate" label="Date issued" disabled={formIsDisabled} />
-      <DatePickerInput name="reportByDate" label={reportDateRowLabel} disabled={formIsDisabled} />
+      <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk disabled={formIsDisabled} />
+      <DatePickerInput name="reportByDate" label={reportDateRowLabel} showRequiredAsterisk disabled={formIsDisabled} />
       {showDepartmentIndicator && (
         <DropdownInput
           name="departmentIndicator"
           label="Department indicator"
+          showRequiredAsterisk
           options={deptIndicatorOptions}
           isDisabled={formIsDisabled}
         />
       )}
       {showOrdersNumber && (
-        <TextField name="ordersNumber" label="Orders number" id="ordersNumberInput" isDisabled={formIsDisabled} />
+        <TextField
+          name="ordersNumber"
+          label="Orders number"
+          id="ordersNumberInput"
+          showRequiredAsterisk
+          isDisabled={formIsDisabled}
+        />
       )}
       <DropdownInput
         name="ordersType"
         label="Orders type"
+        showRequiredAsterisk
         options={
           formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY_NON_LABEL || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
             ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
@@ -103,10 +117,19 @@ const OrdersDetailForm = ({
           name="ordersTypeDetail"
           label="Orders type detail"
           options={ordersTypeDetailOptions}
+          showRequiredAsterisk
           isDisabled={formIsDisabled}
         />
       )}
-
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          id="dependentsAuthorizedInput"
+          data-testid="dependentsAuthorizedInput"
+          name="dependentsAuthorized"
+          label="Dependents authorized"
+          isDisabled={formIsDisabled}
+        />
+      </div>
       {showHHGTac && showHHGSac && <h3>HHG accounting codes</h3>}
       {showHHGTac && (
         <MaskedTextField
@@ -117,17 +140,21 @@ const OrdersDetailForm = ({
           inputTestId="hhgTacInput"
           warning={hhgTacWarning}
           validate={validateHHGTac}
+          showRequiredAsterisk
           isDisabled={formIsDisabled}
         />
       )}
       {showHHGSac && (
-        <TextField
+        <MaskedTextField
           name="sac"
           label="SAC"
+          mask={/[A-Za-z0-9]*/}
           id="hhgSacInput"
+          inputTestId="hhgSacInput"
           data-testid="hhgSacInput"
           isDisabled={formIsDisabled}
           maxLength="80"
+          validate={noStarOrQuote}
           optional
         />
       )}
@@ -161,13 +188,16 @@ const OrdersDetailForm = ({
         />
       )}
       {showNTSSac && (
-        <TextField
+        <MaskedTextField
           name="ntsSac"
           label="SAC"
           id="ntsSacInput"
+          mask={/[A-Za-z0-9]*/}
           isDisabled={formIsDisabled}
+          inputTestId="ntsSacInput"
           data-testid="ntsSacInput"
           maxLength="80"
+          validate={noStarOrQuote}
           optional
         />
       )}

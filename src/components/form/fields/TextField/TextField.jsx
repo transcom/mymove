@@ -1,12 +1,15 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { useField } from 'formik';
 import { FormGroup, Label, TextInput, Textarea, ErrorMessage } from '@trussworks/react-uswds';
 
+import styles from './TextField.module.scss';
+
 import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 /**
  * This component renders a ReactUSWDS TextInput component inside of a FormGroup,
@@ -35,6 +38,9 @@ const TextField = ({
   isDisabled,
   display,
   button,
+  disablePaste,
+  showRequiredAsterisk,
+  prefix,
   ...inputProps
 }) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
@@ -45,10 +51,31 @@ const TextField = ({
     warning: showWarning,
   });
 
+  const pasteHandler = disablePaste ? (e) => e.preventDefault() : undefined;
+
+  const prefixRef = useRef(null);
+  const [prefixWidth, setPrefixWidth] = useState(0);
+
+  useEffect(() => {
+    if (prefixRef.current) {
+      setPrefixWidth(prefixRef.current.offsetWidth + 16);
+    }
+  }, [prefix]);
+
   const getDisplay = (displayType) => {
     switch (displayType) {
       case 'textarea':
-        return <Textarea id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
+        return (
+          <Textarea
+            id={id}
+            name={name}
+            disabled={isDisabled}
+            onPaste={pasteHandler}
+            {...fieldProps}
+            {...inputProps}
+            aria-describedby={showError ? `${id}-error` : undefined}
+          />
+        );
       case 'readonly':
         return (
           <label htmlFor={id || name} id={id} data-testid={label} aria-label={name}>
@@ -56,7 +83,41 @@ const TextField = ({
           </label>
         );
       default:
-        return <TextInput id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
+        if (!prefix) {
+          return (
+            <TextInput
+              id={id}
+              name={name}
+              disabled={isDisabled}
+              onPaste={pasteHandler}
+              {...fieldProps}
+              {...inputProps}
+              aria-describedby={showError ? `${id}-error` : undefined}
+            />
+          );
+        }
+
+        return (
+          <div className={styles.inputWithPrefix}>
+            <span ref={prefixRef} className={styles.prefix}>
+              {prefix}
+            </span>
+            <TextInput
+              id={id}
+              name={name}
+              disabled={isDisabled}
+              onPaste={pasteHandler}
+              {...fieldProps}
+              {...inputProps}
+              aria-describedby={showError ? `${id}-error` : undefined}
+              className={classnames(inputProps.className, styles.prefixedInput)}
+              style={{
+                paddingLeft: `${prefixWidth}px`,
+                ...inputProps.style,
+              }}
+            />
+          </div>
+        );
     }
   };
 
@@ -64,13 +125,15 @@ const TextField = ({
     <FormGroup className={formGroupClasses} error={showError}>
       <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
-          {label}
+          <span>
+            {label} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
         {optional && <OptionalTag />}
       </div>
 
       {showError && (
-        <ErrorMessage display={showError} className={errorClassName}>
+        <ErrorMessage id={`${id}-error`} role="alert" aria-live="assertive" className={errorClassName}>
           {metaProps.error ? metaProps.error : errorMessage}
         </ErrorMessage>
       )}
@@ -99,6 +162,8 @@ TextField.propTypes = {
   errorClassName: PropTypes.string,
   isDisabled: PropTypes.bool,
   button: PropTypes.node,
+  disablePaste: PropTypes.bool,
+  prefix: PropTypes.string,
 };
 
 TextField.defaultProps = {
@@ -114,6 +179,8 @@ TextField.defaultProps = {
   isDisabled: false,
   display: 'input',
   button: undefined,
+  disablePaste: false,
+  prefix: '',
 };
 
 export default TextField;

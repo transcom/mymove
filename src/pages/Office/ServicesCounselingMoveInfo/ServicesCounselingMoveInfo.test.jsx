@@ -2,18 +2,45 @@ import React from 'react';
 import { render, screen, queryByTestId, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { v4 } from 'uuid';
 
 import ServicesCounselingMoveInfo from './ServicesCounselingMoveInfo';
 
 import { mockPage, ReactQueryWrapper } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
+import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
+
+const mockMTOShipmentId = v4();
+const mockPPMShipmentId = v4();
+
+const mockMTOShipment = {
+  id: mockMTOShipmentId,
+  shipmentType: 'PPM',
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasProGear: false,
+    proGearWeight: null,
+    spouseProGearWeight: null,
+    weightTickets: [],
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
 
 const testMoveCode = '1A5PM3';
 const loggedInTIOState = {
@@ -60,6 +87,7 @@ jest.mock('hooks/queries', () => ({
       isSuccess: true,
     };
   },
+  usePPMShipmentAndDocsOnlyQueries: jest.fn(),
 }));
 
 mockPage('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails');
@@ -222,6 +250,27 @@ describe('Services Counseling Move Info Container', () => {
     // Assert that the mock component has not been rendered
     await waitFor(() => {
       expect(screen.queryByText(`Mock ${componentName} Component`)).not.toBeInTheDocument();
+    });
+  });
+
+  it('should render the PPM closeout About page component', async () => {
+    const componentName = 'About your PPM';
+    const nestedPath = 'shipments/:shipmentId/about';
+
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      error: null,
+    });
+
+    renderSCMoveInfo(nestedPath);
+
+    // Wait for loading to finish
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    // Assert that the mock component is rendered
+    await waitFor(() => {
+      expect(screen.getByText(`${componentName}`)).toBeInTheDocument();
     });
   });
 });

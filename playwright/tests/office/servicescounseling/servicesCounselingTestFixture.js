@@ -162,7 +162,7 @@ export class ServiceCounselorPage extends OfficePage {
     const storageAddress = this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
     await storageAddress.getByLabel('Address 1').fill('148 S East St');
     await storageAddress.getByLabel('Address 2').fill('Suite 7A');
-    await this.page.locator('input[id="storageFacility.address-location-input"]').fill('30301');
+    await this.page.locator('input[id="storageFacility.address-input"]').fill('30301');
     await expect(storageAddress.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
     await this.page.getByLabel('Lot number').fill('1111111');
@@ -177,7 +177,7 @@ export class ServiceCounselorPage extends OfficePage {
     const deliveryLocation = this.page.getByRole('group', { name: 'Delivery Address' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
-    await this.page.locator('input[id="delivery.address-location-input"]').fill('36101');
+    await this.page.locator('input[id="delivery.address-input"]').fill('36101');
     await expect(deliveryLocation.getByText(DeliveryLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -187,6 +187,174 @@ export class ServiceCounselorPage extends OfficePage {
     // Save the shipment, progress back to the move details page, and verify it's been created
     await this.page.getByRole('button', { name: 'Save' }).click();
     await this.waitForPage.moveDetails();
+  }
+
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.selectAdvance=false]
+   * returns {Promise<void>}
+   */
+  async fillOutAboutPage(options = { selectAdvance: false }) {
+    // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
+    // this helps debounce the API calls that would be triggered in quick succession
+    await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
+
+    const LocationLookup = 'YUMA, AZ 85364 (YUMA)';
+
+    await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="pickupAddress-input"]').fill('85364');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="destinationAddress-input"]').fill('85364');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    if (options?.selectAdvance) {
+      await this.page.locator('label[for="yes-has-received-advance"]').click();
+      await this.page.locator('input[name="advanceAmountReceived"]').fill('5000');
+    } else {
+      await this.page.locator('label[for="no-has-received-advance"]').click();
+    }
+
+    await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="w2Address-input"]').fill('85364');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+  }
+
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.hasTrailer=false]
+   * @param {boolean} [options.ownTrailer=false]
+   * @param {boolean} [options.useConstructedWeight=false]
+   * returns {Promise<void>}
+   */
+  async fillOutWeightTicketPage(options) {
+    const { hasTrailer = false, ownTrailer = false, useConstructedWeight = false } = options;
+    await this.page.locator('input[name="vehicleDescription"]').fill('Kia Forte');
+    await this.page.locator('input[name="vehicleDescription"]').blur();
+
+    await this.page.getByLabel('Empty weight').clear();
+    await this.page.getByLabel('Empty weight').fill('1000');
+    await this.page.getByLabel('Empty weight').blur();
+    if (useConstructedWeight) {
+      // this page has multiple labels with the same text, grab the
+      // first one for Empty Weight. Not sure why getByLabel does not work
+      await this.page.locator('label').getByText("I don't have this weight ticket").first().click();
+
+      const emptyRental = this.page.locator('label').getByText(
+        `Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used
+        during the PPM`,
+      );
+
+      await expect(emptyRental).toBeVisible();
+      let filepond = emptyRental.locator('../..').locator('.filepond--wrapper');
+      await expect(filepond).toBeVisible();
+
+      await this.uploadFileViaFilepond(filepond, 'sampleWeightTicket.jpg');
+
+      // wait for the file to be visible in the uploads
+      await expect(
+        filepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+      ).toBeVisible();
+
+      await this.page.getByLabel('Full weight').clear();
+      await this.page.getByLabel('Full weight').fill('3000');
+
+      // this page has multiple labels with the same text, grab the
+      // second one for Full Weight. Not sure why getByLabel does not work
+      await this.page.locator('label').getByText("I don't have this weight ticket").nth(1).click();
+
+      const fullConstructed = this.page
+        .locator('label')
+        .getByText('Upload your completed constructed weight spreadsheet');
+
+      await expect(fullConstructed).toBeVisible();
+      filepond = fullConstructed.locator('../..').locator('.filepond--wrapper');
+      await expect(filepond).toBeVisible();
+
+      await this.uploadFileViaFilepond(filepond, 'constructedWeight.xlsx');
+
+      // weight estimator file should be converted to .pdf so we verify it was
+      const re = /constructedWeight.+\.pdf-\d{14}$/;
+
+      // wait for the file to be visible in the uploads
+      await expect(filepond.locator('../..').locator('p').getByText(re, { exact: false })).toBeVisible();
+    } else {
+      // find the label, then find the filepond wrapper. Not sure why
+      // getByLabel doesn't work
+      const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
+      await expect(emptyWeightLabel).toBeVisible();
+      const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
+      await expect(emptyFilepond).toBeVisible();
+
+      await this.uploadFileViaFilepond(emptyFilepond, 'sampleWeightTicket.jpg');
+
+      // wait for the file to be visible in the uploads
+      await expect(
+        emptyFilepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+      ).toBeVisible();
+
+      await this.page.getByLabel('Full Weight').clear();
+      await this.page.getByLabel('Full Weight').fill('3000');
+
+      // find the label, then find the filepond wrapper. Not sure why
+      // getByLabel doesn't work
+      const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
+      await expect(fullWeightLabel).toBeVisible();
+      const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
+      await expect(fullFilepond).toBeVisible();
+
+      await this.uploadFileViaFilepond(fullFilepond, 'sampleWeightTicket.jpg');
+      // wait for the file to be visible in the uploads
+      await expect(
+        fullFilepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+      ).toBeVisible();
+    }
+
+    await expect(this.page.locator('.tripWeightTotal')).toContainText('Trip weight: 2,000 lbs');
+
+    if (hasTrailer) {
+      // the page design makes it hard to click without using a css locator
+      await this.page.locator('label[for="yesOwnsTrailer"]').click();
+      if (ownTrailer) {
+        // the page design makes it hard to click without using a css locator
+        await this.page.locator('label[for="yestrailerMeetsCriteria"]').click();
+
+        // find the label, then find the filepond wrapper, not sure
+        // why getByLabel does not work
+        const ownershipLabel = this.page.locator('label').getByText('Upload proof of ownership', { exact: true });
+        await expect(ownershipLabel).toBeVisible();
+        const ownershipFilepond = ownershipLabel.locator('../..').locator('.filepond--wrapper');
+        await expect(ownershipFilepond).toBeVisible();
+
+        await this.uploadFileViaFilepond(ownershipFilepond, 'trailerOwnership.pdf');
+
+        // wait for the file to be visible in the uploads
+        await expect(
+          ownershipFilepond
+            .locator('../..')
+            .locator('p')
+            .getByText(/trailerOwnership\.pdf-\d{14}/, { exact: false }),
+        ).toBeVisible();
+      } else {
+        // the page design makes it hard to click without using a css locator
+        await this.page.locator('label[for="notrailerMeetsCriteria"]').click();
+      }
+    }
   }
 }
 

@@ -87,7 +87,7 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	eiaURL := v.GetString(cli.EIAURLFlag)
 	eiaKey := v.GetString(cli.EIAKeyFlag)

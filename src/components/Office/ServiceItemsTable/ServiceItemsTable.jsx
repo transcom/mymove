@@ -10,6 +10,7 @@ import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 import styles from './ServiceItemsTable.module.scss';
 
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ALLOWED_RESUBMISSION_SI_CODES, ALLOWED_SIT_UPDATE_SI_CODES } from 'constants/sitUpdates';
 import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
@@ -30,19 +31,37 @@ import { nullSafeStringCompare } from 'utils/string';
 // destination SIT
 function sortServiceItems(items) {
   // Prioritize service items with codes 'DSH' (shorthaul) and 'DLH' (linehaul) to be at the top of the list
-  const haulTypeServiceItemCodes = ['DSH', 'DLH'];
+  const haulTypeServiceItemCodes = [SERVICE_ITEM_CODES.DSH, SERVICE_ITEM_CODES.DLH];
   const haulTypeServiceItems = items.filter((item) => haulTypeServiceItemCodes.includes(item.code));
   const sortedHaulTypeServiceItems = haulTypeServiceItems.sort(
     (a, b) => haulTypeServiceItemCodes.indexOf(a.code) - haulTypeServiceItemCodes.indexOf(b.code),
   );
   // Filter and sort destination SIT. Code index is also the sort order
-  const destinationServiceItemCodes = ['DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC'];
+  const destinationServiceItemCodes = [
+    SERVICE_ITEM_CODES.DDFSIT,
+    SERVICE_ITEM_CODES.DDASIT,
+    SERVICE_ITEM_CODES.DDDSIT,
+    SERVICE_ITEM_CODES.DDSFSC,
+    SERVICE_ITEM_CODES.IDFSIT,
+    SERVICE_ITEM_CODES.IDASIT,
+    SERVICE_ITEM_CODES.IDDSIT,
+    SERVICE_ITEM_CODES.IDSFSC,
+  ];
   const destinationServiceItems = items.filter((item) => destinationServiceItemCodes.includes(item.code));
   const sortedDestinationServiceItems = destinationServiceItems.sort(
     (a, b) => destinationServiceItemCodes.indexOf(a.code) - destinationServiceItemCodes.indexOf(b.code),
   );
   // Filter origin SIT. Code index is also the sort order
-  const originServiceItemCodes = ['DOFSIT', 'DOASIT', 'DOPSIT', 'DOSFSC'];
+  const originServiceItemCodes = [
+    SERVICE_ITEM_CODES.DOFSIT,
+    SERVICE_ITEM_CODES.DOASIT,
+    SERVICE_ITEM_CODES.DOPSIT,
+    SERVICE_ITEM_CODES.DOSFSC,
+    SERVICE_ITEM_CODES.IOFSIT,
+    SERVICE_ITEM_CODES.IOASIT,
+    SERVICE_ITEM_CODES.IOPSIT,
+    SERVICE_ITEM_CODES.IOSFSC,
+  ];
   const originServiceItems = items.filter((item) => originServiceItemCodes.includes(item.code));
   const sortedOriginServiceItems = originServiceItems.sort(
     (a, b) => originServiceItemCodes.indexOf(a.code) - originServiceItemCodes.indexOf(b.code),
@@ -202,7 +221,7 @@ const ServiceItemsTable = ({
     // we don't want to display the "Accept" button for a DLH or DSH service item that was rejected by a shorthaul to linehaul change or vice versa
     let rejectedDSHorDLHServiceItem = false;
     if (
-      (serviceItem.code === 'DLH' || serviceItem.code === 'DSH') &&
+      (serviceItem.code === SERVICE_ITEM_CODES.DLH || serviceItem.code === SERVICE_ITEM_CODES.DSH) &&
       serviceItem.details.rejectionReason ===
         'Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul.'
     ) {
@@ -215,7 +234,9 @@ const ServiceItemsTable = ({
           <td className={styles.nameAndDate}>
             <div className={styles.codeName}>
               <span className={styles.serviceItemName}>{serviceItem.serviceItem}</span>
-              {(code === 'DCRT' || code === 'ICRT') && serviceItem.details.standaloneCrate && ' - Standalone'}
+              {(code === SERVICE_ITEM_CODES.DCRT || code === SERVICE_ITEM_CODES.ICRT) &&
+                serviceItem.details.standaloneCrate &&
+                ' - Standalone'}
               {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && resubmittedToolTip.isResubmitted ? (
                 <ToolTip
                   data-testid="toolTipResubmission"
@@ -308,7 +329,12 @@ const ServiceItemsTable = ({
                           className="text-blue usa-button--unstyled margin-left-1"
                           disabled={hasPaymentRequestBeenMade || isMoveLocked}
                           onClick={() => {
-                            if (code === 'DDFSIT' || code === 'DOFSIT') {
+                            if (
+                              code === SERVICE_ITEM_CODES.DDFSIT ||
+                              code === SERVICE_ITEM_CODES.DOFSIT ||
+                              code === SERVICE_ITEM_CODES.IDFSIT ||
+                              code === SERVICE_ITEM_CODES.IOFSIT
+                            ) {
                               handleShowEditSitEntryDateModal(id, mtoShipmentID);
                             } else {
                               handleShowEditSitAddressModal(id, mtoShipmentID);

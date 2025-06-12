@@ -1,7 +1,6 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import EditOrders from './EditOrders';
 
@@ -15,6 +14,7 @@ import {
 } from 'store/entities/selectors';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ORDERS_TYPE } from 'constants/orders';
+import { setShowLoadingSpinner } from 'store/general/actions';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -53,6 +53,15 @@ jest.mock('services/internalApi', () => ({
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
+  })),
 }));
 
 describe('EditOrders Page', () => {
@@ -367,17 +376,19 @@ describe('EditOrders Page', () => {
       }),
     );
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    waitFor(() => {
+      const submitButton = screen.getByRole('button', { name: 'Save' });
+      expect(submitButton).toBeEnabled();
 
-    await userEvent.click(submitButton);
+      userEvent.click(submitButton);
 
-    await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
     });
 
-    expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
-    expect(mockNavigate).not.toHaveBeenCalled();
+    waitFor(() => {
+      expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 
   it('next button patches the orders and goes to the previous page', async () => {
@@ -387,17 +398,19 @@ describe('EditOrders Page', () => {
     });
     patchOrders.mockImplementation(() => Promise.resolve(testProps.currentOrders));
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    const submitButton = screen.findByRole('button', { name: 'Save' });
+    waitFor(async () => {
+      await expect(submitButton).not.toBeDisabled();
 
-    await userEvent.click(submitButton);
+      await userEvent.click(submitButton);
 
-    await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
     });
 
-    expect(mockNavigate).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith(-1);
+    });
   });
 
   it('submits OCONUS fields correctly on form submit', async () => {
@@ -417,19 +430,22 @@ describe('EditOrders Page', () => {
         origin_duty_location: 'Fort Gregg-Adams, VA 23801',
       });
     });
-    await userEvent.click(screen.getByTestId('hasDependentsYes'));
-    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
-    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    waitFor(() => {
+      userEvent.click(screen.getByTestId('hasDependentsYes'));
+      userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+      userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+      userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+    });
 
-    await act(async () => {
+    waitFor(() => {
+      const submitButton = screen.findByRole('button', { name: 'Save' });
+
+      expect(submitButton).toBeEnabled();
       userEvent.click(submitButton);
     });
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(patchOrders).toHaveBeenCalledWith(
         expect.objectContaining({
           accompanied_tour: true,
@@ -438,6 +454,24 @@ describe('EditOrders Page', () => {
         }),
       );
     });
+  });
+
+  it('calls the loading spinner on page load', async () => {
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    // calls the loading spinner on load
+    await waitFor(() => {
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
+    });
+
+    const h1 = await screen.findByRole('heading', { name: 'Orders', level: 1 });
+    expect(h1).toBeInTheDocument();
+
+    const editOrdersHeader = await screen.findByRole('heading', { name: 'Edit Orders:', level: 2 });
+    expect(editOrdersHeader).toBeInTheDocument();
   });
 
   afterEach(jest.clearAllMocks);

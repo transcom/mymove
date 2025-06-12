@@ -1,9 +1,13 @@
 package adminapi
 
 import (
+	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -13,6 +17,7 @@ import (
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -23,23 +28,52 @@ import (
 func payloadForRole(r roles.Role) *adminmessages.Role {
 	roleType := string(r.RoleType)
 	roleName := string(r.RoleName)
+	sort := int32(r.Sort)
 	return &adminmessages.Role{
 		ID:        handlers.FmtUUID(r.ID),
 		RoleType:  &roleType,
 		RoleName:  &roleName,
+		Sort:      sort,
 		CreatedAt: *handlers.FmtDateTime(r.CreatedAt),
 		UpdatedAt: *handlers.FmtDateTime(r.UpdatedAt),
 	}
 }
 
-func payloadForPrivilege(p models.Privilege) *adminmessages.Privilege {
+func payloadForPrivilege(p roles.Privilege) *adminmessages.Privilege {
+	sort := int32(p.Sort)
 	return &adminmessages.Privilege{
 		ID:            *handlers.FmtUUID(p.ID),
 		PrivilegeType: *handlers.FmtString(string(p.PrivilegeType)),
 		PrivilegeName: *handlers.FmtString(string(p.PrivilegeName)),
+		Sort:          sort,
 		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
 		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
 	}
+}
+
+func payloadForRolePrivilege(role roles.Role) *adminmessages.Role {
+	sort := int32(role.Sort)
+	r := &adminmessages.Role{
+		ID:        handlers.FmtUUID(role.ID),
+		RoleType:  handlers.FmtString(string(role.RoleType)),
+		RoleName:  handlers.FmtString(string(role.RoleName)),
+		Sort:      sort,
+		CreatedAt: *handlers.FmtDateTime(role.CreatedAt),
+		UpdatedAt: *handlers.FmtDateTime(role.UpdatedAt),
+	}
+
+	for _, rp := range role.RolePrivileges {
+		privSort := int32(rp.Privilege.Sort)
+		r.Privileges = append(r.Privileges, &adminmessages.Privilege{
+			ID:            *handlers.FmtUUID(rp.PrivilegeID),
+			PrivilegeType: *handlers.FmtString(string(rp.Privilege.PrivilegeType)),
+			PrivilegeName: *handlers.FmtString(string(rp.Privilege.PrivilegeName)),
+			Sort:          privSort,
+			CreatedAt:     *handlers.FmtDateTime(rp.Privilege.CreatedAt),
+			UpdatedAt:     *handlers.FmtDateTime(rp.Privilege.UpdatedAt),
+		})
+	}
+	return r
 }
 
 func payloadForTransportationOfficeAssignment(toa models.TransportationOfficeAssignment) *adminmessages.TransportationOfficeAssignment {
@@ -108,18 +142,51 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
 type IndexOfficeUsersHandler struct {
 	handlers.HandlerConfig
-	services.ListFetcher
+	services.OfficeUserListFetcher
 	services.NewQueryFilter
 	services.NewPagination
 }
 
-var officeUserFilterConverters = map[string]func(string) []services.QueryFilter{
-	"search": func(content string) []services.QueryFilter {
-		nameSearch := fmt.Sprintf("%s%%", content)
-		return []services.QueryFilter{
-			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
-			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
-			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+var officeUserFilterConverters = map[string]func(string) func(*pop.Query){
+	"search": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			firstSearch, lastSearch, emailSearch := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
+			query.Where("(office_users.first_name ILIKE ? OR office_users.last_name ILIKE ? OR office_users.email ILIKE ?) AND office_users.status = 'APPROVED'", firstSearch, lastSearch, emailSearch)
+		}
+	},
+	"email": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			emailSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.email ILIKE ? AND office_users.status = 'APPROVED'", emailSearch)
+		}
+	},
+	"phone": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			phoneSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.telephone ILIKE ? AND office_users.status = 'APPROVED'", phoneSearch)
+		}
+	},
+	"firstName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			firstNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'APPROVED'", firstNameSearch)
+		}
+	},
+	"lastName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			lastNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.last_name ILIKE ? AND office_users.status = 'APPROVED'", lastNameSearch)
+		}
+	},
+	"office": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			officeSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'APPROVED'", officeSearch)
+		}
+	},
+	"active": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			query.Where("office_users.active = ? AND office_users.status = 'APPROVED'", content)
 		}
 	},
 }
@@ -128,27 +195,25 @@ var officeUserFilterConverters = map[string]func(string) []services.QueryFilter{
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, officeUserFilterConverters)
+			var filtersMap map[string]string
+			if params.Filter != nil && *params.Filter != "" {
+				err := json.Unmarshal([]byte(*params.Filter), &filtersMap)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), errors.New("invalid filter format")), err
+				}
+			}
 
-			// Add a filter for approved status
-			queryFilters = append(queryFilters, query.NewQueryFilter("status", "=", "APPROVED"))
+			var filterFuncs []func(*pop.Query)
+			for key, filterFunc := range officeUserFilterConverters {
+				if filterValue, exists := filtersMap[key]; exists {
+					filterFuncs = append(filterFuncs, filterFunc(filterValue))
+				}
+			}
 
 			pagination := h.NewPagination(params.Page, params.PerPage)
 			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
-				query.NewQueryAssociation("User.Roles"),
-				query.NewQueryAssociation("User.Privileges"),
-			})
-
-			var officeUsers models.OfficeUsers
-			err := h.ListFetcher.FetchRecordList(appCtx, &officeUsers, queryFilters, queryAssociations, pagination, ordering)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(appCtx, &officeUsers, queryFilters)
+			officeUsers, count, err := h.OfficeUserListFetcher.FetchOfficeUsersList(appCtx, filterFuncs, pagination, ordering)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -161,7 +226,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 				payload[i] = payloadForOfficeUserModel(s)
 			}
 
-			return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
+			return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, count)).WithPayload(payload), nil
 		})
 }
 
@@ -384,7 +449,16 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
-			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload, primaryTransportationOfficeID)
+			officeUserDB, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching office user", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserNotFound(), err
+			}
+
+			newOfficeUser := payloads.OfficeUserModelFromUpdate(payload, officeUserDB)
+
+			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, newOfficeUser, primaryTransportationOfficeID)
 
 			if err != nil || verrs != nil {
 				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
@@ -539,11 +613,11 @@ func rolesPayloadToModel(payload []*adminmessages.OfficeUserRole) []roles.RoleTy
 	return rt
 }
 
-func privilegesPayloadToModel(payload []*adminmessages.OfficeUserPrivilege) []models.PrivilegeType {
-	var rt []models.PrivilegeType
+func privilegesPayloadToModel(payload []*adminmessages.OfficeUserPrivilege) []roles.PrivilegeType {
+	var rt []roles.PrivilegeType
 	for _, privilege := range payload {
 		if privilege.PrivilegeType != nil {
-			rt = append(rt, models.PrivilegeType(*privilege.PrivilegeType))
+			rt = append(rt, roles.PrivilegeType(*privilege.PrivilegeType))
 		}
 	}
 	return rt
@@ -618,5 +692,37 @@ func (h DeleteOfficeUserHandler) Handle(params officeuserop.DeleteOfficeUserPara
 			}
 
 			return officeuserop.NewDeleteOfficeUserNoContent(), nil
+		})
+}
+
+// GetRolesPrivilegesHandler retrieves a list of unique role to privilege mappings via GET /office_users/roles-privileges
+type GetRolesPrivilegesHandler struct {
+	handlers.HandlerConfig
+	services.RoleAssociater
+}
+
+func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivilegesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// we only allow this to be called from the admin app
+			if !appCtx.Session().IsAdminApp() {
+				return officeuserop.NewGetRolesPrivilegesUnauthorized(), nil
+			}
+
+			rolesWithRolePrivs, err := h.RoleAssociater.FetchRolesPrivileges(appCtx)
+			if err != nil && errors.Is(err, sql.ErrNoRows) {
+				return officeuserop.NewGetRolesPrivilegesNotFound(), err
+			} else if err != nil {
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewGetRolesPrivilegesInternalServerError(), err
+			}
+
+			payload := make([]*adminmessages.Role, len(rolesWithRolePrivs))
+			for i, rwrp := range rolesWithRolePrivs {
+				payload[i] = payloadForRolePrivilege(rwrp)
+			}
+
+			return officeuserop.NewGetRolesPrivilegesOK().WithPayload(payload), nil
 		})
 }

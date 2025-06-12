@@ -74,4 +74,6 @@ func (suite *WeightTicketParserServiceSuite) TestFillWeightEstimatorPDFForm() {
 	suite.NoError(err)
 	println(testFile.Name())                             // ensures was generated with temp filesystem
 	suite.Equal(pdfInfo.PageCount, WeightEstimatorPages) // ensures PDF is not corrupted
+	err = weightParserGenerator.CleanupFile(testFile)
+	suite.NoError(err)
 }

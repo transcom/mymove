@@ -77,6 +77,16 @@ func main() {
 	initConnectToGEXViaSFTPFlags(processEDIsCommand.Flags())
 	root.AddCommand(processEDIsCommand)
 
+	processTPPSCommand := &cobra.Command{
+		Use:          "process-tpps",
+		Short:        "process TPPS files asynchrounously",
+		Long:         "process TPPS files asynchrounously",
+		RunE:         processTPPS,
+		SilenceUsage: true,
+	}
+	initProcessTPPSFlags(processTPPSCommand.Flags())
+	root.AddCommand(processTPPSCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

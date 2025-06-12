@@ -2,7 +2,7 @@
 
 .BulkModal {
   min-width: 650px !important;
-  max-width: 90vw;
+  max-width: 50vw;
   overflow-y: auto;
   max-height: 90vh;
   overflow-x: hidden;
@@ -29,13 +29,49 @@
     height: 42px;
     width: 68px;
   }
+
+  .errorMessage {
+    margin: 0 auto;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    color: $error;
+    font-size: large;
+  }
 }
 
 .BulkAssignmentTable {
   table {
+    table-layout: fixed;
+    width: 100%;
+
     th {
       max-width: 10px;
       text-align: center;
+      input[type="checkbox"] {
+        &:focus {
+          outline: none;
+          box-shadow: none;
+        }
+      }
+
+      &:first-child {
+        width: 20px;
+        padding-right: 3em;
+      }
+    }
+
+    .UserNameHeader {
+      text-align: left;
+    }
+
+    td {
+      input[type="checkbox"] {
+        &:focus {
+          outline: none;
+          box-shadow: none;
+        }
+      }
     }
     .BulkAssignmentDataCenter {
       text-align: center;
@@ -46,6 +82,22 @@
       padding-left: 15px;
       padding-top: 4px;
     }
+    .officeUserFormattedName {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.BulkAssignmentButtonsContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .BulkAssignmentButtonsLeft {
+    display: flex;
+    flex-direction: row;
   }
 }
 
@@ -68,5 +120,17 @@
     max-width: 100px;
     height: 42px;
     align-items: center;
+  }
+}
+
+.BulkAssignmentButtonsContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .BulkAssignmentButtonsLeft {
+    display: flex;
+    flex-direction: row;
   }
 }

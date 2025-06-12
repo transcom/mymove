@@ -1666,6 +1666,140 @@ func init() {
         }
       }
     },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/register": {
+      "post": {
+        "description": "Creates an Okta profile and MilMove profile using the information provided.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "registration"
+        ],
+        "summary": "Self registration of a customer. This creates a MilMove and Okta profile using the information provided.",
+        "operationId": "customerRegistration",
+        "parameters": [
+          {
+            "description": "registration information",
+            "name": "registration",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAndMilMoveUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully registered service member"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -3883,6 +4017,86 @@ func init() {
         }
       }
     },
+    "CreateOktaAndMilMoveUser": {
+      "type": "object",
+      "required": [
+        "affiliation",
+        "email",
+        "edipi",
+        "firstName",
+        "lastName",
+        "telephone"
+      ],
+      "properties": {
+        "affiliation": {
+          "title": "Branch",
+          "$ref": "#/definitions/Affiliation"
+        },
+        "edipi": {
+          "type": "string",
+          "format": "edipi",
+          "title": "DoD ID number",
+          "maxLength": 10,
+          "minLength": 10,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "5789345789"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "emailIsPreferred": {
+          "description": "Indicates if email is the preferred method of contact",
+          "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "1234567"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": false
+        },
+        "middleInitial": {
+          "type": "string",
+          "title": "Middle Initial",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "phoneIsPreferred": {
+          "description": "Indicates if phone is the preferred method of contact",
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        }
+      }
+    },
     "CreatePPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -3919,6 +4133,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
@@ -4178,6 +4395,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilian_tdy_ub_allowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counseling_office_id": {
           "type": "string",
@@ -4486,6 +4709,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
         },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
@@ -5553,6 +5782,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
@@ -5574,6 +5808,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -5654,11 +5897,23 @@ func init() {
           "x-omitempty": false,
           "example": "2022-04-26"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -5677,6 +5932,7 @@ func init() {
         "OIL",
         "OTHER",
         "PACKING_MATERIALS",
+        "SMALL_PACKAGE",
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
@@ -5689,6 +5945,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -5818,7 +6075,8 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEE"
+        "WEIGHING_FEE",
+        "SMALL_PACKAGE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -5827,6 +6085,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package reimbursement",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -6029,6 +6288,10 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -6124,7 +6387,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -6343,32 +6605,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -6442,6 +6684,18 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
@@ -6510,6 +6764,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
@@ -6684,6 +6941,16 @@ func init() {
       ],
       "readOnly": true
     },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
+      ]
+    },
     "PatchMovePayload": {
       "type": "object",
       "required": [
@@ -6855,6 +7122,12 @@ func init() {
         "document"
       ],
       "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean",
@@ -6935,6 +7208,12 @@ func init() {
         "submittedWeight": {
           "description": "Customer submitted weight of the pro-gear.",
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -7682,6 +7961,11 @@ func init() {
           "description": "A brief description of the expense",
           "type": "string"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the customer is missing the receipt for their expense.",
           "type": "boolean"
@@ -7692,6 +7976,15 @@ func init() {
         "paidWithGTCC": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
           "type": "boolean"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -7718,6 +8011,16 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer"
+        },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
           "type": "integer"
@@ -7735,28 +8038,10 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -7792,8 +8077,17 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -7836,6 +8130,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -8686,6 +8983,9 @@ func init() {
     },
     {
       "name": "application_parameters"
+    },
+    {
+      "name": "registration"
     }
   ]
 }`))
@@ -10443,6 +10743,143 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/register": {
+      "post": {
+        "description": "Creates an Okta profile and MilMove profile using the information provided.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "registration"
+        ],
+        "summary": "Self registration of a customer. This creates a MilMove and Okta profile using the information provided.",
+        "operationId": "customerRegistration",
+        "parameters": [
+          {
+            "description": "registration information",
+            "name": "registration",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAndMilMoveUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully registered service member"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -13020,6 +13457,86 @@ func init() {
         }
       }
     },
+    "CreateOktaAndMilMoveUser": {
+      "type": "object",
+      "required": [
+        "affiliation",
+        "email",
+        "edipi",
+        "firstName",
+        "lastName",
+        "telephone"
+      ],
+      "properties": {
+        "affiliation": {
+          "title": "Branch",
+          "$ref": "#/definitions/Affiliation"
+        },
+        "edipi": {
+          "type": "string",
+          "format": "edipi",
+          "title": "DoD ID number",
+          "maxLength": 10,
+          "minLength": 10,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "5789345789"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "emailIsPreferred": {
+          "description": "Indicates if email is the preferred method of contact",
+          "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "1234567"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": false
+        },
+        "middleInitial": {
+          "type": "string",
+          "title": "Middle Initial",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "phoneIsPreferred": {
+          "description": "Indicates if phone is the preferred method of contact",
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        }
+      }
+    },
     "CreatePPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -13056,6 +13573,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
@@ -13315,6 +13835,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilian_tdy_ub_allowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counseling_office_id": {
           "type": "string",
@@ -13625,6 +14151,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
         },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
@@ -14694,6 +15226,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
@@ -14715,6 +15252,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -14795,11 +15341,23 @@ func init() {
           "x-omitempty": false,
           "example": "2022-04-26"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -14818,6 +15376,7 @@ func init() {
         "OIL",
         "OTHER",
         "PACKING_MATERIALS",
+        "SMALL_PACKAGE",
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
@@ -14830,6 +15389,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -14959,7 +15519,8 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEE"
+        "WEIGHING_FEE",
+        "SMALL_PACKAGE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -14968,6 +15529,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package reimbursement",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -15170,6 +15732,10 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -15265,7 +15831,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -15484,32 +16049,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -15584,6 +16129,18 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
@@ -15652,6 +16209,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
@@ -15826,6 +16386,16 @@ func init() {
       ],
       "readOnly": true
     },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
+      ]
+    },
     "PatchMovePayload": {
       "type": "object",
       "required": [
@@ -15997,6 +16567,12 @@ func init() {
         "document"
       ],
       "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean",
@@ -16078,6 +16654,12 @@ func init() {
           "description": "Customer submitted weight of the pro-gear.",
           "type": "integer",
           "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -16826,6 +17408,11 @@ func init() {
           "description": "A brief description of the expense",
           "type": "string"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the customer is missing the receipt for their expense.",
           "type": "boolean"
@@ -16836,6 +17423,15 @@ func init() {
         "paidWithGTCC": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
           "type": "boolean"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -16862,6 +17458,16 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer"
+        },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
           "type": "integer"
@@ -16879,28 +17485,10 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -16936,8 +17524,17 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -16980,6 +17577,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -17842,6 +18442,9 @@ func init() {
     },
     {
       "name": "application_parameters"
+    },
+    {
+      "name": "registration"
     }
   ]
 }`))

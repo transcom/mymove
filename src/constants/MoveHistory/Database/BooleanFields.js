@@ -13,6 +13,7 @@ export default {
   organizational_clothing_and_individual_equipment: 'organizational_clothing_and_individual_equipment',
   gun_safe: 'gun_safe',
   admin_restricted_weight_location: 'admin_restricted_weight_location',
+  admin_restricted_ub_weight_location: 'admin_restricted_ub_weight_location',
   email_is_preferred: 'email_is_preferred',
   phone_is_preferred: 'phone_is_preferred',
   uses_external_vendor: 'uses_external_vendor',
@@ -21,4 +22,5 @@ export default {
   has_secondary_delivery_address: 'has_secondary_delivery_address',
   has_tertiary_pickup_address: 'has_tertiary_pickup_address',
   has_tertiary_delivery_address: 'has_tertiary_delivery_address',
+  customer_expense: 'customer_expense',
 };

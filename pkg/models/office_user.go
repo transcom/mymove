@@ -42,6 +42,7 @@ type OfficeUser struct {
 	EDIPI                           *string                         `json:"edipi" db:"edipi"`
 	OtherUniqueID                   *string                         `json:"other_unique_id" db:"other_unique_id"`
 	RejectionReason                 *string                         `json:"rejection_reason" db:"rejection_reason"`
+	RejectedOn                      *time.Time                      `json:"rejected_on" db:"rejected_on"`
 }
 
 type OfficeUserWithWorkload struct {

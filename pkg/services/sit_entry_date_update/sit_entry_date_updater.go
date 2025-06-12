@@ -53,9 +53,10 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 		return nil, apperror.NewQueryError("Shipment", err, "")
 	}
 
-	// the service code can either be DOFSIT or DDFSIT
+	// the service code can either be DOFSIT/DDFSIT or IOFSIT/IDFSIT
 	serviceItemCode := serviceItem.ReService.Code
-	if serviceItemCode != models.ReServiceCodeDOFSIT && serviceItemCode != models.ReServiceCodeDDFSIT {
+	if serviceItemCode != models.ReServiceCodeDOFSIT && serviceItemCode != models.ReServiceCodeDDFSIT &&
+		serviceItemCode != models.ReServiceCodeIOFSIT && serviceItemCode != models.ReServiceCodeIDFSIT {
 		return nil, apperror.NewUnprocessableEntityError(string(serviceItemCode) + "You cannot change the SIT entry date of this service item.")
 	}
 
@@ -63,16 +64,16 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 	// then looking for the sister service item of add'l days
 	// once found, we'll set the value of variable to that service item
 	// so now we have the 1st day of SIT service item & the add'l days SIT service item
-	if serviceItemCode == models.ReServiceCodeDOFSIT {
+	if serviceItemCode == models.ReServiceCodeDOFSIT || serviceItemCode == models.ReServiceCodeIOFSIT {
 		for _, si := range shipment.MTOServiceItems {
-			if si.ReService.Code == models.ReServiceCodeDOASIT {
+			if si.ReService.Code == models.ReServiceCodeDOASIT || si.ReService.Code == models.ReServiceCodeIOASIT {
 				serviceItemAdditionalDays = si
 				break
 			}
 		}
-	} else if serviceItemCode == models.ReServiceCodeDDFSIT {
+	} else if serviceItemCode == models.ReServiceCodeDDFSIT || serviceItemCode == models.ReServiceCodeIDFSIT {
 		for _, si := range shipment.MTOServiceItems {
-			if si.ReService.Code == models.ReServiceCodeDDASIT {
+			if si.ReService.Code == models.ReServiceCodeDDASIT || si.ReService.Code == models.ReServiceCodeIDASIT {
 				serviceItemAdditionalDays = si
 				break
 			}

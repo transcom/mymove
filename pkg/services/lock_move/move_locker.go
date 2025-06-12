@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -42,6 +43,10 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 		EagerPreload("Address", "Address.Country").
 		First(&transportationOffice)
 
+	if err != nil {
+		return nil, err
+	}
+
 	if move.LockedByOfficeUserID != models.UUIDPointer(officeUserID) {
 		move.LockedByOfficeUserID = models.UUIDPointer(officeUserID)
 	}
@@ -60,14 +65,11 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	expirationTime := now.Add(30 * time.Minute)
 	move.LockExpiresAt = &expirationTime
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		verrs, saveErr := appCtx.DB().ValidateAndSave(move)
-		if verrs != nil && verrs.HasAny() {
-			invalidInputError := apperror.NewInvalidInputError(move.ID, nil, verrs, "Could not validate move while locking it.")
+	// Store move before update
+	var moveBeforeUpdate = *move
 
-			return invalidInputError
-		}
-		if saveErr != nil {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := appCtx.DB().RawQuery("UPDATE moves SET locked_by=?, lock_expires_at=?, updated_at=? WHERE id=?", officeUserID, expirationTime, moveBeforeUpdate.UpdatedAt, move.ID).Exec(); err != nil {
 			return err
 		}
 
@@ -79,4 +81,38 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	}
 
 	return move, nil
+}
+
+// BulkLockMove updates a multiple moves with relevant values of who has a move locked and the expiration of the lock pending it isn't unlocked before then
+func (m moveLocker) LockMoves(appCtx appcontext.AppContext, moveIds []uuid.UUID, officeUserID uuid.UUID) error {
+
+	if officeUserID == uuid.Nil {
+		return apperror.NewQueryError("OfficeUserID", nil, "No office user provided in request to lock move")
+	}
+
+	// fetching office user
+	officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now()
+	expirationTime := now.Add(30 * time.Minute)
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := appCtx.DB().RawQuery(
+			"UPDATE moves SET locked_by=?, lock_expires_at=? WHERE id=ANY(?)",
+			officeUser.ID, expirationTime, pq.Array(moveIds),
+		).Exec(); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return transactionError
+	}
+
+	return nil
 }

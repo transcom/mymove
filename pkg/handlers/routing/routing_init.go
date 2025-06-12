@@ -483,18 +483,21 @@ func mountInternalAPI(appCtx appcontext.AppContext, routingConfig *Config, site 
 			} else {
 				r.Method("GET", "/docs", http.NotFoundHandler())
 			}
+			api := internalapi.NewInternalAPI(routingConfig.HandlerConfig)
+			tracingMiddleware := middleware.OpenAPITracing(api)
 			r.Method("GET", "/users/is_logged_in", isLoggedInMiddleware)
 			// Mux for internal API that enforces auth
 			r.Route("/", func(rAuth chi.Router) {
 				rAuth.Use(userAuthMiddleware)
 				rAuth.Use(addAuditUserToRequestContextMiddleware)
 				rAuth.Use(middleware.NoCache())
-				api := internalapi.NewInternalAPI(routingConfig.HandlerConfig)
 				// This middleware enables stricter checks for most of the internal api endpoints
 				customerAPIAuthMiddleware := authentication.CustomerAPIAuthMiddleware(appCtx, api)
 				rAuth.Use(customerAPIAuthMiddleware)
-				tracingMiddleware := middleware.OpenAPITracing(api)
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+			r.Route("/open", func(rOpen chi.Router) {
+				rOpen.Mount("/", api.Serve(tracingMiddleware))
 			})
 		})
 	}

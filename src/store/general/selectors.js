@@ -3,6 +3,11 @@ export function selectCurrentMoveId(state) {
   return state.generalState.moveId;
 }
 
+export function selectRefetchQueue(state) {
+  return state.generalState.refetchQueue;
+}
+
 export default {
   selectCurrentMoveId,
+  selectRefetchQueue,
 };

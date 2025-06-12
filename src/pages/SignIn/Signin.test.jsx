@@ -1,15 +1,22 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import routeData from 'react-router-dom';
 import { shallow } from 'enzyme';
 
 import SignIn from './SignIn';
 
 import { MockRouterProvider, renderWithProviders } from 'testUtils';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+  useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabledUnauthenticated: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 afterEach(() => {
@@ -144,5 +151,36 @@ describe('SignIn tests', () => {
     expect(screen.getByText('DO NOT PROCEED if you have not gone through that')).toBeInTheDocument();
     expect(screen.queryAllByText('Failure to do so will likely result in you having to resubmit your shipment in the'));
     expect(screen.queryAllByText('and could cause a delay in your shipment being moved.'));
+  });
+
+  it('shows the EULA when the create account button is clicked and hides the EULA when cancel is clicked', async () => {
+    isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
+    const context = { siteName: 'TestMove' };
+    renderWithProviders(<SignIn />, {
+      context,
+    });
+
+    expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+    await waitFor(() => {
+      screen.getByTestId('createAccount').click();
+    });
+    expect(screen.getByTestId('modal')).toBeInTheDocument();
+    screen.getByLabelText('Cancel').click();
+    expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+  });
+
+  it('renders non-cac error', () => {
+    jest.spyOn(routeData, 'useLocation').mockReturnValue({
+      pathname: '/sign-in',
+      search: '',
+      state: { noValidCAC: true },
+    });
+
+    const context = { siteName: 'TestMove' };
+    renderWithProviders(<SignIn />, {
+      context,
+    });
+
+    expect(screen.queryByText('If you do not have a CAC do not request your account here')).not.toBeInTheDocument();
   });
 });

@@ -120,5 +120,6 @@ type ShipmentsPaymentSITBalance interface {
 }
 
 type PaymentRequestBulkDownloadCreator interface {
-	CreatePaymentRequestBulkDownload(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (afero.File, error)
+	CreatePaymentRequestBulkDownload(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (afero.File, string, error)
+	CleanupPaymentRequestBulkDir(dirName string) error
 }

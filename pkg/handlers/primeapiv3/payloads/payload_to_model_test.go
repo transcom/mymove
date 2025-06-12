@@ -378,8 +378,55 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 	})
 
+	suite.Run("Success - Returns international SIT destination service item model", func() {
+		destSITServiceItem := &primev3messages.MTOServiceItemInternationalDestSIT{
+			ReServiceCode:               &destServiceCode,
+			FirstAvailableDeliveryDate1: &destDate,
+			FirstAvailableDeliveryDate2: &destDate,
+			DateOfContact1:              &destDate,
+			DateOfContact2:              &destDate,
+			TimeMilitary1:               &destTime,
+			TimeMilitary2:               &destTime,
+			SitDestinationFinalAddress:  &sitFinalDestAddress,
+			Reason:                      &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
+	})
+
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
 		destSITServiceItem := &primev3messages.MTOServiceItemDestSIT{
+			ReServiceCode:              &destServiceCode,
+			SitDestinationFinalAddress: &sitFinalDestAddress,
+			Reason:                     &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
+		suite.Equal(destReason, *returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns international SIT destination service item model without customer contact fields", func() {
+		destSITServiceItem := &primev3messages.MTOServiceItemInternationalDestSIT{
 			ReServiceCode:              &destServiceCode,
 			SitDestinationFinalAddress: &sitFinalDestAddress,
 			Reason:                     &destReason,
@@ -722,6 +769,23 @@ func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {
 		mtoServiceItemOriginSIT := primev3messages.MTOServiceItemOriginSIT{}
 
 		verrs := validateReasonOriginSIT(mtoServiceItemOriginSIT)
+		suite.True(verrs.HasAny())
+	})
+
+	suite.Run("Reason provided - international", func() {
+		reason := "reason"
+		mtoServiceItemOriginSIT := primev3messages.MTOServiceItemInternationalOriginSIT{
+			Reason: &reason,
+		}
+
+		verrs := validateReasonInternationalOriginSIT(mtoServiceItemOriginSIT)
+		suite.False(verrs.HasAny())
+	})
+
+	suite.Run("No reason provided - international", func() {
+		mtoServiceItemOriginSIT := primev3messages.MTOServiceItemInternationalOriginSIT{}
+
+		verrs := validateReasonInternationalOriginSIT(mtoServiceItemOriginSIT)
 		suite.True(verrs.HasAny())
 	})
 }

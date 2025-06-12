@@ -4,6 +4,8 @@ import { useField } from 'formik';
 import { FormGroup, Label } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
 
+import RequiredAsterisk from '../RequiredAsterisk';
+
 import styles from './DatePickerInput.module.scss';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
@@ -24,9 +26,18 @@ export const DatePickerInput = (props) => {
     hint,
     disableErrorLabel,
     onChange,
+    showRequiredAsterisk,
   } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
+  const defaultOnChange = (value, _, dayPickerInput) => {
+    if (value === undefined && dayPickerInput.getInput().value === '') {
+      // The user cleared the date input, so we shouldn't bother attempting to format it.
+      helpers.setValue(undefined);
+    } else {
+      helpers.setValue(formatDate(value, datePickerFormat));
+    }
+  };
 
   // Input elements need an ID prop to be associated with the label
   const inputId = useRef(id || `${name}_${uuidv4()}`);
@@ -36,7 +47,9 @@ export const DatePickerInput = (props) => {
         <>
           <div className="labelWrapper">
             <Label hint={hint} className={styles.label} error={hasError} htmlFor={inputId.current}>
-              {label}
+              <span>
+                {label} {showRequiredAsterisk && <RequiredAsterisk />}
+              </span>
               {showOptional && <div className={styles.optionalLabel}>Optional</div>}
             </Label>
           </div>
@@ -48,7 +61,7 @@ export const DatePickerInput = (props) => {
             inputClassName={className}
             placeholder={datePickerFormat}
             format={datePickerFormat}
-            onChange={onChange || ((value) => helpers.setValue(formatDate(value, datePickerFormat)))}
+            onChange={onChange || defaultOnChange}
             onBlur={() => helpers.setTouched(true)}
             value={field.value}
             required={required}

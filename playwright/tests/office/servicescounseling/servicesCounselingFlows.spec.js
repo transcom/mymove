@@ -9,6 +9,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
+const completePPMCloseoutForCustomerEnabled = process.env.FEATURE_FLAG_COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER;
 const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
@@ -114,7 +115,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
@@ -282,7 +283,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
@@ -330,7 +331,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
@@ -386,6 +387,18 @@ test.describe('Services counselor user', () => {
 
   test('can complete review of PPM shipment documents and view documents after', async ({ page, scPage }) => {
     test.slow();
+    await page.route('**/ghc/v1/ppm-shipments/*/payment-packet', async (route) => {
+      // mocked blob
+      const fakePdfBlob = new Blob(['%PDF-1.4 foo'], { type: 'application/pdf' });
+      const arrayBuffer = await fakePdfBlob.arrayBuffer();
+      // playwright route mocks only want a Buffer or string
+      const bodyBuffer = Buffer.from(arrayBuffer);
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/pdf',
+        body: bodyBuffer,
+      });
+    });
     const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
     await scPage.navigateToCloseoutMove(move.locator);
 
@@ -410,7 +423,10 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByRole('button', { name: 'Preview PPM Payment Packet' }).click();
+    await expect(page.getByTestId('loading-spinner')).not.toBeVisible();
+    await page.getByRole('button', { name: 'Complete PPM Review' }).click();
+    await page.getByRole('button', { name: 'Yes' }).click();
     await scPage.waitForPage.moveDetails();
 
     // Navigate to the "View documents" page
@@ -548,6 +564,74 @@ test.describe('Services counselor user', () => {
       await scPage.searchForCloseoutMove(fullPpmMoveLocator);
       await expect(page.getByTestId('ppmType-0')).toContainText('Full');
     });
+
+    test.describe('Complete PPM closeout on behalf of customer', () => {
+      test.skip(completePPMCloseoutForCustomerEnabled === 'false', 'Skip if FF is disabled.');
+      test('can complete PPM About page', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPM();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // fill out About PPM page
+        await expect(page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'How to complete your PPM' })).toBeVisible();
+        await scPage.fillOutAboutPage();
+
+        await expect(page.getByRole('heading', { name: 'How to complete your PPM' })).not.toBeVisible();
+      });
+
+      test('can navigate to PPM review page and edit About PPM page', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // Review page
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Documents' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Weight moved' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Pro-gear' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Expenses' })).toBeVisible();
+
+        // Edit About PPM page
+        await page.locator('[data-testid="aboutYourPPM"] a').getByText('Edit').click();
+        await expect(page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+      });
+
+      test('can add, edit, and delete Weight moved', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // Add Weight Ticket
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByText('Add More Weight').click();
+        await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+        await scPage.fillOutWeightTicketPage({ hasTrailer: true, ownTrailer: true });
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+
+        // Edit
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByTestId('weightMoved-1').click();
+        await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+
+        // Delete
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByTestId('weightMovedDelete-1').click();
+        await expect(page.getByRole('heading', { name: 'Delete this?' })).toBeVisible();
+        await page.getByRole('button', { name: 'Yes, Delete' }).click();
+        await expect(page.getByText('Trip 1 successfully deleted.')).toBeVisible();
+        await expect(page.getByTestId('weightMovedDelete-1')).not.toBeVisible();
+      });
+    });
   });
 
   test.describe('Actual expense reimbursement tests', () => {
@@ -607,7 +691,7 @@ test.describe('Services counselor user', () => {
         expect(await page.locator('[data-testid="tag"]').count()).toBe(1);
         await page.getByText('Accept').click();
         await page.getByTestId('closeSidebar').click();
-        await expect(page.getByRole('heading', { name: 'Move details' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Move Details' })).toBeVisible();
         await expect(page.getByText('actual expense reimbursement')).toBeVisible();
       });
     });

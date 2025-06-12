@@ -147,7 +147,7 @@ func BuildUserUpload(db *pop.Connection, customs []Customization, traits []Trait
 // sometimes have to create one out of nowhere for uploads
 func uploaderAppContext(db *pop.Connection) appcontext.AppContext {
 	// *sigh*, use global zap logger
-	return appcontext.NewAppContext(db, zap.L(), nil)
+	return appcontext.NewAppContext(db, zap.L(), nil, nil)
 }
 
 // buildDocumentWithUploads builds a document and creates an upload associated with the document. Returns the document at the end.

@@ -8,8 +8,10 @@ package adminmessages
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // UserUpdate user update
@@ -19,6 +21,10 @@ type UserUpdate struct {
 
 	// active
 	Active *bool `json:"active,omitempty"`
+
+	// okta email
+	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	OktaEmail *string `json:"oktaEmail,omitempty"`
 
 	// revoke admin session
 	RevokeAdminSession *bool `json:"revokeAdminSession,omitempty"`
@@ -32,6 +38,27 @@ type UserUpdate struct {
 
 // Validate validates this user update
 func (m *UserUpdate) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateOktaEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UserUpdate) validateOktaEmail(formats strfmt.Registry) error {
+	if swag.IsZero(m.OktaEmail) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("oktaEmail", "body", *m.OktaEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+		return err
+	}
+
 	return nil
 }
 

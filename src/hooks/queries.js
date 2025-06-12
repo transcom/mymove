@@ -40,6 +40,7 @@ import {
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
+import { getRolesPrivileges } from 'services/adminApi';
 import {
   PAYMENT_REQUESTS,
   MTO_SHIPMENTS,
@@ -71,6 +72,7 @@ import {
   SC_CUSTOMER_SEARCH,
   PPMSIT_ESTIMATED_COST,
   GBLOCS,
+  ROLE_PRIVILEGES,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -308,6 +310,36 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     mtoShipment,
     documents,
     ppmActualWeight,
+    refetchMTOShipment,
+    isLoading,
+    isError,
+    isSuccess,
+    isFetching,
+  };
+};
+
+export const usePPMShipmentAndDocsOnlyQueries = (shipmentId) => {
+  const {
+    data: mtoShipment,
+    refetch: refetchMTOShipment,
+    ...mtoShipmentQuery
+  } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) => getMTOShipmentByID(...queryKey), {
+    refetchOnMount: true,
+    staleTime: 0,
+  });
+
+  const { data: documents, ...documentsQuery } = useQuery(
+    [DOCUMENTS, shipmentId],
+    ({ queryKey }) => getPPMDocuments(...queryKey),
+    {
+      enabled: !!shipmentId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
+  return {
+    mtoShipment,
+    documents,
     refetchMTOShipment,
     isLoading,
     isError,
@@ -574,7 +606,11 @@ export const useMovesQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...movesQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...movesQueueQuery
+  } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getMovesQueue(...queryKey),
   );
@@ -585,6 +621,7 @@ export const useMovesQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -595,9 +632,14 @@ export const useDestinationRequestsQueueQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
+  activeRole,
 }) => {
-  const { data = {}, ...movesQueueQuery } = useQuery(
-    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
+  const {
+    refetch,
+    data = {},
+    ...movesQueueQuery
+  } = useQuery(
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
@@ -607,6 +649,7 @@ export const useDestinationRequestsQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -619,7 +662,11 @@ export const useServicesCounselingQueuePPMQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...servicesCounselingQueueQuery
+  } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
       { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC, activeRole },
@@ -634,6 +681,7 @@ export const useServicesCounselingQueuePPMQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -646,7 +694,11 @@ export const useServicesCounselingQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...servicesCounselingQueueQuery
+  } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
       { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC, activeRole },
@@ -661,6 +713,7 @@ export const useServicesCounselingQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -673,7 +726,11 @@ export const usePaymentRequestQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...paymentRequestsQueueQuery
+  } = useQuery(
     [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
@@ -685,6 +742,7 @@ export const usePaymentRequestQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -992,6 +1050,7 @@ export const useGHCGetMoveHistory = ({
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([getGHCMoveHistoryQuery]);
   const { historyRecords, ...dataProps } = data;
+
   return {
     queueResult: { data: historyRecords, ...dataProps },
     isLoading,
@@ -1074,6 +1133,56 @@ export const useListGBLOCsQueries = () => {
   const gblocs = data;
   return {
     result: gblocs,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useRolesPrivilegesQueries = () => {
+  const { data = [], ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES], ({ queryKey }) =>
+    getRolesPrivileges(...queryKey),
+  );
+  const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
+  const mappings = data;
+  const privilegesMap = new Map();
+  const rolesWithPrivsMap = new Map();
+
+  mappings.forEach((mapping) => {
+    // Create a map of roles with their types, names, and allowed privileges.
+    if (mapping.roleType) {
+      if (!rolesWithPrivsMap.has(mapping.roleType)) {
+        rolesWithPrivsMap.set(mapping.roleType, {
+          roleType: mapping.roleType,
+          roleName: mapping.roleName,
+          allowedPrivileges: new Set(),
+        });
+      }
+      // Create a map of privileges with their types and names. Add their allowed privilege types.
+      if (mapping.privileges) {
+        mapping.privileges.forEach((privilege) => {
+          if (!privilegesMap.has(privilege.privilegeType)) {
+            privilegesMap.set(privilege.privilegeType, {
+              privilegeType: privilege.privilegeType,
+              privilegeName: privilege.privilegeName,
+            });
+          }
+          rolesWithPrivsMap.get(mapping.roleType).allowedPrivileges.add(privilege.privilegeType);
+        });
+      }
+    }
+  });
+
+  const rolesWithPrivs = Array.from(rolesWithPrivsMap.values()).map((roleObj) => ({
+    roleType: roleObj.roleType,
+    roleName: roleObj.roleName,
+    allowedPrivileges: Array.from(roleObj.allowedPrivileges),
+  }));
+
+  const privileges = Array.from(privilegesMap.values());
+
+  return {
+    result: { privileges, rolesWithPrivs },
     isLoading,
     isError,
     isSuccess,

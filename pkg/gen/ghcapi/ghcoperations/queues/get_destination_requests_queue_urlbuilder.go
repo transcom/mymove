@@ -16,6 +16,7 @@ import (
 
 // GetDestinationRequestsQueueURL generates an URL for the get destination requests queue operation
 type GetDestinationRequestsQueueURL struct {
+	ActiveRole              *string
 	AppearedInTooAt         *strfmt.DateTime
 	AssignedTo              *string
 	Branch                  *string
@@ -26,12 +27,14 @@ type GetDestinationRequestsQueueURL struct {
 	Emplid                  *string
 	Locator                 *string
 	Order                   *string
+	OrderType               *string
 	OriginDutyLocation      []string
 	Page                    *int64
 	PerPage                 *int64
 	RequestedMoveDate       *string
 	Sort                    *string
 	Status                  []string
+	ViewAsGBLOC             *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -66,6 +69,14 @@ func (o *GetDestinationRequestsQueueURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var activeRoleQ string
+	if o.ActiveRole != nil {
+		activeRoleQ = *o.ActiveRole
+	}
+	if activeRoleQ != "" {
+		qs.Set("activeRole", activeRoleQ)
+	}
 
 	var appearedInTooAtQ string
 	if o.AppearedInTooAt != nil {
@@ -147,6 +158,14 @@ func (o *GetDestinationRequestsQueueURL) Build() (*url.URL, error) {
 		qs.Set("order", orderQ)
 	}
 
+	var orderTypeQ string
+	if o.OrderType != nil {
+		orderTypeQ = *o.OrderType
+	}
+	if orderTypeQ != "" {
+		qs.Set("orderType", orderTypeQ)
+	}
+
 	var originDutyLocationIR []string
 	for _, originDutyLocationI := range o.OriginDutyLocation {
 		originDutyLocationIS := originDutyLocationI
@@ -208,6 +227,14 @@ func (o *GetDestinationRequestsQueueURL) Build() (*url.URL, error) {
 		if qsv != "" {
 			qs.Set("status", qsv)
 		}
+	}
+
+	var viewAsGBLOCQ string
+	if o.ViewAsGBLOC != nil {
+		viewAsGBLOCQ = *o.ViewAsGBLOC
+	}
+	if viewAsGBLOCQ != "" {
+		qs.Set("viewAsGBLOC", viewAsGBLOCQ)
 	}
 
 	_result.RawQuery = qs.Encode()

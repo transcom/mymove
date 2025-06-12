@@ -289,23 +289,43 @@ export const TransportationLocationWithValue = () => {
 export const ZipCityLocationBasic = () => {
   const [value, setValue] = useState();
 
-  const onChange = (newValue) => {
-    setValue(newValue);
-  };
-
   const handleZipCityOnChange = (newValue) => {
     setValue(newValue);
   };
 
   return (
     <LocationSearchBoxComponent
-      input={{ name: 'test_component', onChange, value }}
+      input={{
+        value,
+        onChange: handleZipCityOnChange,
+        locationState: () => {},
+        name: 'test_component',
+      }}
       placeholder="Start typing a Zip Code or City..."
       title="Zip/City Lookup"
       name="test_component"
       searchLocations={mockZipCity}
       displayAddress={false}
       handleLocationOnChange={handleZipCityOnChange}
+    />
+  );
+};
+
+export const DutyStationWithRequiredAsterisk = () => {
+  const [value, setValue] = useState();
+
+  const onChange = (newValue) => {
+    setValue(newValue);
+  };
+
+  return (
+    <LocationSearchBoxComponent
+      input={{ name: 'test_component', onChange, value }}
+      title="Duty Station Test Component"
+      displayAddress={false}
+      searchLocations={mockSearchLocations}
+      showAddress={mockShowAddress}
+      showRequiredAsterisk
     />
   );
 };

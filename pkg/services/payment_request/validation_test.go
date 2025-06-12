@@ -22,7 +22,7 @@ func (suite *PaymentRequestServiceSuite) Test_validatePaymentRequest() {
 		{
 			name: "Valid payment request",
 			args: args{
-				appCtx: appcontext.NewAppContext(suite.DB(), suite.Logger(), nil),
+				appCtx: appcontext.NewAppContext(suite.DB(), suite.Logger(), nil, nil),
 				newPaymentRequest: models.PaymentRequest{
 					MoveTaskOrderID: uuid.Must(uuid.FromString("00000000-0000-0000-0000-000000000000")),
 					Status:          models.PaymentRequestStatusPending,

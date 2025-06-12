@@ -107,6 +107,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Mileage factor',
   InternationalShippingAndLinehaul: 'ISLH price',
+  InternationalUbPrice: 'International UB price',
   Market: 'Market',
   Mileage: 'Mileage',
   MinSizeCrateApplied: 'Minimum crating size applied',
@@ -116,6 +117,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   NTSReleaseReferenceDate: 'Actual pickup',
   PackPrice: 'Pack price',
   PackPriceInternational: 'International Pack price',
+  PackPriceInternationalUb: 'International UB Pack price',
   PickupDate: 'Pickup date',
   PickupSITPrice: 'SIT pickup price',
   PriceEscalationFactor: 'Price escalation factor',
@@ -125,6 +127,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   FuelRateAdjustment: 'Fuel rate adjustment',
   UnpackPrice: 'Unpack price',
   UnpackPriceInternational: 'International Unpack price',
+  UnpackPriceInternationalUb: 'International UB Unpack price',
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
@@ -153,9 +156,11 @@ const SERVICE_ITEM_CODES = {
   FSC: 'FSC',
   DDSHUT: 'DDSHUT',
   IDSHUT: 'IDSHUT',
+  DCRTSA: 'DCRTSA',
   DCRT: 'DCRT',
   DUCRT: 'DUCRT',
   ICRT: 'ICRT',
+  INPK: 'INPK',
   IUCRT: 'IUCRT',
   MS: 'MS',
   DOSFSC: 'DOSFSC',
@@ -163,9 +168,19 @@ const SERVICE_ITEM_CODES = {
   POEFSC: 'POEFSC',
   PODFSC: 'PODFSC',
   IHPK: 'IHPK',
-  INPK: 'INPK',
   IHUPK: 'IHUPK',
   ISLH: 'ISLH',
+  IDDSIT: 'IDDSIT',
+  IDASIT: 'IDASIT',
+  IOASIT: 'IOASIT',
+  IOFSIT: 'IOFSIT',
+  IOPSIT: 'IOPSIT',
+  IDFSIT: 'IDFSIT',
+  IOSFSC: 'IOSFSC',
+  IDSFSC: 'IDSFSC',
+  IUBPK: 'IUBPK',
+  IUBUPK: 'IUBUPK',
+  UBP: 'UBP',
 };
 
 const SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM = [
@@ -193,10 +208,20 @@ const SERVICE_ITEMS_ALLOWED_UPDATE = [
   SERVICE_ITEM_CODES.DDFSIT,
   SERVICE_ITEM_CODES.DOSFSC,
   SERVICE_ITEM_CODES.DDSFSC,
+  SERVICE_ITEM_CODES.DDSHUT,
+  SERVICE_ITEM_CODES.DOSHUT,
   SERVICE_ITEM_CODES.IDSHUT,
   SERVICE_ITEM_CODES.IOSHUT,
   SERVICE_ITEM_CODES.PODFSC,
   SERVICE_ITEM_CODES.POEFSC,
+  SERVICE_ITEM_CODES.IDDSIT,
+  SERVICE_ITEM_CODES.IDASIT,
+  SERVICE_ITEM_CODES.IOASIT,
+  SERVICE_ITEM_CODES.IOFSIT,
+  SERVICE_ITEM_CODES.IOPSIT,
+  SERVICE_ITEM_CODES.IDFSIT,
+  SERVICE_ITEM_CODES.IOSFSC,
+  SERVICE_ITEM_CODES.IDSFSC,
 ];
 
 /**
@@ -215,6 +240,18 @@ const SIT_SERVICE_ITEM_CODES = {
   DDASIT: 'DDASIT',
   /** Domestic destination SIT delivery */
   DDDSIT: 'DDDSIT',
+  /** International origin 1st day SIT */
+  IOFSIT: 'IOFSIT',
+  /** International origin Additional day SIT */
+  IOASIT: 'IOASIT',
+  /** International origin SIT pickup */
+  IOPSIT: 'IOPSIT',
+  /** International destination 1st day SIT */
+  IDFSIT: 'IDFSIT',
+  /** International destination Additional day SIT */
+  IDASIT: 'IDASIT',
+  /** International destination SIT delivery */
+  IDDSIT: 'IDDSIT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -246,6 +283,9 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.ISLH,
   SERVICE_ITEM_CODES.POEFSC,
   SERVICE_ITEM_CODES.PODFSC,
+  SERVICE_ITEM_CODES.IUBPK,
+  SERVICE_ITEM_CODES.IUBUPK,
+  SERVICE_ITEM_CODES.UBP,
   SERVICE_ITEM_CODES.ICRT,
   SERVICE_ITEM_CODES.IUCRT,
 ];

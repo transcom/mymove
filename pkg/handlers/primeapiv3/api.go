@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 // NewPrimeAPI returns the Prime API
@@ -31,7 +32,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	vLocation := address.NewVLocation()
 	waf := entitlements.NewWeightAllotmentFetcher()
 
@@ -68,7 +69,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 
-	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf))
 
 	primeAPIV3.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
@@ -84,7 +85,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
-	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf)
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(
 		builder,
 		fetcher,

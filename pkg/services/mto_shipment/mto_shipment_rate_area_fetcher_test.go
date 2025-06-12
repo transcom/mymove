@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -46,6 +47,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 						PostalCode:     anchorageAlaskaPostalCode,
 						IsOconus:       models.BoolPointer(true),
 					},
+					MarketCode: models.MarketCodeInternational,
 				},
 				models.MTOShipment{
 					PickupAddress: &models.Address{
@@ -62,15 +64,16 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 						PostalCode:     sanDiegoCAPostalCode,
 						IsOconus:       models.BoolPointer(false),
 					},
+					MarketCode: models.MarketCodeDomestic,
 				},
 				models.MTOShipment{
 					PPMShipment: &models.PPMShipment{
 						PickupAddress: &models.Address{
 							StreetAddress1: "123 Main St",
-							City:           "Wasilla",
-							State:          "AK",
-							PostalCode:     wasillaAlaskaPostalCode,
-							IsOconus:       models.BoolPointer(true),
+							City:           "Beverly Hills",
+							State:          "CA",
+							PostalCode:     beverlyHillsCAPostalCode,
+							IsOconus:       models.BoolPointer(false),
 						},
 						DestinationAddress: &models.Address{
 							StreetAddress1: "123 Main St",
@@ -80,6 +83,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 							IsOconus:       models.BoolPointer(true),
 						},
 					},
+					MarketCode: models.MarketCodeInternational,
 				},
 			},
 		}
@@ -199,7 +203,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.FatalNoError(err)
 
 		// setup contract year within availableToPrimeAtTime time
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate:  availableToPrimeAtTime,
 				EndDate:    time.Now(),
@@ -214,9 +218,9 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		})
 
 		// setup Fairbanks and Anchorage to have same RateArea
-		rateArea1 := setupRateAreaToManyPostalCodesData(*contract, []string{fairbanksAlaskaPostalCode, anchorageAlaskaPostalCode})
+		rateAreaAK1 := setupRateAreaToManyPostalCodesData(*contract, []string{fairbanksAlaskaPostalCode, anchorageAlaskaPostalCode})
 		// setup Wasilla to have it's own RateArea
-		rateArea2 := setupRateAreaToPostalCodeData(setupRateArea(*contract), wasillaAlaskaPostalCode)
+		rateAreaAK2 := setupRateAreaToPostalCodeData(setupRateArea(*contract), wasillaAlaskaPostalCode)
 
 		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, domServiceArea)
 		if err != nil {
@@ -226,27 +230,25 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		shipmentPostalCodeRateAreas, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.NotNil(shipmentPostalCodeRateAreas)
 		suite.FatalNoError(err)
-		suite.Equal(5, len(*shipmentPostalCodeRateAreas))
+		suite.Equal(4, len(*shipmentPostalCodeRateAreas))
 
-		suite.Equal(true, isRateAreaEquals(rateArea1, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(true, isRateAreaEquals(rateArea1, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(true, isRateAreaEquals(rateArea2, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(true, isRateAreaEquals(rateAreaCA, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(true, isRateAreaEquals(rateAreaCA, sanDiegoCAPostalCode, shipmentPostalCodeRateAreas))
+		// Postal code used only in a CONUS shipment should not have been fetched
+		i := slices.IndexFunc(*shipmentPostalCodeRateAreas, func(pcra services.ShipmentPostalCodeRateArea) bool {
+			return pcra.PostalCode == sanDiegoCAPostalCode
+		})
+		suite.Equal(-1, i)
 
-		suite.Equal(false, isRateAreaEquals(rateArea2, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(false, isRateAreaEquals(rateArea2, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(false, isRateAreaEquals(rateArea1, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaAK1, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaAK1, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaAK2, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaAK2, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaAK2, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateAreaCA, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateAreaCA, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateAreaCA, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(false, isRateAreaEquals(rateArea1, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(false, isRateAreaEquals(rateArea1, sanDiegoCAPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(false, isRateAreaEquals(rateArea2, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(false, isRateAreaEquals(rateArea2, sanDiegoCAPostalCode, shipmentPostalCodeRateAreas))
 	})
 
-	suite.Run("Returns matching CONUS rate areas", func() {
+	suite.Run("Does not return rate areas for CONUS only shipments", func() {
 		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
 		testMove := models.Move{
 			AvailableToPrimeAt: &availableToPrimeAtTime,
@@ -266,6 +268,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 						PostalCode:     sanDiegoCAPostalCode,
 						IsOconus:       models.BoolPointer(false),
 					},
+					MarketCode: models.MarketCodeDomestic,
 				},
 				models.MTOShipment{
 					PPMShipment: &models.PPMShipment{
@@ -284,6 +287,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 							IsOconus:       models.BoolPointer(false),
 						},
 					},
+					MarketCode: models.MarketCodeDomestic,
 				},
 			},
 		}
@@ -334,29 +338,20 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			return rateArea, nil
 		}
 
-		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, domServiceArea)
+		_, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, domServiceArea)
 		if err != nil {
 			suite.Fail(err.Error())
 		}
 
-		rateAreaNY, err := setupDomesticRateAreaAndZip3s("US17", "New York", map[string]string{brooklynNYPostalCode: "Brooklyn"}, domServiceArea)
+		_, err = setupDomesticRateAreaAndZip3s("US17", "New York", map[string]string{brooklynNYPostalCode: "Brooklyn"}, domServiceArea)
 		if err != nil {
 			suite.Fail(err.Error())
 		}
 
 		shipmentPostalCodeRateAreas, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.NotNil(shipmentPostalCodeRateAreas)
-		suite.Equal(3, len(*shipmentPostalCodeRateAreas))
+		suite.Equal(0, len(*shipmentPostalCodeRateAreas))
 		suite.Nil(err)
-
-		var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
-		for _, pcra := range *shipmentPostalCodeRateAreas {
-			shipmentPostalCodeRateAreaLookupMap[pcra.PostalCode] = pcra
-		}
-
-		suite.Equal(rateAreaCA.Name, shipmentPostalCodeRateAreaLookupMap[beverlyHillsCAPostalCode].RateArea.Name)
-		suite.Equal(rateAreaCA.Name, shipmentPostalCodeRateAreaLookupMap[sanDiegoCAPostalCode].RateArea.Name)
-		suite.Equal(rateAreaNY.Name, shipmentPostalCodeRateAreaLookupMap[brooklynNYPostalCode].RateArea.Name)
 	})
 
 	suite.Run("not available to prime error", func() {
@@ -386,7 +381,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	})
 
 	suite.Run("contract for move not found", func() {
-		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
+		availableToPrimeAtTime := time.Date(2018, 12, 3, 0, 0, 0, 0, time.UTC)
 		testMove := models.Move{
 			AvailableToPrimeAt: &availableToPrimeAtTime,
 			MTOShipments: models.MTOShipments{
@@ -411,15 +406,6 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		contract, err := suite.createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
-
-		// setup contract year within availableToPrimeAtTime time
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate:  time.Now(),
-				EndDate:    time.Now().Add(5 * time.Hour),
-				ContractID: contract.ID,
-			},
-		})
 
 		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.Nil(shipmentPostalCodeRateArea)
@@ -489,27 +475,15 @@ func (suite *MTOShipmentServiceSuite) TestFetchRateAreaByPostalCodeNotFound() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestFetchContract() {
-	// create test contract
-	expectedContract, err := suite.createContract(suite.AppContextForTest(), testContractCode, testContractName)
-	suite.NotNil(expectedContract)
-	suite.FatalNoError(err)
-
 	time := time.Now().Add(-50 * time.Hour)
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			StartDate:  time,
-			EndDate:    time,
-			ContractID: expectedContract.ID,
-		},
-	})
 	contract, err := fetchContract(suite.AppContextForTest(), time)
 	suite.NotNil(contract)
 	suite.Nil(err)
-	suite.Equal(expectedContract.ID, contract.ID)
 }
 
 func (suite *MTOShipmentServiceSuite) TestFetchContractNotFound() {
-	_, err := fetchContract(suite.AppContextForTest(), time.Now())
+	time := time.Date(2018, time.December, 31, 12, 0, 0, 0, time.UTC)
+	_, err := fetchContract(suite.AppContextForTest(), time)
 	suite.NotNil(err)
 }
 

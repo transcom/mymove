@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { generatePath, Link, matchPath } from 'react-router-dom';
+import { generatePath, matchPath } from 'react-router-dom';
 import { func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
-import { Button, Grid } from '@trussworks/react-uswds';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from '../../../../shared/constants';
@@ -22,7 +20,7 @@ import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipment
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
 import BoatShipmentCard from 'components/Customer/Review/ShipmentCard/BoatShipmentCard/BoatShipmentCard';
 import MobileHomeShipmentCard from 'components/Customer/Review/ShipmentCard/MobileHomeShipmentCard/MobileHomeShipmentCard';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
 import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
@@ -448,7 +446,6 @@ export class Summary extends Component {
     const canAddAnotherShipment = isReviewPage && currentMove.status === MOVE_STATUSES.DRAFT;
 
     const showMoveSetup = showHHGShipmentSummary;
-    const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: currentMove.id });
 
     const thirdSectionHasContent = showMoveSetup || (isReviewPage && mtoShipments.length > 0);
 
@@ -484,6 +481,7 @@ export class Summary extends Component {
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
+            streetAddress3={serviceMember.residential_address?.streetAddress3 || ''}
             telephone={serviceMember.telephone}
           />
         </SectionWrapper>
@@ -512,28 +510,7 @@ export class Summary extends Component {
             {isReviewPage && this.renderShipments()}
           </SectionWrapper>
         )}
-        {canAddAnotherShipment ? (
-          <Grid row>
-            <Grid col="fill" tablet={{ col: 'auto' }}>
-              <Link to={shipmentSelectionPath} className="usa-link">
-                Add another shipment
-              </Link>
-            </Grid>
-            <Grid col="auto" className={styles.buttonContainer}>
-              <Button
-                title="Help with adding shipments"
-                type="button"
-                onClick={this.toggleModal}
-                unstyled
-                className={styles.buttonRight}
-              >
-                <FontAwesomeIcon icon={['far', 'circle-question']} />
-              </Button>
-            </Grid>
-          </Grid>
-        ) : (
-          <p>Talk with your movers directly if you want to add or change shipments.</p>
-        )}
+        {!canAddAnotherShipment && <p>Talk with your movers directly if you want to add or change shipments.</p>}
         {moveIsApproved && currentDutyLocation && (
           <p>
             *To change these fields, contact your local PPPO office at {currentDutyLocation?.name}

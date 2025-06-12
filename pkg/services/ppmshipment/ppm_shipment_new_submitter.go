@@ -37,6 +37,8 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 		return nil, apperror.NewBadDataError("PPM ID is required")
 	}
 
+	nilCert := models.SignedCertification{}
+
 	ppmShipment, err := p.GetPPMShipment(
 		appCtx,
 		ppmShipmentID,
@@ -58,12 +60,14 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 		return nil, err
 	}
 
-	signedCertification.SubmittingUserID = appCtx.Session().UserID
-	signedCertification.MoveID = ppmShipment.Shipment.MoveTaskOrderID
-	signedCertification.PpmID = &ppmShipment.ID
+	if signedCertification != nilCert {
+		signedCertification.SubmittingUserID = appCtx.Session().UserID
+		signedCertification.MoveID = ppmShipment.Shipment.MoveTaskOrderID
+		signedCertification.PpmID = &ppmShipment.ID
 
-	certType := models.SignedCertificationTypePPMPAYMENT
-	signedCertification.CertificationType = &certType
+		certType := models.SignedCertificationTypePPMPAYMENT
+		signedCertification.CertificationType = &certType
+	}
 
 	var updatedPPMShipment models.PPMShipment
 
@@ -74,34 +78,42 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 
 	// initial allowable weight is equal to net weight of all shipments, E-05722
 	var allowableWeight = unit.Pound(0)
-	if len(updatedPPMShipment.WeightTickets) >= 1 {
-		for _, weightTicket := range ppmShipment.WeightTickets {
-			allowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+	// PPM-SPRs total up moving expenses
+	// all others total up weight tickets
+	if updatedPPMShipment.PPMType != models.PPMTypeSmallPackage {
+		if len(updatedPPMShipment.WeightTickets) >= 1 {
+			for _, weightTicket := range ppmShipment.WeightTickets {
+				allowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+	} else {
+		if len(updatedPPMShipment.MovingExpenses) >= 1 {
+			for _, movingExpense := range ppmShipment.MovingExpenses {
+				allowableWeight += *movingExpense.WeightShipped
+			}
 		}
 	}
 	updatedPPMShipment.AllowableWeight = &allowableWeight
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		updatedPPMShipment.SignedCertification, err = p.SignedCertificationCreator.CreateSignedCertification(txnAppCtx, signedCertification)
-
-		if err != nil {
-			return err
+		if !appCtx.Session().IsOfficeApp() { // Don't create signed cert if office user is completing closeout on behalf of customer
+			updatedPPMShipment.SignedCertification, err = p.SignedCertificationCreator.CreateSignedCertification(txnAppCtx, signedCertification)
+			if err != nil {
+				return err
+			}
 		}
 
 		err = p.PPMShipmentRouter.SubmitCloseOutDocumentation(txnAppCtx, &updatedPPMShipment)
-
 		if err != nil {
 			return err
 		}
 
 		err = validatePPMShipment(appCtx, updatedPPMShipment, ppmShipment, &ppmShipment.Shipment, PPMShipmentUpdaterChecks...)
-
 		if err != nil {
 			return err
 		}
 
 		verrs, err := txnAppCtx.DB().ValidateAndUpdate(&updatedPPMShipment)
-
 		if verrs.HasAny() {
 			return apperror.NewInvalidInputError(ppmShipment.ID, err, verrs, "unable to validate PPMShipment")
 		} else if err != nil {

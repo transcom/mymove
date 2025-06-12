@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generatePath } from 'react-router-dom';
@@ -19,6 +19,7 @@ import {
   serviceItemsEmpty,
   ppmOnlyShipments,
   closeoutOffice,
+  ordersInfoOCONUSLocalMove,
 } from './RequestedShipmentsTestData';
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
@@ -28,11 +29,17 @@ import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import { configureStore } from 'shared/store';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const moveTaskOrder = {
@@ -412,15 +419,52 @@ describe('RequestedShipments', () => {
       expect(screen.getByLabelText('Move management').checked).toEqual(true);
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
     });
+    it('renders Add a new shipment Button and does not show UB when orders type is local move', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      render(
+        <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+          <ApprovedRequestedShipments
+            ordersInfo={ordersInfoOCONUSLocalMove}
+            mtoShipments={shipments}
+            closeoutOffice={closeoutOffice}
+            mtoServiceItems={serviceItemsMSandCS}
+            moveCode="TE5TC0DE"
+          />
+        </MockProviders>,
+      );
+
+      // Get the combobox (dropdown button)
+      const combobox = await screen.getByRole('combobox', { name: 'Add a new shipment' });
+
+      expect(combobox).toBeInTheDocument();
+
+      // Simulate a user clicking the dropdown
+      await userEvent.click(combobox);
+
+      // Check if all expected options appear
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'HHG' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'PPM' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS-release' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Boat' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Mobile Home' })).toBeInTheDocument();
+      });
+      // UB option does not appear when orders type is local move
+      expect(screen.queryByRole('option', { name: 'UB' })).not.toBeInTheDocument();
+    });
     it('displays approved basic service items for approved shipments', () => {
       render(
-        <ApprovedRequestedShipments
-          ordersInfo={ordersInfo}
-          mtoShipments={shipments}
-          closeoutOffice={closeoutOffice}
-          mtoServiceItems={serviceItemsMSandCS}
-          moveCode="TE5TC0DE"
-        />,
+        <MockProviders>
+          <ApprovedRequestedShipments
+            ordersInfo={ordersInfo}
+            mtoShipments={shipments}
+            closeoutOffice={closeoutOffice}
+            mtoServiceItems={serviceItemsMSandCS}
+            moveCode="TE5TC0DE"
+          />
+          ,
+        </MockProviders>,
       );
       const approvedServiceItemNames = screen.getAllByTestId('basicServiceItemName');
       const approvedServiceItemDates = screen.getAllByTestId('basicServiceItemDate');
@@ -904,7 +948,7 @@ describe('RequestedShipments', () => {
       expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
     });
 
-    it('renders the "Add service items to move" section with only counseling when all shipments are PPM', () => {
+    it('should disable the counseling checkbox when all shipments are PPM', () => {
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: ppmOnlyShipments,
@@ -912,10 +956,9 @@ describe('RequestedShipments', () => {
       };
       renderComponent(testPropsServiceItemsEmpty);
 
-      expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
+      expect(screen.queryByText('Add service items to this move')).toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
-      expect(screen.queryByTestId('shipmentManagementFee')).not.toBeInTheDocument();
-      expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
+      expect(screen.queryByTestId('counselingFee')).toBeDisabled();
     });
   });
 });

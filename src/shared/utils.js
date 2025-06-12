@@ -226,3 +226,36 @@ export function isPreceedingAddressComplete(hasAddress, addressValues) {
   }
   return false;
 }
+
+export function isPreceedingAddressPPMPrimaryDestinationComplete(addressValues) {
+  if (addressValues === undefined) {
+    return false;
+  }
+
+  if (addressValues.state !== '' && addressValues.city !== '' && addressValues.postalCode !== '') {
+    return true;
+  }
+  return false;
+}
+
+// helper function to convert non-pdf orientation/rotated position (0-3) to degrees (0-270) for pdfs
+export function toRotatedDegrees(rotation, fileType) {
+  if (fileType === 'pdf') {
+    return (rotation || 0) * 90;
+  }
+  return rotation || 0;
+}
+
+// helper function to convert pdf orientation in degrees (0-270) to a rotated position (0-3)
+export function toRotatedPosition(rotation, fileType) {
+  if (fileType === 'pdf') {
+    return (rotation || 0) / 90;
+  }
+  return rotation || 0;
+}
+
+export function hasRotationChanged(current, saved, fileType) {
+  const currentPosition = toRotatedPosition(current, fileType);
+  const savedPosition = saved || 0;
+  return currentPosition !== savedPosition;
+}

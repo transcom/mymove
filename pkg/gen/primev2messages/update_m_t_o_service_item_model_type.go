@@ -19,6 +19,10 @@ import (
 //   - DOPSIT - UpdateMTOServiceItemSIT
 //   - DOASIT - UpdateMTOServiceItemSIT
 //   - DOFSIT - UpdateMTOServiceItemSIT
+//   - IDDSIT - UpdateMTOServiceItemSIT
+//   - IOPSIT - UpdateMTOServiceItemSIT
+//   - IOASIT - UpdateMTOServiceItemSIT
+//   - IOFSIT - UpdateMTOServiceItemSIT
 //   - DDSHUT - UpdateMTOServiceItemShuttle
 //   - DOSHUT - UpdateMTOServiceItemShuttle
 //   - IDSHUT - UpdateMTOServiceItemInternationalShuttle

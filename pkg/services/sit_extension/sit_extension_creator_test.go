@@ -10,12 +10,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	// Create move router for SitExtension Createor
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	sitExtensionCreator := NewSitExtensionCreator(moveRouter)
 	waf := entitlements.NewWeightAllotmentFetcher()
 	movefetcher := movefetcher.NewMoveTaskOrderFetcher(waf)
@@ -26,7 +27,14 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		// Expected:	New sit successfully created
 		// Create new mtoShipment
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
 
 		// Create a valid SIT Extension for the move
 		sit := &models.SITDurationUpdate{

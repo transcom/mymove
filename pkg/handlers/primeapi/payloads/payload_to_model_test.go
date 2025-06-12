@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -397,6 +398,31 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(originSITDepartureDate, *handlers.FmtDatePtr(returnedModel.SITDepartureDate))
 	})
 
+	suite.Run("Success - Returns international SIT origin service item model", func() {
+		originSITServiceItem := &primemessages.MTOServiceItemInternationalOriginSIT{
+			ReServiceCode:      &originServiceCode,
+			SitEntryDate:       &originSITEntryDate,
+			SitDepartureDate:   &originSITDepartureDate,
+			SitHHGActualOrigin: &sitHHGActualOriginAddress,
+			Reason:             &originReason,
+		}
+
+		originSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		originSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(originSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDOFSIT, returnedModel.ReService.Code)
+		suite.Equal(originStreet1, returnedModel.SITOriginHHGActualAddress.StreetAddress1)
+		suite.Equal(originCity, returnedModel.SITOriginHHGActualAddress.City)
+		suite.Equal(originState, returnedModel.SITOriginHHGActualAddress.State)
+		suite.Equal(originPostalCode, returnedModel.SITOriginHHGActualAddress.PostalCode)
+		suite.Equal(originSITEntryDate, *handlers.FmtDatePtr(returnedModel.SITEntryDate))
+		suite.Equal(originSITDepartureDate, *handlers.FmtDatePtr(returnedModel.SITDepartureDate))
+	})
+
 	suite.Run("Success - Returns SIT destination service item model", func() {
 		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               &destServiceCode,
@@ -423,8 +449,55 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 	})
 
+	suite.Run("Success - Returns international SIT destination service item model", func() {
+		destSITServiceItem := &primemessages.MTOServiceItemInternationalDestSIT{
+			ReServiceCode:               &destServiceCode,
+			FirstAvailableDeliveryDate1: &destDate,
+			FirstAvailableDeliveryDate2: &destDate,
+			DateOfContact1:              &destDate,
+			DateOfContact2:              &destDate,
+			TimeMilitary1:               &destTime,
+			TimeMilitary2:               &destTime,
+			SitDestinationFinalAddress:  &sitFinalDestAddress,
+			Reason:                      &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
+	})
+
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
 		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
+			ReServiceCode:              &destServiceCode,
+			SitDestinationFinalAddress: &sitFinalDestAddress,
+			Reason:                     &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
+		suite.Equal(destReason, *returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns internatonal SIT destination service item model without customer contact fields", func() {
+		destSITServiceItem := &primemessages.MTOServiceItemInternationalDestSIT{
 			ReServiceCode:              &destServiceCode,
 			SitDestinationFinalAddress: &sitFinalDestAddress,
 			Reason:                     &destReason,
@@ -902,4 +975,148 @@ func (suite *PayloadsSuite) TestVLocationModel() {
 	suite.Equal(state, payload.StateName, "Expected State to match")
 	suite.Equal(postalCode, payload.UsprZipID, "Expected PostalCode to match")
 	suite.Equal(county, payload.UsprcCountyNm, "Expected County to match")
+}
+
+func (suite *PayloadsSuite) TestAcknowledgeMovesAndShipmentsToMovesModel() {
+	var emptyString string
+	order := factory.BuildOrder(suite.DB(), nil, nil)
+	move1 := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		},
+		{
+			Model:    order,
+			LinkOnly: true,
+		},
+	}, nil)
+	shipment1 := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model:    move1,
+			LinkOnly: true,
+		},
+	}, nil)
+	shipment2 := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model:    move1,
+			LinkOnly: true,
+		},
+	}, nil)
+	move2 := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		},
+	}, nil)
+	shipment3 := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model:    move2,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	suite.Run("Success - Converts Prime Acknowledge Moves Payload to Moves", func() {
+		acknowledgeShipment1 := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(shipment1.ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+		acknowledgeShipment2 := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(shipment2.ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -2)),
+		}
+		acknowledgeMove1 := primemessages.AcknowledgeMove{
+			ID: strfmt.UUID(move1.ID.String()),
+			MtoShipments: []*primemessages.AcknowledgeShipment{
+				&acknowledgeShipment1,
+				&acknowledgeShipment2,
+			},
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+		acknowledgeShipment3 := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(shipment3.ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -3)),
+		}
+		acknowledgeMove2 := primemessages.AcknowledgeMove{
+			ID: strfmt.UUID(move2.ID.String()),
+			MtoShipments: []*primemessages.AcknowledgeShipment{
+				&acknowledgeShipment3,
+			},
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -3)),
+		}
+		acknowledgeMovesAndShipments := primemessages.AcknowledgeMoves{
+			&acknowledgeMove1,
+			&acknowledgeMove2,
+		}
+		result, verrs := MovesModelFromAcknowledgeMovesAndShipments(&acknowledgeMovesAndShipments)
+
+		suite.NoVerrs(verrs)
+		suite.NotNil(result)
+
+		var moves = *result
+		suite.Equal(len(moves), 2)
+
+		//First move
+		suite.Equal(moves[0].ID.String(), acknowledgeMove1.ID.String())
+		suite.Equal(*moves[0].PrimeAcknowledgedAt, time.Time(acknowledgeMove1.PrimeAcknowledgedAt))
+		suite.Equal(len(moves[0].MTOShipments), len(acknowledgeMove1.MtoShipments))
+
+		//First shipment in first move
+		suite.Equal(moves[0].MTOShipments[0].ID.String(), acknowledgeMove1.MtoShipments[0].ID.String())
+		suite.Equal(*moves[0].MTOShipments[0].PrimeAcknowledgedAt, time.Time(acknowledgeMove1.MtoShipments[0].PrimeAcknowledgedAt))
+
+		//Second shipment in the first move
+		suite.Equal(moves[0].MTOShipments[1].ID.String(), acknowledgeMove1.MtoShipments[1].ID.String())
+		suite.Equal(*moves[0].MTOShipments[1].PrimeAcknowledgedAt, time.Time(acknowledgeMove1.MtoShipments[1].PrimeAcknowledgedAt))
+
+		// Second move
+		suite.Equal(moves[1].ID.String(), acknowledgeMove2.ID.String())
+		suite.Equal(*moves[1].PrimeAcknowledgedAt, time.Time(acknowledgeMove2.PrimeAcknowledgedAt))
+		suite.Equal(len(moves[1].MTOShipments), len(acknowledgeMove2.MtoShipments))
+
+		//First shipment in the second move
+		suite.Equal(moves[1].MTOShipments[0].ID.String(), acknowledgeMove2.MtoShipments[0].ID.String())
+		suite.Equal(*moves[1].MTOShipments[0].PrimeAcknowledgedAt, time.Time(acknowledgeMove2.MtoShipments[0].PrimeAcknowledgedAt))
+
+	})
+	suite.Run("Unsuccessful - Errors when passed an invalid uuid for a Move", func() {
+		acknowledgeShipment1 := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(shipment1.ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+		acknowledgeMove1 := primemessages.AcknowledgeMove{
+			ID: strfmt.UUID(emptyString),
+			MtoShipments: []*primemessages.AcknowledgeShipment{
+				&acknowledgeShipment1,
+			},
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+		acknowledgeMovesAndShipments := primemessages.AcknowledgeMoves{
+			&acknowledgeMove1,
+		}
+		result, verrs := MovesModelFromAcknowledgeMovesAndShipments(&acknowledgeMovesAndShipments)
+		suite.Nil(result)
+		suite.True(verrs.HasAny())
+	})
+
+	suite.Run("Unsuccessful - Errors when passed an invalid uuid for a Shipment", func() {
+		acknowledgeShipment1 := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(emptyString),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+		acknowledgeMove1 := primemessages.AcknowledgeMove{
+			ID: strfmt.UUID(move1.ID.String()),
+			MtoShipments: []*primemessages.AcknowledgeShipment{
+				&acknowledgeShipment1,
+			},
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+		acknowledgeMovesAndShipments := primemessages.AcknowledgeMoves{
+			&acknowledgeMove1,
+		}
+		result, verrs := MovesModelFromAcknowledgeMovesAndShipments(&acknowledgeMovesAndShipments)
+		suite.Nil(result)
+		suite.True(verrs.HasAny())
+	})
 }

@@ -10,12 +10,12 @@ export default {
 };
 
 export const PAYMENT_REQUEST_STATUS_LABELS = {
-  PENDING: 'Payment requested',
+  PENDING: 'Payment Requested',
   REVIEWED: 'Reviewed',
   SENT_TO_GEX: 'Sent to GEX',
-  TPPS_RECEIVED: 'Received',
+  TPPS_RECEIVED: 'TPPS Received',
   REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED: 'Rejected',
-  PAID: 'Paid',
-  EDI_ERROR: 'EDI error',
+  PAID: 'TPPS Paid',
+  EDI_ERROR: 'EDI Error',
   DEPRECATED: 'Deprecated',
 };

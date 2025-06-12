@@ -44,7 +44,10 @@ describe('components/Office/StorageFacilityAddress', () => {
     );
 
     expect(screen.getByLabelText(/Address 1/)).toHaveValue('3373 NW Martin Luther King Blvd');
+    expect(screen.getByTestId('City')).toHaveTextContent('San Antonio');
     expect(screen.getByTestId('State')).toHaveTextContent('TX');
+    expect(screen.getByTestId('ZIP')).toHaveTextContent('78234');
+    expect(screen.getByText('San Antonio, TX 78234 ()'));
     expect(screen.getByLabelText(/Lot number/)).toHaveValue('42');
   });
 });

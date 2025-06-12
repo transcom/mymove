@@ -6,6 +6,8 @@ description: >
   corresponding to the service item type.
     * DOFSIT, DOASIT - MTOServiceItemOriginSIT
     * DDFSIT, DDASIT - MTOServiceItemDestSIT
+    * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT
+    * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT
     * DOSHUT, DDSHUT - MTOServiceItemShuttle
     * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle
     * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
@@ -19,6 +21,8 @@ enum:
   - MTOServiceItemBasic
   - MTOServiceItemOriginSIT
   - MTOServiceItemDestSIT
+  - MTOServiceItemInternationalOriginSIT
+  - MTOServiceItemInternationalDestSIT
   - MTOServiceItemShuttle
   - MTOServiceItemDomesticShuttle
   - MTOServiceItemInternationalShuttle
