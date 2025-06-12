@@ -50,14 +50,18 @@ describe('EditSitEntryDateModal', () => {
     });
   });
 
-  it('renders the summary SIT component', async () => {
+  it('renders the summary SIT component and asterisks for required fields', async () => {
     await render(<EditSitEntryDateModal onSubmit={jest.fn()} onClose={jest.fn()} {...defaultValues} />);
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     await waitFor(() => {
       expect(screen.getByText('Edit SIT Entry Date')).toBeInTheDocument();
       expect(screen.getByText('Original SIT entry date')).toBeInTheDocument();
       expect(screen.getByText('New SIT entry date')).toBeInTheDocument();
       expect(screen.getByText('Office remarks')).toBeInTheDocument();
+      expect(screen.getByText('New SIT entry date')).toHaveTextContent('*');
+      expect(screen.getByText('Office remarks')).toHaveTextContent('*');
     });
   });
 });
