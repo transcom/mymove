@@ -400,6 +400,7 @@ func (suite *HandlerSuite) createServiceItem() (models.MTOServiceItem, models.Mo
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
+	mockSender := suite.TestNotificationSender()
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
@@ -408,14 +409,14 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	mockSender := suite.TestNotificationSender()
+
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -857,14 +858,14 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	mockSender := suite.TestNotificationSender()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	mockSender := suite.TestNotificationSender()
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())

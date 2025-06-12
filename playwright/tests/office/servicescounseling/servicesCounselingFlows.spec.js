@@ -115,7 +115,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
@@ -283,7 +283,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
@@ -331,7 +331,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
@@ -387,6 +387,18 @@ test.describe('Services counselor user', () => {
 
   test('can complete review of PPM shipment documents and view documents after', async ({ page, scPage }) => {
     test.slow();
+    await page.route('**/ghc/v1/ppm-shipments/*/payment-packet', async (route) => {
+      // mocked blob
+      const fakePdfBlob = new Blob(['%PDF-1.4 foo'], { type: 'application/pdf' });
+      const arrayBuffer = await fakePdfBlob.arrayBuffer();
+      // playwright route mocks only want a Buffer or string
+      const bodyBuffer = Buffer.from(arrayBuffer);
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/pdf',
+        body: bodyBuffer,
+      });
+    });
     const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
     await scPage.navigateToCloseoutMove(move.locator);
 
@@ -411,7 +423,10 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByRole('button', { name: 'Preview PPM Payment Packet' }).click();
+    await expect(page.getByTestId('loading-spinner')).not.toBeVisible();
+    await page.getByRole('button', { name: 'Complete PPM Review' }).click();
+    await page.getByRole('button', { name: 'Yes' }).click();
     await scPage.waitForPage.moveDetails();
 
     // Navigate to the "View documents" page
@@ -676,7 +691,7 @@ test.describe('Services counselor user', () => {
         expect(await page.locator('[data-testid="tag"]').count()).toBe(1);
         await page.getByText('Accept').click();
         await page.getByTestId('closeSidebar').click();
-        await expect(page.getByRole('heading', { name: 'Move details' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Move Details' })).toBeVisible();
         await expect(page.getByText('actual expense reimbursement')).toBeVisible();
       });
     });

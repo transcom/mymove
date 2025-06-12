@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -142,6 +143,8 @@ func populateShipmentFields(
 	orders models.Order, tacFetcher services.TransportationAccountingCodeFetcher,
 	loaFetcher services.LineOfAccountingFetcher, estimator services.PPMEstimator) error {
 	var pptasShipments []*pptasmessages.PPTASShipment
+	var maxBillableWeight float64
+
 	for _, shipment := range move.MTOShipments {
 		var pptasShipment pptasmessages.PPTASShipment
 
@@ -202,7 +205,7 @@ func populateShipmentFields(
 			pptasShipment.ActualOriginNetWeight = &originActualWeight
 		}
 
-		if shipment.Reweigh != nil && shipment.Reweigh.Weight != nil {
+		if shipment.Reweigh != nil && shipment.Reweigh.ID != uuid.Nil && shipment.Reweigh.Weight != nil {
 			reweigh := shipment.Reweigh.Weight.Float64()
 			pptasShipment.DestinationReweighNetWeight = &reweigh
 		}
@@ -218,6 +221,7 @@ func populateShipmentFields(
 		if shipment.PrimeEstimatedWeight != nil {
 			weightEstimate = shipment.PrimeEstimatedWeight.Float64()
 		}
+		maxBillableWeight += weightEstimate * 1.1
 		pptasShipment.WeightEstimate = &weightEstimate
 
 		if shipment.Distance != nil {
@@ -227,6 +231,7 @@ func populateShipmentFields(
 		pptasShipments = append(pptasShipments, &pptasShipment)
 	}
 
+	report.MaxBillableWeight = models.PoundPointer(unit.Pound(maxBillableWeight))
 	report.Shipments = pptasShipments
 
 	return nil

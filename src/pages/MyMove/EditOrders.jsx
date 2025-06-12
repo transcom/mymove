@@ -7,6 +7,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 import scrollToTop from 'shared/scrollToTop';
+import appendTimestampToFilename from 'utils/fileUpload';
 import {
   getResponseError,
   patchOrders,
@@ -101,6 +102,7 @@ const EditOrders = ({
       allowances.dependents_under_twelve !== undefined ? `${allowances.dependents_under_twelve}` : '',
     dependents_twelve_and_over:
       allowances.dependents_twelve_and_over !== undefined ? `${allowances.dependents_twelve_and_over}` : '',
+    civilian_tdy_ub_allowance: allowances.ub_allowance !== undefined ? `${allowances.ub_allowance}` : '',
   };
 
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
@@ -111,24 +113,7 @@ const EditOrders = ({
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;
-
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    return createUploadForDocument(newFile, documentId);
+    return createUploadForDocument(appendTimestampToFilename(file), documentId);
   };
 
   const handleUploadComplete = async () => {
@@ -190,6 +175,12 @@ const EditOrders = ({
               Number(fieldValues.dependents_twelve_and_over) ?? 0
             : // If CONUS or no dependents, omit this field altogether
               null,
+        civilian_tdy_ub_allowance: isOconus
+          ? // If OCONUS
+            // then provide the civilian TDY UB allowance. Default to 0 if not present
+            Number(fieldValues.civilian_tdy_ub_allowance) ?? 0
+          : // If CONUS, omit this field altogether
+            null,
       };
       /* eslint-enable no-nested-ternary */
     };

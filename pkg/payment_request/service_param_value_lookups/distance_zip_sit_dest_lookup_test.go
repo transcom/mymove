@@ -3,14 +3,12 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"strconv"
-	"time"
 
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
@@ -27,12 +25,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	var mtoServiceItemDiffZip3 models.MTOServiceItem
 
 	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 
 		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 
@@ -237,6 +229,27 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 
 		//Check if distance equal 1
 		suite.Equal("1", distance)
+		suite.FatalNoError(err)
+
+	})
+
+	suite.Run("sets distance to NOT one when origin and destination postal codes are different", func() {
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+
+		distanceZipLookup := DistanceZipSITDestLookup{
+			FinalDestinationAddress: models.Address{PostalCode: "10001"},
+			DestinationAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
+		}
+
+		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
+			planner:       suite.planner,
+			mtoShipmentID: &mtoServiceItem.MTOShipment.ID,
+		})
+
+		suite.FatalNoError(err)
+
+		//Check if distance not equal 1
+		suite.NotEqual("1", distance)
 		suite.FatalNoError(err)
 
 	})

@@ -24,6 +24,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/storage"
@@ -188,6 +189,104 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 	}
 	return *newmove
 
+}
+
+// Create an HHG move that is terminated
+func MakeHHGMoveInTerminatedStatus(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		},
+	}, nil)
+
+	sitDaysAllowance := 270
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				Status:               models.MTOShipmentStatusTerminatedForCause,
+				SITDaysAllowance:     &sitDaysAllowance,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Add current sit so we can review the modal
+	// At time of writing it needs to be:
+	// current
+	// days remaining <=30
+	// --break--
+	// We're gonna go well over 90 days so that
+	// we can see the convert to customer expense button.
+	twoYearsAgo := time.Now().AddDate(-2, 0, 0)
+	aMonthAhead := time.Now().AddDate(0, 1, 0)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, shipment, &twoYearsAgo, &aMonthAhead)
+	scenario.MakeSITExtensionsForShipment(appCtx, shipment)
+
+	return mto
 }
 
 // MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO is a function
@@ -4195,7 +4294,23 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	hhg := models.MTOShipmentTypeHHG
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator, false)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeIntlHHGMoveNeedsSC creates an fully ready move needing SC approval - has existing iHHG shipment
+func MakeIntlHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhg := models.MTOShipmentTypeHHG
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator, true)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4361,7 +4476,7 @@ func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator, false)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4379,7 +4494,7 @@ func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	hos := models.DestinationTypeHomeOfSelection
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator, false)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4447,22 +4562,20 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			PickupAddressID:             &pickupAddress.ID,
-			DestinationAddressID:        &destinationAddress.ID,
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
-			FinalIncentive:              models.CentPointer(50000000),
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			PickupAddressID:       &pickupAddress.ID,
+			DestinationAddressID:  &destinationAddress.ID,
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
+			FinalIncentive:        models.CentPointer(50000000),
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -4579,26 +4692,23 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 			DestinationAddressID: &destinationAddress.ID,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
-			FinalIncentive:              models.CentPointer(50000000),
-			SITExpected:                 models.BoolPointer(true),
-			SITEstimatedEntryDate:       models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			SITEstimatedDepartureDate:   models.TimePointer(time.Date(testdatagen.GHCTestYear, time.April, 16, 0, 0, 0, 0, time.UTC)),
-			SITEstimatedWeight:          models.PoundPointer(unit.Pound(1234)),
-			SITEstimatedCost:            models.CentPointer(unit.Cents(12345600)),
-			SITLocation:                 &sitLocationType,
+			ID:                        uuid.Must(uuid.NewV4()),
+			ApprovedAt:                &approvedAt,
+			Status:                    models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:            models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			AdvanceAmountReceived:     models.CentPointer(unit.Cents(340000)),
+			W2Address:                 &address,
+			FinalIncentive:            models.CentPointer(50000000),
+			SITExpected:               models.BoolPointer(true),
+			SITEstimatedEntryDate:     models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedDepartureDate: models.TimePointer(time.Date(testdatagen.GHCTestYear, time.April, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedWeight:        models.PoundPointer(unit.Pound(1234)),
+			SITEstimatedCost:          models.CentPointer(unit.Cents(12345600)),
+			SITLocation:               &sitLocationType,
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
@@ -4790,6 +4900,34 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 	return *newmove
 }
 
+func MakeApprovedMoveWithSubmittedPPMShipmentForSC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+
+	move := scenario.CreateApprovedMoveWithSubmittedPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
 func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
@@ -4820,7 +4958,7 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4859,7 +4997,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4898,19 +5036,16 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4945,7 +5080,7 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -4989,19 +5124,16 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5066,19 +5198,17 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsCloseout,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5103,6 +5233,185 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+
+	progearTickets := []struct {
+		weight        unit.Pound
+		belongsToSelf bool
+	}{
+		{weight: 100, belongsToSelf: true},
+		{weight: 200, belongsToSelf: true},
+		{weight: 50, belongsToSelf: false},
+		{weight: 25, belongsToSelf: false},
+	}
+
+	var tickets []models.ProgearWeightTicket
+	for _, pt := range progearTickets {
+		t := factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+			{Model: move.Orders.ServiceMember, LinkOnly: true},
+			{Model: shipment, LinkOnly: true},
+			{
+				Model: models.ProgearWeightTicket{
+					Weight:        models.PoundPointer(pt.weight),
+					BelongsToSelf: models.BoolPointer(pt.belongsToSelf),
+				},
+			},
+		}, nil)
+		tickets = append(tickets, t)
+	}
+
+	newAppCtx := appcontext.NewAppContext(appCtx.DB(), nil, &auth.Session{
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: move.Orders.ServiceMember.ID},
+		nil)
+
+	updater := progear.NewOfficeProgearWeightTicketUpdater()
+	for _, t := range tickets {
+		et := etag.GenerateEtag(t.UpdatedAt)
+		_, err := updater.UpdateProgearWeightTicket(newAppCtx, t, et)
+		if err != nil {
+			log.Panic(fmt.Errorf("failed to update progear weight ticket: %w", err))
+		}
+	}
+
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+
+	progearTickets := []struct {
+		weight        unit.Pound
+		belongsToSelf bool
+	}{
+		{weight: 100, belongsToSelf: true},
+		{weight: 200, belongsToSelf: true},
+		{weight: 50, belongsToSelf: false},
+		{weight: 25, belongsToSelf: false},
+	}
+
+	var tickets []models.ProgearWeightTicket
+	for _, pt := range progearTickets {
+		t := factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+			{Model: move.Orders.ServiceMember, LinkOnly: true},
+			{Model: shipment, LinkOnly: true},
+			{
+				Model: models.ProgearWeightTicket{
+					Weight:        models.PoundPointer(pt.weight),
+					BelongsToSelf: models.BoolPointer(pt.belongsToSelf),
+				},
+			},
+		}, nil)
+		tickets = append(tickets, t)
+	}
+
+	newAppCtx := appcontext.NewAppContext(appCtx.DB(), nil, &auth.Session{
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: move.Orders.ServiceMember.ID},
+		nil)
+
+	deleter := progear.NewProgearWeightTicketDeleter()
+	err := deleter.DeleteProgearWeightTicket(newAppCtx, shipment.ID, tickets[3].ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to delete progear weight ticket: %w", err))
+	}
+
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
@@ -5158,8 +5467,6 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx appcontext.
 			ApprovedAt:                   &approvedAt,
 			Status:                       models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:               models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:       models.StringPointer("42444"),
-			ActualDestinationPostalCode:  models.StringPointer("30813"),
 			HasReceivedAdvance:           models.BoolPointer(true),
 			AdvanceAmountReceived:        models.CentPointer(unit.Cents(340000)),
 			W2Address:                    &address,
@@ -5167,7 +5474,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx appcontext.
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5231,19 +5538,16 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsCloseout,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5297,19 +5601,17 @@ func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppConte
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsCloseout,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
@@ -5383,23 +5685,24 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
-			ExpectedDepartureDate:       time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-			SITEstimatedEntryDate:       &storageStart,
-			SITEstimatedDepartureDate:   &storageEnd,
-			SITExpected:                 models.BoolPointer(true),
+			ID:                        uuid.Must(uuid.NewV4()),
+			ApprovedAt:                &approvedAt,
+			Status:                    models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:            models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:        models.BoolPointer(true),
+			AdvanceAmountReceived:     models.CentPointer(unit.Cents(340000)),
+			W2Address:                 &address,
+			PickupAddress:             &address,
+			DestinationAddress:        &address,
+			ExpectedDepartureDate:     time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+			SITEstimatedEntryDate:     &storageStart,
+			SITEstimatedDepartureDate: &storageEnd,
+			SITExpected:               models.BoolPointer(true),
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+	shipment.Shipment.DestinationAddress = shipment.Shipment.PickupAddress
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
 	sitCost := unit.Cents(200000)
@@ -5525,23 +5828,21 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsCloseout,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
-			ExpectedDepartureDate:       time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-			SITEstimatedEntryDate:       &storageStart,
-			SITEstimatedDepartureDate:   &storageEnd,
-			SITExpected:                 models.BoolPointer(true),
+			ID:                        uuid.Must(uuid.NewV4()),
+			ApprovedAt:                &approvedAt,
+			Status:                    models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:            models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:        models.BoolPointer(true),
+			AdvanceAmountReceived:     models.CentPointer(unit.Cents(340000)),
+			W2Address:                 &address,
+			ExpectedDepartureDate:     time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+			SITEstimatedEntryDate:     &storageStart,
+			SITEstimatedDepartureDate: &storageEnd,
+			SITExpected:               models.BoolPointer(true),
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
 	sitCost := unit.Cents(200000)
@@ -5665,19 +5966,17 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsCloseout,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			W2Address:                   &address,
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5748,7 +6047,7 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -5792,20 +6091,18 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          uuid.Must(uuid.NewV4()),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsCloseout,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-			AdvanceStatus:               (*models.PPMAdvanceStatus)(models.StringPointer(string(models.PPMAdvanceStatusApproved))),
-			W2Address:                   &address,
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			AdvanceStatus:         (*models.PPMAdvanceStatus)(models.StringPointer(string(models.PPMAdvanceStatusApproved))),
+			W2Address:             &address,
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -9036,7 +9333,8 @@ func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) mod
 		},
 		{
 			Model: models.Move{
-				Status: models.MoveStatusServiceCounselingCompleted,
+				Status:             models.MoveStatusServiceCounselingCompleted,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 	}, nil)

@@ -12,10 +12,26 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
+	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/move"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
+
+func setUpMockNotificationSender() notifications.NotificationSender {
+	// The UserUpdater needs a NotificationSender for sending user activity emails to system admins.
+	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
+	mockSender := notificationMocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("*notifications.UserAccountModified"),
+	).Return(nil)
+
+	return &mockSender
+}
 
 func (suite *ShipmentSuite) TestCreateShipment() {
 
@@ -53,7 +69,10 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		mockMoveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
 		subtestData.mockMoveTaskOrderUpdater = &mockMoveTaskOrderUpdater
 
-		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, subtestData.mockBoatShipmentCreator, subtestData.mockMobileHomeShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater)
+		waf := entitlements.NewWeightAllotmentFetcher()
+		mockSender := setUpMockNotificationSender()
+		moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
+		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, subtestData.mockBoatShipmentCreator, subtestData.mockMobileHomeShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater, moveWeights)
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")

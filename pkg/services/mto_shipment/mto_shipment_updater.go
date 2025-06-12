@@ -41,7 +41,6 @@ type mtoShipmentUpdater struct {
 	planner        route.Planner
 	moveRouter     services.MoveRouter
 	moveWeights    services.MoveWeights
-	sender         notifications.NotificationSender
 	recalculator   services.PaymentRequestShipmentRecalculator
 	checks         []validator
 }
@@ -56,7 +55,6 @@ func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fet
 		planner,
 		moveRouter,
 		moveWeights,
-		sender,
 		recalculator,
 		[]validator{},
 	}
@@ -73,9 +71,8 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ serv
 		planner,
 		moveRouter,
 		moveWeights,
-		sender,
 		recalculator,
-		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
+		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement(), MTOShipmentHasValidRequestedPickupDate()},
 	}
 }
 
@@ -88,9 +85,8 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ servic
 		planner,
 		moveRouter,
 		moveWeights,
-		sender,
 		recalculator,
-		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
+		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement(), MTOShipmentHasValidRequestedPickupDate()},
 	}
 }
 
@@ -105,14 +101,14 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ service
 		planner,
 		moveRouter,
 		moveWeights,
-		sender,
 		recalculator,
-		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
+		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement()},
 	}
 }
 
 // setNewShipmentFields validates the updated shipment
 func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
+
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
@@ -222,6 +218,10 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 
 	if requestedUpdatedShipment.Status != "" {
 		dbShipment.Status = requestedUpdatedShipment.Status
+	}
+
+	if requestedUpdatedShipment.ApprovedDate != nil {
+		dbShipment.ApprovedDate = requestedUpdatedShipment.ApprovedDate
 	}
 
 	if requestedUpdatedShipment.RequiredDeliveryDate != nil {
@@ -392,9 +392,11 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	// db version is used to check if agents need creating or updating
 	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
 	if err != nil {
-		switch err.(type) {
+		switch typedErr := err.(type) {
 		case StaleIdentifierError:
-			return nil, apperror.NewPreconditionFailedError(mtoShipment.ID, err)
+			return nil, apperror.NewPreconditionFailedError(mtoShipment.ID, typedErr)
+		case apperror.InvalidInputError:
+			return nil, apperror.NewInvalidInputError(mtoShipment.ID, typedErr, typedErr.ValidationErrors, "Invalid input found while updating the shipment")
 		default:
 			return nil, err
 		}
@@ -429,7 +431,8 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
-	var autoReweighShipments models.MTOShipments
+	var verrs *validate.Errors
+	var move *models.Move
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		updatedAt, err := etag.DecodeEtag(eTag)
@@ -714,7 +717,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 				if copyOfAgent.ID == uuid.Nil {
 					// create a new agent if it doesn't already exist
-					verrs, err := f.builder.CreateOne(txnAppCtx, &copyOfAgent)
+					verrs, err = f.builder.CreateOne(txnAppCtx, &copyOfAgent)
 					if verrs != nil && verrs.HasAny() {
 						return verrs
 					}
@@ -725,11 +728,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		// var move *models.Move
 		// If the estimated weight was updated on an approved shipment then it would mean the move could qualify for
 		// excess weight risk depending on the weight allowance and other shipment estimated weights
 		if newShipment.PrimeEstimatedWeight != nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && newShipment.NTSRecordedWeight != nil) {
 			// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
-			move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
+			move, verrs, err = f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
 			if verrs != nil && verrs.HasAny() {
 				return errors.New(verrs.Error())
 			}
@@ -739,7 +743,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			// we only want to update the authorized weight if the shipment is approved and the previous weight is nil
 			// otherwise, shipment_updater will handle updating authorized weight when a shipment is approved
-			if (dbShipment.PrimeEstimatedWeight == nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && newShipment.NTSRecordedWeight == nil)) && newShipment.Status == models.MTOShipmentStatusApproved {
+			if (dbShipment.PrimeEstimatedWeight == nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && newShipment.NTSRecordedWeight == nil)) &&
+				(newShipment.Status == models.MTOShipmentStatusApproved || newShipment.Status == models.MTOShipmentStatusApprovalsRequested) {
 				// updates to prime estimated weight should change the authorized weight of the entitlement
 				// which can be manually adjusted by an office user if needed
 				err = updateAuthorizedWeight(appCtx, newShipment, move)
@@ -768,20 +773,24 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
-		if newShipment.PrimeActualWeight != nil {
-			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
-				var err error
-				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
-				if err != nil {
-					return err
-				}
+		if (dbShipment.Status == models.MTOShipmentStatusApproved ||
+			dbShipment.Status == models.MTOShipmentStatusApprovalsRequested) &&
+			(dbShipment.PrimeEstimatedWeight == nil ||
+				*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight ||
+				(newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight == nil) ||
+				(newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight != nil && *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight)) {
+			err := f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+			if err != nil {
+				return err
 			}
 		}
 
 		// Check that only NTS Release shipment uses that NTSRecordedWeight field
 		if newShipment.NTSRecordedWeight != nil && newShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
-			errMessage := fmt.Sprintf("field NTSRecordedWeight cannot be set for shipment type %s", string(newShipment.ShipmentType))
-			return apperror.NewInvalidInputError(newShipment.ID, nil, nil, errMessage)
+			errorMsg := fmt.Sprintf("field NTSRecordedWeight cannot be set for shipment type %s", string(newShipment.ShipmentType))
+			verrs := validate.NewErrors()
+			verrs.Add("NTSRecordedWeight error", errorMsg)
+			return apperror.NewInvalidInputError(newShipment.ID, nil, verrs, errorMsg)
 		}
 
 		weightsCalculator := NewShipmentBillableWeightCalculator()
@@ -848,6 +857,16 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			newShipment = models.DetermineShipmentMarketCode(newShipment)
 		}
 
+		if newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			isShipmentOCONUS := models.IsShipmentOCONUS(*newShipment)
+			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
+				errorMsg := "At least one address for a UB shipment must be OCONUS"
+				ubVerrs := validate.NewErrors()
+				ubVerrs.Add("UB shipment error", errorMsg)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, ubVerrs, errorMsg)
+			}
+		}
+
 		// RDD for UB shipments only need the pick up date, shipment origin address and destination address to determine required delivery date
 		if newShipment.ScheduledPickupDate != nil && !newShipment.ScheduledPickupDate.IsZero() && newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			calculatedRDD, err := CalculateRequiredDeliveryDate(appCtx, f.planner, *newShipment.PickupAddress, *newShipment.DestinationAddress, *newShipment.ScheduledPickupDate, newShipment.PrimeEstimatedWeight.Int(), newShipment.MarketCode, newShipment.MoveTaskOrderID, newShipment.ShipmentType)
@@ -870,6 +889,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				newShipment.PickupAddress != nil && dbShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
 				newShipment.DestinationAddress != nil && dbShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
 				newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
+
+			// Recalculate SIT service items using latest mileage.
+			// This is to ensure when UpdateEstimatedPricingForShipmentBasicServiceItems
+			// is executed it is using most up to date mileage if address changed using service_item.sit_delivery_miles.
+			err = UpdateSITServiceItemsSITIfPostalCodeChanged(f.planner, appCtx, f.addressCreator, newShipment)
+			if err != nil {
+				return err
+			}
 
 			portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), newShipment.ID)
 			if err != nil {
@@ -925,25 +952,13 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 	})
 
 	if transactionError != nil {
-		// Two possible types of transaction errors to handle
 		if t, ok := transactionError.(StaleIdentifierError); ok {
 			return apperror.NewPreconditionFailedError(dbShipment.ID, t)
 		}
-		return apperror.NewQueryError("mtoShipment", transactionError, "")
-	}
-
-	if len(autoReweighShipments) > 0 {
-		for _, shipment := range autoReweighShipments {
-			/* Don't send emails to BLUEBARK moves */
-			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
-				err := f.sender.SendNotification(appCtx,
-					notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
-				)
-				if err != nil {
-					return err
-				}
-			}
+		if t, ok := transactionError.(apperror.InvalidInputError); ok {
+			return apperror.NewInvalidInputError(dbShipment.ID, t, t.ValidationErrors, "There was an issue with validating the shipment update")
 		}
+		return apperror.NewQueryError("mtoShipment", transactionError, "")
 	}
 
 	return nil
@@ -1419,6 +1434,7 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			if err != nil {
 				return err
 			}
+
 			serviceItem.SITDeliveryMiles = &milesCalculated
 
 			mtoServiceItems = append(mtoServiceItems, serviceItem)
@@ -1443,6 +1459,84 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 	return nil
 }
 
+func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx appcontext.AppContext, addressCreator services.AddressCreator, newShipment *models.MTOShipment) error {
+	var expectedSITs = []models.ReServiceCode{models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC,
+		models.ReServiceCodeIOPSIT, models.ReServiceCodeIOSFSC, models.ReServiceCodeDDDSIT,
+		models.ReServiceCodeDDSFSC, models.ReServiceCodeIDDSIT, models.ReServiceCodeIDSFSC}
+
+	containsSIT := false
+	for _, serviceItem := range newShipment.MTOServiceItems {
+		if slices.Contains(expectedSITs, serviceItem.ReService.Code) {
+			containsSIT = true
+		}
+	}
+
+	if !containsSIT {
+		return nil
+	}
+
+	eagerAssociations := []string{"DestinationAddress", "MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems.SITDestinationFinalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
+	mtoShipment, err := FindShipment(appCtx, newShipment.ID, eagerAssociations...)
+	if err != nil {
+		return err
+	}
+
+	mtoServiceItems := mtoShipment.MTOServiceItems
+	for _, s := range mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		var milesCalculated int
+
+		if reServiceCode == models.ReServiceCodeDOPSIT ||
+			reServiceCode == models.ReServiceCodeDOSFSC ||
+			reServiceCode == models.ReServiceCodeIOPSIT ||
+			reServiceCode == models.ReServiceCodeIOSFSC {
+
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGActualAddress.PostalCode, newShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+		}
+
+		if reServiceCode == models.ReServiceCodeDDDSIT ||
+			reServiceCode == models.ReServiceCodeDDSFSC ||
+			reServiceCode == models.ReServiceCodeIDDSIT ||
+			reServiceCode == models.ReServiceCodeIDSFSC {
+
+			// init using shipment destination if SITDestinationOriginalAddress is not set during pre-approval
+			originalDestination := mtoShipment.DestinationAddress.PostalCode
+			if serviceItem.SITDestinationOriginalAddress != nil {
+				originalDestination = serviceItem.SITDestinationOriginalAddress.PostalCode
+			}
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, originalDestination, serviceItem.SITDestinationFinalAddress.PostalCode)
+			if err != nil {
+				return err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+
+		}
+	}
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&mtoServiceItems)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(newShipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
+		} else if err != nil {
+			return apperror.NewQueryError("Service item", err, "")
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return transactionError
+	}
+
+	return nil
+}
+
 func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOShipment, move *models.Move) error {
 	var dBAuthorizedWeight int
 	if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
@@ -1452,7 +1546,7 @@ func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOSh
 	}
 	if len(move.MTOShipments) != 0 {
 		for _, mtoShipment := range move.MTOShipments {
-			if mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
+			if (mtoShipment.Status == models.MTOShipmentStatusApproved || mtoShipment.Status == models.MTOShipmentStatusApprovalsRequested) && mtoShipment.ID != shipment.ID {
 				if mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 					//uses PrimeEstimatedWeight for HHG and NTS shipments
 					if mtoShipment.PrimeEstimatedWeight != nil {

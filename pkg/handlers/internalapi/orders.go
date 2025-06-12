@@ -88,6 +88,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		if order.Entitlement.WeightRestriction != nil {
 			entitlement.WeightRestriction = models.Int64Pointer(int64(*order.Entitlement.WeightRestriction))
 		}
+		if order.Entitlement.UBWeightRestriction != nil {
+			entitlement.UbWeightRestriction = models.Int64Pointer(int64(*order.Entitlement.UBWeightRestriction))
+		}
 	}
 	var originDutyLocation models.DutyLocation
 	originDutyLocation = models.DutyLocation{}
@@ -242,8 +245,13 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
 			}
+
+			civilianTDYUBAllowance := 0
+			if payload.CivilianTdyUbAllowance != nil {
+				civilianTDYUBAllowance = int(*payload.CivilianTdyUbAllowance)
+			}
 			// Calculate UB allowance for the order entitlement
-			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver, &civilianTDYUBAllowance)
 			if err == nil {
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
@@ -538,9 +546,13 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					grade = order.Grade
 				}
 
+				civilianTDYUBAllowance := 0
+				if payload.CivilianTdyUbAllowance != nil {
+					civilianTDYUBAllowance = int(*payload.CivilianTdyUbAllowance)
+				}
 				// Calculate UB allowance for the order entitlement
 				if order.Entitlement != nil {
-					unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+					unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver, &civilianTDYUBAllowance)
 					if err == nil {
 						weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 					}
@@ -556,6 +568,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					DependentsTwelveAndOver: dependentsTwelveAndOver,
 					AccompaniedTour:         payload.AccompaniedTour,
 					UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+					GunSafe:                 order.Entitlement.GunSafe,
+					GunSafeWeight:           order.Entitlement.GunSafeWeight,
 				}
 
 				/*

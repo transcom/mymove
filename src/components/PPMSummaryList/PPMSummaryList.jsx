@@ -4,7 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './PPMSummaryList.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatAddressShort } from 'utils/formatters';
@@ -77,7 +77,7 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, des
       <div className={styles.dateSummary}>
         <p>{`PPM approved: ${formatCustomerDate(approvedAt)}`}</p>
         <p>{`PPM documentation submitted: ${formatCustomerDate(submittedAt)}`}</p>
-        <p>{`Documentation accepted and verified: ${formatCustomerDate(reviewedAt)}`}</p>
+        <p>{`PPM closeout completed: ${formatCustomerDate(reviewedAt)}`}</p>
       </div>
       <div>
         <p>

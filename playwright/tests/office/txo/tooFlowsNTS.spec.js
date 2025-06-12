@@ -77,7 +77,7 @@ test.describe('TOO user', () => {
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.locator('input[id="storageFacility.address-location-input"]').fill('30301');
+      await page.locator('input[id="storageFacility.address-input"]').fill('30301');
       await expect(page.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('#facilityLotNumber').fill('1111111');
@@ -185,7 +185,7 @@ test.describe('TOO user', () => {
       await page.getByLabel('Date issued').fill('1234');
       await page.getByLabel('Department indicator').selectOption({ label: '21 Army' });
       await page
-        .getByLabel('Orders type', { exact: true })
+        .getByLabel('Orders type *', { exact: true })
         .selectOption({ label: 'Permanent Change Of Station (PCS)' });
       await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
 

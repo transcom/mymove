@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	ihpkTestContractYearName     = "Base Period Year 1"
+	ihpkTestContractYearName     = testdatagen.DefaultContractYearName
 	ihpkTestPerUnitCents         = unit.Cents(15000)
-	ihpkTestTotalCost            = unit.Cents(315000)
+	ihpkTestTotalCost            = unit.Cents(349650)
 	ihpkTestIsPeakPeriod         = true
-	ihpkTestEscalationCompounded = 1.0000
+	ihpkTestEscalationCompounded = 1.11000
 	ihpkTestWeight               = unit.Pound(2100)
 	ihpkTestPriceCents           = unit.Cents(193064)
 )
@@ -82,8 +82,8 @@ func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem(code models.ReS
 			ContractID:           contract.ID,
 			StartDate:            startDate,
 			EndDate:              endDate,
-			Escalation:           1.0,
-			EscalationCompounded: 1.0,
+			Escalation:           1.11,
+			EscalationCompounded: 1.11,
 		},
 	})
 	availableToPrimeAt := time.Date(2018, time.September, 14, 0, 0, 0, 0, time.UTC)

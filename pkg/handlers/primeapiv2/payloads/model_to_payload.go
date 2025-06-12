@@ -61,6 +61,7 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 		ContractNumber:                                 moveTaskOrder.Contractor.ContractNumber,
 		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		PrimeAcknowledgedAt:                            handlers.FmtDateTimePtr(moveTaskOrder.PrimeAcknowledgedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -481,8 +482,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 		SubmittedAt:                  handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                   handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                   handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		ActualPickupPostalCode:       ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:  ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                  ppmShipment.SITExpected,
 		SitEstimatedWeight:           handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
 		SitEstimatedEntryDate:        handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
@@ -554,6 +553,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
+		PrimeAcknowledgedAt:              handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt),
 	}
 
 	// Set up address payloads
@@ -789,10 +789,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primev2messages.MTOServiceItemDomesticShuttle{
-			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:          mtoServiceItem.Reason,
-			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
-			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
 	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
 		shuttleSI := &primev2messages.MTOServiceItemInternationalShuttle{

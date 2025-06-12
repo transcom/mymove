@@ -25,6 +25,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	ordersID, _ := uuid.NewV4()
 	referenceID := "testID"
 	primeTime := time.Now()
+	primeAcknowledgedAt := time.Now().AddDate(0, 0, -3)
 	submittedAt := time.Now()
 	excessWeightQualifiedAt := time.Now()
 	excessUnaccompaniedBaggageWeightQualifiedAt := time.Now()
@@ -95,6 +96,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		ShipmentGBLOC: models.MoveToGBLOCs{
 			models.MoveToGBLOC{GBLOC: &shipmentGBLOC},
 		},
+		PrimeAcknowledgedAt: &primeAcknowledgedAt,
 	}
 
 	suite.Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func() {
@@ -127,6 +129,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
+		suite.Equal(handlers.FmtDateTimePtr(basicMove.PrimeAcknowledgedAt), returnedModel.PrimeAcknowledgedAt)
 	})
 
 	suite.Run("Success - payload with RateArea", func() {
@@ -200,15 +203,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			ShipmentType: models.MTOShipmentTypePPM,
 			MarketCode:   models.MarketCodeInternational,
 			PPMShipment: &models.PPMShipment{
-				ID:                          uuid.Must(uuid.NewV4()),
-				ApprovedAt:                  models.TimePointer(time.Now()),
-				Status:                      models.PPMShipmentStatusNeedsAdvanceApproval,
-				ActualMoveDate:              models.TimePointer(time.Now()),
-				ActualPickupPostalCode:      models.StringPointer("42444"),
-				ActualDestinationPostalCode: models.StringPointer("30813"),
-				HasReceivedAdvance:          models.BoolPointer(true),
-				AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-				FinalIncentive:              models.CentPointer(50000000),
+				ID:                    uuid.Must(uuid.NewV4()),
+				ApprovedAt:            models.TimePointer(time.Now()),
+				Status:                models.PPMShipmentStatusNeedsAdvanceApproval,
+				ActualMoveDate:        models.TimePointer(time.Now()),
+				HasReceivedAdvance:    models.BoolPointer(true),
+				AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+				FinalIncentive:        models.CentPointer(50000000),
 				PickupAddress: &models.Address{
 					StreetAddress1: "123 Main St",
 					StreetAddress2: &streetAddress2,
@@ -231,15 +232,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			ShipmentType: models.MTOShipmentTypePPM,
 			MarketCode:   models.MarketCodeDomestic,
 			PPMShipment: &models.PPMShipment{
-				ID:                          uuid.Must(uuid.NewV4()),
-				ApprovedAt:                  models.TimePointer(time.Now()),
-				Status:                      models.PPMShipmentStatusNeedsAdvanceApproval,
-				ActualMoveDate:              models.TimePointer(time.Now()),
-				ActualPickupPostalCode:      models.StringPointer("42444"),
-				ActualDestinationPostalCode: models.StringPointer("30813"),
-				HasReceivedAdvance:          models.BoolPointer(true),
-				AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-				FinalIncentive:              models.CentPointer(50000000),
+				ID:                    uuid.Must(uuid.NewV4()),
+				ApprovedAt:            models.TimePointer(time.Now()),
+				Status:                models.PPMShipmentStatusNeedsAdvanceApproval,
+				ActualMoveDate:        models.TimePointer(time.Now()),
+				HasReceivedAdvance:    models.BoolPointer(true),
+				AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+				FinalIncentive:        models.CentPointer(50000000),
 				PickupAddress: &models.Address{
 					StreetAddress1: "123 Main St",
 					StreetAddress2: &streetAddress2,
@@ -699,17 +698,33 @@ func (suite *PayloadsSuite) TestValidationError() {
 }
 
 func (suite *PayloadsSuite) TestMTOShipment() {
-	mtoShipment := &models.MTOShipment{}
-
-	mtoShipment.MTOServiceItems = nil
-	payload := MTOShipment(mtoShipment)
+	primeAcknowledgeAt := time.Now().AddDate(0, 0, -5)
+	mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeAcknowledgedAt: &primeAcknowledgeAt,
+				Status:              models.MTOShipmentStatusApproved,
+			},
+		},
+	}, nil)
+	payload := MTOShipment(&mtoShipment)
 	suite.NotNil(payload)
 	suite.Empty(payload.MtoServiceItems())
+	suite.Equal(strfmt.UUID(mtoShipment.ID.String()), payload.ID)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.ActualPickupDate), payload.ActualPickupDate)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate), payload.RequestedDeliveryDate)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate), payload.RequestedPickupDate)
+	suite.Equal(string(mtoShipment.Status), payload.Status)
+	suite.Equal(strfmt.DateTime(mtoShipment.UpdatedAt), payload.UpdatedAt)
+	suite.Equal(strfmt.DateTime(mtoShipment.CreatedAt), payload.CreatedAt)
+	suite.Equal(etag.GenerateEtag(mtoShipment.UpdatedAt), payload.ETag)
+	suite.Equal(handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt), payload.PrimeAcknowledgedAt)
 
+	mtoShipment = models.MTOShipment{}
 	mtoShipment.MTOServiceItems = models.MTOServiceItems{
 		models.MTOServiceItem{},
 	}
-	payload = MTOShipment(mtoShipment)
+	payload = MTOShipment(&mtoShipment)
 	suite.NotNil(payload)
 	suite.NotEmpty(payload.MtoServiceItems())
 }

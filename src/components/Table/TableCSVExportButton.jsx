@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { CSVLink } from 'react-csv';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,6 +18,7 @@ const TableCSVExportButton = ({
   paramSort,
   paramFilters,
   className,
+  activeRole,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [csvRows, setCsvRows] = useState([]);
@@ -56,14 +57,23 @@ const TableCSVExportButton = ({
       filters: paramFilters,
       currentPageSize: totalCount,
       viewAsGBLOC: selectedGbloc,
+      activeRole,
     });
 
     const formattedData = formatDataForExport(response[queueFetcherKey]);
     setCsvRows(formattedData);
 
-    csvLinkRef.current?.click();
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    if (!!csvRows && csvRows.length > 0) {
+      setTimeout(() => {
+        csvLinkRef.current?.click();
+        setCsvRows([]); // reset data after download
+      });
+    }
+  }, [csvRows]);
 
   return (
     <p>

@@ -1642,6 +1642,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -2322,6 +2327,12 @@ func init() {
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -2615,6 +2626,12 @@ func init() {
             "PARTIAL",
             "FULL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "primeCounselingCompletedAt": {
           "type": "string",
@@ -2930,32 +2947,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -3572,7 +3569,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "Reweigh": {
@@ -4162,6 +4162,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -6339,6 +6344,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -7019,6 +7029,12 @@ func init() {
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -7312,6 +7328,12 @@ func init() {
             "PARTIAL",
             "FULL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "primeCounselingCompletedAt": {
           "type": "string",
@@ -7627,32 +7649,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -8269,7 +8271,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "Reweigh": {
@@ -8861,6 +8866,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

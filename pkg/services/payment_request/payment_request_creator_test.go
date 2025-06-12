@@ -34,9 +34,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	suite.PreloadData(func() {
 		// Create some records we'll need to link to
 		moveTaskOrder = factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(time.Hour * 24),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 		estimatedWeight := unit.Pound(2048)
@@ -138,7 +139,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusRejected},
 			},
 		}, nil)
-		serviceItemParamKey1 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey1 = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNameWeightEstimated,
@@ -148,7 +149,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}, nil)
-		serviceItemParamKey2 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey2 = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNameRequestedPickupDate,
@@ -158,7 +159,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}, nil)
-		serviceItemParamKey3 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey3 = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNameZipPickupAddress,
@@ -169,7 +170,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		serviceItemParamKey4 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey4 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNameEscalationCompounded,
@@ -180,7 +181,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		serviceItemParamKey5 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey5 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNameContractYearName,
@@ -191,7 +192,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		serviceItemParamKey6 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey6 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNameIsPeak,
@@ -202,7 +203,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		serviceItemParamKey7 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey7 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNamePriceRateOrFactor,
@@ -213,7 +214,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -228,7 +229,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -238,7 +239,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -248,7 +249,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -258,7 +259,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -268,7 +269,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -279,7 +280,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem2.ReService,
 				LinkOnly: true,
@@ -372,8 +373,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(expectedSequenceNumber, paymentRequestReturn.SequenceNumber)
 		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 2")
-		suite.Equal(6, len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
-		suite.Equal(5, len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+		suite.Equal(15, len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 15")
+		suite.Equal(13, len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 13")
 
 		if suite.Len(paymentRequestReturn.PaymentServiceItems, 2) {
 			for _, paymentServiceItem := range paymentRequestReturn.PaymentServiceItems {
@@ -439,8 +440,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
-		suite.Equal(7, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 7")
-		suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+		suite.Equal(15, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 15")
+		suite.Equal(13, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 13")
 
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
 			for _, paymentServiceItem := range paymentRequest.PaymentServiceItems {
@@ -486,8 +487,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.NotEqual(paymentRequestResult.ID, uuid.Nil)
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
-		suite.Equal(6, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
-		suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+		suite.Equal(15, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 15")
+		suite.Equal(13, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 13")
 
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
 			for _, paymentServiceItem := range paymentRequest.PaymentServiceItems {
@@ -1337,6 +1338,126 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 }
 
+func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTS() {
+	testStorageFacilityZip := "30907"
+	testDestinationZip := "78234"
+	testOriginalWeight := unit.Pound(3652)
+	testZip3Distance := 1234
+	//
+	// Test data setup
+	//
+
+	// Make storage facility and destination addresses
+	storageFacilityAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "235 Prospect Valley Road SE",
+				City:           "AUGUSTA",
+				State:          "GA",
+				PostalCode:     testStorageFacilityZip,
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "17 8th St",
+				City:           "San Antonio",
+				State:          "TX",
+				PostalCode:     testDestinationZip,
+			},
+		},
+	}, nil)
+
+	// Make a storage facility
+	storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+		{
+			Model:    storageFacilityAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Make move and shipment
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.February, 15, 0, 0, 0, 0, time.UTC)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
+				PrimeActualWeight:    &testOriginalWeight,
+				ActualPickupDate:     &actualPickupDate,
+				DestinationAddressID: &destinationAddress.ID,
+			},
+		},
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
+
+	inpkMTOServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeINPK,
+			},
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+		},
+	}, nil)
+
+	paymentRequestArg := models.PaymentRequest{
+		MoveTaskOrderID: move.ID,
+		IsFinal:         false,
+		PaymentServiceItems: models.PaymentServiceItems{
+			{
+				MTOServiceItemID: inpkMTOServiceItem.ID,
+				MTOServiceItem:   inpkMTOServiceItem,
+			},
+		},
+	}
+
+	//
+	// Create the payment request
+	//
+
+	// Mock out a planner.
+	mockPlanner := &routemocks.Planner{}
+	mockPlanner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		testStorageFacilityZip,
+		testDestinationZip,
+	).Return(testZip3Distance, nil)
+
+	// Create an initial payment request.
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
+	suite.FatalNoError(err)
+
+	suite.FatalTrue(suite.Len(paymentRequest.PaymentServiceItems, 1))
+	psi := paymentRequest.PaymentServiceItems[0]
+	suite.Equal(models.ReServiceCodeINPK, psi.MTOServiceItem.ReService.Code)
+	ntsPackingFactorParam := getPaymentServiceItemParam(psi.PaymentServiceItemParams, models.ServiceItemParamNameNTSPackingFactor)
+	suite.FatalTrue(suite.Equal("1.45", ntsPackingFactorParam.Value, "NTS Packing Factor does not match the DB non-truncated value for the test database"))
+}
+
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelease() {
 	testStorageFacilityZip := "30907"
 	testDestinationZip := "78234"
@@ -1346,7 +1467,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	testZip3Distance := 1234
 
 	// ((testOriginalWeight / 100.0) * testZip3Distance * testDLHRate * testEscalationCompounded) / 1000
-	testDLHTotalPrice := unit.Cents(17485484)
+	testDLHTotalPrice := unit.Cents(18648178)
 
 	//
 	// Test data setup
@@ -1385,7 +1506,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
 			EscalationCompounded: testEscalationCompounded,
-			EndDate:              time.Now().Add(time.Hour * 24),
+			StartDate:            testdatagen.ContractStartDate,
+			EndDate:              testdatagen.ContractEndDate,
 		},
 		ReRateArea: models.ReRateArea{
 			Name: "Georgia",
@@ -1411,7 +1533,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 
 	// Make move and shipment
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.January, 15, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.February, 15, 0, 0, 0, 0, time.UTC)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,

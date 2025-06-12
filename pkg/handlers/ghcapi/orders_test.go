@@ -235,11 +235,134 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	suite.Assertions.Equal(*okResponse.Payload.Entitlement.AccompaniedTour, accompaniedTour)
 	suite.Assertions.Equal(*okResponse.Payload.Entitlement.DependentsTwelveAndOver, int64(dependentsTwelveAndOver))
 	suite.Assertions.Equal(*okResponse.Payload.Entitlement.DependentsUnderTwelve, int64(dependentsUnderTwelve))
+
 	suite.NotNil(&createdOrder.Entitlement)
 	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
 	suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
 	suite.NotEmpty(createdOrder.MethodOfPayment)
 	suite.NotEmpty(createdOrder.NAICS)
+}
+
+func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
+	customAffiliation := models.AffiliationARMY
+	sm := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &customAffiliation,
+			},
+		},
+	}, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+	usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
+
+	address := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				IsOconus:           models.BoolPointer(true),
+				UsPostRegionCityID: &usprc.ID,
+			},
+		},
+	}, nil)
+
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:      factory.MakeRandomString(8),
+				AddressID: address.ID,
+			},
+		},
+	}, nil)
+
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
+
+	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+	rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+	rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+		ReRateArea: models.ReRateArea{
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		},
+	})
+	suite.NotNil(rateArea)
+
+	us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NotNil(us_country)
+	suite.Nil(err)
+
+	oconusRateArea, err := models.FetchOconusRateAreaByCityId(suite.DB(), usprc.ID.String())
+	suite.NotNil(oconusRateArea)
+	suite.Nil(err)
+
+	jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPK")
+	suite.NotNil(jppsoRegion)
+	suite.Nil(err)
+
+	gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
+	suite.NotNil(gblocAors)
+	suite.Nil(err)
+
+	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
+	req := httptest.NewRequest("POST", "/orders", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	hasDependents := true
+	spouseHasProGear := true
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	ordersType := ghcmessages.OrdersTypeTEMPORARYDUTY
+	deptIndicator := ghcmessages.DeptIndicatorAIRANDSPACEFORCE
+	dependentsTwelveAndOver := 2
+	dependentsUnderTwelve := 4
+	accompaniedTour := true
+	payload := &ghcmessages.CreateOrders{
+		HasDependents:           handlers.FmtBool(hasDependents),
+		SpouseHasProGear:        handlers.FmtBool(spouseHasProGear),
+		IssueDate:               handlers.FmtDate(issueDate),
+		ReportByDate:            handlers.FmtDate(reportByDate),
+		OrdersType:              ghcmessages.NewOrdersType(ordersType),
+		OriginDutyLocationID:    *handlers.FmtUUIDPtr(&originDutyLocation.ID),
+		NewDutyLocationID:       handlers.FmtUUID(dutyLocation.ID),
+		ServiceMemberID:         handlers.FmtUUID(sm.ID),
+		OrdersNumber:            handlers.FmtString("123456"),
+		Tac:                     handlers.FmtString("E19A"),
+		Sac:                     handlers.FmtString("SacNumber"),
+		DepartmentIndicator:     ghcmessages.NewDeptIndicator(deptIndicator),
+		Grade:                   ghcmessages.GradeCIVILIANEMPLOYEE.Pointer(),
+		AccompaniedTour:         &accompaniedTour,
+		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
+		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
+		CivilianTdyUbAllowance:  models.Int64Pointer(350),
+	}
+
+	params := orderop.CreateOrderParams{
+		HTTPRequest:  req,
+		CreateOrders: payload,
+	}
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig := suite.HandlerConfig()
+	handlerConfig.SetFileStorer(fakeS3)
+	createHandler := CreateOrderHandler{handlerConfig, waf}
+
+	response := createHandler.Handle(params)
+
+	suite.Assertions.IsType(&orderop.CreateOrderOK{}, response)
+	okResponse := response.(*orderop.CreateOrderOK)
+	orderID := okResponse.Payload.ID.String()
+	createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
+
+	suite.Assertions.Equal(ordersType, okResponse.Payload.OrderType)
+	suite.Assertions.Equal(*okResponse.Payload.Entitlement.UnaccompaniedBaggageAllowance, int64(350))
+
+	suite.NotNil(&createdOrder.Entitlement)
 }
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {

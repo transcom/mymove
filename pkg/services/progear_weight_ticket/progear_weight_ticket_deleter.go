@@ -35,10 +35,12 @@ func (d *progearWeightTicketDeleter) DeleteProgearWeightTicket(appCtx appcontext
 		return apperror.NewQueryError("Progear Weight Ticket fetch original", err, "")
 	}
 
-	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID && !appCtx.Session().IsOfficeUser() {
-		wrongServiceMemberIDErr := apperror.NewForbiddenError("Attempted delete by wrong service member")
-		appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
-		return wrongServiceMemberIDErr
+	if appCtx.Session().IsMilApp() {
+		if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID && !appCtx.Session().IsOfficeUser() {
+			wrongServiceMemberIDErr := apperror.NewForbiddenError("Attempted delete by wrong service member")
+			appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
+			return wrongServiceMemberIDErr
+		}
 	}
 
 	found := false
@@ -69,6 +71,12 @@ func (d *progearWeightTicketDeleter) DeleteProgearWeightTicket(appCtx appcontext
 		err = utilities.SoftDestroy(appCtx.DB(), progearWeightTicket)
 		if err != nil {
 			return err
+		}
+
+		if err := appCtx.DB().
+			RawQuery("SELECT update_actual_progear_weight_totals($1)", ppmID).
+			Exec(); err != nil {
+			return apperror.NewQueryError("update_actual_progear_weight_totals", err, "")
 		}
 
 		return nil

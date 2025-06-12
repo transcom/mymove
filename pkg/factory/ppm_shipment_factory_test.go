@@ -153,13 +153,11 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		// Expected outcome: PPMShipment should be created.
 
 		expectedPPM := models.PPMShipment{
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualPickupPostalCode:      models.StringPointer("30813"),
-			ActualDestinationPostalCode: models.StringPointer("50309"),
-			HasRequestedAdvance:         models.BoolPointer(true),
-			AdvanceAmountRequested:      models.CentPointer(unit.Cents(598700)),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(598700)),
+			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+			HasRequestedAdvance:    models.BoolPointer(true),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
+			HasReceivedAdvance:     models.BoolPointer(true),
+			AdvanceAmountReceived:  models.CentPointer(unit.Cents(598700)),
 		}
 
 		w2Address := models.Address{
@@ -169,8 +167,6 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		ppmShipment := BuildPPMShipment(suite.DB(), nil, []Trait{GetTraitApprovedPPMWithActualInfo})
 
 		suite.Equal(expectedPPM.Status, ppmShipment.Status)
-		suite.Equal(expectedPPM.ActualPickupPostalCode, ppmShipment.ActualPickupPostalCode)
-		suite.Equal(expectedPPM.ActualDestinationPostalCode, ppmShipment.ActualDestinationPostalCode)
 		suite.Equal(expectedPPM.HasRequestedAdvance, ppmShipment.HasRequestedAdvance)
 		suite.Equal(expectedPPM.AdvanceAmountRequested, ppmShipment.AdvanceAmountRequested)
 		suite.Equal(expectedPPM.HasReceivedAdvance, ppmShipment.HasReceivedAdvance)
@@ -240,8 +236,6 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 
 		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
-		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
 		suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
@@ -261,8 +255,6 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
 
 		suite.False(ppmShipment.ID.IsNil())
-		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
 		suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
@@ -280,8 +272,6 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 
 		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), nil)
 
-		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
 		suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
@@ -310,8 +300,6 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 
 		ppmShipment := BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes(suite.DB(), nil)
 
-		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
 		suite.Equal(models.PPMShipmentStatusNeedsCloseout, ppmShipment.Status)
@@ -340,8 +328,6 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 
 		ppmShipment := BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(suite.DB(), nil, nil)
 
-		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
 		suite.Equal(models.PPMShipmentStatusCloseoutComplete, ppmShipment.Status)
@@ -353,5 +339,31 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 
 		suite.Empty(ppmShipment.ProgearWeightTickets)
 		suite.Empty(ppmShipment.MovingExpenses)
+	})
+
+	suite.Run("creation of PPM with expected departure date in GCC multiplier window adds GCC multiplier data", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		invalidGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-04-02")
+		ppmShipment := BuildPPMShipment(suite.DB(), []Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: validGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		suite.NotNil(ppmShipment.GCCMultiplierID)
+		suite.NotNil(ppmShipment.GCCMultiplier)
+
+		ppmShipment = BuildPPMShipment(suite.DB(), []Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: invalidGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		suite.Nil(ppmShipment.GCCMultiplierID)
+		suite.Nil(ppmShipment.GCCMultiplier)
 	})
 }

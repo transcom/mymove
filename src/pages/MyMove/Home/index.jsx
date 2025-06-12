@@ -22,7 +22,7 @@ import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import Step from 'components/Customer/Home/Step';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
@@ -272,6 +272,12 @@ export class Home extends Component {
             <div className={styles.subheaderSubsection}>
               <dt>Weight restriction</dt>
               <dd>{formatWeight(orders?.entitlement?.weight_restriction)}</dd>
+            </div>
+          )}
+          {orders?.entitlement?.ub_weight_restriction > 0 && (
+            <div className={styles.subheaderSubsection}>
+              <dt>UB weight restriction</dt>
+              <dd>{formatWeight(orders?.entitlement?.ub_weight_restriction)}</dd>
             </div>
           )}
           {move.locator && (

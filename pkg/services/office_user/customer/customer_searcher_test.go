@@ -159,6 +159,70 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		suite.Len(customers, 0)
 	})
 
+	suite.Run("search with a customer name does not return safety moves for Service Counselors with privileges", func() {
+		privilegedUserSC := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email: "officeuser1@example.com",
+				},
+			},
+			{
+				Model: models.User{
+					Privileges: []roles.Privilege{
+						{
+							PrivilegeType: roles.PrivilegeSearchTypeSafety,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           privilegedUserSC.User.Roles,
+			OfficeUserID:    privilegedUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		serviceMember1 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Page"),
+					LastName:  models.StringPointer("McConnell"),
+					Edipi:     models.StringPointer("1018231018"),
+				},
+			},
+		}, nil)
+
+		safetyServiceMember := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Page"),
+					LastName:  models.StringPointer("McConnell"),
+					Edipi:     models.StringPointer("1018231018"),
+				},
+			},
+			{
+				Model: models.Order{
+					OrdersType: "SAFETY",
+				},
+			},
+		}, nil)
+
+		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{CustomerName: models.StringPointer("Page McConnel")})
+		suite.NoError(err)
+		suite.Len(customers, 1)
+		suite.Equal(serviceMember1.Edipi, customers[0].Edipi)
+		suite.NotNil(serviceMember1)
+		suite.NotNil(safetyServiceMember)
+	})
+
 	suite.Run("search as HQ role", func() {
 		hqUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
 		session := auth.Session{

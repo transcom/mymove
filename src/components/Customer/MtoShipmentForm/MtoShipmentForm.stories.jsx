@@ -22,6 +22,7 @@ const defaultProps = {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
+    county: 'Muscogee',
     streetAddress1: '123 Main',
     streetAddress2: '',
   },
@@ -67,12 +68,14 @@ const mockMtoShipment = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    county: 'Bexar',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    county: 'Pierce',
   },
 };
 
@@ -144,6 +147,7 @@ export const EditHHGShipmentWithSecondaryAddresses = () => {
       city: 'Corpus Christi',
       state: 'TX',
       postalCode: '78412',
+      county: 'Nueces',
     },
     secondaryDeliveryAddress: {
       streetAddress1: '3373 NW Martin Luther King Jr Blvd',
@@ -151,6 +155,7 @@ export const EditHHGShipmentWithSecondaryAddresses = () => {
       city: mockMtoShipment.destinationAddress.city,
       state: mockMtoShipment.destinationAddress.state,
       postalCode: mockMtoShipment.destinationAddress.postalCode,
+      county: mockMtoShipment.destinationAddress.county,
     },
   };
 

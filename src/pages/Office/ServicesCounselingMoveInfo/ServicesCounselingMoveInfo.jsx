@@ -35,7 +35,10 @@ const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
 const About = lazy(() => import('pages/Office/PPM/Closeout/About/About'));
 const PPMReview = lazy(() => import('pages/Office/PPM/Closeout/Review/Review'));
+const PPMExpenses = lazy(() => import('pages/Office/PPM/Closeout/Expenses/Expenses'));
 const WeightTickets = lazy(() => import('pages/Office/PPM/Closeout/WeightTickets/WeightTickets'));
+const ProGear = lazy(() => import('pages/Office/PPM/Closeout/ProGear/ProGear'));
+const PPMFinalCloseout = lazy(() => import('pages/Office/PPM/Closeout/FinalCloseout/FinalCloseout'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
 );
@@ -167,7 +170,35 @@ const ServicesCounselingMoveInfo = () => {
     ) ||
     matchPath(
       {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
         path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_PRO_GEAR_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
         end: true,
       },
       pathname,
@@ -239,12 +270,17 @@ const ServicesCounselingMoveInfo = () => {
           />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_ABOUT_PATH} end element={<About />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH} end element={<PPMReview />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_PATH} end element={<PPMExpenses />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} end element={<PPMExpenses />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH} end element={<WeightTickets />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_COMPLETE_PATH} end element={<PPMFinalCloseout />} />
           <Route
             path={servicesCounselingRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH}
             end
             element={<WeightTickets />}
           />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} end element={<ProGear />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} end element={<ProGear />} />
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end

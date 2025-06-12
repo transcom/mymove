@@ -11,14 +11,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PPMShipmentSuite) TestPPMEstimator() {
 	mockedPlanner := &mocks.Planner{}
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
 	ppmEstimator := NewEstimatePPM(mockedPlanner, mockedPaymentRequestHelper)
+	validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
 
 	// To avoid creating all of the re_services and their corresponding params using factories, we can create this
 	// mapping to help mock the response
@@ -480,7 +483,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 	}
 
-	suite.Run("Price Breakdown", func() {
+	suite.Run("Price Breakdown - Incentive-based PPM", func() {
 		ppmShipment := factory.BuildPPMShipmentWithApprovedDocuments(suite.DB())
 
 		setupPricerData()
@@ -502,15 +505,74 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 		suite.Equal(unit.Pound(4000), *ppmShipment.EstimatedWeight)
-		suite.Equal(unit.Cents(43384128), linehaul)
-		suite.Equal(unit.Cents(3004), fuel)
-		suite.Equal(unit.Cents(21760), origin)
-		suite.Equal(unit.Cents(33280), dest)
-		suite.Equal(unit.Cents(290000), packing)
-		suite.Equal(unit.Cents(23880), unpacking)
+		suite.Equal(unit.Cents(48155648), linehaul)
+		suite.Equal(unit.Cents(-641), fuel)
+		suite.Equal(unit.Cents(24160), origin)
+		suite.Equal(unit.Cents(36960), dest)
+		suite.Equal(unit.Cents(321920), packing)
+		suite.Equal(unit.Cents(26520), unpacking)
 
 		total := linehaul + fuel + origin + dest + packing + unpacking
-		suite.Equal(unit.Cents(43756052), total)
+		suite.Equal(unit.Cents(48564567), total)
+
+		// testing multiplier functionality when multiplier is not nil
+		gccMultiplier := models.GCCMultiplier{
+			Multiplier: 1.3,
+		}
+		ppmShipment.GCCMultiplier = &gccMultiplier
+
+		linehaul, fuel, origin, dest, packing, unpacking, _, err = ppmEstimator.PriceBreakdown(suite.AppContextForTest(), &ppmShipment)
+		suite.NilOrNoVerrs(err)
+
+		suite.Equal(unit.Pound(4000), *ppmShipment.EstimatedWeight)
+		suite.Equal(unit.Cents(62602342), linehaul)
+		suite.Equal(unit.Cents(-641), fuel)
+		suite.Equal(unit.Cents(31408), origin)
+		suite.Equal(unit.Cents(48048), dest)
+		suite.Equal(unit.Cents(418496), packing)
+		suite.Equal(unit.Cents(34476), unpacking)
+
+		totalWithMultiplier := linehaul + fuel + origin + dest + packing + unpacking
+		suite.Equal(unit.Cents(63134129), totalWithMultiplier)
+	})
+
+	suite.Run("Price Breakdown - Small package PPM", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
+		suite.FatalNoError(uploaderErr)
+
+		// this factory has two moving expenses that total 4000 pounds
+		// pricing should be the same as the above test
+		ppmShipment := factory.BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses(suite.DB(), userUploader)
+
+		setupPricerData()
+
+		mockedPaymentRequestHelper.On(
+			"FetchServiceParamsForServiceItems",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813").Return(2294, nil)
+
+		linehaul, fuel, origin, dest, packing, unpacking, _, err := ppmEstimator.PriceBreakdown(suite.AppContextForTest(), &ppmShipment)
+		suite.NilOrNoVerrs(err)
+
+		mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813")
+		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+		suite.Equal(unit.Pound(4000), *ppmShipment.EstimatedWeight)
+		suite.Equal(unit.Cents(48155648), linehaul)
+		suite.Equal(unit.Cents(-641), fuel)
+		suite.Equal(unit.Cents(24160), origin)
+		suite.Equal(unit.Cents(36960), dest)
+		suite.Equal(unit.Cents(321920), packing)
+		suite.Equal(unit.Cents(26520), unpacking)
+
+		total := linehaul + fuel + origin + dest + packing + unpacking
+		suite.Equal(unit.Cents(48564567), total)
 	})
 
 	suite.Run("Estimated Incentive", func() {
@@ -533,8 +595,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPaymentRequestHelper.On(
 				"FetchServiceParamsForServiceItems",
 				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
-
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil).Twice()
 			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "30813").Return(2294, nil)
@@ -548,7 +609,28 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(80249474), *ppmEstimate)
+			suite.Equal(unit.Cents(89071179), *ppmEstimate)
+
+			// appending this to test functionality of the GCC multiplier
+			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ExpectedDepartureDate: validGccMultiplierDate,
+					},
+				},
+			}, nil)
+			newPPMWithMultiplier := ppmWithMultiplier
+			newPPMWithMultiplier.EstimatedWeight = &estimatedWeight // setting weight to 5000
+			ppmEstimatedWithMultiplier, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppmWithMultiplier, &newPPMWithMultiplier)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
+			suite.NotEqual(unit.Cents(89071179), *ppmEstimatedWithMultiplier)
+			suite.Equal(unit.Cents(120722169), *ppmEstimatedWithMultiplier)
 		})
 
 		suite.Run("Estimated Incentive - Success using db authorize weight and not estimated incentive", func() {
@@ -619,7 +701,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(80249474), *ppmEstimate)
+			suite.Equal(unit.Cents(89071179), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success when old Estimated Incentive is zero", func() {
@@ -653,7 +735,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(80249474), *ppmEstimate)
+			suite.Equal(unit.Cents(89071179), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
@@ -684,7 +766,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NilOrNoVerrs(err)
 			suite.Nil(newPPM.HasRequestedAdvance)
 			suite.Nil(newPPM.AdvanceAmountRequested)
-			suite.Equal(unit.Cents(43754569), *ppmEstimate)
+			suite.Equal(unit.Cents(48564567), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
@@ -765,7 +847,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "30813").Return(2294, nil)
+				"50309", "30813").Return(2294, nil).Twice()
 
 			maxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -774,7 +856,23 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(unit.Cents(128398858), *maxIncentive)
+			suite.Equal(unit.Cents(142513951), *maxIncentive)
+
+			// appending this to test functionality of the GCC multiplier
+			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ExpectedDepartureDate: validGccMultiplierDate,
+					},
+				},
+			}, nil)
+			newPPMWithMultiplier := ppmWithMultiplier
+			newPPMWithMultiplier.EstimatedWeight = &estimatedWeight
+			ppmMaxWithMultiplier, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), ppmWithMultiplier, &newPPMWithMultiplier)
+			suite.NilOrNoVerrs(err)
+
+			suite.NotEqual(unit.Cents(142513951), *ppmMaxWithMultiplier)
+			suite.Equal(unit.Cents(193155535), *ppmMaxWithMultiplier)
 		})
 
 		suite.Run("Max Incentive - Success - is skipped when Estimated Weight is missing", func() {
@@ -794,13 +892,93 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		suite.Run("Final Incentive - Success", func() {
 			setupPricerData()
 			weightOverride := unit.Pound(19500)
+			maxIncentive := unit.Cents(90000000)
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("50309"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(actualMoveDate),
-						Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+						ActualMoveDate: models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:   &maxIncentive,
+					},
+				},
+			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
+
+			oldPPMShipment.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
+					},
+				}, nil),
+			}
+
+			newPPM := oldPPMShipment
+			updatedMoveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			newPPM.ActualMoveDate = models.TimePointer(updatedMoveDate)
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil).Twice()
+
+			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(5000), originalWeight)
+			suite.Equal(unit.Pound(5000), newWeight)
+			suite.Equal(unit.Cents(80249474), *ppmFinal)
+
+			// appending this to test functionality of the GCC multiplier
+			maxIncentive2 := unit.Cents(900000000)
+			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ExpectedDepartureDate: validGccMultiplierDate,
+						Status:                models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:          &maxIncentive2,
+					},
+				},
+			}, nil)
+			ppmWithMultiplier.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
+					},
+				}, nil),
+			}
+
+			newPPMWithMultiplier := ppmWithMultiplier
+			newPPMWithMultiplier.ActualMoveDate = models.TimePointer(updatedMoveDate)
+			ppmFinalWithMultiplier, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), ppmWithMultiplier, &newPPMWithMultiplier)
+			suite.NilOrNoVerrs(err)
+
+			suite.NotEqual(unit.Cents(80249474), *ppmFinalWithMultiplier)
+			suite.Equal(unit.Cents(104324316), *ppmFinalWithMultiplier)
+		})
+
+		suite.Run("Final Incentive - Success when capped at max gcc", func() {
+			setupPricerData()
+			weightOverride := unit.Pound(19500)
+			maxIncentive := unit.Cents(500)
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate: models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:   &maxIncentive,
 					},
 				},
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
@@ -835,24 +1013,23 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
-			suite.Equal(unit.Cents(80249474), *ppmFinal)
+			suite.Equal(maxIncentive, *ppmFinal)
 		})
 
 		suite.Run("Final Incentive - Success with allowable weight less than net weight", func() {
 			setupPricerData()
 			weightOverride := unit.Pound(19500)
+			maxIncentive := unit.Cents(90000000)
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("50309"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(actualMoveDate),
-						Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+						ActualMoveDate: models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:   &maxIncentive,
 					},
 				},
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
@@ -885,9 +1062,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
@@ -898,11 +1074,10 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment = factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("50309"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(actualMoveDate),
-						Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-						AllowableWeight:             &allowableWeightOverride,
+						ActualMoveDate:  models.TimePointer(actualMoveDate),
+						Status:          models.PPMShipmentStatusWaitingOnCustomer,
+						AllowableWeight: &allowableWeightOverride,
+						MaxIncentive:    &maxIncentive,
 					},
 				},
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
@@ -936,9 +1111,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight = SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight = SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 
@@ -946,16 +1120,124 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Less(*ppmFinalIncentiveLimitedByAllowableWeight, *ppmFinal)
 		})
 
-		suite.Run("Final Incentive - Success with updated weights", func() {
+		suite.Run("Final Incentive - Success with capping weight at total entitlement", func() {
+			// The first half of this test tests the entitlement cap. The second half uses the allowable to check the entitlement cap.
+			// The max entitlement for this test data is 8000 lbs.
 			setupPricerData()
-			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			weightOverride := unit.Pound(24500)
+			maxIncentive := unit.Cents(900000000)
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("50309"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+						ActualMoveDate: models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:   &maxIncentive,
+					},
+				},
+			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
+
+			oldPPMShipment.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
+					},
+				}, nil),
+			}
+
+			newPPM := oldPPMShipment
+			updatedMoveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			newPPM.ActualMoveDate = models.TimePointer(updatedMoveDate)
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "50309", "30813").Return(2294, nil)
+
+			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "50309", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
+			// These two weights are passed in to final incentive calculation, but their values aren't returned. Therefore,
+			// we're checking to make sure the value is 10000, same as before they've been sent. The ppmFinal will be calculated with
+			// the allowable 8000 lbs. The second half of this test ensures that the calculation value is correct for 8k lbs.
+			suite.Equal(unit.Pound(10000), originalWeight)
+			suite.Equal(unit.Pound(10000), newWeight)
+			suite.Equal(unit.Cents(128398858), *ppmFinal)
+
+			// Repeat the above shipment with an allowable weight equal to the entitlement. Since the allowable is covered
+			// by the test above, we can safely know that it's functioning to cap the value correctly. If we set the cap to
+			// 8k, the same as the entitlement, we can then confirm that the final ppm incentive prices are equal, ensuring
+			// that the entitlement calculation is adding up correctly.
+			weightOverride = unit.Pound(24500)
+			allowableWeightOverride := unit.Pound(8000)
+			oldPPMShipment = factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate:  models.TimePointer(actualMoveDate),
+						Status:          models.PPMShipmentStatusWaitingOnCustomer,
+						AllowableWeight: &allowableWeightOverride,
+						MaxIncentive:    &maxIncentive,
+					},
+				},
+			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
+
+			oldPPMShipment.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
+					},
+				}, nil),
+			}
+
+			newPPM = oldPPMShipment
+			updatedMoveDate = time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			newPPM.ActualMoveDate = models.TimePointer(updatedMoveDate)
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil)
+
+			ppmFinalIncentiveLimitedByAllowableWeight, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "50309", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
+			originalWeight, newWeight = SumWeights(oldPPMShipment, newPPM)
+			suite.Equal(unit.Pound(10000), originalWeight)
+			suite.Equal(unit.Pound(10000), newWeight)
+
+			// Confirm the incentives are equal with the same value for allowable and entitlement weight caps with equal distances.
+			suite.Equal(*ppmFinalIncentiveLimitedByAllowableWeight, *ppmFinal)
+		})
+
+		suite.Run("Final Incentive - Success with updated weights", func() {
+			setupPricerData()
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			maxIncentive := unit.Cents(90000000)
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate: models.TimePointer(moveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:   &maxIncentive,
 					},
 				},
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
@@ -992,9 +1274,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
@@ -1008,9 +1289,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("50309"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
+						ActualMoveDate: models.TimePointer(moveDate),
 					},
 				},
 				{
@@ -1049,7 +1328,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(0), newWeight)
 			suite.Nil(ppmFinal)
@@ -1059,14 +1338,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			setupPricerData()
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
+			maxIncentive := unit.Cents(90000000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("50309"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+						MaxIncentive:   &maxIncentive,
 					},
 				},
 				{
@@ -1111,10 +1390,10 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(8000), originalWeight)
 			suite.Equal(unit.Pound(4000), newWeight)
-			suite.Equal(unit.Cents(43756052), *ppmFinal)
+			suite.Equal(unit.Cents(48564567), *ppmFinal)
 			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
@@ -1122,14 +1401,14 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			setupPricerData()
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
+			maxIncentive := unit.Cents(90000000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("50309"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+						MaxIncentive:   &maxIncentive,
 					},
 				},
 				{
@@ -1181,10 +1460,10 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(8000), originalWeight)
 			suite.Equal(unit.Pound(3000), newWeight)
-			suite.Equal(unit.Cents(32817790), *ppmFinal)
+			suite.Equal(unit.Cents(36423265), *ppmFinal)
 			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
@@ -1195,10 +1474,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("50309"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
 					},
 				},
 				{
@@ -1221,7 +1498,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1}
 
 			//Both PPM's have valid weight tickets so both should return properly calculated totals
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 		})
@@ -1233,10 +1510,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
 					},
 				},
 				{
@@ -1269,7 +1544,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in newWeight total
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 		})
@@ -1282,10 +1557,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
 					},
 				},
 				{
@@ -1320,7 +1593,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(0), originalWeight)
 			suite.Equal(unit.Pound(13000), newWeight)
 		})
@@ -1332,10 +1605,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
 					},
 				},
 				{
@@ -1373,7 +1644,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			//13000 comes from the full & empty weights being summed which we do not want in this scenario
 			suite.NotEqual(unit.Pound(13000), newWeight)
@@ -1387,10 +1658,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
 					},
 				},
 				{
@@ -1429,11 +1698,93 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			//13000 comes from the full & empty weights being summed which we do not want in this scenario
 			suite.NotEqual(unit.Pound(13000), newWeight)
 			suite.Equal(unit.Pound(4000), newWeight)
+		})
+
+		suite.Run("Sum Weights - sum weights for original shipment and new shipment with 2 adjusted moving expense statuses - PPM-SPR", func() {
+			trackingNumber := "TRK1234"
+			isProGear := true
+			proGearBelongsToSelf := true
+			proGearDescription := "Pro gear updated description"
+			weightShipped := 1000
+			ppmSpr := models.PPMTypeSmallPackage
+			spr := models.MovingExpenseReceiptTypeSmallPackage
+			approvedStatus := models.PPMDocumentStatusApproved
+			rejectedStatus := models.PPMDocumentStatusRejected
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						PPMType:        ppmSpr,
+						ActualMoveDate: models.TimePointer(moveDate),
+					},
+				},
+			})
+
+			expense1 := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    oldPPMShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MovingExpense{
+						MovingExpenseType:    &spr,
+						Status:               &rejectedStatus,
+						PaidWithGTCC:         models.BoolPointer(false),
+						MissingReceipt:       models.BoolPointer(false),
+						Amount:               models.CentPointer(unit.Cents(8675309)),
+						TrackingNumber:       &trackingNumber,
+						IsProGear:            &isProGear,
+						ProGearBelongsToSelf: &proGearBelongsToSelf,
+						ProGearDescription:   &proGearDescription,
+						WeightShipped:        (*unit.Pound)(&weightShipped),
+					},
+				},
+			}, nil)
+
+			expense2 := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    oldPPMShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MovingExpense{
+						MovingExpenseType:    &spr,
+						Status:               &rejectedStatus,
+						PaidWithGTCC:         models.BoolPointer(false),
+						MissingReceipt:       models.BoolPointer(false),
+						Amount:               models.CentPointer(unit.Cents(8675309)),
+						TrackingNumber:       &trackingNumber,
+						IsProGear:            &isProGear,
+						ProGearBelongsToSelf: &proGearBelongsToSelf,
+						ProGearDescription:   &proGearDescription,
+						WeightShipped:        (*unit.Pound)(&weightShipped),
+					},
+				},
+			}, nil)
+
+			oldPPMShipment.MovingExpenses = models.MovingExpenses{expense1, expense2}
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+			newPPM := oldPPMShipment
+
+			// changing moving expense statuses to be approved
+			newMovingExpense1 := newPPM.MovingExpenses[0]
+			newMovingExpense1.Status = &approvedStatus
+
+			newMovingExpense2 := newPPM.MovingExpenses[1]
+			newMovingExpense2.Status = &approvedStatus
+
+			newPPM.MovingExpenses = models.MovingExpenses{newMovingExpense1, newMovingExpense2}
+
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
+			// should be 0 because both were rejected
+			suite.Equal(unit.Pound(0), originalWeight)
+			// should be 2000 because both are now accepted so we add them together
+			suite.Equal(unit.Pound(2000), newWeight)
 		})
 
 		suite.Run("Should Skip Calculating Final Incentive - should return false when the move date is changed", func() {
@@ -1443,10 +1794,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
 					},
 				},
 				{
@@ -1465,7 +1814,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			updatedMoveDate := time.Date(2020, time.March, 25, 0, 0, 0, 0, time.UTC)
 			newPPMShipment.ActualMoveDate = models.TimePointer(updatedMoveDate)
 
-			originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, newPPMShipment)
+			originalTotalWeight, newTotalWeight := SumWeights(oldPPMShipment, newPPMShipment)
 			skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(&newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
 			suite.Equal(false, skipCalculateFinalIncentive)
 		})
@@ -1474,13 +1823,112 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
 			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldShipmentPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "123 Main St",
+						City:           "Beverly Hills",
+						State:          "CA",
+						PostalCode:     "90210",
+					},
+				},
+			}, nil)
+			oldShipmentDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "321 Turbo St",
+						City:           "Augusta",
+						State:          "GA",
+						PostalCode:     "30813",
+					},
+				},
+			}, nil)
+
+			newShipment1DestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "5 Jayden St",
+						City:           "Augusta",
+						State:          "GA",
+						PostalCode:     "20906",
+					},
+				},
+			}, nil)
+
+			newShipment2PickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "8 Ovechkin Ave",
+						City:           "Beverly Hills",
+						State:          "CA",
+						PostalCode:     "99011",
+					},
+				},
+			}, nil)
+
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
+					Model:    oldShipmentPickupAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.PickupAddress,
+				},
+				{
+					Model:    oldShipmentDestinationAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
+					},
+				},
+			})
+			newPPMShipment1 := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+				{
+					Model:    oldShipmentPickupAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.PickupAddress,
+				},
+				{
+					Model:    newShipment1DestinationAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+					},
+				},
+				{
+					Model: models.WeightTicket{
+						FullWeight:  &oldFullWeight,
+						EmptyWeight: &oldEmptyWeight,
+					},
+				},
+			})
+			newPPMShipment2 := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+				{
+					Model:    newShipment2PickupAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.PickupAddress,
+				},
+				{
+					Model:    newShipment1DestinationAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
 					},
 				},
 				{
@@ -1495,19 +1943,12 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			// but preserve in case it matters
 			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
-			//Assert false is returned when the ActualDestinationPostalCode is changed
-			newPPMShipment1 := oldPPMShipment
-			newPPMShipment1.ActualDestinationPostalCode = models.StringPointer("99011")
-
-			originalTotalWeight1, newTotalWeight1 := SumWeightTickets(oldPPMShipment, newPPMShipment1)
+			// Assert false is returned when the actual destination address postal code is changed
+			originalTotalWeight1, newTotalWeight1 := SumWeights(oldPPMShipment, newPPMShipment1)
 			skipCalculateFinalIncentive1 := shouldSkipCalculatingFinalIncentive(&newPPMShipment1, &oldPPMShipment, originalTotalWeight1, newTotalWeight1)
 			suite.Equal(false, skipCalculateFinalIncentive1)
 
-			//Assert false is returned when the ActualPickupPostalCode is changed
-			newPPMShipment2 := oldPPMShipment
-			newPPMShipment2.ActualPickupPostalCode = models.StringPointer("99011")
-
-			originalTotalWeight2, newTotalWeight2 := SumWeightTickets(oldPPMShipment, newPPMShipment2)
+			originalTotalWeight2, newTotalWeight2 := SumWeights(oldPPMShipment, newPPMShipment2)
 			skipCalculateFinalIncentive2 := shouldSkipCalculatingFinalIncentive(&newPPMShipment2, &oldPPMShipment, originalTotalWeight2, newTotalWeight2)
 			suite.Equal(false, skipCalculateFinalIncentive2)
 		})
@@ -1519,10 +1960,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
-						ActualDestinationPostalCode: models.StringPointer("30813"),
-						ActualMoveDate:              models.TimePointer(moveDate),
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(moveDate),
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
 					},
 				},
 				{
@@ -1550,7 +1989,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newWeightTicket.Status = &approved
 			newPPMShipment.WeightTickets = models.WeightTickets{newWeightTicket}
 
-			originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, newPPMShipment)
+			originalTotalWeight, newTotalWeight := SumWeights(oldPPMShipment, newPPMShipment)
 			suite.Equal(unit.Pound(4000), originalTotalWeight)
 			suite.Equal(unit.Pound(6000), newTotalWeight)
 
@@ -1564,11 +2003,9 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-						ActualPickupPostalCode:      models.StringPointer("90211"),
-						ActualDestinationPostalCode: models.StringPointer("30814"),
-						ActualMoveDate:              models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(actualMoveDate),
 					},
 				},
 			}, nil)
@@ -1581,8 +2018,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
-			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
-			suite.Equal(oldPPMShipment.ActualDestinationPostalCode, newPPM.ActualDestinationPostalCode)
 			suite.True(oldPPMShipment.ActualMoveDate.Equal(*newPPM.ActualMoveDate))
 			suite.Equal(*oldPPMShipment.FinalIncentive, *finalIncentive)
 		})
@@ -1591,11 +2026,9 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						Status:                      models.PPMShipmentStatusNeedsAdvanceApproval,
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-						ActualPickupPostalCode:      models.StringPointer("90211"),
-						ActualDestinationPostalCode: models.StringPointer("30814"),
-						ActualMoveDate:              models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusNeedsAdvanceApproval,
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(actualMoveDate),
 					},
 				},
 			}, nil)
@@ -1613,11 +2046,9 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
-						ActualPickupPostalCode:      models.StringPointer("90211"),
-						ActualDestinationPostalCode: models.StringPointer("30814"),
-						ActualMoveDate:              models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+						ActualMoveDate: models.TimePointer(actualMoveDate),
 					},
 				},
 			}, nil)
@@ -1630,8 +2061,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
-			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
-			suite.Equal(oldPPMShipment.ActualDestinationPostalCode, newPPM.ActualDestinationPostalCode)
 			suite.True(oldPPMShipment.ActualMoveDate.Equal(*newPPM.ActualMoveDate))
 			suite.Nil(finalIncentive)
 		})
@@ -1675,7 +2104,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(56660, estimatedSITCost.Int())
+			suite.Equal(62720, estimatedSITCost.Int())
 		})
 
 		suite.Run("Success - Destination First Day and Additional Day SIT", func() {
@@ -1737,7 +2166,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(65240, estimatedSITCost.Int())
+			suite.Equal(72380, estimatedSITCost.Int())
 		})
 
 		suite.Run("Success - same entry and departure dates only prices first day SIT", func() {
@@ -1775,7 +2204,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(32240, estimatedSITCost.Int())
+			suite.Equal(35780, estimatedSITCost.Int())
 		})
 
 		suite.Run("SIT cost is not calculated when required fields are missing", func() {
@@ -2086,7 +2515,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			newPPM.EstimatedWeight = &estimatedWeight
 
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"74133", "98421").Return(3000, nil)
+				"74133", "98421").Return(3000, nil).Twice()
 
 			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2095,7 +2524,49 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"74133", "98421")
-			suite.Equal(unit.Cents(459178), *ppmEstimate)
+			suite.Equal(unit.Cents(504512), *ppmEstimate)
+
+			// appending this to test functionality of the GCC multiplier
+			validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ExpectedDepartureDate: validGccMultiplierDate,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+			newPPMWithMultiplier := ppmWithMultiplier
+			newPPMWithMultiplier.EstimatedWeight = &estimatedWeight // setting weight to 5000
+			ppmEstimateWithMultiplier, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppmWithMultiplier, &newPPMWithMultiplier)
+			suite.NilOrNoVerrs(err)
+
+			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
+			suite.NotEqual(unit.Cents(504512), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(771427), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for OCONUS -> CONUS", func() {
@@ -2142,7 +2613,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "74133")
-			suite.Equal(unit.Cents(423178), *ppmEstimate)
+			suite.Equal(unit.Cents(464562), *ppmEstimate)
 		})
 	})
 
@@ -2215,7 +2686,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// DTOD will be called to get the distance between the origin duty location & the Tacoma Port ZIP
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "98421").Return(3000, nil)
+				"50309", "98421").Return(3000, nil).Twice()
 
 			ppmMaxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2224,7 +2695,54 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "98421")
-			suite.Equal(unit.Cents(656532), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(720983), *ppmMaxIncentive)
+
+			// appending this to test functionality of the GCC multiplier
+			validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ExpectedDepartureDate: validGccMultiplierDate,
+					},
+				},
+				{
+					Model: models.Move{
+						OrdersID: order.ID,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+			newPPMWithMultiplier := ppmWithMultiplier
+			newPPMWithMultiplier.EstimatedWeight = &estimatedWeight // setting weight to 5000
+			ppmEstimateWithMultiplier, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), ppmWithMultiplier, &newPPMWithMultiplier)
+			suite.NilOrNoVerrs(err)
+
+			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
+			suite.NotEqual(unit.Cents(504512), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(1103119), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
@@ -2304,7 +2822,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "30813")
-			suite.Equal(unit.Cents(676692), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(743383), *ppmMaxIncentive)
 		})
 	})
 
@@ -2362,7 +2880,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			setupPricerData()
 
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"74133", "98421").Return(3000, nil)
+				"74133", "98421").Return(3000, nil).Twice()
 
 			ppmFinalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2372,6 +2890,60 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"74133", "98421")
 			suite.Equal(unit.Cents(459178), *ppmFinalIncentive)
+
+			// appending this to test functionality of the GCC multiplier
+			validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate:        models.TimePointer(updatedMoveDate),
+						Status:                models.PPMShipmentStatusWaitingOnCustomer,
+						EstimatedWeight:       models.PoundPointer(4000),
+						ExpectedDepartureDate: validGccMultiplierDate,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+			newPPMWithMultiplier := ppmWithMultiplier
+			newPPMWithMultiplier.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight:  &newFullWeight,
+							EmptyWeight: &newEmptyWeight,
+						},
+					},
+				}, nil),
+			}
+			ppmEstimateWithMultiplier, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), ppmWithMultiplier, &newPPMWithMultiplier)
+			suite.NilOrNoVerrs(err)
+
+			suite.Equal(unit.Pound(4000), *newPPMWithMultiplier.EstimatedWeight)
+			suite.NotEqual(unit.Cents(459178), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(596931), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Final Incentive - Success using estimated weight for OCONUS -> CONUS", func() {
@@ -2489,7 +3061,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(24360), *estimatedSITCost)
+			suite.Equal(unit.Cents(27040), *estimatedSITCost)
 		})
 
 		suite.Run("CalculateSITCost - Success using estimated weight for CONUS -> OCONUS", func() {
@@ -2540,7 +3112,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(41080), *estimatedSITCost)
+			suite.Equal(unit.Cents(46160), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCost - Success for OCONUS PPM", func() {
@@ -2591,7 +3163,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			estimatedSITCost, err := ppmEstimator.CalculatePPMSITEstimatedCost(suite.AppContextForTest(), &ppm)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(20540), *estimatedSITCost)
+			suite.Equal(unit.Cents(23080), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCostBreakdown - Success for OCONUS PPM", func() {
@@ -2642,9 +3214,9 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			sitCosts, err := ppmEstimator.CalculatePPMSITEstimatedCostBreakdown(suite.AppContextForTest(), &ppm)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(sitCosts)
-			suite.Equal(unit.Cents(20540), *sitCosts.EstimatedSITCost)
-			suite.Equal(unit.Cents(12140), *sitCosts.PriceFirstDaySIT)
-			suite.Equal(unit.Cents(8400), *sitCosts.PriceAdditionalDaySIT)
+			suite.Equal(unit.Cents(23080), *sitCosts.EstimatedSITCost)
+			suite.Equal(unit.Cents(13480), *sitCosts.PriceFirstDaySIT)
+			suite.Equal(unit.Cents(9600), *sitCosts.PriceAdditionalDaySIT)
 		})
 	})
 }

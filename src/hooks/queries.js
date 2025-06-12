@@ -40,6 +40,7 @@ import {
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
+import { getRolesPrivileges } from 'services/adminApi';
 import {
   PAYMENT_REQUESTS,
   MTO_SHIPMENTS,
@@ -71,6 +72,7 @@ import {
   SC_CUSTOMER_SEARCH,
   PPMSIT_ESTIMATED_COST,
   GBLOCS,
+  ROLE_PRIVILEGES,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -630,9 +632,14 @@ export const useDestinationRequestsQueueQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
+  activeRole,
 }) => {
-  const { data = {}, ...movesQueueQuery } = useQuery(
-    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
+  const {
+    refetch,
+    data = {},
+    ...movesQueueQuery
+  } = useQuery(
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
@@ -642,6 +649,7 @@ export const useDestinationRequestsQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -1042,6 +1050,7 @@ export const useGHCGetMoveHistory = ({
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([getGHCMoveHistoryQuery]);
   const { historyRecords, ...dataProps } = data;
+
   return {
     queueResult: { data: historyRecords, ...dataProps },
     isLoading,
@@ -1124,6 +1133,56 @@ export const useListGBLOCsQueries = () => {
   const gblocs = data;
   return {
     result: gblocs,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useRolesPrivilegesQueries = () => {
+  const { data = [], ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES], ({ queryKey }) =>
+    getRolesPrivileges(...queryKey),
+  );
+  const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
+  const mappings = data;
+  const privilegesMap = new Map();
+  const rolesWithPrivsMap = new Map();
+
+  mappings.forEach((mapping) => {
+    // Create a map of roles with their types, names, and allowed privileges.
+    if (mapping.roleType) {
+      if (!rolesWithPrivsMap.has(mapping.roleType)) {
+        rolesWithPrivsMap.set(mapping.roleType, {
+          roleType: mapping.roleType,
+          roleName: mapping.roleName,
+          allowedPrivileges: new Set(),
+        });
+      }
+      // Create a map of privileges with their types and names. Add their allowed privilege types.
+      if (mapping.privileges) {
+        mapping.privileges.forEach((privilege) => {
+          if (!privilegesMap.has(privilege.privilegeType)) {
+            privilegesMap.set(privilege.privilegeType, {
+              privilegeType: privilege.privilegeType,
+              privilegeName: privilege.privilegeName,
+            });
+          }
+          rolesWithPrivsMap.get(mapping.roleType).allowedPrivileges.add(privilege.privilegeType);
+        });
+      }
+    }
+  });
+
+  const rolesWithPrivs = Array.from(rolesWithPrivsMap.values()).map((roleObj) => ({
+    roleType: roleObj.roleType,
+    roleName: roleObj.roleName,
+    allowedPrivileges: Array.from(roleObj.allowedPrivileges),
+  }));
+
+  const privileges = Array.from(privilegesMap.values());
+
+  return {
+    result: { privileges, rolesWithPrivs },
     isLoading,
     isError,
     isSuccess,

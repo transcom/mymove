@@ -149,6 +149,11 @@ type MTOShipmentWithoutServiceItems struct {
 	// ppm shipment
 	PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
 
+	// prime acknowledged at
+	// Read Only: true
+	// Format: date-time
+	PrimeAcknowledgedAt *strfmt.DateTime `json:"primeAcknowledgedAt,omitempty"`
+
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	// Example: 4500
 	// Minimum: 1
@@ -212,11 +217,19 @@ type MTOShipmentWithoutServiceItems struct {
 	// The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.
 	//
 	// Read Only: true
-	// Enum: [SUBMITTED APPROVED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED]
+	// Enum: [SUBMITTED APPROVED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED TERMINATION_FOR_CAUSE APPROVALS_REQUESTED]
 	Status string `json:"status,omitempty"`
 
 	// storage facility
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
+
+	// terminated at
+	// Format: date-time
+	TerminatedAt *strfmt.DateTime `json:"terminatedAt,omitempty"`
+
+	// termination comments
+	// Read Only: true
+	TerminationComments *string `json:"terminationComments,omitempty"`
 
 	// updated at
 	// Read Only: true
@@ -292,6 +305,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
+	if err := m.validatePrimeAcknowledgedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePrimeActualWeight(formats); err != nil {
 		res = append(res, err)
 	}
@@ -349,6 +366,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 	}
 
 	if err := m.validateStorageFacility(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTerminatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -602,6 +623,18 @@ func (m *MTOShipmentWithoutServiceItems) validatePpmShipment(formats strfmt.Regi
 	return nil
 }
 
+func (m *MTOShipmentWithoutServiceItems) validatePrimeAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeAcknowledgedAt", "body", "date-time", m.PrimeAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipmentWithoutServiceItems) validatePrimeActualWeight(formats strfmt.Registry) error {
 	if swag.IsZero(m.PrimeActualWeight) { // not required
 		return nil
@@ -771,7 +804,7 @@ var mTOShipmentWithoutServiceItemsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED","TERMINATION_FOR_CAUSE","APPROVALS_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -798,6 +831,12 @@ const (
 
 	// MTOShipmentWithoutServiceItemsStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
 	MTOShipmentWithoutServiceItemsStatusDIVERSIONREQUESTED string = "DIVERSION_REQUESTED"
+
+	// MTOShipmentWithoutServiceItemsStatusTERMINATIONFORCAUSE captures enum value "TERMINATION_FOR_CAUSE"
+	MTOShipmentWithoutServiceItemsStatusTERMINATIONFORCAUSE string = "TERMINATION_FOR_CAUSE"
+
+	// MTOShipmentWithoutServiceItemsStatusAPPROVALSREQUESTED captures enum value "APPROVALS_REQUESTED"
+	MTOShipmentWithoutServiceItemsStatusAPPROVALSREQUESTED string = "APPROVALS_REQUESTED"
 )
 
 // prop value enum
@@ -835,6 +874,18 @@ func (m *MTOShipmentWithoutServiceItems) validateStorageFacility(formats strfmt.
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) validateTerminatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.TerminatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("terminatedAt", "body", "date-time", m.TerminatedAt.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -912,6 +963,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePrimeAcknowledgedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePrimeEstimatedWeightRecordedDate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -953,6 +1008,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 	}
 
 	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTerminationComments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1125,6 +1184,15 @@ func (m *MTOShipmentWithoutServiceItems) contextValidatePpmShipment(ctx context.
 	return nil
 }
 
+func (m *MTOShipmentWithoutServiceItems) contextValidatePrimeAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "primeAcknowledgedAt", "body", m.PrimeAcknowledgedAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipmentWithoutServiceItems) contextValidatePrimeEstimatedWeightRecordedDate(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "primeEstimatedWeightRecordedDate", "body", m.PrimeEstimatedWeightRecordedDate); err != nil {
@@ -1249,6 +1317,15 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateStorageFacility(ctx cont
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateTerminationComments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "terminationComments", "body", m.TerminationComments); err != nil {
+		return err
 	}
 
 	return nil

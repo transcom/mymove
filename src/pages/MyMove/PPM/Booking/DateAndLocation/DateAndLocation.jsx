@@ -21,6 +21,7 @@ import { ShipmentShape } from 'types/shipment';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { validatePostalCode } from 'utils/validation';
 import { formatAddressForAPI } from 'utils/formatMtoShipment';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -39,7 +40,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
   const isNewShipment = !mtoShipment?.id;
-  const isCivilian = move.orders?.grade === 'CIVILIAN_EMPLOYEE';
+  const isCivilian = move.orders?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
 
   useEffect(() => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
@@ -58,9 +59,6 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   };
 
   const onShipmentSaveSuccess = (response, setSubmitting) => {
-    // Update submitting state
-    setSubmitting(false);
-
     // Update the shipment in the store
     dispatch(updateMTOShipment(response));
 
@@ -71,6 +69,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
         mtoShipmentId: response.id,
       }),
     );
+
+    // Update submitting state
+    setSubmitting(false);
   };
 
   const handleSetError = (error, defaultError) => {
@@ -84,7 +85,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     }
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting }) => {
     setErrorMessage(null);
 
     const hasSecondaryPickupAddress = values.hasSecondaryPickupAddress === 'true';
@@ -145,18 +146,18 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
                 onShipmentSaveSuccess(shipmentResponse, setSubmitting);
               })
               .catch(() => {
-                setSubmitting(false);
                 // Still need to update the shipment in the store since it had a successful create
                 dispatch(updateMTOShipment(shipmentResponse));
                 setErrorMessage('There was an error attempting to create the move closeout office.');
+                setSubmitting(false);
               });
           } else {
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
         .catch((error) => {
-          setSubmitting(false);
           handleSetError(error, 'There was an error attempting to create your shipment.');
+          setSubmitting(false);
         });
     } else {
       createOrUpdateShipment.id = mtoShipment.id;
@@ -176,18 +177,18 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
                 dispatch(updateAllMoves(allMoves));
               })
               .catch(() => {
-                setSubmitting(false);
                 // Still need to update the shipment in the store since it had a successful update
                 dispatch(updateMTOShipment(shipmentResponse));
                 setErrorMessage('There was an error attempting to update the move closeout office.');
+                setSubmitting(false);
               });
           } else {
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
         .catch((error) => {
-          setSubmitting(false);
           handleSetError(error, 'There was an error attempting to update your shipment.');
+          setSubmitting(false);
         });
     }
   };
