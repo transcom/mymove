@@ -213,6 +213,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		gexSender := services.GexSender(nil)
 		sendToSyncada := false
 		mockNotificationSender := notifications.NewStubNotificationSender("")
+
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
 			reviewedPaymentRequestFetcher,

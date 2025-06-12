@@ -630,14 +630,14 @@ OrdersInfoForm.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
 const mapStateToProps = (state) => {
   return {
     affiliation: selectServiceMemberAffiliation(state) || '',
   };
-};
-
-const mapDispatchToProps = {
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfoForm);

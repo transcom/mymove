@@ -707,14 +707,14 @@ EditOrdersForm.defaultProps = {
   filePondEl: null,
 };
 
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
 const mapStateToProps = (state) => {
   return {
     affiliation: selectServiceMemberAffiliation(state) || '',
   };
-};
-
-const mapDispatchToProps = {
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditOrdersForm);
