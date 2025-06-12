@@ -226,8 +226,20 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 		// if the expected departure date falls within a multiplier window, we need to apply that here
 		// but only if the expected departure date is being changed
-		updatedDate := updatedPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
-		oldDate := oldPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+		// if the actual move date is being updated, we need to refer to that instead
+		var updatedDate time.Time
+		var oldDate time.Time
+		if updatedPPMShipment.ActualMoveDate != nil {
+			updatedDate = *updatedPPMShipment.ActualMoveDate
+			if oldPPMShipment.ActualMoveDate != nil {
+				oldDate = *oldPPMShipment.ActualMoveDate
+			} else {
+				oldDate = oldPPMShipment.ExpectedDepartureDate
+			}
+		} else {
+			updatedDate = updatedPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+			oldDate = oldPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+		}
 		if !updatedDate.Equal(oldDate) {
 			gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *updatedPPMShipment)
 			if err != nil {
@@ -258,10 +270,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
-		if oldPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer &&
-			oldPPMShipment.Status != models.PPMShipmentStatusCloseoutComplete &&
-			oldPPMShipment.Status != models.PPMShipmentStatusComplete &&
-			oldPPMShipment.Status != models.PPMShipmentStatusNeedsCloseout {
+		if oldPPMShipment.Status != models.PPMShipmentStatusComplete {
 			maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
 			if err != nil {
 				return err
