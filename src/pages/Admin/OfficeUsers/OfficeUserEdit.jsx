@@ -5,8 +5,6 @@ import {
   SimpleForm,
   TextInput,
   SelectInput,
-  Toolbar,
-  SaveButton,
   AutocompleteInput,
   ReferenceInput,
   ArrayInput,
@@ -17,9 +15,13 @@ import {
   Button,
   DeleteButton,
   Confirm,
+  SaveButton,
+  Toolbar,
 } from 'react-admin';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import adminStyles from '../adminStyles.module.scss';
 
 import styles from './OfficeUserEdit.module.scss';
 
@@ -151,8 +153,7 @@ const OfficeUserEdit = ({ adminUser }) => {
   // rendering tool bar
   const renderToolBar = () => {
     return (
-      <Toolbar sx={{ display: 'flex', gap: '10px' }}>
-        <SaveButton />
+      <Toolbar className={adminStyles.flexRight} sx={{ gap: '10px' }}>
         <DeleteButton
           mutationOptions={{
             onSuccess: async (data) => {
@@ -161,7 +162,15 @@ const OfficeUserEdit = ({ adminUser }) => {
               handleDeleteClick();
             },
           }}
+          sx={{
+            backgroundColor: '#e1400a !important',
+            width: 120,
+            '&:hover': {
+              opacity: '0.8',
+            },
+          }}
         />
+        <SaveButton />
       </Toolbar>
     );
   };
@@ -226,7 +235,7 @@ const OfficeUserEdit = ({ adminUser }) => {
                 size="extrasmall"
                 data-testid="addTransportationOfficeButton"
                 sx={{
-                  backgroundColor: '#1976d2',
+                  backgroundColor: '#005ea2',
                   '&:hover': {
                     backgroundColor: '#1565c0',
                   },
@@ -245,7 +254,10 @@ const OfficeUserEdit = ({ adminUser }) => {
                   '&:hover': {
                     backgroundColor: '#d23c0f',
                   },
+                  width: '100px',
                   color: 'white',
+                  visibility: 'visible',
+                  opacity: 1,
                 }}
                 label="remove"
               >
