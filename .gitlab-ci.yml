@@ -68,6 +68,8 @@ stages:
     - git config --global --add safe.directory /builds/milmove/mymove
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
     - export REACT_APP_ERROR_LOGGING=otel
+    - echo "Listing all environment variables:"
+    - printenv
 
 .announce_failure: &announce_failure
   #- if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
@@ -1550,8 +1552,6 @@ integration_test_e2e_generic:
       #- ./myapp migrate up # Run database migrations
       - npm install
   script:
-    - echo "Listing all environment variables:"
-    - printenv
     - echo "TODO Add steps"
     - echo "integration_test_office"
     - ./node_modules/.bin/playwright test playwright/tests/office \
