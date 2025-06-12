@@ -311,7 +311,7 @@ describe('PrimeUIShipmentCreateForm', () => {
 
       // now the text input should be visible
       expect(await screen.findByTestId('divertedFromShipmentIdInput')).toBeInTheDocument();
-
+      expect(screen.getByLabelText('Diverted from Shipment ID *')).toBeInTheDocument();
       // Now check for a boat and mobile home shipment specific field
       expect(await screen.findByLabelText('Length (Feet)')).toBeVisible();
     },

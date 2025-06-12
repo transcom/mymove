@@ -405,8 +405,9 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
               label="Diverted from Shipment ID"
               id="divertedFromShipmentIdInput"
               name="divertedFromShipmentId"
-              labelHint="Required if diversion box is checked"
               validate={(value) => validateUUID(value)}
+              showRequiredAsterisk
+              required
             />
           )}
 

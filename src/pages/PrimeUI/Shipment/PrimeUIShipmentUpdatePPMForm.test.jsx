@@ -173,11 +173,11 @@ function renderShipmentUpdatePPMForm(props) {
 }
 
 describe('PrimeUIShipmentUpdatePPMForm', () => {
-  it('renders the form', async () => {
+  it('renders the form and asterisks for required fields', async () => {
     renderShipmentUpdatePPMForm();
 
     expect(await screen.findByText('Dates')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Expected Departure Date')).toHaveValue(
+    expect(await screen.findByLabelText('Expected Departure Date *')).toHaveValue(
       formatCustomerDate(initialValues.ppmShipment.expectedDepartureDate),
     );
 
@@ -333,8 +333,8 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
 
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
     expect(await screen.findByLabelText('SIT Expected')).toBeChecked();
-    expect(await screen.findByLabelText('SIT Location')).toHaveValue(initialValues.ppmShipment.sitLocation);
-    expect(await screen.findByLabelText('SIT Estimated Weight (lbs)')).toHaveValue(
+    expect(await screen.findByLabelText('SIT Location *')).toHaveValue(initialValues.ppmShipment.sitLocation);
+    expect(await screen.findByLabelText('SIT Estimated Weight (lbs) *')).toHaveValue(
       initialValues.ppmShipment.sitEstimatedWeight,
     );
     expect(await screen.findByLabelText('SIT Estimated Entry Date')).toHaveValue(
@@ -345,7 +345,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     );
 
     expect(await screen.findByText('Weights')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Estimated Weight (lbs)')).toHaveValue(
+    expect(await screen.findByLabelText('Estimated Weight (lbs) *')).toHaveValue(
       initialValues.ppmShipment.estimatedWeight,
     );
     expect(await screen.findByLabelText('Has Pro Gear')).toBeChecked();
