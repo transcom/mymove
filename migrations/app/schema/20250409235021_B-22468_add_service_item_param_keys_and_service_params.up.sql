@@ -46,12 +46,6 @@ INSERT INTO service_params (id, service_id, service_item_param_key_id, created_a
 VALUES
 	('3e5d143e-ccde-477f-bf49-1f73df480e16', (SELECT id FROM re_services WHERE code = 'IDASIT'), (SELECT id FROM service_item_param_keys WHERE key = 'SITPaymentRequestEnd'), now(), now(), false);
 
-
--- Associate DistanceZipSITDest to service lookup for IDDSIT.
-INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
-VALUES
-	('839fb0cc-43df-4c72-8731-9ab627796f8b', (SELECT id FROM re_services WHERE code = 'IDDSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'DistanceZipSITDest'), now(), now(), false);
-
 -- Associate ZipSITDestHHGFinalAddress to service lookup for IDDSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
@@ -77,11 +71,6 @@ INSERT INTO service_params (id, service_id, service_item_param_key_id, created_a
 VALUES
 	('d657323f-a729-4318-a8f1-2302e2941a51', (SELECT id FROM re_services WHERE code = 'IDDSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'EscalationCompounded'), now(), now(), false);
 
--- Associate ZipSITOriginHHGOriginalAddress to service lookup for IOPSIT.
-INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
-VALUES
-	('ec15cea9-f844-4ef5-b389-014def85735b', (SELECT id FROM re_services WHERE code = 'IOPSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'ZipSITOriginHHGOriginalAddress'), now(), now(), false);
-
 -- Associate EscalationCompounded to service lookup for IOPSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
@@ -91,16 +80,6 @@ VALUES
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
 	('878700cf-76e9-4775-8e87-57572c0d0db1', (SELECT id FROM re_services WHERE code = 'IOPSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'IsPeak'), now(), now(), false);
-
--- Associate DistanceZipSITOrigin to service lookup for IOPSIT.
-INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
-VALUES
-	('6a4db188-3896-47b9-9146-b88e97bcc25f', (SELECT id FROM re_services WHERE code = 'IOPSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'DistanceZipSITOrigin'), now(), now(), false);
-
--- Associate ZipSITOriginHHGActualAddress to service lookup for IOPSIT.
-INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
-VALUES
-	('8ddf7eef-dcaf-4e4b-b908-45aabb897a1b', (SELECT id FROM re_services WHERE code = 'IOPSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'ZipSITOriginHHGActualAddress'), now(), now(), false);
 
 -- Associate ZipSITOriginHHGOriginalAddress to service lookup for IOFSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)

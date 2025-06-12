@@ -19,7 +19,7 @@ func (suite *ModelSuite) TestMTOServiceItemDimension() {
 			Width:            0,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors)
+		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors, nil)
 	})
 
 	suite.Run("test invalid MTOServiceItemDimension", func() {
@@ -37,7 +37,7 @@ func (suite *ModelSuite) TestMTOServiceItemDimension() {
 			"length":             {"-1 is not greater than -1."},
 			"width":              {"-1 is not greater than -1."},
 		}
-		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors)
+		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors, nil)
 	})
 
 	suite.Run("correct volume is calculated by Volume function", func() {

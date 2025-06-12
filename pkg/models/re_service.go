@@ -136,6 +136,90 @@ const (
 	ReServiceCodePODFSC ReServiceCode = "PODFSC"
 )
 
+// destinationServiceItemCodesMap is a map of ReServiceCodes that represent destination service items.
+// It is used for fast lookups to determine if a service item is destination-related.
+// This map is immutable and should not be modified after initialization.
+var DestinationServiceItemCodesMap = map[ReServiceCode]struct{}{
+	ReServiceCodeDDFSIT: {},
+	ReServiceCodeDDASIT: {},
+	ReServiceCodeDDDSIT: {},
+	ReServiceCodeDDSFSC: {},
+	ReServiceCodeDDSHUT: {},
+	ReServiceCodeIDFSIT: {},
+	ReServiceCodeIDASIT: {},
+	ReServiceCodeIDDSIT: {},
+	ReServiceCodeIDSFSC: {},
+	ReServiceCodeIDSHUT: {},
+}
+
+// originServiceItemCodesMap is a map of ReServiceCodes that do not represent destination SIT service items.
+// It includes all other ReServiceCodes, such as origin  codes , for fast lookups.
+// This map is immutable and should not be modified after initialization.
+var OriginServiceItemCodesMap = map[ReServiceCode]struct{}{
+	// Counseling and management
+	ReServiceCodeCS: {},
+	ReServiceCodeMS: {},
+	// Domestic boat and mobile home factors
+	ReServiceCodeDBHF: {},
+	ReServiceCodeDBTF: {},
+	ReServiceCodeDMHF: {},
+	// Domestic crating and uncrating
+	ReServiceCodeDCRT:   {},
+	ReServiceCodeDCRTSA: {},
+	ReServiceCodeDUCRT:  {},
+	// Domestic pricing and transportation
+	ReServiceCodeDDP: {},
+	ReServiceCodeDOP: {},
+	ReServiceCodeDLH: {},
+	ReServiceCodeDSH: {},
+	// Domestic packing and unpacking
+	ReServiceCodeDNPK: {},
+	ReServiceCodeDPK:  {},
+	ReServiceCodeDUPK: {},
+	// Domestic origin SIT codes
+	ReServiceCodeDOASIT: {},
+	ReServiceCodeDOFSIT: {},
+	ReServiceCodeDOPSIT: {},
+	ReServiceCodeDOSFSC: {},
+	ReServiceCodeDOSHUT: {},
+	// Fuel surcharge
+	ReServiceCodeFSC: {},
+	// International boat factors
+	ReServiceCodeIBHF: {},
+	ReServiceCodeIBTF: {},
+	// International shipping and linehaul
+	ReServiceCodeICOLH: {},
+	ReServiceCodeICOUB: {},
+	ReServiceCodeIOCLH: {},
+	ReServiceCodeIOCUB: {},
+	ReServiceCodeIOOLH: {},
+	ReServiceCodeIOOUB: {},
+	ReServiceCodeISLH:  {},
+	// International crating and uncrating
+	ReServiceCodeICRT:  {},
+	ReServiceCodeIUCRT: {},
+	// International packing and unpacking
+	ReServiceCodeIHPK:   {},
+	ReServiceCodeIHUPK:  {},
+	ReServiceCodeINPK:   {},
+	ReServiceCodeIUBPK:  {},
+	ReServiceCodeIUBUPK: {},
+	// International origin SIT codes
+	ReServiceCodeIOASIT: {},
+	ReServiceCodeIOFSIT: {},
+	ReServiceCodeIOPSIT: {},
+	ReServiceCodeIOSFSC: {},
+	ReServiceCodeIOSHUT: {},
+	// International pricing
+	ReServiceCodeUBP: {},
+	// International fuel surcharges
+	ReServiceCodePOEFSC: {},
+	ReServiceCodePODFSC: {},
+	// Nonstandard items
+	ReServiceCodeNSTH:  {},
+	ReServiceCodeNSTUB: {},
+}
+
 type ServiceLocationType string
 
 const (
@@ -202,7 +286,6 @@ var ValidDomesticOriginSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeDOFSIT,
 	ReServiceCodeDOPSIT,
 	ReServiceCodeDOSFSC,
-	ReServiceCodeDOSHUT,
 }
 
 // Definition of valid Domestic Destination SIT ReServiceCodes
@@ -211,7 +294,6 @@ var ValidDomesticDestinationSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeDDDSIT,
 	ReServiceCodeDDSFSC,
 	ReServiceCodeDDFSIT,
-	ReServiceCodeDDSHUT,
 }
 
 // Definition of valid International Origin SIT ReServiceCodes
@@ -219,7 +301,7 @@ var ValidInternationalOriginSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeIOASIT,
 	ReServiceCodeIOFSIT,
 	ReServiceCodeIOPSIT,
-	ReServiceCodeIOSHUT,
+	ReServiceCodeIOSFSC,
 }
 
 // Definition of valid International Destination SIT ReServiceCodes
@@ -227,8 +309,20 @@ var ValidInternationalDestinationSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeIDASIT,
 	ReServiceCodeIDDSIT,
 	ReServiceCodeIDFSIT,
-	ReServiceCodeIDSHUT,
+	ReServiceCodeIDSFSC,
 }
+
+// combined origin SIT codes (domestic + international)
+var ValidOriginSITReServiceCodes = append(
+	append([]ReServiceCode{}, ValidDomesticOriginSITReServiceCodes...),
+	ValidInternationalOriginSITReServiceCodes...,
+)
+
+// combined destination SIT codes (domestic + international)
+var ValidDestinationSITReServiceCodes = append(
+	append([]ReServiceCode{}, ValidDomesticDestinationSITReServiceCodes...),
+	ValidInternationalDestinationSITReServiceCodes...,
+)
 
 // TableName overrides the table name used by Pop.
 func (r ReService) TableName() string {
@@ -256,4 +350,16 @@ func FetchReServiceByCode(db *pop.Connection, code ReServiceCode) (*ReService, e
 		return &reService, err
 	}
 	return nil, fmt.Errorf("error fetching from re_services - required code not provided")
+}
+
+// Helper function to take in an MTO service item's ReServiceCode and validate it
+// against a given array of codes. This is primarily to support the RetrieveShipmentSIT method
+// when SIT groupings are created.
+func ContainsReServiceCode(validCodes []ReServiceCode, code ReServiceCode) bool {
+	for _, validCode := range validCodes {
+		if validCode == code {
+			return true
+		}
+	}
+	return false
 }

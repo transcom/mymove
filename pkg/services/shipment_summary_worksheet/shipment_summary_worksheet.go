@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -245,6 +246,10 @@ const (
 	trustedAgentText = "Trusted Agent Requires POA \nor Letter of Authorization"
 )
 
+const (
+	safetyMoveText = "SAFETY"
+)
+
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
 func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
 	var err error
@@ -307,12 +312,12 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	// Fill out form fields related to Actual Expense Reimbursement status
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
-		page1.GCCExpenseReimbursementType = "Actual Expense Reimbursement"
+		page1.GCCExpenseReimbursementType = "AER"
 	}
 
 	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
 		page1.IsSmallPackageReimbursement = true
-		page1.GCCExpenseReimbursementType = "Small Package Reimbursement"
+		page1.GCCExpenseReimbursementType = "SPR"
 	}
 
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
@@ -326,6 +331,21 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
+
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page1.SafetyMoveHeading = safetyMoveText
+	}
+
+	if data.PPMShipment.GCCMultiplier != nil && data.PPMShipment.GCCMultiplier.Multiplier != 0 {
+		// the "g" here tells us to not use trailing zeros (1.3 instead of 1.30000)
+		// -1 is to use the most concise represenation
+		// 64 tells it that it's a float64
+		multiplierStr := strconv.FormatFloat(data.PPMShipment.GCCMultiplier.Multiplier, 'g', -1, 64)
+		page1.GCCMultiplier = fmt.Sprintf("(with %sx multiplier)", multiplierStr)
+	} else {
+		page1.GCCMultiplier = "(with 1x multiplier)"
+	}
+
 	return page1, nil
 }
 
@@ -403,15 +423,19 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.SignatureDate = certificationInfo.DateField
 
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
-		page2.IncentiveExpenseReimbursementType = "Actual Expense Reimbursement"
+		page2.IncentiveExpenseReimbursementType = "AER"
 		page2.HeaderExpenseReimbursementType = `This PPM is being processed as actual expense reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
 	}
 
 	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
-		page2.IncentiveExpenseReimbursementType = "Small Package Reimbursement"
+		page2.IncentiveExpenseReimbursementType = "SPR"
 		page2.HeaderExpenseReimbursementType = `This PPM is being processed as small package reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
+	}
+
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page2.SafetyMoveHeading = safetyMoveText
 	}
 
 	return page2, nil
@@ -436,6 +460,11 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage3(data mode
 		return page3, err
 	}
 	page3.AddShipments = page3Map
+
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page3.SafetyMoveHeading = safetyMoveText
+	}
+
 	return page3, nil
 }
 
@@ -668,7 +697,7 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 	for _, cert := range signedCertifications {
 		if cert.PpmID != nil { // Required to avoid error, service members signatures have nil ppm ids
 			if *cert.PpmID == ppmid { // PPM ID needs to be checked to prevent signatures from other PPMs on the same move from populating
-				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT {
+				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT || *cert.CertificationType == models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT {
 					sswDate := FormatDate(cert.UpdatedAt) // We use updatedat to get the most recent signature dates
 					return sswDate, nil
 				}
@@ -1088,6 +1117,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"W2Address",
 		"WeightTickets",
 		"MovingExpenses",
+		"GCCMultiplier",
 	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
@@ -1257,7 +1287,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
-		Creation: "2024-11-13 13:44:05 UTC",
+		Creation: "2025-05-23 17:26:58 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 

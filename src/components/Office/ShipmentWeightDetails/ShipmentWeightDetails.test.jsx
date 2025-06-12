@@ -7,6 +7,7 @@ import ShipmentWeightDetails from './ShipmentWeightDetails';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { shipmentStatuses } from 'constants/shipments';
 
 const emDash = '\u2014';
 
@@ -93,8 +94,8 @@ describe('ShipmentWeightDetails', () => {
     const initialWeight = await screen.findByText('Initial weight');
     expect(initialWeight).toBeTruthy();
 
-    const reweighButton = await screen.findByText('Request reweigh');
-    expect(reweighButton).toBeTruthy();
+    const reweighButton = screen.queryByText('Request reweigh');
+    expect(reweighButton).toBeNull();
 
     const actualWeight = await screen.findByText('Actual shipment weight');
     expect(actualWeight).toBeTruthy();
@@ -270,6 +271,20 @@ describe('ShipmentWeightDetails', () => {
           shipmentInfo={shipmentInfoNoReweigh}
           handleRequestReweighModal={handleRequestReweighModal}
           isMoveLocked={isMoveLocked}
+        />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Request reweigh')).toBeDisabled();
+  });
+  it('renders with request reweigh button disabled when shipment is terminated', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createReweighRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentWeightDetails
+          estimatedWeight={11000}
+          initialWeight={12000}
+          shipmentInfo={{ status: shipmentStatuses.TERMINATED_FOR_CAUSE, ...shipmentInfoNoReweigh }}
+          handleRequestReweighModal={handleRequestReweighModal}
         />
       </MockProviders>,
     );
