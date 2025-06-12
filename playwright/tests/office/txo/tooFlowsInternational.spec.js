@@ -58,8 +58,8 @@ test.describe('TOO user', () => {
 
       // Edit the shipment address to AK
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
-      await page.locator('input[id="delivery.address-input"]').fill('99505');
-      await expect(page.getByText('ANCHORAGE, AK 99505 (ANCHORAGE)', { exact: true })).toBeVisible();
+      await page.locator('input[id="delivery.address-input"]').fill('99501');
+      await expect(page.getByText('ANCHORAGE, AK 99501 (ANCHORAGE)', { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
       await page.getByRole('button', { name: 'Save' }).click();
@@ -177,8 +177,8 @@ test.describe('TOO user', () => {
 
       // Edit the shipment address to AK
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
-      await page.locator('input[id="delivery.address-input"]').fill('99505');
-      await expect(page.getByText('ANCHORAGE, AK 99505 (ANCHORAGE)', { exact: true })).toBeVisible();
+      await page.locator('input[id="delivery.address-input"]').fill('99501');
+      await expect(page.getByText('ANCHORAGE, AK 99501 (ANCHORAGE)', { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
       await page.getByRole('button', { name: 'Save' }).click();

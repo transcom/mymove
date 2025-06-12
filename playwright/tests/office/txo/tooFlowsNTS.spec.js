@@ -108,9 +108,7 @@ test.describe('TOO user', () => {
 
       // edit the NTS shipment back to being handled by the GHC Prime contractor
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-      await expect(page.locator('[data-testid="alert"]')).toContainText(
-        'The GHC prime contractor is not handling the shipment.',
-      );
+      await expect(page.getByText(/The GHC prime contractor is not handling the shipment./)).toBeVisible();
 
       await page.locator('label[for="vendorPrime"]').click();
       await page.locator('[data-testid="submitForm"]').click();
@@ -193,6 +191,7 @@ test.describe('TOO user', () => {
 
       // Fill out the HHG and NTS accounting codes
       await page.getByTestId('hhgTacInput').fill(tac.tac);
+      await page.getByTestId('ntsTacInput').fill(tac.tac);
       const today = new Date();
       const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(today);
       const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(today);
