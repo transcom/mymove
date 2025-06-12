@@ -9,6 +9,25 @@ import { RequestAccount } from './RequestAccount';
 
 import { generalRoutes } from 'constants/routes';
 import { createOfficeAccountRequest, searchTransportationOfficesOpen } from 'services/ghcApi';
+import { ReactQueryWrapper } from 'testUtils';
+
+jest.mock('hooks/queries', () => ({
+  useRolesPrivilegesQueriesOfficeApp: () => ({
+    result: {
+      privileges: [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }],
+      rolesWithPrivs: [
+        { roleType: 'headquarters', roleName: 'Headquarters' },
+        { roleType: 'task_ordering_officer', roleName: 'Task Ordering Officer' },
+        { roleType: 'task_invoicing_officer', roleName: 'Task Invoicing Officer' },
+        { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
+        { roleType: 'services_counselor', roleName: 'Services Counselor' },
+        { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
+        { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
+        { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
+      ],
+    },
+  }),
+}));
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -50,9 +69,11 @@ const mockSearchTransportationOfficesOpen = () => Promise.resolve([mockTransport
 describe('RequestAccount page', () => {
   it('renders the RequestAccount form', async () => {
     render(
-      <MemoryRouter>
-        <RequestAccount />
-      </MemoryRouter>,
+      <ReactQueryWrapper>
+        <MemoryRouter>
+          <RequestAccount />
+        </MemoryRouter>
+      </ReactQueryWrapper>,
     );
 
     const formHeader = screen.getByRole('heading', { name: 'Request Office Account', level: 2 });
@@ -64,9 +85,11 @@ describe('RequestAccount page', () => {
       setFlashMessage: jest.fn(),
     };
     render(
-      <MemoryRouter>
-        <RequestAccount {...props} />
-      </MemoryRouter>,
+      <ReactQueryWrapper>
+        <MemoryRouter>
+          <RequestAccount {...props} />
+        </MemoryRouter>
+      </ReactQueryWrapper>,
     );
 
     const mockResponse = {
@@ -111,9 +134,11 @@ describe('RequestAccount page', () => {
 
   it('should display error message on failed submit', async () => {
     render(
-      <MemoryRouter>
-        <RequestAccount />
-      </MemoryRouter>,
+      <ReactQueryWrapper>
+        <MemoryRouter>
+          <RequestAccount />
+        </MemoryRouter>
+      </ReactQueryWrapper>,
     );
 
     const mockResponse = {
@@ -165,9 +190,11 @@ describe('RequestAccount page', () => {
 
   it('goes back to the sign in page when the cancel button is clicked', async () => {
     render(
-      <MemoryRouter>
-        <RequestAccount />
-      </MemoryRouter>,
+      <ReactQueryWrapper>
+        <MemoryRouter>
+          <RequestAccount />
+        </MemoryRouter>
+      </ReactQueryWrapper>,
     );
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });

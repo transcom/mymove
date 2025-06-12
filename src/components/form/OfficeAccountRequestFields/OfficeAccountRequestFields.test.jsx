@@ -8,7 +8,6 @@ import OfficeAccountRequestFields from './OfficeAccountRequestFields';
 import { officeAccountRequestSchema } from 'utils/validation';
 import { ReactQueryWrapper } from 'testUtils';
 
-// Add this at the top of your test file, before imports that use the hook
 jest.mock('hooks/queries', () => ({
   useRolesPrivilegesQueriesOfficeApp: () => ({
     result: {
@@ -20,7 +19,7 @@ jest.mock('hooks/queries', () => ({
         { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
         { roleType: 'services_counselor', roleName: 'Services Counselor' },
         { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
-        { roleType: 'customer_services_representative', roleName: 'Customer Services Representative' },
+        { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
         { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
       ],
     },
@@ -62,7 +61,7 @@ describe('OfficeAccountRequestFields component', () => {
     expect(screen.getByTestId('contracting_officerCheckbox')).toBeInTheDocument();
     expect(screen.getByTestId('services_counselorCheckbox')).toBeInTheDocument();
     expect(screen.getByTestId('qaeCheckbox')).toBeInTheDocument();
-    expect(screen.getByTestId('customer_services_representativeCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('customer_service_representativeCheckbox')).toBeInTheDocument();
     expect(screen.getByTestId('gsrCheckbox')).toBeInTheDocument();
   });
 

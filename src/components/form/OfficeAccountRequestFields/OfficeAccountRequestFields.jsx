@@ -26,6 +26,25 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const { result } = useRolesPrivilegesQueriesOfficeApp();
   const { privileges, rolesWithPrivs } = result;
 
+  const filteredPrivileges = privileges.filter((privilege) => {
+    if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY) {
+      return false;
+    }
+    return true;
+  });
+
+  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== 'customer');
+
+  const hasAnyRoleSelected = React.useMemo(
+    () => availableRoles.some(({ roleType }) => !!values[`${roleType}Checkbox`]),
+    [availableRoles, values],
+  );
+  const hasTransportConflict = !!values.task_ordering_officerCheckbox && !!values.task_invoicing_officerCheckbox;
+
+  const showRequestedRolesError = touched.requestedRolesGroup && !hasAnyRoleSelected;
+
+  const showTransportConflictError = touched.transportationOfficerRoleConflict && hasTransportConflict;
+
   useEffect(() => {
     const fetchData = async () => {
       isBooleanFlagEnabledUnauthenticatedOffice(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES)?.then((enabled) => {
@@ -49,40 +68,17 @@ export const OfficeAccountRequestFields = ({ render }) => {
   }, [values.officeAccountRequestEdipi, values.officeAccountRequestOtherUniqueId]);
 
   const firstInteractionOccurred = useRef(false);
-  useEffect(() => {
-    const anyChecked = [
-      values.task_ordering_officerCheckbox,
-      values.task_invoicing_officerCheckbox,
-      values.services_counselorCheckbox,
-      values.contracting_officerCheckbox,
-      values.qaeCheckbox,
-      values.headquartersCheckbox,
-      values.customer_services_representativeCheckbox,
-      values.gsrCheckbox,
-    ].some(Boolean);
 
-    // only start marking the field as touched after initial mount
+  useEffect(() => {
     if (!firstInteractionOccurred.current) {
-      if (anyChecked) {
+      if (hasAnyRoleSelected) {
         firstInteractionOccurred.current = true;
       }
       return;
     }
-
     setFieldTouched('requestedRolesGroup', true, false);
     validateField('requestedRolesGroup');
-  }, [
-    values.task_ordering_officerCheckbox,
-    values.task_invoicing_officerCheckbox,
-    values.services_counselorCheckbox,
-    values.contracting_officerCheckbox,
-    values.qaeCheckbox,
-    values.headquartersCheckbox,
-    values.customer_services_representativeCheckbox,
-    values.gsrCheckbox,
-    setFieldTouched,
-    validateField,
-  ]);
+  }, [hasAnyRoleSelected, setFieldTouched, validateField]);
 
   const transportationOfficerTouched = useRef(false);
   useEffect(() => {
@@ -107,25 +103,6 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const edipiFieldName = 'officeAccountRequestEdipi';
   const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
-
-  const filteredPrivileges = privileges.filter((privilege) => {
-    if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY) {
-      return false;
-    }
-    return true;
-  });
-
-  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== 'customer');
-
-  const hasAnyRoleSelected = React.useMemo(
-    () => availableRoles.some(({ roleType }) => !!values[`${roleType}Checkbox`]),
-    [availableRoles, values],
-  );
-  const hasTransportConflict = !!values.task_ordering_officerCheckbox && !!values.task_invoicing_officerCheckbox;
-
-  const showRequestedRolesError = touched.requestedRolesGroup && !hasAnyRoleSelected;
-
-  const showTransportConflictError = touched.transportationOfficerRoleConflict && hasTransportConflict;
 
   return (
     <Fieldset>

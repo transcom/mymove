@@ -20,6 +20,24 @@ jest.mock('services/ghcApi', () => ({
   searchTransportationOfficesOpen: jest.fn(),
 }));
 
+jest.mock('hooks/queries', () => ({
+  useRolesPrivilegesQueriesOfficeApp: () => ({
+    result: {
+      privileges: [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }],
+      rolesWithPrivs: [
+        { roleType: 'headquarters', roleName: 'Headquarters' },
+        { roleType: 'task_ordering_officer', roleName: 'Task Ordering Officer' },
+        { roleType: 'task_invoicing_officer', roleName: 'Task Invoicing Officer' },
+        { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
+        { roleType: 'services_counselor', roleName: 'Services Counselor' },
+        { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
+        { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
+        { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
+      ],
+    },
+  }),
+}));
+
 describe('RequestAccountForm component', () => {
   const testProps = {
     initialValues: {
