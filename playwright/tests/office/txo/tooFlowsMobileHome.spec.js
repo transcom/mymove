@@ -10,7 +10,7 @@ import { test, expect } from '../../utils/office/officeTest';
 import { TooFlowPage } from './tooTestFixture';
 
 const today = new Date();
-const pickupDate = today;
+const pickupDate = new Date(new Date().setDate(today.getDate() + 1));
 const pickupDateString = pickupDate.toLocaleDateString('en-US');
 const deliveryDate = new Date(new Date().setDate(today.getDate() + 14));
 const deliveryDateString = deliveryDate.toLocaleDateString('en-US');

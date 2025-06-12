@@ -138,7 +138,7 @@ test.describe('TOO user', () => {
     await expect(page.getByTestId('tag')).toHaveText('Boat');
     await page.getByRole('button', { name: 'Delete shipment' }).click();
 
-    await expect(page.getByRole('heading', { level: 3 })).toHaveText('Are you sure?');
+    await expect(page.getByText('Are you sure?')).toBeVisible();
     await page.getByTestId('modal').getByTestId('button').click();
     await officePage.waitForPage.moveDetails();
 

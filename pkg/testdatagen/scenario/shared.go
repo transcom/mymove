@@ -10337,8 +10337,8 @@ func CreateMoveWithMTOShipment(appCtx appcontext.AppContext, ordersType internal
 			},
 		},
 	}, nil)
-	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
-	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	requestedPickupDate := submittedAt.Add(60 * 48 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 48 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
 
 	if destinationType != nil { // Destination type is only used for retirement moves

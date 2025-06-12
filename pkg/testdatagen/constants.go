@@ -10,7 +10,7 @@ import (
 var TestYear = 2024
 
 // GHCTestYear is the default for GHC rate engine testing
-var GHCTestYear = 2024
+var GHCTestYear = 2025
 
 // ContractStartDate is the default for GHC rate engine testing
 var ContractStartDate = time.Date(GHCTestYear, time.February, 5, 0, 0, 0, 0, time.UTC)

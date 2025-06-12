@@ -479,8 +479,8 @@ test.describe('TOO user', () => {
       await expect(page.locator('[data-testid="ordersNumber"]')).toContainText('ORDER66');
       await expect(page.locator('[data-testid="ordersType"]')).toContainText('Permanent Change Of Station (PCS)');
       await expect(page.locator('[data-testid="ordersTypeDetail"]')).toContainText('Shipment of HHG Permitted');
-      await expect(page.locator('[data-testid="tacMDC"]')).toContainText(/F123/);
-      await expect(page.locator('[data-testid="sacSDN"]')).toContainText(/4K98/);
+      await expect(page.locator('[data-testid="tacMDC"]')).toContainText('F123');
+      await expect(page.locator('[data-testid="sacSDN"]')).toContainText('4K988AS098F');
 
       // Edit orders page | Cancel
       // Navigate to Edit orders page
@@ -701,9 +701,9 @@ test.describe('TOO user', () => {
     test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
     const shipmentAddressUpdate = await officePage.testHarness.buildHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
-    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
+    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.move_task_order);
     await tooFlowPage.waitForLoading();
-    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.move_task_order.locator);
 
     await expect(page.getByText('Review required')).toBeVisible();
 
@@ -750,7 +750,7 @@ test.describe('TOO user', () => {
 
     await page.getByText('KKFA moves').click();
 
-    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.move_task_order.locator);
     await page.locator('input[name="locator"]').blur();
     // once the move is in the Move approved status, it will no longer show up in the TOO queue
     await expect(page.getByText('Move approved')).not.toBeVisible();
@@ -760,9 +760,9 @@ test.describe('TOO user', () => {
   test('approves a delivery address change request for a NTSr shipment', async ({ officePage, page }) => {
     const shipmentAddressUpdate = await officePage.testHarness.buildNTSRMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
-    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
+    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.move_task_order);
     await tooFlowPage.waitForLoading();
-    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.move_task_order.locator);
 
     await expect(page.getByText('Review required')).toBeVisible();
     await page.getByRole('button', { name: 'Edit shipment' }).click();
@@ -801,7 +801,7 @@ test.describe('TOO user', () => {
 
     // go back and make sure the move is in approved status (won't be viewable in TOO queue)
     await page.getByText('KKFA moves').click();
-    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.move_task_order.locator);
     await page.locator('input[name="locator"]').blur();
     await expect(page.getByText('Move approved')).not.toBeVisible();
     await expect(page.getByText('Approvals requested')).not.toBeVisible();

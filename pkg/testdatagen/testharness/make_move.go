@@ -7807,7 +7807,18 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 			},
 		},
 	}, nil)
-
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
 	originalDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
@@ -7837,10 +7848,8 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 			},
 		},
 		{
-			Model: models.Move{
-				Status:             models.MoveStatusAPPROVALSREQUESTED,
-				AvailableToPrimeAt: models.TimePointer(time.Now()),
-			},
+			Model:    mto,
+			LinkOnly: true,
 		},
 		{
 			Model: models.MTOShipment{
