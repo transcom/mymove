@@ -15,6 +15,7 @@ import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { useRolesPrivilegesQueriesOfficeApp } from 'hooks/queries';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { roleTypes } from 'constants/userRoles';
 
 export const OfficeAccountRequestFields = ({ render }) => {
   const { values, errors, touched, setFieldTouched, validateField } = useFormikContext();
@@ -32,7 +33,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
     return true;
   });
 
-  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== 'customer');
+  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== roleTypes.CUSTOMER);
 
   const hasAnyRoleSelected = React.useMemo(
     () => availableRoles.some(({ roleType }) => !!values[`${roleType}Checkbox`]),
@@ -236,7 +237,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
           )}
           {availableRoles.map(({ roleType, roleName }) => {
             const fieldName = `${roleType}Checkbox`;
-            const isTransportRole = roleType === 'task_ordering_officer' || roleType === 'task_invoicing_officer';
+            const isTransportRole = roleType === roleTypes.TOO || roleType === roleTypes.TIO;
 
             const describedBy = [
               showRequestedRolesError && 'requestedRolesGroupError',

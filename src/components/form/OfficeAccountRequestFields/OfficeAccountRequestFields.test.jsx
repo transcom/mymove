@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
@@ -7,6 +7,7 @@ import OfficeAccountRequestFields from './OfficeAccountRequestFields';
 
 import { officeAccountRequestSchema } from 'utils/validation';
 import { ReactQueryWrapper } from 'testUtils';
+import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
 
 jest.mock('hooks/queries', () => ({
   useRolesPrivilegesQueriesOfficeApp: () => ({
@@ -26,6 +27,11 @@ jest.mock('hooks/queries', () => ({
   }),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabledUnauthenticatedOffice: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
 const initialValues = {
   officeAccountRequestEdipi: '',
   edipiConfirmation: '',
@@ -36,6 +42,7 @@ const initialValues = {
 };
 
 describe('OfficeAccountRequestFields component', () => {
+  isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
   it('renders the form inputs', async () => {
     render(
       <ReactQueryWrapper>
@@ -63,6 +70,9 @@ describe('OfficeAccountRequestFields component', () => {
     expect(screen.getByTestId('qaeCheckbox')).toBeInTheDocument();
     expect(screen.getByTestId('customer_service_representativeCheckbox')).toBeInTheDocument();
     expect(screen.getByTestId('gsrCheckbox')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('supervisorPrivilegeCheckbox')).toBeInTheDocument();
+    });
   });
 
   it('validates that EDIPI and EDIPI confirmation match', async () => {

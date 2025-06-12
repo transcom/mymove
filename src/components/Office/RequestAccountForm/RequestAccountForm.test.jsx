@@ -140,7 +140,6 @@ describe('RequestAccountForm component', () => {
     expect(gsrCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(gsrCheckbox).not.toBeChecked(false);
 
-    // Need to fix this - Saki
     await waitFor(() => {
       const supervisorPrivilegeCheckbox = screen.getByTestId('supervisorPrivilegeCheckbox');
       expect(supervisorPrivilegeCheckbox).toBeInstanceOf(HTMLInputElement);
