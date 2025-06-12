@@ -252,7 +252,7 @@ flags:
           key: mil-app
           value: false
   - key: disable_move_approval
-    name: Move approval diabled or not
+    name: Move approval disabled or not
     type: BOOLEAN_FLAG_TYPE
     enabled: false
     rollouts:
