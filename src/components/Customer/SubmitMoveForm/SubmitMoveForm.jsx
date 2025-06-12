@@ -12,7 +12,7 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import CertificationText from 'components/CertificationText/CertificationText';
-import RequiredAsterisk from 'components/form/RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const SubmitMoveForm = (props) => {
   const { initialValues, onPrint, onSubmit, onBack, certificationText, error, currentUser, isMoveLocked } = props;
@@ -69,6 +69,7 @@ const SubmitMoveForm = (props) => {
               <CertificationText certificationText={certificationText} onScrollToBottom={setHasReadTheAgreement} />
 
               <FormGroup>
+                {requiredAsteriskMessage}
                 <FormControlLabel
                   className={!hasReadTheAgreement ? styles.disabledCheckbox : ''}
                   control={
@@ -84,7 +85,11 @@ const SubmitMoveForm = (props) => {
                       }}
                     />
                   }
-                  label="I have read and understand the agreement as shown above"
+                  label={
+                    <>
+                      <RequiredAsterisk /> I have read and understand the agreement as shown above
+                    </>
+                  }
                 />
               </FormGroup>
 
