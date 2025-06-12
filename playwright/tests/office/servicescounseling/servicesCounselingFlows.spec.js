@@ -712,13 +712,14 @@ test.describe('Services counselor user', () => {
         await page.getByRole('button', { name: 'Save' }).click();
 
         await expect(page.getByTestId('payGrade')).toContainText('Civilian Employee');
-        await expect(page.getByText('actual expense reimbursement')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toHaveText(/actual expense reimbursement/i);
         await page.getByRole('button', { name: 'Edit shipment' }).click();
 
         await expect(page.locator('h1').getByText('Edit shipment details')).toBeVisible();
 
-        expect(await page.locator('[data-testid="isActualExpenseReimbursementYes"]').isDisabled()).toBe(true);
-        expect(await page.locator('[data-testid="isActualExpenseReimbursementNo"]').isDisabled()).toBe(true);
+        expect(await page.locator('[data-testid="isIncentiveBased"]').isDisabled()).toBe(true);
+        expect(await page.locator('[data-testid="isActualExpense"]').isChecked()).toBe(true);
       });
 
       test('cannot edit actual expense reimbursement - PPM closeout review documents', async ({ page, scPage }) => {
@@ -732,10 +733,8 @@ test.describe('Services counselor user', () => {
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
         await expect(page.getByTestId('tag')).toContainText('actual expense reimbursement');
 
-        await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
-        expect(await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').isDisabled()).toBe(
-          true,
-        );
+        await expect(page.getByTestId('tag').getByText(/Actual Expense Reimbursement/i)).toBeVisible();
+        expect(await page.getByTestId('expenseType').getByTestId('editTextButton').isDisabled()).toBe(true);
       });
     });
   });
@@ -748,8 +747,8 @@ test.describe('Services counselor user', () => {
 
     test('is unable to view/edit orders after MTO has been created(sent to prime)', async ({ page }) => {
       test.slow();
-      await expect(page.getByTestId('view-edit-orders')).toBeHidden();
-      await expect(page.getByTestId('edit-allowances')).toBeHidden();
+      await expect(page.getByTestId('view-edit-orders')).toHaveText('View orders');
+      await expect(page.getByTestId('edit-allowances')).toHaveText('View allowances');
     });
   });
 });
