@@ -380,8 +380,7 @@ test.describe('Services counselor user', () => {
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
-
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+      await expect(page.getByTestId('infoSavedMessage')).toContainText(/Your changes were saved./i);
 
       // Verify that the tag after the update is blank since missing information was filled
       await expect(page.locator('[data-testid="shipment-missing-info-alert"]')).toHaveCount(0);
@@ -484,7 +483,7 @@ test.describe('Services counselor user', () => {
       // Edit Starting Address
       await page.getByTestId('pickupAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByTestId('modal').getByTestId('button').click();
       await page.waitForSelector('text="Edit Shipment Info"', { state: 'hidden' });
       await expect(page.getByLabel('Accept')).toBeVisible();
       await page.getByLabel('Accept').dispatchEvent('click');
@@ -534,7 +533,7 @@ test.describe('Services counselor user', () => {
       await page.getByTestId('incentives').getByTestId('incentives-showRequestDetailsButton').click();
       await page.getByTestId('advanceReceived').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Incentives/Costs"');
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByTestId('modal').getByTestId('button').click();
       await page.waitForSelector('text="Edit Incentives/Costs"', { state: 'hidden' });
     });
   });
