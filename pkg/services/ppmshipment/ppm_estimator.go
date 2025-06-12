@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -142,6 +143,42 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 			newPPMShipment.PickupAddress.PostalCode == oldPPMShipment.PickupAddress.PostalCode &&
 			newPPMShipment.DestinationAddress.PostalCode == oldPPMShipment.DestinationAddress.PostalCode &&
 			((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
+	}
+}
+
+func shouldSkipMaxIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
+	// check if GCC multipliers have changed or do not match
+	if newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID {
+		return false
+	}
+
+	// handle mismatches including nil and uuid.Nil
+	newMultiplier := uuid.Nil
+	if newPPMShipment.GCCMultiplierID != nil {
+		newMultiplier = *newPPMShipment.GCCMultiplierID
+	}
+
+	oldMultiplier := uuid.Nil
+	if oldPPMShipment.GCCMultiplierID != nil {
+		oldMultiplier = *oldPPMShipment.GCCMultiplierID
+	}
+
+	if newMultiplier != oldMultiplier {
+		return false
+	}
+
+	// if the max incentive is nil or 0, we want to update it
+	if oldPPMShipment.MaxIncentive == nil || *oldPPMShipment.MaxIncentive == 0 {
+		return false
+	}
+
+	// if the actual move date is being updated/added we want to re-run the max incentive
+	if (oldPPMShipment.ActualMoveDate == nil && newPPMShipment.ActualMoveDate != nil) ||
+		(oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate != nil && !newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) {
+		return false
+	} else {
+		// if the departure date has changed, we want to recalculate
+		return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate)
 	}
 }
 
@@ -326,13 +363,19 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		return nil, err
 	}
 
+	maxIncentive := oldPPMShipment.MaxIncentive
+
 	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
 
-		// since the max incentive is based off of the authorized weight entitlement and that value CAN change
-		// we will calculate the max incentive each time it is called
-		maxIncentive, err := f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
-		if err != nil {
-			return nil, err
+		skipCalculatingMaxIncentive := shouldSkipMaxIncentive(newPPMShipment, &oldPPMShipment)
+
+		if !skipCalculatingMaxIncentive {
+			// since the max incentive is based off of the authorized weight entitlement and that value CAN change
+			// we will calculate the max incentive each time it is called
+			maxIncentive, err = f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		return maxIncentive, nil
@@ -657,7 +700,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 			oldCentsValue := centsValue
 			multiplier := gccMultiplier.Multiplier
 			multipliedPrice := float64(centsValue) * multiplier
-			centsValue = unit.Cents(int(multipliedPrice))
+			centsValue = unit.Cents(int(math.Round(multipliedPrice)))
 			logger.Debug(fmt.Sprintf("Applying GCC multiplier: %f to service item price %s, original price: %d, new price: %d", multiplier, serviceItem.ReService.Code, oldCentsValue, centsValue))
 		} else {
 			logger.Debug(fmt.Sprintf("Service item price %s %d, no GCC multiplier applied (negative price or no multiplier)",
@@ -846,7 +889,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		if gccMultiplier != nil && gccMultiplier.Multiplier > 0 && centsValue > 0 {
 			multiplier := gccMultiplier.Multiplier
 			multipliedPrice := float64(centsValue) * multiplier
-			centsValue = unit.Cents(int(multipliedPrice))
+			centsValue = unit.Cents(int(math.Round(multipliedPrice)))
 		}
 
 		if err != nil {
