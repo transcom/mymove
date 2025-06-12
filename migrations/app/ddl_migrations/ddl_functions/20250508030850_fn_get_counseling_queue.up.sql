@@ -35,7 +35,8 @@ RETURNS TABLE (
     orders JSONB,
     mto_shipments JSONB,
     total_count BIGINT,
-    mtos_earliest_requested_pickup_date TIMESTAMP WITH TIME zone
+    mtos_earliest_requested_pickup_date TIMESTAMP WITH TIME zone,
+    ppm_shipments JSONB
 ) LANGUAGE plpgsql AS $$
 DECLARE
   sql_query 	TEXT;
@@ -96,7 +97,8 @@ BEGIN
 		  )::JSONB AS orders,
       COALESCE(ms_agg.mto_shipments)::JSONB AS mto_shipments,
 	  COUNT(*) OVER() AS total_count,
-	ms_agg.mtos_earliest_requested_pickup_date::timestamptz AS mtos_earliest_requested_pickup_date
+	ms_agg.mtos_earliest_requested_pickup_date::timestamptz AS mtos_earliest_requested_pickup_date,
+    COALESCE(ppm_agg.ppm_shipments, ''[]'')::JSONB AS ppm_shipments
     From moves m
     JOIN orders o ON m.orders_id = o.id
     JOIN service_members sm ON o.service_member_id = sm.id
@@ -122,6 +124,19 @@ BEGIN
                 FROM   mto_shipments ms
                 WHERE  ms.move_id = m.id
                 ) ms_agg ON TRUE
+	LEFT JOIN LATERAL (
+				SELECT json_agg(
+					json_build_object(
+						''id'', ms3.id,
+						''shipment_type'', ms3.shipment_type,
+            			''expected_departure_date'', TO_CHAR(ps2.expected_departure_date, ''YYYY-MM-DD"T00:00:00Z"''),
+						''shipment_id'', ps2.shipment_id
+					)
+				) ::JSONB AS ppm_shipments
+				FROM mto_shipments ms3
+                JOIN ppm_shipments ps2 ON ps2.shipment_id = ms3.id
+                WHERE  ms3.move_id = m.id
+	) ppm_agg ON TRUE
     JOIN move_to_gbloc ON move_to_gbloc.move_id = m.id
     WHERE m.show = TRUE
   ';

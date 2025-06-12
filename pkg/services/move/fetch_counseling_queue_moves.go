@@ -102,6 +102,8 @@ type MoveWithCount struct {
 	SCCounselingAssignedUser    *models.OfficeUser           `json:"-"`
 	TotalCount                  int64                        `json:"total_count" db:"total_count"`
 	EarliestRequestedPickupDate *time.Time                   `json:"mtos_earliest_requested_pickup_date" db:"mtos_earliest_requested_pickup_date"`
+	PPMShipmentsRaw             json.RawMessage              `json:"ppm_shipments" db:"ppm_shipments"`
+	PPMShipments                *models.PPMShipments         `json:"-"`
 }
 
 func movesWithCountToMoves(movesWithCount []MoveWithCount) ([]models.Move, error) {
@@ -124,6 +126,22 @@ func movesWithCountToMoves(movesWithCount []MoveWithCount) ([]models.Move, error
 		}
 		movesWithCount[i].MTOShipmentsRaw = nil
 		movesWithCount[i].MTOShipments = &shipments
+
+		// populating Move.PPMShipments array
+		var ppmShipments models.PPMShipments
+		if err := json.Unmarshal(movesWithCount[i].PPMShipmentsRaw, &ppmShipments); err != nil {
+			return moves, fmt.Errorf("error unmarshaling ppmShipments JSON: %w", err)
+		}
+		movesWithCount[i].PPMShipmentsRaw = nil
+		movesWithCount[i].PPMShipments = &ppmShipments
+
+		for i, shipment := range shipments {
+			for _, ppmShipment := range ppmShipments {
+				if ppmShipment.ShipmentID == shipment.ID {
+					shipments[i].PPMShipment = &ppmShipment
+				}
+			}
+		}
 
 		// populating Moves.CounselingOffice struct
 		var counselingTransportationOffice models.TransportationOffice
