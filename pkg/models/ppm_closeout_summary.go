@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -67,4 +68,26 @@ func FetchPPMCloseoutByPPMID(db *pop.Connection, ppmID uuid.UUID) (PPMCloseoutSu
 	}
 
 	return closeout, nil
+}
+
+// CalculatePPMCloseoutSummary calls the calculate_ppm_closeout stored procedure in the DB.
+func CalculatePPMCloseoutSummary(db *pop.Connection, ppmID uuid.UUID, recalculateIfExists bool) error {
+	// The procedure's second parameter indicates whether to skip recalculating if a closeout already exists, the inverse of the function's recalculateIfExists parameter.
+	err := db.RawQuery("CALL calculate_ppm_closeout($1, $2)", ppmID, !recalculateIfExists).Exec()
+	if err != nil {
+		return fmt.Errorf("error executing calculate_ppm_closeout procedure: %w", err)
+	}
+	return nil
+}
+
+// GetPPMCloseoutSummary calls the stored procedure to calculate/update the summary and fetches it from the DB.
+func GetPPMCloseoutSummary(db *pop.Connection, ppmID uuid.UUID, recalculateIfExists bool) (PPMCloseoutSummary, error) {
+	if err := CalculatePPMCloseoutSummary(db, ppmID, recalculateIfExists); err != nil {
+		return PPMCloseoutSummary{}, err
+	}
+	closeoutSummary, err := FetchPPMCloseoutByPPMID(db, ppmID)
+	if err != nil {
+		return PPMCloseoutSummary{}, err
+	}
+	return closeoutSummary, nil
 }
