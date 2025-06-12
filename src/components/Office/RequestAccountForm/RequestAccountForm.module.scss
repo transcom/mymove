@@ -25,8 +25,7 @@
   }
 
   .buttonRow {
-    display: flex;
-    justify-content: flex-end;
+    @include u-display('flex');
     @include u-margin-bottom(6);
 
     :global {

@@ -2,9 +2,9 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { Button } from '@trussworks/react-uswds';
 import React from 'react';
+import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema, ZIP_CODE_REGEX } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
 import { formatAddressForPrimeAPI } from 'utils/formatters';
@@ -14,6 +14,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ShipmentShape } from 'types/shipment';
+import { primeSimulatorRoutes } from 'constants/routes';
 
 const originSITValidationSchema = Yup.object().shape({
   reason: Yup.string().required('Required'),
@@ -25,7 +26,7 @@ const originSITValidationSchema = Yup.object().shape({
   sitHHGActualOrigin: requiredAddressSchema,
 });
 
-const OriginSITServiceItemForm = ({ shipment, submission, handleCancel }) => {
+const OriginSITServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -57,11 +58,17 @@ const OriginSITServiceItemForm = ({ shipment, submission, handleCancel }) => {
     submission({ body });
   };
 
+  const { moveCodeOrID } = useParams();
+  const navigate = useNavigate();
+  const handleCancel = () => {
+    navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+  };
+
   return (
     <Formik initialValues={initialValues} validationSchema={originSITValidationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, ...formikProps }) => {
         return (
-          <Form data-testid="originSITServiceItemForm" className={formStyles.form}>
+          <Form data-testid="originSITServiceItemForm">
             <input type="hidden" name="moveTaskOrderID" />
             <input type="hidden" name="mtoShipmentID" />
             <input type="hidden" name="modelType" />
@@ -76,16 +83,13 @@ const OriginSITServiceItemForm = ({ shipment, submission, handleCancel }) => {
             />
             <DatePickerInput label="SIT entry Date" name="sitEntryDate" />
             <DatePickerInput label="SIT departure Date" name="sitDepartureDate" />
-            <h3 className={formStyles.sectionHeader}>SIT HHG actual origin address</h3>
-            <AddressFields name="sitHHGActualOrigin" formikProps={formikProps} />
-            <div className={formStyles.formActions}>
-              <Button type="button" secondary onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting || !isValid} type="submit">
-                Create service item
-              </Button>
-            </div>
+            <AddressFields legend="SIT HHG actual origin" name="sitHHGActualOrigin" formikProps={formikProps} />
+            <Button onClick={handleSubmit} disabled={isSubmitting || !isValid} type="submit">
+              Create service item
+            </Button>
+            <Button type="button" unstyled onClick={handleCancel}>
+              Cancel
+            </Button>
           </Form>
         );
       }}

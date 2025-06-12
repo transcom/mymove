@@ -311,15 +311,13 @@ export default function ReviewBillableWeight() {
               )}
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>
-              <div className={reviewBillableWeightStyles.flex}>
-                <Button
-                  onClick={() => {
-                    setSidebarType('SHIPMENT');
-                  }}
-                >
-                  Review shipment weights
-                </Button>
-              </div>
+              <Button
+                onClick={() => {
+                  setSidebarType('SHIPMENT');
+                }}
+              >
+                Review shipment weights
+              </Button>
             </DocumentViewerSidebar.Footer>
           </DocumentViewerSidebar>
         ) : (

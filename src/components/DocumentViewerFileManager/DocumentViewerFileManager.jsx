@@ -278,11 +278,7 @@ const DocumentViewerFileManager = ({
         />
       )}
       {!isExpandedView && !useChevron && (
-        <Button
-          disabled={isFileProcessing || fileUploadRequired}
-          onClick={toggleUploadVisibility}
-          className={styles.fullWidth}
-        >
+        <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
           {buttonHeaderText}
         </Button>
       )}
@@ -324,11 +320,9 @@ const DocumentViewerFileManager = ({
               />
               <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
               {!isExpandedView && (
-                <div className={styles.flexRight}>
-                  <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
-                    Done
-                  </Button>
-                </div>
+                <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+                  Done
+                </Button>
               )}
             </div>
           </>

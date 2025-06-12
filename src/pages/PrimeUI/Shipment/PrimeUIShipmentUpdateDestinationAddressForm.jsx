@@ -33,41 +33,42 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
             <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
               <SectionWrapper className={formStyles.formSection}>
                 <h2>Update Shipment Delivery Address</h2>
-                <div data-testid="destination-form-details">
-                  This is used to <strong>update</strong> the delivery address on an <strong>already approved</strong>{' '}
-                  shipment. <br />
-                  This also updates the final delivery address for destination SIT service items in the shipment.
-                  <br />
-                  <br />
-                  This endpoint should be used for changing the delivery address of HHG & NTSR shipments.
-                  <br />
-                  <br />
-                  The address update will be automatically approved unless it changes any of the following:
-                  <br />
-                  <strong>
-                    - the service area <br />
-                    - mileage bracket for direct delivery <br />
-                    - domestic short haul to domestic line haul or vice versa <br />- SIT delivery out over 50 miles{' '}
-                    <em>or </em>
-                    back under 50 miles
-                  </strong>
-                  <br />
-                  <br />
-                  If any of those change, the address change will require TOO approval.
-                </div>
+                <SectionWrapper className={formStyles.formSection}>
+                  <div data-testid="destination-form-details">
+                    This is used to <strong>update</strong> the delivery address on an <strong>already approved</strong>{' '}
+                    shipment. <br />
+                    This also updates the final delivery address for destination SIT service items in the shipment.
+                    <br />
+                    <br />
+                    This endpoint should be used for changing the delivery address of HHG & NTSR shipments.
+                    <br />
+                    <br />
+                    The address update will be automatically approved unless it changes any of the following:
+                    <br />
+                    <strong>
+                      - the service area <br />
+                      - mileage bracket for direct delivery <br />
+                      - domestic short haul to domestic line haul or vice versa <br />- SIT delivery out over 50 miles{' '}
+                      <em>or </em>
+                      back under 50 miles
+                    </strong>
+                    <br />
+                    <br />
+                    If any of those change, the address change will require TOO approval.
+                  </div>
+                </SectionWrapper>
                 <AddressFields name={name} formikProps={formikProps} />
                 <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
               </SectionWrapper>
-              <div className={formStyles.formActions}>
-                <WizardNavigation
-                  editMode
-                  aria-label="Update Shipment Delivery Address"
-                  type="submit"
-                  disableNext={isSubmitting || !isValid}
-                  onCancelClick={handleClose}
-                  onNextClick={handleSubmit}
-                />
-              </div>
+              <WizardNavigation
+                editMode
+                className={formStyles.formActions}
+                aria-label="Update Shipment Delivery Address"
+                type="submit"
+                disableNext={isSubmitting || !isValid}
+                onCancelClick={handleClose}
+                onNextClick={handleSubmit}
+              />
             </FormGroup>
           </Form>
         );

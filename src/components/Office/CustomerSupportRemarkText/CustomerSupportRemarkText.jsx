@@ -94,14 +94,11 @@ const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
                           'usa-button',
                           'usa-button--unstyled',
                         )}
-                        type="reset"
-                        onClick={() => {
-                          toggleEdit();
-                          resetForm();
-                        }}
-                        data-testid="edit-remark-cancel-button"
+                        type="submit"
+                        disabled={!isValid}
+                        data-testid="edit-remark-save-button"
                       >
-                        <small>Cancel</small>
+                        <small>Save</small>
                       </Button>
                       <small className={customerSupportRemarkStyles.buttonDivider}>|</small>
                       <Button
@@ -110,11 +107,14 @@ const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
                           'usa-button',
                           'usa-button--unstyled',
                         )}
-                        type="submit"
-                        disabled={!isValid}
-                        data-testid="edit-remark-save-button"
+                        type="reset"
+                        onClick={() => {
+                          toggleEdit();
+                          resetForm();
+                        }}
+                        data-testid="edit-remark-cancel-button"
                       >
-                        <small>Save</small>
+                        <small>Cancel</small>
                       </Button>
                     </div>
                   </Restricted>

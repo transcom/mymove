@@ -5,8 +5,6 @@ import userEvent from '@testing-library/user-event';
 
 import CreatePaymentRequestForm from './CreatePaymentRequestForm';
 
-import { MockProviders } from 'testUtils';
-
 describe('CreatePaymentRequestForm', () => {
   // No need to test any other data setting here because all checkboxes are unset to start
   const initialValues = {
@@ -55,63 +53,55 @@ describe('CreatePaymentRequestForm', () => {
 
   it('renders the form', async () => {
     render(
-      <MockProviders>
-        <CreatePaymentRequestForm
-          initialValues={initialValues}
-          createPaymentRequestSchema={createPaymentRequestSchema}
-          mtoShipments={twoShipments}
-          groupedServiceItems={basicAndShipmentsServiceItems}
-          onSubmit={jest.fn()}
-          handleSelectAll={jest.fn()}
-          handleValidateDate={jest.fn()}
-        />
-      </MockProviders>,
+      <CreatePaymentRequestForm
+        initialValues={initialValues}
+        createPaymentRequestSchema={createPaymentRequestSchema}
+        mtoShipments={twoShipments}
+        groupedServiceItems={basicAndShipmentsServiceItems}
+        onSubmit={jest.fn()}
+        handleSelectAll={jest.fn()}
+        handleValidateDate={jest.fn()}
+      />,
     );
 
     // 1 move service item and 1 on each shipment
     expect(screen.getAllByRole('checkbox', { name: 'Add to payment request' }).length).toEqual(4);
     // 1 select all checkbox for each shipment
     expect(screen.getAllByLabelText('Add all service items').length).toEqual(2);
-    const submitBtn = screen.getByLabelText('Submit Payment Request');
-    expect(submitBtn).toBeDisabled();
+    expect(screen.getByRole('button', { type: 'submit' })).toBeDisabled();
   });
 
   it('enables the submit button when at least one service item is checked', async () => {
     render(
-      <MockProviders>
-        <CreatePaymentRequestForm
-          initialValues={initialValues}
-          createPaymentRequestSchema={createPaymentRequestSchema}
-          mtoShipments={twoShipments}
-          groupedServiceItems={basicAndShipmentsServiceItems}
-          onSubmit={jest.fn()}
-          handleSelectAll={jest.fn()}
-          handleValidateDate={jest.fn()}
-        />
-      </MockProviders>,
+      <CreatePaymentRequestForm
+        initialValues={initialValues}
+        createPaymentRequestSchema={createPaymentRequestSchema}
+        mtoShipments={twoShipments}
+        groupedServiceItems={basicAndShipmentsServiceItems}
+        onSubmit={jest.fn()}
+        handleSelectAll={jest.fn()}
+        handleValidateDate={jest.fn()}
+      />,
     );
 
     await userEvent.click(screen.getAllByRole('checkbox', { name: 'Add to payment request' })[0]);
 
     await waitFor(() => {
-      const submitBtn = screen.getByLabelText('Submit Payment Request');
-      expect(submitBtn).toBeEnabled();
+      expect(screen.getByRole('button', { type: 'submit' })).toBeEnabled();
     });
   });
 
   it('displays the validation error when no service items are selected', async () => {
     render(
-      <MockProviders>
-        <CreatePaymentRequestForm
-          initialValues={initialValues}
-          createPaymentRequestSchema={createPaymentRequestSchema}
-          mtoShipments={twoShipments}
-          groupedServiceItems={basicAndShipmentsServiceItems}
-          onSubmit={jest.fn()}
-          handleSelectAll={jest.fn()}
-          handleValidateDate={jest.fn()}
-        />
-      </MockProviders>,
+      <CreatePaymentRequestForm
+        initialValues={initialValues}
+        createPaymentRequestSchema={createPaymentRequestSchema}
+        mtoShipments={twoShipments}
+        groupedServiceItems={basicAndShipmentsServiceItems}
+        onSubmit={jest.fn()}
+        handleSelectAll={jest.fn()}
+        handleValidateDate={jest.fn()}
+      />,
     );
 
     const basicServiceItemInput = screen.getAllByRole('checkbox', { name: 'Add to payment request' })[0];
@@ -121,8 +111,7 @@ describe('CreatePaymentRequestForm', () => {
 
     await waitFor(() => {
       expect(screen.getByText('At least 1 service item must be added when creating a payment request'));
-      const submitBtn = screen.getByLabelText('Submit Payment Request');
-      expect(submitBtn).toBeDisabled();
+      expect(screen.getByRole('button', { type: 'submit' })).toBeDisabled();
     });
   });
 
@@ -132,17 +121,15 @@ describe('CreatePaymentRequestForm', () => {
     };
 
     render(
-      <MockProviders>
-        <CreatePaymentRequestForm
-          initialValues={initialValues}
-          createPaymentRequestSchema={createPaymentRequestSchema}
-          mtoShipments={twoShipments}
-          groupedServiceItems={basicAndShipmentsServiceItems}
-          onSubmit={jest.fn()}
-          handleSelectAll={handleSelectAll}
-          handleValidateDate={jest.fn()}
-        />
-      </MockProviders>,
+      <CreatePaymentRequestForm
+        initialValues={initialValues}
+        createPaymentRequestSchema={createPaymentRequestSchema}
+        mtoShipments={twoShipments}
+        groupedServiceItems={basicAndShipmentsServiceItems}
+        onSubmit={jest.fn()}
+        handleSelectAll={handleSelectAll}
+        handleValidateDate={jest.fn()}
+      />,
     );
 
     const shipmentSelectAllInput = screen.getAllByRole('checkbox', { name: 'Add all service items' })[0];
@@ -150,8 +137,7 @@ describe('CreatePaymentRequestForm', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('checkbox', { name: 'Add to payment request', checked: true })).toBeInTheDocument();
-      const submitBtn = screen.getByLabelText('Submit Payment Request');
-      expect(submitBtn).toBeEnabled();
+      expect(screen.getByRole('button', { type: 'submit' })).toBeEnabled();
     });
   });
 
@@ -165,17 +151,15 @@ describe('CreatePaymentRequestForm', () => {
     };
 
     render(
-      <MockProviders>
-        <CreatePaymentRequestForm
-          initialValues={initialValues}
-          createPaymentRequestSchema={createPaymentRequestSchema}
-          mtoShipments={twoShipments}
-          groupedServiceItems={basicAndShipmentsServiceItems}
-          onSubmit={jest.fn()}
-          handleSelectAll={handleSelectAll}
-          handleValidateDate={jest.fn()}
-        />
-      </MockProviders>,
+      <CreatePaymentRequestForm
+        initialValues={initialValues}
+        createPaymentRequestSchema={createPaymentRequestSchema}
+        mtoShipments={twoShipments}
+        groupedServiceItems={basicAndShipmentsServiceItems}
+        onSubmit={jest.fn()}
+        handleSelectAll={handleSelectAll}
+        handleValidateDate={jest.fn()}
+      />,
     );
 
     const shipmentSelectAllInput = screen.getAllByRole('checkbox', { name: 'Add all service items' })[0];
@@ -190,24 +174,21 @@ describe('CreatePaymentRequestForm', () => {
       // all checkboxes are back to being unchecked
       expect(shipmentServiceItemInput).toHaveLength(0);
       expect(screen.getByText('At least 1 service item must be added when creating a payment request'));
-      const submitBtn = screen.getByLabelText('Submit Payment Request');
-      expect(submitBtn).toBeDisabled();
+      expect(screen.getByRole('button', { type: 'submit' })).toBeDisabled();
     });
   });
 
   it('renders the weight billed text input box', async () => {
     render(
-      <MockProviders>
-        <CreatePaymentRequestForm
-          initialValues={initialValues}
-          createPaymentRequestSchema={createPaymentRequestSchema}
-          mtoShipments={twoShipments}
-          groupedServiceItems={basicAndShipmentsServiceItems}
-          onSubmit={jest.fn()}
-          handleSelectAll={jest.fn()}
-          handleValidateDate={jest.fn()}
-        />
-      </MockProviders>,
+      <CreatePaymentRequestForm
+        initialValues={initialValues}
+        createPaymentRequestSchema={createPaymentRequestSchema}
+        mtoShipments={twoShipments}
+        groupedServiceItems={basicAndShipmentsServiceItems}
+        onSubmit={jest.fn()}
+        handleSelectAll={jest.fn()}
+        handleValidateDate={jest.fn()}
+      />,
     );
 
     expect(

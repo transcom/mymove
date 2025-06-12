@@ -633,22 +633,20 @@ const EvaluationForm = ({
                     <div className={styles.buttonRow}>
                       {evaluationReport.updatedAt === evaluationReport.createdAt && (
                         <Button
-                          unstyled
+                          className="usa-button--unstyled"
                           onClick={toggleDeleteReportModal}
                           type="button"
                           data-testid="cancelReport"
-                          className={styles.cancelBtn}
                         >
                           Cancel
                         </Button>
                       )}
                       {!(evaluationReport.updatedAt === evaluationReport.createdAt) && (
                         <Button
-                          unstyled
+                          className="usa-button--unstyled"
                           data-testid="cancelReport"
                           onClick={cancelForUpdatedReport}
-                          type="button className={styles.cancelBtn}"
-                          className={styles.cancelBtn}
+                          type="button"
                         >
                           Cancel
                         </Button>

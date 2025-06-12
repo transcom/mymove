@@ -37,16 +37,15 @@ const PrimeUIShipmentUpdateAddressForm = ({
                 <h2>{addressLocation}</h2>
                 <AddressFields name={name} formikProps={formikProps} />
               </SectionWrapper>
-              <div className={formStyles.formActions}>
-                <WizardNavigation
-                  editMode
-                  aria-label="Update Shipment Address"
-                  type="submit"
-                  disableNext={isSubmitting || !isValid}
-                  onCancelClick={handleClose}
-                  onNextClick={handleSubmit}
-                />
-              </div>
+              <WizardNavigation
+                editMode
+                className={formStyles.formActions}
+                aria-label="Update Shipment Address"
+                type="submit"
+                disableNext={isSubmitting || !isValid}
+                onCancelClick={handleClose}
+                onNextClick={handleSubmit}
+              />
             </FormGroup>
           </Form>
         );

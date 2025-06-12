@@ -193,7 +193,6 @@
 }
 
 .cancelMoveContainer {
-  margin-top: 10px !important;
   @include u-margin-bottom(2);
   @include mix-mm-conditional-centering-container($media-breaks-tablet,$media-breaks-mobile){
     @include mix-mm-button-standard-placement();

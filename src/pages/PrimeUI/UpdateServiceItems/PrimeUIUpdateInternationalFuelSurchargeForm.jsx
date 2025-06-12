@@ -125,15 +125,14 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
                   }}
                 />
               </SectionWrapper>
-              <div className={formStyles.formActions}>
-                <WizardNavigation
-                  editMode
-                  aria-label="Update International Fuel Surcharge Service Item"
-                  type="submit"
-                  onCancelClick={handleClose}
-                  onNextClick={handleSubmit}
-                />
-              </div>
+              <WizardNavigation
+                editMode
+                className={formStyles.formActions}
+                aria-label="Update International Fuel Surcharge Service Item"
+                type="submit"
+                onCancelClick={handleClose}
+                onNextClick={handleSubmit}
+              />
             </div>
           </FormGroup>
         </Form>

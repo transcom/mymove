@@ -58,12 +58,14 @@ const ContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
               </Fieldset>
             </SectionWrapper>
             <div className={formStyles.formActions}>
-              <Button type="button" secondary onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button disabled={isSubmitting || !isValid} type="submit" onClick={handleSubmit}>
-                Save
-              </Button>
+              <div className={formStyles.buttonGroup}>
+                <Button disabled={isSubmitting || !isValid} type="submit" onClick={handleSubmit}>
+                  Save
+                </Button>
+                <Button type="button" secondary onClick={onCancel}>
+                  Cancel
+                </Button>
+              </div>
             </div>
           </Form>
         );

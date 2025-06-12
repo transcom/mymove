@@ -564,69 +564,67 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
-          <div className={styles.formActions}>
-            {!paymentPacketFile && (
-              <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
-                Back
-              </Button>
-            )}
+          {!paymentPacketFile && (
+            <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
+              Back
+            </Button>
+          )}
 
-            {showOverview && !paymentPacketFile && !readOnly && (
+          {showOverview && !paymentPacketFile && !readOnly && (
+            <Button
+              onClick={handleDownloadPaymentPacket}
+              disabled={
+                packetLoading ||
+                (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
+                (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
+              }
+            >
+              Preview PPM Payment Packet
+            </Button>
+          )}
+
+          {showOverview && paymentPacketFile && (
+            <>
               <Button
-                onClick={handleDownloadPaymentPacket}
-                disabled={
-                  packetLoading ||
-                  (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
-                  (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
-                }
+                className="usa-button--secondary"
+                onClick={() => {
+                  // reset back to document review
+                  setPaymentPacketFile(null);
+                  setDocumentSetIndex(0);
+                  setShowOverview(false);
+                }}
               >
-                Preview PPM Payment Packet
+                Edit PPM
               </Button>
-            )}
-
-            {showOverview && paymentPacketFile && (
-              <>
-                <Button
-                  className="usa-button--secondary"
-                  onClick={() => {
-                    // reset back to document review
-                    setPaymentPacketFile(null);
-                    setDocumentSetIndex(0);
-                    setShowOverview(false);
-                  }}
-                >
-                  Edit PPM
-                </Button>
-                <Button
-                  onClick={() => {
-                    setIsConfirmModalVisible(true);
-                  }}
-                >
-                  Complete PPM Review
-                </Button>
-              </>
-            )}
-
-            {!showOverview && (
               <Button
-                type="submit"
-                onClick={onContinue}
-                data-testid="reviewDocumentsContinueButton"
-                disabled={
-                  (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
-                  (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
-                }
+                onClick={() => {
+                  setIsConfirmModalVisible(true);
+                }}
               >
-                Continue
+                Complete PPM Review
               </Button>
-            )}
+            </>
+          )}
 
-            {readOnly && showOverview && (
-              <Button type="submit" onClick={onClose} data-testid="closeBtn">
-                Close
-              </Button>
-            )}
-          </div>
+          {!showOverview && (
+            <Button
+              type="submit"
+              onClick={onContinue}
+              data-testid="reviewDocumentsContinueButton"
+              disabled={
+                (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
+                (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
+              }
+            >
+              Continue
+            </Button>
+          )}
+
+          {readOnly && showOverview && (
+            <Button type="submit" onClick={onClose} data-testid="closeBtn">
+              Close
+            </Button>
+          )}
         </DocumentViewerSidebar.Footer>
       </DocumentViewerSidebar>
     </div>

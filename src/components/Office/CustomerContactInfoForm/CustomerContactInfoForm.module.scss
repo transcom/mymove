@@ -9,6 +9,7 @@
 }
 
 .formSectionHeader {
+  width: 50vw;
   .sectionHeader {
     margin-bottom: 0;
     display: flex;
@@ -20,8 +21,4 @@
       font-weight: normal;
     }
   }
-}
-
-.pickupAddressHeading {
-  margin-top: 18px;
 }

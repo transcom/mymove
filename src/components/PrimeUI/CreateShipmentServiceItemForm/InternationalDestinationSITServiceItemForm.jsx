@@ -4,7 +4,6 @@ import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { formatDateForSwagger } from 'shared/dates';
@@ -26,7 +25,7 @@ const destinationSITValidationSchema = Yup.object().shape({
   sitDepartureDate: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
 });
 
-const InternationalDestinationSITServiceItemForm = ({ shipment, submission, handleCancel }) => {
+const InternationalDestinationSITServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -76,7 +75,7 @@ const InternationalDestinationSITServiceItemForm = ({ shipment, submission, hand
 
   return (
     <Formik initialValues={initialValues} validationSchema={destinationSITValidationSchema} onSubmit={onSubmit}>
-      <Form data-testid="internationalDestinationSITServiceItemForm" className={formStyles.form}>
+      <Form data-testid="internationalDestinationSITServiceItemForm">
         <input type="hidden" name="moveTaskOrderID" />
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />
@@ -117,16 +116,10 @@ const InternationalDestinationSITServiceItemForm = ({ shipment, submission, hand
           IDDSIT (Destination SIT delivery) <br />
           IDSFSC (Destination SIT fuel surcharge) <br />
           <br />
-          <strong>NOTE:</strong> The above service items will use the current delivery address
-          <br /> of the shipment as their final delivery address. <br />
-          Ensure the shipment address is accurate before creating these service items.
+          <strong>NOTE:</strong> The above service items will use the current delivery address of the shipment as their
+          final delivery address. Ensure the shipment address is accurate before creating these service items.
         </Hint>
-        <div className={formStyles.formActions}>
-          <Button type="button" secondary onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button type="submit">Create service item</Button>
-        </div>
+        <Button type="submit">Create service item</Button>
       </Form>
     </Formik>
   );

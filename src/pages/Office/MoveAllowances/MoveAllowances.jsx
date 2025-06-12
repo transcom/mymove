@@ -246,11 +246,11 @@ const MoveAllowances = () => {
               <Restricted to={permissionTypes.updateAllowances}>
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
-                    <Button type="button" secondary onClick={handleClose}>
-                      Cancel
-                    </Button>
                     <Button disabled={formik.isSubmitting || !formik.isValid} type="submit">
                       Save
+                    </Button>
+                    <Button type="button" secondary onClick={handleClose}>
+                      Cancel
                     </Button>
                   </div>
                 </div>
