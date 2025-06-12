@@ -214,6 +214,7 @@ begin
 		   and affiliation = i.affiliation;
 
 		if v_count = 1 then	--if 1 rank for pay grade then assign rank_id
+
 			update orders o
 			   set rank_id = p.id
 			  from ranks p
