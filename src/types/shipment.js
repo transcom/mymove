@@ -275,3 +275,11 @@ export const ProGearTicketShape = shape({
   reason: string,
   status: string,
 });
+
+export const GunSafeTicketShape = shape({
+  gunSafeWeight: number,
+  description: string,
+  missingWeightTicket: bool,
+  reason: string,
+  status: string,
+});

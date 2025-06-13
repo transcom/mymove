@@ -13,10 +13,12 @@ import {
   deleteWeightTicket,
   deleteProGearWeightTicket,
   deleteMovingExpense,
+  deleteGunSafeWeightTicket,
   getMTOShipmentsForMove,
 } from 'services/internalApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createBaseGunSafeWeightTicket } from 'utils/test/factories/gunSafeWeightTicket';
 import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
 
 const mockMoveId = v4();
@@ -56,6 +58,8 @@ const mockMTOShipment = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+    hasGunSafe: false,
+    gunSafeWeight: null,
     weightTickets: [],
     pickupAddress,
     destinationAddress,
@@ -82,6 +86,8 @@ const mockMTOShipmentWithWeightTicket = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+    hasGunSafe: false,
+    gunSafeWeight: null,
     weightTickets: [weightTicketOne, weightTicketTwo],
     pickupAddress,
     destinationAddress,
@@ -108,6 +114,8 @@ const mockMTOShipmentWithWeightTicketDeleted = {
         hasProGear: false,
         proGearWeight: null,
         spouseProGearWeight: null,
+        hasGunSafe: false,
+        gunSafeWeight: null,
         weightTickets: [weightTicketTwo],
         pickupAddress,
         destinationAddress,
@@ -134,6 +142,8 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+    hasGunSafe: false,
+    gunSafeWeight: null,
     weightTickets: [createBaseWeightTicket()],
     pickupAddress,
     destinationAddress,
@@ -160,6 +170,8 @@ const mockMTOShipmentWithProGear = {
     proGearWeight: 100,
     spouseProGearWeight: null,
     proGearWeightTickets: [proGearWeightOne],
+    hasGunSafe: false,
+    gunSafeWeight: null,
     pickupAddress,
     destinationAddress,
   },
@@ -194,6 +206,64 @@ const mockMTOShipmentWithProGearDeleted = {
   },
 };
 
+const gunSafeWeightOne = createBaseGunSafeWeightTicket();
+const mockMTOShipmentWithGunSafe = {
+  id: mockMTOShipmentId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasProGear: false,
+    proGearWeight: null,
+    spouseProGearWeight: null,
+    gunSafeWeightTickets: [gunSafeWeightOne],
+    hasGunSafe: true,
+    gunSafeWeight: null,
+    pickupAddress,
+    destinationAddress,
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
+const mockMTOShipmentWithGunSafeDeleted = {
+  mtoShipments: {
+    [mockMTOShipmentId]: {
+      id: mockMTOShipmentId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: mockPPMShipmentId,
+        actualMoveDate: '2022-05-01',
+        advanceReceived: true,
+        advanceAmountReceived: '6000000',
+        expectedDepartureDate: '2022-04-30',
+        advanceRequested: true,
+        advanceAmountRequested: 598700,
+        estimatedWeight: 4000,
+        estimatedIncentive: 1000000,
+        sitExpected: false,
+        hasProGear: false,
+        proGearWeight: 0,
+        spouseProGearWeight: null,
+        proGearWeightTickets: [],
+        hasGunSafe: true,
+        gunSafeWeight: 200,
+        gunSafeWeightTickets: [],
+        pickupAddress,
+        destinationAddress,
+      },
+      eTag: 'dGVzdGluZzIzNDQzMjQ',
+    },
+  },
+};
+
 const expenseOne = createCompleteMovingExpense();
 const expenseTwo = createCompleteSITMovingExpense();
 const mockMTOShipmentWithExpenses = {
@@ -213,6 +283,8 @@ const mockMTOShipmentWithExpenses = {
     hasProGear: true,
     proGearWeight: 100,
     spouseProGearWeight: null,
+    hasGunSafe: false,
+    gunSafeWeight: 0,
     movingExpenses: [expenseOne, expenseTwo],
     pickupAddress,
     destinationAddress,
@@ -239,6 +311,8 @@ const mockMTOShipmentWithExpensesDeleted = {
         hasProGear: true,
         proGearWeight: 100,
         spouseProGearWeight: null,
+        hasGunSafe: false,
+        gunSafeWeight: 0,
         movingExpenses: [expenseOne],
         pickupAddress,
         destinationAddress,
@@ -262,6 +336,7 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   deleteWeightTicket: jest.fn(() => {}),
   deleteProGearWeightTicket: jest.fn(() => {}),
+  deleteGunSafeWeightTicket: jest.fn(() => {}),
   deleteMovingExpense: jest.fn(() => {}),
   getMTOShipmentsForMove: jest.fn(),
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
@@ -299,6 +374,15 @@ const editProGearWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEA
   mtoShipmentId: mockMTOShipmentId,
   proGearId: mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0].id,
 });
+const newGunSafePath = generatePath(customerRoutes.SHIPMENT_PPM_GUN_SAFE_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
+const editGunSafeWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+  gunSafeId: mockMTOShipmentWithGunSafe.ppmShipment.gunSafeWeightTickets[0].id,
+});
 const newExpensePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -333,6 +417,14 @@ const mockRoutes = [
   {
     path: editProGearWeightTicket,
     element: <div>Edit Pro Gear Weight Ticket Page</div>,
+  },
+  {
+    path: newGunSafePath,
+    element: <div>New Gun Safe Page</div>,
+  },
+  {
+    path: editGunSafeWeightTicket,
+    element: <div>Edit Gun Safe Weight Ticket Page</div>,
   },
   {
     path: newExpensePath,
@@ -379,7 +471,8 @@ describe('Review page', () => {
     expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Documents');
     expect(screen.getAllByRole('heading', { level: 3 })[0]).toHaveTextContent('Weight moved');
     expect(screen.getAllByRole('heading', { level: 3 })[1]).toHaveTextContent('Pro-gear');
-    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Expenses');
+    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Gun Safe');
+    expect(screen.getAllByRole('heading', { level: 3 })[3]).toHaveTextContent('Expenses');
   });
 
   it('renders the empty message when there are no weight tickets', () => {
@@ -441,6 +534,28 @@ describe('Review page', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Edit Pro Gear Weight Ticket Page')).toBeInTheDocument();
+    });
+  });
+
+  it('routes to the add gun safe page when the add link is clicked', async () => {
+    renderReviewPage();
+
+    await userEvent.click(screen.getByText('Add Gun Safe Weight'));
+
+    await waitFor(() => {
+      expect(screen.getByText('New Gun Safe Page')).toBeInTheDocument();
+    });
+  });
+
+  it('routes to the edit pro-gear page when the edit link is clicked', async () => {
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithGunSafe);
+
+    renderReviewPage();
+
+    await userEvent.click(screen.getAllByText('Edit')[1]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit Gun Safe Weight Ticket Page')).toBeInTheDocument();
     });
   });
 
@@ -592,6 +707,34 @@ describe('Review page', () => {
     });
   });
 
+  it('calls the delete gun safe weight ticket api when confirm is clicked', async () => {
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithGunSafe);
+    const mockDeleteGunSafeWeightTicket = jest.fn().mockResolvedValue({});
+    deleteGunSafeWeightTicket.mockImplementationOnce(mockDeleteGunSafeWeightTicket);
+    getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithGunSafeDeleted);
+    renderReviewPage();
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
+
+    const gunSafeWeightTicket = mockMTOShipmentWithGunSafe.ppmShipment.gunSafeWeightTickets[0];
+    await waitFor(() => {
+      expect(mockDeleteGunSafeWeightTicket).toHaveBeenCalledWith(
+        mockMTOShipmentWithWeightTicket.ppmShipment.id,
+        gunSafeWeightTicket.id,
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Set 1 successfully deleted.'));
+    });
+  });
+
   it('calls the delete moving expense api when confirm is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithExpenses);
     const mockDeleteMovingExpense = jest.fn().mockResolvedValue({});
@@ -629,6 +772,7 @@ describe('Review page', () => {
         weightTickets: [],
         movingExpenses: [],
         proGearWeightTickets: [],
+        gunSafeWeightTickets: [],
         pickupAddress,
         destinationAddress,
       },
@@ -653,6 +797,7 @@ describe('Review page', () => {
         weightTickets: [],
         movingExpenses: [expenseOne],
         proGearWeightTickets: [],
+        gunSafeWeightTickets: [],
         pickupAddress,
         destinationAddress,
       },

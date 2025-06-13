@@ -32,3 +32,4 @@ export const PPMSIT_ESTIMATED_COST = 'ppmSITEstimatedCost';
 export const GBLOCS = 'gblocs';
 export const UPLOADS = 'uploads';
 export const ROLE_PRIVILEGES = 'rolePrivileges';
+export const FEATURE_FLAG = 'featureFlag';

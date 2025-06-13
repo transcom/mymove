@@ -21,8 +21,10 @@ import {
   formatExpenseItems,
   formatProGearItems,
   formatWeightTicketItems,
+  formatGunSafeItems,
 } from 'utils/ppmCloseout';
 import {
+  calculateTotalNetWeightForGunSafeWeightTickets,
   calculateTotalNetWeightForProGearWeightTickets,
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
@@ -38,7 +40,12 @@ import {
 } from 'utils/shipments';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { deleteMovingExpense, deleteWeightTicket, deleteProGearWeightTicket } from 'services/ghcApi';
+import {
+  deleteMovingExpense,
+  deleteWeightTicket,
+  deleteProGearWeightTicket,
+  deleteGunSafeWeightTicket,
+} from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import { PPM_TYPES } from 'shared/constants';
 
@@ -84,6 +91,7 @@ const Review = () => {
 
   const weightTickets = documents?.WeightTickets ?? [];
   const proGear = documents?.ProGearWeightTickets ?? [];
+  const gunSafe = documents?.GunSafeWeightTickets ?? [];
   const expenses = documents?.MovingExpenses ?? [];
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -112,11 +120,23 @@ const Review = () => {
     },
   });
 
+  const { mutate: mutateGunSafeWeightTicket } = useMutation(deleteGunSafeWeightTicket, {
+    onSuccess: () => {
+      setIsDeleteModalVisible(false);
+      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+      setIsDeleting(false);
+    },
+  });
+
   const weightTicketCreatePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
     moveCode,
     shipmentId,
   });
   const proGearCreatePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_PRO_GEAR_PATH, {
+    moveCode,
+    shipmentId,
+  });
+  const gunSafeCreatePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_PATH, {
     moveCode,
     shipmentId,
   });
@@ -164,6 +184,24 @@ const Review = () => {
       setIsDeleting(true);
       mutateProGearWeightTicket(
         { ppmShipmentId, proGearWeightTicketId: itemId },
+        {
+          onSuccess: () => {
+            setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` });
+          },
+          onError: (error) => {
+            setIsDeleting(false);
+            setAlert({
+              type: 'error',
+              message: `${error} Something went wrong deleting ${itemNumber}. Please try again.`,
+            });
+          },
+        },
+      );
+    }
+    if (itemType === 'gunSafe') {
+      setIsDeleting(true);
+      mutateGunSafeWeightTicket(
+        { ppmShipmentId, gunSafeWeightTicketId: itemId },
         {
           onSuccess: () => {
             setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` });
@@ -232,6 +270,15 @@ const Review = () => {
   );
 
   const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGear);
+
+  const gunSafeContents = formatGunSafeItems(
+    gunSafe,
+    servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_EDIT_PATH,
+    { moveCode, shipmentId },
+    handleDelete,
+  );
+
+  const gunSafeTotal = calculateTotalNetWeightForGunSafeWeightTickets(gunSafe);
 
   const expenseContents = formatExpenseItems(
     expenses,
@@ -325,6 +372,24 @@ const Review = () => {
                         </Link>
                       )}
                       emptyMessage="No pro-gear weight documented."
+                    />
+                  )}
+                  {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                    <ReviewItems
+                      className={classnames(styles.reviewItems, 'reviewExpenses')}
+                      heading={
+                        <>
+                          <h3>Gun safe</h3>
+                          <span>({formatWeight(gunSafeTotal)})</span>
+                        </>
+                      }
+                      contents={gunSafeContents}
+                      renderAddButton={() => (
+                        <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
+                          Add Gun Safe Weight
+                        </Link>
+                      )}
+                      emptyMessage="No receipts uploaded."
                     />
                   )}
                   <ReviewItems

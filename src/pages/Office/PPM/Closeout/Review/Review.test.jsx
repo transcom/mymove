@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { deleteWeightTicket, deleteMovingExpense } from 'services/ghcApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createBaseGunSafeWeightTicket } from 'utils/test/factories/gunSafeWeightTicket';
 import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 
@@ -144,6 +145,30 @@ const mockMTOShipmentWithProGear = {
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
 
+const gunSafeWeightOne = createBaseGunSafeWeightTicket();
+const mockMTOShipmentWithGunSafe = {
+  id: mockMTOShipmentId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasGunSafe: true,
+    gunSafeWeight: 100,
+    gunSafeWeightTickets: [gunSafeWeightOne],
+    pickupAddress,
+    destinationAddress,
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
 const expenseOne = createCompleteMovingExpense();
 const expenseTwo = createCompleteSITMovingExpense();
 const mockMTOShipmentWithExpenses = {
@@ -218,6 +243,15 @@ const editProGearWeightTicket = generatePath(servicesCounselingRoutes.BASE_SHIPM
   shipmentId: mockMTOShipmentId,
   proGearId: mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0].id,
 });
+const newGunSafePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_PATH, {
+  moveCode: mockMoveId,
+  shipmentId: mockMTOShipmentId,
+});
+const editGunSafeWeightTicket = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_EDIT_PATH, {
+  moveCode: mockMoveId,
+  shipmentId: mockMTOShipmentId,
+  gunSafeId: mockMTOShipmentWithGunSafe.ppmShipment.gunSafeWeightTickets[0].id,
+});
 const newExpensePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_PATH, {
   moveCode: mockMoveId,
   shipmentId: mockMTOShipmentId,
@@ -255,6 +289,14 @@ const mockRoutes = [
   {
     path: editProGearWeightTicket,
     element: <div>Edit Pro Gear Weight Ticket Page</div>,
+  },
+  {
+    path: newGunSafePath,
+    element: <div>New Gun Safe Page</div>,
+  },
+  {
+    path: editGunSafeWeightTicket,
+    element: <div>Edit Gun Safe Weight Ticket Page</div>,
   },
   {
     path: newExpensePath,
@@ -301,7 +343,8 @@ describe('Review page', () => {
     expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Documents');
     expect(screen.getAllByRole('heading', { level: 3 })[0]).toHaveTextContent('Weight moved');
     expect(screen.getAllByRole('heading', { level: 3 })[1]).toHaveTextContent('Pro-gear');
-    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Expenses');
+    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Gun Safe');
+    expect(screen.getAllByRole('heading', { level: 3 })[3]).toHaveTextContent('Expenses');
   });
 
   it('renders the empty message when there are no weight tickets', () => {
@@ -434,6 +477,27 @@ describe('Review page', () => {
     await waitFor(() => {
       expect(screen.getByText('Trip 1 successfully deleted.'));
     });
+  });
+
+  it('displays the delete confirmation modal when the delete button for Gun Safe is clicked', async () => {
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipmentWithExpenses,
+      documents: mockDocumentsWithExpenses,
+      error: null,
+    });
+    renderReviewPage();
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[2]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+      expect(screen.getByText('You are about to delete Receipt 1. This cannot be undone.')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
+
+    expect(screen.queryByRole('heading', { level: 3, name: 'Delete this?' })).not.toBeInTheDocument();
   });
 
   it('displays the delete confirmation modal when the delete button for Weight Expenses is clicked', async () => {
