@@ -145,6 +145,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 
 	err := db.Q().Eager(
 		"SignedCertifications",
+		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
 		"Orders.UploadedAmendedOrders",
 		"CloseoutOffice",
