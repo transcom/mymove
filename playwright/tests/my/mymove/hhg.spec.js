@@ -139,10 +139,10 @@ test.describe('HHG', () => {
 
     // Fill in form to create HHG shipment
     await customerPage.waitForPage.hhgShipment();
-    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    await page.getByLabel('Preferred pickup date').fill('29 Dec 2025');
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+    await page.getByLabel('Preferred delivery date').fill('29 Dec 2025');
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByTestId('remarks').fill('Going to Alaska');
     await customerPage.navigateForward();
@@ -185,7 +185,33 @@ test.describe('HHG', () => {
     await expect(page).toHaveURL(/\/moves\/[^/]+\/agreement/);
     await expect(page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
 
-    await page.locator('input[name="signature"]').fill('Mister Alaska');
+    const scrollBox = page.locator('[data-testid="certificationTextScrollBox"]');
+    const signatureBox = page.getByRole('textbox', { name: 'signature' });
+    // Make sure it's visible
+    await expect(scrollBox).toBeVisible();
+
+    // Gradual scroll to bottom to trigger the React onScroll logic
+    await scrollBox.evaluate(async (el) => {
+      const scrWindow = el;
+      const delay = (ms) =>
+        new Promise((res) => {
+          setTimeout(res, ms);
+        });
+      for (let i = 0; i <= scrWindow.scrollHeight; i += 100) {
+        scrWindow.scrollTop = i;
+        await delay(50);
+      }
+    });
+
+    const checkbox = page.locator('[data-testid="acknowledgementCheckbox"]');
+    await expect(checkbox).toBeEnabled();
+
+    // Click it to acknowledge
+    await checkbox.click();
+
+    await expect(signatureBox).toBeEnabled();
+
+    await page.locator('input[name="signature"]').fill('Leo Spacemen');
     await expect(page.getByRole('button', { name: 'Complete' })).toBeEnabled();
     await page.getByRole('button', { name: 'Complete' }).click();
     await expect(page.getByText('submitted your move request.')).toBeVisible();
