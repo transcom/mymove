@@ -238,6 +238,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   };
 
+  // check that additional documents button docs button is available once move is submitted
+  const isAdditionalDocumentsButtonAvailable = () => {
+    return hasSubmittedMove();
+  };
+
   // logic that handles deleting a shipment
   // calls internal API and updates shipments
   const handleDeleteShipmentConfirmation = (shipmentId) => {
@@ -566,7 +571,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   headerText="Profile complete"
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
-                  actionBtnLabel="Upload/Manage Additional Documentation"
+                  actionBtnLabel={
+                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Additional Documentation' : null
+                  }
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >
                   <Description>Make sure to keep your personal information up to date during your move.</Description>
