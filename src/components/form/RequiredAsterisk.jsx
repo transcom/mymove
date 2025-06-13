@@ -14,7 +14,9 @@ export const RequiredAsterisk = () => {
 
 export const requiredAsteriskMessage = (
   <Hint data-testid="reqAsteriskMsg" id="reqAsteriskMsg">
-    Fields marked with <RequiredAsterisk /> are required.
+    <span aria-hidden="true">
+      Fields marked with <RequiredAsterisk /> are required.
+    </span>
   </Hint>
 );
 
