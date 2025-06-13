@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 
 import { createUpload } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import FileUpload from 'components/FileUpload/FileUpload';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -113,9 +113,7 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
             ref={filePondEl}
             createUpload={handleUpload}
             onChange={onChange}
-            labelIdle={
-              'Drag & drop or <span class="filepond--label-action">click to upload a payment request document</span>'
-            }
+            labelIdle='Drag & drop or <span class="filepond--label-action">click to upload a payment request document</span>'
           />
         </div>
         <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />

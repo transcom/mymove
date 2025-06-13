@@ -32,7 +32,7 @@ variables:
   # Specify the environment: loadtest, demo, exp
   DP3_ENV: &dp3_env placeholder_env
 
-  # Specify the branch to deploy TODO: this might be not needed. So far useless
+  # Specify the branch to deploy
   DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
@@ -86,6 +86,9 @@ stages:
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
+  - export SERVICE_RESERVATION_APP_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
+
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
@@ -120,6 +123,8 @@ stages:
   - export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
+  - export SERVICE_RESERVATION_APP_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 .setup_tls_vars_stg: &setup_tls_vars_stg
   - export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT
@@ -132,7 +137,9 @@ stages:
   - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
-  - export SERVICE_RESERVATION_MEM=8192
+  - export SERVICE_RESERVATION_MEM=4096
+  - export SERVICE_RESERVATION_APP_MEM=16384
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 
 .setup_tls_vars_prd: &setup_tls_vars_prd
@@ -577,6 +584,10 @@ check_tls_certificate_prd:
 build_storybook:
   stage: build
   interruptible: true
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   tags:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
@@ -634,8 +645,8 @@ compile_app_client:
       policy: pull
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
   before_script:
   - *setup_milmove_env
   - *install_yarn
@@ -668,9 +679,9 @@ compile_app_server:
     - <<: *yarn_cache
       policy: pull
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_CPU_REQUEST: "3"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   needs:
     - pre_deps_golang
     - pre_deps_yarn
@@ -722,6 +733,7 @@ pre_test:
     - check_tls_certificate_stg
     - check_tls_certificate_prd
   variables:
+    KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
   before_script: *setup_milmove_env
@@ -781,8 +793,10 @@ server_test:
   services:
     - name: $postgres
     - name: $redis
+  retry:
+     max: 2
   variables:
-    KUBERNETES_CPU_REQUEST: "1"
+    KUBERNETES_CPU_REQUEST: "3"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
     APPLICATION: app
@@ -894,7 +908,7 @@ client_test:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "1"
+    KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
   needs:
@@ -908,6 +922,8 @@ client_test:
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
   dependencies:
     - pre_deps_yarn
+  retry:
+     max: 2
   script:
     - echo "client test coverage" | tee -a $CI_PROJECT_DIR/coverage.output
     - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output 2>&1
@@ -967,7 +983,7 @@ integration_test_devseed:
     - name: $postgres
     - name: $redis
   variables:
-    KUBERNETES_CPU_REQUEST: "1"
+    KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
     APPLICATION: app
@@ -1035,8 +1051,7 @@ integration_tests:
     - integration_test_devseed
   before_script: *setup_milmove_env
   script:
-    - echo "TODO Add steps"
-    - echo "integration_tests"
+    - echo "NoOp combine state of integration tests"
   after_script:
     - *announce_failure
   rules:

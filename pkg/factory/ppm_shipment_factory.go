@@ -194,6 +194,15 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&ppmShipment, cPPMShipment)
+	// we need to populate the GCC multiplier if it applies to the PPM's expected departure date
+	var nilTime time.Time
+	if db != nil && ppmShipment.ExpectedDepartureDate != nilTime {
+		gccMultiplier, _ := models.FetchGccMultiplier(db, ppmShipment)
+		if gccMultiplier.ID != uuid.Nil {
+			ppmShipment.GCCMultiplierID = &gccMultiplier.ID
+			ppmShipment.GCCMultiplier = &gccMultiplier
+		}
+	}
 
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {
@@ -280,8 +289,6 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 	ppmShipment := buildApprovedPPMShipmentWaitingOnCustomer(db, userUploader, customs)
 
 	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
-	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupAddress.PostalCode
-	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationAddress.PostalCode
 
 	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
 		ppmShipment.HasReceivedAdvance = models.BoolPointer(true)
@@ -408,7 +415,7 @@ func AddProgearWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models
 		progearWeightTicket)
 }
 
-// AddMovingExpenseToPPMShipment adds a progear weight ticket to
+// AddMovingExpenseToPPMShipment adds a moving expense to
 // an existing PPMShipment
 func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader, movingExpenseTemplate *models.MovingExpense) {
 	if ppmShipment == nil {
@@ -730,6 +737,62 @@ func BuildPPMShipmentWithApprovedDocuments(db *pop.Connection) models.PPMShipmen
 	return ppmShipment
 }
 
+// BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses creates a PPM-SPR with two moving expenses that are approved
+func BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	ppmShipment := BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db, nil, []Customization{{
+		Model: models.PPMShipment{
+			PPMType: models.PPMTypeSmallPackage,
+		},
+	}})
+
+	trackingNumber := "TRK1234"
+	trackingNumber2 := "TRK5678"
+	isProGear := true
+	proGearBelongsToSelf := true
+	proGearDescription := "Pro gear updated description"
+	weightShipped := 2000
+	spr := models.MovingExpenseReceiptTypeSmallPackage
+	approvedStatus := models.PPMDocumentStatusApproved
+
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader,
+		&models.MovingExpense{
+			MovingExpenseType:    &spr,
+			Status:               &approvedStatus,
+			PaidWithGTCC:         models.BoolPointer(false),
+			MissingReceipt:       models.BoolPointer(false),
+			Amount:               models.CentPointer(unit.Cents(8675309)),
+			TrackingNumber:       &trackingNumber,
+			IsProGear:            &isProGear,
+			ProGearBelongsToSelf: &proGearBelongsToSelf,
+			ProGearDescription:   &proGearDescription,
+			WeightShipped:        (*unit.Pound)(&weightShipped),
+		},
+	)
+
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader,
+		&models.MovingExpense{
+			MovingExpenseType:    &spr,
+			Status:               &approvedStatus,
+			PaidWithGTCC:         models.BoolPointer(false),
+			MissingReceipt:       models.BoolPointer(false),
+			Amount:               models.CentPointer(unit.Cents(8675309)),
+			TrackingNumber:       &trackingNumber2,
+			IsProGear:            &isProGear,
+			ProGearBelongsToSelf: &proGearBelongsToSelf,
+			ProGearDescription:   &proGearDescription,
+			WeightShipped:        (*unit.Pound)(&weightShipped),
+		},
+	)
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
+
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
 // BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket creates
 // a PPMShipment that has at least one of each doc type, all approved,
 // but missing the payment packet.
@@ -932,17 +995,15 @@ func GetTraitApprovedPPMWithActualInfo() []Customization {
 		},
 		{
 			Model: models.PPMShipment{
-				Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-				SubmittedAt:                 &submittedTime,
-				ApprovedAt:                  &approvedTime,
-				ExpectedDepartureDate:       expectedDepartureDate,
-				ActualMoveDate:              models.TimePointer(expectedDepartureDate.AddDate(0, 0, 1)),
-				ActualPickupPostalCode:      models.StringPointer("30813"),
-				ActualDestinationPostalCode: models.StringPointer("50309"),
-				HasRequestedAdvance:         models.BoolPointer(true),
-				AdvanceAmountRequested:      models.CentPointer(unit.Cents(598700)),
-				HasReceivedAdvance:          models.BoolPointer(true),
-				AdvanceAmountReceived:       models.CentPointer(unit.Cents(598700)),
+				Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+				SubmittedAt:            &submittedTime,
+				ApprovedAt:             &approvedTime,
+				ExpectedDepartureDate:  expectedDepartureDate,
+				ActualMoveDate:         models.TimePointer(expectedDepartureDate.AddDate(0, 0, 1)),
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
+				HasReceivedAdvance:     models.BoolPointer(true),
+				AdvanceAmountReceived:  models.CentPointer(unit.Cents(598700)),
 			},
 		},
 		{
