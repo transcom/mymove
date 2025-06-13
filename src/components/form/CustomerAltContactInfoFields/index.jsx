@@ -5,6 +5,8 @@ import { Label, Fieldset, ErrorMessage } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
 import classnames from 'classnames';
 
+import { requiredAsteriskMessage } from '../RequiredAsterisk';
+
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -18,18 +20,19 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
     <Fieldset legend={legend} className={className}>
       {render(
         <>
+          {requiredAsteriskMessage}
           <div className="grid-row grid-gap">
             <div className="grid-col-6">
-              <TextField label="First name" name="firstName" id="firstName" required />
+              <TextField label="First name" name="firstName" id="firstName" showRequiredAsterisk required />
             </div>
             <div className="grid-col-6">
-              <TextField label="Middle name" name="middleName" id="middleName" labelHint="Optional" />
+              <TextField label="Middle name" name="middleName" id="middleName" />
             </div>
             <div className="grid-col-6">
-              <TextField label="Last name" name="lastName" id="lastName" required />
+              <TextField label="Last name" name="lastName" id="lastName" showRequiredAsterisk required />
             </div>
             <div className="grid-col-6">
-              <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+              <TextField label="Suffix" name="suffix" id="suffix" />
             </div>
           </div>
           <div className="grid-row grid-gap">
@@ -41,6 +44,7 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
                 type="tel"
                 minimum="12"
                 mask="000{-}000{-}0000"
+                showRequiredAsterisk
                 required
               />
             </div>
@@ -52,7 +56,6 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
                 type="tel"
                 minimum="12"
                 mask="000{-}000{-}0000"
-                labelHint="Optional"
               />
             </div>
           </div>
@@ -63,6 +66,7 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
                 label="Email"
                 id={`customerEmail_${CustomerAltContactInfoFieldsUUID.current}`}
                 name="customerEmail"
+                showRequiredAsterisk
                 required
               />
             </div>
