@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -131,6 +132,10 @@ func (f *estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *
 }
 
 func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
+	// check if GCC multipliers have changed or do not match
+	if newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID {
+		return false
+	}
 	if oldPPMShipment.Status != models.PPMShipmentStatusDraft && oldPPMShipment.EstimatedIncentive != nil && *newPPMShipment.EstimatedIncentive == 0 || oldPPMShipment.MaxIncentive == nil {
 		return false
 	} else {
@@ -138,6 +143,42 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 			newPPMShipment.PickupAddress.PostalCode == oldPPMShipment.PickupAddress.PostalCode &&
 			newPPMShipment.DestinationAddress.PostalCode == oldPPMShipment.DestinationAddress.PostalCode &&
 			((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
+	}
+}
+
+func shouldSkipMaxIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
+	// check if GCC multipliers have changed or do not match
+	if newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID {
+		return false
+	}
+
+	// handle mismatches including nil and uuid.Nil
+	newMultiplier := uuid.Nil
+	if newPPMShipment.GCCMultiplierID != nil {
+		newMultiplier = *newPPMShipment.GCCMultiplierID
+	}
+
+	oldMultiplier := uuid.Nil
+	if oldPPMShipment.GCCMultiplierID != nil {
+		oldMultiplier = *oldPPMShipment.GCCMultiplierID
+	}
+
+	if newMultiplier != oldMultiplier {
+		return false
+	}
+
+	// if the max incentive is nil or 0, we want to update it
+	if oldPPMShipment.MaxIncentive == nil || *oldPPMShipment.MaxIncentive == 0 {
+		return false
+	}
+
+	// if the actual move date is being updated/added we want to re-run the max incentive
+	if (oldPPMShipment.ActualMoveDate == nil && newPPMShipment.ActualMoveDate != nil) ||
+		(oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate != nil && !newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) {
+		return false
+	} else {
+		// if the departure date has changed, we want to recalculate
+		return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate)
 	}
 }
 
@@ -234,7 +275,6 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 
 	// if the PPM is international, we will use a db func
 	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
-
 		if !skipCalculatingEstimatedIncentive {
 			// Clear out advance and advance requested fields when the estimated incentive is reset.
 			newPPMShipment.HasRequestedAdvance = nil
@@ -323,13 +363,19 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		return nil, err
 	}
 
+	maxIncentive := oldPPMShipment.MaxIncentive
+
 	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
 
-		// since the max incentive is based off of the authorized weight entitlement and that value CAN change
-		// we will calculate the max incentive each time it is called
-		maxIncentive, err := f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
-		if err != nil {
-			return nil, err
+		skipCalculatingMaxIncentive := shouldSkipMaxIncentive(newPPMShipment, &oldPPMShipment)
+
+		if !skipCalculatingMaxIncentive {
+			// since the max incentive is based off of the authorized weight entitlement and that value CAN change
+			// we will calculate the max incentive each time it is called
+			maxIncentive, err = f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		return maxIncentive, nil
@@ -526,6 +572,8 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
 
+	gccMultiplier := ppmShipment.GCCMultiplier
+
 	// if we are getting the max incentive, we want to use the addresses on the orders, else use what's on the shipment
 	if isMaxIncentiveCheck {
 		if orders.OriginDutyLocation.Address.PostalCode != "" {
@@ -647,7 +695,17 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		}
 
 		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
-		logger.Debug(fmt.Sprintf("Service item price %s %d", serviceItem.ReService.Code, centsValue))
+		// only apply the multiplier if centsValue is positive
+		if gccMultiplier != nil && gccMultiplier.Multiplier > 0 && centsValue > 0 {
+			oldCentsValue := centsValue
+			multiplier := gccMultiplier.Multiplier
+			multipliedPrice := float64(centsValue) * multiplier
+			centsValue = unit.Cents(int(math.Round(multipliedPrice)))
+			logger.Debug(fmt.Sprintf("Applying GCC multiplier: %f to service item price %s, original price: %d, new price: %d", multiplier, serviceItem.ReService.Code, oldCentsValue, centsValue))
+		} else {
+			logger.Debug(fmt.Sprintf("Service item price %s %d, no GCC multiplier applied (negative price or no multiplier)",
+				serviceItem.ReService.Code, centsValue))
+		}
 		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
 
 		if err != nil {
@@ -687,6 +745,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
+	gccMultiplier := ppmShipment.GCCMultiplier
 
 	// Check different address values for a postal code
 	if ppmShipment.PickupAddress != nil && ppmShipment.PickupAddress.PostalCode != "" {
@@ -826,6 +885,12 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		}
 
 		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
+		// only apply the multiplier if centsValue is positive
+		if gccMultiplier != nil && gccMultiplier.Multiplier > 0 && centsValue > 0 {
+			multiplier := gccMultiplier.Multiplier
+			multipliedPrice := float64(centsValue) * multiplier
+			centsValue = unit.Cents(int(math.Round(multipliedPrice)))
+		}
 
 		if err != nil {
 			logger.Error("unable to calculate service item price", zap.Error(err))
