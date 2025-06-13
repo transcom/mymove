@@ -79,7 +79,6 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	}
 
 	setupTestData := func(isDomestic bool) {
-
 		reServiceXOFSIT = factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
