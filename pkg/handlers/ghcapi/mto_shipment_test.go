@@ -656,7 +656,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -758,8 +758,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf)
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -863,8 +862,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf)
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -938,8 +936,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf)
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -995,7 +992,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		approver := &mocks.ShipmentApprover{}
 		mockSender := suite.TestNotificationSender()
 		reweighRequester := &mocks.ShipmentReweighRequester{}
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		approver.AssertNumberOfCalls(suite.T(), "ApproveShipment", 0)
 
@@ -1039,7 +1036,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
 
@@ -1084,7 +1081,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.ConflictError{})
 
@@ -1129,7 +1126,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
 
@@ -1174,7 +1171,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
@@ -1219,7 +1216,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
 
@@ -1288,7 +1285,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	mockSender := suite.TestNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -2395,6 +2392,8 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -2430,6 +2429,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveRouter,
 		}
 
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
@@ -2465,6 +2465,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveRouter,
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -2504,6 +2505,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveRouter,
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -2543,6 +2545,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveRouter,
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -2582,6 +2585,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveRouter,
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -2621,6 +2625,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveRouter,
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -2660,6 +2665,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveRouter,
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -2675,6 +2681,130 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		// Validate outgoing payload: nil payload
 		suite.Nil(payload)
+	})
+
+	suite.Run("Updates move status from APPROVALS_REQUESTED to APPROVED if diversion shipment is APPROVED", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:    models.MTOShipmentStatusApproved,
+					Diversion: true,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err)
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		handler := ApproveShipmentDiversionHandler{
+			HandlerConfig:             suite.HandlerConfig(),
+			ShipmentDiversionApprover: mtoshipment.NewShipmentDiversionApprover(mtoshipment.NewShipmentRouter(), moveRouter),
+			ShipmentSITStatus:         sitstatus.NewShipmentSITStatus(),
+			MoveRouter:                moveRouter,
+		}
+
+		err = handler.triggerShipmentDiversionApprovalEvent(
+			suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.OfficeApp,
+				OfficeUserID:    officeUser.ID,
+			}),
+			shipment.ID,
+			move.ID,
+			shipmentops.ApproveShipmentDiversionParams{
+				HTTPRequest: req,
+				ShipmentID:  *handlers.FmtUUID(shipment.ID),
+				IfMatch:     eTag,
+			},
+		)
+
+		suite.NoError(err)
+
+		var updatedMove models.Move
+		err = suite.DB().Find(&updatedMove, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
+	})
+
+	suite.Run("Keeps move status in APPROVALS_REQUESTED if diversion shipment is SUBMITTED", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:    models.MTOShipmentStatusSubmitted,
+					Diversion: true,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err)
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		handler := ApproveShipmentDiversionHandler{
+			HandlerConfig:             suite.HandlerConfig(),
+			ShipmentDiversionApprover: mtoshipment.NewShipmentDiversionApprover(mtoshipment.NewShipmentRouter(), moveRouter),
+			ShipmentSITStatus:         sitstatus.NewShipmentSITStatus(),
+			MoveRouter:                moveRouter,
+		}
+
+		err = handler.triggerShipmentDiversionApprovalEvent(
+			suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.OfficeApp,
+				OfficeUserID:    officeUser.ID,
+			}),
+			shipment.ID,
+			move.ID,
+			shipmentops.ApproveShipmentDiversionParams{
+				HTTPRequest: req,
+				ShipmentID:  *handlers.FmtUUID(shipment.ID),
+				IfMatch:     eTag,
+			},
+		)
+
+		suite.NoError(err)
+
+		var updatedMove models.Move
+		err = suite.DB().Find(&updatedMove, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
 }
 
@@ -3326,7 +3456,8 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		}, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		reweighRequester := mtoshipment.NewShipmentReweighRequester()
+		mockSender := suite.TestNotificationSender()
+		reweighRequester := mtoshipment.NewShipmentReweighRequester(mockSender)
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -3343,9 +3474,8 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mockSender := suite.TestNotificationSender()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -3403,7 +3533,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		).Return(400, nil)
 		mockSender := suite.TestNotificationSender()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -3458,7 +3588,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -3514,7 +3644,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -3571,7 +3701,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -3627,7 +3757,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -3966,7 +4096,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			mock.Anything,
 		).Return(400, nil)
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -4108,7 +4238,7 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 			mock.Anything,
 		).Return(400, nil)
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -4191,7 +4321,7 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 			mock.Anything,
 		).Return(400, nil)
 		mockSender := suite.TestNotificationSender()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -4376,7 +4506,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		mockSender := suite.TestNotificationSender()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
@@ -4467,7 +4597,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		mockSender := suite.TestNotificationSender()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 
@@ -4529,7 +4659,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		mockSender := suite.TestNotificationSender()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
@@ -4586,7 +4716,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		mockSender := suite.TestNotificationSender()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
@@ -4638,7 +4768,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		mockSender := suite.TestNotificationSender()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
@@ -4728,7 +4858,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		)
 		mockSender := suite.TestNotificationSender()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
@@ -4930,7 +5060,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(&hasProGear, ppmPayload.HasProGear)
 			suite.Equal(handlers.FmtPoundPtr(&proGearWeight), ppmPayload.ProGearWeight)
 			suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), ppmPayload.SpouseProGearWeight)
-			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
+			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status)
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.Equal(int64(sitEstimatedCost), *ppmPayload.SitEstimatedCost)
 			suite.NotZero(ppmPayload.CreatedAt)
@@ -4968,7 +5098,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		)
 		mockSender := suite.TestNotificationSender()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
@@ -5100,7 +5230,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(sitExpected, *ppmPayload.SitExpected)
 			suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), ppmPayload.EstimatedWeight)
 			suite.Equal(&hasProGear, ppmPayload.HasProGear)
-			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
+			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status)
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.Nil(ppmPayload.SitEstimatedCost)
 			suite.NotZero(ppmPayload.CreatedAt)
@@ -5138,7 +5268,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		)
 		mockSender := suite.TestNotificationSender()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
@@ -5271,7 +5401,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(sitExpected, *ppmPayload.SitExpected)
 			suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), ppmPayload.EstimatedWeight)
 			suite.Equal(&hasProGear, ppmPayload.HasProGear)
-			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
+			suite.Equal(ghcmessages.PPMShipmentStatusDRAFT, ppmPayload.Status)
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.Nil(ppmPayload.SitEstimatedCost)
 			suite.NotZero(ppmPayload.CreatedAt)
@@ -5361,7 +5491,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	).Return(400, nil)
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockSender := suite.TestNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())

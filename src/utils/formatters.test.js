@@ -746,3 +746,45 @@ describe('formatFullName', () => {
     expect(formatFullName('', '', '')).toBe('');
   });
 });
+
+describe('calculateTotal', () => {
+  it('should calculate total with all available prices', () => {
+    const sectionInfo = {
+      haulPrice: 100,
+      haulFSC: 50,
+      packPrice: 150,
+      unpackPrice: 80,
+      dop: 200,
+      ddp: 300,
+      intlPackingPrice: 120,
+      intlUnpackPrice: 90,
+      intlLinehaulPrice: 100,
+      sitReimbursement: 250,
+    };
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('14.40');
+  });
+
+  it('should calculate total when some values are missing', () => {
+    const sectionInfo = {
+      haulPrice: 100,
+      haulFSC: 50,
+      packPrice: 150,
+      // Missing unpackPrice
+      dop: 200,
+      ddp: 300,
+      // Missing intlPackingPrice
+      intlUnpackPrice: 90,
+      intlLinehaulPrice: 100,
+      sitReimbursement: 250,
+    };
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('12.40');
+  });
+
+  it('should return $0.00 when no values are provided', () => {
+    const sectionInfo = {};
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('0.00');
+  });
+});

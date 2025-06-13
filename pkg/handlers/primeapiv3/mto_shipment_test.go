@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	)
 	mockSender := suite.TestNotificationSender()
 	waf := entitlements.NewWeightAllotmentFetcher()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 	mockCreator := mocks.ShipmentCreator{}
 
@@ -570,7 +570,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(&counselorRemarks, createdShipment.CounselorRemarks)
 
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
-		suite.Equal(primev3messages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
+		suite.Equal(primev3messages.PPMShipmentStatusWAITINGONCUSTOMER, createdPPM.Status)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), createdPPM.ExpectedDepartureDate)
 		suite.Equal(address1.PostalCode, *createdPPM.PickupAddress.PostalCode)
 		suite.Equal(address1.PostalCode, *createdPPM.DestinationAddress.PostalCode)

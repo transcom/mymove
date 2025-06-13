@@ -4,7 +4,6 @@ import {
   ArrayField,
   Datagrid,
   DateField,
-  EditButton,
   ReferenceField,
   Show,
   SimpleShowLayout,
@@ -179,9 +178,6 @@ const RequestedOfficeUserActionButtons = () => {
         />
       </div>
       <div className={styles.btnContainer}>
-        <Button className={styles.approveBtn} onClick={handleOnClickApprove}>
-          Approve
-        </Button>
         <Button
           className={styles.rejectBtn}
           onClick={async () => {
@@ -190,7 +186,9 @@ const RequestedOfficeUserActionButtons = () => {
         >
           Reject
         </Button>
-        <EditButton />
+        <Button className={styles.approveBtn} onClick={handleOnClickApprove}>
+          Approve
+        </Button>
       </div>
       <RequestedOfficeUserPrivilegeConfirm
         dialogId="show-approve-privilege-dialog"

@@ -611,6 +611,22 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
+export const formatServiceMemberNameToString = (serviceMember) => {
+  let formattedUser = '';
+  if (serviceMember.first_name && serviceMember.last_name) {
+    formattedUser += `${serviceMember.first_name}`;
+    formattedUser += ` ${serviceMember.last_name}`;
+  } else {
+    if (serviceMember.first_name) {
+      formattedUser += `${serviceMember.first_name}`;
+    }
+    if (serviceMember.last_name) {
+      formattedUser += `${serviceMember.last_name}`;
+    }
+  }
+  return formattedUser;
+};
+
 export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   const { changedValues, context, oldValues } = historyRecord;
   if (!context || context.length === 0) return {};
@@ -700,3 +716,20 @@ export function formatPortInfo(port) {
 export function formatFullName(firstName, middleName, lastName) {
   return [firstName, middleName, lastName].filter(Boolean).join(' ');
 }
+
+export const calculateTotal = (sectionInfo) => {
+  let total = 0;
+
+  if (sectionInfo?.haulPrice) total += sectionInfo.haulPrice;
+  if (sectionInfo?.haulFSC) total += sectionInfo.haulFSC;
+  if (sectionInfo?.packPrice) total += sectionInfo.packPrice;
+  if (sectionInfo?.unpackPrice) total += sectionInfo.unpackPrice;
+  if (sectionInfo?.dop) total += sectionInfo.dop;
+  if (sectionInfo?.ddp) total += sectionInfo.ddp;
+  if (sectionInfo?.intlPackingPrice) total += sectionInfo.intlPackingPrice;
+  if (sectionInfo?.intlUnpackPrice) total += sectionInfo.intlUnpackPrice;
+  if (sectionInfo?.intlLinehaulPrice) total += sectionInfo.intlLinehaulPrice;
+  if (sectionInfo?.sitReimbursement) total += sectionInfo.sitReimbursement;
+
+  return formatCents(total);
+};

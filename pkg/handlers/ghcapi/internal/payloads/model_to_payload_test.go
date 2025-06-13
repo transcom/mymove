@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -1849,6 +1850,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 	intlUnpackPrice := unit.Cents(14000)
 	intlLinehaulPrice := unit.Cents(13000)
 	sitReimbursement := unit.Cents(12000)
+	gccMultiplier := float64(1.3)
 
 	ppmCloseout := models.PPMCloseout{
 		ID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
@@ -1874,6 +1876,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 		IntlUnpackPrice:       &intlUnpackPrice,
 		IntlLinehaulPrice:     &intlLinehaulPrice,
 		SITReimbursement:      &sitReimbursement,
+		GCCMultiplier:         &gccMultiplier,
 	}
 
 	payload := PPMCloseout(&ppmCloseout)
@@ -1901,6 +1904,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 	suite.Equal(handlers.FmtCost(ppmCloseout.IntlUnpackPrice), payload.IntlUnpackPrice)
 	suite.Equal(handlers.FmtCost(ppmCloseout.IntlLinehaulPrice), payload.IntlLinehaulPrice)
 	suite.Equal(handlers.FmtCost(ppmCloseout.SITReimbursement), payload.SITReimbursement)
+	suite.Equal(swag.Float32(float32(*ppmCloseout.GCCMultiplier)), payload.GccMultiplier)
 }
 
 func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {

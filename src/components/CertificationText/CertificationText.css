@@ -1,0 +1,21 @@
+.certification_text_box {
+  margin-top: 1em;
+
+  padding: 1em;
+
+  border-width: 1px;
+  border-color: black;
+  border-style: solid;
+
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+}
+
+@media print {
+  .certification_text_box {
+    border: none;
+    overflow-y: visible;
+    max-height: 100%;
+  }
+}

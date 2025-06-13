@@ -10251,6 +10251,7 @@ definitions:
       - CANCELED
       - DIVERSION_REQUESTED
       - TERMINATED_FOR_CAUSE
+      - APPROVALS_REQUESTED
   ReweighRequester:
     type: string
     enum:
@@ -10500,7 +10501,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   OmittablePPMDocumentStatus:
@@ -12159,6 +12159,13 @@ definitions:
           separate from the estimated incentive.
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      gccMultiplier:
+        description: Multiplier applied to incentives
+        type: number
+        format: float
+        example: 1.3
         x-nullable: true
         x-omitempty: false
     required:
