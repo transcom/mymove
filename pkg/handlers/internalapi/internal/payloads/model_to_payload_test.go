@@ -362,6 +362,7 @@ func (suite *PayloadsSuite) TestGetRankDropdownOptions() {
 			suite.Equal(tc.count, len(options))
 		})
 	}
+}
 
 func (suite *PayloadsSuite) TestCountriesPayload() {
 	suite.Run("Correctly transform array of countries into payload", func() {

@@ -4874,9 +4874,6 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
-        "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
-        },
         "last_name": {
           "type": "string",
           "title": "Last name",
