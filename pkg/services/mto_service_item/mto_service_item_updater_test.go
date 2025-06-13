@@ -379,13 +379,13 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		departureDate := contactDatePlusGracePeriod.Add(time.Hour * 24)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					Status: models.MoveStatusAPPROVALSREQUESTED,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 		shipmentSITAllowance := int(90)
 		estimatedWeight := unit.Pound(1400)
 
@@ -529,7 +529,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Confirm sitExtension status was updated for the shipment
 		suite.DB().Q().All(&sitExtensions)
-		suite.DB().Q().All(&moves)
 		suite.Equal(1, len(sitExtensions))
 		suite.Equal(models.SITExtensionStatusRemoved, sitExtensions[0].Status)
 		// Confirm decision date is set to today
