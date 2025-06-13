@@ -575,7 +575,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     onClick={() => {
                       setShowCancelMoveModal(true);
                     }}
-                    unstyled
+                    secondary
                     data-testid="cancel-move-button"
                     disabled={isMoveLocked}
                   >

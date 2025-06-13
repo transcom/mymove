@@ -186,25 +186,6 @@ const moveSearchColumns = (handleEditProfileClick) => [
 
 const customerSearchColumns = ({ setCanAddOrders }) => [
   createHeader(
-    'Create Move',
-    (row) => {
-      return (
-        <Button
-          onClick={() => {
-            setCanAddOrders(true);
-            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }));
-          }}
-          type="button"
-          className={styles.createNewMove}
-          data-testid="searchCreateMoveButton"
-        >
-          Create New Move
-        </Button>
-      );
-    },
-    { id: 'createMove', isFilterable: false, disableSortBy: true },
-  ),
-  createHeader(
     'id',
     (row) => {
       return row.id;
@@ -257,6 +238,25 @@ const customerSearchColumns = ({ setCanAddOrders }) => [
     id: 'telephone',
     isFilterable: false,
   }),
+  createHeader(
+    'Create Move',
+    (row) => {
+      return (
+        <Button
+          onClick={() => {
+            setCanAddOrders(true);
+            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }));
+          }}
+          type="button"
+          className={styles.createNewMove}
+          data-testid="searchCreateMoveButton"
+        >
+          Create New Move
+        </Button>
+      );
+    },
+    { id: 'createMove', isFilterable: false, disableSortBy: true },
+  ),
 ];
 
 // SearchResultsTable is a react-table that uses react-hooks to fetch, filter, sort and page data
