@@ -755,3 +755,14 @@ export const calculateTotal = (sectionInfo) => {
 
   return formatCents(total);
 };
+
+export function formatLastNameFirstName(firstName, lastName) {
+  const trimmedFirstName = (firstName || '').trim();
+  const trimmedLastName = (lastName || '').trim();
+
+  return (
+    trimmedFirstName.length > 0 || trimmedLastName.length > 0
+      ? trimmedLastName + (trimmedLastName.length > 0 ? ', ' : '') + trimmedFirstName
+      : ''
+  ).trim();
+}

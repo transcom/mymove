@@ -72,9 +72,10 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		FirstName: "Newfirstname",
 		Phone:     handlers.FmtString("223-455-3399"),
 		BackupContact: &ghcmessages.BackupContact{
-			Name:  handlers.FmtString("New Backup Contact"),
-			Phone: handlers.FmtString("445-345-1212"),
-			Email: handlers.FmtString("newbackup@mail.com"),
+			FirstName: handlers.FmtString("New"),
+			LastName:  handlers.FmtString("Backup Contact"),
+			Phone:     handlers.FmtString("445-345-1212"),
+			Email:     handlers.FmtString("newbackup@mail.com"),
 		},
 	}
 	currentAddress := ghcmessages.Address{
@@ -122,7 +123,8 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	suite.Equal(body.CurrentAddress.City, updateCustomerPayload.CurrentAddress.City)
 	suite.Equal(body.CurrentAddress.PostalCode, updateCustomerPayload.CurrentAddress.PostalCode)
 	suite.Equal(body.CurrentAddress.State, updateCustomerPayload.CurrentAddress.State)
-	suite.Equal(body.BackupContact.Name, updateCustomerPayload.BackupContact.Name)
+	suite.Equal(body.BackupContact.FirstName, updateCustomerPayload.BackupContact.FirstName)
+	suite.Equal(body.BackupContact.LastName, updateCustomerPayload.BackupContact.LastName)
 	suite.Equal(body.BackupContact.Phone, updateCustomerPayload.BackupContact.Phone)
 	suite.Equal(body.BackupContact.Email, updateCustomerPayload.BackupContact.Email)
 }
@@ -166,9 +168,10 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Emplid:        handlers.FmtString(""),
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
-				Name:  handlers.FmtString("New Backup Contact"),
-				Phone: handlers.FmtString("445-345-1212"),
-				Email: handlers.FmtString("newbackup@mail.com"),
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
 			},
 			ResidentialAddress: struct {
 				ghcmessages.Address
@@ -214,7 +217,8 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		suite.Equal(body.LastName, createdCustomerPayload.LastName)
 		suite.Equal(body.Edipi, *createdCustomerPayload.Edipi)
 		suite.Equal(body.Telephone, createdCustomerPayload.Telephone)
-		suite.Equal(body.BackupContact.Name, createdCustomerPayload.BackupContact.Name)
+		suite.Equal(body.BackupContact.FirstName, createdCustomerPayload.BackupContact.FirstName)
+		suite.Equal(body.BackupContact.LastName, createdCustomerPayload.BackupContact.LastName)
 		suite.Equal(body.BackupContact.Phone, createdCustomerPayload.BackupContact.Phone)
 		suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
 		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
@@ -259,9 +263,10 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Emplid:        handlers.FmtString(""),
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
-				Name:  handlers.FmtString("New Backup Contact"),
-				Phone: handlers.FmtString("445-345-1212"),
-				Email: handlers.FmtString("newbackup@mail.com"),
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
 			},
 			ResidentialAddress: struct {
 				ghcmessages.Address
@@ -343,9 +348,10 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Edipi:         *customer.Edipi,
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
-				Name:  handlers.FmtString("New Backup Contact"),
-				Phone: handlers.FmtString("445-345-1212"),
-				Email: handlers.FmtString("newbackup@mail.com"),
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
 			},
 			ResidentialAddress: struct {
 				ghcmessages.Address
@@ -416,9 +422,10 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Edipi:         "1234567890",
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
-				Name:  handlers.FmtString("New Backup Contact"),
-				Phone: handlers.FmtString("445-345-1212"),
-				Email: handlers.FmtString("newbackup@mail.com"),
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
 			},
 			ResidentialAddress: struct {
 				ghcmessages.Address

@@ -19,7 +19,8 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
 		Email:      models.StringPointer("email@example.com"),
-		Name:       models.StringPointer("name"),
+		FirstName:  models.StringPointer("firstName"),
+		LastName:   models.StringPointer("lastName"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionEDIT),
 		Telephone:  models.StringPointer("5555555555"),
 	}
@@ -175,7 +176,8 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
 		Email:      models.StringPointer("otheremail@example.com"),
-		Name:       models.StringPointer("other name"),
+		FirstName:  models.StringPointer("other"),
+		LastName:   models.StringPointer("name"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionNONE),
 		Telephone:  models.StringPointer("4444444444"),
 	}
@@ -192,7 +194,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	okResponse := response.(*contactop.UpdateServiceMemberBackupContactCreated)
 	payload := okResponse.Payload
 
-	if *payload.Name != "other name" {
+	if *payload.FirstName != "other" && *payload.LastName != "name" {
 		t.Errorf("Expected backup contact to be updated, but it wasn't.")
 	}
 }
@@ -208,7 +210,8 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
 		Email:      models.StringPointer("otheremail@example.com"),
-		Name:       models.StringPointer("other name"),
+		FirstName:  models.StringPointer("other"),
+		LastName:   models.StringPointer("name"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionNONE),
 		Telephone:  models.StringPointer("4444444444"),
 	}

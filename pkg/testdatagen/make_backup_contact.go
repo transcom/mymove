@@ -24,7 +24,8 @@ func makeBackupContact(db *pop.Connection, assertions Assertions) (models.Backup
 	backupContact := models.BackupContact{
 		ServiceMember:   serviceMember,
 		ServiceMemberID: serviceMember.ID,
-		Name:            "name",
+		FirstName:       "firstName",
+		LastName:        "lastName",
 		Email:           "email@example.com",
 		Phone:           "555-555-5555",
 		Permission:      models.BackupContactPermissionEDIT,
