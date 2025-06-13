@@ -24,14 +24,25 @@ const DocViewerContent = ({
       saveRotation={saveRotation}
       rotationValue={rotationValue}
       setRotationValue={setRotationValue}
-      renderControls={({ handleZoomIn, handleZoomOut, handleRotateLeft, handleRotateRight }) => {
+      renderControls={({ handleZoomIn, handleZoomOut, handleRotateLeft, handleRotateRight, zoomPercentage }) => {
         return (
           <div className={styles.controls}>
-            <Button type="button" unstyled onClick={handleZoomOut}>
+            {zoomPercentage && (
+              <Button
+                data-testid="currentZoomPercentage"
+                type="button"
+                unstyled
+                className={styles.zoomDisplayButton}
+                aria-label={`Zoom level: ${zoomPercentage}%`}
+              >
+                Zoom: {zoomPercentage}%
+              </Button>
+            )}
+            <Button data-testid="zoomOutButton" type="button" unstyled onClick={handleZoomOut}>
               <FontAwesomeIcon icon="search-minus" title="Zoom out" aria-label="Zoom out" />
               Zoom out
             </Button>
-            <Button type="button" unstyled onClick={handleZoomIn}>
+            <Button data-testid="zoomInButton" type="button" unstyled onClick={handleZoomIn}>
               <FontAwesomeIcon icon="search-plus" title="Zoom in" aria-label="Zoom in" />
               Zoom in
             </Button>
