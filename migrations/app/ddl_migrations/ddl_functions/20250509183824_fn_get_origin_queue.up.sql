@@ -1,4 +1,6 @@
 -- B-23540 - Daniel Jordan - initial function creation for TOO origin queue refactor into db func
+-- B-23739 - Daniel Jordan - updating returns to consider lock_expires_at
+-- B-23767  Daniel Jordan - updating query to exclude FULL PPM types that provide SC and null PPM types
 
 DROP FUNCTION IF EXISTS get_origin_queue;
 CREATE OR REPLACE FUNCTION get_origin_queue(
@@ -28,6 +30,7 @@ RETURNS TABLE (
     orders_id UUID,
     status TEXT,
     locked_by UUID,
+    lock_expires_at TIMESTAMP WITH TIME ZONE,
     too_assigned_id UUID,
     counseling_transportation_office_id UUID,
     orders JSONB,
@@ -105,6 +108,7 @@ BEGIN
             moves.orders_id,
             moves.status,
             moves.locked_by,
+            moves.lock_expires_at,
             moves.too_assigned_id,
             moves.counseling_transportation_office_id,
             moves.service_counseling_completed_at,
@@ -192,7 +196,8 @@ BEGIN
                 SELECT ms.id FROM mto_shipments ms WHERE ms.move_id = moves.id
             )
         ) service_items ON TRUE
-        WHERE moves.show = TRUE ';
+        WHERE moves.show = TRUE
+        AND (moves.ppm_type IS NULL OR moves.ppm_type = ''PARTIAL'' OR (moves.ppm_type = ''FULL'' AND origin_duty_locations.provides_services_counseling = false)) ';
 
     IF user_gbloc IS NOT NULL THEN
         sql_query := sql_query || '
@@ -203,6 +208,23 @@ BEGIN
                 (ms.shipment_type != ''HHG_OUTOF_NTS'' AND move_to_gbloc.gbloc = $1)
                 OR (ms.shipment_type = ''HHG_OUTOF_NTS'' AND orders.gbloc = $1)
             )
+            AND (ms.status IN (''SUBMITTED'',''APPROVALS_REQUESTED'')
+        	    OR (ms.status = ''APPROVED''
+        			AND
+                		(
+                        	moves.excess_weight_qualified_at IS NOT NULL
+                        	AND moves.excess_weight_acknowledged_at IS NULL
+		                )
+        		        OR (
+                	        moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
+                    	    AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
+                		)
+                        OR (
+                            orders.uploaded_amended_orders_id IS NOT NULL
+                            AND orders.amended_orders_acknowledged_at IS NULL
+                        )
+        		)
+    		)
         )';
     END IF;
 
@@ -279,7 +301,7 @@ BEGIN
     -- we want to omit shipments with ONLY destination queue-specific filters
     -- (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
-               AND NOT (
+            AND NOT (
 					(
 						EXISTS (
 							SELECT 1
@@ -336,19 +358,6 @@ BEGIN
 											''DLH'', ''DOP'', ''DPK'', ''DSH'', ''DNPK'', ''INPK'', ''UBP'',
 											''ISLH'', ''POEFSC'', ''PODFSC'', ''IHPK'')
 						)
-						OR (
-							(
-								moves.excess_weight_qualified_at IS NOT NULL
-								AND moves.excess_weight_acknowledged_at IS NULL
-							)
-							OR (
-								moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
-								AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
-							)
-                            OR (
-                                orders.uploaded_amended_orders_id IS NOT NULL
-                                AND orders.amended_orders_acknowledged_at IS NULL)
-						)
 					)
 				)
             ';
@@ -362,6 +371,7 @@ BEGIN
         orders_id_inner::UUID AS orders_id,
         status::TEXT,
         locked_by::UUID AS locked_by,
+        lock_expires_at::TIMESTAMP WITH TIME ZONE AS lock_expires_at,
         too_assigned_id::UUID AS too_assigned_id,
         counseling_transportation_office_id::UUID AS counseling_transportation_office_id,
         json_build_object(

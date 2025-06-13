@@ -100,6 +100,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				SITEstimatedCost:          models.CentPointer(unit.Cents(0)),
 				AOAPacketID:               models.UUIDPointer(uuid.Nil),
 				PaymentPacketID:           models.UUIDPointer(uuid.Nil),
+				GCCMultiplierID:           models.UUIDPointer(uuid.Nil),
 			},
 			expectedErrs: map[string][]string{
 				"deleted_at":                  {"DeletedAt can not be blank."},
@@ -128,6 +129,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				"sitestimated_cost":           {"SITEstimatedCost must be greater than zero, got: 0."},
 				"aoapacket_id":                {"AOAPacketID can not be blank."},
 				"payment_packet_id":           {"PaymentPacketID can not be blank."},
+				"gccmultiplier_id":            {"GCCMultiplierID can not be blank."},
 			},
 		},
 		"Gun safe weight raise error with a value over the max": {
@@ -151,7 +153,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		name, testCase := name, testCase
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(testCase.ppmShipment, testCase.expectedErrs)
+			suite.verifyValidationErrors(testCase.ppmShipment, testCase.expectedErrs, nil)
 		})
 	}
 }

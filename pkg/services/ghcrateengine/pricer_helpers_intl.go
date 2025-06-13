@@ -283,3 +283,110 @@ func priceIntlCratingUncrating(appCtx appcontext.AppContext, cratingUncratingCod
 
 	return totalCost, displayParams, nil
 }
+
+func priceIntlFuelSurchargeSIT(_ appcontext.AppContext, fuelSurchargeCode models.ReServiceCode, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+	if fuelSurchargeCode != models.ReServiceCodeIOSFSC && fuelSurchargeCode != models.ReServiceCodeIDSFSC {
+		return 0, nil, fmt.Errorf("unsupported international fuel surcharge code of %s", fuelSurchargeCode)
+	}
+
+	// Validate parameters
+	if actualPickupDate.IsZero() {
+		return 0, nil, errors.New("ActualPickupDate is required")
+	}
+	// zero represents pricing will not be calculated
+	// this to handle when origin/destination addresses are OCONUS
+	if distance < 0 {
+		return 0, nil, errors.New("Distance cannot be less than 0")
+	}
+	if weight < minInternationalWeight {
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
+	}
+	if fscWeightBasedDistanceMultiplier == 0 {
+		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
+	}
+	if eiaFuelPrice == 0 {
+		return 0, nil, errors.New("EIAFuelPrice is required")
+	}
+
+	fscPriceDifferenceInCents := (eiaFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
+	fscMultiplier := fscWeightBasedDistanceMultiplier * distance.Float64()
+	fscPrice := fscMultiplier * fscPriceDifferenceInCents * 100
+	totalCost := unit.Cents(math.Round(fscPrice))
+
+	displayParams := services.PricingDisplayParams{
+		{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
+		{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultiplier, 7)},
+	}
+
+	return totalCost, displayParams, nil
+}
+
+func priceIntlPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int, distance int) (unit.Cents, services.PricingDisplayParams, error) {
+	if pickupDeliverySITCode != models.ReServiceCodeIOPSIT && pickupDeliverySITCode != models.ReServiceCodeIDDSIT {
+		return 0, nil, fmt.Errorf("unsupported Intl PickupDeliverySIT code of %s", pickupDeliverySITCode)
+	}
+
+	// Validate parameters
+	if len(contractCode) == 0 {
+		return 0, nil, errors.New("ContractCode is required")
+	}
+
+	if referenceDate.IsZero() {
+		return 0, nil, errors.New("ReferenceDate is required")
+	}
+
+	if weight < minInternationalWeight {
+		return 0, nil, fmt.Errorf("weight must be a minimum of %d", minInternationalWeight)
+	}
+
+	if perUnitCents == 0 {
+		return 0, nil, errors.New("perUnitCents is required")
+	}
+
+	if distance == 0 {
+		return 0, nil, errors.New("distance is required")
+	}
+
+	isPeakPeriod := IsPeakPeriod(referenceDate)
+
+	var reContract models.ReContract
+	err := appCtx.DB().Where("re_contracts.code = ?", contractCode).First(&reContract)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not retrieve contract by code: %w", err)
+	}
+
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, reContract.ID, referenceDate, false, float64(perUnitCents))
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
+	}
+
+	if distance > 50 {
+		// multiply with distance if over 50 miles
+		escalatedPrice = escalatedPrice * weight.ToCWTFloat64() * float64(distance)
+	} else {
+		escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+	}
+
+	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
+
+	displayParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(unit.Cents(perUnitCents)),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+
+	return totalPriceCents, displayParams, nil
+}
