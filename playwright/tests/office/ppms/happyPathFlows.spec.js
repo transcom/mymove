@@ -58,7 +58,7 @@ test.describe('Services counselor user', () => {
     await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     let shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2024');
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2025');
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('987 New Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('P.O. Box 12345');

@@ -406,27 +406,34 @@ test.describe('TIO user', () => {
       // testing the clear selection functionality
       await expect(page.getByText('Clear selection')).toBeVisible();
       await page.getByText('Clear selection').click();
+      await tioFlowPage.slowDown();
       // proceed without approving/rejecting
-      await page.getByText('Next').click();
+      await expect(page.getByTestId('nextServiceItem')).toBeVisible();
+      await page.getByTestId('nextServiceItem').click();
       await tioFlowPage.slowDown();
       // go back to the previous page
-      await page.getByText('Previous').click();
+      await expect(page.getByTestId('prevServiceItem')).toBeVisible();
+      await page.getByTestId('prevServiceItem').click();
       await tioFlowPage.slowDown();
       // the service item should neither be approved/rejected so the clear selection should not be seen
       await expect(page.getByText('Clear selection')).not.toBeVisible();
       await tioFlowPage.approveServiceItem();
-      await page.getByText('Next').click();
+      await expect(page.getByTestId('nextServiceItem')).toBeVisible();
+      await page.getByTestId('nextServiceItem').click();
       await tioFlowPage.slowDown();
 
       // Approve the second service item
       await tioFlowPage.approveServiceItem();
-      await page.getByText('Next').click();
+      await expect(page.getByTestId('nextServiceItem')).toBeVisible();
+      await page.getByTestId('nextServiceItem').click();
       await tioFlowPage.slowDown();
 
       // Approve the shuttling service item
 
       // Confirm TIO can view the calculations
-      await page.getByText('Show calculations').click();
+      await expect(page.getByTestId('toggleCalculations')).toBeVisible();
+      await page.getByTestId('toggleCalculations').click();
+      // await page.getByText('Show calculations').click();
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Total:');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Service schedule: 2');

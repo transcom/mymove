@@ -9288,6 +9288,7 @@ func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) model
 // MakeInternationalAlaskaHHGMoveForTOO is a function
 // that creates an iHHG move with an Alaska destination address
 func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) models.Move {
+	now := time.Now()
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -9361,7 +9362,8 @@ func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) mod
 		},
 		{
 			Model: models.Move{
-				Status: models.MoveStatusServiceCounselingCompleted,
+				Status:             models.MoveStatusServiceCounselingCompleted,
+				AvailableToPrimeAt: &now,
 			},
 		},
 	}, nil)
