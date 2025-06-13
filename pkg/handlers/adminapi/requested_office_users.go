@@ -367,6 +367,10 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 						txAppCtx.Logger().Error("Error updating user privileges", zap.Error(err))
 						return err
 					}
+					if err = h.NotificationSender().SendNotification(txAppCtx, notifications.NewOfficeAccountPrivilegeRejectedSupervisor(requestedOfficeUser.ID)); err != nil {
+						txAppCtx.Logger().Error("Error sending supervisor privilege rejection email", zap.Error(err))
+						return apperror.NewBadDataError("problem sending supervisor privilege rejection email to office user")
+					}
 				}
 				privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *requestedOfficeUser.UserID)
 				if err != nil {

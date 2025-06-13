@@ -44,9 +44,9 @@ func (o OfficeAccountPrivilegeRejectedSupervisor) emails(appCtx appcontext.AppCo
 	}
 
 	htmlBody, textBody, err := o.renderTemplates(appCtx, officeAccountPrivilegeRejectedSupervisorEmailData{
-		FirstName:       officeUser.FirstName,
-		LastName:        officeUser.LastName,
-		RejectionReason: *officeUser.RejectionReason,
+		FirstName:     officeUser.FirstName,
+		LastName:      officeUser.LastName,
+		HelpDeskEmail: "usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil",
 	})
 
 	if err != nil {
@@ -55,12 +55,12 @@ func (o OfficeAccountPrivilegeRejectedSupervisor) emails(appCtx appcontext.AppCo
 
 	officeUserEmail := emailContent{
 		recipientEmail: officeUser.Email,
-		subject:        "MilMove account request was denied",
+		subject:        "MilMove account supervisor privilege request was denied",
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
 
-	appCtx.Logger().Info("Generated office user rejected email",
+	appCtx.Logger().Info("Generated office user supervisor privilege rejected email",
 		zap.String("officeUserID", officeUser.ID.String()))
 
 	return append(emails, officeUserEmail), nil
@@ -79,9 +79,9 @@ func (o OfficeAccountPrivilegeRejectedSupervisor) renderTemplates(appCtx appcont
 }
 
 type officeAccountPrivilegeRejectedSupervisorEmailData struct {
-	FirstName       string
-	LastName        string
-	RejectionReason string
+	FirstName     string
+	LastName      string
+	HelpDeskEmail string
 }
 
 func (o OfficeAccountPrivilegeRejectedSupervisor) RenderHTML(appCtx appcontext.AppContext, data officeAccountPrivilegeRejectedSupervisorEmailData) (string, error) {
