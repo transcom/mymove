@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -964,6 +965,7 @@ type ApproveShipmentDiversionHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentDiversionApprover
 	services.ShipmentSITStatus
+	services.MoveRouter
 }
 
 // Handle approves a shipment diversion
@@ -1009,7 +1011,10 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 				return handleError(err)
 			}
 
-			h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			err = h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			if err != nil {
+				return handleError(err)
+			}
 
 			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
@@ -1022,9 +1027,26 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 		})
 }
 
-func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) {
+func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) error {
 
-	_, err := event.TriggerEvent(event.Event{
+	move := &models.Move{}
+	err := appCtx.DB().Find(move, moveID)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(moveID, "while looking for move")
+		default:
+			return apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
+		if _, err = h.ApproveOrRequestApproval(appCtx, *move); err != nil {
+			return err
+		}
+	}
+
+	_, err = event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcApproveShipmentDiversionEndpointKey,
 		// Endpoint that is being handled
 		EventKey:        event.ShipmentApproveDiversionEventKey, // Event that you want to trigger
@@ -1038,6 +1060,8 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(a
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.ApproveShipmentDiversionHandler could not generate the event", zap.Error(err))
 	}
+
+	return nil
 }
 
 // RejectShipmentHandler rejects a shipment
@@ -1265,23 +1289,6 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 
 			moveID := shipment.MoveTaskOrderID
 			h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
-
-			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), shipment.MoveTaskOrderID)
-			if err != nil {
-				return nil, err
-			}
-
-			/* Don't send emails for BLUEBARK/SAFETY moves */
-			/* Don't send reweigh emails to PPM shipments */
-			if move.Orders.CanSendEmailWithOrdersType() && shipment.CanSendReweighEmailForShipmentType() {
-				err = h.NotificationSender().SendNotification(appCtx,
-					notifications.NewReweighRequested(moveID, *shipment),
-				)
-				if err != nil {
-					appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-			}
 
 			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
 			if err != nil {

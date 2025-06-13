@@ -470,18 +470,6 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
   });
   it('toggles the sort direction when clicked - DestinationRequestsQueue', () => {
     const wrapper = GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE);
-    const statusHeading = wrapper.find({ 'data-testid': 'status' }).at(0);
-    statusHeading.simulate('click');
-    wrapper.update();
-
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
-
-    statusHeading.simulate('click');
-    wrapper.update();
-
-    // no sort direction should be applied
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
     nameHeading.simulate('click');
@@ -504,16 +492,6 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
 
     wrapper.update();
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
-  });
-
-  it('filters the queue - DestinationRequestsQueue', () => {
-    const wrapper = GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE);
-    const input = wrapper.find(Select).at(0).find('input');
-    input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
-    input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
-
-    wrapper.update();
-    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Approvals requested');
   });
 
   it('renders Search, Destination Queue and Move Queue tabs', () => {

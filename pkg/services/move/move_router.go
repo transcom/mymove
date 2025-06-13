@@ -339,8 +339,12 @@ func (router moveRouter) sendNewMoveToOfficeUser(appCtx appcontext.AppContext, m
 // Approve makes the Move available to the Prime. The Prime cannot create
 // Service Items unless the Move is approved.
 func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move) error {
+	if move == nil {
+		return errors.New("cannot approve nil move")
+	}
+
 	router.logMove(appCtx, move)
-	if router.alreadyApproved(move) {
+	if router.alreadyApproved(move) && router.noAssignedTOOs(move) {
 		return nil
 	}
 
@@ -349,6 +353,9 @@ func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move
 		now := time.Now()
 		move.ApprovedAt = &now
 		appCtx.Logger().Info("SUCCESS: Move approved")
+		// if a move is approvable, we can clear any assigned office users, if any
+		move.TOOAssignedID = nil
+		move.TOODestinationAssignedID = nil
 		return nil
 	}
 
@@ -369,6 +376,10 @@ func (router moveRouter) alreadyApproved(move *models.Move) bool {
 	return move.Status == models.MoveStatusAPPROVED
 }
 
+func (router moveRouter) noAssignedTOOs(move *models.Move) bool {
+	return move.TOOAssignedID == nil && move.TOODestinationAssignedID == nil
+}
+
 func currentStatusApprovable(move models.Move) bool {
 	return statusSliceContains(validStatusesBeforeApproval, move.Status)
 }
@@ -377,6 +388,7 @@ func approvable(move models.Move) bool {
 	return moveHasReviewedServiceItems(move) &&
 		moveHasAcknowledgedOrdersAmendment(move.Orders) &&
 		moveHasAcknowledgedExcessWeightRisk(move) &&
+		moveHasAcknowledgedUBExcessWeightRisk(move) &&
 		allSITExtensionsAreReviewed(move) &&
 		allShipmentAddressUpdatesAreReviewed(move) &&
 		allShipmentsAreApproved(move)
@@ -421,6 +433,13 @@ func moveHasAcknowledgedExcessWeightRisk(move models.Move) bool {
 		return true
 	}
 	return move.ExcessWeightAcknowledgedAt != nil
+}
+
+func moveHasAcknowledgedUBExcessWeightRisk(move models.Move) bool {
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt == nil {
+		return true
+	}
+	return move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt != nil
 }
 
 func allSITExtensionsAreReviewed(move models.Move) bool {
@@ -609,15 +628,35 @@ func (router moveRouter) CompleteServiceCounseling(_ appcontext.AppContext, move
 // ApproveOrRequestApproval routes the move appropriately based on whether or
 // not the TOO has any tasks requiring their attention.
 func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
-	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders.ServiceMember", "Orders.NewDutyLocation.Address", "MTOShipments.SITDurationUpdates", "MTOShipments.DeliveryAddressUpdate").Find(&move, move.ID)
+	err := appCtx.DB().Q().
+		EagerPreload(
+			"MTOServiceItems.ReService",
+			"MTOShipments.SITDurationUpdates",
+			"MTOShipments.DeliveryAddressUpdate",
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.UploadedAmendedOrders",
+		).
+		Find(&move, move.ID)
 	if err != nil {
-		appCtx.Logger().Error("Failed to preload MTOServiceItems and Orders for Move", zap.Error(err))
+		appCtx.Logger().Error("failed to preload data prior when routing move in ApproveOrRequestApproval", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(move.ID, "looking for Move")
 		default:
 			return nil, apperror.NewQueryError("Move", err, "")
 		}
+	}
+
+	// if a TOO is assigned to the move, check if we should clear it
+	// this returns the same move with the TOO fields updated (or not)
+	// !IMPORTANT - if any TOO actions are added, please also update this function
+	if move.TOOAssignedID != nil || move.TOODestinationAssignedID != nil {
+		updatedMove, err := models.ClearTOOAssignments(&move)
+		if err != nil {
+			return nil, err
+		}
+		move = *updatedMove
 	}
 
 	if approvable(move) {

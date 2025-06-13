@@ -44,6 +44,7 @@ type PPMCloseout struct {
 	IntlUnpackPrice       *unit.Cents
 	IntlLinehaulPrice     *unit.Cents
 	SITReimbursement      *unit.Cents
+	GCCMultiplier         *float64
 }
 
 type PPMActualWeight struct {
@@ -112,8 +113,6 @@ type PPMAdvanceStatus string
 const (
 	// PPMAdvanceStatusApproved captures enum value "APPROVED"
 	PPMAdvanceStatusApproved PPMAdvanceStatus = "APPROVED"
-	// PPMAdvanceStatusEdited captures enum value "EDITED"
-	PPMAdvanceStatusEdited PPMAdvanceStatus = "EDITED"
 	// PPMAdvanceStatusRejected captures enum value "REJECTED"
 	PPMAdvanceStatusRejected PPMAdvanceStatus = "REJECTED"
 	// PPMAdvanceStatusReceived captures enum value "RECEIVED"
@@ -126,7 +125,6 @@ const (
 // for validation.
 var AllowedPPMAdvanceStatuses = []string{
 	string(PPMAdvanceStatusApproved),
-	string(PPMAdvanceStatusEdited),
 	string(PPMAdvanceStatusRejected),
 	string(PPMAdvanceStatusReceived),
 	string(PPMAdvanceStatusNotReceived),
@@ -260,6 +258,10 @@ type PPMShipment struct {
 	PaymentPacketID                *uuid.UUID           `json:"payment_packet_id" db:"payment_packet_id"`
 	PaymentPacket                  *Document            `belongs_to:"documents" fk_id:"payment_packet_id"`
 	IsActualExpenseReimbursement   *bool                `json:"is_actual_expense_reimbursement" db:"is_actual_expense_reimbursement"`
+	HasGunSafe                     *bool                `json:"has_gun_safe" db:"has_gun_safe"`
+	GunSafeWeight                  *unit.Pound          `json:"gun_safe_weight" db:"gun_safe_weight"`
+	GCCMultiplierID                *uuid.UUID           `json:"gcc_multiplier_id" db:"gcc_multiplier_id"`
+	GCCMultiplier                  *GCCMultiplier       `belongs_to:"gcc_multipliers" fk_id:"gcc_multiplier_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -299,6 +301,8 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: p.AllowableWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
+		&OptionalPoundIsNonNegative{Name: "GunSafeWeight", Field: p.GunSafeWeight},
+		&OptionalPoundIsMax{Name: "GunSafeWeight", Field: p.GunSafeWeight, Max: 500},
 		&OptionalCentIsNotNegative{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
 		&OptionalCentIsNotNegative{Name: "MaxIncentive", Field: p.MaxIncentive},
 		&OptionalCentIsPositive{Name: "FinalIncentive", Field: p.FinalIncentive},
@@ -312,6 +316,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalCentIsPositive{Name: "SITEstimatedCost", Field: p.SITEstimatedCost},
 		&OptionalUUIDIsPresent{Name: "AOAPacketID", Field: p.AOAPacketID},
 		&OptionalUUIDIsPresent{Name: "PaymentPacketID", Field: p.PaymentPacketID},
+		&OptionalUUIDIsPresent{Name: "GCCMultiplierID", Field: p.GCCMultiplierID},
 	), nil
 
 }
