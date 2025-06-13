@@ -58,7 +58,13 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
                   </div>
                 </SectionWrapper>
                 <AddressFields name={name} formikProps={formikProps} />
-                <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
+                <TextField
+                  label="Contractor Remarks"
+                  id="contractorRemarks"
+                  name="contractorRemarks"
+                  showRequiredAsterisk
+                  required
+                />
               </SectionWrapper>
               <WizardNavigation
                 editMode
