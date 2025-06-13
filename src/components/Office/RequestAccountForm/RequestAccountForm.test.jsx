@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 import selectEvent from 'react-select-event';
@@ -8,6 +8,7 @@ import RequestAccountForm from './RequestAccountForm';
 
 import { renderWithRouter } from 'testUtils';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
+import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -18,6 +19,29 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   searchTransportationOfficesOpen: jest.fn(),
+}));
+
+jest.mock('hooks/queries', () => ({
+  useRolesPrivilegesQueriesOfficeApp: () => ({
+    result: {
+      privileges: [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }],
+      rolesWithPrivs: [
+        { roleType: 'headquarters', roleName: 'Headquarters' },
+        { roleType: 'task_ordering_officer', roleName: 'Task Ordering Officer' },
+        { roleType: 'task_invoicing_officer', roleName: 'Task Invoicing Officer' },
+        { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
+        { roleType: 'services_counselor', roleName: 'Services Counselor' },
+        { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
+        { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
+        { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
+      ],
+    },
+  }),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabledUnauthenticatedOffice: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 describe('RequestAccountForm component', () => {
@@ -37,6 +61,7 @@ describe('RequestAccountForm component', () => {
   };
 
   it('renders the form inputs', async () => {
+    isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
     const firstName = screen.getByTestId('officeAccountRequestFirstName');
@@ -114,6 +139,12 @@ describe('RequestAccountForm component', () => {
     const gsrCheckbox = screen.getByTestId('gsrCheckbox');
     expect(gsrCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(gsrCheckbox).not.toBeChecked(false);
+
+    await waitFor(() => {
+      const supervisorPrivilegeCheckbox = screen.getByTestId('supervisorPrivilegeCheckbox');
+      expect(supervisorPrivilegeCheckbox).toBeInstanceOf(HTMLInputElement);
+      expect(supervisorPrivilegeCheckbox).not.toBeChecked(false);
+    });
   });
 
   it('cancels requesting office account when cancel button is clicked', async () => {

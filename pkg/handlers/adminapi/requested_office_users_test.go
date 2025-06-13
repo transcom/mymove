@@ -522,7 +522,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		mockPrivilegesAssociator := &mocks.UserPrivilegeAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
@@ -568,7 +568,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.Anything,
 		).Return(requestedOfficeUser, nil).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
@@ -615,7 +615,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.Anything,
 		).Return(models.OfficeUser{}, expectedError).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
@@ -1002,7 +1002,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
 
@@ -1108,7 +1108,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
 
@@ -1218,7 +1218,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
 

@@ -164,7 +164,7 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.NewQueryFilter
 	services.NewPagination
 	services.TransportationOfficesFetcher
-	services.RoleAssociater
+	services.RoleAssociator
 }
 
 var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query){
@@ -256,7 +256,7 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 type GetRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserFetcher
-	services.RoleAssociater
+	services.RoleAssociator
 	services.UserPrivilegeAssociator
 	services.NewQueryFilter
 }
@@ -279,7 +279,7 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 
-			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
+			roles, err := h.RoleAssociator.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return requested_office_users.NewGetRequestedOfficeUserInternalServerError(), err
@@ -300,7 +300,7 @@ type UpdateRequestedOfficeUserHandler struct {
 	services.RequestedOfficeUserUpdater
 	services.UserPrivilegeAssociator
 	services.UserRoleAssociator
-	services.RoleAssociater
+	services.RoleAssociator
 }
 
 // Handle updates a single requested office user
@@ -373,7 +373,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 					appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 				}
 
-				roles, err := h.RoleAssociater.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
+				roles, err := h.RoleAssociator.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
 				if err != nil {
 					txAppCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 					return err

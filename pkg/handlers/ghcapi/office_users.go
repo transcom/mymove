@@ -29,9 +29,9 @@ type RequestOfficeUserHandler struct {
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
-	services.RoleAssociater
+	services.RoleAssociator
 	services.UserPrivilegeAssociator
-	services.PrivilegeAssociater
+	services.PrivilegeAssociator
 	services.TransportaionOfficeAssignmentUpdater
 }
 
@@ -257,13 +257,13 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
 			}
 
-			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
+			roles, err := h.RoleAssociator.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
 			}
 
-			privileges, err := h.PrivilegeAssociater.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
+			privileges, err := h.PrivilegeAssociator.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
@@ -350,14 +350,14 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 // GetRolesPrivilegesHandler retrieves a list of unique role to privilege mappings via GET /office_users/roles-privileges
 type GetRolesPrivilegesHandler struct {
 	handlers.HandlerConfig
-	services.RoleAssociater
+	services.RoleAssociator
 }
 
 func (h GetRolesPrivilegesHandler) Handle(params rpop.GetRolesPrivilegesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			rolesWithRolePrivs, err := h.RoleAssociater.FetchRolesPrivileges(appCtx)
+			rolesWithRolePrivs, err := h.RoleAssociator.FetchRolesPrivileges(appCtx)
 			if err != nil && errors.Is(err, sql.ErrNoRows) {
 				return rpop.NewGetRolesPrivilegesNotFound(), err
 			} else if err != nil {

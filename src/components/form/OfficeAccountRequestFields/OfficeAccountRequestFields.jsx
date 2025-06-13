@@ -4,7 +4,6 @@ import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
 
 import RequiredAsterisk from '../RequiredAsterisk';
-import OptionalTag from '../OptionalTag';
 
 import styles from './OfficeAccountRequestFields.module.scss';
 
@@ -16,6 +15,7 @@ import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { useRolesPrivilegesQueriesOfficeApp } from 'hooks/queries';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { roleTypes } from 'constants/userRoles';
 
 export const OfficeAccountRequestFields = ({ render }) => {
   const { values, errors, touched, setFieldTouched, validateField } = useFormikContext();
@@ -26,7 +26,15 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const { result } = useRolesPrivilegesQueriesOfficeApp();
   const { privileges, rolesWithPrivs } = result;
 
-  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== 'customer');
+  const filteredPrivileges = privileges.filter((privilege) => {
+    if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY) {
+      return false;
+    }
+    return true;
+  });
+
+  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== roleTypes.CUSTOMER);
+
   const hasAnyRoleSelected = React.useMemo(
     () => availableRoles.some(({ roleType }) => !!values[`${roleType}Checkbox`]),
     [availableRoles, values],
@@ -60,40 +68,17 @@ export const OfficeAccountRequestFields = ({ render }) => {
   }, [values.officeAccountRequestEdipi, values.officeAccountRequestOtherUniqueId]);
 
   const firstInteractionOccurred = useRef(false);
-  useEffect(() => {
-    const anyChecked = [
-      values.task_ordering_officerCheckbox,
-      values.task_invoicing_officerCheckbox,
-      values.services_counselorCheckbox,
-      values.contracting_officerCheckbox,
-      values.qaeCheckbox,
-      values.headquartersCheckbox,
-      values.customer_services_representativeCheckbox,
-      values.gsrCheckbox,
-    ].some(Boolean);
 
-    // only start marking the field as touched after initial mount
+  useEffect(() => {
     if (!firstInteractionOccurred.current) {
-      if (anyChecked) {
+      if (hasAnyRoleSelected) {
         firstInteractionOccurred.current = true;
       }
       return;
     }
-
     setFieldTouched('requestedRolesGroup', true, false);
     validateField('requestedRolesGroup');
-  }, [
-    values.task_ordering_officerCheckbox,
-    values.task_invoicing_officerCheckbox,
-    values.services_counselorCheckbox,
-    values.contracting_officerCheckbox,
-    values.qaeCheckbox,
-    values.headquartersCheckbox,
-    values.customer_services_representativeCheckbox,
-    values.gsrCheckbox,
-    setFieldTouched,
-    validateField,
-  ]);
+  }, [hasAnyRoleSelected, setFieldTouched, validateField]);
 
   const transportationOfficerTouched = useRef(false);
   useEffect(() => {
@@ -118,13 +103,6 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const edipiFieldName = 'officeAccountRequestEdipi';
   const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
-
-  const filteredPrivileges = privileges.filter((privilege) => {
-    if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY) {
-      return false;
-    }
-    return true;
-  });
 
   return (
     <Fieldset>
@@ -259,7 +237,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
           )}
           {availableRoles.map(({ roleType, roleName }) => {
             const fieldName = `${roleType}Checkbox`;
-            const isTransportRole = roleType === 'task_ordering_officer' || roleType === 'task_invoicing_officer';
+            const isTransportRole = roleType === roleTypes.TOO || roleType === roleTypes.TIO;
 
             const describedBy = [
               showRequestedRolesError && 'requestedRolesGroupError',
@@ -282,10 +260,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
           })}
           {enableRequestAccountPrivileges && (
             <>
-              <Label data-testid="requestedPrivilegesHeading">
-                Privilege(s)
-                <OptionalTag />
-              </Label>
+              <Label data-testid="requestedPrivilegesHeading">Privilege(s)</Label>
               {filteredPrivileges.map(({ privilegeType, privilegeName }) => (
                 <CheckboxField
                   id={`${privilegeType}PrivilegeCheckbox`}
