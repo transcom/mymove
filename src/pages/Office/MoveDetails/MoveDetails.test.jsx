@@ -1100,11 +1100,10 @@ describe('MoveDetails page', () => {
       expect(wrapper.find('SubmittedRequestedShipments')).toHaveLength(1);
     });
 
-    // it('renders the Orders Table', () => {
-    //   expect(wrapper.find('#orders h2').text()).toEqual('Orders');
-    //   expect(wrapper.find('dd[data-testid="NTStac"]').text()).toEqual('1111');
-    //   expect(wrapper.find('dd[data-testid="NTSsac"]').text()).toEqual('2222');
-    // });
+    it('renders the Orders Table', () => {
+      expect(wrapper.find('dd[data-testid="NTStac"]').text()).toEqual('1111');
+      expect(wrapper.find('dd[data-testid="NTSsac"]').text()).toEqual('2222');
+    });
 
     it('renders the Allowances Table', () => {
       expect(wrapper.find('#allowances h2').text()).toEqual('Allowances');
@@ -1142,24 +1141,23 @@ describe('MoveDetails page', () => {
   describe('retiree move with shipment', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQueryRetiree);
 
-    // const wrapper = mount(
-    //   <MockProviders>
-    //     <MoveDetails
-    //       setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-    //       setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-    //       setExcessWeightRiskCount={setExcessWeightRiskCount}
-    //       setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
-    //       missingOrdersInfoCount={0}
-    //       setMissingOrdersInfoCount={setMissingOrdersInfoCount}
-    //       setShipmentErrorConcernCount={setShipmentErrorConcernCount}
-    //     />
-    //   </MockProviders>,
-    // );
-    // it('renders the Orders Table', () => {
-    //   expect(wrapper.find('#orders h2').text()).toEqual('Orders');
-    //   expect(wrapper.find('[data-testid="newDutyLocationLabel"]').text()).toEqual('HOR, HOS, or PLEAD');
-    //   expect(wrapper.find('[data-testid="reportByDateLabel"]').text()).toEqual('Date of retirement');
-    // });
+    const wrapper = mount(
+      <MockProviders>
+        <MoveDetails
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
+          setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
+        />
+      </MockProviders>,
+    );
+    it('renders the Orders Table', () => {
+      expect(wrapper.find('[data-testid="newDutyLocationLabel"]').text()).toEqual('HOR, HOS, or PLEAD');
+      expect(wrapper.find('[data-testid="reportByDateLabel"]').text()).toEqual('Date of retirement');
+    });
   });
 
   describe('requested shipment with amended orders', () => {
