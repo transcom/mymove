@@ -1,0 +1,5 @@
+-- Local test migration.
+-- This will be run on development environments.
+-- It should mirror what you intend to apply on loadtest/demo/exp/stg/prd
+-- DO NOT include any sensitive data.
+-- Cam b-22662, upload NTS market factor data into AWS as a secure migration

@@ -300,6 +300,18 @@ type IntlShippingAndLinehaulPricer interface {
 	ParamsPricer
 }
 
+// IntlNTSHHGPackPricer prices international packing for an iHHG -> iNTS shipment within a move
+//
+//go:generate mockery --name IntlNTSHHGPackPricer
+type IntlNTSHHGPackPricer interface {
+	Price(appCtx appcontext.AppContext,
+		contractCode string,
+		referenceDate time.Time,
+		weight unit.Pound,
+		perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
 // IntlHHGPackPricer prices international packing for an iHHG shipment within a move
 //
 //go:generate mockery --name IntlHHGPackPricer
