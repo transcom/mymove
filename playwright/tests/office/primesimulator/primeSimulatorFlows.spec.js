@@ -303,4 +303,83 @@ test.describe('Prime simulator user', () => {
 
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
   });
+
+  test('HHG is able select third address without affecting second address selection', async ({ page, officePage }) => {
+    const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationSITOutDate();
+    const moveLocator = move.locator;
+
+    await officePage.signInAsNewPrimeSimulatorUser();
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
+    await page.getByRole('link', { name: 'Create Shipment' }).click();
+
+    await page.locator('select[name="shipmentType"]').selectOption('HHG');
+
+    await page.locator('input[name="pickupAddress.streetAddress1"]').fill('123 Main St');
+    await page.locator('input#pickupAddress-input').fill('90210');
+    await page.getByText('BEVERLY HILLS, CA 90210 (LOS ANGELES)').click();
+
+    await page.waitForTimeout(1000); // Wait for 1 second
+    await page.locator('label[for="has-secondary-pickup"]').click({ force: true });
+
+    await page.locator('input[name="secondaryPickupAddress.streetAddress1"]').fill('789 Elm St');
+    await page.locator('input#secondaryPickupAddress-input').fill('60601');
+    await page.getByText('CHICAGO, IL 60601 (COOK)').click();
+
+    await page.waitForTimeout(1000); // Wait for 1 second
+    await page.locator('label[for="has-tertiary-pickup"]').click({ force: true });
+
+    await page.locator('input[name="tertiaryPickupAddress.streetAddress1"]').fill('789 Elm St');
+    await page.locator('input#tertiaryPickupAddress-input').fill('60605');
+    await page.getByText('CHICAGO, IL 60605 (COOK)').click();
+
+    // Verify that when has-tertiary-destination is checked or unchecked that has-secondary-destionation is not affected by changing this radio button valueawait expect(page.getByTestId('has-secondary-destination')).toBeChecked();
+    await page.waitForTimeout(1000); // Wait for 1 second
+    await page.locator('label[for="no-tertiary-pickup"]').click({ force: true });
+    await expect(page.getByTestId('has-secondary-pickup')).toBeChecked();
+    await page.waitForTimeout(1000); // Wait for 1 second
+    await page.locator('label[for="has-tertiary-pickup"]').click({ force: true });
+    await expect(page.getByTestId('has-secondary-pickup')).toBeChecked();
+  });
+
+  test('PPM is able select third address without affecting second address selection', async ({ page, officePage }) => {
+    const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationSITOutDate();
+    const moveLocator = move.locator;
+
+    await officePage.signInAsNewPrimeSimulatorUser();
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
+    await page.getByRole('link', { name: 'Create Shipment' }).click();
+
+    await page.locator('select[name="shipmentType"]').selectOption('PPM');
+
+    await page.locator('input[name="ppmShipment.pickupAddress.streetAddress1"]').fill('123 Main St');
+    await page.locator('input[id="ppmShipment.pickupAddress-input"]').fill('90210');
+
+    await page.getByText('BEVERLY HILLS, CA 90210 (LOS ANGELES)').click();
+
+    await page.waitForTimeout(1000); // Wait for 1 second
+    await page.locator('label[for="has-secondary-pickup"]').click({ force: true });
+
+    await page.locator('input[name="ppmShipment.secondaryPickupAddress.streetAddress1"]').fill('789 Elm St');
+    await page.locator('input[id="ppmShipment.secondaryPickupAddress-input"]').fill('60601');
+    await page.getByText('CHICAGO, IL 60601 (COOK)').click();
+
+    await page.waitForTimeout(1000); // Wait for 1 second
+    await page.locator('label[for="has-tertiary-pickup"]').click({ force: true });
+
+    await page.locator('input[name="ppmShipment.tertiaryPickupAddress.streetAddress1"]').fill('789 Elm St');
+    await page.locator('input[id="ppmShipment.tertiaryPickupAddress-input"]').fill('60605');
+    await page.getByText('CHICAGO, IL 60605 (COOK)').click();
+
+    // Verify that when has-tertiary-destination is checked or unchecked that has-secondary-destionation is not affected by changing this radio button valueawait expect(page.getByTestId('has-secondary-destination')).toBeChecked();
+    await page.waitForTimeout(1000); // Wait for 1 second
+    await page.locator('label[for="no-tertiary-pickup"]').click({ force: true });
+    await expect(page.getByTestId('has-secondary-pickup')).toBeChecked();
+    await page.waitForTimeout(1000); // Wait for 1 second
+    await page.locator('label[for="has-tertiary-pickup"]').click({ force: true });
+    await expect(page.getByTestId('has-secondary-pickup')).toBeChecked();
+  });
 });
