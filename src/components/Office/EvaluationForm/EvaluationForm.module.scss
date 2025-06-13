@@ -9,13 +9,12 @@
 }
 
 .buttonRow {
-  @include u-display('flex');
-  @include u-float('right');
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 
-  :global {
-    .usa-button--unstyled {
-      @include u-margin-top(1.5);
-    }
+  .cancelBtn {
+    margin-bottom: 8px;
   }
 }
 
@@ -121,6 +120,7 @@
   font-weight: 700;
   color: $link;
   @include u-padding-left(0 !important);
+  padding-bottom: 8px;
 }
 
 .modalActions {
