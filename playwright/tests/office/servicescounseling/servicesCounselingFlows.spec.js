@@ -515,18 +515,21 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       await expect(page.getByLabel('Accept')).toBeVisible();
-      await page.getByLabel('Accept').dispatchEvent('click');
-      await page.getByRole('button', { name: 'Continue' }).click();
+      await expect(page.getByTestId('approveRadio')).toBeEnabled();
+      await page.getByTestId('approveRadio').dispatchEvent('click');
+      await page.getByTestId('reviewDocumentsContinueButton').dispatchEvent('click');
 
       await scPage.waitForPage.reviewProGear();
       await expect(page.getByLabel('Accept')).toBeVisible();
-      await page.getByLabel('Accept').dispatchEvent('click');
-      await page.getByRole('button', { name: 'Continue' }).click();
+      await expect(page.getByTestId('approveRadio')).toBeEnabled();
+      await page.getByTestId('approveRadio').dispatchEvent('click');
+      await page.getByTestId('reviewDocumentsContinueButton').dispatchEvent('click');
 
       await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
-      await expect(page.getByLabel('Accept')).toBeVisible();
-      await page.getByLabel('Accept').dispatchEvent('click');
-      await page.getByRole('button', { name: 'Continue' }).click();
+      await expect(page.getByLabel('Accept')).toBeEnabled();
+      await expect(page.getByTestId('acceptRadio')).toBeEnabled();
+      await page.getByTestId('acceptRadio').dispatchEvent('click');
+      await page.getByTestId('reviewDocumentsContinueButton').dispatchEvent('click');
 
       await scPage.waitForPage.reviewDocumentsConfirmation();
       await page.waitForSelector('text="Loading, Please Wait..."', { state: 'hidden' });
