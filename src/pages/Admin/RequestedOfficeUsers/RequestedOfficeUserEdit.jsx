@@ -261,6 +261,7 @@ const RequestedOfficeUserEdit = () => {
       />
 
       <RequestedOfficeUserPrivilegeConfirm
+        dialogId="edit-approve-privilege-dialog"
         isOpen={approveDialogOpen}
         privileges={userData?.privileges || []}
         checkedPrivileges={checkedPrivileges}

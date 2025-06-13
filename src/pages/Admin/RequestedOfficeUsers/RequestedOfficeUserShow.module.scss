@@ -23,12 +23,14 @@
     .rejectBtn {
         width: 100px;
         height: 38px;
-        background-color: $error;
+        background-color:  #d84006;
+        font-size: 11pt;
+        color: #fff;
 
         &:active,
         &:hover,
         &:focus {
-          background-color:  $error;
+          background-color:  #d84006;
           opacity: 80%;
         }
     }

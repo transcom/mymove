@@ -257,7 +257,7 @@ export class CustomerPpmPage extends CustomerPage {
         filepond
           .locator('../..')
           .locator('p')
-          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+          .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
       ).toBeVisible();
 
       await this.page.getByLabel('Full weight').clear();
@@ -297,7 +297,7 @@ export class CustomerPpmPage extends CustomerPage {
         emptyFilepond
           .locator('../..')
           .locator('p')
-          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+          .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
       ).toBeVisible();
 
       await this.page.getByLabel('Full Weight').clear();
@@ -316,7 +316,7 @@ export class CustomerPpmPage extends CustomerPage {
         fullFilepond
           .locator('../..')
           .locator('p')
-          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+          .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
       ).toBeVisible();
     }
 
@@ -971,7 +971,7 @@ export class CustomerPpmPage extends CustomerPage {
       fullFilepond
         .locator('../..')
         .locator('p')
-        .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+        .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
     ).toBeVisible();
 
     await this.page.locator('input[name="sitStartDate"]').fill('14 Aug 2022');

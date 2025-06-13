@@ -37,17 +37,19 @@ const RequestedOfficeUserShowTitle = () => {
 const RequestedOfficeUserShowRolesPrivileges = ({ recordSource, recordLabel, recordField }) => {
   const record = useRecordContext();
   const sourceLabel = typeof recordSource === 'string' ? recordSource.toLowerCase() : '';
-  if (!record?.[recordSource]) return <p>This user has not requested any {sourceLabel}.</p>;
+  if (!record?.[recordSource]) return <p>{`This user has not requested any ${sourceLabel}.`}</p>;
   let items = record[recordSource] || [];
   if (recordSource === 'privileges') {
     items = items.filter((priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR);
   }
-  if (!items.length) return <p>This user has not requested any {sourceLabel}.</p>;
+  if (!items.length) return <p>{`This user has not requested any ${sourceLabel}.`}</p>;
 
   return (
     <ArrayField source={recordSource} record={{ ...record, [recordSource]: items }}>
-      <span>{recordLabel}:</span>
-      <Datagrid bulkActionButtons={false}>
+      <span id={`${recordSource}-label`}>
+        <strong>{recordLabel}:</strong>
+      </span>
+      <Datagrid bulkActionButtons={false} aria-labelledby={`${recordSource}-label`}>
         <TextField source={recordField} />
       </Datagrid>
     </ArrayField>
@@ -162,9 +164,11 @@ const RequestedOfficeUserActionButtons = () => {
         </Alert>
       )}
       <div className={styles.rejectionInput}>
-        <Label>Rejection reason (required if rejecting)</Label>
+        <Label htmlFor="show-rejection-reason-input">Rejection reason (required if rejecting)</Label>
         <TextInput
+          id="show-rejection-reason-input"
           label="Rejection reason"
+          aria-label="Rejection reason"
           source="rejectionReason"
           value={rejectionReason}
           onChange={(e) => {
@@ -189,6 +193,7 @@ const RequestedOfficeUserActionButtons = () => {
         <EditButton />
       </div>
       <RequestedOfficeUserPrivilegeConfirm
+        dialogId="show-approve-privilege-dialog"
         isOpen={approveDialogOpen}
         privileges={record?.privileges || []}
         checkedPrivileges={checkedPrivileges}

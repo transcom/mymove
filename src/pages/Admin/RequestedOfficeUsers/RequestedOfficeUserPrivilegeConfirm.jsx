@@ -4,6 +4,7 @@ import { Confirm } from 'react-admin';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 const RequestedOfficeUserPrivilegeConfirm = ({
+  dialogId,
   isOpen,
   title = 'Attention: The user has requested the selected privilege(s)',
   privileges = [],
@@ -21,8 +22,8 @@ const RequestedOfficeUserPrivilegeConfirm = ({
       isOpen={isOpen}
       title={title}
       content={
-        <div>
-          <p id="privilege-dialog-desc">
+        <div id={dialogId} data-testid="RequestedOfficeUserPrivilegeConfirm">
+          <p id="privilege-dialog-desc" aria-labelledby="privilege-dialog-legend">
             If the user is not qualified for a selected privilege, please deselect it before approval.
             <br />
             If you want to halt the approval process, select Cancel.
@@ -45,7 +46,7 @@ const RequestedOfficeUserPrivilegeConfirm = ({
                       name="privileges"
                       value={priv.id}
                       checked={checkedPrivileges.includes(priv.id)}
-                      aria-labelledby={`privilege-label-${priv.id} privilege-dialog-legend`}
+                      aria-labelledby={`privilege-label-${priv.id}`}
                       aria-describedby="privilege-dialog-desc"
                       tabIndex={0}
                       onKeyDown={(e) => {
@@ -65,7 +66,7 @@ const RequestedOfficeUserPrivilegeConfirm = ({
                     <label id={`privilege-label-${priv.id}`} htmlFor={`privilege-${priv.id}`} style={{ marginLeft: 8 }}>
                       {priv.privilegeName && String(priv.privilegeName).trim().length > 0
                         ? priv.privilegeName
-                        : 'Privilege'}
+                        : 'Supervisor'}
                     </label>
                   </div>
                 ))}

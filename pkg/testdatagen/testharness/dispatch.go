@@ -236,6 +236,9 @@ var actionDispatcher = map[string]actionFunc{
 	"RequestedOfficeUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeRequestedOfficeUserWithTOO(appCtx)
 	},
+	"RequestedOfficeUserWithPrivilege": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeRequestedOfficeUserWithPrivilege(appCtx)
+	},
 	"RejectedOfficeUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeRejectedOfficeUserWithTOO(appCtx)
 	},
