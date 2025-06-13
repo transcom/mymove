@@ -599,4 +599,31 @@ describe('Orders page', () => {
       expect(hasWoundedWarrior).toBe(true);
     });
   });
+
+  it('BLUEBARK FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
+    renderWithProviders(<Orders {...testProps} />, {});
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(false);
+    });
+  });
+  it('BLUEBARK FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
+    renderWithProviders(<Orders {...testProps} />, {});
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(true);
+    });
+  });
 });

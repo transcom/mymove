@@ -588,4 +588,46 @@ describe('Orders page', () => {
       });
     });
   });
+
+  describe('BLUEBARK FF', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('BLUEBARK FF turned off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+        expect(hasBluebark).toBe(false);
+      });
+    });
+
+    it('BLUEBARK FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+        expect(hasBluebark).toBe(true);
+      });
+    });
+  });
 });

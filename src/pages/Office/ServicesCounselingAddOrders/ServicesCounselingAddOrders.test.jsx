@@ -520,4 +520,28 @@ describe('ServicesCounselingAddOrders component', () => {
       expect(mockNavigate).toHaveBeenCalledWith(-1);
     });
   });
+
+  it('BLUEBARK FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(false);
+    });
+  });
+
+  it('BLUEBARK FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(true);
+    });
+  });
 });
