@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './shipmentApprovalPreview.module.scss';
 
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
@@ -29,6 +31,14 @@ const ShipmentApprovalPreview = ({
   isSubmitting,
 }) => {
   const [isOconusMove, setIsOconusMove] = useState(false);
+  const [IsMoveApprovalButtonDisabled, setIsMoveApprovalButtonDisabled] = useState(false);
+
+  useEffect(() => {
+    const fetchFlag = async () => {
+      setIsMoveApprovalButtonDisabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.DISABLE_MOVE_APPROVAL));
+    };
+    fetchFlag();
+  }, []);
 
   useEffect(() => {
     // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB allowance details
@@ -61,7 +71,7 @@ const ShipmentApprovalPreview = ({
               <Button type="reset" secondary onClick={() => setIsModalVisible(false)}>
                 Back
               </Button>
-              <Button type="submit" onClick={onSubmit} disabled={isSubmitting}>
+              <Button type="submit" onClick={onSubmit} disabled={isSubmitting || IsMoveApprovalButtonDisabled}>
                 Approve and send
               </Button>
             </div>
