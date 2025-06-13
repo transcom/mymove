@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import * as Yup from 'yup';
 
 import { getUnSupportedStates, unSupportedStates, unSupportedStatesDisabledAlaska } from '../constants/states';
@@ -255,14 +256,14 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .oneOf([Yup.ref('officeAccountRequestEmail'), null], 'Emails must match')
     .required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
-  taskOrderingOfficerCheckBox: Yup.bool(),
-  taskInvoicingOfficerCheckBox: Yup.bool(),
+  task_ordering_officerCheckbox: Yup.bool(),
+  task_invoicing_officerCheckbox: Yup.bool(),
   transportationOfficerRoleConflict: Yup.mixed().test(
     'onlyOneTransportationOfficerRole',
     'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
     function validateConflict(_, context) {
-      const { taskOrderingOfficerCheckBox, taskInvoicingOfficerCheckBox } = context.parent;
-      return !(taskOrderingOfficerCheckBox && taskInvoicingOfficerCheckBox);
+      const { task_ordering_officerCheckbox, task_invoicing_officerCheckbox } = context.parent;
+      return !(task_ordering_officerCheckbox && task_invoicing_officerCheckbox);
     },
   ),
   requestedRolesGroup: Yup.mixed().test(
@@ -270,25 +271,25 @@ export const officeAccountRequestSchema = Yup.object().shape({
     'You must select at least one role.',
     function atLeastOneRoleValidator(_, context) {
       const {
-        taskOrderingOfficerCheckBox,
-        taskInvoicingOfficerCheckBox,
-        servicesCounselorCheckBox,
-        transportationContractingOfficerCheckBox,
-        qualityAssuranceEvaluatorCheckBox,
-        headquartersCheckBox,
-        customerSupportRepresentativeCheckBox,
-        governmentSurveillanceRepresentativeCheckbox,
+        task_ordering_officerCheckbox,
+        task_invoicing_officerCheckbox,
+        services_counselorCheckbox,
+        contracting_officerCheckbox,
+        qaeCheckbox,
+        headquartersCheckbox,
+        customer_service_representativeCheckbox,
+        gsrCheckbox,
       } = context.parent;
 
       const values = [
-        taskOrderingOfficerCheckBox,
-        taskInvoicingOfficerCheckBox,
-        servicesCounselorCheckBox,
-        transportationContractingOfficerCheckBox,
-        qualityAssuranceEvaluatorCheckBox,
-        headquartersCheckBox,
-        customerSupportRepresentativeCheckBox,
-        governmentSurveillanceRepresentativeCheckbox,
+        task_ordering_officerCheckbox,
+        task_invoicing_officerCheckbox,
+        services_counselorCheckbox,
+        contracting_officerCheckbox,
+        qaeCheckbox,
+        headquartersCheckbox,
+        customer_service_representativeCheckbox,
+        gsrCheckbox,
       ];
 
       return values.some(Boolean);
