@@ -2680,6 +2680,10 @@ func init() {
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
+        "grade": {
+          "type": "string",
+          "example": "E_5"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2715,7 +2719,7 @@ func init() {
         },
         "rank": {
           "type": "string",
-          "example": "E_5"
+          "example": "General"
         },
         "reportByDate": {
           "type": "string",
@@ -7385,6 +7389,10 @@ func init() {
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
+        "grade": {
+          "type": "string",
+          "example": "E_5"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -7420,7 +7428,7 @@ func init() {
         },
         "rank": {
           "type": "string",
-          "example": "E_5"
+          "example": "General"
         },
         "reportByDate": {
           "type": "string",

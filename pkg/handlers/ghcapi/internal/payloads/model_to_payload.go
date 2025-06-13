@@ -2997,6 +2997,21 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 	return nil
 }
 
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
+	var payloadPayGrades []*ghcmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := ghcmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
+}
+
 func CountryCodeName(country *models.Country) *ghcmessages.Country {
 	if country == nil || *country == (models.Country{}) {
 		return nil
@@ -3015,19 +3030,4 @@ func Countries(countries models.Countries) ghcmessages.Countries {
 		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
-}
-
-// PayGrades payload
-func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
-	var payloadPayGrades []*ghcmessages.OrderPayGrades
-
-	for _, payGrade := range payGrades {
-		tempPayGrade := ghcmessages.OrderPayGrades{
-			Grade:       payGrade.Grade,
-			Description: *payGrade.GradeDescription,
-		}
-		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
-	}
-
-	return payloadPayGrades
 }
