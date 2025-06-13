@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -21,7 +22,7 @@ func FetchOrBuildRank(db *pop.Connection, customs []Customization, traits []Trai
 	}
 
 	// cannot get a rank unless there is a provided pay grade id or it's provided link only
-	if db != nil {
+	if rank.PayGradeID == uuid.Nil && db != nil {
 		var existingPayGrade models.PayGrade
 		err := db.Where("grade = ?", models.ServiceMemberGradeE1).First(&existingPayGrade)
 		if err == nil {
@@ -30,11 +31,18 @@ func FetchOrBuildRank(db *pop.Connection, customs []Customization, traits []Trai
 		} else {
 			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", models.ServiceMemberGradeE4, err))
 		}
-
+	}
+	if rank.Affiliation == "" {
 		rank.Affiliation = string(models.DepartmentIndicatorARMY)
+	}
+	if rank.RankAbbv == "" {
 		rank.RankAbbv = "SrA"
+	}
+	if rank.RankName == "" {
 		rank.RankName = "Senior Airman"
-
+	}
+	// cannot save to DB without a paygrade ID return local copy only
+	if rank.PayGradeID != uuid.Nil {
 		mustCreate(db, &rank)
 	}
 
