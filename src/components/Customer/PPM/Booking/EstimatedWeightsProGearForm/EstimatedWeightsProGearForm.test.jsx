@@ -122,7 +122,7 @@ describe('EstimatedWeightsProGearForm component', () => {
         expect(screen.getByLabelText(/Estimated weight of your gun safe/)).toBeInstanceOf(HTMLInputElement);
         expect(
           screen.queryByText(
-            /The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against the authorized weight entitlement. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks./,
+            /The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against the authorized weight entitlement. The weight entitlement is charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer's overall entitlement is already at the 18,000 lbs maximum./,
           ),
         ).toBeInTheDocument();
       });
