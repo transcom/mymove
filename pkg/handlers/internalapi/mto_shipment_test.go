@@ -977,8 +977,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		// Address fields
 		street1 := "123 main street"
-		city := "New York"
-		state := "NY"
+		city := "BEVERLY HILLS"
+		state := "CA"
 		zipcode := "90210"
 
 		ppmUpdateTestCases := map[string]struct {

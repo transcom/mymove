@@ -11,7 +11,7 @@ import (
 )
 
 // MakeOfficeUser creates a single office user and associated TransportOffice
-func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+func MakeOfficeUser(db *pop.Connection, assertions Assertions) (models.OfficeUser, error) {
 	user := assertions.OfficeUser.User
 	// There's a uniqueness constraint on office user emails so add some randomness
 	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", MakeRandomString(5))
@@ -40,7 +40,11 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 
 	office := assertions.OfficeUser.TransportationOffice
 	if isZeroUUID(office.ID) {
-		office = MakeTransportationOffice(db, assertions)
+		var err error
+		office, err = MakeTransportationOffice(db, assertions)
+		if err != nil {
+			return models.OfficeUser{}, err
+		}
 	}
 
 	officeUser := models.OfficeUser{
@@ -58,5 +62,5 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 
 	mustCreate(db, &officeUser, assertions.Stub)
 
-	return officeUser
+	return officeUser, nil
 }

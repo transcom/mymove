@@ -100,13 +100,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "77777",
-				},
-			},
-		}, nil)
+
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		updatedGbloc := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.Address.PostalCode, "UUUU")
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
@@ -751,12 +746,12 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 
-		usprc, _ := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus:           models.BoolPointer(true),
-					UsPostRegionCityID: &usprc.ID,
+					IsOconus:   models.BoolPointer(true),
+					PostalCode: "99801",
+					City:       "JUNEAU",
 				},
 			},
 		}, nil)
@@ -1192,12 +1187,12 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 
-		usprc, _ := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus:           models.BoolPointer(true),
-					UsPostRegionCityID: &usprc.ID,
+					IsOconus:   models.BoolPointer(true),
+					PostalCode: "99801",
+					City:       "JUNEAU",
 				},
 			},
 		}, nil)
