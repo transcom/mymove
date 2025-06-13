@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { func } from 'prop-types';
 import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
@@ -35,7 +35,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
 
   const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== roleTypes.CUSTOMER);
 
-  const hasAnyRoleSelected = React.useMemo(
+  const hasAnyRoleSelected = useMemo(
     () => availableRoles.some(({ roleType }) => !!values[`${roleType}Checkbox`]),
     [availableRoles, values],
   );
