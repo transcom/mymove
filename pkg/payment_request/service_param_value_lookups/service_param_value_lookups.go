@@ -170,6 +170,13 @@ func ServiceParamLookupInitialize(
 		}
 	}
 
+	if mtoServiceItem.SITOriginHHGActualAddressID != nil && mtoServiceItem.SITOriginHHGActualAddress == nil {
+		err := appCtx.DB().Load(&mtoServiceItem, "SITOriginHHGActualAddress")
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	mtoServiceItem.SITDestinationFinalAddress = &sitDestinationFinalAddress
 	mtoServiceItem.SITDestinationOriginalAddress = &sitDestinationOriginalAddress
 	mtoServiceItem.Dimensions = serviceItemDimensions

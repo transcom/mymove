@@ -19,7 +19,6 @@ import {
   createProGearWeightTicket,
   deleteUpload,
   patchProGearWeightTicket,
-  patchMTOShipment,
   getMTOShipmentsForMove,
   getAllMoves,
 } from 'services/internalApi';
@@ -132,38 +131,6 @@ const ProGear = () => {
       });
   };
 
-  const updateMtoShipment = (values) => {
-    const belongsToSelf = values.belongsToSelf === 'true';
-    let proGear;
-    let spouseProGear;
-    if (belongsToSelf) {
-      proGear = values.weight;
-    }
-    if (!belongsToSelf) {
-      spouseProGear = values.weight;
-    }
-    const payload = {
-      belongsToSelf,
-      ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
-      },
-      shipmentType: mtoShipment.shipmentType,
-      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
-      actualProGearWeight: parseInt(proGear, 10),
-      shipmentLocator: values.shipmentLocator,
-      eTag: mtoShipment.eTag,
-    };
-
-    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
-      .then((response) => {
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(response));
-      })
-      .catch(() => {
-        setErrorMessage('Failed to update MTO shipment due to server error.');
-      });
-  };
-
   const updateProGearWeightTicket = (values) => {
     const hasWeightTickets = !values.missingWeightTicket;
     const belongsToSelf = values.belongsToSelf === 'true';
@@ -188,7 +155,6 @@ const ProGear = () => {
           .then((response) => {
             dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
             mtoShipment.eTag = response.mtoShipments[mtoShipmentId].eTag;
-            updateMtoShipment(values);
             navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
           })
           .catch(() => {
