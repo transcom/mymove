@@ -12,7 +12,7 @@ export default {
   getDetails: ({ changedValues }) => (
     <>
       <div>PPM Closeout Complete</div>
-      {changedValues?.sc_assigned_id !== undefined ? <div>Closeout Counselor Unassigned</div> : null}
+      {changedValues?.sc_closeout_assigned_id !== undefined ? <div>Closeout Counselor Unassigned</div> : null}
     </>
   ),
 };

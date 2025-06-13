@@ -5970,11 +5970,13 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
-      SCAssignedUser:
+      SCCounselingAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TIOAssignedUser:
+      TIOPaymentRequestAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOODestinationAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
