@@ -32,7 +32,8 @@ type BackupContact struct {
 	ServiceMemberID uuid.UUID               `json:"service_member_id" db:"service_member_id"`
 	ServiceMember   ServiceMember           `belongs_to:"service_member" fk_id:"service_member_id"`
 	Permission      BackupContactPermission `json:"permission" db:"permission"`
-	Name            string                  `json:"name" db:"name"`
+	FirstName       string                  `json:"first_name" db:"first_name"`
+	LastName        string                  `json:"last_name" db:"last_name"`
 	Email           string                  `json:"email" db:"email"`
 	Phone           string                  `json:"phone" db:"phone"`
 }
@@ -47,7 +48,8 @@ type BackupContacts []BackupContact
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (b *BackupContact) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: b.Name, Name: "Name"},
+		&validators.StringIsPresent{Field: b.FirstName, Name: "FirstName"},
+		&validators.StringIsPresent{Field: b.LastName, Name: "LastName"},
 		&validators.StringIsPresent{Field: b.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: string(b.Permission), Name: "Permission"},
 	), nil

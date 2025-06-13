@@ -24,9 +24,13 @@ type BackupContact struct {
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email string `json:"email,omitempty"`
 
-	// name
-	// Example: Bob Smith
-	Name string `json:"name,omitempty"`
+	// first name
+	// Example: Bob
+	FirstName string `json:"firstName,omitempty"`
+
+	// last name
+	// Example: Smith
+	LastName string `json:"lastName,omitempty"`
 
 	// phone
 	Phone string `json:"phone,omitempty"`

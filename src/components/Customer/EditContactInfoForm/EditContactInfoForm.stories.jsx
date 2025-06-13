@@ -41,7 +41,8 @@ const fakeData = {
     county: 'El Paso',
   },
   backup_contact: {
-    name: 'Peyton Wing',
+    firstName: 'Peyton',
+    lastName: 'Wing',
     email: 'pw@example.com',
     telephone: '915-555-8761',
   },
@@ -73,7 +74,8 @@ export const DefaultState = (argTypes) => (
           county: '',
         },
         backup_contact: {
-          name: '',
+          firstName: '',
+          lastName: '',
           email: '',
           telephone: '',
         },
