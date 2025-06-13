@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import styles from './FinalCloseoutForm.module.scss';
 
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
+import formStyles from 'styles/form.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -159,7 +160,11 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             </SectionWrapper>
           )}
 
-          <div className={ppmStyles.buttonContainer}>
+          <div
+            className={`${
+              isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
+            }`}
+          >
             <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
               {appName === APP_NAME.OFFICE ? 'Back' : 'Return To Homepage'}
             </Button>

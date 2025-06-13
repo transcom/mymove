@@ -19,6 +19,7 @@ import GunSafeForm from 'components/Shared/PPM/Closeout/GunSafeForm/GunSafeForm'
 import { usePPMShipmentAndDocsOnlyQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import appendTimestampToFilename from 'utils/fileUpload';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 const GunSafe = ({ appName }) => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -176,7 +177,8 @@ const GunSafe = ({ appName }) => {
   return (
     <div className={ppmPageStyles.tabContent}>
       <div className={ppmPageStyles.container}>
-        <GridContainer>
+        <NotificationScrollToTop dependency={errorMessage} />
+        <GridContainer className={ppmPageStyles.gridContainer}>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
               <div className={ppmPageStyles.closeoutPageWrapper}>

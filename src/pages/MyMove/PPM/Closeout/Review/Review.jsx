@@ -292,7 +292,7 @@ const Review = () => {
                     contents={gunSafeContents}
                     renderAddButton={() => (
                       <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
-                        Add Gun safe Weight
+                        Add Gun Safe Weight
                       </Link>
                     )}
                     emptyMessage="No gun safe weight documented."

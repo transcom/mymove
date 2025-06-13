@@ -133,7 +133,7 @@ func (suite *GunSafeWeightTicketSuite) TestUpdateGunSafeWeightTicket() {
 		desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
 			ID:               originalGunSafeWeightTicket.ID,
 			Description:      models.StringPointer("Self gunsafe"),
-			Weight:           models.PoundPointer(3000),
+			Weight:           models.PoundPointer(500),
 			HasWeightTickets: models.BoolPointer(true),
 		}
 
@@ -161,7 +161,7 @@ func (suite *GunSafeWeightTicketSuite) TestUpdateGunSafeWeightTicket() {
 		desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
 			ID:               originalGunSafeWeightTicket.ID,
 			Description:      models.StringPointer("Self gunsafe"),
-			Weight:           models.PoundPointer(3000),
+			Weight:           models.PoundPointer(500),
 			HasWeightTickets: models.BoolPointer(true),
 		}
 
@@ -190,7 +190,7 @@ func (suite *GunSafeWeightTicketSuite) TestUpdateGunSafeWeightTicket() {
 		desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
 			ID:               originalGunSafeWeightTicket.ID,
 			Description:      models.StringPointer("Self gunsafe"),
-			Weight:           models.PoundPointer(3000),
+			Weight:           models.PoundPointer(500),
 			HasWeightTickets: models.BoolPointer(true),
 		}
 
@@ -310,7 +310,7 @@ func (suite *GunSafeWeightTicketSuite) TestUpdateGunSafeWeightTicket() {
 				desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
 					ID:               originalGunSafeWeightTicket.ID,
 					Description:      models.StringPointer("Self gunsafe"),
-					Weight:           models.PoundPointer(3000),
+					Weight:           models.PoundPointer(500),
 					HasWeightTickets: models.BoolPointer(true),
 					Status:           &status,
 					Reason:           models.StringPointer("bad data"),

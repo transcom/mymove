@@ -21,7 +21,7 @@ import (
 // CREATE TEST
 func (suite *HandlerSuite) TestCreateGunSafeWeightTicketHandler() {
 	// Reusable objects
-	gunSafeCreator := gunsafe.NewOfficeGunSafeWeightTicketCreator()
+	gunSafeCreator := gunsafe.NewCustomerGunSafeWeightTicketCreator()
 
 	type gunSafeCreateSubtestData struct {
 		ppmShipment models.PPMShipment
@@ -112,12 +112,12 @@ func (suite *HandlerSuite) TestCreateGunSafeWeightTicketHandler() {
 }
 
 //
-// UPDATE Office test
+// UPDATE test
 //
 
 func (suite *HandlerSuite) TestUpdateGunSafeWeightTicketHandler() {
 	// Reusable objects
-	gunSafeUpdater := gunsafe.NewOfficeGunSafeWeightTicketUpdater()
+	gunSafeUpdater := gunsafe.NewCustomerGunSafeWeightTicketUpdater()
 
 	type gunSafeUpdateSubtestData struct {
 		ppmShipment models.PPMShipment

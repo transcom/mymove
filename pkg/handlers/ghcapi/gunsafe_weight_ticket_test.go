@@ -176,7 +176,7 @@ func (suite *HandlerSuite) TestUpdateGunSafeWeightTicketHandler() {
 		hasWeightTickets := true
 		params.UpdateGunSafeWeightTicket = &ghcmessages.UpdateGunSafeWeightTicket{
 			HasWeightTickets: hasWeightTickets,
-			Weight:           handlers.FmtInt64(4000),
+			Weight:           handlers.FmtInt64(500),
 		}
 
 		// Validate incoming payload: no body to validate

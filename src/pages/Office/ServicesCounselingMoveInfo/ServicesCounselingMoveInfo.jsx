@@ -199,6 +199,13 @@ const ServicesCounselingMoveInfo = () => {
     ) ||
     matchPath(
       {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
         path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
         end: true,
       },
