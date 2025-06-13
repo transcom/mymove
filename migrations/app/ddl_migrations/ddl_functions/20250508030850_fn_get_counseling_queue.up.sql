@@ -244,7 +244,7 @@ BEGIN
         sql_query := sql_query || format(' ORDER BY sc_user.last_name %s', sort_ord);
       WHEN 'counselingOffice' THEN
         sql_query := sql_query || format(' ORDER BY co.name %s', sort_ord);
-      WHEN 'requestedMoveDate' THEN
+      WHEN 'requestedMoveDates' THEN
         sql_query := sql_query || format(
           ' ORDER BY COALESCE('
           || 'ms_agg.mtos_earliest_requested_pickup_date,'
