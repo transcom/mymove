@@ -7,14 +7,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// TransportationOfficeAssignmentFetcher is the service object interface for FetchTransportaionOfficeAssignmentsByOfficeUserID
+// TransportationOfficeAssignmentFetcher is the service object interface for FetchTransportationOfficeAssignmentsByOfficeUserID
 //
 //go:generate mockery --name TransportationOfficeAssignmentFetcher
 type TransportationOfficeAssignmentFetcher interface {
 	FetchTransportationOfficeAssignmentsByOfficeUserID(appCtx appcontext.AppContext, officeUserId uuid.UUID) (models.TransportationOfficeAssignments, error)
 }
 
-// TransportationOfficeAssignmentUpdater is the service object interface for UpdateTransportaionOfficeAssignments
+// TransportationOfficeAssignmentUpdater is the service object interface for UpdateTransportationOfficeAssignments
 //
 //go:generate mockery --name TransportationOfficeAssignmentUpdater
 type TransportationOfficeAssignmentUpdater interface {

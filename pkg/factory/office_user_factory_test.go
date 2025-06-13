@@ -64,7 +64,7 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 			Active:         true,
 		}
 		transportationOffice := models.TransportationOffice{
-			Name:  "Test transportaion office",
+			Name:  "Test transportation office",
 			Gbloc: "TEST",
 		}
 		customEmail := "leospaceman456@example.com"

@@ -28,7 +28,7 @@ func TestTransportationOfficeAssignmentsFetcherServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTransportaionOfficeAssignmentByOfficeUserID() {
+func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTransportationOfficeAssignmentByOfficeUserID() {
 	suite.toaFetcher = NewTransportationOfficeAssignmentFetcher()
 
 	// Creating an office user requires creating a transportation office assignment and we will need the office user's ID
@@ -41,7 +41,7 @@ func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTrans
 	suite.Equal(true, *assignments[0].PrimaryOffice)
 }
 
-func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTransportaionOfficeAssignmentsByOfficeUserID() {
+func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTransportationOfficeAssignmentsByOfficeUserID() {
 	suite.toaFetcher = NewTransportationOfficeAssignmentFetcher()
 
 	// Creating an office user requires creating a transportation office assignment and we will need the office user's ID

@@ -856,6 +856,11 @@ export async function getShipmentsPaymentSITBalance(key, paymentRequestID) {
   return makeGHCRequest('paymentRequests.getShipmentsPaymentSITBalance', { paymentRequestID });
 }
 
+export async function getBooleanFeatureFlagUnauthenticatedOffice(key, flagContext) {
+  const normalize = false;
+  return makeGHCRequest('featureFlags.booleanFeatureFlagUnauthenticated', { key, flagContext }, { normalize });
+}
+
 export function updateFinancialFlag({ moveID, ifMatchETag, body }) {
   const operationPath = 'move.setFinancialReviewFlag';
   // What is the schemakey and normalize for?
@@ -1165,4 +1170,9 @@ export function getResponseError(errorOrResponse, defaultErrorMessage) {
 
 export async function getPayGradeOptions(affiliation) {
   return makeGHCRequestRaw('orders.getPayGrades', { affiliation });
+}
+
+export async function getRolesPrivilegesOfficeApp() {
+  const operationPath = 'rolePrivileges.getRolesPrivileges';
+  return makeGHCRequest(operationPath, {}, { normalize: false });
 }

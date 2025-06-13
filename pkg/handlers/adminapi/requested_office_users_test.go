@@ -522,7 +522,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -566,7 +566,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.Anything,
 		).Return(requestedOfficeUser, nil).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -610,7 +610,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.Anything,
 		).Return(models.OfficeUser{}, expectedError).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -672,7 +672,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 
 		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
@@ -776,7 +776,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 
 		status := "APPROVED"
@@ -884,7 +884,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleAssociator := &mocks.RoleAssociator{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 
 		status := "APPROVED"

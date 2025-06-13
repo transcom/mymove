@@ -11,7 +11,7 @@ import (
 type transportationOfficeAssignmentFetcher struct {
 }
 
-// NewTransportationOfficeAssignmentFetcher creates a new struct with the service dependencies
+// NewTransportationOfficeAssignmentUpdater creates a new struct with the service dependencies
 func NewTransportationOfficeAssignmentFetcher() services.TransportationOfficeAssignmentFetcher {
 	return transportationOfficeAssignmentFetcher{}
 }
