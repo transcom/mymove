@@ -180,20 +180,22 @@ const ProGearForm = ({
                   </FormGroup>
                 </SectionWrapper>
                 <div
-                  className={`${
-                    isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
-                  }`}
+                  className={
+                    isCustomerPage
+                      ? classnames(formStyles.buttonContainer)
+                      : classnames(formStyles.formActions, formStyles.buttonContainer)
+                  }
                 >
-                  <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                  <Button className={formStyles.backButton} type="button" onClick={onBack}>
                     Cancel
                   </Button>
                   <Button
-                    className={ppmStyles.saveButton}
+                    className={formStyles.saveButton}
                     type="button"
                     onClick={handleSubmit}
                     disabled={!isValid || isSubmitting || isSubmitted}
                   >
-                    Save &amp; Continue
+                    Save & Continue
                   </Button>
                 </div>
               </Form>

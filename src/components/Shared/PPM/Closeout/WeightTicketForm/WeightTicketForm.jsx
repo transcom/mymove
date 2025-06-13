@@ -7,7 +7,7 @@ import { func, number } from 'prop-types';
 
 import styles from './WeightTicketForm.module.scss';
 
-import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { filepondWrapperStyle, filepondButtonStyle } from 'pages/MyMove/UploadOrders';
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import closingPageStyles from 'components/Shared/PPM/Closeout/Closeout.module.scss';
@@ -315,17 +315,17 @@ const WeightTicketForm = ({
                   </FormGroup>
                 </SectionWrapper>
                 <div
-                  className={`${
+                  className={
                     isCustomerPage
-                      ? formStyles.buttonContainer
-                      : `${formStyles.formActions} ${formStyles.buttonContainer}`
-                  }`}
+                      ? classnames(formStyles.buttonContainer)
+                      : classnames(formStyles.formActions, formStyles.buttonContainer)
+                  }
                 >
-                  <Button className={outlineButtonStyle} type="button" onClick={onBack}>
+                  <Button className={formStyles.backButton} type="button" onClick={onBack}>
                     Cancel
                   </Button>
                   <Button
-                    className={ppmStyles.saveButton}
+                    className={formStyles.saveButton}
                     type="button"
                     onClick={handleSubmit}
                     disabled={!isValid || isSubmitting || isSubmitted}

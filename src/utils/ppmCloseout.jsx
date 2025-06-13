@@ -1,5 +1,5 @@
 import React from 'react';
-import { generatePath, Link } from 'react-router-dom';
+import { generatePath } from 'react-router-dom';
 import moment from 'moment';
 
 import { formatAddress } from './shipmentDisplay';
@@ -54,13 +54,13 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
       ],
       renderEditLink: () =>
         editPath ? (
-          <Link
+          <LinkButton
             data-testid="aboutYourPPMEditLink"
             className={outlineButtonStyle}
             to={generatePath(editPath, editParams)}
           >
             Edit
-          </Link>
+          </LinkButton>
         ) : (
           ''
         ),

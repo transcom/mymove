@@ -3,6 +3,7 @@
 @import 'shared/styles/colors.scss';
 
 .usa-button {
+  @include u-bg('primary-vivid');
   @include u-padding-x(3);
   @include u-padding-y('105');
   @include u-font-size('body', 'xs');

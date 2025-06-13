@@ -1,7 +1,7 @@
 @import '../index.scss';
 @import '../ghc_index.scss';
-@import 'src/shared/styles/ghc_custom';
-@import 'src/shared/styles/ghc_overrides';
+@import 'src/shared/styles/custom';
+@import 'src/shared/styles/overrides';
 @import 'src/styles/_officeLayoutRules.scss';
 
 // Fix 100% height layouts in IE11 - https://philipwalton.com/articles/normalizing-cross-browser-flexbox-bugs/

@@ -340,7 +340,7 @@ const ExpenseForm = ({
                   )}
                 </SectionWrapper>
                 <div className={formStyles.buttonContainer}>
-                  <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
+                  <Button className={formStyles.backButton} type="button" onClick={onBack}>
                     Cancel
                   </Button>
                   <Button

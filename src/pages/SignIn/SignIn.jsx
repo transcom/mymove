@@ -160,7 +160,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
               ) : null}
 
               {showLocalDevLogin && (
-                <a className="usa-button" data-testid="devlocal-signin" href="/devlocal-auth/login">
+                <a className="usa-button usa-button--primary" data-testid="devlocal-signin" href="/devlocal-auth/login">
                   Local Sign In
                 </a>
               )}

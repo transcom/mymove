@@ -85,13 +85,21 @@
   }
   :where(.missingAlert){
     @include u-color('secondary-dark');
+    @include u-font-weight(700);
     grid-column: 1 / span all;
     display: flex;
     gap: 1rem;
-    align-items: start;
+    align-items: center;
     > *:first-child {
-      margin-top: 0.35rem;
+      margin: unset;
     }
+
+    .alertTag {
+      width: 20px;
+      height: 20px;
+      @include u-bg('secondary-dark');
+    }
+
   }
 
 
@@ -263,14 +271,6 @@
      @include u-color('secondary-dark');
      display: flex;
 
-  }
-
-  .alertTag {
-    @include u-margin-right(8px);
-    @include u-margin-top(2px);
-    width: 20px;
-    height: 20px;
-    @include u-bg('secondary-dark');
   }
 
   // .contentsContainer {

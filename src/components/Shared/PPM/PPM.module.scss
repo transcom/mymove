@@ -99,3 +99,38 @@
     @include u-margin-top(2);
   }
 }
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  button:global(.usa-button--primary) {
+    @include u-margin-top(2);
+    @include u-margin-bottom(0);
+  }
+
+  .saveButton{
+    @extend .usa-button--primary;
+
+     @include at-media-max(mobile-lg) {
+      .saveButton {
+        order: 1;
+      }
+    }
+  }
+
+  @include at-media-max(mobile-lg) {
+    .backButton {
+      order: 2;
+    }
+  }
+}
+
+.buttonGroup {
+
+  display: flex;
+
+  gap: 10px;
+
+}
