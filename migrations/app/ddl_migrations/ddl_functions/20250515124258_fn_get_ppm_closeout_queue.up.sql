@@ -1,5 +1,6 @@
 -- B-23547 - Cameron Jewell - Initial PPM Closeout queue refactor from pop -> proc
-
+--           Cameron Jewell - Remember that Navy, Marines, and Coast Guard have special filters!
+--           Cameron Jewell - Their filter is applied in the return
 DROP FUNCTION IF EXISTS get_ppm_closeout_queue;
 
 CREATE OR REPLACE FUNCTION get_ppm_closeout_queue(
@@ -30,6 +31,7 @@ RETURNS TABLE(
     full_or_partial_ppm                 TEXT,
     orders_id                           UUID,
     locked_by                           UUID,
+    lock_expires_at TIMESTAMP WITH TIME ZONE,
     sc_closeout_assigned_id             UUID,
     counseling_transportation_office_id UUID,
     orders                              JSONB,
@@ -78,10 +80,12 @@ BEGIN
                 m.locator::TEXT                       AS locator,
                 m.ppm_type::TEXT                      AS full_or_partial_ppm,
                 m.locked_by                           AS locked_by,
-                m.sc_closeout_assigned_id                      AS sc_closeout_assigned_id,
+                m.lock_expires_at,
+                m.sc_closeout_assigned_id             AS sc_closeout_assigned_id,
                 m.counseling_transportation_office_id AS counseling_transportation_office_id,
                 m.status::TEXT                        AS status,
                 m.submitted_at::timestamptz           AS move_submitted_at,
+                closeout_to.gbloc                     AS closeout_gbloc,
                 json_build_object(
                     ''id'', o.id,
                     ''orders_type'', o.orders_type,
@@ -118,8 +122,8 @@ BEGIN
                         )
                     )
                 )::JSONB AS orders,
-                json_build_object(''name'', counseling_to.name)::JSONB AS counseling_transportation_office,
-                json_build_object(''name'', closeout_to.name)::JSONB AS ppm_closeout_location,
+                json_build_object(''name'', counseling_to.name, ''ID'', counseling_to.ID)::JSONB AS counseling_transportation_office,
+                json_build_object(''name'', closeout_to.name, ''ID'', closeout_to.ID)::JSONB AS ppm_closeout_location,
                 json_build_object(''first_name'', sc.first_name, ''last_name'', sc.last_name, ''id'', sc.id)::JSONB AS sc_assigned,
                 COALESCE(ms_agg.mto_shipments, ''[]''::jsonb)          AS mto_shipments,
                 COALESCE(ppm_agg.ppm_shipments, ''[]''::jsonb)         AS ppm_shipments,
@@ -177,7 +181,20 @@ BEGIN
         ),
         filtered AS (
             SELECT * FROM base WHERE
-              $1  IS NULL OR (orders->>''origin_duty_location_gbloc'') = $1
+              (
+                $1 IS NULL
+                -- Default query, match the office user GBLOC to the move closeout GBLOC
+                -- unless the user GBLOC is of NAVY, TVCB (Marines), or USCG. These
+                -- will use special filters
+                OR (closeout_gbloc = $1
+                    AND $1 NOT IN (''NAVY'', ''TVCB'',''USCG'')
+                    AND branch_out NOT IN (''NAVY'',''MARINES'',''COAST_GUARD'')) -- Do not let these branches show up anywhere else outside of their dedicated PPM closeout offices
+                -- Special closeout GBLOC handling
+                OR ($1 = ''NAVY'' AND branch_out = ''NAVY'')        -- Navy -> Navy moves
+                OR ($1 = ''TVCB'' AND branch_out = ''MARINES'')     -- TVCB -> Marine moves (USMC GBLOC is used for HHG moves. USMC uses TVCB closeout GBLOC explicitly for PPMs)
+                OR ($1 = ''USCG'' AND branch_out = ''COAST_GUARD'') -- Coast Guard -> Coast Guard moves
+                -- Again, USMC GBLOC does not go here! USMC is for HHG Marine moves, TVCB for PPM Marine moves
+              )
               AND ($2  IS NULL OR customer_name_out ILIKE ''%%'' || $2 || ''%%'')
               AND ($3  IS NULL OR edipi_out   = $3)
               AND ($4  IS NULL OR emplid_out  = $4)
@@ -208,6 +225,7 @@ BEGIN
                 full_or_partial_ppm::TEXT,
                 (orders->>''id'')::UUID AS orders_id,
                 locked_by::UUID,
+                lock_expires_at,
                 sc_closeout_assigned_id::UUID,
                 counseling_transportation_office_id::UUID,
                 orders::JSONB,
