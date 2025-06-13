@@ -5,6 +5,9 @@
 .WizardNavigation {
   display: flex;
   flex-wrap: wrap;
+  @media (max-width: $tablet) {
+      width: 100%;
+    }
 
   button,
   :global(.usa-button) {

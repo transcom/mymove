@@ -9,7 +9,6 @@
 }
 
 .formSectionHeader {
-  width: 50vw;
   .sectionHeader {
     margin-bottom: 0;
     display: flex;
@@ -20,5 +19,21 @@
       color: $base;
       font-weight: normal;
     }
+  }
+}
+
+.pickupAddressHeading {
+  margin-top: 18px;
+}
+
+:global(.usa-button--secondary) {
+  color: $primary;
+  background-color: inherit;
+  box-shadow: inset 0 0 0 2px $primary;
+
+  &:hover {
+    background-color: inherit;
+    color: $primary-dark;
+    box-shadow: inset 0 0 0 2px $primary-dark;
   }
 }
