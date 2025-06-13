@@ -22,6 +22,7 @@ import (
 	paperwork "github.com/transcom/mymove/pkg/services/paperwork"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -172,7 +173,8 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 	}
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	ppmEstimator := &mocks.PPMEstimator{}
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	suite.FatalNoError(err)
 
@@ -238,6 +240,13 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 
 	_, err = models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
 	suite.NoError(err)
+
+	maxIncentive := 987654
+	ppmEstimator.On("MaxIncentive",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("models.PPMShipment"),
+		mock.AnythingOfType("*models.PPMShipment")).
+		Return(models.CentPointer(unit.Cents(maxIncentive)), nil)
 
 	packet, dirPath, err := a.CreateAOAPacket(appCtx, ppmShipmentID, false)
 	suite.NoError(err)
