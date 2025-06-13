@@ -3864,6 +3864,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },
@@ -7870,6 +7871,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },

@@ -117,6 +117,8 @@ func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 func (fs *Filesystem) Tags(_ string) (map[string]string, error) {
 	tags := make(map[string]string)
 	// Assume anti-virus complete
+	tags["GuardDutyMalwareScanStatus"] = "NO_THREATS_FOUND"
+	// Legacy ClamAV scan status
 	tags["av-status"] = "CLEAN"
 	return tags, nil
 }

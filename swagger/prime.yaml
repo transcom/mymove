@@ -4118,6 +4118,7 @@ definitions:
         enum:
           - INFECTED
           - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
       createdAt:
         type: string

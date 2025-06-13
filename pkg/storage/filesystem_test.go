@@ -78,7 +78,7 @@ func TestFilesystemTags(t *testing.T) {
 		t.Fatalf("could not get tags: %s", err)
 	}
 
-	if tag, exists := tags["av-status"]; exists && strings.Compare(tag, "CLEAN") != 0 {
-		t.Fatal("tag 'av-status' should return CLEAN")
+	if tag, exists := tags["GuardDutyMalwareScanStatus"]; exists && strings.Compare(tag, "NO_THREATS_FOUND") != 0 {
+		t.Fatal("tag 'GuardDutyMalwareScanStatus' should return NO_THREATS_FOUND")
 	}
 }

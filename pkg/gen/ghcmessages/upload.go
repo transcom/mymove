@@ -64,7 +64,7 @@ type Upload struct {
 
 	// status
 	// Read Only: true
-	// Enum: [INFECTED CLEAN PROCESSING]
+	// Enum: [INFECTED CLEAN NO_THREATS_FOUND PROCESSING]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -206,7 +206,7 @@ var uploadTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["INFECTED","CLEAN","PROCESSING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["INFECTED","CLEAN","NO_THREATS_FOUND","PROCESSING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -221,6 +221,9 @@ const (
 
 	// UploadStatusCLEAN captures enum value "CLEAN"
 	UploadStatusCLEAN string = "CLEAN"
+
+	// UploadStatusNOTHREATSFOUND captures enum value "NO_THREATS_FOUND"
+	UploadStatusNOTHREATSFOUND string = "NO_THREATS_FOUND"
 
 	// UploadStatusPROCESSING captures enum value "PROCESSING"
 	UploadStatusPROCESSING string = "PROCESSING"
