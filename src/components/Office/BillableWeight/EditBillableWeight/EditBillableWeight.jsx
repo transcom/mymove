@@ -154,6 +154,7 @@ export default function EditBillableWeight({
                   inputTestId="textInput"
                   errorClassName={styles.errorMessage}
                   labelClassName={styles.label}
+                  id="billableWeight"
                   lazy={false} // immediate masking evaluation
                   mask={Number}
                   name="billableWeight"

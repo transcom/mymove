@@ -534,7 +534,6 @@ const MoveDetails = ({
 
   return (
     <div className={styles.tabContent}>
-      <div id="approved-shipments" />
       <div className={styles.flashMessage}>
         <ConnectedFlashMessage />
       </div>
@@ -640,7 +639,7 @@ const MoveDetails = ({
             onSubmit={handleCancelMove}
           />
           {submittedShipments?.length > 0 && (
-            <div className={styles.section}>
+            <div className={styles.section} id="requested-shipments">
               <SubmittedRequestedShipments
                 mtoShipments={submittedShipments}
                 closeoutOffice={closeoutOffice}
@@ -663,7 +662,7 @@ const MoveDetails = ({
             </div>
           )}
           {approvedOrCanceledShipments?.length > 0 && (
-            <div className={styles.section}>
+            <div className={styles.section} id="approved-shipments">
               <ApprovedRequestedShipments
                 mtoShipments={approvedOrCanceledShipments}
                 closeoutOffice={closeoutOffice}
@@ -702,7 +701,7 @@ const MoveDetails = ({
             </div>
           )}
 
-          <div className={styles.section}>
+          <div className={styles.section} id="orders">
             <DetailsPanel
               title="Orders"
               tag={hasAmendedOrders ? 'NEW' : ''}

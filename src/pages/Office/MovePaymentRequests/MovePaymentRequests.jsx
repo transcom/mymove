@@ -282,7 +282,7 @@ const MovePaymentRequests = ({
               initialSelection={move?.financialReviewFlag}
             />
           )}
-          <div className={txoStyles.section}>
+          <div className={txoStyles.section} id="billable-weights">
             {/* Only show shipments in statuses of approved, diversion requested, or cancellation requested */}
             <BillableWeightCard
               maxBillableWeight={maxBillableWeight}
@@ -296,7 +296,7 @@ const MovePaymentRequests = ({
             />
           </div>
           <h1>Payment requests</h1>
-          <div className={txoStyles.section}>
+          <div className={txoStyles.section} id="payment-requests">
             {paymentRequests?.length > 0 ? (
               paymentRequests.map((paymentRequest) => (
                 <PaymentRequestCard

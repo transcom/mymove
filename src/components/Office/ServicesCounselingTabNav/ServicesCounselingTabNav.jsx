@@ -90,7 +90,6 @@ const ServicesCounselingTabNav = ({
         }
       >
         <TabNav items={items} />
-        <div id="shipments" />
       </div>
     </header>
   );

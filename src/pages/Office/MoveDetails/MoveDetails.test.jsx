@@ -1101,6 +1101,7 @@ describe('MoveDetails page', () => {
     });
 
     it('renders the Orders Table', () => {
+      expect(wrapper.find('#orders h2').text()).toEqual('Orders');
       expect(wrapper.find('dd[data-testid="NTStac"]').text()).toEqual('1111');
       expect(wrapper.find('dd[data-testid="NTSsac"]').text()).toEqual('2222');
     });
@@ -1155,6 +1156,7 @@ describe('MoveDetails page', () => {
       </MockProviders>,
     );
     it('renders the Orders Table', () => {
+      expect(wrapper.find('#orders h2').text()).toEqual('Orders');
       expect(wrapper.find('[data-testid="newDutyLocationLabel"]').text()).toEqual('HOR, HOS, or PLEAD');
       expect(wrapper.find('[data-testid="reportByDateLabel"]').text()).toEqual('Date of retirement');
     });
