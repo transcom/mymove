@@ -1,14 +1,10 @@
 import React from 'react';
-import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
+import { Edit, SimpleForm, TextInput, SelectInput, required } from 'react-admin';
 import { connect } from 'react-redux';
 
-import { selectAdminUser } from 'store/entities/selectors';
+import SaveToolbar from '../Shared/SaveToolbar';
 
-const AdminUserEditToolbar = (props) => (
-  <Toolbar {...props}>
-    <SaveButton />
-  </Toolbar>
-);
+import { selectAdminUser } from 'store/entities/selectors';
 
 const AdminUserSuperAttribute = () => {
   return (
@@ -43,7 +39,7 @@ const validateAdminuser = (values) => {
 const AdminUserEdit = ({ adminUser }) => (
   <Edit>
     <SimpleForm
-      toolbar={<AdminUserEditToolbar />}
+      toolbar={<SaveToolbar />}
       sx={{ '& .MuiInputBase-input': { width: 232 } }}
       mode="onBlur"
       reValidateMode="onBlur"

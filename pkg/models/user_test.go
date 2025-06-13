@@ -37,7 +37,7 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 		"okta_email": {"OktaEmail can not be blank."},
 	}
 
-	suite.verifyValidationErrors(newUser, expErrors)
+	suite.verifyValidationErrors(newUser, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestCreateUser() {
