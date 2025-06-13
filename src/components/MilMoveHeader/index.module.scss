@@ -65,6 +65,7 @@
     align-items: center;
     justify-content: flex-end;
 
+    --divider-gap: 1.5rem;
 
     .userInfo > ul {
       > li {
@@ -73,13 +74,13 @@
           width: 1px;
           height: 100%;
           background-color: $base-dark;
-          margin: 0rem 1rem;
+          margin: 0rem var(--divider-gap);
         }
       }
     }
 
     &:has(> div){
-       padding: 0rem 1rem;
+       padding: 0rem var(--divider-gap);
        > ul {
         list-style: none;
        }
@@ -87,7 +88,7 @@
 
     & > ul {
       list-style: none;
-      padding: 0rem 1rem;
+      padding: 0rem var(--divider-gap);
       > li {
 
         button {
@@ -95,13 +96,14 @@
         }
       }
 
+
       > :where(li:nth-of-type(n + 2), li:first-of-type:is(li:last-of-type)) {
         &::before{
           content: '';
           width: 1px;
           height: 100%;
           background-color: $base-dark;
-          margin: 0rem 1rem;
+          margin: 0rem var(--divider-gap);
         }
       }
     }
@@ -135,6 +137,7 @@
       > :global(.usa-link),
       > :global(.usa-button.usa-button--unstyled) {
 
+        padding: 0rem;
         display: flex;
         align-items: center;
         align-self: stretch;

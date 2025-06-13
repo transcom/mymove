@@ -131,7 +131,7 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
 
   const displayedContent =
     inactiveRoles?.length === 0 ? (
-      <Link to="/">{roleLookupValues[assumedRoleType]?.name || EMPTY_ROLE}</Link>
+      <Link to="/">{roleLookupValues[assumedRoleType]?.abbv || EMPTY_ROLE}</Link>
     ) : (
       selectDropdownContent
     );
