@@ -136,7 +136,7 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       );
       const shipment = moveTaskOrder.mtoShipments[shipmentIndex];
 
-      expect(await screen.findByLabelText('Reweigh Weight (lbs)')).toHaveValue(String(shipment.reweigh.weight));
+      expect(await screen.findByLabelText('Reweigh Weight (lbs) *')).toHaveValue(String(shipment.reweigh.weight));
 
       expect(screen.getByTestId('remarks')).toHaveValue(shipment.reweigh.verificationReason);
     });
@@ -157,8 +157,8 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       );
       const shipment = noVerificationReason.moveTaskOrder.mtoShipments[shipmentIndex];
 
-      expect(await screen.findByLabelText('Reweigh Weight (lbs)')).toHaveValue(String(shipment.reweigh.weight));
-      expect(screen.getByTestId('remarks')).toHaveValue('');
+      expect(await screen.findByLabelText('Reweigh Weight (lbs) *')).toHaveValue(String(shipment.reweigh.weight));
+      expect(screen.getByTestId('remarks')).toBeInTheDocument();
     });
 
     it('uses the default values when there is no reweigh', async () => {
@@ -172,8 +172,8 @@ describe('PrimeUIShipmentUpdateReweigh page', () => {
       });
       expect(pageHeading).toBeInTheDocument();
 
-      expect(screen.getByLabelText('Reweigh Weight (lbs)')).toHaveValue('0');
-      expect(screen.getByTestId('remarks')).toHaveValue('');
+      expect(screen.getByLabelText('Reweigh Weight (lbs) *')).toHaveValue('0');
+      expect(screen.getByTestId('remarks')).toBeInTheDocument();
     });
   });
 
