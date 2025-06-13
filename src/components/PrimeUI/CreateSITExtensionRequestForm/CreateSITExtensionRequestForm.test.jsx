@@ -73,6 +73,8 @@ describe('CreateSITExtensionRequestForm component', () => {
       </MockProviders>,
     );
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(screen.getByText('Request Reason')).toHaveTextContent('*');
     expect(screen.getByText('Requested Days')).toHaveTextContent('*');
     expect(screen.getByText('Contractor Remarks')).toHaveTextContent('*');
