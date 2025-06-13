@@ -2499,6 +2499,11 @@ func (suite *PayloadsSuite) TestCounselingQueueMovesApprovalRequestTypes() {
 						RoleType: roles.RoleTypeTOO,
 					},
 				},
+				Privileges: []roles.Privilege{
+					{
+						PrivilegeType: roles.PrivilegeTypeSupervisor,
+					},
+				},
 			},
 		},
 	}, nil)
@@ -2574,7 +2579,9 @@ func (suite *PayloadsSuite) TestCounselingQueueMovesApprovalRequestTypes() {
 
 	suite.Run("successfully attaches approvalRequestTypes to move", func() {
 		moves := models.Moves{}
-		moves = append(moves, move)
+		thisMove := move
+		thisMove.Orders.OrdersType = "SAFETY"
+		moves = append(moves, thisMove)
 		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
 
 		var empty []string
@@ -2940,4 +2947,100 @@ func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 	// all dates sorted and joined with ", "
 	suite.Require().NotNil(q.RequestedMoveDates)
 	suite.Equal("Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDates)
+}
+
+func (suite *PayloadsSuite) TestCounselingQueueMoves_RequestedMoveDates() {
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				Roles: []roles.Role{{RoleType: roles.RoleTypeServicesCounselor}},
+			},
+		},
+	}, nil)
+
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name: "JPPO Test Office",
+			},
+		},
+	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Show: models.BoolPointer(true),
+			},
+		},
+		{
+			Model:    transportationOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CounselingOffice,
+		},
+		{
+			Model:    officeUser,
+			LinkOnly: true,
+			Type:     &factory.OfficeUsers.SCCounselingAssignedUser,
+		},
+	}, nil)
+
+	d1 := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(2025, time.February, 1, 0, 0, 0, 0, time.UTC)
+	d3 := time.Date(2025, time.March, 1, 0, 0, 0, 0, time.UTC)
+
+	sh3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d3,
+			RequestedDeliveryDate: &d3,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d2,
+			RequestedDeliveryDate: &d2,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d1,
+			RequestedDeliveryDate: &d1,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+	ppm1 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.PPMShipment{
+			Status:                models.PPMShipmentStatusSubmitted,
+			ExpectedDepartureDate: d1,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	// attach them to the move (in reversed order to prove sorting)
+	move.MTOShipments = models.MTOShipments{sh3, sh2, sh1, ppm1.Shipment}
+
+	queueMoves := *CounselingQueueMoves(
+		models.Moves{move},
+		nil,
+		officeUser,
+		nil,
+		string(roles.RoleTypeServicesCounselor),
+		string(models.QueueTypeCounseling),
+	)
+
+	suite.Require().Len(queueMoves, 1)
+	q := queueMoves[0]
+
+	// all dates sorted and joined with ", "
+	suite.Require().NotNil(q.RequestedMoveDate)
+	suite.Equal("Mar 1 2025, Feb 1 2025, Jan 1 2025, Jan 1 2025", *q.RequestedMoveDate)
 }
