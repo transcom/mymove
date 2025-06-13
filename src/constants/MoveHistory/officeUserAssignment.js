@@ -3,7 +3,7 @@ export const ASSIGNMENT_IDS = {
   SERVICES_COUNSELOR: 'sc_counseling_assigned_id',
   CLOSEOUT_COUNSELOR: 'sc_closeout_assigned_id',
   TASK_ORDERING_OFFICER: 'too_task_order_assigned_id',
-  TASK_INVOICING_OFFICER: 'tio_assigned_id',
+  TASK_INVOICING_OFFICER: 'tio_payment_request_assigned_id',
   TASK_ORDERING_OFFICER_DESTINATION: 'too_destination_assigned_id',
 };
 

@@ -285,7 +285,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(app
 		LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
 		WHERE moves.show = $1
 		AND (orders.orders_type NOT IN ($2, $3, $4))
-		AND moves.tio_assigned_id IS NULL
+		AND moves.tio_payment_request_assigned_id IS NULL
 		AND payment_requests.status = 'PENDING' `
 	if gbloc == "USMC" {
 		sqlQuery += `

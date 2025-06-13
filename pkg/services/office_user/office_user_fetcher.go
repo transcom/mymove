@@ -147,7 +147,7 @@ func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCt
 	case string(models.QueueTypeDestinationRequest):
 		queueTypeJoin = `(roles.role_type = 'task_ordering_officer' AND moves.too_destination_assigned_id = office_users.id)`
 	case string(models.QueueTypePaymentRequest):
-		queueTypeJoin = `(roles.role_type = 'task_invoicing_officer' AND moves.tio_assigned_id = office_users.id)`
+		queueTypeJoin = `(roles.role_type = 'task_invoicing_officer' AND moves.tio_payment_request_assigned_id = office_users.id)`
 	}
 
 	query :=

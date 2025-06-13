@@ -83,8 +83,8 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 		if err != nil {
 			return nil, err
 		}
-		paymentRequest.MoveTaskOrder.TIOAssignedID = nil
-		paymentRequest.MoveTaskOrder.TIOAssignedUser = nil
+		paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedID = nil
+		paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser = nil
 	}
 
 	if err != nil {

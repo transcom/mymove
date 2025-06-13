@@ -46,8 +46,8 @@ func (s AssignedOfficeUserUpdater) UpdateAssignedOfficeUser(appCtx appcontext.Ap
 		move.TOODestinationAssignedID = &officeUser.ID
 		move.TOODestinationAssignedUser = officeUser
 	case models.QueueTypePaymentRequest:
-		move.TIOAssignedID = &officeUser.ID
-		move.TIOAssignedUser = officeUser
+		move.TIOPaymentRequestAssignedID = &officeUser.ID
+		move.TIOPaymentRequestAssignedUser = officeUser
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
@@ -84,8 +84,8 @@ func (s AssignedOfficeUserUpdater) DeleteAssignedOfficeUser(appCtx appcontext.Ap
 		move.TOODestinationAssignedID = nil
 		move.TOODestinationAssignedUser = nil
 	case models.QueueTypePaymentRequest:
-		move.TIOAssignedID = nil
-		move.TIOAssignedUser = nil
+		move.TIOPaymentRequestAssignedID = nil
+		move.TIOPaymentRequestAssignedUser = nil
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&move)

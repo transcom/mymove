@@ -1178,7 +1178,7 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Equal(officeUserID, payload.TIOAssignedUser.OfficeUserID)
+		suite.Equal(officeUserID, payload.TIOPaymentRequestAssignedUser.OfficeUserID)
 	})
 	suite.Run("Successful update of a move for TOO on Destination Request Queue", func() {
 		req, handler, move, officeUser := setupTestData()
@@ -1229,7 +1229,7 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		payload := response.(*moveops.DeleteAssignedOfficeUserOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Nil(payload.TIOAssignedUser)
+		suite.Nil(payload.TIOPaymentRequestAssignedUser)
 	})
 }
 
