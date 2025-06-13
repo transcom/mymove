@@ -24,7 +24,7 @@ const StorageFacilityAddress = ({ formikProps }) => {
                   <FormGroup>
                     <Label htmlFor="facilityLotNumber" className={styles.Label}>
                       Lot number
-                      <span className="float-right">Optional</span>
+                      <span className="float-right" />
                     </Label>
                     <Field as={TextInput} id="facilityLotNumber" name="storageFacility.lotNumber" />
                   </FormGroup>

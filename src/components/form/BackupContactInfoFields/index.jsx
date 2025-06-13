@@ -3,6 +3,8 @@ import { func, node, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
+import { requiredAsteriskMessage } from '../RequiredAsterisk';
+
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
@@ -19,8 +21,11 @@ export const BackupContactInfoFields = ({ name, legend, className, render, label
     phoneFieldName = `${name}.telephone`;
   }
 
+  const showRequiredAsterisk = labelHintProp !== 'Optional';
+
   return (
     <Fieldset legend={legend} className={className}>
+      {requiredAsteriskMessage}
       {render(
         <>
           <TextField
@@ -28,7 +33,7 @@ export const BackupContactInfoFields = ({ name, legend, className, render, label
             id={`name_${backupContactInfoFieldsUUID.current}`}
             name={nameFieldName}
             required
-            labelHint={labelHintProp}
+            showRequiredAsterisk={showRequiredAsterisk}
           />
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
@@ -37,7 +42,7 @@ export const BackupContactInfoFields = ({ name, legend, className, render, label
                 id={`email_${backupContactInfoFieldsUUID.current}`}
                 name={emailFieldName}
                 required
-                labelHint={labelHintProp}
+                showRequiredAsterisk={showRequiredAsterisk}
               />
             </div>
           </div>
@@ -51,7 +56,7 @@ export const BackupContactInfoFields = ({ name, legend, className, render, label
                 minimum="12"
                 mask="000{-}000{-}0000"
                 required
-                labelHint={labelHintProp}
+                showRequiredAsterisk={showRequiredAsterisk}
               />
             </div>
           </div>

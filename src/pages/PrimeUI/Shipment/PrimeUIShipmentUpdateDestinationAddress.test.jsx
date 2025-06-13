@@ -172,8 +172,8 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
       const shipment = testShipmentReturnValue.moveTaskOrder.mtoShipments[shipmentIndex];
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText('Address 1').length).toBe(1);
-        expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.destinationAddress.streetAddress1);
+        expect(screen.getAllByLabelText(/Address 1/).length).toBe(1);
+        expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(shipment.destinationAddress.streetAddress1);
         expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
         expect(screen.getAllByLabelText(/Address 3/)[0]).toBeInTheDocument();
         expect(screen.getAllByText('City')[0]).toBeInTheDocument();

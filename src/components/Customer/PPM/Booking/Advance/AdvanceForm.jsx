@@ -16,6 +16,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole } from 'utils/formatters';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive, getFormattedMaxAdvancePercentage } from 'utils/incentives';
 import LoadingButton from 'components/LoadingButton/LoadingButton';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = (maxAdvance, formattedMaxAdvance, estimatedIncentive) => {
   let returnSchema = Yup.object().shape({
@@ -100,8 +101,16 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                     </p>
                   </>
                 )}
+                {requiredAsteriskMessage}
                 <Fieldset>
-                  <legend className="usa-label">Would you like to request an advance on your incentive?</legend>
+                  <legend
+                    className="usa-label"
+                    aria-label="Required: Would you like to request an advance on your incentive?"
+                  >
+                    <span required>
+                      Would you like to request an advance on your incentive? <RequiredAsterisk />
+                    </span>
+                  </legend>
                   <Field
                     as={Radio}
                     id="hasRequestedAdvanceYes"
@@ -127,7 +136,8 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                         defaultValue="0"
                         name="advanceAmountRequested"
                         label="Amount requested"
-                        labelHint="Required"
+                        showRequiredAsterisk
+                        required
                         id="advanceAmountRequested"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
@@ -145,7 +155,13 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                     <CheckboxField
                       id="agreeToTerms"
                       name="agreeToTerms"
-                      label="I acknowledge that any advance I'm given will be deducted from my final incentive payment. If my advance ends up being more than my incentive, I will need to repay the difference."
+                      label={
+                        <>
+                          <RequiredAsterisk /> I acknowledge that any advance I&apos;m given will be deducted from my
+                          final incentive payment. If my advance ends up being more than my incentive, I will need to
+                          repay the difference.
+                        </>
+                      }
                     />
                   </>
                 )}

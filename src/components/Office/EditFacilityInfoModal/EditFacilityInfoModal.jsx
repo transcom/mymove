@@ -105,7 +105,7 @@ export const EditFacilityInfoModal = ({
                           <FormGroup>
                             <Label htmlFor="facilityLotNumber">
                               Lot number
-                              <span className="float-right usa-hint">Optional</span>
+                              <span className="float-right usa-hint" />
                             </Label>
                             <Field as={TextInput} id="facilityLotNumber" name="storageFacility.lotNumber" />
                           </FormGroup>

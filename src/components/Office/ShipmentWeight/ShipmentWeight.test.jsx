@@ -13,6 +13,8 @@ describe('components/Office/ShipmentWeight', () => {
       </Formik>,
     );
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(screen.getByLabelText('Yes')).not.toBeChecked();
     expect(screen.getByLabelText('No')).toBeChecked();
 
