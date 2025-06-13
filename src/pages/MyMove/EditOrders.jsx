@@ -30,20 +30,12 @@ import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
-const EditOrders = ({
-  serviceMemberId,
-  serviceMemberMoves,
-  updateOrders,
-  setFlashMessage,
-  context,
-  orders,
-  updateAllMoves,
-}) => {
+const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlashMessage, orders, updateAllMoves }) => {
   const filePondEl = createRef();
   const navigate = useNavigate();
   const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState('');
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
   const { entitlement: allowances } = currentOrder;
@@ -62,17 +54,31 @@ const EditOrders = ({
   }
 
   useEffect(() => {
-    const checkAlaskaFeatureFlag = async () => {
+    const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
-      if (!isAlaskaEnabled) {
-        const options = orderTypes;
-        delete orderTypes.EARLY_RETURN_OF_DEPENDENTS;
-        delete orderTypes.STUDENT_TRAVEL;
-        setOrderTypes(options);
-      }
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+
+        if (!isAlaskaEnabled) {
+          delete options.EARLY_RETURN_OF_DEPENDENTS;
+          delete options.STUDENT_TRAVEL;
+        }
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
+        }
+
+        return options;
+      });
     };
-    checkAlaskaFeatureFlag();
-  }, [orderTypes]);
+
+    checkFeatureFlags();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,11 +111,7 @@ const EditOrders = ({
     civilian_tdy_ub_allowance: allowances.ub_allowance !== undefined ? `${allowances.ub_allowance}` : '',
   };
 
-  const showAllOrdersTypes = context.flags?.allOrdersTypes;
-  const allowedOrdersTypes = showAllOrdersTypes
-    ? orderTypes
-    : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
-  const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
+  const ordersTypeOptions = dropdownInputOptions(orderTypesOptions);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;
@@ -282,11 +284,6 @@ const EditOrders = ({
 EditOrders.propTypes = {
   setFlashMessage: PropTypes.func.isRequired,
   updateOrders: PropTypes.func.isRequired,
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      allOrdersTypes: PropTypes.bool,
-    }).isRequired,
-  }).isRequired,
 };
 
 function mapStateToProps(state) {

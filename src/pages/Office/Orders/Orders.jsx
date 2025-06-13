@@ -22,14 +22,14 @@ import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
-import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { scrollToViewFormikError } from 'utils/validation';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
-const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
@@ -38,6 +38,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
   const [serverError, setServerError] = useState(null);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
@@ -269,6 +270,28 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
     isError,
     validateLoa,
   ]);
+
+  useEffect(() => {
+    const checkFeatureFlags = async () => {
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
+        }
+        return options;
+      });
+    };
+
+    checkFeatureFlags();
+  }, []);
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
