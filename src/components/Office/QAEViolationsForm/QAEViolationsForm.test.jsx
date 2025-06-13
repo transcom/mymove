@@ -197,7 +197,7 @@ describe('QAEViolationsForm', () => {
       expect(screen.getByRole('button', { name: 'SubCategory 1' })).toBeInTheDocument();
 
       // Verify Action/Naviation buttons
-      expect(screen.getByRole('button', { name: '< Back to Evaluation form' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '< Back to evaluation form' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save draft' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Review and submit' })).toBeInTheDocument();
@@ -277,7 +277,7 @@ describe('QAEViolationsForm Buttons', () => {
   it('re-routes back to the eval report', async () => {
     renderForm();
     // Click back button
-    await userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
+    await userEvent.click(await screen.findByRole('button', { name: '< Back to evaluation form' }));
 
     // Verify that we re-route back to the eval report
     expect(mockNavigate).toHaveBeenCalledTimes(1);
@@ -331,7 +331,7 @@ describe('QAEViolationsForm Buttons', () => {
       expect(screen.getByRole('heading', { name: mockViolation.subCategory, level: 4 })).toBeInTheDocument();
 
       // check that back and submission buttons render
-      expect(screen.getByRole('button', { name: '< Back to Evaluation form' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '< Back to evaluation form' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
     });
   });
