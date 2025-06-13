@@ -196,7 +196,7 @@ func (suite *PayloadsSuite) TestWeightTicket() {
 }
 
 func (suite *PayloadsSuite) TestCounselingOffices() {
-	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+	suite.Run("correctly maps transportation offices to counseling offices payload", func() {
 		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
 			{
 				Model: models.TransportationOffice{

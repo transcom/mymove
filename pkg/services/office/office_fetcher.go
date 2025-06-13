@@ -21,7 +21,7 @@ func (o *officeFetcher) FetchOffice(appCtx appcontext.AppContext, filters []serv
 	return office, err
 }
 
-// NewOfficeFetcher return an implementaion of the OfficeFetcher interface
+// NewOfficeFetcher return an implementation of the OfficeFetcher interface
 func NewOfficeFetcher(builder officeQueryBuilder) services.OfficeFetcher {
 	return &officeFetcher{builder}
 }
