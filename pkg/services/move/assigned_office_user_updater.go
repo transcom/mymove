@@ -34,11 +34,11 @@ func (s AssignedOfficeUserUpdater) UpdateAssignedOfficeUser(appCtx appcontext.Ap
 
 	switch queueType {
 	case models.QueueTypeCounseling:
-		move.SCAssignedID = &officeUser.ID
-		move.SCAssignedUser = officeUser
+		move.SCCounselingAssignedID = &officeUser.ID
+		move.SCCounselingAssignedUser = officeUser
 	case models.QueueTypeCloseout:
-		move.SCAssignedID = &officeUser.ID
-		move.SCAssignedUser = officeUser
+		move.SCCloseoutAssignedID = &officeUser.ID
+		move.SCCloseoutAssignedUser = officeUser
 	case models.QueueTypeTaskOrder:
 		move.TOOAssignedID = &officeUser.ID
 		move.TOOAssignedUser = officeUser
@@ -72,11 +72,11 @@ func (s AssignedOfficeUserUpdater) DeleteAssignedOfficeUser(appCtx appcontext.Ap
 
 	switch queueType {
 	case models.QueueTypeCounseling:
-		move.SCAssignedID = nil
-		move.SCAssignedUser = nil
+		move.SCCounselingAssignedID = nil
+		move.SCCounselingAssignedUser = nil
 	case models.QueueTypeCloseout:
-		move.SCAssignedID = nil
-		move.SCAssignedUser = nil
+		move.SCCloseoutAssignedID = nil
+		move.SCCloseoutAssignedUser = nil
 	case models.QueueTypeTaskOrder:
 		move.TOOAssignedID = nil
 		move.TOOAssignedUser = nil
