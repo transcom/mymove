@@ -367,8 +367,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	mto.MTOServiceItems = loadedServiceItems
 
 	if mto.Orders.RankID != nil {
-		userPayGrade, err := FindPayGradeRankByGradeAndAffiliation(appCtx, *mto.Orders.RankID)
-		if err != nil {
+		userPayGrade, err := f.FindRankByRankID(appCtx, *mto.Orders.RankID)
+		if err != nil && err != sql.ErrNoRows {
 			return &models.Move{}, apperror.NewQueryError("Rank", err, "")
 		}
 		mto.Orders.Rank = &userPayGrade
@@ -685,6 +685,16 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 
 	return moveTaskOrders, count, nil
 }
+func (f moveTaskOrderFetcher) FindRankByRankID(appCtx appcontext.AppContext, RankID uuid.UUID) (models.Rank, error) {
+	var result models.Rank
+
+	err := appCtx.DB().Find(&result, RankID)
+
+	if err != nil {
+		return models.Rank{}, err
+	}
+	return result, nil
+}
 
 func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFetcherParams) {
 	// Always exclude hidden moves by default:
@@ -723,24 +733,4 @@ func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.R
 		}
 	}
 	return reweigh, nil
-}
-
-func FindPayGradeRankByGradeAndAffiliation(appCtx appcontext.AppContext, PayGradeID uuid.UUID) (models.Rank, error) {
-	var result models.Rank
-
-	query := appCtx.DB().Select("ranks.*").
-		LeftJoin("pay_grades", "ranks.pay_grade_id = pay_grades.id").
-		Where("ranks.id = ?", PayGradeID)
-
-	err := query.First(&result)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return models.Rank{}, nil
-		default:
-			return models.Rank{}, err
-		}
-	}
-	return result, nil
 }

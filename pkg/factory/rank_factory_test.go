@@ -7,9 +7,13 @@ import (
 )
 
 func (suite *FactorySuite) TestBuildRank() {
-	suite.Run("with no customization nor db", func() {
+	suite.Run("with no customization nor db generate a generic", func() {
+		expected := models.Rank{
+			Affiliation: string(models.DepartmentIndicatorARMY),
+			RankName:    "Senior Airman",
+			RankAbbv:    "SrA"}
 		rank := FetchOrBuildRank(nil, nil, nil)
-		suite.Equal("", rank.RankName)
+		suite.Equal(expected, rank)
 	})
 	suite.Run("with link only customization", func() {
 		customs := []Customization{
