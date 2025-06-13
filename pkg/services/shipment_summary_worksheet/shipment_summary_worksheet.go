@@ -32,12 +32,14 @@ import (
 // SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMComputer struct {
 	services.PPMCloseoutFetcher
+	estimator services.PPMEstimator
 }
 
 // NewSSWPPMComputer creates a SSWPPMComputer
-func NewSSWPPMComputer(ppmCloseoutFetcher services.PPMCloseoutFetcher) services.SSWPPMComputer {
+func NewSSWPPMComputer(ppmCloseoutFetcher services.PPMCloseoutFetcher, estimator services.PPMEstimator) services.SSWPPMComputer {
 	return &SSWPPMComputer{
 		ppmCloseoutFetcher,
+		estimator,
 	}
 }
 
@@ -61,8 +63,8 @@ func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGener
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
-	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData, isPaymentPacket)
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(appCtx appcontext.AppContext, shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
+	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(appCtx, shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
 		return page1, services.Page2Values{}, services.Page3Values{}, errors.WithStack(err)
 	}
@@ -251,7 +253,7 @@ const (
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
+func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(appCtx appcontext.AppContext, data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
 	var err error
 	page1 := services.Page1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
@@ -325,7 +327,6 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.MaxIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -336,14 +337,60 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 		page1.SafetyMoveHeading = safetyMoveText
 	}
 
-	if data.PPMShipment.GCCMultiplier != nil && data.PPMShipment.GCCMultiplier.Multiplier != 0 {
-		// the "g" here tells us to not use trailing zeros (1.3 instead of 1.30000)
-		// -1 is to use the most concise represenation
-		// 64 tells it that it's a float64
-		multiplierStr := strconv.FormatFloat(data.PPMShipment.GCCMultiplier.Multiplier, 'g', -1, 64)
-		page1.GCCMultiplier = fmt.Sprintf("(with %sx multiplier)", multiplierStr)
+	// for payment packets we use the actual move date for the multiplier
+	// AOAs we use the expected departure date for the multiplier
+	// since the multiplier on the PPM is what is "current", we need to manually check the multiplier for an aoa since it can be different
+	var estimatedMultiplierStr, actualMultiplierStr string
+	var estimatedGccMultiplier, actualGccMultiplier models.GCCMultiplier
+
+	// the gcc multiplier might be different between actual/expected move dates
+	if data.PPMShipment.ActualMoveDate != nil {
+		actualGccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), *data.PPMShipment.ActualMoveDate)
+		if err != nil {
+			return page1, err
+		}
+		actualMultiplierStr = strconv.FormatFloat(actualGccMultiplier.Multiplier, 'g', -1, 64)
 	} else {
-		page1.GCCMultiplier = "(with 1x multiplier)"
+		// we will use the expected departure date as a failsafe here
+		actualGccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), data.PPMShipment.ExpectedDepartureDate)
+		if err != nil {
+			return page1, err
+		}
+		actualMultiplierStr = strconv.FormatFloat(actualGccMultiplier.Multiplier, 'g', -1, 64)
+	}
+
+	// for advances, we use the multiplier from the expected departure date since that's
+	// what the estimated incentive is based upon (advance is 60% of est incentive)
+	estimatedGccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), data.PPMShipment.ExpectedDepartureDate)
+	if err != nil {
+		return page1, err
+	}
+	estimatedMultiplierStr = strconv.FormatFloat(estimatedGccMultiplier.Multiplier, 'g', -1, 64)
+
+	// if this is an AOA we need to check the max incentive that would've been calculated at time of AOA decision
+	if !isPaymentPacket {
+		data.PPMShipment.GCCMultiplier = &estimatedGccMultiplier
+		maxIncentive, err := s.estimator.MaxIncentive(appCtx, models.PPMShipment{}, &data.PPMShipment)
+		if err != nil {
+			return page1, err
+		}
+		page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + FormatDollarFromCents(*maxIncentive)
+
+		// setting all fields the same for an AOA
+		page1.GCCMultiplierAdvance = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+		page1.GCCMultiplierMaxAdvance = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+		page1.GCCMultiplierMax = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+		page1.GCCMultiplierActual = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+	} else {
+		page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.MaxIncentive
+
+		// when a payment packet is generated, we know the advances are based off of estimated incentive which consumes the expected departure date
+		page1.GCCMultiplierAdvance = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+		page1.GCCMultiplierMaxAdvance = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+
+		// the current max and actual/final incentives will be driven off of the actual move date
+		page1.GCCMultiplierMax = fmt.Sprintf("(with %sx multiplier)", actualMultiplierStr)
+		page1.GCCMultiplierActual = fmt.Sprintf("(with %sx multiplier)", actualMultiplierStr)
 	}
 
 	return page1, nil
