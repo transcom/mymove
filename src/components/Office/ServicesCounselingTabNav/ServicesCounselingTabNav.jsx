@@ -73,6 +73,7 @@ const ServicesCounselingTabNav = ({
     <header className="nav-header">
       <div className={classnames('grid-container-desktop-lg', styles.TabNav)}>
         <TabNav items={items} />
+        <div id="shipments" />
       </div>
     </header>
   );

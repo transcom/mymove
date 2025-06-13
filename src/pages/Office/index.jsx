@@ -397,7 +397,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingMoveInfo />
+                          <ServicesCounselingMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -436,7 +436,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <ServicesCounselingMoveInfo />
+                          <ServicesCounselingMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -610,7 +610,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             roleTypes.HQ,
                           ]}
                         >
-                          <TXOMoveInfo />
+                          <TXOMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />

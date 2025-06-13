@@ -11,10 +11,10 @@ const StickyOfficeHeader = ({ displayChangeRole }) => {
   return (
     <div className={styles.stickyHeader}>
       <CUIHeader />
-      <OfficeLoggedInHeader />
       <div className={styles.changeRole}>
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
       </div>
+      <OfficeLoggedInHeader />
     </div>
   );
 };
