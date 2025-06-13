@@ -221,9 +221,9 @@ var (
 		Type:        models.ServiceItemParamTypeBoolean,
 		Origin:      models.ServiceItemParamOriginPricer,
 	}
-	paramMTOAvailableAToPrimeAt = models.ServiceItemParamKey{
-		Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
-		Description: "mto available to prime at",
+	paramMTOEarliestRequestedPickup = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameMTOEarliestRequestedPickup,
+		Description: "mto earliest requested pickup date",
 		Type:        models.ServiceItemParamTypeTimestamp,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
@@ -373,13 +373,13 @@ var (
 	}
 	fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemParamKeys{
 		models.ReServiceCodeCS: {
-			paramMTOAvailableAToPrimeAt,
+			paramMTOEarliestRequestedPickup,
 			paramContractCode,
 			paramLockedPriceCents,
 			paramPriceRateOrFactor,
 		},
 		models.ReServiceCodeMS: {
-			paramMTOAvailableAToPrimeAt,
+			paramMTOEarliestRequestedPickup,
 			paramContractCode,
 			paramLockedPriceCents,
 			paramPriceRateOrFactor,

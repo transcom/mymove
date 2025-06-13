@@ -443,7 +443,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 		},
 		{
 			Model: models.MTOShipment{
-				Status:               models.MTOShipmentStatusSubmitted,
+				Status:               models.MTOShipmentStatusApproved,
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &originalWeight,
 				SITDaysAllowance:     models.IntPointer(90),

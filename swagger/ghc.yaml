@@ -12279,7 +12279,7 @@ definitions:
       - IsPeak
       - MarketDest
       - MarketOrigin
-      - MTOAvailableToPrimeAt
+      - MTOEarliestRequestedPickup
       - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
