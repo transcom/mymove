@@ -2,6 +2,7 @@ package movetaskorder_test
 
 import (
 	"fmt"
+	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -9,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/entitlements"
@@ -1435,5 +1437,92 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 		suite.Len(primeMoves, 1, "Move 1 was acknowledged today and was udpated today")
 		suite.Equal(move1.ID, primeMoves[0].ID)
 
+	})
+	suite.Run("Success with fetching a MTO with RankID", func() {
+		// Create a rank
+		rank := factory.FetchOrBuildRank(suite.DB(), nil, nil)
+
+		rankID := rank.ID
+		orders := models.Order{
+			RankID: &rankID,
+		}
+
+		expectedMTO := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: orders,
+			},
+		}, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		actualMTO, err := fetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.NotNil(actualMTO.Orders.RankID)
+		suite.Equal(*expectedMTO.Orders.RankID, *actualMTO.Orders.RankID)
+		suite.NotNil(actualMTO.Orders.Rank)
+		suite.Equal(internalmessages.OrderPayGradeEDash1, *actualMTO.Orders.Grade)
+		suite.Equal(rank.RankName, actualMTO.Orders.Rank.RankName)
+	})
+
+	suite.Run("Success with fetching a MTO without RankID", func() {
+		// Create a move without a RankID
+
+		orders := models.Order{
+			RankID: nil,
+		}
+
+		expectedMTO := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: orders,
+			},
+		}, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		actualMTO, err := fetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.Nil(actualMTO.Orders.RankID)
+		suite.Nil(actualMTO.Orders.Rank)
+	})
+}
+func (suite *MoveTaskOrderServiceSuite) TestFindRankByPayGradeID() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+	fetcher := m.NewMoveTaskOrderFetcher(waf)
+
+	// Create a test rank
+	customs := []factory.Customization{
+		{
+			Model: models.Rank{
+				ID:       uuid.Must(uuid.NewV4()),
+				RankName: "Custom Rank",
+				RankAbbv: "CR",
+			},
+		},
+	}
+	rank := factory.FetchOrBuildRank(suite.DB(), customs, nil)
+
+	// Test case 1: Valid PayGradeID
+	suite.T().Run("Valid PayGradeID", func(t *testing.T) {
+		result, err := fetcher.FindRankByRankID(suite.AppContextForTest(), rank.ID)
+
+		suite.NoError(err)
+		suite.Equal(rank.ID, result.ID)
+		suite.Equal(rank.RankName, result.RankName)
+		suite.Equal(rank.RankAbbv, result.RankAbbv)
+	})
+
+	// Test case 2: Invalid PayGradeID
+	suite.T().Run("Invalid PayGradeID", func(t *testing.T) {
+		invalidID := uuid.Must(uuid.NewV4())
+		result, err := fetcher.FindRankByRankID(suite.AppContextForTest(), invalidID)
+
+		suite.Error(err)
+		suite.Equal(models.Rank{}, result)
 	})
 }
