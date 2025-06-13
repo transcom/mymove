@@ -1237,7 +1237,7 @@ export const MoveTaskOrder = (props) => {
           </div>
 
           <div className={moveTaskOrderStyles.weightHeader} id="move-weights">
-            <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
+            <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.authorizedWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) &&

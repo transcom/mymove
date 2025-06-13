@@ -90,7 +90,7 @@ describe('MoveTaskOrder', () => {
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
-      expect(weightSummaries[0]).toHaveTextContent('8,500 lbs');
+      expect(weightSummaries[0]).toHaveTextContent('8,000 lbs');
 
       const riskOfExcessAlert = await screen.queryByText(/This move is at risk for excess weight./);
       expect(riskOfExcessAlert).toBeFalsy();
