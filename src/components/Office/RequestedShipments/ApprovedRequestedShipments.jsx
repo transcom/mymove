@@ -183,6 +183,7 @@ const ApprovedRequestedShipments = ({
             );
           })}
       </div>
+      <div id="orders" style={{ paddingTop: '20px' }} />
 
       <div className={styles.serviceItems}>
         <h3>Service Items</h3>

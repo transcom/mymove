@@ -104,6 +104,8 @@ const TXOTabNav = ({
     <header className="nav-header">
       <div className={classnames('grid-container-desktop-lg', styles.TabNav)}>
         <TabNav items={items} />
+        <div id="billable-weights" />
+        <div id="requested-shipments" />
       </div>
     </header>
   );

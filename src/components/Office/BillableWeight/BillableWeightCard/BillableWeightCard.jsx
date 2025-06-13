@@ -76,6 +76,7 @@ export default function BillableWeightCard({
           <h4>{formatWeight(actualBillableWeight)}</h4>
           <div className={styles.shipmentList}>
             <ShipmentList shipments={shipments} showShipmentWeight moveSubmitted />
+            <div id="payment-requests" />
           </div>
         </div>
       </div>
