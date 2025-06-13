@@ -231,6 +231,11 @@ const orderMissingRequiredInfo = {
   order_type_detail: '',
   department_indicator: '',
   tac: '',
+  rank: {
+    id: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+    payGradeId: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+    payGradeName: 'SrA',
+  },
 };
 
 const newMoveDetailsQuery = {
@@ -316,6 +321,11 @@ const newMoveDetailsQuery = {
     order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
     department_indicator: 'ARMY',
     tac: '9999',
+    rank: {
+      id: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+      payGradeId: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+      payGradeName: 'SrA',
+    },
   },
   orderDocuments: {
     z: {

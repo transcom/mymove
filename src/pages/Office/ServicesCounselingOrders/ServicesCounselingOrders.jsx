@@ -16,8 +16,8 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import {
   ORDERS_TYPE_DETAILS_OPTIONS,
   ORDERS_TYPE_OPTIONS,
-  ORDERS_PAY_GRADE_OPTIONS,
   ORDERS_TYPE,
+  ORDERS_PAY_GRADE_OPTIONS,
 } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -294,7 +294,8 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
-      grade: values.payGrade,
+      grade: values.grade,
+      rank: values.rank,
       hasDependents:
         values.ordersType === ORDERS_TYPE.STUDENT_TRAVEL || values.ordersType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
           ? formatYesNoAPIValue('yes')
@@ -316,7 +317,8 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     sac: order?.sac,
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
-    payGrade: order?.grade,
+    grade: order?.grade,
+    rank: order?.rank?.id,
     dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 
@@ -329,7 +331,6 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
 
   const ordersTypeDropdownOptions = dropdownInputOptions(orderTypeOptions);
-
   return (
     <div className={styles.sidebar}>
       <Formik
@@ -360,7 +361,6 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
           } else if (!loaValidationState[LOA_TYPE.NTS].isValid) {
             ntsLoaWarning = loaInvalidWarningMsg;
           }
-
           return (
             <form onSubmit={formik.handleSubmit}>
               <div className={styles.content}>
@@ -422,6 +422,9 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     formIsDisabled={!counselorCanEdit}
                     hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
+                    affiliation={order.agency}
+                    handleChange={formik.handleChange}
+                    currentGrade={formik.values.grade}
                   />
                 </div>
                 {serverError && <ErrorMessage>{serverError}</ErrorMessage>}

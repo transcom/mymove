@@ -11,6 +11,7 @@ import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { getRankOptions } from 'services/ghcApi';
 
 jest.setTimeout(60000);
 
@@ -113,6 +114,18 @@ jest.mock('services/ghcApi', () => ({
       ],
     }),
   ),
+  getRankOptions: jest.fn().mockImplementation(() => {
+    return Promise.resolve({
+      body: [
+        {
+          id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+          paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+          rankAbbv: 'Amn',
+          rankOrder: 24,
+        },
+      ],
+    });
+  }),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -139,6 +152,7 @@ const testProps = {
   ordersTypeOptions: dropdownInputOptions(ORDERS_TYPE_OPTIONS),
   onSubmit: jest.fn(),
   onBack: jest.fn(),
+  affiliation: 'AIR_FORCE',
 };
 const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
 const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
@@ -226,15 +240,14 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.click(getByLabelText(/Orders type/));
     await userEvent.click(getByLabelText(/Orders date/));
     await userEvent.click(getByLabelText(/Report by date/));
-    await userEvent.click(getByLabelText(/Current duty location/));
+    await userEvent.click(getByLabelText(/Current duty location/)); // do we want to add an error alert for this field
     await userEvent.click(getByLabelText(/New duty location/));
-    await userEvent.click(getByLabelText(/Pay grade/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
-    expect(alerts.length).toBe(5);
+    expect(alerts.length).toBe(4);
 
     alerts.forEach((alert) => {
       expect(alert).toHaveTextContent('Required');
@@ -257,8 +270,11 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
-
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Elmendorf/);
@@ -460,7 +476,6 @@ describe('AddOrdersForm - With Counseling Office', () => {
     await userEvent.paste(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.paste(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -500,13 +515,13 @@ describe('AddOrdersForm - With Counseling Office', () => {
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
-    const selectedOptionNew = await screen.findByText(/Luke/);
+    const selectedOptionNew = await screen.findAllByText(/Luke/)[0];
     await userEvent.click(selectedOptionNew);
 
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeTruthy(); // If the field is visible then it it required
 
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     await userEvent.click(screen.getByLabelText('No'));
 
     const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });

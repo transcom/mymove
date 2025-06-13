@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -39,6 +40,32 @@ func (suite *PayloadsSuite) TestOrderWithMove() {
 		},
 	}, nil)
 	Order(&order)
+}
+
+func (suite *PayloadsSuite) TestGetRankDropdownOptions() {
+	type testCase struct {
+		grade string
+		count int
+	}
+
+	testCases := map[models.ServiceMemberAffiliation]testCase{
+		models.ServiceMemberAffiliation(models.AffiliationARMY): {
+			grade: "E_4",
+			count: 2,
+		},
+		models.ServiceMemberAffiliation(models.AffiliationNAVY): {
+			grade: "E_2",
+			count: 1,
+		},
+	}
+
+	for affiliation, tc := range testCases {
+		suite.Run(fmt.Sprintf("Affiliation: %s, Grade: %s", affiliation, tc.grade), func() {
+			options, err := GetRankDropdownOptions(suite.AppContextForTest(), string(affiliation), tc.grade)
+			suite.NoError(err)
+			suite.Equal(tc.count, len(options))
+		})
+	}
 }
 
 func (suite *PayloadsSuite) TestBoatShipment() {

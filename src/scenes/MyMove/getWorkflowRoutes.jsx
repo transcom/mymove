@@ -4,14 +4,12 @@ import { every, some, get, findKey, pick } from 'lodash';
 
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import generatePath from 'shared/WizardPage/generatePath';
-import { NULL_UUID } from 'shared/constants';
 import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 import Home from 'pages/MyMove/Home';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
 import SMName from 'pages/MyMove/Profile/Name';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
-import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import SelectShipmentType from 'pages/MyMove/SelectShipmentType';
 import BackupAddress from 'pages/MyMove/Profile/BackupAddress';
@@ -84,19 +82,6 @@ const pages = {
     isInFlow: notMyFirstRodeo,
     isComplete: always,
     render: (key, pages) => <ProfileReview pages={pages} pageKey={key} />,
-  },
-  [customerRoutes.ORDERS_INFO_PATH]: {
-    isInFlow: always,
-    isComplete: ({ sm, orders }) =>
-      every([
-        orders.orders_type,
-        orders.issue_date,
-        orders.report_by_date,
-        get(orders, 'new_duty_location.id', NULL_UUID) !== NULL_UUID,
-        get(orders, 'origin_duty_location.id', NULL_UUID) !== NULL_UUID,
-        orders.grade,
-      ]),
-    render: (key, pages) => <Orders />,
   },
   [customerRoutes.ORDERS_UPLOAD_PATH]: {
     isInFlow: always,

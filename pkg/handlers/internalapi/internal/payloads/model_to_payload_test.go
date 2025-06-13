@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -340,4 +341,30 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 		suite.Equal(expense.ProGearBelongsToSelf, result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
 		suite.Equal(proGearDescription, result.ProGearDescription, "ProGearDescription should match")
 	})
+}
+
+func (suite *PayloadsSuite) TestGetRankDropdownOptions() {
+	type testCase struct {
+		grade string
+		count int
+	}
+
+	testCases := map[models.ServiceMemberAffiliation]testCase{
+		models.ServiceMemberAffiliation(models.AffiliationARMY): {
+			grade: "E_4",
+			count: 2,
+		},
+		models.ServiceMemberAffiliation(models.AffiliationNAVY): {
+			grade: "E_2",
+			count: 1,
+		},
+	}
+
+	for affiliation, tc := range testCases {
+		suite.Run(fmt.Sprintf("Affiliation: %s, Grade: %s", affiliation, tc.grade), func() {
+			options, err := GetRankDropdownOptions(suite.AppContextForTest(), string(affiliation), tc.grade)
+			suite.NoError(err)
+			suite.Equal(tc.count, len(options))
+		})
+	}
 }
