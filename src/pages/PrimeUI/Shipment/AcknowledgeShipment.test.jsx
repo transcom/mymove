@@ -34,7 +34,7 @@ const moveReturnValue = {
   isError: false,
 };
 
-const primeAcknowledgedAtText = 'Prime Acknowledged At';
+const primeAcknowledgedAtText = 'Prime Acknowledged At *';
 
 const renderShipmentComponent = (shipmentId) => {
   renderWithProviders(<AcknowledgeShipment />, {
@@ -63,7 +63,7 @@ describe('PrimeUI Acknowledge Shipment Page', () => {
     expect(shipmentIdElement).toBeInTheDocument();
     expect(shipmentIdElement.nextSibling).toHaveTextContent('2');
 
-    const primeAcknowledgedAtLabel = screen.getByText(primeAcknowledgedAtText);
+    const primeAcknowledgedAtLabel = screen.getByLabelText(primeAcknowledgedAtText);
     expect(primeAcknowledgedAtLabel).toBeInTheDocument();
 
     const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
@@ -81,7 +81,7 @@ describe('PrimeUI Acknowledge Shipment Page', () => {
     expect(shipmentIdElement).toBeInTheDocument();
     expect(shipmentIdElement.nextSibling).toHaveTextContent('3');
 
-    const primeAcknowledgedAtLabel = screen.getByText(primeAcknowledgedAtText);
+    const primeAcknowledgedAtLabel = screen.getByLabelText(primeAcknowledgedAtText);
     expect(primeAcknowledgedAtLabel).toBeInTheDocument();
 
     const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
