@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	move "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	officeusercreator "github.com/transcom/mymove/pkg/services/office_user"
@@ -1903,6 +1904,201 @@ func (suite *HandlerSuite) TestGetPPMCloseoutQueueHandler() {
 	})
 }
 
+type counselingSubtestData struct {
+	needsCounselingMove1    models.Move
+	needsCounselingMove2    models.Move
+	counselingCompletedMove models.Move
+	officeUser              models.OfficeUser
+	handler                 GetCounselingQueueHandler
+	request                 *http.Request
+}
+
+func (suite *HandlerSuite) makeCounselingSubtestData() (subtestData *counselingSubtestData) {
+	subtestData = &counselingSubtestData{}
+	army := models.AffiliationARMY
+	navy := models.AffiliationNAVY
+
+	subtestData.needsCounselingMove1 = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Locator: "AAA3T1",
+				Status:  models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &army,
+			},
+		},
+	}, nil)
+	subtestData.needsCounselingMove2 = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Locator: "AAA3T2",
+				Status:  models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &navy,
+			},
+		},
+		{
+			Model: models.TransportationOffice{
+				Gbloc: "KKFA",
+			},
+		},
+	}, nil)
+	subtestData.counselingCompletedMove = factory.BuildServiceCounselingCompletedMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Locator: "AAA3T3",
+			},
+		},
+	}, nil)
+
+	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+	request := httptest.NewRequest("GET", "/queues/counselingQueue", nil)
+	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
+	handlerConfig := suite.NewHandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
+	subtestData.handler = GetCounselingQueueHandler{
+		handlerConfig,
+		move.NewCounselingQueueFetcher(),
+		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
+	suite.Run("returns moves in the needs counseling status by default", func() {
+		subtestData := suite.makeCounselingSubtestData()
+
+		pageNumber := int64(1)
+		perPageAmt := int64(20)
+		params := queues.GetCounselingQueueParams{
+			HTTPRequest: subtestData.request,
+			Sort:        models.StringPointer("branch"),
+			Order:       models.StringPointer("asc"),
+			Page:        &pageNumber,
+			PerPage:     &perPageAmt,
+		}
+
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetCounselingQueueOK{}, response)
+		payload := response.(*queues.GetCounselingQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		result1 := payload.QueueMoves[0]
+		result2 := payload.QueueMoves[1]
+
+		suite.Len(payload.QueueMoves, 2)
+		suite.Equal(subtestData.needsCounselingMove1.Locator, result1.Locator)
+		suite.Equal(subtestData.needsCounselingMove2.Locator, result2.Locator)
+		suite.EqualValues(subtestData.needsCounselingMove1.Status, result1.Status)
+		suite.EqualValues(subtestData.needsCounselingMove2.Status, result2.Status)
+	})
+
+	suite.Run("unlocks office users moves when the office user is accessing the queue", func() {
+		subtestData := suite.makeCounselingSubtestData()
+
+		army := models.AffiliationARMY
+		lockedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator:              "AAA3T6",
+					Status:               models.MoveStatusNeedsServiceCounseling,
+					LockedByOfficeUserID: &subtestData.officeUser.ID,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		pageNumber := int64(1)
+		perPageAmt := int64(20)
+		params := queues.GetCounselingQueueParams{
+			HTTPRequest: subtestData.request,
+			Sort:        models.StringPointer("branch"),
+			Order:       models.StringPointer("asc"),
+			Page:        &pageNumber,
+			PerPage:     &perPageAmt,
+		}
+
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetCounselingQueueOK{}, response)
+		payload := response.(*queues.GetCounselingQueueOK).Payload
+
+		result1 := payload.QueueMoves[1]
+		suite.Equal(lockedMove.Locator, result1.Locator)
+		suite.Nil(result1.LockedByOfficeUserID)
+	})
+
+	suite.Run("returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
+		subtestData := suite.makeCounselingSubtestData()
+		pageNumber := int64(1)
+		perPageAmt := int64(20)
+		params := queues.GetCounselingQueueParams{
+			HTTPRequest: subtestData.request,
+			Status:      []string{string(models.MoveStatusNeedsServiceCounseling), string(models.MoveStatusServiceCounselingCompleted)},
+			Page:        &pageNumber,
+			PerPage:     &perPageAmt,
+		}
+
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetCounselingQueueOK{}, response)
+		payload := response.(*queues.GetCounselingQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Len(payload.QueueMoves, 2)
+
+		for _, move := range payload.QueueMoves {
+			// Test that only moves with postal code in the officer user gbloc are returned
+			suite.Equal("50309", *move.OriginDutyLocation.Address.PostalCode)
+
+			// Fail if a move has a status other than the two target ones
+			if models.MoveStatus(move.Status) != models.MoveStatusNeedsServiceCounseling && models.MoveStatus(move.Status) != models.MoveStatusServiceCounselingCompleted {
+				suite.Fail("Test does not return moves with the correct statuses.")
+			}
+		}
+	})
+
+	suite.Run("responds with forbidden error when user is not an office user", func() {
+		subtestData := suite.makeCounselingSubtestData()
+		user := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
+
+		request := httptest.NewRequest("GET", "/queues/counselingQueue", nil)
+		request = suite.AuthenticateOfficeRequest(request, user)
+
+		pageNumber := int64(1)
+		perPageAmt := int64(20)
+		params := queues.GetCounselingQueueParams{
+			HTTPRequest: request,
+			Page:        &pageNumber,
+			PerPage:     &perPageAmt,
+		}
+
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetCounselingQueueForbidden{}, response)
+		payload := response.(*queues.GetCounselingQueueForbidden).Payload
+
+		suite.Nil(payload)
+	})
+}
+
 func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 	suite.Run("SC - returns an unauthorized error when an attempt is made by a non supervisor", func() {
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
@@ -2593,7 +2789,6 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 	suite.Run("properly fetches a SC supervisor's available office users for assignment", func() {
 		subtestData := setupOfficeUserData(roles.RoleTypeServicesCounselor, roles.RoleTypeTOO)
 		waf := entitlements.NewWeightAllotmentFetcher()
-
 		needsCounselingMove := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
 			{
 				Model:    subtestData.office,
