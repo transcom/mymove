@@ -36,6 +36,8 @@ RETURNS TABLE (
     mto_shipments JSONB,
     total_count BIGINT,
     mtos_earliest_requested_pickup_date TIMESTAMP WITH TIME zone,
+    mtos_earliest_requested_delivery_date TIMESTAMP WITH TIME zone,
+    ppms_earliest_expected_departure_date TIMESTAMP WITH TIME zone,
     ppm_shipments JSONB
 ) LANGUAGE plpgsql AS $$
 DECLARE
@@ -97,7 +99,9 @@ BEGIN
 		  )::JSONB AS orders,
       COALESCE(ms_agg.mto_shipments)::JSONB AS mto_shipments,
 	  COUNT(*) OVER() AS total_count,
-	ms_agg.mtos_earliest_requested_pickup_date::timestamptz AS mtos_earliest_requested_pickup_date,
+	  ms_agg.mtos_earliest_requested_pickup_date::timestamptz AS mtos_earliest_requested_pickup_date,
+	  ms_agg.mtos_earliest_requested_delivery_date::timestamptz AS mtos_earliest_requested_delivery_date,
+	  ppm_agg.ppms_earliest_expected_departure_date::timestamptz AS ppms_earliest_expected_departure_date,
     COALESCE(ppm_agg.ppm_shipments, ''[]'')::JSONB AS ppm_shipments
     From moves m
     JOIN orders o ON m.orders_id = o.id
@@ -120,7 +124,8 @@ BEGIN
                             ''prime_estimated_weight'', ms.prime_estimated_weight
 						)
                        )::JSONB AS mto_shipments,
-						MIN(ms.requested_pickup_date) AS mtos_earliest_requested_pickup_date
+						MIN(ms.requested_pickup_date) AS mtos_earliest_requested_pickup_date,
+            MIN(ms.requested_delivery_date) AS mtos_earliest_requested_delivery_date
                 FROM   mto_shipments ms
                 WHERE  ms.move_id = m.id
                 ) ms_agg ON TRUE
@@ -132,7 +137,8 @@ BEGIN
             			''expected_departure_date'', TO_CHAR(ps2.expected_departure_date, ''YYYY-MM-DD"T00:00:00Z"''),
 						''shipment_id'', ps2.shipment_id
 					)
-				) ::JSONB AS ppm_shipments
+				) ::JSONB AS ppm_shipments,
+        MIN(ps2.expected_departure_date) AS ppms_earliest_expected_departure_date
 				FROM mto_shipments ms3
                 JOIN ppm_shipments ps2 ON ps2.shipment_id = ms3.id
                 WHERE  ms3.move_id = m.id
@@ -238,9 +244,16 @@ BEGIN
         sql_query := sql_query || format(' ORDER BY sc_user.last_name %s', sort_ord);
       WHEN 'counselingOffice' THEN
         sql_query := sql_query || format(' ORDER BY co.name %s', sort_ord);
-	  WHEN 'requestedMoveDates' THEN
-        sql_query := sql_query || format(' ORDER BY ms_agg.mtos_earliest_requested_pickup_date %s', sort_ord);
-      ELSE
+      WHEN 'requestedMoveDate' THEN
+        sql_query := sql_query || format(
+          ' ORDER BY COALESCE('
+          || 'ms_agg.mtos_earliest_requested_pickup_date,'
+          || 'ppm_agg.ppms_earliest_expected_departure_date,'
+          || 'ms_agg.mtos_earliest_requested_delivery_date'
+          || ') %s',
+          sort_ord
+        );
+          ELSE
         sql_query := sql_query || format(' ORDER BY %s %s', sort_col, sort_ord);
     END CASE;
   END IF;

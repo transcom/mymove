@@ -92,18 +92,20 @@ func getCounselingQueueDbFunc(counselingQueueParams services.CounselingQueuePara
 
 type MoveWithCount struct {
 	models.Move
-	OrdersRaw                   json.RawMessage              `json:"orders" db:"orders"`
-	Orders                      *models.Order                `json:"-"`
-	MTOShipmentsRaw             json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
-	MTOShipments                *models.MTOShipments         `json:"-"`
-	CounselingOfficeRaw         json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
-	CounselingOffice            *models.TransportationOffice `json:"-"`
-	SCAssignedUserRaw           json.RawMessage              `json:"sc_assigned" db:"sc_assigned"`
-	SCCounselingAssignedUser    *models.OfficeUser           `json:"-"`
-	TotalCount                  int64                        `json:"total_count" db:"total_count"`
-	EarliestRequestedPickupDate *time.Time                   `json:"mtos_earliest_requested_pickup_date" db:"mtos_earliest_requested_pickup_date"`
-	PPMShipmentsRaw             json.RawMessage              `json:"ppm_shipments" db:"ppm_shipments"`
-	PPMShipments                *models.PPMShipments         `json:"-"`
+	OrdersRaw                     json.RawMessage              `json:"orders" db:"orders"`
+	Orders                        *models.Order                `json:"-"`
+	MTOShipmentsRaw               json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
+	MTOShipments                  *models.MTOShipments         `json:"-"`
+	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	CounselingOffice              *models.TransportationOffice `json:"-"`
+	SCAssignedUserRaw             json.RawMessage              `json:"sc_assigned" db:"sc_assigned"`
+	SCCounselingAssignedUser      *models.OfficeUser           `json:"-"`
+	TotalCount                    int64                        `json:"total_count" db:"total_count"`
+	EarliestRequestedPickupDate   *time.Time                   `json:"mtos_earliest_requested_pickup_date" db:"mtos_earliest_requested_pickup_date"`
+	EarliestRequestedDeliveryDate *time.Time                   `json:"mtos_earliest_requested_delivery_date" db:"mtos_earliest_requested_delivery_date"`
+	EarliestExpectedDepartureDate *time.Time                   `json:"ppms_earliest_expected_departure_date" db:"ppms_earliest_expected_departure_date"`
+	PPMShipmentsRaw               json.RawMessage              `json:"ppm_shipments" db:"ppm_shipments"`
+	PPMShipments                  *models.PPMShipments         `json:"-"`
 }
 
 func movesWithCountToMoves(movesWithCount []MoveWithCount) ([]models.Move, error) {
