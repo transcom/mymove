@@ -596,6 +596,11 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+      availableToPrimeAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-nullable: true
     required:
       - id
       - ordersId
