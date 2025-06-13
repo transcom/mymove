@@ -87,7 +87,7 @@
             </h3>
             <div class="summarySection">
             </div>
-            <h5>axe-core found <span class="badge badge-warning">5</span> violations</h5>
+            <h5>axe-core found <span class="badge badge-warning">6</span> violations</h5>
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
@@ -102,16 +102,16 @@
                 <tbody>
                     <tr>
                         <th scope="row"><a href="#1" class="card-link">1</a></th>
-                        <td>id attribute value must be unique</td>
-                        <td>duplicate-id</td>
-                        <td>WCAG 2 Level A, WCAG 4.1.1</td>
-                        <td>minor</td>
-                        <td>1</td>
+                        <td>Elements must meet minimum color contrast ratio thresholds</td>
+                        <td>color-contrast</td>
+                        <td>WCAG 2 Level AA, WCAG 1.4.3</td>
+                        <td>serious</td>
+                        <td>2</td>
                     </tr>
                     <tr>
                         <th scope="row"><a href="#2" class="card-link">2</a></th>
-                        <td>Page should contain a level-one heading</td>
-                        <td>page-has-heading-one</td>
+                        <td>Heading levels should only increase by one</td>
+                        <td>heading-order</td>
                         <td>Best practice</td>
                         <td>moderate</td>
                         <td>1</td>
@@ -131,35 +131,45 @@
                 <div class="card-body">
                     <div class="violationCardLine">
                         <h5 class="card-title violationCardTitleItem">
-                            <a id="1">1.</a> id attribute value must be unique
+                            <a id="1">1.</a> Elements must meet minimum color contrast ratio thresholds
                         </h5>
                         <a
-                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;duplicate-id?application&#x3D;axeAPI"
+                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;color-contrast?application&#x3D;axeAPI"
                             target="_blank"
                             class="card-link violationCardTitleItem learnMore"
                             >Learn more</a
                         >
                     </div>
                     <div class="violationCardLine">
-                        <h6 class="card-subtitle mb-2 text-muted">duplicate-id</h6>
+                        <h6 class="card-subtitle mb-2 text-muted">color-contrast</h6>
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
-                            WCAG 2 Level A, WCAG 4.1.1
+                            WCAG 2 Level AA, WCAG 1.4.3
                         </h6>
                     </div>
                     <div class="violationCardLine">
-                        <p class="card-text">Ensures every id attribute value is unique</p>
+                        <p class="card-text">Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds</p>
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
-                            minor
+                            serious
                         </h6>
                     </div>
                     <div class="violationCardLine">
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
                             Issue Tags:
-                            <span class="badge bg-light text-dark"> cat.parsing </span>
+                            <span class="badge bg-light text-dark"> cat.color </span>
 
-                            <span class="badge bg-light text-dark"> wcag2a </span>
+                            <span class="badge bg-light text-dark"> wcag2aa </span>
 
-                            <span class="badge bg-light text-dark"> wcag411 </span>
+                            <span class="badge bg-light text-dark"> wcag143 </span>
+
+                            <span class="badge bg-light text-dark"> TTv5 </span>
+
+                            <span class="badge bg-light text-dark"> TT13.c </span>
+
+                            <span class="badge bg-light text-dark"> EN-301-549 </span>
+
+                            <span class="badge bg-light text-dark"> EN-9.1.4.3 </span>
+
+                            <span class="badge bg-light text-dark"> ACT </span>
                         </h6>
                     </div>
                     <div class="violationNode">
@@ -178,19 +188,40 @@
                                     <td>1</td>
                                     <td>
                                         <p><strong>Element location</strong></p>
-                                        <pre><code class="css text-wrap">#root &gt; .TitleAnnouncer_HiddenTitleAnnouncer__IxWhC[aria-live&#x3D;&quot;polite&quot;]</code></pre>
+                                        <pre><code class="css text-wrap">#filepond--drop-label-bq6sg6umj</code></pre>
                                         <p><strong>Element source</strong></p>
-                                        <pre><code class="html text-wrap">&lt;div id&#x3D;&quot;title-announcer&quot; aria-live&#x3D;&quot;polite&quot; class&#x3D;&quot;TitleAnnouncer_HiddenTitleAnnouncer__IxWhC&quot; style&#x3D;&quot;&quot;&gt;my.move.mil&lt;&#x2F;div&gt;</code></pre>
+                                        <pre><code class="html text-wrap">&lt;label for&#x3D;&quot;filepond--browser-bq6sg6umj&quot; id&#x3D;&quot;filepond--drop-label-bq6sg6umj&quot; aria-hidden&#x3D;&quot;true&quot;&gt;Drag &amp;amp; drop or &lt;span class&#x3D;&quot;filepond--label-action&quot; tabindex&#x3D;&quot;0&quot;&gt;click to upload orders&lt;&#x2F;span&gt;&lt;&#x2F;label&gt;</code></pre>
                                     </td>
                                     <td>
                                         <div class="wrapBreakWord">
                                             <p>Fix any of the following:</p>
                                             <ul class="text-muted">
-                                                <li>  Document has multiple static elements with the same id attribute: title-announcer</li>
+                                                <li>  Element has insufficient color contrast of 1.96 (foreground color: #b9b9b9, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1</li>
                                             </ul>
                                         </div>
                                         <p><strong>Related node:</strong></p>
-                                        <pre><code class="css text-wrap">#app-root &gt; .TitleAnnouncer_HiddenTitleAnnouncer__IxWhC[aria-live&#x3D;&quot;polite&quot;]</code></pre>
+                                        <pre><code class="css text-wrap">.filepond--drip</code></pre>
+                                        <pre><code class="css text-wrap">.filepond--panel-center</code></pre>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>
+                                        <p><strong>Element location</strong></p>
+                                        <pre><code class="css text-wrap">.filepond--label-action</code></pre>
+                                        <p><strong>Element source</strong></p>
+                                        <pre><code class="html text-wrap">&lt;span class&#x3D;&quot;filepond--label-action&quot; tabindex&#x3D;&quot;0&quot;&gt;click to upload orders&lt;&#x2F;span&gt;</code></pre>
+                                    </td>
+                                    <td>
+                                        <div class="wrapBreakWord">
+                                            <p>Fix any of the following:</p>
+                                            <ul class="text-muted">
+                                                <li>  Element has insufficient color contrast of 1.97 (foreground color: #9abaf0, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1</li>
+                                            </ul>
+                                        </div>
+                                        <p><strong>Related node:</strong></p>
+                                        <pre><code class="css text-wrap">.filepond--drip</code></pre>
+                                        <pre><code class="css text-wrap">.filepond--panel-center</code></pre>
                                     </td>
                                 </tr>
                             </tbody>
@@ -202,23 +233,23 @@
                 <div class="card-body">
                     <div class="violationCardLine">
                         <h5 class="card-title violationCardTitleItem">
-                            <a id="2">2.</a> Page should contain a level-one heading
+                            <a id="2">2.</a> Heading levels should only increase by one
                         </h5>
                         <a
-                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;page-has-heading-one?application&#x3D;axeAPI"
+                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;heading-order?application&#x3D;axeAPI"
                             target="_blank"
                             class="card-link violationCardTitleItem learnMore"
                             >Learn more</a
                         >
                     </div>
                     <div class="violationCardLine">
-                        <h6 class="card-subtitle mb-2 text-muted">page-has-heading-one</h6>
+                        <h6 class="card-subtitle mb-2 text-muted">heading-order</h6>
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
                             Best practice
                         </h6>
                     </div>
                     <div class="violationCardLine">
-                        <p class="card-text">Ensure that the page, or at least one of its frames contains a level-one heading</p>
+                        <p class="card-text">Ensure the order of headings is semantically correct</p>
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
                             moderate
                         </h6>
@@ -247,15 +278,15 @@
                                     <td>1</td>
                                     <td>
                                         <p><strong>Element location</strong></p>
-                                        <pre><code class="css text-wrap">html</code></pre>
+                                        <pre><code class="css text-wrap">h6</code></pre>
                                         <p><strong>Element source</strong></p>
-                                        <pre><code class="html text-wrap">&lt;html lang&#x3D;&quot;en&quot;&gt;</code></pre>
+                                        <pre><code class="html text-wrap">&lt;h6&gt;1 Files Uploaded&lt;&#x2F;h6&gt;</code></pre>
                                     </td>
                                     <td>
                                         <div class="wrapBreakWord">
-                                            <p>Fix all of the following:</p>
+                                            <p>Fix any of the following:</p>
                                             <ul class="text-muted">
-                                                <li>  Page must have a level-one heading</li>
+                                                <li>  Heading order invalid</li>
                                             </ul>
                                         </div>
                                     </td>
@@ -272,7 +303,7 @@
                             <a id="3">3.</a> All page content should be contained by landmarks
                         </h5>
                         <a
-                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;region?application&#x3D;axeAPI"
+                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;region?application&#x3D;axeAPI"
                             target="_blank"
                             class="card-link violationCardTitleItem learnMore"
                             >Learn more</a
@@ -285,7 +316,7 @@
                         </h6>
                     </div>
                     <div class="violationCardLine">
-                        <p class="card-text">Ensures all page content is contained by landmarks</p>
+                        <p class="card-text">Ensure all page content is contained by landmarks</p>
                         <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
                             moderate
                         </h6>
