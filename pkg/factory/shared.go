@@ -108,6 +108,7 @@ var WeightTicket CustomType = "WeightTicket"
 var UsPostRegionCity CustomType = "UsPostRegionCity"
 var UsersPrivileges CustomType = "UsersPrivileges"
 var Privilege CustomType = "Privilege"
+var Rank CustomType = "Rank"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
@@ -178,6 +179,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.WeightTicket":                             WeightTicket,
 	"roles.Role":                                      Role,
 	"models.UsersPrivileges":                          UsersPrivileges,
+	"models.Rank":                                     Rank,
 	"roles.Privilege":                                 Privilege,
 }
 

@@ -19,7 +19,7 @@ describe('when given an Order update history record', () => {
         origin_duty_location_id: 'ID2',
         new_duty_location_id: 'ID2',
         has_dependents: true,
-        grade: 'E_2',
+        grade: 'E-2',
       },
       context: [
         {
