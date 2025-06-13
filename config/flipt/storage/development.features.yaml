@@ -1,14 +1,6 @@
 version: '1.2'
 namespace: development
 flags:
-  - key: headquarters_role
-    name: Headquarters Role feature flag
-    type: BOOLEAN_FLAG_TYPE
-    enabled: true
-    rollouts:
-      - segment:
-          key: mil-app
-          value: true
   - key: gsr_role
     name: Government Surveillance Representative Role feature flag
     type: BOOLEAN_FLAG_TYPE
