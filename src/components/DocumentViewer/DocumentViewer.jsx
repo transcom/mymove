@@ -232,7 +232,14 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
-        <Button data-testid="openMenu" type="button" onClick={openMenu} aria-label="Open menu" unstyled>
+        <Button
+          data-testid="openMenu"
+          type="button"
+          onClick={openMenu}
+          aria-label="Open menu"
+          unstyled
+          style={{ maxWidth: 'fit-content' }}
+        >
           <FontAwesomeIcon icon="th-list" />
         </Button>
         <p title={selectedFilename} className={styles.documentTitle} data-testid="documentTitle">
@@ -247,18 +254,26 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         )}
         {paymentRequestId !== undefined ? paymentPacketDownload : null}
       </div>
-      {showContentError && (
-        <div className={styles.errorMessage}>If your document does not display, please refresh your browser.</div>
+      {showContentError ? (
+        <div className={styles.errorMessage}>
+          <Alert type="error" className="usa-width-one-whole" heading={alertHeading} data-testid="documentAlertHeading">
+            <span data-testid="documentAlertMessage">
+              MilMove encountered an issue during the scanning phase of this document. Contact the service member. Ask
+              them to upload a photo of the original document instead.
+            </span>
+          </Alert>
+        </div>
+      ) : (
+        <Content
+          fileType={fileType.current}
+          filePath={selectedFile?.url}
+          rotationValue={rotationValue}
+          disableSaveButton={disableSaveButton}
+          setRotationValue={setRotationValue}
+          saveRotation={saveRotation}
+          onError={onContentError}
+        />
       )}
-      <Content
-        fileType={fileType.current}
-        filePath={selectedFile?.url}
-        rotationValue={rotationValue}
-        disableSaveButton={disableSaveButton}
-        setRotationValue={setRotationValue}
-        saveRotation={saveRotation}
-        onError={onContentError}
-      />
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}
