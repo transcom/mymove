@@ -123,16 +123,20 @@ func checkDepartureDate() sitExtensionValidator {
 		}
 		sorted := sitstatus.SortShipmentSITs(sitGroupings, time.Now())
 
+		// Only checking these SIT service items to mirror what's happening in production
+		ValidOriginSITReServiceCodes := []models.ReServiceCode{models.ReServiceCodeDOASIT, models.ReServiceCodeIOASIT}
+		ValidDestSITReServiceCodes := []models.ReServiceCode{models.ReServiceCodeDDASIT, models.ReServiceCodeIDASIT}
+
 		// Check if any current SITs
 		if sorted.CurrentSITs != nil {
 			for _, serviceItem := range shipment.MTOServiceItems {
 				if serviceItem.SITDepartureDate != nil {
 					// Check if valid service SIT service item to get correct authorized end date.
-					if slices.Contains(models.ValidOriginSITReServiceCodes, serviceItem.ReService.Code) &&
+					if slices.Contains(ValidOriginSITReServiceCodes, serviceItem.ReService.Code) &&
 						shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate == nil {
 						si = &serviceItem
 						endDate = shipment.OriginSITAuthEndDate
-					} else if (slices.Contains(models.ValidDestinationSITReServiceCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
+					} else if (slices.Contains(ValidDestSITReServiceCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
 						si = &serviceItem
 						endDate = shipment.DestinationSITAuthEndDate
 					}
@@ -143,7 +147,7 @@ func checkDepartureDate() sitExtensionValidator {
 		format := "2006-01-02"
 		if endDate != nil && si != nil {
 			if si.SITDepartureDate.Before(*endDate) || si.SITDepartureDate.Equal(*endDate) {
-				sitErr := fmt.Sprintf("\nSIT departure date (%s) cannot be prior or equal to the SIT end date (%s)", si.SITDepartureDate.Format(format), endDate.Format(format))
+				sitErr := fmt.Sprintf("\nSIT extension cannot be created: SIT departure date (%s) cannot be prior or equal to the SIT end date (%s)", si.SITDepartureDate.Format(format), endDate.Format(format))
 				return apperror.NewConflictError(shipment.ID, sitErr)
 			}
 		}
