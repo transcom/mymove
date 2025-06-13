@@ -156,51 +156,6 @@ func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusi
 		)
 		union
 		(
-		    -- search against duty_location_names table for alternative names
-			(
-				select
-					duty_location_id,
-					dn.name,
-					similarity(dn.name, $1) as sim
-				from
-					duty_location_names as dn
-					inner join duty_locations dl on dn.duty_location_id = dl.id
-        			inner join addresses a on dl.address_id = a.id
-				where
-					dn.name % $1
-					and not exists (
-            			select 1
-            			from re_us_post_regions p
-            			where p.uspr_zip_id = a.postal_code
-             				and p.is_po_box = true
-        			)
-				order by sim desc limit 5
-			)
-			-- exclude OCONUS locations that are not active
-			except
-			(
-				select
-					dn.duty_location_id,
-					dn.name,
-					similarity(dn.name, $1) as sim
-				from
-					duty_location_names dn,
-					duty_locations d,
-					addresses a,
-					re_oconus_rate_areas o,
-					re_rate_areas r
-				where
-					dn.name % $1
-					and dn.duty_location_id = d.id
-					and d.address_id = a.id
-					and a.us_post_region_cities_id = o.us_post_region_cities_id
-					and o.rate_area_id = r.id
-					and o.active = false
-				order by sim desc limit 5
-			)
-		)
-		union
-		(
 		    -- search against duty_locations table if postal code
 			(
 				select

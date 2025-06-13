@@ -14,6 +14,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { MOVE_STATUSES } from 'shared/constants';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { counselingUpdateAllowance } from 'services/ghcApi';
 import { dropdownInputOptions } from 'utils/formatters';
@@ -145,6 +146,11 @@ const ServicesCounselingMoveAllowances = () => {
     return mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
+  const counselorCanEdit =
+    move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
+    move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
+    (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt); // status is set to 'Approval Requested' if customer uploads amended orders.
+
   const { entitlement, grade, agency } = order;
   const {
     proGearWeight,
@@ -214,12 +220,13 @@ const ServicesCounselingMoveAllowances = () => {
                   branchOptions={branchDropdownOption}
                   header="Counseling"
                   civilianTDYUBMove={civilianTDYUBMove}
+                  formIsDisabled={!counselorCanEdit}
                 />
               </div>
               <div className={styles.bottom}>
                 <div className={styles.buttonGroup}>
                   <Button
-                    disabled={formik.isSubmitting || !formik.isValid}
+                    disabled={formik.isSubmitting || !formik.isValid || !counselorCanEdit}
                     data-testid="scAllowancesSave"
                     type="submit"
                   >

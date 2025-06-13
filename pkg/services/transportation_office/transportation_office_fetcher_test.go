@@ -523,7 +523,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 		},
 		{
 			Model: models.TransportationOffice{
-				Name:             "PPPO Fort Meade - USA",
+				Name:             "PPPO Jacksonville - USN",
 				Gbloc:            "CNNQ",
 				ProvidesCloseout: true,
 			},
@@ -539,7 +539,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 	}, nil)
 	offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), origDutyLocation.ID, serviceMember.ID)
 	suite.NoError(err)
-	suite.Equal(offices.Name, "PPPO Jacksonville - USN")
+	suite.Equal(offices.Name, "PPPO Fort Moore - USA")
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrimeCounseledOCONUS() {

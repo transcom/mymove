@@ -4,6 +4,7 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Home.module.scss';
 import {
@@ -24,7 +25,7 @@ import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import Step from 'components/Customer/Home/Step';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
@@ -63,7 +64,6 @@ import {
   isPPMShipmentComplete,
   isBoatShipmentComplete,
   isMobileHomeShipmentComplete,
-  isWeightTicketComplete,
 } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -281,7 +281,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       return '';
     }
     if (hasAnyShipments()) {
-      return 'Add another shipment';
+      return (
+        <div className={styles.addShipmentIcon}>
+          <FontAwesomeIcon icon="plus" />
+          &nbsp;&nbsp;Add another shipment
+        </div>
+      );
     }
     return 'Set up your shipments';
   };
@@ -345,23 +350,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     });
 
     if (aboutInfoComplete) {
-      if (shipment.ppmShipment.weightTickets.length === 0) {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      } else if (!shipment.ppmShipment.weightTickets.some(isWeightTicketComplete)) {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-          weightTicketId: shipment.ppmShipment.weightTickets[0].id,
-        });
-      } else {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      }
+      path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      });
     }
 
     navigate(path);
@@ -590,7 +582,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
                   actionBtnLabel={
-                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Non-Orders Documentation' : null
+                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Additional Documentation' : null
                   }
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >
@@ -665,6 +657,27 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       We will collect addresses, dates, and how you want to move your personal property.
                       <br /> Note: You can change these details later by talking to a move counselor or customer care
                       representative.
+                      <h3> Reasons you might need multiple shipments. </h3>
+                      <>
+                        <ul>
+                          <li>
+                            You plan to have an <strong>HHG</strong> and a <strong>PPM (DITY)</strong> — you want the
+                            government to pay professional movers, and you also want to be reimbursed for moving some
+                            things yourself.
+                          </li>
+                          <br />
+                          <li>
+                            You have additional belongings to move from or to a very different location, like another
+                            city.
+                          </li>
+                          <br />
+                          <li>
+                            You need to schedule another type of shipment, like an NTS. This would be listed on your
+                            orders.
+                          </li>
+                        </ul>
+                        <p>If none of these apply to you, you probably do not need multiple shipments.</p>
+                      </>
                     </Description>
                   )}
                 </Step>

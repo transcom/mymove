@@ -22,6 +22,9 @@ type UpdateProGearWeightTicket struct {
 	// Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
 	BelongsToSelf bool `json:"belongsToSelf,omitempty"`
 
+	// Description of pro gear included in trips set.
+	Description string `json:"description,omitempty"`
+
 	// Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
 	HasWeightTickets bool `json:"hasWeightTickets,omitempty"`
 

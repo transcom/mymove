@@ -18,6 +18,7 @@ export const isOfficeSite = hostname.startsWith('office') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
 export const technicalHelpDeskURL =
   'https://www.militaryonesource.mil/resources/gov/customer-service-contacts-for-military-pcs/#technical-help-desk';
+export const milmoveHelpDesk = 'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil';
 
 export function serviceName() {
   if (isAdminSite) {
@@ -247,8 +248,11 @@ export const FEATURE_FLAG_KEYS = {
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
   ENABLE_ALASKA: 'enable_alaska',
   BULK_ASSIGNMENT: 'bulk_assignment',
+  BULK_RE_ASSIGNMENT: 'bulk_re_assignment',
   CUSTOMER_REGISTRATION: 'customer_registration',
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
+  TERMINATING_SHIPMENTS: 'terminating_shipments',
+  GUN_SAFE: 'gun_safe',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

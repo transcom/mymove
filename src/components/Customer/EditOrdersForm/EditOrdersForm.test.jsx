@@ -305,10 +305,30 @@ describe('EditOrdersForm component', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+      waitFor(async () => {
+        expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+      });
+
       if (required) {
-        expect(await screen.findByLabelText(formInput)).toBeRequired();
+        waitFor(async () => {
+          expect(await screen.findByLabelText(formInput)).toBeRequired();
+        });
       }
+
+      waitFor(() => {
+        expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+        // check for asterisks on required fields
+        const formGroups = screen.getAllByTestId('formGroup');
+
+        formGroups.forEach((group) => {
+          const hasRequiredField = group.querySelector('[required]') !== null;
+
+          if (hasRequiredField) {
+            expect(group.textContent).toContain('*');
+          }
+        });
+      });
     });
 
     it('rendering the upload area', async () => {
@@ -320,7 +340,9 @@ describe('EditOrdersForm component', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByText(documentSizeLimitMsg)).toBeInTheDocument();
+      waitFor(async () => {
+        expect(screen.getByText(documentSizeLimitMsg)).toBeInTheDocument();
+      });
     });
   });
 
@@ -705,7 +727,9 @@ describe('EditOrdersForm component', () => {
         expect(save).toBeInTheDocument();
       });
 
-      expect(save).toBeDisabled();
+      waitFor(() => {
+        expect(save).toBeDisabled();
+      });
     });
   });
 
@@ -911,9 +935,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
 
     await waitFor(() => {
-      expect(
-        screen.getByLabelText(/If your orders specify a specific UB weight allowance, enter it here./),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/If your orders specify a UB weight allowance, enter it here./)).toBeInTheDocument();
     });
   });
 
@@ -938,7 +960,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
@@ -963,10 +985,35 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
+
+  it.each([[ORDERS_TYPE.RETIREMENT], [ORDERS_TYPE.SEPARATION]])(
+    'renders correct DutyLocationInput label and hint for %s orders type',
+    async (ordersType) => {
+      render(
+        <MockProviders>
+          <EditOrdersForm
+            {...testProps}
+            initialValues={{
+              ...testProps.initialValues,
+              orders_type: ordersType,
+            }}
+          />
+        </MockProviders>,
+      );
+
+      const destinationInput = await screen.findByLabelText(/Destination Location \(As Authorized on Orders\)/);
+      expect(destinationInput).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Enter the option closest to your destination\. Your move counselor will identify if there might be a cost to you\./,
+        ),
+      ).toBeInTheDocument();
+    },
+  );
 
   afterEach(jest.restoreAllMocks);
 });

@@ -213,11 +213,27 @@ type DomesticOriginSITPickupPricer interface {
 	ParamsPricer
 }
 
+// InternationalOriginSITPickupPricer prices international origin SIT pickup for a GHC move
+//
+//go:generate mockery --name InternationalOriginSITPickupPricer
+type InternationalOriginSITPickupPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int, distance int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
 // DomesticDestinationSITDeliveryPricer prices domestic destination SIT delivery for a GHC move
 //
 //go:generate mockery --name DomesticDestinationSITDeliveryPricer
 type DomesticDestinationSITDeliveryPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// InternationalDestinationSITDeliveryPricer prices international destination SIT delivery for a GHC move
+//
+//go:generate mockery --name InternationalDestinationSITDeliveryPricer
+type InternationalDestinationSITDeliveryPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int, distance int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -304,7 +320,7 @@ type IntlHHGUnpackPricer interface {
 //
 //go:generate mockery --name IntlPortFuelSurchargePricer
 type IntlPortFuelSurchargePricer interface {
-	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, shipmentType models.MTOShipmentType) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -353,5 +369,29 @@ type IntlCratingPricer interface {
 //go:generate mockery --name IntlUncratingPricer
 type IntlUncratingPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, market models.Market) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlUBPackPricer prices international packing for an UB shipment within a move
+//
+//go:generate mockery --name IntlUBPackPricer
+type IntlUBPackPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlUBUnpackPricer prices international unpacking for an UB shipment within a move
+//
+//go:generate mockery --name IntlUBUnpackPricer
+type IntlUBUnpackPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlUBPricer prices international UB Shipments
+//
+//go:generate mockery --name IntlUBPricer
+type IntlUBPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }

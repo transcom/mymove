@@ -8,6 +8,7 @@ import { useOrdersDocumentQueries } from 'hooks/queries';
 import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MOVE_STATUSES } from 'shared/constants';
 
 const mockOriginDutyLocation = {
   address: {
@@ -126,6 +127,9 @@ const useOrdersDocumentQueriesReturnValue = {
       sac: 'E2P3',
     },
   },
+  move: {
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  },
 };
 
 const useCivilianTDYOrdersDocumentQueriesReturnValue = {
@@ -167,7 +171,23 @@ const useCivilianTDYOrdersDocumentQueriesReturnValue = {
       sac: 'E2P3',
     },
   },
+  move: {
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  },
 };
+const editMoveStatuses = [
+  MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+  MOVE_STATUSES.APPROVALS_REQUESTED,
+];
+
+const disabledMoveStatuses = [
+  MOVE_STATUSES.DRAFT,
+  MOVE_STATUSES.SUBMITTED,
+  MOVE_STATUSES.APPROVED,
+  MOVE_STATUSES.CANCELED,
+  MOVE_STATUSES.APPROVALS_REQUESTED,
+];
 
 const loadingReturnValue = {
   isLoading: true,
@@ -319,7 +339,7 @@ describe('MoveAllowances page', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByLabelText(/If the customer's orders specify a specific UB weight allowance, enter it here./i),
+          screen.queryByLabelText(/If the customer's orders specify a UB weight allowance, enter it here./i),
         ).not.toBeInTheDocument();
       });
     });
@@ -336,9 +356,79 @@ describe('MoveAllowances page', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByLabelText(/If the customer's orders specify a specific UB weight allowance, enter it here./i),
+          screen.queryByLabelText(/If the customer's orders specify a UB weight allowance, enter it here./i),
         ).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Conditional disabling', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('renders and disables editing with correct statuses', async () => {
+      for (let i = 0; i < disabledMoveStatuses.length; i += 1) {
+        const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+        orderQueryReturnValues.move = {
+          id: 123,
+          moveCode: 'GLOBAL123',
+          ordersId: 1,
+          status: disabledMoveStatuses[i],
+        };
+        useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+
+        render(
+          <MockProviders permissions={[permissionTypes.updateAllowances]}>
+            <ServicesCounselingMoveAllowances />
+          </MockProviders>,
+        );
+
+        const proGearWeightInput = screen.getAllByTestId('proGearWeightInput');
+        expect(proGearWeightInput[0]).toBeInTheDocument();
+        expect(proGearWeightInput[0]).toBeDisabled();
+        const proGearWeightSpouseInput = screen.getAllByTestId('proGearWeightSpouseInput');
+        expect(proGearWeightSpouseInput[0]).toBeInTheDocument();
+        expect(proGearWeightSpouseInput[0]).toBeDisabled();
+        const rmeInput = screen.getAllByTestId('rmeInput');
+        expect(rmeInput[0]).toBeInTheDocument();
+        expect(rmeInput[0]).toBeDisabled();
+        const sitInput = screen.getAllByTestId('sitInput');
+        expect(sitInput[0]).toBeInTheDocument();
+        expect(sitInput[0]).toBeDisabled();
+      }
+    });
+
+    it('renders and allows editing with correct statuses', async () => {
+      for (let i = 0; i < editMoveStatuses.length; i += 1) {
+        const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+        orderQueryReturnValues.move = {
+          id: 123,
+          moveCode: 'GLOBAL123',
+          ordersId: 1,
+          status: editMoveStatuses[i],
+        };
+        useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+
+        render(
+          <MockProviders permissions={[permissionTypes.updateAllowances]}>
+            <ServicesCounselingMoveAllowances />
+          </MockProviders>,
+        );
+
+        const proGearWeightInput = screen.getAllByTestId('proGearWeightInput');
+        expect(proGearWeightInput[0]).toBeInTheDocument();
+        expect(proGearWeightInput[0]).not.toBeDisabled();
+        const proGearWeightSpouseInput = screen.getAllByTestId('proGearWeightSpouseInput');
+        expect(proGearWeightSpouseInput[0]).toBeInTheDocument();
+        expect(proGearWeightSpouseInput[0]).not.toBeDisabled();
+        const rmeInput = screen.getAllByTestId('rmeInput');
+        expect(rmeInput[0]).toBeInTheDocument();
+        expect(rmeInput[0]).not.toBeDisabled();
+        const sitInput = screen.getAllByTestId('sitInput');
+        expect(sitInput[0]).toBeInTheDocument();
+        expect(sitInput[0]).not.toBeDisabled();
+      }
     });
   });
 });

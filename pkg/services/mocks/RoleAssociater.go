@@ -16,6 +16,36 @@ type RoleAssociater struct {
 	mock.Mock
 }
 
+// FetchRoleTypes provides a mock function with given fields: appCtx
+func (_m *RoleAssociater) FetchRoleTypes(appCtx appcontext.AppContext) ([]roles.RoleType, error) {
+	ret := _m.Called(appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRoleTypes")
+	}
+
+	var r0 []roles.RoleType
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) ([]roles.RoleType, error)); ok {
+		return rf(appCtx)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) []roles.RoleType); ok {
+		r0 = rf(appCtx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]roles.RoleType)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
+		r1 = rf(appCtx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FetchRolesForUser provides a mock function with given fields: appCtx, userID
 func (_m *RoleAssociater) FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error) {
 	ret := _m.Called(appCtx, userID)
@@ -39,6 +69,36 @@ func (_m *RoleAssociater) FetchRolesForUser(appCtx appcontext.AppContext, userID
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FetchRolesPrivileges provides a mock function with given fields: appCtx
+func (_m *RoleAssociater) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.Role, error) {
+	ret := _m.Called(appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRolesPrivileges")
+	}
+
+	var r0 []roles.Role
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) ([]roles.Role, error)); ok {
+		return rf(appCtx)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) []roles.Role); ok {
+		r0 = rf(appCtx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]roles.Role)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
+		r1 = rf(appCtx)
 	} else {
 		r1 = ret.Error(1)
 	}

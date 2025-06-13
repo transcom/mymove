@@ -58,6 +58,11 @@ type Page1Values struct {
 	IsActualExpenseReimbursement    bool
 	IsSmallPackageReimbursement     bool
 	GCCExpenseReimbursementType     string
+	SafetyMoveHeading               string
+	GCCMultiplierMax                string
+	GCCMultiplierActual             string
+	GCCMultiplierMaxAdvance         string
+	GCCMultiplierAdvance            string
 }
 
 // Page2Values is an object representing a Shipment Summary Worksheet
@@ -103,13 +108,15 @@ type Page2Values struct {
 	FormattedOtherExpenses
 	IncentiveExpenseReimbursementType string
 	HeaderExpenseReimbursementType    string
+	SafetyMoveHeading                 string
 }
 
 // Page3Values is an object representing a Shipment Summary Worksheet
 type Page3Values struct {
-	CUIBanner        string
-	PreparationDate3 string
-	AddShipments     map[string]string
+	CUIBanner         string
+	PreparationDate3  string
+	AddShipments      map[string]string
+	SafetyMoveHeading string
 }
 
 // FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
@@ -152,9 +159,9 @@ type FormattedMovingExpenses struct {
 type SSWPPMComputer interface {
 	FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*models.ShipmentSummaryFormData, error)
 	ComputeObligations(_ appcontext.AppContext, _ models.ShipmentSummaryFormData, _ route.Planner) (models.Obligations, error)
-	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values, Page3Values, error)
+	FormatValuesShipmentSummaryWorksheet(appCtx appcontext.AppContext, shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values, Page3Values, error)
 	FormatShipment(ppm models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement, isPaymentPacket bool) models.WorkSheetShipment
-	FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, error)
+	FormatValuesShipmentSummaryWorksheetFormPage1(appCtx appcontext.AppContext, data models.ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, error)
 	FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool, expensesMap map[string]float64) (Page2Values, error)
 	FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData, isPaymentPacket bool) (Page3Values, error)
 }

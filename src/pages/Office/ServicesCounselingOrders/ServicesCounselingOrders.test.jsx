@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { MOVE_DOCUMENT_TYPE, MOVE_STATUSES } from 'shared/constants';
 import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE } from 'constants/orders';
@@ -72,6 +72,20 @@ const mockLoa = {
   validHhgProgramCodeForLoa: true,
   validLoaForTac: true,
 };
+
+const editMoveStatuses = [
+  MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+  MOVE_STATUSES.APPROVALS_REQUESTED,
+];
+
+const disabledMoveStatuses = [
+  MOVE_STATUSES.DRAFT,
+  MOVE_STATUSES.SUBMITTED,
+  MOVE_STATUSES.APPROVED,
+  MOVE_STATUSES.CANCELED,
+  MOVE_STATUSES.APPROVALS_REQUESTED,
+];
 
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
@@ -149,6 +163,9 @@ const useOrdersDocumentQueriesReturnValue = {
       ntsSac: 'R6X1',
     },
   },
+  move: {
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  },
 };
 
 const ordersMockProps = {
@@ -211,7 +228,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+      expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
       expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
     });
 
@@ -237,7 +254,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      const ordersTypeDropdown = screen.getByLabelText('Orders type');
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
       await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
@@ -270,12 +287,98 @@ describe('Orders page', () => {
 
       expect(await screen.findByText(mockOriginDutyLocation.name)).toBeInTheDocument();
       expect(screen.getByText(mockDestinationDutyLocation.name)).toBeInTheDocument();
-      expect(screen.getByLabelText('Orders type')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+      expect(screen.getByLabelText('Orders type *')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
       expect(screen.getByTestId('hhgTacInput')).toHaveValue('F8E1');
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
       expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
+    });
+
+    it('disables fields for correct statuses', async () => {
+      for (let i = 0; i < disabledMoveStatuses.length; i += 1) {
+        const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+        orderQueryReturnValues.move = {
+          id: 123,
+          moveCode: 'GLOBAL123',
+          ordersId: 1,
+          status: disabledMoveStatuses[i],
+        };
+
+        // set return values for mocked functions
+        useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+        getOrder.mockResolvedValue(orderQueryReturnValues);
+
+        render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+
+        const currentDutyLocationInput = screen.getByLabelText('Current duty location *');
+        expect(currentDutyLocationInput).toBeInTheDocument();
+        expect(currentDutyLocationInput).toBeDisabled();
+        const newDutyLocationInput = screen.getByLabelText('New duty location *');
+        expect(newDutyLocationInput).toBeInTheDocument();
+        expect(newDutyLocationInput).toBeDisabled();
+        const payGradeInput = screen.getByLabelText('Pay grade *');
+        expect(payGradeInput).toBeInTheDocument();
+        expect(payGradeInput).toBeDisabled();
+        const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
+        expect(dependentsAuthorizedInput).toBeInTheDocument();
+        expect(dependentsAuthorizedInput).toBeDisabled();
+        const tacInput = screen.getByLabelText('TAC');
+        expect(tacInput).toBeInTheDocument();
+        expect(tacInput).toBeDisabled();
+        const tacInputRequired = screen.getByLabelText('TAC *');
+        expect(tacInputRequired).toBeInTheDocument();
+        expect(tacInputRequired).toBeDisabled();
+        const sacInputs = screen.queryAllByLabelText('SAC');
+        expect(sacInputs.length).toBe(2);
+        expect(sacInputs[0]).toBeDisabled();
+        expect(sacInputs[1]).toBeDisabled();
+      }
+    });
+
+    it('enables fields for correct statuses', async () => {
+      for (let i = 0; i < editMoveStatuses.length; i += 1) {
+        const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+        orderQueryReturnValues.move = {
+          id: 123,
+          moveCode: 'GLOBAL123',
+          ordersId: 1,
+          status: editMoveStatuses[i],
+        };
+
+        render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+
+        const currentDutyLocationInput = screen.getByLabelText('Current duty location *');
+        expect(currentDutyLocationInput).toBeInTheDocument();
+        expect(currentDutyLocationInput).not.toBeDisabled();
+        const newDutyLocationInput = screen.getByLabelText('New duty location *');
+        expect(newDutyLocationInput).toBeInTheDocument();
+        expect(newDutyLocationInput).not.toBeDisabled();
+        const payGradeInput = screen.getByLabelText('Pay grade *');
+        expect(payGradeInput).toBeInTheDocument();
+        expect(payGradeInput).not.toBeDisabled();
+        const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
+        expect(dependentsAuthorizedInput).toBeInTheDocument();
+        expect(dependentsAuthorizedInput).not.toBeDisabled();
+        const tacInput = screen.getByLabelText('TAC');
+        expect(tacInput).toBeInTheDocument();
+        expect(tacInput).not.toBeDisabled();
+        const tacInputRequired = screen.getByLabelText('TAC *');
+        expect(tacInputRequired).toBeInTheDocument();
+        expect(tacInputRequired).not.toBeDisabled();
+        const sacInputs = screen.queryAllByLabelText('SAC');
+        expect(sacInputs.length).toBe(2);
+        expect(sacInputs[0]).not.toBeDisabled();
+        expect(sacInputs[1]).not.toBeDisabled();
+      }
     });
   });
 
@@ -326,6 +429,112 @@ describe('Orders page', () => {
       await waitFor(() => {
         expect(screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
       });
+    });
+
+    it('validates TAC', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      const hhgTacInput = screen.getByTestId('hhgTacInput');
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '****');
+      await waitFor(() => {
+        // no *
+        expect(screen.getByText('TAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '""""');
+      await waitFor(() => {
+        // no "
+        expect(screen.getByText('TAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      // NTS TAC
+      const ntsTacInput = screen.getByTestId('ntsTacInput');
+      await userEvent.clear(ntsTacInput);
+      await userEvent.type(ntsTacInput, '****');
+      await waitFor(() => {
+        expect(screen.getByText('TAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(ntsTacInput);
+      await userEvent.type(ntsTacInput, '""""');
+      await waitFor(() => {
+        expect(screen.getByText('TAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+    });
+
+    it('validates SAC', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // SAC
+      const hhgSacInput = screen.getByTestId('hhgSacInput');
+      await userEvent.clear(hhgSacInput);
+      await userEvent.type(hhgSacInput, '****');
+      await userEvent.tab();
+      await waitFor(() => {
+        // no *
+        expect(screen.getByText('SAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(hhgSacInput);
+      await userEvent.type(hhgSacInput, '""""');
+      await waitFor(() => {
+        // no "
+        expect(screen.getByText('SAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      // NTS SAC
+      const ntsSacInput = screen.getByTestId('ntsSacInput');
+      await userEvent.clear(ntsSacInput);
+      await userEvent.type(ntsSacInput, '****');
+      ntsSacInput.blur();
+      await waitFor(() => {
+        expect(screen.getByText('NTS SAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(ntsSacInput);
+      await userEvent.type(ntsSacInput, '""""');
+      await waitFor(() => {
+        expect(screen.getByText('NTS SAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+    });
+
+    it('SAC fields can be more than 4 digits', async () => {
+      const props = {
+        ...ordersMockProps,
+        sac: '',
+        ntsSac: '',
+      };
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...props} />
+        </MockProviders>,
+      );
+
+      // SAC
+      const hhgSacInput = screen.getByTestId('hhgSacInput');
+      await userEvent.type(hhgSacInput, 'MoreThan4Digits');
+      expect(hhgSacInput).toHaveValue('E2P3MoreThan4Digits');
+
+      // NTS SAC
+      const ntsSacInput = screen.getByTestId('ntsSacInput');
+      await userEvent.type(ntsSacInput, '4DigitsOrMore');
+      expect(ntsSacInput).toHaveValue('R6X14DigitsOrMore');
     });
   });
 
@@ -476,7 +685,12 @@ describe('Orders page', () => {
     it('select STUDENT_TRAVEL', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -492,7 +706,7 @@ describe('Orders page', () => {
       );
 
       // Select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
 
       // Submit the form
@@ -515,7 +729,12 @@ describe('Orders page', () => {
     it('De-select STUDENT_TRAVEL', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.STUDENT_TRAVEL;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('yes');
 
@@ -531,7 +750,7 @@ describe('Orders page', () => {
       );
 
       // De-select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
       // Submit the form
@@ -554,7 +773,12 @@ describe('Orders page', () => {
     it('select STUDENT_TRAVEL, De-select STUDENT_TRAVEL', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -570,7 +794,7 @@ describe('Orders page', () => {
       );
 
       // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
 
@@ -594,7 +818,12 @@ describe('Orders page', () => {
     it('select STUDENT_TRAVEL, select EARLY_RETURN_OF_DEPENDENTS', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -610,7 +839,7 @@ describe('Orders page', () => {
       );
 
       // Select STUDENT_TRAVEL and then select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
@@ -640,7 +869,12 @@ describe('Orders page', () => {
     it('select EARLY_RETURN_OF_DEPENDENTS', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -656,7 +890,7 @@ describe('Orders page', () => {
       );
 
       // Select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
       // Submit the form
@@ -679,7 +913,12 @@ describe('Orders page', () => {
     it('De-select EARLY_RETURN_OF_DEPENDENTS', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('yes');
 
@@ -695,7 +934,7 @@ describe('Orders page', () => {
       );
 
       // De-select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
       // Submit the form
@@ -718,7 +957,12 @@ describe('Orders page', () => {
     it('select EARLY_RETURN_OF_DEPENDENTS, De-select EARLY_RETURN_OF_DEPENDENTS', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -734,7 +978,7 @@ describe('Orders page', () => {
       );
 
       // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
 
@@ -758,7 +1002,12 @@ describe('Orders page', () => {
     it('select EARLY_RETURN_OF_DEPENDENTS, select STUDENT_TRAVEL', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -774,7 +1023,7 @@ describe('Orders page', () => {
       );
 
       // Select EARLY_RETURN_OF_DEPENDENTS and then select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
 

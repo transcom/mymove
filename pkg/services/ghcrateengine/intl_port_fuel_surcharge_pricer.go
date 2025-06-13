@@ -23,7 +23,7 @@ func NewPortFuelSurchargePricer() services.IntlPortFuelSurchargePricer {
 	return &portFuelSurchargePricer{}
 }
 
-func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, shipmentType models.MTOShipmentType) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -31,9 +31,14 @@ func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if weight < minIntlWeightHHG {
+	if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+		if weight < minIntlWeightUB {
+			return 0, nil, fmt.Errorf("weight must be a minimum of %d", minIntlWeightUB)
+		}
+	} else if weight < minIntlWeightHHG {
 		return 0, nil, fmt.Errorf("weight must be a minimum of %d", minIntlWeightHHG)
 	}
+
 	if fscWeightBasedDistanceMultiplier == 0 {
 		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
 	}
@@ -101,5 +106,5 @@ func (p portFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
+	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), mtoShipment.ShipmentType)
 }

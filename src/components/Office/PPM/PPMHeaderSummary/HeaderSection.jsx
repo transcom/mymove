@@ -10,11 +10,14 @@ import styles from './HeaderSection.module.scss';
 
 import ToolTip from 'shared/ToolTip/ToolTip';
 import EditPPMHeaderSummaryModal from 'components/Office/PPM/PPMHeaderSummary/EditPPMHeaderSummaryModal';
-import { formatDate, formatCents, formatWeight } from 'utils/formatters';
+import { formatDate, formatCents, formatWeight, calculateTotal } from 'utils/formatters';
 import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
+import { getTotalPackageWeightSPR, hasProGearSPR, hasSpouseProGearSPR } from 'utils/ppmCloseout';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
+import { renderMultiplier } from 'constants/ppms';
 
 export const sectionTypes = {
   incentives: 'incentives',
@@ -29,10 +32,10 @@ const HAUL_TYPES = {
 
 const getSectionTitle = (sectionInfo) => {
   switch (sectionInfo.type) {
-    case sectionTypes.incentives:
-      return `Incentives/Costs`;
     case sectionTypes.shipmentInfo:
       return `Shipment Info`;
+    case sectionTypes.incentives:
+      return `Incentives/Costs`;
     case sectionTypes.incentiveFactors:
       return `Incentive Factors`;
     default:
@@ -68,6 +71,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
     }
     return haulType === HAUL_TYPES.LINEHAUL ? 'Linehaul' : 'Shorthaul';
   };
+
   // check if the itemName is one of the items recalulated after item edit(updatedItemName).
   const isRecalulatedItem = (itemName) => {
     let recalulatedItems = [];
@@ -97,42 +101,51 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label>Actual Expense Reimbursement</Label>
-            <span data-testid="isActualExpenseReimbursement" className={styles.light}>
-              {isFetchingItems && updatedItemName === 'isActualExpenseReimbursement' ? (
+            <Label>Expense Type</Label>
+            <span data-testid="expenseType" className={styles.light}>
+              {isFetchingItems && updatedItemName === 'expenseType' ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
                 <>
-                  {sectionInfo.isActualExpenseReimbursement ? 'Yes' : 'No'}
+                  {getPPMTypeLabel(sectionInfo.ppmType)}
                   <OpenModalButton
-                    onClick={() => handleEditOnClick(sectionInfo.type, 'isActualExpenseReimbursement')}
+                    onClick={() => handleEditOnClick(sectionInfo.type, 'expenseType')}
                     isDisabled={isFetchingItems || readOnly || isCivilian}
                   />
                 </>
               )}
             </span>
           </div>
-          <div>
-            <Label>Planned Move Start Date</Label>
-            <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
-          </div>
-          <div>
-            <Label>Actual Move Start Date</Label>
-            <span data-testid="actualMoveDate" className={styles.light}>
-              {isFetchingItems && updatedItemName === 'actualMoveDate' ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                <>
-                  {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
-                  <OpenModalButton
-                    onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
-                    isDisabled={isFetchingItems || readOnly}
-                    ariaLabel="Edit actual move start date"
-                  />
-                </>
-              )}
-            </span>
-          </div>
+          {sectionInfo.ppmType !== PPM_TYPES.SMALL_PACKAGE ? (
+            <>
+              <div>
+                <Label>Planned Move Start Date</Label>
+                <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
+              </div>
+              <div>
+                <Label>Actual Move Start Date</Label>
+                <span data-testid="actualMoveDate" className={styles.light}>
+                  {isFetchingItems && updatedItemName === 'actualMoveDate' ? (
+                    <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                  ) : (
+                    <>
+                      {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
+                      <OpenModalButton
+                        onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
+                        isDisabled={isFetchingItems || readOnly}
+                        ariaLabel="Edit actual move start date"
+                      />
+                    </>
+                  )}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div>
+              <Label>Shipped Date</Label>
+              <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
+            </div>
+          )}
           <div>
             <Label>Starting Address</Label>
             <span data-testid="pickupAddress" className={styles.light}>
@@ -167,54 +180,97 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-          <div>
-            <Label>Miles</Label>
-            <span className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('miles') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                sectionInfo.miles
+          {sectionInfo.ppmType !== PPM_TYPES.SMALL_PACKAGE ? (
+            <>
+              {sectionInfo.miles && (
+                <div>
+                  <Label>Miles</Label>
+                  <span className={styles.light}>
+                    {isFetchingItems && isRecalulatedItem('miles') ? (
+                      <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                    ) : (
+                      sectionInfo.miles
+                    )}
+                  </span>
+                </div>
               )}
-            </span>
-          </div>
-          <div>
-            <Label>Estimated Net Weight</Label>
-            <span className={styles.light}>{formatWeight(sectionInfo.estimatedWeight)}</span>
-          </div>
-          <div>
-            <Label>Actual Net Weight</Label>
-            <span>{formatWeight(sectionInfo.actualWeight)}</span>
-          </div>
-          <div>
-            <Label>Allowable Weight</Label>
-            {isFetchingItems && updatedItemName === 'allowableWeight' ? (
-              <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-            ) : (
-              <>
-                <b>{formatWeight(sectionInfo.allowableWeight)}</b>
-                <OpenModalButton
-                  onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
-                  isDisabled={isFetchingItems || readOnly}
-                  dataTestId="editAllowableWeightButton"
-                  ariaLabel="Edit allowable weight"
+              <div>
+                <Label>Estimated Net Weight</Label>
+                <span className={styles.light}>{formatWeight(sectionInfo.estimatedWeight)}</span>
+              </div>
+              <div>
+                <Label>Actual Net Weight</Label>
+                <span>{formatWeight(sectionInfo.actualWeight)}</span>
+              </div>
+              <div>
+                <Label>Allowable Weight</Label>
+                {isFetchingItems && updatedItemName === 'allowableWeight' ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  <>
+                    <b>{formatWeight(sectionInfo.allowableWeight)}</b>
+                    <OpenModalButton
+                      onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
+                      isDisabled={isFetchingItems || readOnly}
+                      dataTestId="editAllowableWeightButton"
+                      ariaLabel="Edit allowable weight"
+                    />
+                  </>
+                )}
+                <ToolTip
+                  icon="info-circle"
+                  style={{ display: 'inline-block', height: '15px', margin: '0' }}
+                  textAreaSize="large"
+                  text="The total PPM weight moved (all trips combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's weight entitlement."
                 />
-              </>
-            )}
-            <ToolTip
-              icon="info-circle"
-              style={{ display: 'inline-block', height: '15px', margin: '0' }}
-              textAreaSize="large"
-              text="The total PPM weight moved (all trips combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's weight entitlement."
-            />
-          </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <Label>Allowable Weight</Label>
+                {isFetchingItems && updatedItemName === 'allowableWeight' ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  <>
+                    <span>{formatWeight(sectionInfo.allowableWeight)}</span>
+                    <OpenModalButton
+                      onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
+                      isDisabled={isFetchingItems || readOnly}
+                      dataTestId="editAllowableWeightButton"
+                      ariaLabel="Edit allowable weight"
+                    />
+                  </>
+                )}
+                <ToolTip
+                  icon="info-circle"
+                  style={{ display: 'inline-block', height: '15px', margin: '0' }}
+                  textAreaSize="large"
+                  text="The total PPM weight sent via Small Package (all shipments combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's remaining weight entitlement."
+                />
+              </div>
+              <div>
+                <Label>Total Weight Shipped</Label>
+                <span>{formatWeight(getTotalPackageWeightSPR(sectionInfo.movingExpenses))}</span>
+              </div>
+              <div>
+                <Label>Pro-gear</Label>
+                <span>{hasProGearSPR(sectionInfo.movingExpenses)}</span>
+              </div>
+              <div>
+                <Label>Spouse Pro-gear</Label>
+                <span>{hasSpouseProGearSPR(sectionInfo.movingExpenses)}</span>
+              </div>
+            </>
+          )}
         </div>
       );
 
     case sectionTypes.incentives:
       return (
         <div className={classnames(styles.Details)}>
-          <div>
-            <Label>Government Constructed Cost (GCC)</Label>
+          <div className={styles.row}>
+            <Label className={styles.label}>Government Constructed Cost (GCC)</Label>
             <span data-testid="gcc" className={styles.light}>
               {isFetchingItems && isRecalulatedItem('gcc') ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
@@ -223,8 +279,8 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-          <div>
-            <Label>Gross Incentive</Label>
+          <div className={styles.row}>
+            <Label className={styles.label}>Gross Incentive</Label>
             <span data-testid="grossIncentive" className={styles.light}>
               {isFetchingItems && isRecalulatedItem('grossIncentive') ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
@@ -233,31 +289,31 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-          <div>
-            <Label>Advance Requested</Label>
+          <div className={styles.row}>
+            <Label className={styles.label}>Advance Requested</Label>
             <span data-testid="advanceRequested" className={styles.light}>
               {aoaRequestedValue}
             </span>
           </div>
-          <div>
-            <Label>Advance Received</Label>
+          <div className={styles.row}>
+            <Label className={styles.label}>Advance Received</Label>
             <span data-testid="advanceReceived" className={styles.light}>
               {isFetchingItems && updatedItemName === 'advanceAmountReceived' ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
                 <>
-                  {aoaValue}
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'advanceAmountReceived')}
                     isDisabled={isFetchingItems || readOnly}
                     ariaLabel="Edit advance amount received"
                   />
+                  {aoaValue}
                 </>
               )}
             </span>
           </div>
-          <div>
-            <Label>Remaining Incentive</Label>
+          <div className={styles.row}>
+            <Label className={styles.label}>Remaining Incentive</Label>
             <span data-testid="remainingIncentive" className={styles.light}>
               {isFetchingItems && isRecalulatedItem('remainingIncentive') ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
@@ -272,10 +328,12 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
     case sectionTypes.incentiveFactors:
       return (
         <div className={classnames(styles.Details)}>
-          {sectionInfo.haulPrice > 0 && (
-            <div>
-              <Label>{renderHaulType(sectionInfo.haulType)} Price</Label>
-              <span data-testid="haulPrice" className={styles.light}>
+          {sectionInfo.haulPrice ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                {renderHaulType(sectionInfo.haulType)} Price <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="haulPrice" className={classnames(styles.value, styles.rightAlign)}>
                 {isFetchingItems && isRecalulatedItem('haulPrice') ? (
                   <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
                 ) : (
@@ -283,96 +341,135 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                 )}
               </span>
             </div>
-          )}
-          <div>
-            <Label>{renderHaulType(sectionInfo.haulType)} Fuel Rate Adjustment</Label>
-            <span data-testid="haulFSC" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('haulFSC') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                <>
-                  {sectionInfo.haulFSC < 0 ? '-$' : '$'}
-                  {formatCents(Math.abs(sectionInfo.haulFSC))}
-                </>
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>Packing Charge</Label>
-            <span data-testid="packPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('packPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.packPrice)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>Unpacking Charge</Label>
-            <span data-testid="unpackPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('unpackPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.unpackPrice)}`
-              )}
-            </span>
-          </div>
-
-          <div>
-            <Label>Origin Price</Label>
-            <span data-testid="originPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('dop') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.dop)}`
-              )}
-            </span>
-          </div>
-
-          <div>
-            <Label>Destination Price</Label>
-            <span data-testid="destinationPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('ddp') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.ddp)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>International Packing Charge</Label>
-            <span data-testid="intlPackPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('intlPackPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.intlPackPrice)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>International Unpacking Charge</Label>
-            <span data-testid="intlUnpackPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('intlUnpackPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.intlUnpackPrice)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>International Shipping & Linehaul Charge</Label>
-            <span data-testid="intlLinehaulPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('intlLinehaulPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.intlLinehaulPrice)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>SIT Reimbursement</Label>
-            <span data-testid="sitReimbursement" className={styles.light}>
-              ${formatCents(sectionInfo.sitReimbursement)}
+          ) : null}
+          {sectionInfo.haulFSC ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                {renderHaulType(sectionInfo.haulType)} Fuel Rate Adjustment{' '}
+                <span>{sectionInfo.haulFSC > 0 && renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="haulFSC" className={classnames(styles.value, styles.rightAlign)}>
+                {isFetchingItems && isRecalulatedItem('haulFSC') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  <>
+                    {sectionInfo.haulFSC < 0 ? '-$' : '$'}
+                    {formatCents(Math.abs(sectionInfo.haulFSC))}
+                  </>
+                )}
+              </span>
+            </div>
+          ) : null}
+          {sectionInfo.packPrice ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                Packing Charge <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="packPrice" className={classnames(styles.value, styles.rightAlign)}>
+                {isFetchingItems && isRecalulatedItem('packPrice') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.packPrice)}`
+                )}
+              </span>
+            </div>
+          ) : null}
+          {sectionInfo.unpackPrice ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                Unpacking Charge <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="unpackPrice" className={classnames(styles.value, styles.rightAlign)}>
+                {isFetchingItems && isRecalulatedItem('unpackPrice') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.unpackPrice)}`
+                )}
+              </span>
+            </div>
+          ) : null}
+          {sectionInfo.dop ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                Origin Price <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="originPrice" className={classnames(styles.value, styles.rightAlign)}>
+                {isFetchingItems && isRecalulatedItem('dop') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.dop)}`
+                )}
+              </span>
+            </div>
+          ) : null}
+          {sectionInfo.ddp ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                Destination Price <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="destinationPrice" className={classnames(styles.value, styles.rightAlign)}>
+                {isFetchingItems && isRecalulatedItem('ddp') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.ddp)}`
+                )}
+              </span>
+            </div>
+          ) : null}
+          {sectionInfo.intlPackPrice ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                International Packing <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="intlPackPrice" className={classnames(styles.value, styles.rightAlign)}>
+                {isFetchingItems && isRecalulatedItem('intlPackPrice') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.intlPackPrice)}`
+                )}
+              </span>
+            </div>
+          ) : null}
+          {sectionInfo.intlUnpackPrice ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                International Unpacking <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="intlUnpackPrice" className={classnames(styles.value, styles.rightAlign)}>
+                {isFetchingItems && isRecalulatedItem('intlUnpackPrice') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.intlUnpackPrice)}`
+                )}
+              </span>
+            </div>
+          ) : null}
+          {sectionInfo.intlLinehaulPrice ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>
+                International Shipping & Linehaul <span>{renderMultiplier(sectionInfo.gccMultiplier)}</span>
+              </Label>
+              <span data-testid="intlLinehaulPrice" className={classnames(styles.value, styles.rightAlign)}>
+                {isFetchingItems && isRecalulatedItem('intlLinehaulPrice') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.intlLinehaulPrice)}`
+                )}
+              </span>
+            </div>
+          ) : null}
+          {sectionInfo.sitReimbursement ? (
+            <div className={styles.row}>
+              <Label className={styles.label}>SIT Reimbursement</Label>
+              <span data-testid="sitReimbursement" className={classnames(styles.value, styles.rightAlign)}>
+                ${formatCents(sectionInfo.sitReimbursement)}
+              </span>
+            </div>
+          ) : null}
+          <div className={styles.row}>
+            <Label className={styles.label}>TOTAL</Label>
+            <span data-testid="total" className={classnames(styles.value, styles.rightAlign)}>
+              ${calculateTotal(sectionInfo)}
             </span>
           </div>
         </div>
@@ -476,18 +573,17 @@ export default function HeaderSection({
       case 'pickupAddress':
         body = {
           pickupAddress: values.pickupAddress,
-          actualPickupPostalCode: values.pickupAddress?.postalCode,
         };
         break;
       case 'destinationAddress':
         body = {
           destinationAddress: values.destinationAddress,
-          actualDestinationPostalCode: values.destinationAddress?.postalCode,
         };
         break;
-      case 'isActualExpenseReimbursement':
+      case 'expenseType':
         body = {
-          isActualExpenseReimbursement: values.isActualExpenseReimbursement === 'true',
+          ppmType: values.ppmType,
+          isActualExpenseReimbursement: values.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
         };
         break;
 
@@ -532,6 +628,7 @@ export default function HeaderSection({
           sectionInfo={sectionInfo}
           editItemName={itemName}
           sectionType={sectionType}
+          grade={grade}
         />
       )}
     </section>

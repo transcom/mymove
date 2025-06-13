@@ -13,7 +13,7 @@ const formik = require('formik');
 const getShallowWrapper = (withError = false) => {
   const meta = withError ? { touched: true, error: 'sample error' } : { touched: false, error: '' };
   formik.useField = jest.fn(() => [{}, meta, { setValue: mockSetValue }]);
-  return shallow(<DatePickerInput name="name" label="title" />);
+  return shallow(<DatePickerInput showRequiredAsterisk name="name" label="title" />);
 };
 
 describe('DatePickerInput', () => {
@@ -43,6 +43,12 @@ describe('DatePickerInput', () => {
       const input = wrapper.find(SingleDatePicker);
       input.simulate('change', '16 Jun 2020');
       expect(mockSetValue).toHaveBeenCalledWith('16 Jun 2020');
+    });
+
+    it('renders a required asterisk', () => {
+      const requiredAsterisk = getShallowWrapper().find('RequiredAsterisk').dive();
+      const asterisk = requiredAsterisk.find('[data-testid="requiredAsterisk"]');
+      expect(asterisk.exists()).toBe(true);
     });
 
     it('calls setValue with undefined when the date picker input is cleared', () => {

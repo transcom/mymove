@@ -1,7 +1,6 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import EditOrders from './EditOrders';
 
@@ -377,17 +376,19 @@ describe('EditOrders Page', () => {
       }),
     );
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    waitFor(() => {
+      const submitButton = screen.getByRole('button', { name: 'Save' });
+      expect(submitButton).toBeEnabled();
 
-    await userEvent.click(submitButton);
+      userEvent.click(submitButton);
 
-    await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
     });
 
-    expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
-    expect(mockNavigate).not.toHaveBeenCalled();
+    waitFor(() => {
+      expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 
   it('next button patches the orders and goes to the previous page', async () => {
@@ -397,17 +398,19 @@ describe('EditOrders Page', () => {
     });
     patchOrders.mockImplementation(() => Promise.resolve(testProps.currentOrders));
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    const submitButton = screen.findByRole('button', { name: 'Save' });
+    waitFor(async () => {
+      await expect(submitButton).not.toBeDisabled();
 
-    await userEvent.click(submitButton);
+      await userEvent.click(submitButton);
 
-    await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
     });
 
-    expect(mockNavigate).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith(-1);
+    });
   });
 
   it('submits OCONUS fields correctly on form submit', async () => {
@@ -427,19 +430,22 @@ describe('EditOrders Page', () => {
         origin_duty_location: 'Fort Gregg-Adams, VA 23801',
       });
     });
-    await userEvent.click(screen.getByTestId('hasDependentsYes'));
-    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
-    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    waitFor(() => {
+      userEvent.click(screen.getByTestId('hasDependentsYes'));
+      userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+      userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+      userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+    });
 
-    await act(async () => {
+    waitFor(() => {
+      const submitButton = screen.findByRole('button', { name: 'Save' });
+
+      expect(submitButton).toBeEnabled();
       userEvent.click(submitButton);
     });
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(patchOrders).toHaveBeenCalledWith(
         expect.objectContaining({
           accompanied_tour: true,

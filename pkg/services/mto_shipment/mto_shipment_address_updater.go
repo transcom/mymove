@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"database/sql"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -20,13 +21,17 @@ type mtoShipmentAddressUpdater struct {
 	planner        route.Planner
 	addressCreator services.AddressCreator
 	addressUpdater services.AddressUpdater
+	checks         []addressUpdateValidator
 }
 
 // NewMTOShipmentAddressUpdater updates the address for an MTO Shipment
 func NewMTOShipmentAddressUpdater(planner route.Planner, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.MTOShipmentAddressUpdater {
-	return mtoShipmentAddressUpdater{planner: planner,
+	return mtoShipmentAddressUpdater{
+		planner:        planner,
 		addressCreator: addressCreator,
-		addressUpdater: addressUpdater}
+		addressUpdater: addressUpdater,
+		checks:         []addressUpdateValidator{checkAddressUpdateAllowed()},
+	}
 }
 
 // isAddressOnShipment returns true if address is associated with the shipment, false if not
@@ -150,7 +155,7 @@ func UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(mtoServiceItems 
 // If mustBeAvailableToPrime is set, update will not happen unless the mto with which the address + shipment is associated
 // is also availableToPrime and not an external vendor shipment.
 func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.AppContext, newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error) {
-
+	var verrs *validate.Errors
 	// Find the mtoShipment based on id, so we can pull the uuid for the move
 	mtoShipment := models.MTOShipment{}
 	oldAddress := models.Address{}
@@ -169,6 +174,24 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		default:
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
 		}
+	}
+
+	if newAddress != nil {
+		for _, check := range f.checks {
+			if err = check.Validate(appCtx, newAddress, &mtoShipment); err != nil {
+				switch e := err.(type) {
+				case *validate.Errors:
+					// Accumulate all validation errors
+					verrs.Append(e)
+				default:
+					// Non-validation errors have priority and short-circuit doing any further checks
+					return nil, err
+				}
+			}
+		}
+	}
+	if verrs.HasAny() {
+		return nil, verrs
 	}
 
 	if mustBeAvailableToPrime {
@@ -202,28 +225,49 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		return nil, apperror.NewConflictError(newAddress.ID, ": Address is not associated with the provided MTOShipmentID.")
 	}
 
-	// Make the update and create a InvalidInput Error if there were validation issues
 	var address *models.Address
-	if newAddress.ID == uuid.Nil {
-		// New address doesn't have an ID yet, it should be created
-		address, err = f.addressCreator.CreateAddress(appCtx, newAddress)
-	} else {
-		// It has an ID, it should be updated
-		address, err = f.addressUpdater.UpdateAddress(appCtx, newAddress, etag.GenerateEtag(oldAddress.UpdatedAt))
-	}
-	if err != nil {
-		return nil, apperror.NewQueryError("Address", err, "")
-	}
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
-	_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, f.addressCreator, &mtoShipment, newAddress, &oldAddress, appCtx)
-	if err != nil {
-		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
-	}
+		if newAddress.ID == uuid.Nil {
+			// New address doesn't have an ID yet, it should be created
+			address, err = f.addressCreator.CreateAddress(appCtx, newAddress)
+		} else {
+			// It has an ID, it should be updated
+			address, err = f.addressUpdater.UpdateAddress(appCtx, newAddress, etag.GenerateEtag(oldAddress.UpdatedAt))
+		}
+		if err != nil {
+			return apperror.NewQueryError("Address", err, "")
+		}
 
-	// update the service item pricing if relevant fields have changed..ie mileage
-	err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &mtoShipment, nil)
-	if err != nil {
-		return nil, err
+		if mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			var shipment models.MTOShipment
+			err := query.Scope(utilities.ExcludeDeletedScope()).Eager("DestinationAddress", "PickupAddress").Find(&shipment, mtoShipment.ID)
+			if err != nil {
+				return apperror.NewQueryError("Error when querying UB shipment", err, "")
+			}
+			// check that one of the addresses is OCONUS
+			isShipmentOCONUS := models.IsShipmentOCONUS(shipment)
+			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
+				return apperror.NewConflictError(shipment.ID, "At least one address for a UB shipment must be OCONUS")
+			}
+		}
+
+		_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, f.addressCreator, &mtoShipment, newAddress, &oldAddress, appCtx)
+		if err != nil {
+			return apperror.NewQueryError("No updated service items on shipment address change", err, "")
+		}
+
+		// update the service item pricing if relevant fields have changed..ie mileage
+		err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &mtoShipment, nil)
+		if err != nil {
+			return err
+		}
+
+		return err
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
 	return address, nil

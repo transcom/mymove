@@ -20,9 +20,9 @@ type IntlPortFuelSurchargePricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice
-func (_m *IntlPortFuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+// Price provides a mock function with given fields: appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, shipmentType
+func (_m *IntlPortFuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, shipmentType models.MTOShipmentType) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, shipmentType)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Price")
@@ -31,25 +31,25 @@ func (_m *IntlPortFuelSurchargePricer) Price(appCtx appcontext.AppContext, actua
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) (unit.Cents, services.PricingDisplayParams, error)); ok {
-		return rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents, models.MTOShipmentType) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, shipmentType)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) unit.Cents); ok {
-		r0 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents, models.MTOShipmentType) unit.Cents); ok {
+		r0 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, shipmentType)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents, models.MTOShipmentType) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, shipmentType)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) error); ok {
-		r2 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents, models.MTOShipmentType) error); ok {
+		r2 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, shipmentType)
 	} else {
 		r2 = ret.Error(2)
 	}
