@@ -129,7 +129,8 @@ describe('BackupContact page', () => {
 
       const submitButton = queryByText('Next');
       expect(submitButton).toBeInTheDocument();
-      await userEvent.type(getByLabelText(/Name/), 'Joe Schmoe');
+      await userEvent.type(getByLabelText(/First Name/), 'Joe');
+      await userEvent.type(getByLabelText(/Last Name/), 'Schmoe');
       await userEvent.type(getByLabelText(/Phone/), '555-555-5555');
       await userEvent.type(getByLabelText(/Email/), 'test@sample.com');
       await userEvent.click(submitButton);
@@ -163,7 +164,8 @@ describe('BackupContact page', () => {
 
       const submitButton = queryByText('Next');
       expect(submitButton).toBeInTheDocument();
-      await userEvent.type(getByLabelText(/Name/), 'Joe Schmitty');
+      await userEvent.type(getByLabelText(/First Name/), 'Joe');
+      await userEvent.type(getByLabelText(/Last Name/), 'Schmitty');
       await userEvent.type(getByLabelText(/Phone/), '555-555-5555');
       await userEvent.type(getByLabelText(/Email/), 'test@sample.com');
       await userEvent.click(submitButton);

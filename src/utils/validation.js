@@ -150,7 +150,8 @@ export const contactInfoSchema = Yup.object()
   .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
 
 export const backupContactInfoSchema = Yup.object().shape({
-  name: Yup.string().required('Required'),
+  firstName: Yup.string().trim().min(1, 'Required').required('Required'),
+  lastName: Yup.string().trim().min(1, 'Required').required('Required'),
   email: emailSchema.required('Required'),
   telephone: phoneSchema.required('Required'),
 });
