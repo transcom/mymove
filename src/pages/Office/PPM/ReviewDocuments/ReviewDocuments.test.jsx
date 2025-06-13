@@ -23,6 +23,7 @@ import createUpload from 'utils/test/factories/upload';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { PPM_TYPES } from 'shared/constants';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 Element.prototype.scrollTo = jest.fn();
 
@@ -44,6 +45,7 @@ global.EventSource = jest.fn().mockImplementation(() => ({
 
 const mockPatchWeightTicket = jest.fn();
 const mockPatchProGear = jest.fn();
+const mockPatchGunSafe = jest.fn();
 const mockPatchExpense = jest.fn();
 const mockPatchPPMDocumentsSetStatus = jest.fn();
 
@@ -51,6 +53,7 @@ jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   patchWeightTicket: (options) => mockPatchWeightTicket(options),
   patchProGearWeightTicket: (options) => mockPatchProGear(options),
+  patchGunSafeWeightTicket: (options) => mockPatchGunSafe(options),
   patchExpense: (options) => mockPatchExpense(options),
   patchPPMDocumentsSetStatus: (options) => mockPatchPPMDocumentsSetStatus(options),
 }));
@@ -67,6 +70,11 @@ jest.mock('hooks/queries', () => ({
   useReviewShipmentWeightsQuery: jest.fn(),
   useEditShipmentQueries: jest.fn(),
   useGetPPMSITEstimatedCostQuery: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const useEditShipmentQueriesReturnValue = {
@@ -128,6 +136,7 @@ const useEditShipmentQueriesReturnValue = {
       privatelyOwnedVehicle: true,
       proGearWeight: 2000,
       proGearWeightSpouse: 500,
+      gunSafeWeight: 400,
       storageInTransit: 2,
       totalDependents: 1,
       totalWeight: 8000,
@@ -203,6 +212,13 @@ const progearWeightTicketDocumentUpload = createUpload({
   createdAtDate: progearWeightTicketDocumentCreatedDate,
 });
 
+const gunSafeWeightTicketDocumentCreatedDate = new Date(weightTicketFullDocumentCreatedDate);
+gunSafeWeightTicketDocumentCreatedDate.setDate(gunSafeWeightTicketDocumentCreatedDate.getDate() + 1);
+const gunSafeWeightTicketDocumentUpload = createUpload({
+  fileName: 'gunSafeWeightTicket.pdf',
+  createdAtDate: gunSafeWeightTicketDocumentCreatedDate,
+});
+
 const movingExpenseDocumentCreatedDate = new Date(progearWeightTicketDocumentCreatedDate);
 movingExpenseDocumentCreatedDate.setDate(movingExpenseDocumentCreatedDate.getDate() + 1);
 const movingExpenseDocumentUpload = createUpload(
@@ -213,6 +229,7 @@ const movingExpenseDocumentUpload = createUpload(
 mtoShipment.ppmShipment.weightTickets[0].emptyDocument.uploads = [weightTicketEmptyDocumentUpload];
 mtoShipment.ppmShipment.weightTickets[0].fullDocument.uploads = [weightTicketFullDocumentUpload];
 mtoShipment.ppmShipment.proGearWeightTickets[0].document.uploads = [progearWeightTicketDocumentUpload];
+mtoShipment.ppmShipment.gunSafeWeightTickets[0].document.uploads = [gunSafeWeightTicketDocumentUpload];
 mtoShipment.ppmShipment.movingExpenses[0].document.uploads = [movingExpenseDocumentUpload];
 
 const usePPMShipmentDocsQueriesReturnValueAllDocs = {
@@ -220,6 +237,20 @@ const usePPMShipmentDocsQueriesReturnValueAllDocs = {
   documents: {
     MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
     ProGearWeightTickets: [...mtoShipment.ppmShipment.proGearWeightTickets],
+    GunSafeWeightTickets: [...mtoShipment.ppmShipment.gunSafeWeightTickets],
+    WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
+  },
+  isError: false,
+  isLoading: false,
+  isSuccess: true,
+};
+
+const usePPMShipmentDocsQueriesReturnValueWithoutGunSafe = {
+  mtoShipment,
+  documents: {
+    MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
+    ProGearWeightTickets: [...mtoShipment.ppmShipment.proGearWeightTickets],
+    GunSafeWeightTickets: [],
     WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
   },
   isError: false,
@@ -232,6 +263,7 @@ const mtoShipmentWithOneWeightTicket = {
   ppmShipment: {
     ...mtoShipment.ppmShipment,
     proGearWeightTickets: [],
+    gunSafeWeightTickets: [],
     movingExpenses: [],
   },
 };
@@ -242,6 +274,7 @@ const usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket = {
   documents: {
     MovingExpenses: [],
     ProGearWeightTickets: [],
+    GunSafeWeightTickets: [],
     WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
   },
 };
@@ -282,6 +315,7 @@ const usePPMCloseoutQueryReturnValue = {
     plannedMoveDate: '2020-03-15',
     proGearWeightCustomer: 500,
     proGearWeightSpouse: 0,
+    gunSafeWeight: 400,
     remainingIncentive: 4515170,
     unpackPrice: 23892,
   },
@@ -611,14 +645,14 @@ describe('ReviewDocuments', () => {
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
-      expect(await screen.findByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
+      expect(await screen.findByRole('heading', { level: 2, name: '1 of 5 Document Sets' }));
       expect(screen.getByLabelText('Accept')).toBeInTheDocument();
       expect(screen.getByLabelText('Reject')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-      expect(screen.getByRole('heading', { level: 2, name: '2 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 2, name: '2 of 5 Document Sets' }));
     });
 
     it('renders and handles the Back button', async () => {
@@ -629,7 +663,7 @@ describe('ReviewDocuments', () => {
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
-      expect(screen.findByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
+      expect(screen.findByRole('heading', { level: 2, name: '1 of 5 Document Sets' }));
       expect(screen.getByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
 
       expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
@@ -637,11 +671,11 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByLabelText('Accept'));
 
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-      expect(screen.getByRole('heading', { level: 2, name: '2 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 2, name: '2 of 5 Document Sets' }));
       expect(screen.getByRole('heading', { level: 3, name: /trip 2/ })).toBeInTheDocument();
 
       await userEvent.click(screen.getByRole('button', { name: 'Back' }));
-      expect(screen.getByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 2, name: '1 of 5 Document Sets' }));
       expect(screen.getByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
     });
 
@@ -664,7 +698,7 @@ describe('ReviewDocuments', () => {
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
-      expect(screen.findByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
+      expect(screen.findByRole('heading', { level: 2, name: '1 of 5 Document Sets' }));
       expect(screen.getByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
 
       expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
@@ -679,7 +713,7 @@ describe('ReviewDocuments', () => {
       expect(screen.getByTestId('fullWeight')).toHaveValue('18,500');
 
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-      expect(screen.getByRole('heading', { level: 2, name: '2 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 2, name: '2 of 5 Document Sets' }));
       expect(screen.getByRole('heading', { level: 3, name: /trip 2/ })).toBeInTheDocument();
 
       // render the empty, full and allowable weights correctly for the second trip/weight ticket
@@ -691,6 +725,8 @@ describe('ReviewDocuments', () => {
     });
 
     it('only shows uploads for the document set being reviewed', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
@@ -714,12 +750,15 @@ describe('ReviewDocuments', () => {
       expect(within(uploadList).getByRole('button', { name: /emptyWeightTicket\.pdf.*/i })).toBeInTheDocument();
       expect(within(uploadList).getByRole('button', { name: /fullWeightTicket\.xls.*/i })).toBeInTheDocument();
       expect(within(uploadList).queryByRole('button', { name: /progearWeightTicket\.pdf.*/i })).not.toBeInTheDocument();
+      expect(within(uploadList).queryByRole('button', { name: /gunSafeWeightTicket\.pdf.*/i })).not.toBeInTheDocument();
       expect(within(uploadList).queryByRole('button', { name: /movingExpense\.jpg.*/i })).not.toBeInTheDocument();
 
-      expect(screen.getByRole('heading', { level: 2, name: '1 of 3 Document Sets' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: '1 of 4 Document Sets' })).toBeInTheDocument();
     });
 
     it('shows uploads for all documents on the summary page', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
@@ -732,6 +771,10 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(await screen.findByRole('heading', { name: 'Pro-gear 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Gun safe 1', level: 3 })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
@@ -755,12 +798,13 @@ describe('ReviewDocuments', () => {
       expect(uploadList).toBeInTheDocument();
 
       const uploadsButtons = within(uploadList).getAllByRole('listitem');
-      expect(uploadsButtons.length).toBe(4);
+      expect(uploadsButtons.length).toBe(5);
 
       const allUploads = [
         weightTicketEmptyDocumentUpload,
         weightTicketFullDocumentUpload,
         progearWeightTicketDocumentUpload,
+        gunSafeWeightTicketDocumentUpload,
         movingExpenseDocumentUpload,
       ];
 
@@ -787,6 +831,8 @@ describe('ReviewDocuments', () => {
     });
 
     it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
@@ -802,6 +848,39 @@ describe('ReviewDocuments', () => {
       expect(await screen.findByRole('heading', { name: 'Pro-gear 1', level: 3 })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Gun safe 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Receipt 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+      expect(await screen.getByRole('button', { name: 'Back' })).toBeEnabled();
+
+      expect(screen.getByRole('heading', { level: 2, name: /All Document Sets/ })).toBeInTheDocument();
+    });
+
+    it('does not render gun safe weight tickets if gun safe FF is off', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithoutGunSafe);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
+
+      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      expect(await screen.findByRole('heading', { name: 'Trip 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.findByRole('heading', { name: 'Pro-gear 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(await screen.queryByRole('heading', { name: 'Gun safe 1', level: 3 })).not.toBeInTheDocument();
 
       expect(await screen.findByRole('heading', { name: 'Receipt 1', level: 3 })).toBeInTheDocument();
       await userEvent.click(screen.getByLabelText('Accept'));
@@ -819,6 +898,18 @@ describe('ReviewDocuments', () => {
       documents: {
         MovingExpenses: [],
         ProGearWeightTickets: [...mtoShipment.ppmShipment.proGearWeightTickets],
+        GunSafeWeightTickets: [],
+        WeightTickets: [],
+      },
+    };
+
+    const usePPMShipmentDocsQueriesReturnValueGunSafeOnly = {
+      ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+      mtoShipment,
+      documents: {
+        MovingExpenses: [],
+        ProGearWeightTickets: [],
+        GunSafeWeightTickets: [...mtoShipment.ppmShipment.gunSafeWeightTickets],
         WeightTickets: [],
       },
     };
@@ -848,6 +939,36 @@ describe('ReviewDocuments', () => {
       expect(screen.getByText('Add a reason why this pro-gear is rejected'));
     });
 
+    it('shows an error when submitting gun safe without a status selected', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueGunSafeOnly);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+
+      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByText('Reviewing this gun safe is required')).toBeInTheDocument();
+    });
+
+    it('shows an error when gun safe is rejected and submitted without a written reason', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueGunSafeOnly);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+
+      await renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+      const rejectionButton = screen.getByTestId('rejectRadio');
+      expect(rejectionButton).toBeInTheDocument();
+      await userEvent.click(rejectionButton);
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByText('Add a reason why this gun safe is rejected'));
+    });
+
     it('shows an error when a rejected expense is submitted with no reason', async () => {
       const usePPMShipmentDocsQueriesReturnValueExpensesOnly = {
         ...usePPMShipmentDocsQueriesReturnValueAllDocs,
@@ -855,6 +976,7 @@ describe('ReviewDocuments', () => {
         documents: {
           MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
           ProGearWeightTickets: [],
+          GunSafeWeightTickets: [],
           WeightTickets: [],
         },
       };
@@ -878,6 +1000,7 @@ describe('ReviewDocuments', () => {
         documents: {
           MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
           ProGearWeightTickets: [],
+          GunSafeWeightTickets: [],
           WeightTickets: [],
         },
       };
@@ -906,6 +1029,7 @@ describe('ReviewDocuments', () => {
         documents: {
           MovingExpenses: [expenseNoDescription],
           ProGearWeightTickets: [],
+          GunSafeWeightTickets: [],
           WeightTickets: [],
         },
       };
@@ -975,6 +1099,7 @@ describe('ReviewDocuments', () => {
         documents: {
           MovingExpenses: [rejectedMovingExpense],
           ProGearWeightTickets: [],
+          GunSafeWeightTickets: [],
           WeightTickets: [],
         },
         isError: false,

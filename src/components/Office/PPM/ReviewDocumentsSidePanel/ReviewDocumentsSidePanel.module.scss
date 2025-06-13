@@ -146,3 +146,7 @@
 .PPMHeaderSummary {
   @include u-padding(2);
 }
+
+.SendToCustomer {
+  @include u-padding-bottom(2);
+}
