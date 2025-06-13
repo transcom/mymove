@@ -161,77 +161,28 @@ test.describe('Office User Create Page', () => {
     // Define constants for privileges
     const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
 
-    // Check roles that cannot have supervisor priveleges
-    await customerCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(customerCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await customerCheckbox.click();
-    await contractingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(contractingOfficerCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await contractingOfficerCheckbox.click();
-    await primeSimulatorCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(primeSimulatorCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await primeSimulatorCheckbox.click();
-    await qualityAssuranceEvaluatorCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(qualityAssuranceEvaluatorCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await qualityAssuranceEvaluatorCheckbox.click();
-    await customerServiceRepersentativeCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(customerServiceRepersentativeCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await customerServiceRepersentativeCheckbox.click();
-    await governmentSurveillanceRepresentativeCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(governmentSurveillanceRepresentativeCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await governmentSurveillanceRepresentativeCheckbox.click();
-    await headquartersCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(headquartersCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await headquartersCheckbox.click();
-
-    // Check roles that can have supervisor priveleges
-    await taskOrderingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(taskOrderingOfficerCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).toBeChecked();
-    await taskOrderingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await taskInvoicingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(taskInvoicingOfficerCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).toBeChecked();
-    await taskInvoicingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await servicesCounselorCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(servicesCounselorCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).toBeChecked();
-    await servicesCounselorCheckbox.click();
-
-    // Check selecting roles after having supervisor selected for unallowed roles
-    await customerCheckbox.click();
-    await expect(customerCheckbox).not.toBeChecked();
-    await contractingOfficerCheckbox.click();
-    await expect(contractingOfficerCheckbox).not.toBeChecked();
-    await primeSimulatorCheckbox.click();
-    await expect(primeSimulatorCheckbox).not.toBeChecked();
-    await qualityAssuranceEvaluatorCheckbox.click();
-    await expect(qualityAssuranceEvaluatorCheckbox).not.toBeChecked();
-    await customerServiceRepersentativeCheckbox.click();
-    await expect(customerServiceRepersentativeCheckbox).not.toBeChecked();
-    await governmentSurveillanceRepresentativeCheckbox.click();
-    await expect(governmentSurveillanceRepresentativeCheckbox).not.toBeChecked();
-    await headquartersCheckbox.click();
-    await expect(headquartersCheckbox).not.toBeChecked();
+    // Test that each role can be selected together with Supervisor, and both checkboxes reflect the checked state
+    const allRoleCheckboxes = [
+      customerCheckbox,
+      contractingOfficerCheckbox,
+      servicesCounselorCheckbox,
+      primeSimulatorCheckbox,
+      qualityAssuranceEvaluatorCheckbox,
+      customerServiceRepersentativeCheckbox,
+      governmentSurveillanceRepresentativeCheckbox,
+      headquartersCheckbox,
+      taskOrderingOfficerCheckbox,
+      taskInvoicingOfficerCheckbox,
+    ];
+    for (const roleCheckbox of allRoleCheckboxes) {
+      await roleCheckbox.click();
+      await supervisorCheckbox.click();
+      await expect(roleCheckbox).toBeChecked();
+      await expect(supervisorCheckbox).toBeChecked();
+      // Uncheck for next iteration
+      await supervisorCheckbox.click();
+      await roleCheckbox.click();
+    }
 
     // Check selecting roles after having supervisor selected for allowed roles
     await taskOrderingOfficerCheckbox.click();
@@ -459,77 +410,28 @@ test.describe('Office Users Edit Page', () => {
     await taskOrderingOfficerCheckbox.click();
     await taskInvoicingOfficerCheckbox.click();
 
-    // Check roles that cannot have supervisor priveleges
-    await customerCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(customerCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await customerCheckbox.click();
-    await contractingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(contractingOfficerCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await contractingOfficerCheckbox.click();
-    await primeSimulatorCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(primeSimulatorCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await primeSimulatorCheckbox.click();
-    await qualityAssuranceEvaluatorCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(qualityAssuranceEvaluatorCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await qualityAssuranceEvaluatorCheckbox.click();
-    await customerServiceRepersentativeCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(customerServiceRepersentativeCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await customerServiceRepersentativeCheckbox.click();
-    await governmentSurveillanceRepresentativeCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(governmentSurveillanceRepresentativeCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await governmentSurveillanceRepresentativeCheckbox.click();
-    await headquartersCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(headquartersCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).not.toBeChecked();
-    await headquartersCheckbox.click();
-
-    // Check roles that can have supervisor priveleges
-    await taskOrderingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(taskOrderingOfficerCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).toBeChecked();
-    await taskOrderingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await taskInvoicingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(taskInvoicingOfficerCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).toBeChecked();
-    await taskInvoicingOfficerCheckbox.click();
-    await supervisorCheckbox.click();
-    await servicesCounselorCheckbox.click();
-    await supervisorCheckbox.click();
-    await expect(servicesCounselorCheckbox).toBeChecked();
-    await expect(supervisorCheckbox).toBeChecked();
-    await servicesCounselorCheckbox.click();
-
-    // Check selecting roles after having supervisor selected for unallowed roles
-    await customerCheckbox.click();
-    await expect(customerCheckbox).not.toBeChecked();
-    await contractingOfficerCheckbox.click();
-    await expect(contractingOfficerCheckbox).not.toBeChecked();
-    await primeSimulatorCheckbox.click();
-    await expect(primeSimulatorCheckbox).not.toBeChecked();
-    await qualityAssuranceEvaluatorCheckbox.click();
-    await expect(qualityAssuranceEvaluatorCheckbox).not.toBeChecked();
-    await customerServiceRepersentativeCheckbox.click();
-    await expect(customerServiceRepersentativeCheckbox).not.toBeChecked();
-    await governmentSurveillanceRepresentativeCheckbox.click();
-    await expect(governmentSurveillanceRepresentativeCheckbox).not.toBeChecked();
-    await headquartersCheckbox.click();
-    await expect(headquartersCheckbox).not.toBeChecked();
+    // Test that each role can be selected together with Supervisor, and both checkboxes reflect the checked state
+    const allRoleCheckboxes = [
+      customerCheckbox,
+      contractingOfficerCheckbox,
+      servicesCounselorCheckbox,
+      primeSimulatorCheckbox,
+      qualityAssuranceEvaluatorCheckbox,
+      customerServiceRepersentativeCheckbox,
+      governmentSurveillanceRepresentativeCheckbox,
+      headquartersCheckbox,
+      taskOrderingOfficerCheckbox,
+      taskInvoicingOfficerCheckbox,
+    ];
+    for (const roleCheckbox of allRoleCheckboxes) {
+      await roleCheckbox.click();
+      await supervisorCheckbox.click();
+      await expect(roleCheckbox).toBeChecked();
+      await expect(supervisorCheckbox).toBeChecked();
+      // Uncheck for next iteration
+      await supervisorCheckbox.click();
+      await roleCheckbox.click();
+    }
 
     // Check selecting roles after having supervisor selected for allowed roles
     await taskOrderingOfficerCheckbox.click();

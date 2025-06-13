@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/feature_flags"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
@@ -42,6 +43,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/re_service_items"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/role_privileges"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
@@ -101,6 +103,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ReportViolationsAssociateReportViolationsHandler: report_violations.AssociateReportViolationsHandlerFunc(func(params report_violations.AssociateReportViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.AssociateReportViolations has not yet been implemented")
+		}),
+		FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler: feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
 		}),
 		PaymentRequestsBulkDownloadHandler: payment_requests.BulkDownloadHandlerFunc(func(params payment_requests.BulkDownloadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
@@ -272,6 +277,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ReportViolationsGetReportViolationsByReportIDHandler: report_violations.GetReportViolationsByReportIDHandlerFunc(func(params report_violations.GetReportViolationsByReportIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
+		}),
+		RolePrivilegesGetRolesPrivilegesHandler: role_privileges.GetRolesPrivilegesHandlerFunc(func(params role_privileges.GetRolesPrivilegesParams) middleware.Responder {
+			return middleware.NotImplemented("operation role_privileges.GetRolesPrivileges has not yet been implemented")
 		}),
 		QueuesGetServicesCounselingOriginListHandler: queues.GetServicesCounselingOriginListHandlerFunc(func(params queues.GetServicesCounselingOriginListParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingOriginList has not yet been implemented")
@@ -514,6 +522,8 @@ type MymoveAPI struct {
 	ShipmentApproveShipmentsHandler shipment.ApproveShipmentsHandler
 	// ReportViolationsAssociateReportViolationsHandler sets the operation handler for the associate report violations operation
 	ReportViolationsAssociateReportViolationsHandler report_violations.AssociateReportViolationsHandler
+	// FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler sets the operation handler for the boolean feature flag unauthenticated operation
+	FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler feature_flags.BooleanFeatureFlagUnauthenticatedHandler
 	// PaymentRequestsBulkDownloadHandler sets the operation handler for the bulk download operation
 	PaymentRequestsBulkDownloadHandler payment_requests.BulkDownloadHandler
 	// MoveCheckForLockedMovesAndUnlockHandler sets the operation handler for the check for locked moves and unlock operation
@@ -628,6 +638,8 @@ type MymoveAPI struct {
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
 	// ReportViolationsGetReportViolationsByReportIDHandler sets the operation handler for the get report violations by report ID operation
 	ReportViolationsGetReportViolationsByReportIDHandler report_violations.GetReportViolationsByReportIDHandler
+	// RolePrivilegesGetRolesPrivilegesHandler sets the operation handler for the get roles privileges operation
+	RolePrivilegesGetRolesPrivilegesHandler role_privileges.GetRolesPrivilegesHandler
 	// QueuesGetServicesCounselingOriginListHandler sets the operation handler for the get services counseling origin list operation
 	QueuesGetServicesCounselingOriginListHandler queues.GetServicesCounselingOriginListHandler
 	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
@@ -857,6 +869,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.ReportViolationsAssociateReportViolationsHandler == nil {
 		unregistered = append(unregistered, "report_violations.AssociateReportViolationsHandler")
 	}
+	if o.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
+		unregistered = append(unregistered, "feature_flags.BooleanFeatureFlagUnauthenticatedHandler")
+	}
 	if o.PaymentRequestsBulkDownloadHandler == nil {
 		unregistered = append(unregistered, "payment_requests.BulkDownloadHandler")
 	}
@@ -1027,6 +1042,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ReportViolationsGetReportViolationsByReportIDHandler == nil {
 		unregistered = append(unregistered, "report_violations.GetReportViolationsByReportIDHandler")
+	}
+	if o.RolePrivilegesGetRolesPrivilegesHandler == nil {
+		unregistered = append(unregistered, "role_privileges.GetRolesPrivilegesHandler")
 	}
 	if o.QueuesGetServicesCounselingOriginListHandler == nil {
 		unregistered = append(unregistered, "queues.GetServicesCounselingOriginListHandler")
@@ -1332,6 +1350,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/report-violations/{reportID}"] = report_violations.NewAssociateReportViolations(o.context, o.ReportViolationsAssociateReportViolationsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/open/feature-flags/boolean/{key}"] = feature_flags.NewBooleanFeatureFlagUnauthenticated(o.context, o.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1560,6 +1582,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/report-violations/{reportID}"] = report_violations.NewGetReportViolationsByReportID(o.context, o.ReportViolationsGetReportViolationsByReportIDHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/open/roles-privileges"] = role_privileges.NewGetRolesPrivileges(o.context, o.RolePrivilegesGetRolesPrivilegesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -41,6 +41,9 @@ type RequestedOfficeUserUpdate struct {
 	// other unique Id
 	OtherUniqueID string `json:"otherUniqueId,omitempty"`
 
+	// privileges
+	Privileges []*OfficeUserPrivilege `json:"privileges"`
+
 	// rejection reason
 	RejectionReason string `json:"rejectionReason,omitempty"`
 
@@ -67,6 +70,10 @@ func (m *RequestedOfficeUserUpdate) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrivileges(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,6 +106,32 @@ func (m *RequestedOfficeUserUpdate) validateEmail(formats strfmt.Registry) error
 
 	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *RequestedOfficeUserUpdate) validatePrivileges(formats strfmt.Registry) error {
+	if swag.IsZero(m.Privileges) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Privileges); i++ {
+		if swag.IsZero(m.Privileges[i]) { // not required
+			continue
+		}
+
+		if m.Privileges[i] != nil {
+			if err := m.Privileges[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -200,6 +233,10 @@ func (m *RequestedOfficeUserUpdate) validateTransportationOfficeID(formats strfm
 func (m *RequestedOfficeUserUpdate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidatePrivileges(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRoles(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -207,6 +244,31 @@ func (m *RequestedOfficeUserUpdate) ContextValidate(ctx context.Context, formats
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *RequestedOfficeUserUpdate) contextValidatePrivileges(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Privileges); i++ {
+
+		if m.Privileges[i] != nil {
+
+			if swag.IsZero(m.Privileges[i]) { // not required
+				return nil
+			}
+
+			if err := m.Privileges[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
