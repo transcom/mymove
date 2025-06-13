@@ -14,7 +14,7 @@
   padding-top: 13px;
   padding-bottom: 13px;
   @include u-text('white');
-  height: 80px;
+  height: 90px;
   .details {
     color: $base-lighter;
   }
@@ -51,6 +51,7 @@
     display: flex;
     div {
       border-left: 4px solid $mm-periwinkle;
+      box-sizing: border-box;
       @include u-padding-left(2);
       @include u-padding-right(3);
       &:last-child {
