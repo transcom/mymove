@@ -23,6 +23,7 @@ import createUpload from 'utils/test/factories/upload';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { PPM_TYPES } from 'shared/constants';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { fetchPaymentPacketBlob } from 'services/ghcApi';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 Element.prototype.scrollTo = jest.fn();
@@ -48,6 +49,7 @@ const mockPatchProGear = jest.fn();
 const mockPatchGunSafe = jest.fn();
 const mockPatchExpense = jest.fn();
 const mockPatchPPMDocumentsSetStatus = jest.fn();
+const setShowLoadingSpinner = jest.fn();
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
@@ -56,6 +58,7 @@ jest.mock('services/ghcApi', () => ({
   patchGunSafeWeightTicket: (options) => mockPatchGunSafe(options),
   patchExpense: (options) => mockPatchExpense(options),
   patchPPMDocumentsSetStatus: (options) => mockPatchPPMDocumentsSetStatus(options),
+  fetchPaymentPacketBlob: jest.fn(),
 }));
 
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
@@ -338,6 +341,10 @@ const mockTooRountingOptions = {
   params: { moveCode: 'READY1' },
 };
 
+beforeEach(() => {
+  global.URL.createObjectURL = jest.fn(() => 'blob://fake-pdf-url');
+});
+
 describe('ReviewDocuments', () => {
   describe('check loading and error component states', () => {
     const loadingReturnValue = {
@@ -464,8 +471,10 @@ describe('ReviewDocuments', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      const fakePdfBlob = new Blob(['%PDF-1.4 foo'], { type: 'application/pdf' });
+      fetchPaymentPacketBlob.mockImplementation(() => Promise.resolve(fakePdfBlob));
 
-      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+      renderWithProviders(<ReviewDocuments setShowLoadingSpinner={setShowLoadingSpinner} />, mockRoutingOptions);
 
       const weightTicket = mtoShipmentWithOneWeightTicket.ppmShipment.weightTickets[0];
 
@@ -523,13 +532,115 @@ describe('ReviewDocuments', () => {
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: 'PPM Review Complete' }));
+      const previewBtn = await screen.findByRole('button', {
+        name: 'Preview PPM Payment Packet',
+      });
+      expect(previewBtn).toBeInTheDocument();
+
+      await userEvent.click(previewBtn);
+
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
+
+      // wait for the blob fetch and the re‐render
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Complete PPM Review' })).toBeInTheDocument();
+      });
+
+      const completeBtn = screen.getByRole('button', { name: 'Complete PPM Review' });
+      await userEvent.click(completeBtn);
+
+      // modal
+      expect(screen.getByText('Are you sure you want to complete the PPM Review?')).toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: 'Yes' }));
       const confirmPayload = {
         ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
         eTag: mtoShipmentWithOneWeightTicket.ppmShipment.eTag,
       };
+
       expect(mockPatchPPMDocumentsSetStatus).toHaveBeenCalledWith(confirmPayload);
       expect(mockNavigate).toHaveBeenCalled();
+    });
+
+    it('renders and handles the Continue button with the appropriate payload', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      const fakePdfBlob = new Blob(['%PDF-1.4 foo'], { type: 'application/pdf' });
+      fetchPaymentPacketBlob.mockImplementation(() => Promise.resolve(fakePdfBlob));
+
+      renderWithProviders(<ReviewDocuments setShowLoadingSpinner={setShowLoadingSpinner} />, mockRoutingOptions);
+
+      const weightTicket = mtoShipmentWithOneWeightTicket.ppmShipment.weightTickets[0];
+
+      const newEmptyWeight = 14500;
+      const emptyWeightInput = screen.getByTestId('emptyWeight');
+      await userEvent.clear(emptyWeightInput);
+      await userEvent.type(emptyWeightInput, newEmptyWeight.toString());
+
+      const newFullWeight = 18500;
+      const fullWeightInput = screen.getByTestId('fullWeight');
+      await userEvent.clear(fullWeightInput);
+      await userEvent.type(fullWeightInput, newFullWeight.toString());
+
+      const netWeightDisplay = screen.getByTestId('net-weight-display');
+      expect(netWeightDisplay).toHaveTextContent('4,000 lbs');
+
+      const acceptOption = screen.getByTestId('approveRadio');
+      expect(acceptOption).toBeInTheDocument();
+
+      const rejectOption = screen.getByTestId('rejectRadio');
+      expect(rejectOption).toBeInTheDocument();
+      await userEvent.click(rejectOption);
+
+      const rejectionReason = 'Not legible';
+      const reasonTextBox = screen.getByLabelText('Reason');
+      expect(reasonTextBox).toBeInTheDocument();
+      await userEvent.type(reasonTextBox, rejectionReason);
+
+      const continueButton = screen.getByTestId('reviewDocumentsContinueButton');
+      expect(continueButton).toBeInTheDocument();
+      await userEvent.click(continueButton);
+
+      expect(screen.queryByText('Reviewing this weight ticket is required')).not.toBeInTheDocument();
+
+      const expectedPayload = {
+        ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
+        weightTicketId: weightTicket.id,
+        eTag: weightTicket.eTag,
+        payload: {
+          ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
+          vehicleDescription: weightTicket.vehicleDescription,
+          emptyWeight: newEmptyWeight,
+          missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
+          fullWeight: newFullWeight,
+          missingFullWeightTicket: weightTicket.missingFullWeightTicket,
+          ownsTrailer: weightTicket.ownsTrailer,
+          trailerMeetsCriteria: weightTicket.trailerMeetsCriteria,
+          status: PPMDocumentsStatus.REJECTED,
+          reason: rejectionReason,
+        },
+      };
+      await waitFor(() => {
+        expect(mockPatchWeightTicket).toHaveBeenCalledWith(expectedPayload);
+      });
+
+      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+
+      const preview = await screen.findByRole('button', { name: 'Preview PPM Payment Packet' });
+      await userEvent.click(preview);
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
+
+      const editBtn = await screen.findByRole('button', { name: 'Edit PPM' });
+      expect(editBtn).toBeInTheDocument();
+
+      await userEvent.click(editBtn);
+
+      // should be back at document 1 of 1, and the “Continue” button present again
+      expect(screen.getByTestId('reviewDocumentsContinueButton')).toBeInTheDocument();
+      expect(screen.getByText('1 of 1 Document Sets')).toBeInTheDocument();
+      // and the “Complete PPM Review” button should no longer exist
+      expect(screen.queryByRole('button', { name: /Complete PPM Review/i })).not.toBeInTheDocument();
     });
 
     it('renders and handles the Close button', async () => {
@@ -1130,7 +1241,7 @@ describe('ReviewDocuments', () => {
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
-      const submitButton = screen.getByRole('button', { name: 'PPM Review Complete' });
+      const submitButton = screen.getByRole('button', { name: 'Preview PPM Payment Packet' });
       expect(submitButton).toBeDisabled();
 
       expect(

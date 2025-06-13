@@ -48,7 +48,7 @@ func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
 		name, testCase := name, testCase
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(testCase.mobileHome, testCase.expectedErrs)
+			suite.verifyValidationErrors(testCase.mobileHome, testCase.expectedErrs, nil)
 		})
 	}
 }

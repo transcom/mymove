@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -260,6 +261,22 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+			// set payloads for gun safe to nil if FF is turned OFF
+			if !isGunSafeFeatureOn && payload.PpmShipment != nil {
+				payload.PpmShipment.HasGunSafe = nil
+				payload.PpmShipment.GunSafeWeight = nil
+			}
+
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
 			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && mtoShipment.NTSRecordedWeight != nil {
@@ -356,6 +373,22 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 						&ghcmessages.Error{Message: &msg},
 					), err
 				}
+			}
+
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+			// set payloads for gun safe to nil if FF is turned OFF
+			if !isGunSafeFeatureOn && payload.PpmShipment != nil {
+				payload.PpmShipment.HasGunSafe = nil
+				payload.PpmShipment.GunSafeWeight = nil
 			}
 
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
@@ -600,6 +633,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			if reweighActiveForMove {
 				for _, shipment := range move.MTOShipments {
 					if (shipment.Status == models.MTOShipmentStatusApproved ||
+						shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 						shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 						shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 						shipment.Reweigh.ID == uuid.Nil &&
@@ -821,6 +855,7 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 					for i := range move.MTOShipments {
 						shipment := move.MTOShipments[i]
 						if (shipment.Status == models.MTOShipmentStatusApproved ||
+							shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 							shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 							shipment.Reweigh.ID == uuid.Nil &&
@@ -962,6 +997,7 @@ type ApproveShipmentDiversionHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentDiversionApprover
 	services.ShipmentSITStatus
+	services.MoveRouter
 }
 
 // Handle approves a shipment diversion
@@ -1007,7 +1043,10 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 				return handleError(err)
 			}
 
-			h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			err = h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
+			if err != nil {
+				return handleError(err)
+			}
 
 			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
@@ -1020,9 +1059,26 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 		})
 }
 
-func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) {
+func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) error {
 
-	_, err := event.TriggerEvent(event.Event{
+	move := &models.Move{}
+	err := appCtx.DB().Find(move, moveID)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(moveID, "while looking for move")
+		default:
+			return apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
+		if _, err = h.ApproveOrRequestApproval(appCtx, *move); err != nil {
+			return err
+		}
+	}
+
+	_, err = event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcApproveShipmentDiversionEndpointKey,
 		// Endpoint that is being handled
 		EventKey:        event.ShipmentApproveDiversionEventKey, // Event that you want to trigger
@@ -1036,6 +1092,8 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(a
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.ApproveShipmentDiversionHandler could not generate the event", zap.Error(err))
 	}
+
+	return nil
 }
 
 // RejectShipmentHandler rejects a shipment

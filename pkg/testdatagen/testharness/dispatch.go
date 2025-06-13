@@ -104,6 +104,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
 	},
+	"HHGMoveInTerminatedStatus": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInTerminatedStatus(appCtx)
+	},
 	"HHGMoveWithIntlCratingServiceItemsTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithIntlCratingServiceItemsTOO(appCtx)
 	},
@@ -208,6 +211,12 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"ApprovedMoveWithPPMProgearWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx)
+	},
+	"ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice(appCtx)
+	},
+	"ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2(appCtx)
 	},
 	"ApprovedMoveWithPPMProgearWeightTicketOfficeCivilian": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx)
