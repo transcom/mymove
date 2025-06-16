@@ -203,6 +203,34 @@ describe('RequestAccountForm component', () => {
     expect(screen.getAllByText('Domain must be .mil, .gov or .edu').length).toBe(1);
   });
 
+  describe('Role selection validation', () => {
+    const checkboxTestIds = [
+      'headquartersCheckBox',
+      'taskOrderingOfficerCheckBox',
+      'taskInvoicingOfficerCheckBox',
+      'transportationContractingOfficerCheckBox',
+      'servicesCounselorCheckBox',
+      'qualityAssuranceEvaluatorCheckBox',
+      'customerSupportRepresentativeCheckBox',
+      'governmentSurveillanceRepresentativeCheckbox',
+    ];
+
+    it.each(checkboxTestIds)('shows and clears error for %s', async (testId) => {
+      renderWithRouter(<RequestAccountForm {...testProps} />);
+
+      const checkbox = screen.getByTestId(testId);
+
+      await userEvent.click(checkbox); // check
+      await userEvent.click(checkbox); // uncheck to trigger validation
+
+      const error = await screen.findByText('You must select at least one role.');
+      expect(error).toBeInTheDocument();
+
+      await userEvent.click(checkbox); // check again
+      expect(screen.queryByText('You must select at least one role.')).not.toBeInTheDocument();
+    });
+  });
+
   it('shows policy error when both TOO and TIO checkboxes are both selected, and goes away after unselecting one of them', async () => {
     renderWithRouter(<RequestAccountForm {...testProps} />);
 

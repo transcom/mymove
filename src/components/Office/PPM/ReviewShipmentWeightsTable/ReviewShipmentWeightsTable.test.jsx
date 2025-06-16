@@ -17,8 +17,6 @@ const PPMProps = {
     {
       shipmentType: 'PPM',
       ppmShipment: {
-        actualPickupPostalCode: '90210',
-        actualDestinationPostalCode: '94611',
         hasReceivedAdvance: true,
         advanceAmountReceived: 60000,
         estimatedWeight: 4000,

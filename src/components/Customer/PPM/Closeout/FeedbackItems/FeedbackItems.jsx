@@ -3,7 +3,7 @@ import classnames from 'classnames';
 
 import styles from './FeedbackItems.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const FeedbackItems = ({ documents, docType }) => {

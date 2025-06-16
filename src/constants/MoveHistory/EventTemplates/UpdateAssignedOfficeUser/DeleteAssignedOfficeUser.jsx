@@ -9,7 +9,7 @@ export default {
   action: a.UPDATE,
   eventName: o.deleteAssignedOfficeUser,
   tableName: t.moves,
-  getEventNameDisplay: () => 'Updated move',
+  getEventNameDisplay: () => 'Move assignment updated',
   getDetails: ({ changedValues, oldValues }) => {
     if (changedValues.sc_assigned_id === null && oldValues?.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING)
       return <>Counselor unassigned</>;

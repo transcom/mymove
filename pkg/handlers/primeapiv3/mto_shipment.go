@@ -427,7 +427,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v3")
 			if err != nil {
-				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHnadler error", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(

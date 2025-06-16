@@ -8,7 +8,7 @@ import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import styles from './FinalCloseout.module.scss';
 
-import FinalCloseoutForm from 'components/Customer/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
+import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes } from 'constants/routes';
@@ -22,6 +22,7 @@ import { selectServiceMemberAffiliation, selectMTOShipmentById } from 'store/ent
 import { selectMove } from 'shared/Entities/modules/moves';
 import { formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage } from 'store/flash/actions';
+import { APP_NAME } from 'constants/apps';
 
 const FinalCloseout = () => {
   const navigate = useNavigate();
@@ -125,7 +126,8 @@ const FinalCloseout = () => {
               onBack={handleBack}
               onSubmit={handleSubmit}
               affiliation={affiliation}
-              selectedMove={selectedMove}
+              move={selectedMove}
+              appName={APP_NAME.MYMOVE}
             />
           </Grid>
         </Grid>

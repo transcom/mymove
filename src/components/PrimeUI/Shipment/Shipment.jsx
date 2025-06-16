@@ -450,11 +450,11 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM Actual Pickup Postal Code:</dt>
-            <dd>{shipment.ppmShipment.actualPickupPostalCode}</dd>
+            <dd>{shipment.ppmShipment.pickupAddress?.postalCode}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM Actual Destination Postal Code:</dt>
-            <dd>{shipment.ppmShipment.actualDestinationPostalCode}</dd>
+            <dd>{shipment.ppmShipment.destinationAddress?.postalCode}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM Has Requested Advance:</dt>

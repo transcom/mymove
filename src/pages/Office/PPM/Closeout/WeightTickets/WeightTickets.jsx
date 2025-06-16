@@ -69,8 +69,8 @@ const WeightTickets = () => {
   });
 
   const { mutate: mutatePatchWeightTicket } = useMutation(patchWeightTicket, {
-    onSuccess: () => {
-      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
       navigate(reviewPath);
     },
     onError: () => {

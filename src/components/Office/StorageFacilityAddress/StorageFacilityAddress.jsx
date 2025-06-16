@@ -5,7 +5,7 @@ import { Field } from 'formik';
 
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
 const StorageFacilityAddress = ({ formikProps }) => {
@@ -15,7 +15,6 @@ const StorageFacilityAddress = ({ formikProps }) => {
         <h2 className={styles.SectionHeader}>Storage facility address</h2>
         <AddressFields
           name="storageFacility.address"
-          locationLookup
           formikProps={formikProps}
           render={(fields) => (
             <>

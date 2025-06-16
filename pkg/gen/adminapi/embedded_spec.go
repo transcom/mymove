@@ -1063,7 +1063,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/RolePrivilege"
+                "$ref": "#/definitions/Role"
               }
             }
           },
@@ -1966,6 +1966,46 @@ func init() {
           },
           "404": {
             "description": "User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single user (including Roles, Privileges, and BackupContacts) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes a User",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "User cannot be deleted, forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "409": {
+            "description": "User cannot be deleted due to associated data"
           },
           "500": {
             "description": "server error"
@@ -3430,6 +3470,10 @@ func init() {
           "type": "string",
           "example": "supervisor"
         },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -3519,6 +3563,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roleName": {
           "type": "string",
           "example": "Task Ordering Officer"
@@ -3527,43 +3577,9 @@ func init() {
           "type": "string",
           "example": "customer"
         },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "RolePrivilege": {
-      "type": "object",
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
-        },
-        "privilegeId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
-        },
-        "privilegeType": {
-          "type": "string",
-          "example": "supervisor"
-        },
-        "roleId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e"
-        },
-        "roleType": {
-          "type": "string",
-          "example": "task_ordering_officer"
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",
@@ -5093,7 +5109,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/RolePrivilege"
+                "$ref": "#/definitions/Role"
               }
             }
           },
@@ -5996,6 +6012,46 @@ func init() {
           },
           "404": {
             "description": "User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single user (including Roles, Privileges, and BackupContacts) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes a User",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "User cannot be deleted, forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "409": {
+            "description": "User cannot be deleted due to associated data"
           },
           "500": {
             "description": "server error"
@@ -7461,6 +7517,10 @@ func init() {
           "type": "string",
           "example": "supervisor"
         },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -7550,6 +7610,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roleName": {
           "type": "string",
           "example": "Task Ordering Officer"
@@ -7558,43 +7624,9 @@ func init() {
           "type": "string",
           "example": "customer"
         },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "RolePrivilege": {
-      "type": "object",
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
-        },
-        "privilegeId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
-        },
-        "privilegeType": {
-          "type": "string",
-          "example": "supervisor"
-        },
-        "roleId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e"
-        },
-        "roleType": {
-          "type": "string",
-          "example": "task_ordering_officer"
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",

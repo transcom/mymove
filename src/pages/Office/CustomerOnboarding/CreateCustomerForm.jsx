@@ -14,7 +14,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { servicesCounselingRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { CheckboxField, DropdownInput } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
@@ -435,21 +435,11 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Pickup Address</h3>
-                    <AddressFields
-                      name={residentialAddressName}
-                      labelHint="Required"
-                      locationLookup
-                      formikProps={formikProps}
-                    />
+                    <AddressFields name={residentialAddressName} labelHint="Required" formikProps={formikProps} />
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Backup Address</h3>
-                    <AddressFields
-                      name={backupAddressName}
-                      labelHint="Required"
-                      locationLookup
-                      formikProps={formikProps}
-                    />
+                    <AddressFields name={backupAddressName} labelHint="Required" formikProps={formikProps} />
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Backup Contact</h3>

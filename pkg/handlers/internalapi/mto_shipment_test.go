@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
-
+	futureDate := models.TimePointer(time.Now().Add(24 * time.Hour))
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	)
 	mockSender := suite.TestNotificationSender()
 	waf := entitlements.NewWeightAllotmentFetcher()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 
 	type mtoCreateSubtestData struct {
@@ -146,6 +146,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			{
 				Model:    mto,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
 			},
 		}, nil)
 		subtestData.mtoShipment.MoveTaskOrderID = mto.ID
@@ -511,7 +516,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		// Set fields appropriately for NTS-Release
 		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTS
 		params.Body.ShipmentType = &ntsrShipmentType
-		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+		params.Body.RequestedPickupDate = strfmt.Date(*futureDate)
 		params.Body.PickupAddress = nil
 		params.Body.SecondaryPickupAddress = nil
 
@@ -528,7 +533,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
-		suite.Nil(createdShipment.RequestedPickupDate)
+		suite.NotNil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
 		suite.Equal(params.Body.Agents[0].FirstName, createdShipment.Agents[0].FirstName)
@@ -561,7 +566,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params.Body.ShipmentType = &boatShipmentType
 		params.Body.BoatShipment = boatShipment
 
-		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+		params.Body.RequestedPickupDate = strfmt.Date(*futureDate)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -578,7 +583,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
-		suite.Nil(createdShipment.RequestedPickupDate)
+		suite.NotNil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
 		suite.Equal(*params.Body.BoatShipment.Type, *createdShipment.BoatShipment.Type)
@@ -764,7 +769,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	).Return(400, nil)
 
 	mockSender := suite.TestNotificationSender()
-	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -785,7 +790,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 
-	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
+	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater, mockFeatureFlagOn bool) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
 		endpoint := fmt.Sprintf("/mto-shipments/%s", originalShipment.ID.String())
 
 		req := httptest.NewRequest("PATCH", endpoint, nil)
@@ -805,8 +810,24 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			shipmentUpdaterSO = mockShipmentUpdater
 		}
 
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: mockFeatureFlagOn,
+		}
+
+		handlerConfig := suite.HandlerConfig()
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
 		handler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			handlerConfig,
 			shipmentUpdaterSO,
 		}
 
@@ -846,7 +867,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		customerRemarks := ""
 
-		handler, params := authRequestAndSetUpHandlerAndParams(originalShipment, mockShipmentUpdater)
+		handler, params := authRequestAndSetUpHandlerAndParams(originalShipment, mockShipmentUpdater, false)
 
 		params.Body = &internalmessages.UpdateShipment{
 			Agents:          agents,
@@ -1142,7 +1163,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountRequested)
 				},
 			},
-			"Add actual zips and advance info - no advance": {
+			"Advance info - no advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
 					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 						{
@@ -1157,9 +1178,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					ActualPickupPostalCode:      handlers.FmtString("90210"),
-					ActualDestinationPostalCode: handlers.FmtString("90210"),
-					HasReceivedAdvance:          handlers.FmtBool(false),
+					HasReceivedAdvance: handlers.FmtBool(false),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -1169,13 +1188,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
-					suite.Equal(desiredShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
 					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
 					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountReceived)
 				},
 			},
-			"Add actual zips and advance info - yes advance": {
+			"Advance info - yes advance": {
 				setUpOriginalPPM: func() models.PPMShipment {
 					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 						{
@@ -1190,10 +1207,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					ActualPickupPostalCode:      handlers.FmtString("90210"),
-					ActualDestinationPostalCode: handlers.FmtString("90210"),
-					HasReceivedAdvance:          handlers.FmtBool(true),
-					AdvanceAmountReceived:       handlers.FmtInt64(250000),
+					HasReceivedAdvance:    handlers.FmtBool(true),
+					AdvanceAmountReceived: handlers.FmtInt64(250000),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -1203,8 +1218,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
-					suite.Equal(desiredShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
 					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
 					suite.Equal(desiredShipment.AdvanceAmountReceived, updatedShipment.PpmShipment.AdvanceAmountReceived)
 				},
@@ -1313,15 +1326,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 						{
 							Model: models.PPMShipment{
-								EstimatedWeight:             models.PoundPointer(4000),
-								HasProGear:                  models.BoolPointer(false),
-								EstimatedIncentive:          models.CentPointer(unit.Cents(500000)),
-								HasRequestedAdvance:         models.BoolPointer(true),
-								AdvanceAmountRequested:      models.CentPointer(unit.Cents(200000)),
-								ActualPickupPostalCode:      models.StringPointer("90210"),
-								ActualDestinationPostalCode: models.StringPointer("90210"),
-								HasReceivedAdvance:          models.BoolPointer(true),
-								AdvanceAmountReceived:       models.CentPointer(unit.Cents(250000)),
+								EstimatedWeight:        models.PoundPointer(4000),
+								HasProGear:             models.BoolPointer(false),
+								EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+								HasRequestedAdvance:    models.BoolPointer(true),
+								AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+								HasReceivedAdvance:     models.BoolPointer(true),
+								AdvanceAmountReceived:  models.CentPointer(unit.Cents(250000)),
 							},
 						},
 					}, nil)
@@ -1335,9 +1346,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
 					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
-
-					suite.Equal(originalShipment.PPMShipment.ActualPickupPostalCode, updatedShipment.PpmShipment.ActualPickupPostalCode)
-					suite.Equal(originalShipment.PPMShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
 
 					// check expected fields were updated
 					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
@@ -1371,7 +1379,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 				originalPPMShipment := tc.setUpOriginalPPM()
 
-				handler, params := authRequestAndSetUpHandlerAndParams(originalPPMShipment.Shipment, nil)
+				handler, params := authRequestAndSetUpHandlerAndParams(originalPPMShipment.Shipment, nil, false)
 
 				params.Body = &internalmessages.UpdateShipment{
 					ShipmentType: internalmessages.MTOShipmentTypePPM,
@@ -1394,6 +1402,113 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				tc.runChecks(updatedShipment, originalPPMShipment.Shipment, tc.desiredShipment)
 			})
 		}
+	})
+
+	suite.Run("Successful PATCH - gun safe related fields exist in payload exists if FF is ON", func() {
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		hasGunSafe := models.BoolPointer(true)
+		gunSafeWeight := models.Int64Pointer(123)
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		payload := internalmessages.UpdatePPMShipment{
+			HasGunSafe:    hasGunSafe,
+			GunSafeWeight: gunSafeWeight,
+		}
+
+		// FF on
+		handler, params := authRequestAndSetUpHandlerAndParams(ppmShipment.Shipment, nil, true)
+
+		params.Body = &internalmessages.UpdateShipment{
+			ShipmentType: internalmessages.MTOShipmentTypePPM,
+			PpmShipment:  &payload,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		suite.Equal(*hasGunSafe, *updatedResponse.PpmShipment.HasGunSafe)
+		suite.Equal(*gunSafeWeight, *updatedResponse.PpmShipment.GunSafeWeight)
+	})
+
+	suite.Run("Successful PATCH - gun safe related fields are nil in payload if FF is OFF", func() {
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		hasGunSafe := models.BoolPointer(true)
+		gunSafeWeight := models.Int64Pointer(123)
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		payload := internalmessages.UpdatePPMShipment{
+			HasGunSafe:    hasGunSafe,
+			GunSafeWeight: gunSafeWeight,
+			HasProGear:    models.BoolPointer(false),
+		}
+
+		// FF off
+		handler, params := authRequestAndSetUpHandlerAndParams(ppmShipment.Shipment, nil, false)
+
+		params.Body = &internalmessages.UpdateShipment{
+			ShipmentType: internalmessages.MTOShipmentTypePPM,
+			PpmShipment:  &payload,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		suite.Nil(updatedResponse.PpmShipment.HasGunSafe)
+		suite.Nil(updatedResponse.PpmShipment.GunSafeWeight)
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {

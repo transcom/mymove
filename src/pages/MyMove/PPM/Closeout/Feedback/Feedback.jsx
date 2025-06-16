@@ -10,7 +10,7 @@ import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { calculateTotalMovingExpensesAmount, getW2Address } from 'utils/ppmCloseout';
 import { FEEDBACK_DOCUMENT_TYPES, FEEDBACK_TEMPLATES } from 'constants/ppmFeedback';
@@ -115,8 +115,8 @@ const Feedback = () => {
     <>
       <h2>About Your PPM</h2>
       <div>Departure Date: {formatCustomerDate(ppmShipment?.actualMoveDate)}</div>
-      <div>Starting ZIP: {ppmShipment?.actualPickupPostalCode}</div>
-      <div>Ending ZIP: {ppmShipment?.actualDestinationPostalCode}</div>
+      <div>Starting ZIP: {ppmShipment?.pickupAddress?.postalCode}</div>
+      <div>Ending ZIP: {ppmShipment?.destinationAddress?.postalCode}</div>
       <div>
         Advance:
         {ppmShipment?.hasReceivedAdvance

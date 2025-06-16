@@ -292,7 +292,7 @@ describe('EditShipmentDetails component', () => {
     await waitFor(() => {
       expect(h1).toBeInTheDocument();
     });
-    expect(screen.getAllByTestId('ZIP').length).toBe(2);
+    expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
     expect(screen.getByLabelText('1111 (NTS)')).toBeInTheDocument();
     expect(screen.getByLabelText('2222 (NTS)')).toBeInTheDocument();
   });

@@ -10,9 +10,10 @@ import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
+import ExpenseForm from 'components/Shared/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   createUploadForPPMDocument,
@@ -23,6 +24,8 @@ import {
 import { updateMTOShipment } from 'store/entities/actions';
 import { formatDateForSwagger } from 'shared/dates';
 import { convertDollarsToCents } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
+import { APP_NAME } from 'constants/apps';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -38,6 +41,8 @@ const Expenses = () => {
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
   const { ppmType } = ppmShipment;
+
+  const appName = APP_NAME.MYMOVE;
 
   useEffect(() => {
     if (!expenseId) {
@@ -64,24 +69,7 @@ const Expenses = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
-
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, false)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, appendTimestampToFilename(file), false)
       .then((upload) => {
         mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -124,6 +112,14 @@ const Expenses = () => {
     navigate(path);
   };
 
+  const handleErrorMessage = (error) => {
+    if (error?.response?.status === 412) {
+      setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else {
+      setErrorMessage('Failed to save updated trip record');
+    }
+  };
+
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
     const payload = {
@@ -153,9 +149,9 @@ const Expenses = () => {
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
-      .catch(() => {
+      .catch((error) => {
         setSubmitting(false);
-        setErrorMessage('Failed to save updated trip record');
+        handleErrorMessage(error);
       });
   };
 
@@ -184,17 +180,6 @@ const Expenses = () => {
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Expenses</h1>
             {renderError()}
-            <div className={styles.introSection}>
-              <p>
-                Document your qualified expenses by uploading receipts. They should include a description of the item,
-                the price you paid, the date of purchase, and the business name. All documents must be legible and
-                unaltered.
-              </p>
-              <p>
-                Your finance office will make the final decision about which expenses are deductible or reimbursable.
-              </p>
-              <p>Upload one receipt at a time. Please do not put multiple receipts in one image.</p>
-            </div>
             <ExpenseForm
               ppmType={ppmType}
               expense={currentExpense}
@@ -204,6 +189,7 @@ const Expenses = () => {
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}
+              appName={appName}
             />
           </Grid>
         </Grid>

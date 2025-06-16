@@ -100,7 +100,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
@@ -109,8 +109,8 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
-			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
-				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			if privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTOO,
@@ -137,10 +137,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
-			moves, count, err := h.OrderFetcher.ListOrders(
+			moves, count, err := h.OrderFetcher.ListOriginRequestsOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
-				roles.RoleTypeTOO,
 				&ListOrderParams,
 			)
 			if err != nil {
@@ -270,7 +269,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 			}
 
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
@@ -278,8 +277,8 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			officeUser.User.Roles = appCtx.Session().Roles
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
-			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
-				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			if privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTOO,
@@ -436,7 +435,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				activeRole = *params.ActiveRole
 			}
 
-			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
+			listPaymentRequestParams.Status = []string{string(models.PaymentRequestStatusPending)}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
@@ -465,7 +464,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				listPaymentRequestParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
@@ -475,8 +474,8 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
 
-			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
-				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			if privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTIO,
@@ -636,7 +635,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
@@ -646,8 +645,8 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
 
-			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
-				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			if privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeServicesCounselor,
@@ -746,13 +745,13 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				return queues.NewGetBulkAssignmentDataNotFound(), err
 			}
 
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 				return queues.NewGetBulkAssignmentDataNotFound(), err
 			}
 
-			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			isSupervisor := privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 			if !isSupervisor {
 				appCtx.Logger().Error("Unauthorized", zap.Error(err))
 				return queues.NewGetBulkAssignmentDataUnauthorized(), err
@@ -948,13 +947,13 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 				return queues.NewSaveBulkAssignmentDataNotFound(), err
 			}
 
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 				return queues.NewSaveBulkAssignmentDataNotFound(), err
 			}
 
-			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			isSupervisor := privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 			if !isSupervisor {
 				appCtx.Logger().Error("Unauthorized", zap.Error(err))
 				return queues.NewSaveBulkAssignmentDataUnauthorized(), err

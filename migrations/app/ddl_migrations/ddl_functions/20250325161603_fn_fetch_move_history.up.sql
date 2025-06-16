@@ -1,5 +1,8 @@
 -- B-22911 Beth introduced a move history sql refactor for us to swapnout with the pop query to be more efficient
 -- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
+-- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
+-- B 22696 Jon Spight added too destination assignments to history / Audit log
+-- B-23623  Beth Grohmann  fetch_move_history - update final query to pull from all user tables
 
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
@@ -78,9 +81,9 @@ BEGIN
                 ''counseling_office_name'',
                 (SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.counseling_transportation_office_id)),
                 ''assigned_office_user_first_name'',
-                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id))),
+                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
                 ''assigned_office_user_last_name'',
-                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id)))
+                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
             ))
         )::TEXT AS context,
         NULL AS context_id,
@@ -93,7 +96,8 @@ BEGIN
         counseling_transportation_office_id TEXT,
         sc_assigned_id TEXT,
         too_assigned_id TEXT,
-        tio_assigned_id TEXT
+        tio_assigned_id TEXT,
+        too_destination_assigned_id TEXT
     ) ON TRUE
     WHERE audit_history.table_name = ''moves''
         AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE ''%shipment_seq_num%'' AND LENGTH(audit_history.changed_data::TEXT) < 25)
@@ -134,8 +138,9 @@ BEGIN
         FROM
             audit_history
         JOIN mto_shipments ON mto_shipments.id = audit_history.object_id
-        JOIN moves ON mto_shipments.move_id = v_move_id
+        JOIN moves ON mto_shipments.move_id = moves.id
         WHERE audit_history.table_name = 'mto_shipments'
+            AND moves.id = v_move_id
             AND NOT (audit_history.event_name = 'updateMTOStatusServiceCounselingCompleted' AND audit_history.changed_data = '{"status": "APPROVED"}')
             AND NOT (audit_history.event_name = 'submitMoveForApproval' AND audit_history.changed_data = '{"status": "SUBMITTED"}')
             AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE '%shipment_locator%' AND LENGTH(audit_history.changed_data::TEXT) < 35)
@@ -1952,12 +1957,16 @@ BEGIN
     RETURN QUERY WITH user_info AS (
       SELECT
         ur.user_id,
-        MAX(ou.first_name) AS first_name,
-        MAX(ou.last_name) AS last_name,
-        MAX(ou.email) AS email,
-        MAX(ou.telephone) AS telephone
+        MAX(COALESCE(ou.first_name, prime_user_first_name)) AS first_name,
+		MAX(ou.last_name) AS last_name,
+		MAX(ou.email) AS email,
+		MAX(ou.telephone) AS telephone
       FROM users_roles ur
+	  LEFT JOIN roles r ON ur.role_id = r.id
       LEFT JOIN office_users ou ON ou.user_id = ur.user_id
+	  LEFT JOIN (
+			SELECT 'Prime' AS prime_user_first_name
+			) prime_users ON r.role_type = 'prime'
       GROUP BY ur.user_id
     )
     SELECT
@@ -1981,13 +1990,14 @@ BEGIN
       x.context_id,
       x.move_id,
       x.shipment_id,
-      ui.first_name AS session_user_first_name,
-      ui.last_name AS session_user_last_name,
-      ui.email AS session_user_email,
-      ui.telephone AS session_user_telephone,
+      COALESCE(ui.first_name, sm.first_name) AS session_user_first_name,
+      COALESCE(ui.last_name, sm.last_name) AS session_user_last_name,
+      COALESCE(ui.email, sm.personal_email) AS session_user_email,
+      COALESCE(ui.telephone, sm.telephone) AS session_user_telephone,
       x.seq_num
     FROM audit_hist_temp x
     LEFT JOIN user_info ui ON ui.user_id = x.session_userid
+	LEFT JOIN service_members sm ON sm.user_id = x.session_userid
     ORDER BY x.action_tstamp_tx DESC
     LIMIT per_page OFFSET offset_value;
 END;

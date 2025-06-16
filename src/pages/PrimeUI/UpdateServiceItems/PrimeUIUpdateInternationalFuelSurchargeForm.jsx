@@ -7,7 +7,7 @@ import classnames from 'classnames';
 
 import styles from './PrimeUIUpdateInternationalFuelSurcharge.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';

@@ -3,13 +3,10 @@ import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import { statesList } from '../../../constants/states';
-
 import Hint from 'components/Hint/index';
 import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
-import { DropdownInput } from 'components/form/fields/DropdownInput';
 import LocationInput from 'components/form/fields/LocationInput';
 
 /**
@@ -30,7 +27,6 @@ export const AddressFields = ({
   name,
   render,
   validators,
-  locationLookup,
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
@@ -53,19 +49,25 @@ export const AddressFields = ({
   };
 
   const handleOnLocationChange = (value) => {
-    setFieldValue(`${name}.city`, value.city).then(() => {
+    const city = value ? value.city : null;
+    const state = value ? value.state : null;
+    const county = value ? value.county : null;
+    const postalCode = value ? value.postalCode : null;
+    const usPostRegionCitiesID = value ? value.usPostRegionCitiesID : null;
+
+    setFieldValue(`${name}.city`, city).then(() => {
       setFieldTouched(`${name}.city`, false);
     });
-    setFieldValue(`${name}.state`, value.state).then(() => {
+    setFieldValue(`${name}.state`, state).then(() => {
       setFieldTouched(`${name}.state`, false);
     });
-    setFieldValue(`${name}.county`, value.county).then(() => {
+    setFieldValue(`${name}.county`, county).then(() => {
       setFieldTouched(`${name}.county`, false);
     });
-    setFieldValue(`${name}.postalCode`, value.postalCode).then(() => {
+    setFieldValue(`${name}.postalCode`, postalCode).then(() => {
       setFieldTouched(`${name}.postalCode`, false);
     });
-    setFieldValue(`${name}.usPostRegionCitiesID`, value.usPostRegionCitiesID).then(() => {
+    setFieldValue(`${name}.usPostRegionCitiesID`, usPostRegionCitiesID).then(() => {
       setFieldTouched(`${name}.usPostRegionCitiesID`, true);
     });
   };
@@ -98,71 +100,43 @@ export const AddressFields = ({
             data-testid={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
-          {locationLookup && (
-            <>
-              <LocationInput
-                name={`${name}-location`}
-                placeholder="Start typing a Zip or City, State Zip"
-                label="Location Lookup"
-                handleLocationChange={handleOnLocationChange}
-              />
-              <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
-                {infoStr}
-                <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
-                  Technical Help Desk
-                </a>
-                {assistanceStr}
-              </Hint>
-            </>
-          )}
+          <LocationInput
+            name={`${name}`}
+            placeholder="Start typing a Zip or City, State Zip"
+            label="Location Lookup"
+            handleLocationChange={handleOnLocationChange}
+          />
+
+          <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
+            {infoStr}
+            <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+              Technical Help Desk
+            </a>
+            {assistanceStr}
+          </Hint>
           <div className={styles.container}>
             <div className={styles.column}>
-              {!locationLookup && (
-                <TextField
-                  label="City"
-                  id={`city_${addressFieldsUUID.current}`}
-                  name={`${name}.city`}
-                  labelHint={labelHintProp}
-                  data-testid={`${name}.city`}
-                  validate={validators?.city}
-                />
-              )}
-              {locationLookup && (
-                <>
-                  <TextField
-                    label="City"
-                    id={`city_${addressFieldsUUID.current}`}
-                    name={`${name}.city`}
-                    labelHint={labelHintProp}
-                    data-testid={`${name}.city`}
-                    display="readonly"
-                    validate={validators?.city}
-                  />
-                  <TextField
-                    label="State"
-                    id={`state_${addressFieldsUUID.current}`}
-                    name={`${name}.state`}
-                    data-testid={`${name}.state`}
-                    labelHint={labelHintProp}
-                    display="readonly"
-                    validate={validators?.state}
-                    styles="margin-top: 1.5em"
-                  />
-                </>
-              )}
+              <TextField
+                label="City"
+                id={`city_${addressFieldsUUID.current}`}
+                name={`${name}.city`}
+                labelHint={labelHintProp}
+                data-testid={`${name}.city`}
+                display="readonly"
+                validate={validators?.city}
+              />
+              <TextField
+                label="State"
+                id={`state_${addressFieldsUUID.current}`}
+                name={`${name}.state`}
+                data-testid={`${name}.state`}
+                labelHint={labelHintProp}
+                display="readonly"
+                validate={validators?.state}
+                styles="margin-top: 1.5em"
+              />
             </div>
             <div className={styles.column}>
-              {!locationLookup && (
-                <DropdownInput
-                  name={`${name}.state`}
-                  data-testid={`${name}.state`}
-                  id={`state_${addressFieldsUUID.current}`}
-                  label="State"
-                  labelHint={labelHintProp}
-                  options={statesList}
-                  validate={validators?.state}
-                />
-              )}
               <TextField
                 label="ZIP"
                 id={`zip_${addressFieldsUUID.current}`}
@@ -170,20 +144,18 @@ export const AddressFields = ({
                 data-testid={`${name}.postalCode`}
                 maxLength={10}
                 labelHint={labelHintProp}
-                display={!locationLookup ? '' : 'readonly'}
+                display="readonly"
                 validate={validators?.postalCode}
               />
-              {locationLookup && (
-                <TextField
-                  label="County"
-                  id={`county_${addressFieldsUUID.current}`}
-                  name={`${name}.county`}
-                  labelHint={labelHintProp}
-                  data-testid={`${name}.county`}
-                  display="readonly"
-                  validate={validators?.county}
-                />
-              )}
+              <TextField
+                label="County"
+                id={`county_${addressFieldsUUID.current}`}
+                name={`${name}.county`}
+                labelHint={labelHintProp}
+                data-testid={`${name}.county`}
+                display="readonly"
+                validate={validators?.county}
+              />
             </div>
           </div>
         </>,
@@ -197,7 +169,6 @@ AddressFields.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
-  locationLookup: PropTypes.bool,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
     streetAddress2: PropTypes.func,
@@ -220,7 +191,6 @@ AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
-  locationLookup: false,
   validators: {},
   address1LabelHint: null,
   formikProps: {},

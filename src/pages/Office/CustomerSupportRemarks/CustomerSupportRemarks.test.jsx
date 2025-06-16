@@ -40,7 +40,7 @@ describe('Customer support remarks page', () => {
     );
 
     // Verify headings
-    expect(screen.getByRole('heading', { name: 'Customer support remarks', level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Customer Support Remarks', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Remarks', level: 2 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Past remarks', level: 3 })).toBeInTheDocument();
 

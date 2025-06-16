@@ -581,6 +581,8 @@ describe('formatPpmShipmentForDisplay', () => {
       estimatedWeight: 9000,
       hasProGear: true,
       proGearWeight: 1000,
+      hasGunSafe: true,
+      gunSafeWeight: 500,
 
       estimatedIncentive: 400000,
       hasRequestedAdvance: true,
@@ -687,6 +689,8 @@ describe('formatPpmShipmentForAPI', () => {
       estimatedWeight: '7500',
       hasProGear: true,
       proGearWeight: '1000',
+      hasGunSafe: true,
+      gunSafeWeight: '500',
 
       advanceRequested: true,
       advance: '2000',
@@ -718,6 +722,7 @@ describe('formatPpmShipmentForAPI', () => {
     expect(ppmShipment.estimatedWeight).toEqual(7500);
     expect(ppmShipment.proGearWeight).toEqual(1000);
     expect(ppmShipment.spouseProGearWeight).toEqual(undefined);
+    expect(ppmShipment.gunSafeWeight).toEqual(500);
 
     expect(ppmShipment.hasRequestedAdvance).toEqual(true);
     expect(ppmShipment.advanceAmountRequested).toEqual(200000);
@@ -760,6 +765,7 @@ describe('formatPpmShipmentForAPI', () => {
 
     expect(ppmShipment.sitLocation).toEqual(undefined);
     expect(ppmShipment.proGearWeight).toEqual(undefined);
+    expect(ppmShipment.gunSafeWeight).toEqual(undefined);
   });
 });
 describe('getMtoShipmentLabel', () => {

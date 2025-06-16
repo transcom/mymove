@@ -80,7 +80,7 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async moveDetails() {
-    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move Details');
   }
 
   /**
@@ -94,7 +94,7 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async moveTaskOrder() {
-    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move task order');
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move Task Order');
   }
 
   /**

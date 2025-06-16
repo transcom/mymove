@@ -8,7 +8,7 @@ import styles from './CreatePaymentRequestForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import { ErrorMessage } from 'components/form/ErrorMessage';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import Hint from 'components/Hint/index';
@@ -89,7 +89,10 @@ const CreatePaymentRequestForm = ({
                             />
                           </div>
                           <ServiceItem serviceItem={mtoServiceItem} mtoShipment={mtoShipment} />
-                          {(mtoServiceItem.reServiceCode === 'DDASIT' || mtoServiceItem.reServiceCode === 'DOASIT') && (
+                          {(mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDASIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOASIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IDASIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IOASIT) && (
                             <>
                               <TextField
                                 id={`${mtoServiceItem.id}-billedWeight`}
@@ -139,6 +142,8 @@ const CreatePaymentRequestForm = ({
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOSHUT ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDFSIT ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDDSIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IDFSIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IOASIT ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOP ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDP ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DPK ||

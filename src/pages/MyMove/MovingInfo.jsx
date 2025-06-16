@@ -13,7 +13,7 @@ import styles from './MovingInfo.module.scss';
 
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import { formatUBAllowanceWeight, formatWeight } from 'utils/formatters';
 import { selectCurrentOrders, selectServiceMemberFromLoggedInUser, selectUbAllowance } from 'store/entities/selectors';

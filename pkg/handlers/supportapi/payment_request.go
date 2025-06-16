@@ -441,7 +441,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				}
 				appCtx.Logger().Info("Successfully processed 997 responses")
 
-				_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, time.Time{}, invoice.NewEDI824Processor())
+				_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, time.Time{}, invoice.NewEDI824Processor(nil))
 				if err != nil {
 					appCtx.Logger().Error("Error reading 824 responses", zap.Error(err))
 					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(

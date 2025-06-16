@@ -7,6 +7,12 @@ import PPMShipmentCard from './PPMShipmentCard';
 import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 import transportationOfficeFactory from 'utils/test/factories/transportationOffice';
 import affiliations from 'content/serviceMemberAgencies';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const defaultProps = {
   showEditAndDeleteBtn: true,
@@ -89,6 +95,7 @@ const completeProps = {
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
       estimatedWeight: 5999,
       proGearWeight: 1250,
+      gunSafeWeight: 222,
       spouseProGearWeight: 375,
       estimatedIncentive: 1000099,
       hasRequestedAdvance: true,
@@ -136,8 +143,9 @@ const incompleteProps = {
 };
 
 describe('PPMShipmentCard component', () => {
-  it('renders component with all fields', () => {
-    render(<PPMShipmentCard {...completeProps} />);
+  it('renders component with all fields', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    await render(<PPMShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
     expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
@@ -147,7 +155,7 @@ describe('PPMShipmentCard component', () => {
 
     const descriptionDefinitions = screen.getAllByRole('definition');
 
-    expect(descriptionDefinitions.length).toBe(11);
+    expect(descriptionDefinitions.length).toBe(12);
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
@@ -159,6 +167,7 @@ describe('PPMShipmentCard component', () => {
       ['Estimated weight', '5,999 lbs'],
       ['Pro-gear', 'Yes, 1,250 lbs'],
       ['Spouse pro-gear', 'Yes, 375 lbs'],
+      ['Gun safe', 'Yes, 222 lbs'],
       ['Estimated incentive', '$10,000'],
       ['Advance', 'Yes, $6,000'],
     ];
@@ -178,8 +187,9 @@ describe('PPMShipmentCard component', () => {
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}PPM`);
   });
 
-  it('renders component with incomplete fields', () => {
-    render(<PPMShipmentCard {...defaultProps} />);
+  it('renders component with incomplete fields', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    await render(<PPMShipmentCard {...defaultProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
     expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
@@ -189,7 +199,7 @@ describe('PPMShipmentCard component', () => {
 
     const descriptionDefinitions = screen.getAllByRole('definition');
 
-    expect(descriptionDefinitions.length).toBe(9);
+    expect(descriptionDefinitions.length).toBe(10);
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
@@ -199,6 +209,7 @@ describe('PPMShipmentCard component', () => {
       ['Estimated weight', '0 lbs'],
       ['Pro-gear', 'No'],
       ['Spouse pro-gear', 'No'],
+      ['Gun safe', 'No'],
       ['Estimated incentive', '$0'],
       ['Advance', 'No'],
     ];

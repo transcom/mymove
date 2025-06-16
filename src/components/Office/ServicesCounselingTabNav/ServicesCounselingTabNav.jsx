@@ -8,7 +8,6 @@ import styles from './ServicesCounselingTabNav.module.scss';
 
 import 'styles/office.scss';
 import TabNav from 'components/TabNav';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServicesCounselingTabNav = ({
   shipmentWarnConcernCount = 0,
@@ -16,14 +15,6 @@ const ServicesCounselingTabNav = ({
   missingOrdersInfoCount,
   moveCode,
 }) => {
-  const [supportingDocsFF, setSupportingDocsFF] = React.useState(false);
-  React.useEffect(() => {
-    const fetchData = async () => {
-      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
-    };
-    fetchData();
-  }, []);
-
   let moveDetailsTagCount = 0;
   if (shipmentWarnConcernCount > 0) {
     moveDetailsTagCount += shipmentWarnConcernCount;
@@ -42,7 +33,7 @@ const ServicesCounselingTabNav = ({
       to={`/counseling/moves/${moveCode}/details`}
       data-testid="MoveDetails-Tab"
     >
-      <span className="tab-title">Move details</span>
+      <span className="tab-title">Move Details</span>
       {moveDetailsTagCount > 0 && <Tag>{moveDetailsTagCount}</Tag>}
     </NavLink>,
     <NavLink
@@ -58,7 +49,7 @@ const ServicesCounselingTabNav = ({
       className={({ isActive }) => (isActive ? 'usa-current' : '')}
       to={`/counseling/moves/${moveCode}/customer-support-remarks`}
     >
-      <span className="tab-title">Customer support remarks</span>
+      <span className="tab-title">Customer Support Remarks</span>
     </NavLink>,
     <NavLink
       end
@@ -66,29 +57,21 @@ const ServicesCounselingTabNav = ({
       to={`/counseling/moves/${moveCode}/history`}
       data-testid="MoveHistory-Tab"
     >
-      <span className="tab-title">Move history</span>
+      <span className="tab-title">Move History</span>
+    </NavLink>,
+    <NavLink
+      end
+      className={({ isActive }) => (isActive ? 'usa-current' : '')}
+      to="supporting-documents"
+      data-testid="SupportingDocuments-Tab"
+    >
+      <span className="tab-title">Supporting Documents</span>
     </NavLink>,
   ];
 
-  if (supportingDocsFF)
-    items.push(
-      <NavLink
-        end
-        className={({ isActive }) => (isActive ? 'usa-current' : '')}
-        to="supporting-documents"
-        data-testid="SupportingDocuments-Tab"
-      >
-        <span className="tab-title">Supporting Documents</span>
-      </NavLink>,
-    );
-
   return (
     <header className="nav-header">
-      <div
-        className={
-          supportingDocsFF ? classnames('grid-container-desktop-lg', styles.TabNav) : 'grid-container-desktop-lg'
-        }
-      >
+      <div className={classnames('grid-container-desktop-lg', styles.TabNav)}>
         <TabNav items={items} />
       </div>
     </header>

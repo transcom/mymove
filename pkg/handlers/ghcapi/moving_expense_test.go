@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 
@@ -23,6 +24,125 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
+
+func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
+	// Reusable objects
+	movingExpenseCreator := movingexpenseservice.NewMovingExpenseCreator()
+
+	type movingExpenseCreateSubtestData struct {
+		ppmShipment models.PPMShipment
+		params      movingexpenseops.CreateMovingExpenseParams
+		handler     CreateMovingExpenseHandler
+	}
+
+	makeCreateSubtestData := func(authenticateRequest bool, closeoutForCustomerFeatureFlag bool) (subtestData movingExpenseCreateSubtestData) {
+
+		subtestData.ppmShipment = factory.BuildPPMShipment(suite.DB(), nil, nil)
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense", subtestData.ppmShipment.ID.String())
+		req := httptest.NewRequest("POST", endpoint, nil)
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+
+		if authenticateRequest {
+			req = suite.AuthenticateOfficeRequest(req, officeUser)
+		}
+
+		subtestData.params = movingexpenseops.CreateMovingExpenseParams{
+			HTTPRequest:   req,
+			PpmShipmentID: *handlers.FmtUUID(subtestData.ppmShipment.ID),
+		}
+
+		closeoutForCustomerFF := services.FeatureFlag{
+			Key:   "complete_ppm_closeout_for_customer",
+			Match: false,
+		}
+
+		handlerConfig := suite.HandlerConfig()
+		if !closeoutForCustomerFeatureFlag {
+			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+				mock.Anything,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(closeoutForCustomerFF, nil)
+			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		}
+
+		subtestData.handler = CreateMovingExpenseHandler{
+			handlerConfig,
+			movingExpenseCreator,
+		}
+
+		return subtestData
+	}
+	suite.Run("Successfully Create Moving Expense - Integration Test", func() {
+		subtestData := makeCreateSubtestData(true, true)
+
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&movingexpenseops.CreateMovingExpenseCreated{}, response)
+
+		createdMovingExpense := response.(*movingexpenseops.CreateMovingExpenseCreated).Payload
+
+		suite.NotEmpty(createdMovingExpense.ID.String())
+		suite.Equal(createdMovingExpense.PpmShipmentID.String(), subtestData.ppmShipment.ID.String())
+		suite.NotNil(createdMovingExpense.DocumentID.String())
+	})
+
+	suite.Run("POST failure - 400- bad request", func() {
+		subtestData := makeCreateSubtestData(true, true)
+
+		params := subtestData.params
+		// Missing PPM Shipment ID
+		params.PpmShipmentID = ""
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.CreateMovingExpenseBadRequest{}, response)
+	})
+
+	suite.Run("POST failure -401 - Unauthorized - unauthenticated user", func() {
+		// user is unauthenticated to trigger 401
+		subtestData := makeCreateSubtestData(false, true)
+
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&movingexpenseops.CreateMovingExpenseUnauthorized{}, response)
+	})
+
+	suite.Run("POST failure - 422 - FF off", func() {
+		subtestData := makeCreateSubtestData(true, false)
+
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&movingexpenseops.CreateMovingExpenseUnprocessableEntity{}, response)
+		errResponse := response.(*movingexpenseops.CreateMovingExpenseUnprocessableEntity)
+
+		suite.Contains(*errResponse.Payload.Detail, "Moving expenses cannot be created unless the complete_ppm_closeout_for_customer feature flag is enabled.")
+	})
+
+	suite.Run("Post failure - 500 - Server Error", func() {
+		mockCreator := mocks.MovingExpenseCreator{}
+		subtestData := makeCreateSubtestData(true, true)
+		params := subtestData.params
+		serverErr := errors.New("ServerError")
+
+		// return a server error
+		mockCreator.On("CreateMovingExpense",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, serverErr)
+
+		handler := CreateMovingExpenseHandler{
+			suite.HandlerConfig(),
+			&mockCreator,
+		}
+
+		response := handler.Handle(params)
+		// Check the type to test the server error
+		suite.IsType(&movingexpenseops.CreateMovingExpenseInternalServerError{}, response)
+	})
+}
 
 func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 	var ppmShipment models.PPMShipment
@@ -583,5 +703,165 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 				suite.Contains(fieldErrors, "reason is mandatory if the status is Excluded or Rejected")
 			}
 		})
+	})
+}
+
+func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
+	// Create Reusable objects
+	movingExpenseDeleter := movingexpenseservice.NewMovingExpenseDeleter()
+
+	type movingExpenseDeleteSubtestData struct {
+		ppmShipment   models.PPMShipment
+		movingExpense models.MovingExpense
+		params        movingexpenseops.DeleteMovingExpenseParams
+		handler       DeleteMovingExpenseHandler
+		officeUser    models.OfficeUser
+	}
+	makeDeleteSubtestData := func(authenticateRequest bool, closeoutForCustomerFeatureFlag bool) (subtestData movingExpenseDeleteSubtestData) {
+		// Fake data:
+		subtestData.movingExpense = factory.BuildMovingExpense(suite.DB(), nil, nil)
+		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		subtestData.officeUser = officeUser
+
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expenses/%s", subtestData.ppmShipment.ID.String(), subtestData.movingExpense.ID.String())
+		req := httptest.NewRequest("DELETE", endpoint, nil)
+		if authenticateRequest {
+			req = suite.AuthenticateOfficeRequest(req, officeUser)
+		}
+		subtestData.params = movingexpenseops.DeleteMovingExpenseParams{
+			HTTPRequest:     req,
+			PpmShipmentID:   *handlers.FmtUUID(subtestData.ppmShipment.ID),
+			MovingExpenseID: *handlers.FmtUUID(subtestData.movingExpense.ID),
+		}
+
+		closeoutForCustomerFF := services.FeatureFlag{
+			Key:   "complete_ppm_closeout_for_customer",
+			Match: false,
+		}
+
+		handlerConfig := suite.HandlerConfig()
+		if !closeoutForCustomerFeatureFlag {
+			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+				mock.Anything,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(closeoutForCustomerFF, nil)
+			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+			subtestData.handler = DeleteMovingExpenseHandler{
+				handlerConfig,
+				movingExpenseDeleter,
+			}
+		} else {
+			// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
+			subtestData.handler = DeleteMovingExpenseHandler{
+				suite.createS3HandlerConfig(),
+				movingExpenseDeleter,
+			}
+		}
+
+		return subtestData
+	}
+
+	suite.Run("Successfully Delete Moving Expense - Integration Test", func() {
+		subtestData := makeDeleteSubtestData(true, true)
+
+		params := subtestData.params
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseNoContent{}, response)
+	})
+
+	suite.Run("DELETE failure - 401 - permission denied - not authenticated", func() {
+		subtestData := makeDeleteSubtestData(false, true)
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseUnauthorized{}, response)
+	})
+
+	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
+		subtestData := makeDeleteSubtestData(false, true)
+
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseForbidden{}, response)
+	})
+
+	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
+		subtestData := makeDeleteSubtestData(false, true)
+		officeUser := subtestData.officeUser
+
+		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseNotFound{}, response)
+	})
+
+	suite.Run("DELETE failure - 404 - not found", func() {
+		subtestData := makeDeleteSubtestData(true, true)
+		params := subtestData.params
+		// Wrong ID provided
+		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
+		params.MovingExpenseID = *uuidString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseNotFound{}, response)
+	})
+
+	suite.Run("POST failure - 422 - FF off", func() {
+		subtestData := makeDeleteSubtestData(true, false)
+
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseUnprocessableEntity{}, response)
+		errResponse := response.(*movingexpenseops.DeleteMovingExpenseUnprocessableEntity)
+
+		suite.Contains(*errResponse.Payload.Detail, "Moving expenses cannot be deleted unless the complete_ppm_closeout_for_customer feature flag is enabled.")
+	})
+
+	suite.Run("DELETE failure - 500 - server error", func() {
+		mockDeleter := mocks.MovingExpenseDeleter{}
+		subtestData := makeDeleteSubtestData(true, true)
+		params := subtestData.params
+
+		err := errors.New("ServerError")
+
+		mockDeleter.On("DeleteMovingExpense",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(err)
+
+		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
+		handler := DeleteMovingExpenseHandler{
+			suite.createS3HandlerConfig(),
+			&mockDeleter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseInternalServerError{}, response)
 	})
 }

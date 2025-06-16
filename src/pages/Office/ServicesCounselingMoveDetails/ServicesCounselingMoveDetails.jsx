@@ -221,7 +221,8 @@ const ServicesCounselingMoveDetails = ({
 
     const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const nonPpmApprovedShipments = nonPpmShipments.filter(
-      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+      (shipment) =>
+        shipment?.status === shipmentStatuses.APPROVED || shipment?.status === shipmentStatuses.APPROVALS_REQUESTED,
     );
     const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
       (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,
@@ -417,6 +418,7 @@ const ServicesCounselingMoveDetails = ({
     totalWeight: allowances.totalWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
+    gunSafeWeight: allowances.gunSafeWeight,
     storageInTransit: allowances.storageInTransit,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
@@ -791,7 +793,7 @@ const ServicesCounselingMoveDetails = ({
               </Grid>
             )}
             <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
-              <h1>Move details</h1>
+              <h1>Move Details</h1>
               {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
                 <div>
                   {(counselorCanEdit || counselorCanEditNonPPM) && (

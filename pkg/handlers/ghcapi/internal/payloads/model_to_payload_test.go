@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -269,9 +270,9 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 		},
 		{
 			Model: models.User{
-				Privileges: []models.Privilege{
+				Privileges: []roles.Privilege{
 					{
-						PrivilegeType: models.PrivilegeTypeSupervisor,
+						PrivilegeType: roles.PrivilegeTypeSupervisor,
 					},
 				},
 				Roles: []roles.Role{
@@ -393,12 +394,53 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	}
 
 	isActualExpenseReimbursement := true
+	emptyWeight1 := unit.Pound(1000)
+	emptyWeight2 := unit.Pound(1200)
+	fullWeight1 := unit.Pound(1500)
+	fullWeight2 := unit.Pound(1500)
+	pgBoolCustomer := true
+	pgBoolSpouse := false
+	weightCustomer := unit.Pound(100)
+	weightSpouse := unit.Pound(120)
+	finalIncentive := unit.Cents(20000)
+
+	weightTickets := models.WeightTickets{
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight1,
+			FullWeight:  &fullWeight1,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight2,
+			FullWeight:  &fullWeight2,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+	}
+	proGearWeightTickets := models.ProgearWeightTickets{
+		models.ProgearWeightTicket{
+			BelongsToSelf: &pgBoolCustomer,
+			Weight:        &weightCustomer,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
+		models.ProgearWeightTicket{
+			BelongsToSelf: &pgBoolSpouse,
+			Weight:        &weightSpouse,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
+	}
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
+		WeightTickets:                weightTickets,
+		ProgearWeightTickets:         proGearWeightTickets,
+		FinalIncentive:               &finalIncentive,
 	}
 
 	suite.Run("Success -", func() {
@@ -423,6 +465,9 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(len(returnedPPMShipment.WeightTickets), 2)
+		suite.Equal(ProGearWeightTickets(suite.storer, proGearWeightTickets), returnedPPMShipment.ProGearWeightTickets)
+		suite.Equal(handlers.FmtCost(&finalIncentive), returnedPPMShipment.FinalIncentive)
 	})
 
 	suite.Run("Destination street address 1 returns empty string to convey OPTIONAL state ", func() {
@@ -759,6 +804,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	privatelyOwnedVehicle := true
 	proGearWeight := 1000
 	proGearWeightSpouse := 500
+	gunSafeWeight := 300
 	storageInTransit := 90
 	totalDependents := 2
 	requiredMedicalEquipmentWeight := 200
@@ -778,6 +824,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               &storageInTransit,
 		TotalDependents:                &totalDependents,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
@@ -803,6 +850,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UnaccompaniedBaggageAllowance))
 	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
 	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(int64(gunSafeWeight), returnedEntitlement.GunSafeWeight)
 	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
 	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
 	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
@@ -1805,6 +1853,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 	intlUnpackPrice := unit.Cents(14000)
 	intlLinehaulPrice := unit.Cents(13000)
 	sitReimbursement := unit.Cents(12000)
+	gccMultiplier := float64(1.3)
 
 	ppmCloseout := models.PPMCloseout{
 		ID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
@@ -1830,6 +1879,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 		IntlUnpackPrice:       &intlUnpackPrice,
 		IntlLinehaulPrice:     &intlLinehaulPrice,
 		SITReimbursement:      &sitReimbursement,
+		GCCMultiplier:         &gccMultiplier,
 	}
 
 	payload := PPMCloseout(&ppmCloseout)
@@ -1857,6 +1907,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 	suite.Equal(handlers.FmtCost(ppmCloseout.IntlUnpackPrice), payload.IntlUnpackPrice)
 	suite.Equal(handlers.FmtCost(ppmCloseout.IntlLinehaulPrice), payload.IntlLinehaulPrice)
 	suite.Equal(handlers.FmtCost(ppmCloseout.SITReimbursement), payload.SITReimbursement)
+	suite.Equal(swag.Float32(float32(*ppmCloseout.GCCMultiplier)), payload.GccMultiplier)
 }
 
 func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {
@@ -2437,4 +2488,78 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 			}
 		}
 	})
+}
+
+func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				Roles: []roles.Role{{RoleType: roles.RoleTypeTOO}},
+			},
+		},
+	}, nil)
+
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{Show: models.BoolPointer(true)},
+		},
+	}, nil)
+
+	d1 := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(2025, time.February, 1, 0, 0, 0, 0, time.UTC)
+	d3 := time.Date(2025, time.March, 1, 0, 0, 0, 0, time.UTC)
+
+	sh3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d3,
+			RequestedDeliveryDate: &d3,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d2,
+			RequestedDeliveryDate: &d2,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d1,
+			RequestedDeliveryDate: &d1,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	// attach them to the move (in reversed order to prove sorting)
+	move.MTOShipments = models.MTOShipments{sh3, sh2, sh1}
+
+	queueMoves := *QueueMoves(
+		models.Moves{move},
+		nil,
+		nil,
+		officeUser,
+		nil,
+		string(roles.RoleTypeTOO),
+		string(models.QueueTypeTaskOrder),
+	)
+
+	suite.Require().Len(queueMoves, 1)
+	q := queueMoves[0]
+
+	// earliest date should be Jan 1 2025
+	expectedDate := strfmt.Date(d1)
+	suite.Equal(expectedDate, *q.RequestedMoveDate)
+
+	// all dates sorted and joined with ", "
+	suite.Require().NotNil(q.RequestedMoveDates)
+	suite.Equal("Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDates)
 }

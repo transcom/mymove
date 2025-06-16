@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { CheckboxGroupInput } from 'react-admin';
-
-import { adminOfficeRoles, roleTypes } from 'constants/userRoles';
-import { officeUserPrivileges, elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { useRolesPrivilegesQueries } from 'hooks/queries';
+import { roleTypes } from 'constants/userRoles';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 const RolesPrivilegesCheckboxInput = (props) => {
+  const { adminUser, validate } = props;
+  const { result } = useRolesPrivilegesQueries();
+  const { rolesWithPrivs, privileges } = result;
+  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
+
   let rolesSelected = [];
   let privilegesSelected = [];
-  const { adminUser } = props;
 
-  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
+  const listFormatter = new Intl.ListFormat('en', {
+    style: 'long',
+    type: 'conjunction',
+  });
 
   useEffect(() => {
     isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
@@ -18,11 +25,27 @@ const RolesPrivilegesCheckboxInput = (props) => {
     });
   }, []);
 
+  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime'); // Prime isn't an office role
+
+  const allowedRolesByPrivilege = rolesWithPrivs.reduce((acc, role) => {
+    role.allowedPrivileges.forEach((priv) => {
+      if (!acc[priv]) acc[priv] = new Set();
+      acc[priv].add(role.roleType);
+    });
+    return acc;
+  }, {});
+
+  const allowedPrivilegesByRole = rolesWithPrivs.reduce((acc, { roleType, allowedPrivileges }) => {
+    acc[roleType] = new Set(allowedPrivileges);
+    return acc;
+  }, {});
+
   const makeRoleTypeArray = (roles) => {
     if (!roles || roles.length === 0) {
       rolesSelected = [];
       return undefined;
     }
+
     return roles.reduce((rolesArray, role) => {
       if (role.roleType) {
         if (isHeadquartersRoleFF || (!isHeadquartersRoleFF && role.roleType !== roleTypes.HQ)) {
@@ -36,92 +59,25 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parseRolesCheckboxInput = (input) => {
-    let index;
-    if (privilegesSelected.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
-      if (input.includes(roleTypes.CUSTOMER)) {
-        index = input.indexOf(roleTypes.CUSTOMER);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.CONTRACTING_OFFICER)) {
-        index = input.indexOf(roleTypes.CONTRACTING_OFFICER);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.PRIME_SIMULATOR)) {
-        index = input.indexOf(roleTypes.PRIME_SIMULATOR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.QAE)) {
-        index = input.indexOf(roleTypes.QAE);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE)) {
-        index = input.indexOf(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.GSR)) {
-        index = input.indexOf(roleTypes.GSR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.HQ)) {
-        index = input.indexOf(roleTypes.HQ);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
+    let result = [...input];
+
+    if (!isHeadquartersRoleFF) {
+      const idx = result.indexOf(roleTypes.HQ);
+      if (idx !== -1) result.splice(idx, 1);
     }
 
-    if (privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)) {
-      if (input.includes(roleTypes.CUSTOMER)) {
-        index = input.indexOf(roleTypes.CUSTOMER);
-        if (index !== -1) {
-          input.splice(index, 1);
+    privilegesSelected.forEach((privType) => {
+      const allowed = allowedRolesByPrivilege[privType] || new Set();
+      let i = 0;
+      while (i < result.length) {
+        if (!allowed.has(result[i])) {
+          result.splice(i, 1);
+        } else {
+          i++;
         }
       }
-      if (input.includes(roleTypes.CONTRACTING_OFFICER)) {
-        index = input.indexOf(roleTypes.CONTRACTING_OFFICER);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.PRIME_SIMULATOR)) {
-        index = input.indexOf(roleTypes.PRIME_SIMULATOR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.GSR)) {
-        index = input.indexOf(roleTypes.GSR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-    }
-
-    if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
-      if (input.includes(roleTypes.HQ)) {
-        index = input.indexOf(roleTypes.HQ);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-    }
-
-    return input.reduce((rolesArray, role) => {
-      rolesArray.push(adminOfficeRoles.find((adminOfficeRole) => adminOfficeRole.roleType === role));
-      return rolesArray;
-    }, []);
+    });
+    return result.map((rt) => rolesWithPrivs.find((r) => r.roleType === rt));
   };
 
   const makePrivilegesArray = (privileges) => {
@@ -129,6 +85,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
       privilegesSelected = [];
       return undefined;
     }
+
     return privileges.reduce((privilegesArray, privilege) => {
       if (privilege.privilegeType) {
         privilegesArray.push(privilege.privilegeType);
@@ -140,46 +97,24 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parsePrivilegesCheckboxInput = (input) => {
-    let index;
-    if (
-      rolesSelected.includes(roleTypes.CUSTOMER) ||
-      rolesSelected.includes(roleTypes.CONTRACTING_OFFICER) ||
-      rolesSelected.includes(roleTypes.PRIME_SIMULATOR) ||
-      rolesSelected.includes(roleTypes.QAE) ||
-      rolesSelected.includes(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) ||
-      rolesSelected.includes(roleTypes.GSR) ||
-      rolesSelected.includes(roleTypes.HQ)
-    ) {
-      if (input.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
-        index = input.indexOf(elevatedPrivilegeTypes.SUPERVISOR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-    }
-    if (
-      rolesSelected.includes(roleTypes.CUSTOMER) ||
-      rolesSelected.includes(roleTypes.CONTRACTING_OFFICER) ||
-      rolesSelected.includes(roleTypes.PRIME_SIMULATOR) ||
-      rolesSelected.includes(roleTypes.GSR)
-    ) {
-      if (input.includes(elevatedPrivilegeTypes.SAFETY)) {
-        index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-    }
+    const result = [...input];
 
-    return input.reduce((privilegesArray, privilege) => {
-      privilegesArray.push(
-        officeUserPrivileges.find((officeUserPrivilege) => officeUserPrivilege.privilegeType === privilege),
-      );
-      return privilegesArray;
-    }, []);
+    rolesSelected.forEach((roleType) => {
+      const allowed = allowedPrivilegesByRole[roleType] || new Set();
+      let i = 0;
+      while (i < result.length) {
+        if (!allowed.has(result[i])) {
+          result.splice(i, 1);
+        } else {
+          i++;
+        }
+      }
+    });
+
+    return result.map((privType) => privileges.find((p) => p.privilegeType === privType));
   };
   // filter the privileges to exclude the Safety Moves checkbox if the admin user is NOT a super admin
-  const filteredPrivileges = officeUserPrivileges.filter((privilege) => {
+  const filteredPrivileges = privileges.filter((privilege) => {
     if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY && !adminUser?.super) {
       return false;
     }
@@ -192,28 +127,45 @@ const RolesPrivilegesCheckboxInput = (props) => {
         source="roles"
         format={makeRoleTypeArray}
         parse={parseRolesCheckboxInput}
-        choices={adminOfficeRoles}
+        choices={availableRoles}
         optionValue="roleType"
-        validate={props.validate}
+        optionText="roleName"
+        validate={validate}
       />
-
       <CheckboxGroupInput
         source="privileges"
         format={makePrivilegesArray}
         parse={parsePrivilegesCheckboxInput}
         choices={filteredPrivileges}
         optionValue="privilegeType"
+        optionText="privilegeName"
       />
-      <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold' }}>
-        The Supervisor privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
-        Officer, Services Counselor.
-      </span>
-      <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
-        The Safety Moves privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
-        Officer, Services Counselor, Quality Assurance Evaluator, Customer Service Representative, and Headquarters.
-      </span>
+
+      {filteredPrivileges.map(({ privilegeType, privilegeName }) => {
+        const allowedRoleTypes = Array.from(allowedRolesByPrivilege[privilegeType] || []);
+        const roleNames = allowedRoleTypes
+          .map((rt) => rolesWithPrivs.find((r) => r.roleType === rt)?.roleName)
+          .filter((name) => name);
+
+        if (roleNames.length === availableRoles.length) {
+          return null;
+        }
+        return (
+          <span
+            key={privilegeType}
+            style={{
+              marginTop: '-20px',
+              marginBottom: '20px',
+              fontWeight: 'bold',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            The {privilegeName} privilege can only be selected for the following roles:{' '}
+            {listFormatter.format(roleNames)}.
+          </span>
+        );
+      })}
     </>
   );
 };
-
 export { RolesPrivilegesCheckboxInput };

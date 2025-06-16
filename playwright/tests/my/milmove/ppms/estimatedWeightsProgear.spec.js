@@ -21,7 +21,7 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
     await expect(page.getByRole('heading', { name: 'Estimated weight' })).toBeVisible();
     await expect(page).toHaveURL(/\/estimated-weight/);
     await expect(page.locator('p[class="usa-alert__text"]')).toContainText(
-      'Total weight allowance for your move: 8,000 lbs',
+      'Remember: Your standard weight allowance is: 8,000 lbs. If you are moving to an administratively restricted HHG weight location this amount may be less. You will not be reimbursed for any excess weight you move.',
     );
 
     // missing required weight
@@ -120,7 +120,7 @@ test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear',
     await expect(page.getByRole('heading', { name: 'Estimated weight' })).toBeVisible();
     await expect(page).toHaveURL(/\/estimated-weight/);
     await expect(page.locator('p[class="usa-alert__text"]')).toContainText(
-      'Total weight allowance for your move: 8,000 lbs',
+      'Remember: Your standard weight allowance is: 8,000 lbs. If you are moving to an administratively restricted HHG weight location this amount may be less. You will not be reimbursed for any excess weight you move.',
     );
 
     // missing required weight

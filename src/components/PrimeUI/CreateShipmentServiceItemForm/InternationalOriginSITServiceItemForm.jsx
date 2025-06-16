@@ -83,12 +83,7 @@ const InternationalOriginSITServiceItemForm = ({ shipment, submission }) => {
             />
             <DatePickerInput label="SIT entry Date" name="sitEntryDate" />
             <DatePickerInput label="SIT departure Date" name="sitDepartureDate" />
-            <AddressFields
-              legend="SIT HHG actual origin"
-              name="sitHHGActualOrigin"
-              locationLookup
-              formikProps={formikProps}
-            />
+            <AddressFields legend="SIT HHG actual origin" name="sitHHGActualOrigin" formikProps={formikProps} />
             <Button onClick={handleSubmit} disabled={isSubmitting || !isValid} type="submit">
               Create service item
             </Button>

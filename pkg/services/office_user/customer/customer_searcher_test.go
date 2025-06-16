@@ -168,9 +168,9 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeSearchTypeSafety,
+							PrivilegeType: roles.PrivilegeSearchTypeSafety,
 						},
 					},
 					Roles: []roles.Role{

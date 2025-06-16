@@ -60,8 +60,6 @@ export const PPMShipmentShape = shape({
   submittedAt: string,
   reviewedAt: string,
   approvedAt: string,
-  actualPickupPostalCode: string,
-  actualDestinationPostalCode: string,
   sitExpected: bool,
   estimatedWeight: number,
   actualWeight: number,

@@ -84,7 +84,7 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	page1Data, page2Data, page3Data, err := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, isPaymentPacket)
+	page1Data, page2Data, page3Data, err := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(appCtx, *ssfd, isPaymentPacket)
 	if err != nil {
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
@@ -112,8 +112,8 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 
 	// Find move attached to PPM Shipment
 	move := models.Move(ppmShipment.Shipment.MoveTaskOrder)
-	// This function retrieves all orders and amendments, converts and merges them into one PDF with bookmarks
-	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move, false, dirName)
+	// This function retrieves all orders and amendments, converts and merges them into one PDF
+	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move, dirName)
 	if err != nil {
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}

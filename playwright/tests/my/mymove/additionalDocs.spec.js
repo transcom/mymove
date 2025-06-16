@@ -1,11 +1,9 @@
 import { test, expect } from '../../utils/my/customerTest';
 
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
-const manageSupportDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 
 test.describe('Additional Documents', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.skip(manageSupportDocsEnabled === 'false', 'Skip if manage supporting docs workflow is not enabled.');
 
   test('Users can download documents uploaded to Additional Documents', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
@@ -18,7 +16,7 @@ test.describe('Additional Documents', () => {
     await customerPage.waitForPage.home();
 
     // Go to the Upload Additional Documents page
-    await page.getByRole('button', { name: 'Upload Additional Documents' }).click();
+    await page.getByRole('button', { name: 'Upload/Manage Additional Documentation' }).click();
 
     // Upload document
     const filepondContainer = page.locator('.filepond--wrapper');

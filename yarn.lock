@@ -1198,11 +1198,9 @@
     regenerator-runtime "^0.14.0"
 
 "@babel/runtime@>=7.0.0", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.16.3", "@babel/runtime@^7.17.8", "@babel/runtime@^7.18.3", "@babel/runtime@^7.20.1", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.2", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
-  version "7.22.6"
-  resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.22.6.tgz"
-  integrity sha512-wDb5pWm4WDdF6LFUde3Jl8WzPA+3ZbxYqkC6xAXuD3irdEHN1k0NfTRrJD8ZD378SJ61miMLCqIOXYhd8x+AJQ==
-  dependencies:
-    regenerator-runtime "^0.13.11"
+  version "7.27.1"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.27.1.tgz#9fce313d12c9a77507f264de74626e87fd0dc541"
+  integrity sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==
 
 "@babel/template@^7.22.15", "@babel/template@^7.24.7", "@babel/template@^7.25.9", "@babel/template@^7.26.9", "@babel/template@^7.27.0", "@babel/template@^7.3.3":
   version "7.27.0"
@@ -4643,9 +4641,9 @@
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-2.0.0.tgz"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@transcom/react-file-viewer@github:transcom/react-file-viewer#v1.4.2":
-  version "1.4.2"
-  resolved "https://codeload.github.com/transcom/react-file-viewer/tar.gz/0b460d6a220a0c2517486187d1387eb609c4ac86"
+"@transcom/react-file-viewer@github:transcom/react-file-viewer#v1.4.3":
+  version "1.4.3"
+  resolved "https://codeload.github.com/transcom/react-file-viewer/tar.gz/353e021f0cd2f3ff72c51cae18f006688235ded9"
   dependencies:
     "@babel/plugin-proposal-class-static-block" "^7.21.0"
     comma-separated-values "^3.6.4"

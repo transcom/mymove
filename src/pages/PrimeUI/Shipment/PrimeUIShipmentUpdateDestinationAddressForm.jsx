@@ -4,7 +4,7 @@ import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { FormGroup } from '@material-ui/core';
 import classnames from 'classnames';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { Form } from 'components/form/Form';
@@ -57,7 +57,7 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
                     If any of those change, the address change will require TOO approval.
                   </div>
                 </SectionWrapper>
-                <AddressFields name={name} locationLookup formikProps={formikProps} />
+                <AddressFields name={name} formikProps={formikProps} />
                 <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
               </SectionWrapper>
               <WizardNavigation

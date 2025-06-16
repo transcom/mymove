@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	r "github.com/transcom/mymove/pkg/models/roles"
 	userroles "github.com/transcom/mymove/pkg/services/users_roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -36,7 +37,7 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 		"okta_email": {"OktaEmail can not be blank."},
 	}
 
-	suite.verifyValidationErrors(newUser, expErrors)
+	suite.verifyValidationErrors(newUser, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestCreateUser() {
@@ -137,7 +138,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(len(identity.Roles), 1)
 	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
 
-	supervisorPrivilege := factory.FetchOrBuildPrivilegeByPrivilegeType(suite.DB(), m.PrivilegeTypeSupervisor)
+	supervisorPrivilege := factory.FetchOrBuildPrivilegeByPrivilegeType(suite.DB(), r.PrivilegeTypeSupervisor)
 
 	sueOktaID := factory.MakeRandomString(20)
 	sue := factory.BuildUser(suite.DB(), []factory.Customization{
@@ -145,7 +146,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 			Model: m.User{
 				OktaID:     sueOktaID,
 				Active:     true,
-				Privileges: []models.Privilege{supervisorPrivilege},
+				Privileges: []roles.Privilege{supervisorPrivilege},
 			},
 		},
 	}, nil)

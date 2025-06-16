@@ -1,7 +1,6 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import EditOrders from './EditOrders';
 
@@ -431,19 +430,22 @@ describe('EditOrders Page', () => {
         origin_duty_location: 'Fort Gregg-Adams, VA 23801',
       });
     });
-    await userEvent.click(screen.getByTestId('hasDependentsYes'));
-    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
-    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    waitFor(() => {
+      userEvent.click(screen.getByTestId('hasDependentsYes'));
+      userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+      userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+      userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+    });
 
-    await act(async () => {
+    waitFor(() => {
+      const submitButton = screen.findByRole('button', { name: 'Save' });
+
+      expect(submitButton).toBeEnabled();
       userEvent.click(submitButton);
     });
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(patchOrders).toHaveBeenCalledWith(
         expect.objectContaining({
           accompanied_tour: true,

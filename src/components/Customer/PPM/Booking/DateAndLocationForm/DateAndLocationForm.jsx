@@ -6,7 +6,7 @@ import { Button, Form, Checkbox, Radio, FormGroup } from '@trussworks/react-uswd
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
@@ -23,6 +23,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import RequiredTag from 'components/form/RequiredTag';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import LoadingButton from 'components/LoadingButton/LoadingButton';
 
 let meta = '';
 
@@ -152,20 +153,28 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
           const { checked } = e.target;
           if (checked) {
             // use current residence
-            setValues({
-              ...values,
-              pickupAddress: {
-                address: residentialAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  ...values.pickup,
+                  address: residentialAddress,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           } else {
             // Revert address
-            setValues({
-              ...values,
-              pickupAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  ...values.pickup,
+                  address: blankAddress.address,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
@@ -176,17 +185,22 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues({
               ...values,
               destinationAddress: {
+                ...values.destinationAddress,
                 address: destinationDutyAddress,
               },
             });
           } else {
             // Revert address
-            setValues({
-              ...values,
-              destinationAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                destinationAddress: {
+                  ...values.destinationAddress,
+                  address: blankAddress.address,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
@@ -198,7 +212,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="pickupAddress.address"
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                   render={(fields) => (
                     <>
@@ -250,7 +263,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields
                             labelHint="Required"
                             name="secondaryPickupAddress.address"
-                            locationLookup
                             formikProps={formikProps}
                           />
                           <Hint className={ppmStyles.hint}>
@@ -319,7 +331,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             <AddressFields
                               labelHint="Required"
                               name="tertiaryPickupAddress.address"
-                              locationLookup
                               formikProps={formikProps}
                             />
                           </>
@@ -333,7 +344,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="destinationAddress.address"
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                   // White spaces are used specifically to override incoming labelHint prop
                   // not to display anything.
@@ -395,7 +405,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields
                             name="secondaryDestinationAddress.address"
                             labelHint="Required"
-                            locationLookup
                             formikProps={formikProps}
                           />
                           <Hint className={ppmStyles.hint}>
@@ -465,7 +474,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             <AddressFields
                               name="tertiaryDestinationAddress.address"
                               labelHint="Required"
-                              locationLookup
                               formikProps={formikProps}
                             />
                           </>
@@ -560,14 +568,15 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
-                <Button
-                  className={ppmStyles.saveButton}
+                <LoadingButton
+                  buttonClassName={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
-                >
-                  Save & Continue
-                </Button>
+                  disabled={isSubmitting || !isValid}
+                  isLoading={isSubmitting}
+                  labelText="Save & Continue"
+                  loadingText="Saving"
+                />
               </div>
             </Form>
           </div>
