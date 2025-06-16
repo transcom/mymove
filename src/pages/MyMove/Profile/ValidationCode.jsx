@@ -12,6 +12,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 export const ValidationCode = ({ onSuccess }) => {
   const [serverError, setServerError] = useState(null);
@@ -77,10 +78,12 @@ export const ValidationCode = ({ onSuccess }) => {
               return (
                 <Form className={formStyles.form}>
                   <h1>Please enter a validation code to begin creating a move</h1>
+                  {requiredAsteriskMessage}
                   <TextField
                     label="Validation code"
                     name="code"
                     id="code"
+                    showRequiredAsterisk
                     required
                     maxLength="20"
                     inputMode="numeric"
