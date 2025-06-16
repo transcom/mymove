@@ -2157,6 +2157,14 @@ definitions:
         example: false
         x-omitempty: false
         x-nullable: true
+      hasGunSafe:
+        description: >
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+      gunSafeWeight:
+        type: integer
+        x-nullable: true
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:

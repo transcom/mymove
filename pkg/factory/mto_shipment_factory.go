@@ -117,7 +117,11 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		newMTOShipment.CustomerRemarks = models.StringPointer("Please treat gently")
 
 		if shipmentHasPickupDetails {
-			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+			if cMtoShipment.RequestedPickupDate == nil {
+				newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+			} else {
+				newMTOShipment.RequestedPickupDate = cMtoShipment.RequestedPickupDate
+			}
 			if cMtoShipment.ScheduledPickupDate == nil {
 				newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
 			} else {
@@ -538,6 +542,16 @@ func GetTraitSubmittedShipment() []Customization {
 		{
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}
+}
+
+func GetTraitApprovalsRequestedShipment() []Customization {
+	return []Customization{
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}

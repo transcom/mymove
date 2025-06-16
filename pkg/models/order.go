@@ -80,7 +80,7 @@ type Order struct {
 	OriginDutyLocation             *DutyLocation                      `json:"origin_duty_location" belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
 	OriginDutyLocationID           *uuid.UUID                         `json:"origin_duty_location_id" db:"origin_duty_location_id"`
 	NewDutyLocationID              uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
-	NewDutyLocation                DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
+	NewDutyLocation                DutyLocation                       `json:"new_duty_location" belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
 	DestinationGBLOC               *string                            `json:"destination_duty_location_gbloc" db:"destination_gbloc"`
 	UploadedOrders                 Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
 	UploadedOrdersID               uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
@@ -104,6 +104,8 @@ type Order struct {
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
+	RankID                         *uuid.UUID                         `db:"rank_id"`
+	Rank                           *Rank                              `belongs_to:"ranks" fk_id:"rank_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -132,6 +134,31 @@ func (o *Order) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
 		&OptionalUUIDIsPresent{Field: o.OriginDutyLocationID, Name: "OriginDutyLocationID"},
 		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
+		// block * and " in TAC & SAC fields
+		&OptionalRegexMatch{
+			Name:    "TransportationAccountingCode",
+			Field:   o.TAC,
+			Expr:    `\A[^*"]*\z`,
+			Message: `TAC cannot contain * or " characters.`,
+		},
+		&OptionalRegexMatch{
+			Name:    "SAC",
+			Field:   o.SAC,
+			Expr:    `\A[^*"]*\z`,
+			Message: `SAC cannot contain * or " characters.`,
+		},
+		&OptionalRegexMatch{
+			Name:    "NtsTAC",
+			Field:   o.NtsTAC,
+			Expr:    `\A[^*"]*\z`,
+			Message: `NTS TAC cannot contain * or " characters.`,
+		},
+		&OptionalRegexMatch{
+			Name:    "NtsSAC",
+			Field:   o.NtsSAC,
+			Expr:    `\A[^*"]*\z`,
+			Message: `NTS SAC cannot contain * or " characters.`,
+		},
 		&validators.UUIDIsPresent{Field: o.UploadedOrdersID, Name: "UploadedOrdersID"},
 		&OptionalUUIDIsPresent{Field: o.UploadedAmendedOrdersID, Name: "UploadedAmendedOrdersID"},
 		&StringIsNilOrNotBlank{Field: o.OriginDutyLocationGBLOC, Name: "OriginDutyLocationGBLOC"},
