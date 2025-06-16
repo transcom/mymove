@@ -21,6 +21,11 @@ import { adminRoutes } from 'constants/routes';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
+// Helper to filter only SUPERVISOR privileges from a privileges array
+export function getFilteredPrivileges(privileges) {
+  return (privileges || []).filter((priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR);
+}
+
 const RequestedOfficeUserShowTitle = () => {
   const record = useRecordContext();
 
@@ -39,7 +44,7 @@ const RequestedOfficeUserShowRolesPrivileges = ({ recordSource, recordLabel, rec
   if (!record?.[recordSource]) return <p>{`This user has not requested any ${sourceLabel}.`}</p>;
   let items = record[recordSource] || [];
   if (recordSource === 'privileges') {
-    items = items.filter((priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR);
+    items = getFilteredPrivileges(items);
   }
   if (!items.length) return <p>{`This user has not requested any ${sourceLabel}.`}</p>;
 
@@ -129,19 +134,15 @@ const RequestedOfficeUserActionButtons = () => {
   // Handler for privilege confirmation dialog
   const handlePrivilegeConfirm = async () => {
     setApproveDialogOpen(false);
-    // Only include checked privileges in approval, and only SUPERVISOR privileges
-    const filteredPrivileges = (record.privileges || []).filter(
-      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
-    );
+    // Only include checked privileges in approval, and only SUPERVISOR privilege
+    const filteredPrivileges = getFilteredPrivileges(record.privileges);
     const approvedPrivileges = filteredPrivileges.filter((priv) => checkedPrivileges.includes(priv.id)) || [];
     await approve({ ...record, privileges: approvedPrivileges });
   };
 
   // Handler for Approve button click
   const handleOnClickApprove = () => {
-    const filteredPrivileges = (record.privileges || []).filter(
-      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
-    );
+    const filteredPrivileges = getFilteredPrivileges(record.privileges);
     if (isRequestAccountPrivilegesFF && filteredPrivileges.length) {
       setCheckedPrivileges(filteredPrivileges.map((priv) => priv.id));
       setApproveDialogOpen(true);
