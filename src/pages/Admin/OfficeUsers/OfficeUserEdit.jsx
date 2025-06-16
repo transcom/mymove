@@ -4,8 +4,6 @@ import {
   SimpleForm,
   TextInput,
   SelectInput,
-  Toolbar,
-  SaveButton,
   AutocompleteInput,
   ReferenceInput,
   ArrayInput,
@@ -14,20 +12,14 @@ import {
   useDataProvider,
   Button,
 } from 'react-admin';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import SaveToolbar from '../Shared/SaveToolbar';
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { roleTypes } from 'constants/userRoles';
 import { selectAdminUser } from 'store/entities/selectors';
-
-const OfficeUserEditToolbar = (props) => {
-  return (
-    <Toolbar {...props}>
-      <SaveButton />
-    </Toolbar>
-  );
-};
 
 const OfficeUserEdit = ({ adminUser }) => {
   const dataProvider = useDataProvider();
@@ -106,7 +98,7 @@ const OfficeUserEdit = ({ adminUser }) => {
   return (
     <Edit mutationMode="pessimistic">
       <SimpleForm
-        toolbar={<OfficeUserEditToolbar />}
+        toolbar={<SaveToolbar />}
         sx={{ '& .MuiInputBase-input': { width: 232 } }}
         mode="onSubmit"
         reValidateMode="onSubmit"
@@ -139,7 +131,7 @@ const OfficeUserEdit = ({ adminUser }) => {
                 size="extrasmall"
                 data-testid="addTransportationOfficeButton"
                 sx={{
-                  backgroundColor: '#1976d2',
+                  backgroundColor: '#005ea2',
                   '&:hover': {
                     backgroundColor: '#1565c0',
                   },
@@ -158,7 +150,10 @@ const OfficeUserEdit = ({ adminUser }) => {
                   '&:hover': {
                     backgroundColor: '#d23c0f',
                   },
+                  width: '100px',
                   color: 'white',
+                  visibility: 'visible',
+                  opacity: 1,
                 }}
                 label="remove"
               >

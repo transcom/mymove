@@ -14,6 +14,7 @@ BEGIN
             AND tablename NOT IN ('country_holidays',
                                   'country_weekends',
                                   'gbloc_aors',
+                                  'gcc_multipliers',
                                   'ghc_diesel_fuel_prices',
                                   'addresses',
                                   'hhg_allowances',
@@ -55,7 +56,8 @@ BEGIN
                                   'service_item_param_keys',
                                   'ub_allowances',
                                   'us_post_region_cities',
-                                  'zip3_distances'
+                                  'zip3_distances',
+                                  'ranks'
                                     ) order by tablename ) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;

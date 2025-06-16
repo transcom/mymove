@@ -746,3 +746,97 @@ describe('formatFullName', () => {
     expect(formatFullName('', '', '')).toBe('');
   });
 });
+
+describe('formatMoveHistoryGunSafe', () => {
+  const { formatMoveHistoryGunSafe } = formatters;
+
+  it('should convert gun_safe and gun_safe_weight to their corresponding authorized fields', () => {
+    const input = {
+      changedValues: {
+        gun_safe: true,
+        gun_safe_weight: 300,
+        some_other_field: 'value',
+      },
+    };
+
+    const result = formatMoveHistoryGunSafe(input);
+
+    expect(result.changedValues).toEqual({
+      gun_safe_authorized: true,
+      gun_safe_weight_allowance: 300,
+      some_other_field: 'value',
+    });
+
+    expect(result.changedValues.gun_safe).toBeUndefined();
+    expect(result.changedValues.gun_safe_weight).toBeUndefined();
+  });
+
+  it('should leave fields unchanged if gun_safe and gun_safe_weight are not present', () => {
+    const input = {
+      changedValues: {
+        some_field: 'test',
+      },
+    };
+
+    const result = formatMoveHistoryGunSafe(input);
+
+    expect(result.changedValues).toEqual({
+      some_field: 'test',
+    });
+  });
+
+  it('should not mutate the original input object', () => {
+    const input = {
+      changedValues: {
+        gun_safe: false,
+        gun_safe_weight: 150,
+      },
+    };
+
+    const cloned = JSON.parse(JSON.stringify(input));
+    formatMoveHistoryGunSafe(input);
+    expect(input).toEqual(cloned);
+  });
+});
+
+describe('calculateTotal', () => {
+  it('should calculate total with all available prices', () => {
+    const sectionInfo = {
+      haulPrice: 100,
+      haulFSC: 50,
+      packPrice: 150,
+      unpackPrice: 80,
+      dop: 200,
+      ddp: 300,
+      intlPackingPrice: 120,
+      intlUnpackPrice: 90,
+      intlLinehaulPrice: 100,
+      sitReimbursement: 250,
+    };
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('14.40');
+  });
+
+  it('should calculate total when some values are missing', () => {
+    const sectionInfo = {
+      haulPrice: 100,
+      haulFSC: 50,
+      packPrice: 150,
+      // Missing unpackPrice
+      dop: 200,
+      ddp: 300,
+      // Missing intlPackingPrice
+      intlUnpackPrice: 90,
+      intlLinehaulPrice: 100,
+      sitReimbursement: 250,
+    };
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('12.40');
+  });
+
+  it('should return $0.00 when no values are provided', () => {
+    const sectionInfo = {};
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('0.00');
+  });
+});

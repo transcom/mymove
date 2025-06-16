@@ -54,6 +54,7 @@ const ShipmentDisplay = ({
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
   const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
   const [ppmSprFF, setPpmSprFF] = useState(false);
+  const isDisabled = isMoveLocked || displayInfo.shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE;
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -107,7 +108,7 @@ const ShipmentDisplay = ({
                 label="&nbsp;"
                 value={shipmentId}
                 aria-labelledby={`shipment-display-label-${shipmentId}`}
-                disabled={disableApproval || isMoveLocked}
+                disabled={disableApproval || isDisabled}
               />
             )}
           </Restricted>
@@ -197,7 +198,7 @@ const ShipmentDisplay = ({
               data-testid={editURL}
               label="Edit shipment"
               secondary
-              disabled={isMoveLocked}
+              disabled={isDisabled}
             />
           )}
           {reviewURL && (
@@ -209,7 +210,7 @@ const ShipmentDisplay = ({
               data-testid={reviewURL}
               label="Review documents"
               secondary
-              disabled={isMoveLocked}
+              disabled={isDisabled}
             />
           )}
           {completePpmForCustomerURL && enableCompletePPMCloseoutForCustomer && (
@@ -220,7 +221,7 @@ const ShipmentDisplay = ({
               className={styles.editButton}
               data-testid="completePpmForCustomerBtn"
               secondary
-              disabled={isMoveLocked}
+              disabled={isDisabled}
             >
               Complete PPM on behalf of the Customer
             </Button>
@@ -250,7 +251,7 @@ const ShipmentDisplay = ({
             data-testid={viewURL}
             label="View documents"
             secondary
-            disabled={isMoveLocked}
+            disabled={isDisabled}
           />
         )}
       </ShipmentContainer>
