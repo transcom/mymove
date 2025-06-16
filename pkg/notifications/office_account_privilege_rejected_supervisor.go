@@ -43,7 +43,7 @@ func (o OfficeAccountPrivilegeRejectedSupervisor) emails(appCtx appcontext.AppCo
 		return emails, err
 	}
 
-	htmlBody, textBody, err := o.renderTemplates(appCtx, officeAccountPrivilegeRejectedSupervisorEmailData{
+	htmlBody, textBody, err := o.renderTemplates(appCtx, OfficeAccountPrivilegeRejectedSupervisorEmailData{
 		FirstName:     officeUser.FirstName,
 		LastName:      officeUser.LastName,
 		HelpDeskEmail: "usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil",
@@ -66,7 +66,7 @@ func (o OfficeAccountPrivilegeRejectedSupervisor) emails(appCtx appcontext.AppCo
 	return append(emails, officeUserEmail), nil
 }
 
-func (o OfficeAccountPrivilegeRejectedSupervisor) renderTemplates(appCtx appcontext.AppContext, data officeAccountPrivilegeRejectedSupervisorEmailData) (string, string, error) {
+func (o OfficeAccountPrivilegeRejectedSupervisor) renderTemplates(appCtx appcontext.AppContext, data OfficeAccountPrivilegeRejectedSupervisorEmailData) (string, string, error) {
 	htmlBody, err := o.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
@@ -78,13 +78,13 @@ func (o OfficeAccountPrivilegeRejectedSupervisor) renderTemplates(appCtx appcont
 	return htmlBody, textBody, nil
 }
 
-type officeAccountPrivilegeRejectedSupervisorEmailData struct {
+type OfficeAccountPrivilegeRejectedSupervisorEmailData struct {
 	FirstName     string
 	LastName      string
 	HelpDeskEmail string
 }
 
-func (o OfficeAccountPrivilegeRejectedSupervisor) RenderHTML(appCtx appcontext.AppContext, data officeAccountPrivilegeRejectedSupervisorEmailData) (string, error) {
+func (o OfficeAccountPrivilegeRejectedSupervisor) RenderHTML(appCtx appcontext.AppContext, data OfficeAccountPrivilegeRejectedSupervisorEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := o.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render html template ", zap.Error(err))
@@ -92,7 +92,7 @@ func (o OfficeAccountPrivilegeRejectedSupervisor) RenderHTML(appCtx appcontext.A
 	return htmlBuffer.String(), nil
 }
 
-func (o OfficeAccountPrivilegeRejectedSupervisor) RenderText(appCtx appcontext.AppContext, data officeAccountPrivilegeRejectedSupervisorEmailData) (string, error) {
+func (o OfficeAccountPrivilegeRejectedSupervisor) RenderText(appCtx appcontext.AppContext, data OfficeAccountPrivilegeRejectedSupervisorEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := o.textTemplate.Execute(&textBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render text template ", zap.Error(err))

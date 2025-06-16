@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -361,17 +362,22 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 					}
 				}
 
+				isSupervisorPrivilegeRejected := false
 				if requestedOfficeUser.UserID != nil && body.Privileges != nil {
 					updatedPrivileges := privilegesPayloadToModel(body.Privileges)
 					if _, err := h.UserPrivilegeAssociator.UpdateUserPrivileges(txAppCtx, *requestedOfficeUser.UserID, updatedPrivileges); err != nil {
 						txAppCtx.Logger().Error("Error updating user privileges", zap.Error(err))
 						return err
 					}
-					if err = h.NotificationSender().SendNotification(txAppCtx, notifications.NewOfficeAccountPrivilegeRejectedSupervisor(requestedOfficeUser.ID)); err != nil {
-						txAppCtx.Logger().Error("Error sending supervisor privilege rejection email", zap.Error(err))
-						return apperror.NewBadDataError("problem sending supervisor privilege rejection email to office user")
+
+					if requestedOfficeUser.User.Privileges.HasPrivilege(roles.PrivilegeSearchTypeSupervisor) && !slices.Contains(updatedPrivileges, roles.PrivilegeSearchTypeSupervisor) {
+						isSupervisorPrivilegeRejected = true
 					}
 				}
+				if requestedOfficeUser.User.Privileges.HasPrivilege(roles.PrivilegeSearchTypeSupervisor) && body.Privileges == nil {
+					isSupervisorPrivilegeRejected = true
+				}
+
 				privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *requestedOfficeUser.UserID)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
@@ -392,6 +398,15 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 					if err != nil {
 						txAppCtx.Logger().Error("Error sending rejection email", zap.Error(err))
 						return apperror.NewBadDataError("problem sending email to rejected office user")
+					}
+				}
+
+				// send email notification if request was rejected for supervisor privilege
+				if isSupervisorPrivilegeRejected {
+					err = h.NotificationSender().SendNotification(txAppCtx, notifications.NewOfficeAccountPrivilegeRejectedSupervisor(requestedOfficeUser.ID))
+					if err != nil {
+						txAppCtx.Logger().Error("Error sending supervisor privilege rejection email", zap.Error(err))
+						return apperror.NewBadDataError("problem sending supervisor privilege rejection email to office user")
 					}
 				}
 
