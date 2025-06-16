@@ -80,7 +80,7 @@ describe('CustomerContactInfoForm Component', () => {
     onBack: jest.fn(),
   };
 
-  it('renders the form inputs', async () => {
+  it('renders the form inputs and asterisks for required fields', async () => {
     const mockStore = configureStore({
       ...loggedInTOOState,
     });
@@ -96,23 +96,23 @@ describe('CustomerContactInfoForm Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Contact info')).toBeInstanceOf(HTMLHeadingElement);
       expect(screen.getByLabelText('This is not the person named on the orders.')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('First name')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('First name')).toBeRequired();
+      expect(screen.getByLabelText('First name *')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('First name *')).toBeRequired();
 
       expect(screen.getByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByLabelText('Last name')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Last name')).toBeRequired();
+      expect(screen.getByLabelText('Last name *')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Last name *')).toBeRequired();
 
       expect(screen.getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getAllByLabelText('Phone')[0]).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getAllByLabelText('Phone')[0]).toBeRequired();
+      expect(screen.getAllByLabelText('Phone *')[0]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('Phone *')[0]).toBeRequired();
 
       expect(screen.getAllByLabelText(/Alternate Phone/)[0]).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getAllByLabelText('Email')[0]).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getAllByLabelText('Email')[0]).toBeRequired();
+      expect(screen.getAllByLabelText('Email *')[0]).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByLabelText('Email *')[0]).toBeRequired();
 
       expect(screen.getByText('Current Address')).toBeInstanceOf(HTMLHeadingElement);
       expect(screen.getByDisplayValue('123 Happy St')).toBeInstanceOf(HTMLInputElement);
@@ -122,10 +122,10 @@ describe('CustomerContactInfoForm Component', () => {
       expect(screen.getByText('59802')).toBeInstanceOf(HTMLLabelElement);
       expect(screen.getByText('Missoula, MT 59802 ()')).toBeInstanceOf(HTMLSpanElement);
 
-      expect(within(backupContactSection).getByLabelText('First Name')).toBeInstanceOf(HTMLInputElement);
-      expect(within(backupContactSection).getByLabelText('Last Name')).toBeInstanceOf(HTMLInputElement);
-      expect(within(backupContactSection).getByLabelText('Phone')).toBeInstanceOf(HTMLInputElement);
-      expect(within(backupContactSection).getByLabelText('Email')).toBeInstanceOf(HTMLInputElement);
+      expect(within(backupContactSection).getByLabelText('First Name *')).toBeInstanceOf(HTMLInputElement);
+      expect(within(backupContactSection).getByLabelText('Last Name *')).toBeInstanceOf(HTMLInputElement);
+      expect(within(backupContactSection).getByLabelText('Phone *')).toBeInstanceOf(HTMLInputElement);
+      expect(within(backupContactSection).getByLabelText('Email *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('CAC Validation')).toBeInstanceOf(HTMLHeadingElement);
       expect(

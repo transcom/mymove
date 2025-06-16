@@ -103,9 +103,9 @@ describe('CreateMoveCustomerInfo', () => {
     const { customerData } = useCustomerQueryReturnValue;
 
     await waitFor(() => {
-      expect(screen.getByLabelText('First name').value).toEqual(customerData.first_name);
+      expect(screen.getByLabelText('First name *').value).toEqual(customerData.first_name);
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(customerData.middle_name);
-      expect(screen.getByLabelText('Last name').value).toEqual(customerData.last_name);
+      expect(screen.getByLabelText('Last name *').value).toEqual(customerData.last_name);
       expect(screen.getByLabelText(/Suffix/i).value).toEqual(customerData.suffix);
       // to get around the two inputs labeled "Phone" on the screen
       expect(screen.getByDisplayValue(customerData.phone).value).toEqual(customerData.phone);

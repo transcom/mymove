@@ -76,7 +76,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h2 className={styles.sectionHeader}>Backup contact</h2>
-                    <BackupContactInfoFields name={backupContactName} />
+                    <BackupContactInfoFields showRequiredAsterisk name={backupContactName} />
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h3>CAC Validation</h3>

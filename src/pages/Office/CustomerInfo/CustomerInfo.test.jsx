@@ -109,9 +109,11 @@ describe('CustomerInfo', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText('First name').value).toEqual(mockCustomer.first_name);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('First name *').value).toEqual(mockCustomer.first_name);
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(mockCustomer.middle_name);
-      expect(screen.getByLabelText('Last name').value).toEqual(mockCustomer.last_name);
+      expect(screen.getByLabelText('Last name *').value).toEqual(mockCustomer.last_name);
       expect(screen.getByLabelText(/Suffix/i).value).toEqual(mockCustomer.suffix);
       // to get around the two inputs labeled "Phone" on the screen
       expect(screen.getByDisplayValue(mockCustomer.phone).value).toEqual(mockCustomer.phone);
