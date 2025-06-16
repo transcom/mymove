@@ -4,6 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { Form } from 'components/form/Form';
@@ -16,7 +17,7 @@ const internationalShuttleValidationSchema = Yup.object().shape({
   reason: Yup.string().required('Required'),
 });
 
-const InternationalShuttleServiceItemForm = ({ shipment, submission }) => {
+const InternationalShuttleServiceItemForm = ({ shipment, submission, handleCancel }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -38,7 +39,7 @@ const InternationalShuttleServiceItemForm = ({ shipment, submission }) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={internationalShuttleValidationSchema} onSubmit={onSubmit}>
-      <Form data-testid="internationalShuttleServiceItemForm">
+      <Form data-testid="internationalShuttleServiceItemForm" className={formStyles.form}>
         <DropdownInput
           label="Service item code"
           name="reServiceCode"
@@ -69,7 +70,12 @@ const InternationalShuttleServiceItemForm = ({ shipment, submission }) => {
           thousandsSeparator=","
           lazy={false}
         />
-        <Button type="submit">Create service item</Button>
+        <div className={formStyles.formActions}>
+          <Button type="button" secondary onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">Create service item</Button>
+        </div>
       </Form>
     </Formik>
   );
