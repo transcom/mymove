@@ -20,6 +20,7 @@ const info = {
   authorizedWeight: 11000,
   progear: 2000,
   spouseProgear: 500,
+  gunSafeWeight: 500,
   storageInTransit: 90,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
