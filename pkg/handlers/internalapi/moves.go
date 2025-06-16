@@ -368,6 +368,17 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			gunSafeFlag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = gunSafeFlag.Match
+			}
+
 			var movesList models.Moves
 			var latestMove models.Move
 			var previousMovesList models.Moves
@@ -486,6 +497,22 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				}
 				/** End of Feature Flag Block **/
 
+				/** Feature Flag - Gun Safe **/
+				if !isGunSafeFeatureOn {
+					if len(move.MTOShipments) > 0 {
+						for _, shipment := range move.MTOShipments {
+							shipment.PPMShipment.GunSafeWeight = nil
+							shipment.PPMShipment.GunSafeWeightTickets = nil
+							shipment.PPMShipment.HasGunSafe = nil
+						}
+					}
+					move.Orders.Entitlement.GunSafe = false
+					move.Orders.Entitlement.GunSafeWeight = 0
+					if move.Orders.Entitlement.WeightAllotted != nil {
+						move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
+					}
+				}
+
 				if latestMove.CreatedAt == nilTime {
 					latestMove = move
 					break
@@ -533,6 +560,23 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 							filteredShipments = append(filteredShipments, move.MTOShipments[i])
 						}
 						move.MTOShipments = filteredShipments
+					}
+					/** End of Feature Flag Block **/
+
+					/** Feature Flag - Gun Safe **/
+					if !isGunSafeFeatureOn {
+						if len(move.MTOShipments) > 0 {
+							for _, shipment := range move.MTOShipments {
+								shipment.PPMShipment.GunSafeWeight = nil
+								shipment.PPMShipment.GunSafeWeightTickets = nil
+								shipment.PPMShipment.HasGunSafe = nil
+							}
+						}
+						move.Orders.Entitlement.GunSafe = false
+						move.Orders.Entitlement.GunSafeWeight = 0
+						if move.Orders.Entitlement.WeightAllotted != nil {
+							move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
+						}
 					}
 					/** End of Feature Flag Block **/
 

@@ -5,7 +5,7 @@ import { func, number } from 'prop-types';
 import { Button, Form, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import styles from 'components/Shared/PPM/Closeout/GunSafeForm/GunSafeForm.module.scss';
+import styles from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm.module.scss';
 import Fieldset from 'shared/Fieldset';
 import { GunSafeTicketShape } from 'types/shipment';
 import { CheckboxField } from 'components/form/fields/CheckboxField';
@@ -30,7 +30,7 @@ const GunsafeForm = ({
   isSubmitted,
 }) => {
   const { document, weight, description, hasWeightTickets } = gunSafe || {};
-  const maxWeight = entitlements?.gunSafeWeight ? entitlements.gunSafeWeight : 500;
+  const maxWeight = entitlements?.gunSafeWeight ?? 500;
 
   const validationSchema = Yup.object().shape({
     document: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
@@ -58,7 +58,7 @@ const GunsafeForm = ({
           <div className={classnames(ppmStyles.formContainer, styles.GunsafeForm)}>
             <Form className={classnames(ppmStyles.form, styles.form)}>
               <SectionWrapper className={formStyles.formSection}>
-                <h2>Set {setNumber}</h2>
+                <h2>Gun Safe {setNumber}</h2>
                 <FormGroup>
                   {
                     <Fieldset>

@@ -54,6 +54,7 @@ type HandlerConfig interface {
 	GetTraceIDFromRequest(r *http.Request) uuid.UUID
 
 	FeatureFlagFetcher() services.FeatureFlagFetcher
+	SetFeatureFlagFetcher(fff services.FeatureFlagFetcher)
 }
 
 // A single Config is passed to each handler. This should be
