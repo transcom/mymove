@@ -10,11 +10,13 @@ import { formatCustomerContactFullAddress, formatLastNameFirstName } from 'utils
 import departmentIndicators from 'constants/departmentIndicators';
 
 const CustomerInfoList = ({ customerInfo }) => {
+  const emDash = '\u2014';
+
   const lastNameFirstName = formatLastNameFirstName(
     customerInfo.backupContact?.firstName,
     customerInfo.backupContact?.lastName,
   );
-  const backupContactName = lastNameFirstName.length > 0 ? lastNameFirstName : '-';
+  const backupContactName = lastNameFirstName.length > 0 ? lastNameFirstName : emDash;
 
   return (
     <div className={styles.OfficeDefinitionLists}>
