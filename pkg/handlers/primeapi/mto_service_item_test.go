@@ -1727,6 +1727,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		// Create the handler
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		shipmentRouter := mtoshipment.NewShipmentRouter()
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		addressCreator := address.NewAddressCreator()
 		portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -1738,7 +1739,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		).Return(400, nil)
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		}
 
 		// create the params struct
@@ -1908,6 +1909,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 	// Create the handler
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -2021,7 +2023,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		).Return(400, nil)
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		}
 
 		// create the params struct

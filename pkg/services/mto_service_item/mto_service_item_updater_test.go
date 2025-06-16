@@ -42,6 +42,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	sitStatusService := sitstatus.NewShipmentSITStatus()
@@ -53,7 +54,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -2316,6 +2317,7 @@ func (suite *MTOServiceItemServiceSuite) setupAssignmentTestData() (models.MTOSe
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -2325,7 +2327,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	rejectionReason := models.StringPointer("")
 
@@ -3391,6 +3393,7 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	planner := &mocks.Planner{}
@@ -3399,7 +3402,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
