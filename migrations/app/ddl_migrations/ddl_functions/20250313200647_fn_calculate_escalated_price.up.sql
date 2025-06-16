@@ -1,5 +1,6 @@
 --B-22466  M.Inthavongsay Adding initial migration file for calculate_escalated_price stored procedure using new migration process.
 --Also updating to allow IOPSIT and IDDSIT SIT service items.
+-- B-22742  C. Kleinjan  Migrate function to DDL Migrations and adding the ability to get escalated price for ICRT and IUCRT
 
 -- function to calculate the escalated price, takes in:
 -- origin rate area
@@ -30,6 +31,29 @@ BEGIN
     peak_period := is_peak_period(requested_pickup_date);
     IF service_code IN ('IOSHUT','IDSHUT') THEN
 		IF service_code = 'IOSHUT' THEN
+        	SELECT ra.is_oconus
+        	INTO is_oconus
+        	FROM re_rate_areas ra
+        	WHERE ra.id = o_rate_area_id;
+		ELSE
+			SELECT ra.is_oconus
+        	INTO is_oconus
+        	FROM re_rate_areas ra
+        	WHERE ra.id = d_rate_area_id;
+		END IF;
+
+        SELECT rip.per_unit_cents
+        INTO per_unit_cents
+        FROM re_intl_accessorial_prices rip
+        WHERE
+            rip.market = (CASE
+                WHEN is_oconus THEN 'O'
+                ELSE 'C'
+			END)
+          AND rip.service_id = re_service_id
+          AND rip.contract_id = c_id;
+    ELSIF service_code IN ('IUCRT', 'ICRT') THEN
+        IF service_code = 'ICRT' THEN
         	SELECT ra.is_oconus
         	INTO is_oconus
         	FROM re_rate_areas ra
