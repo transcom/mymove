@@ -5,6 +5,8 @@
  */
 
 // @ts-check
+import { act } from '@testing-library/react';
+
 import {
   expect,
   test as customerTest,
@@ -361,7 +363,19 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromWeightTicketPage() {
-    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await act(async () => {
+      await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    });
+    await this.page.waitForTimeout(1000);
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+  }
+
+  async navigateFromWeightTicketPageBadUpload() {
+    await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+    await act(async () => {
+      await this.page.getByRole('button', { name: 'Cancel' }).click();
+    });
+    await this.page.waitForTimeout(1000);
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
@@ -378,8 +392,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByLabel('Empty weight').fill('1000');
     await this.page.getByLabel('Empty weight').blur();
 
-    // find the label, then find the filepond wrapper. Not sure why
-    // getByLabel doesn't work
+    // find the label, then find the filepond wrapper.
     const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
     await expect(emptyWeightLabel).toBeVisible();
     const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
@@ -401,8 +414,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByLabel('Full Weight').clear();
     await this.page.getByLabel('Full Weight').fill('3000');
 
-    // find the label, then find the filepond wrapper. Not sure why
-    // getByLabel doesn't work
+    // find the label, then find the filepond wrapper.
     const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
     await expect(fullWeightLabel).toBeVisible();
     const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
@@ -423,6 +435,34 @@ export class CustomerPpmPage extends CustomerPage {
 
     // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
     await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
+    // wait for the file to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
+  }
+
+  async submitIncorrectXlsxFileForProGear() {
+    // find the label, then find the filepond wrapper.
+    const proGearWeightLabel = this.page
+      .locator('label')
+      .getByText("Upload your pro-gear's weight tickets", { exact: true });
+    await expect(proGearWeightLabel).toBeVisible();
+    const proGearFilepond = proGearWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(proGearFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(proGearFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the an incorrect file to not be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
+    await this.uploadFileViaFilepond(proGearFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
     // wait for the file to be visible in the uploads
     await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
   }
@@ -821,6 +861,14 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
+  async selectMeProGear() {
+    await expect(this.page.getByRole('heading', { name: 'Pro-gear' })).toBeVisible();
+    const progearTypeSelector = `label[for="ownerOfProGearSelf"]`;
+    await this.page.locator(progearTypeSelector).click();
+    await expect(this.page.getByRole('heading', { name: 'Description' })).toBeVisible();
+    await this.page.waitForTimeout(1000);
+  }
+
   /**
    * returns {Promise<void>}
    */
@@ -833,6 +881,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToAddProGearPage() {
+    await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
     await this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
