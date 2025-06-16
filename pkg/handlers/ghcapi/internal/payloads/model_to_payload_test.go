@@ -3042,5 +3042,5 @@ func (suite *PayloadsSuite) TestCounselingQueueMoves_RequestedMoveDates() {
 
 	// all dates sorted and joined with ", "
 	suite.Require().NotNil(q.RequestedMoveDate)
-	suite.Equal("Mar 1 2025, Feb 1 2025, Jan 1 2025, Jan 1 2025", *q.RequestedMoveDate)
+	suite.Equal("Jan 1 2025, Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDate)
 }
