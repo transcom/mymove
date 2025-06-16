@@ -102,14 +102,6 @@
                 <tbody>
                     <tr>
                         <th scope="row"><a href="#1" class="card-link">1</a></th>
-                        <td>Elements must meet minimum color contrast ratio thresholds</td>
-                        <td>color-contrast</td>
-                        <td>WCAG 2 Level AA, WCAG 1.4.3</td>
-                        <td>serious</td>
-                        <td>2</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><a href="#2" class="card-link">2</a></th>
                         <td>Heading levels should only increase by one</td>
                         <td>heading-order</td>
                         <td>Best practice</td>
@@ -117,7 +109,23 @@
                         <td>1</td>
                     </tr>
                     <tr>
+                        <th scope="row"><a href="#2" class="card-link">2</a></th>
+                        <td>Links must be distinguishable without relying on color</td>
+                        <td>link-in-text-block</td>
+                        <td>WCAG 2 Level A, WCAG 1.4.1</td>
+                        <td>serious</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
                         <th scope="row"><a href="#3" class="card-link">3</a></th>
+                        <td>Page should contain a level-one heading</td>
+                        <td>page-has-heading-one</td>
+                        <td>Best practice</td>
+                        <td>moderate</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><a href="#4" class="card-link">4</a></th>
                         <td>All page content should be contained by landmarks</td>
                         <td>region</td>
                         <td>Best practice</td>
@@ -131,109 +139,7 @@
                 <div class="card-body">
                     <div class="violationCardLine">
                         <h5 class="card-title violationCardTitleItem">
-                            <a id="1">1.</a> Elements must meet minimum color contrast ratio thresholds
-                        </h5>
-                        <a
-                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;color-contrast?application&#x3D;axeAPI"
-                            target="_blank"
-                            class="card-link violationCardTitleItem learnMore"
-                            >Learn more</a
-                        >
-                    </div>
-                    <div class="violationCardLine">
-                        <h6 class="card-subtitle mb-2 text-muted">color-contrast</h6>
-                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
-                            WCAG 2 Level AA, WCAG 1.4.3
-                        </h6>
-                    </div>
-                    <div class="violationCardLine">
-                        <p class="card-text">Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds</p>
-                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
-                            serious
-                        </h6>
-                    </div>
-                    <div class="violationCardLine">
-                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
-                            Issue Tags:
-                            <span class="badge bg-light text-dark"> cat.color </span>
-
-                            <span class="badge bg-light text-dark"> wcag2aa </span>
-
-                            <span class="badge bg-light text-dark"> wcag143 </span>
-
-                            <span class="badge bg-light text-dark"> TTv5 </span>
-
-                            <span class="badge bg-light text-dark"> TT13.c </span>
-
-                            <span class="badge bg-light text-dark"> EN-301-549 </span>
-
-                            <span class="badge bg-light text-dark"> EN-9.1.4.3 </span>
-
-                            <span class="badge bg-light text-dark"> ACT </span>
-                        </h6>
-                    </div>
-                    <div class="violationNode">
-                        <table class="table table-sm table-bordered">
-                            <thead>
-                                <tr>
-                                    <th style="width: 2%">#</th>
-                                    <th style="width: 49%">Issue Description</th>
-                                    <th style="width: 49%">
-                                        To solve this violation, you need to...
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>
-                                        <p><strong>Element location</strong></p>
-                                        <pre><code class="css text-wrap">#filepond--drop-label-bq6sg6umj</code></pre>
-                                        <p><strong>Element source</strong></p>
-                                        <pre><code class="html text-wrap">&lt;label for&#x3D;&quot;filepond--browser-bq6sg6umj&quot; id&#x3D;&quot;filepond--drop-label-bq6sg6umj&quot; aria-hidden&#x3D;&quot;true&quot;&gt;Drag &amp;amp; drop or &lt;span class&#x3D;&quot;filepond--label-action&quot; tabindex&#x3D;&quot;0&quot;&gt;click to upload orders&lt;&#x2F;span&gt;&lt;&#x2F;label&gt;</code></pre>
-                                    </td>
-                                    <td>
-                                        <div class="wrapBreakWord">
-                                            <p>Fix any of the following:</p>
-                                            <ul class="text-muted">
-                                                <li>  Element has insufficient color contrast of 1.96 (foreground color: #b9b9b9, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1</li>
-                                            </ul>
-                                        </div>
-                                        <p><strong>Related node:</strong></p>
-                                        <pre><code class="css text-wrap">.filepond--drip</code></pre>
-                                        <pre><code class="css text-wrap">.filepond--panel-center</code></pre>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>
-                                        <p><strong>Element location</strong></p>
-                                        <pre><code class="css text-wrap">.filepond--label-action</code></pre>
-                                        <p><strong>Element source</strong></p>
-                                        <pre><code class="html text-wrap">&lt;span class&#x3D;&quot;filepond--label-action&quot; tabindex&#x3D;&quot;0&quot;&gt;click to upload orders&lt;&#x2F;span&gt;</code></pre>
-                                    </td>
-                                    <td>
-                                        <div class="wrapBreakWord">
-                                            <p>Fix any of the following:</p>
-                                            <ul class="text-muted">
-                                                <li>  Element has insufficient color contrast of 1.97 (foreground color: #9abaf0, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1</li>
-                                            </ul>
-                                        </div>
-                                        <p><strong>Related node:</strong></p>
-                                        <pre><code class="css text-wrap">.filepond--drip</code></pre>
-                                        <pre><code class="css text-wrap">.filepond--panel-center</code></pre>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="card violationCard">
-                <div class="card-body">
-                    <div class="violationCardLine">
-                        <h5 class="card-title violationCardTitleItem">
-                            <a id="2">2.</a> Heading levels should only increase by one
+                            <a id="1">1.</a> Heading levels should only increase by one
                         </h5>
                         <a
                             href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;heading-order?application&#x3D;axeAPI"
@@ -280,7 +186,7 @@
                                         <p><strong>Element location</strong></p>
                                         <pre><code class="css text-wrap">h6</code></pre>
                                         <p><strong>Element source</strong></p>
-                                        <pre><code class="html text-wrap">&lt;h6&gt;1 Files Uploaded&lt;&#x2F;h6&gt;</code></pre>
+                                        <pre><code class="html text-wrap">&lt;h6 class&#x3D;&quot;Contact_contactHeader__v48ze&quot;&gt;Contacts&lt;&#x2F;h6&gt;</code></pre>
                                     </td>
                                     <td>
                                         <div class="wrapBreakWord">
@@ -300,7 +206,155 @@
                 <div class="card-body">
                     <div class="violationCardLine">
                         <h5 class="card-title violationCardTitleItem">
-                            <a id="3">3.</a> All page content should be contained by landmarks
+                            <a id="2">2.</a> Links must be distinguishable without relying on color
+                        </h5>
+                        <a
+                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;link-in-text-block?application&#x3D;axeAPI"
+                            target="_blank"
+                            class="card-link violationCardTitleItem learnMore"
+                            >Learn more</a
+                        >
+                    </div>
+                    <div class="violationCardLine">
+                        <h6 class="card-subtitle mb-2 text-muted">link-in-text-block</h6>
+                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
+                            WCAG 2 Level A, WCAG 1.4.1
+                        </h6>
+                    </div>
+                    <div class="violationCardLine">
+                        <p class="card-text">Ensure links are distinguished from surrounding text in a way that does not rely on color</p>
+                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
+                            serious
+                        </h6>
+                    </div>
+                    <div class="violationCardLine">
+                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
+                            Issue Tags:
+                            <span class="badge bg-light text-dark"> cat.color </span>
+
+                            <span class="badge bg-light text-dark"> wcag2a </span>
+
+                            <span class="badge bg-light text-dark"> wcag141 </span>
+
+                            <span class="badge bg-light text-dark"> TTv5 </span>
+
+                            <span class="badge bg-light text-dark"> TT13.a </span>
+
+                            <span class="badge bg-light text-dark"> EN-301-549 </span>
+
+                            <span class="badge bg-light text-dark"> EN-9.1.4.1 </span>
+                        </h6>
+                    </div>
+                    <div class="violationNode">
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 2%">#</th>
+                                    <th style="width: 49%">Issue Description</th>
+                                    <th style="width: 49%">
+                                        To solve this violation, you need to...
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+                                        <p><strong>Element location</strong></p>
+                                        <pre><code class="css text-wrap">p:nth-child(3) &gt; .usa-link[target&#x3D;&quot;_blank&quot;][rel&#x3D;&quot;noopener noreferrer&quot;]</code></pre>
+                                        <p><strong>Element source</strong></p>
+                                        <pre><code class="html text-wrap">&lt;a class&#x3D;&quot;usa-link&quot; target&#x3D;&quot;_blank&quot; rel&#x3D;&quot;noopener noreferrer&quot; href&#x3D;&quot;https:&#x2F;&#x2F;www.militaryonesource.mil&#x2F;moving-housing&#x2F;moving&#x2F;planning-your-move&#x2F;customer-service-contacts-for-military-pcs&#x2F;&quot;&gt;directory of PCS-related contacts&lt;&#x2F;a&gt;</code></pre>
+                                    </td>
+                                    <td>
+                                        <div class="wrapBreakWord">
+                                            <p>Fix any of the following:</p>
+                                            <ul class="text-muted">
+                                                <li>  The link has insufficient color contrast of 2.57:1 with the surrounding text. (Minimum contrast is 3:1, link text: #0050d8, surrounding text: #1b1b1b)</li>
+                                                <li>  The link has no styling (such as underline) to distinguish it from the surrounding text</li>
+                                            </ul>
+                                        </div>
+                                        <p><strong>Related node:</strong></p>
+                                        <pre><code class="css text-wrap">.Contact_contactContainer__jYtTz &gt; p:nth-child(3)</code></pre>
+                                        <pre><code class="css text-wrap">.Contact_contactContainer__jYtTz &gt; p:nth-child(3)</code></pre>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card violationCard">
+                <div class="card-body">
+                    <div class="violationCardLine">
+                        <h5 class="card-title violationCardTitleItem">
+                            <a id="3">3.</a> Page should contain a level-one heading
+                        </h5>
+                        <a
+                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;page-has-heading-one?application&#x3D;axeAPI"
+                            target="_blank"
+                            class="card-link violationCardTitleItem learnMore"
+                            >Learn more</a
+                        >
+                    </div>
+                    <div class="violationCardLine">
+                        <h6 class="card-subtitle mb-2 text-muted">page-has-heading-one</h6>
+                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
+                            Best practice
+                        </h6>
+                    </div>
+                    <div class="violationCardLine">
+                        <p class="card-text">Ensure that the page, or at least one of its frames contains a level-one heading</p>
+                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
+                            moderate
+                        </h6>
+                    </div>
+                    <div class="violationCardLine">
+                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
+                            Issue Tags:
+                            <span class="badge bg-light text-dark"> cat.semantics </span>
+
+                            <span class="badge bg-light text-dark"> best-practice </span>
+                        </h6>
+                    </div>
+                    <div class="violationNode">
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 2%">#</th>
+                                    <th style="width: 49%">Issue Description</th>
+                                    <th style="width: 49%">
+                                        To solve this violation, you need to...
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+                                        <p><strong>Element location</strong></p>
+                                        <pre><code class="css text-wrap">html</code></pre>
+                                        <p><strong>Element source</strong></p>
+                                        <pre><code class="html text-wrap">&lt;html lang&#x3D;&quot;en&quot;&gt;</code></pre>
+                                    </td>
+                                    <td>
+                                        <div class="wrapBreakWord">
+                                            <p>Fix all of the following:</p>
+                                            <ul class="text-muted">
+                                                <li>  Page must have a level-one heading</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card violationCard">
+                <div class="card-body">
+                    <div class="violationCardLine">
+                        <h5 class="card-title violationCardTitleItem">
+                            <a id="4">4.</a> All page content should be contained by landmarks
                         </h5>
                         <a
                             href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.10&#x2F;region?application&#x3D;axeAPI"

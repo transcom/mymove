@@ -1,10 +1,6 @@
 import { test, expect } from '../../utils/my/customerTest';
 
-const manageSupportDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
-
 test.describe('Additional Documents', () => {
-  test.skip(manageSupportDocsEnabled === 'false', 'Skip if manage supporting docs workflow is not enabled.');
-
   test('Users can download documents uploaded to Additional Documents', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
