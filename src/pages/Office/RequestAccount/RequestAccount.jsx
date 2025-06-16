@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { func } from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
@@ -11,10 +11,23 @@ import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAcco
 import { createOfficeAccountRequest } from 'services/ghcApi';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes } from 'constants/routes';
+import { useRolesPrivilegesQueriesOfficeApp } from 'hooks/queries';
+import { setShowLoadingSpinner } from 'store/general/actions';
 
 export const RequestAccount = ({ setFlashMessage }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [serverError, setServerError] = useState(null);
+
+  const { result, isLoading } = useRolesPrivilegesQueriesOfficeApp();
+
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setShowLoadingSpinner(true, 'Loading...'));
+    } else {
+      dispatch(setShowLoadingSpinner(false, null));
+    }
+  }, [isLoading, dispatch]);
 
   const initialValues = {
     officeAccountRequestFirstName: '',
@@ -32,64 +45,20 @@ export const RequestAccount = ({ setFlashMessage }) => {
   };
 
   const handleSubmit = async (values) => {
-    const requestedRoles = [];
-    const requestedPrivileges = [];
+    // Dynamically build requestedRoles and requestedPrivileges
+    const requestedRoles = (result.rolesWithPrivs || [])
+      .filter((role) => values[`${role.roleType}Checkbox`])
+      .map((role) => ({
+        name: role.roleName,
+        roleType: role.roleType,
+      }));
 
-    if (values.supervisorPrivilegeCheckbox) {
-      requestedPrivileges.push({
-        name: 'Supervisor',
-        privilegeType: 'supervisor',
-      });
-    }
-
-    if (values.task_invoicing_officerCheckbox) {
-      requestedRoles.push({
-        name: 'Task Invoicing Officer',
-        roleType: 'task_invoicing_officer',
-      });
-    }
-    if (values.task_ordering_officerCheckbox) {
-      requestedRoles.push({
-        name: 'Task Ordering Officer',
-        roleType: 'task_ordering_officer',
-      });
-    }
-    if (values.headquartersCheckbox) {
-      requestedRoles.push({
-        name: 'Headquarters',
-        roleType: 'headquarters',
-      });
-    }
-    if (values.contracting_officerCheckbox) {
-      requestedRoles.push({
-        name: 'Contracting Officer',
-        roleType: 'contracting_officer',
-      });
-    }
-    if (values.services_counselorCheckbox) {
-      requestedRoles.push({
-        name: 'Services Counselor',
-        roleType: 'services_counselor',
-      });
-    }
-    if (values.qaeCheckbox) {
-      requestedRoles.push({
-        name: 'Quality Assurance Evaluator',
-        roleType: 'qae',
-      });
-    }
-    if (values.customer_service_representativeCheckbox) {
-      requestedRoles.push({
-        name: 'Customer Service Representative',
-        roleType: 'customer_service_representative',
-      });
-    }
-    if (values.gsrCheckbox) {
-      requestedRoles.push({
-        name: 'Government Surveillance Representative',
-        roleType: 'gsr',
-      });
-    }
+    const requestedPrivileges = (result.privileges || [])
+      .filter((priv) => values[`${priv.privilegeType}PrivilegeCheckbox`])
+      .map((priv) => ({
+        name: priv.privilegeName,
+        privilegeType: priv.privilegeType,
+      }));
 
     let body = {
       email: values.officeAccountRequestEmail,
@@ -152,6 +121,10 @@ export const RequestAccount = ({ setFlashMessage }) => {
       });
   };
 
+  if (isLoading || !result.rolesWithPrivs || !result.privileges) {
+    return null;
+  }
+
   return (
     <GridContainer>
       <NotificationScrollToTop dependency={serverError} />
@@ -169,10 +142,15 @@ export const RequestAccount = ({ setFlashMessage }) => {
           </Alert>
         </Grid>
       )}
-
       <Grid row>
         <Grid col desktop={{ col: 8 }} className={styles.formContainer}>
-          <RequestAccountForm onCancel={handleCancel} onSubmit={handleSubmit} initialValues={initialValues} />
+          <RequestAccountForm
+            onCancel={handleCancel}
+            onSubmit={handleSubmit}
+            initialValues={initialValues}
+            rolesWithPrivs={result.rolesWithPrivs}
+            privileges={result.privileges}
+          />
         </Grid>
       </Grid>
     </GridContainer>
