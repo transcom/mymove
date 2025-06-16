@@ -79,15 +79,6 @@ const ServicesCounselingMoveInfo = () => {
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
 
-  const [supportingDocsFF, setSupportingDocsFF] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
-    };
-    fetchData();
-  }, []);
-
   useEffect(() => {
     const fetchData = async () => {
       if (
@@ -345,13 +336,11 @@ const ServicesCounselingMoveInfo = () => {
             }
           />
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
-          {supportingDocsFF && (
-            <Route
-              path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
-              end
-              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
-            />
-          )}
+          <Route
+            path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
+            end
+            element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
+          />
           <Route
             path={servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}
             end

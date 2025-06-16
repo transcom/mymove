@@ -84,6 +84,7 @@ const mockMTOShipment = {
       city: 'Jacksonville',
       state: 'FL',
       postalCode: '32217',
+      county: 'Duval',
       usPostRegionCitiesID: '',
     },
   },
@@ -125,6 +126,7 @@ const partialPayload = {
     city: 'Jacksonville',
     state: 'FL',
     postalCode: '32217',
+    county: 'Duval',
     usPostRegionCitiesID: '',
   },
 };
