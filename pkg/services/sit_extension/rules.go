@@ -123,20 +123,16 @@ func checkDepartureDate() sitExtensionValidator {
 		}
 		sorted := sitstatus.SortShipmentSITs(sitGroupings, time.Now())
 
-		// Only checking these SIT service items to mirror what's happening in production
-		ValidOriginSITReServiceCodes := []models.ReServiceCode{models.ReServiceCodeDOASIT, models.ReServiceCodeIOASIT}
-		ValidDestSITReServiceCodes := []models.ReServiceCode{models.ReServiceCodeDDASIT, models.ReServiceCodeIDASIT}
-
 		// Check if any current SITs
 		if sorted.CurrentSITs != nil {
 			for _, serviceItem := range shipment.MTOServiceItems {
 				if serviceItem.SITDepartureDate != nil {
 					// Check if valid service SIT service item to get correct authorized end date.
-					if slices.Contains(ValidOriginSITReServiceCodes, serviceItem.ReService.Code) &&
+					if slices.Contains(models.ValidOriginAdditionalDaySITReServiceCodes, serviceItem.ReService.Code) &&
 						shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate == nil {
 						si = &serviceItem
 						endDate = shipment.OriginSITAuthEndDate
-					} else if (slices.Contains(ValidDestSITReServiceCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
+					} else if (slices.Contains(models.ValidDestinationAdditionalDaySITReServiceCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
 						si = &serviceItem
 						endDate = shipment.DestinationSITAuthEndDate
 					}

@@ -43,6 +43,7 @@ type mtoServiceItemUpdater struct {
 	builder             mtoServiceItemQueryBuilder
 	createNewBuilder    func() mtoServiceItemQueryBuilder
 	moveRouter          services.MoveRouter
+	shipmentRouter      services.ShipmentRouter
 	shipmentFetcher     services.MTOShipmentFetcher
 	addressCreator      services.AddressCreator
 	unpackPricer        services.DomesticUnpackPricer
@@ -53,13 +54,13 @@ type mtoServiceItemUpdater struct {
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, portLocationFetcher services.PortLocationFetcher, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentRouter services.ShipmentRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, portLocationFetcher services.PortLocationFetcher, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, portLocationFetcher}
+	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, portLocationFetcher}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -532,11 +533,15 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 					return nil, err
 				}
 
-				// Update move status from APPROVALS REQUESTED back to APPROVED
-				err = appCtx.DB().RawQuery("UPDATE moves SET status = ?, approved_at = ? WHERE id = ?", models.MoveStatusAPPROVED, today, shipment.MoveTaskOrderID).Exec()
-				if err != nil {
-					return nil, err
+				// Update sihpment status from APPROVALS REQUESTED back to APPROVED
+				if shipment.Status == models.MTOShipmentStatusApprovalsRequested {
+					err := p.shipmentRouter.Approve(appCtx, &shipment)
+					if err != nil {
+						return nil, err
+					}
 				}
+
+				checkMoveStatus = true
 			}
 		}
 	}
