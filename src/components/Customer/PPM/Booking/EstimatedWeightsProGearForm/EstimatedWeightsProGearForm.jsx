@@ -80,7 +80,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 <h2>PPM</h2>
                 <p>
                   Estimate the full weight of your PPM, including everything you plan to move. If you are moving
-                  pro-gear and/or a gun safe in this PPM, include that weight in this estimate.
+                  pro-gear {isGunSafeEnabled && 'and/or a gun safe'} in this PPM, include that weight in this estimate.
                 </p>
                 <p className={formStyles.pBeforeFormGroup}>
                   Do not count weight twice, though. Do not include weight in your estimate that will be moved in other

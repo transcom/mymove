@@ -47,7 +47,8 @@ import {
   hasCompletedAllGunSafe,
 } from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
-import { PPM_TYPES } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, PPM_TYPES } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -109,6 +110,14 @@ const Review = () => {
   const gunSafe = mtoShipment?.ppmShipment?.gunSafeWeightTickets;
   const expenses = mtoShipment?.ppmShipment?.movingExpenses;
   const dispatch = useDispatch();
+
+  const [gunSafeEnabled, setGunSafeEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
@@ -174,11 +183,12 @@ const Review = () => {
 
   const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
 
+  const gunSafeCheck = gunSafeEnabled ? hasCompletedAllGunSafe(gunSafe) : true;
   const canAdvance =
     hasCompletedAllWeightTickets(weightTickets, ppmType) &&
     hasCompletedAllExpenses(expenses) &&
     hasCompletedAllProGear(proGear) &&
-    hasCompletedAllGunSafe(gunSafe);
+    gunSafeCheck;
 
   // PPM-SPRs must have at least one moving expense to advance
   const ppmSmalLPackageCanAdvance = ppmType === PPM_TYPES.SMALL_PACKAGE && expenses && expenses.length < 1;
@@ -281,22 +291,24 @@ const Review = () => {
                     )}
                     emptyMessage="No pro-gear weight documented."
                   />
-                  <ReviewItems
-                    className={classnames(styles.reviewItems, 'gunSafeSection')}
-                    heading={
-                      <>
-                        <h3>Gun safe</h3>
-                        <span>({formatWeight(gunSafeTotal)})</span>
-                      </>
-                    }
-                    contents={gunSafeContents}
-                    renderAddButton={() => (
-                      <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
-                        Add Gun Safe Weight
-                      </Link>
-                    )}
-                    emptyMessage="No gun safe weight documented."
-                  />
+                  {gunSafeEnabled && (
+                    <ReviewItems
+                      className={classnames(styles.reviewItems, 'gunSafeSection')}
+                      heading={
+                        <>
+                          <h3>Gun safe</h3>
+                          <span>({formatWeight(gunSafeTotal)})</span>
+                        </>
+                      }
+                      contents={gunSafeContents}
+                      renderAddButton={() => (
+                        <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
+                          Add Gun Safe Weight
+                        </Link>
+                      )}
+                      emptyMessage="No gun safe weight documented."
+                    />
+                  )}
                 </>
               )}
               <ReviewItems

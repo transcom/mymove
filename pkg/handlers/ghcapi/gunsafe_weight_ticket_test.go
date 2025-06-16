@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	gunsafe "github.com/transcom/mymove/pkg/services/gunsafe_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -62,6 +63,34 @@ func (suite *HandlerSuite) TestCreateGunSafeWeightTicketHandler() {
 
 		suite.NotEmpty(createdGunSafe.ID.String())
 		suite.NotNil(createdGunSafe.DocumentID.String())
+	})
+
+	suite.Run("Fails to Create GunSafe Weight Ticket When FF is Toggled OFF - Integration Test", func() {
+		subtestData := makeCreateSubtestData(true)
+
+		// Overwrite handler config in order to return false for FF
+		handlerConfig := suite.HandlerConfig()
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		handler := CreateGunSafeWeightTicketHandler{
+			handlerConfig,
+			gunsafeCreator,
+		}
+
+		response := handler.Handle(subtestData.params)
+		suite.IsType(&gunsafeops.CreateGunSafeWeightTicketForbidden{}, response)
 	})
 
 	suite.Run("DELETE failure - 404- Create not found", func() {
@@ -250,6 +279,53 @@ func (suite *HandlerSuite) TestUpdateGunSafeWeightTicketHandler() {
 
 		suite.IsType(&gunsafeops.UpdateGunSafeWeightTicketInternalServerError{}, response)
 	})
+
+	suite.Run("UPDATE failure - Fails when FF is toggled OFF", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+
+		params := subtestData.params
+
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.gunsafe.Document,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		hasWeightTickets := true
+		params.UpdateGunSafeWeightTicket = &ghcmessages.UpdateGunSafeWeightTicket{
+			HasWeightTickets: hasWeightTickets,
+			Weight:           handlers.FmtInt64(500),
+		}
+
+		// Overwrite handler config in order to return false for FF
+		handlerConfig := suite.createS3HandlerConfig()
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		handler := UpdateGunSafeWeightTicketHandler{
+			handlerConfig,
+			gunsafeUpdater,
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(params)
+
+		suite.IsType(&gunsafeops.UpdateGunSafeWeightTicketForbidden{}, response)
+	})
 }
 
 // DELETE test
@@ -361,5 +437,34 @@ func (suite *HandlerSuite) TestDeleteGunSafeWeightTicketHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&gunsafeops.DeleteGunSafeWeightTicketInternalServerError{}, response)
+	})
+
+	suite.Run("DELETE failure - Fails to Create GunSafe Weight Ticket When FF is Toggled OFF - Integration Test", func() {
+		subtestData := makeDeleteSubtestData(true)
+		params := subtestData.params
+
+		// Overwrite handler config in order to return false for FF
+		handlerConfig := suite.createS3HandlerConfig()
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		subtestData.handler = DeleteGunSafeWeightTicketHandler{
+			handlerConfig,
+			gunsafeWeightTicketDeleter,
+		}
+
+		response := subtestData.handler.Handle(params)
+		suite.IsType(&gunsafeops.DeleteGunSafeWeightTicketForbidden{}, response)
 	})
 }

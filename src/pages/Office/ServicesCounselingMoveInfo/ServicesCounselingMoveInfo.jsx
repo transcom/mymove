@@ -15,6 +15,7 @@ import Inaccessible from 'shared/Inaccessible';
 import { roleTypes } from 'constants/userRoles';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -56,6 +57,7 @@ const ServicesCounselingMoveInfo = () => {
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
+  const [gunSafeEnabled, setGunSafeEnabled] = useState(false);
   const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
       setInfoSavedAlert({
@@ -110,6 +112,13 @@ const ServicesCounselingMoveInfo = () => {
 
     fetchData();
   }, [infoSavedAlert, location, move, officeUserID, moveLockFlag]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const { pathname } = useLocation();
   const hideNav =
@@ -289,8 +298,12 @@ const ServicesCounselingMoveInfo = () => {
           />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} end element={<ProGear />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} end element={<ProGear />} />
-          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} end element={<GunSafe />} />
-          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} end element={<GunSafe />} />
+          {gunSafeEnabled && (
+            <>
+              <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} end element={<GunSafe />} />
+              <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} end element={<GunSafe />} />
+            </>
+          )}
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end
