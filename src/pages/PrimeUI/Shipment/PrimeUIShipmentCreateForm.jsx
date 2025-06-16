@@ -101,10 +101,10 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             id="ppmShipment.expectedDepartureDateInput"
             name="ppmShipment.expectedDepartureDate"
           />
-          <h2 className={styles.sectionHeader}>Origin Info</h2>
           <AddressFields
             name="ppmShipment.pickupAddress"
             legend="Pickup Address"
+            className={styles.pickupAddressHeading}
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -199,11 +199,10 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
               </>
             )}
           />
-          <h2 className={styles.sectionHeader}>Destination Info</h2>
           <AddressFields
             name="ppmShipment.destinationAddress"
             legend="Delivery Address"
-            address1LabelHint="Optional"
+            optionalAddress1
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -409,7 +408,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
           />
 
           <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
-          <h5 className={styles.sectionHeader}>Pickup Address</h5>
+          <h3 className={styles.sectionHeader}>Pickup Address</h3>
           <AddressFields
             name="pickupAddress"
             formikProps={{
@@ -509,8 +508,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
               </>
             )}
           />
-
-          <h3 className={styles.sectionHeader}>Destination Info</h3>
           <AddressFields
             name="destinationAddress"
             legend="Delivery Address"
