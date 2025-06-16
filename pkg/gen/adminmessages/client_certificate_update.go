@@ -8,6 +8,7 @@ package adminmessages
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -59,6 +60,9 @@ type ClientCertificateUpdate struct {
 	// allow prime
 	AllowPrime *bool `json:"allowPrime,omitempty"`
 
+	// pptas branch
+	PptasBranch *Affiliation `json:"pptasBranch,omitempty"`
+
 	// sha256 digest
 	// Example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
 	Sha256Digest string `json:"sha256Digest,omitempty"`
@@ -70,11 +74,69 @@ type ClientCertificateUpdate struct {
 
 // Validate validates this client certificate update
 func (m *ClientCertificateUpdate) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validatePptasBranch(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this client certificate update based on context it is used
+func (m *ClientCertificateUpdate) validatePptasBranch(formats strfmt.Registry) error {
+	if swag.IsZero(m.PptasBranch) { // not required
+		return nil
+	}
+
+	if m.PptasBranch != nil {
+		if err := m.PptasBranch.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pptasBranch")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pptasBranch")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this client certificate update based on the context it is used
 func (m *ClientCertificateUpdate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidatePptasBranch(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ClientCertificateUpdate) contextValidatePptasBranch(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PptasBranch != nil {
+
+		if swag.IsZero(m.PptasBranch) { // not required
+			return nil
+		}
+
+		if err := m.PptasBranch.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pptasBranch")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pptasBranch")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

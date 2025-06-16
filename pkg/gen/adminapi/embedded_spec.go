@@ -2580,6 +2580,30 @@ func init() {
         "$ref": "#/definitions/AdminUser"
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
+      },
+      "x-nullable": true
+    },
     "ClientCertificate": {
       "type": "object",
       "properties": {
@@ -2634,6 +2658,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pptasBranch": {
+          "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
           "type": "string",
@@ -2706,6 +2733,9 @@ func init() {
           "type": "string",
           "example": "user@example.com"
         },
+        "pptasBranch": {
+          "$ref": "#/definitions/Affiliation"
+        },
         "sha256Digest": {
           "type": "string",
           "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
@@ -2774,6 +2804,9 @@ func init() {
         "allowPrime": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "pptasBranch": {
+          "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
           "type": "string",
@@ -6626,6 +6659,30 @@ func init() {
         "$ref": "#/definitions/AdminUser"
       }
     },
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
+      },
+      "x-nullable": true
+    },
     "ClientCertificate": {
       "type": "object",
       "properties": {
@@ -6680,6 +6737,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pptasBranch": {
+          "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
           "type": "string",
@@ -6752,6 +6812,9 @@ func init() {
           "type": "string",
           "example": "user@example.com"
         },
+        "pptasBranch": {
+          "$ref": "#/definitions/Affiliation"
+        },
         "sha256Digest": {
           "type": "string",
           "example": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
@@ -6820,6 +6883,9 @@ func init() {
         "allowPrime": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "pptasBranch": {
+          "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
           "type": "string",
