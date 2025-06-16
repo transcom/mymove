@@ -2593,6 +2593,7 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 		var requestedDatesStr *string
+		var requestedPickupDates []time.Time
 		var formattedDates []string
 
 		var transportationOffice string
@@ -2607,7 +2608,7 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 		for _, shipment := range move.MTOShipments {
 			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
 				earliestDateInCurrentShipment := findEarliestDateForRequestedMoveDate(shipment)
-				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.Before(*earliestRequestedPickup)) {
+				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.After(*earliestRequestedPickup)) {
 					earliestRequestedPickup = earliestDateInCurrentShipment
 				}
 
@@ -2615,12 +2616,17 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 			}
 
 			if shipment.RequestedPickupDate != nil {
-				formattedDates = append(formattedDates, shipment.RequestedPickupDate.Format("Jan 2 2006"))
+				requestedPickupDates = append(requestedPickupDates, *shipment.RequestedPickupDate)
 			}
 
 			if shipment.PPMShipment != nil {
-				formattedDates = append(formattedDates, shipment.PPMShipment.ExpectedDepartureDate.Format("Jan 2 2006"))
+				requestedPickupDates = append(requestedPickupDates, shipment.PPMShipment.ExpectedDepartureDate)
 			}
+		}
+
+		sort.Slice(requestedPickupDates, func(i, j int) bool { return requestedPickupDates[i].Before(requestedPickupDates[j]) })
+		for _, date := range requestedPickupDates {
+			formattedDates = append(formattedDates, date.Format("Jan 2 2006"))
 		}
 
 		if len(formattedDates) > 0 {
