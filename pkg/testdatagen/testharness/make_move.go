@@ -9476,7 +9476,7 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		{
 			Model: models.Address{
 				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
-				PostalCode: "85004",
+				PostalCode: "90035",
 			},
 		},
 	}, nil)

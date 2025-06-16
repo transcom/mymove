@@ -39,19 +39,19 @@ test.describe('TIO user', () => {
     // IHPK base price
     await expect(
       page.locator('[data-testid="column"]', { hasText: 'International Pack price' }).locator('[data-testid="value"]'),
-    ).toHaveText('83.34');
+    ).toHaveText('69.97');
 
     // Reference date (Requested pickup)
     await expect(
       page
         .locator('[data-testid="column"]', { hasText: 'International Pack price' })
         .locator('[data-testid="details"] >> text=Requested pickup'),
-    ).toContainText('15 Mar 2020');
+    ).toContainText('15 Mar 2024');
 
     // Contract escalation factor
     await expect(
       page.locator('[data-testid="column"]', { hasText: 'Price escalation factor' }).locator('[data-testid="value"]'),
-    ).toHaveText('1.00000');
+    ).toHaveText('1.11000');
 
     // NTS packing factor
     await expect(
@@ -61,6 +61,6 @@ test.describe('TIO user', () => {
     // Total = (Base price * escalation) * cwt * nts factor
     await expect(
       page.locator('[data-testid="column"]', { hasText: 'Total:' }).locator('[data-testid="value"]'),
-    ).toHaveText('$1,184.26');
+    ).toHaveText('$1,103.70');
   });
 });
