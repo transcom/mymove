@@ -1054,21 +1054,6 @@ func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
         		)
     		)
 			AND
-			(mto_shipments.status IN ('SUBMITTED','APPROVALS_REQUESTED')
-				-- keep moves in the TOO queue if they have an unacknowledged excess weight risk
-        		OR (mto_shipments.status = 'APPROVED'
-        			AND
-                		(
-                        	moves.excess_weight_qualified_at IS NOT NULL
-                        	AND moves.excess_weight_acknowledged_at IS NULL
-		                )
-        		        OR (
-                	        moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
-                    	    AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
-                		)
-        		)
-    		)
-			AND
 			-- check for moves with destination requests and NOT origin requests, then return the inverse for the TOO queue with the NOT wrapped around the query
 			NOT (
 					-- check for moves with destination requests
