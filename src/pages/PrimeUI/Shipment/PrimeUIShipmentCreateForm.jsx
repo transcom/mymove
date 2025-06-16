@@ -138,7 +138,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                       name="ppmShipment.hasSecondaryPickupAddress"
                       value="false"
                       title="No, there is not a second pickup address"
-                      checked={hasSecondaryPickupAddress !== 'true' && hasTertiaryPickupAddress !== 'true'}
+                      checked={hasSecondaryPickupAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
@@ -202,7 +202,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
           <AddressFields
             name="ppmShipment.destinationAddress"
             legend="Delivery Address"
-            address1LabelHint="Optional"
+            optionalAddress1
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -235,7 +235,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                       name="ppmShipment.hasSecondaryDestinationAddress"
                       value="false"
                       title="No, there is not a second destination location"
-                      checked={hasSecondaryDestinationAddress !== 'true' && hasTertiaryDestinationAddress !== 'true'}
+                      checked={hasSecondaryDestinationAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
@@ -435,7 +435,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                           name="hasSecondaryPickupAddress"
                           value="true"
                           title="Yes, there is a second pickup address"
-                          checked={hasSecondaryPickupAddress === 'true' && hasTertiaryPickupAddress !== 'true'}
+                          checked={hasSecondaryPickupAddress === 'true'}
                         />
                         <Field
                           as={Radio}
@@ -535,9 +535,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                           name="hasSecondaryDestinationAddress"
                           value="true"
                           title="Yes, there is a second delivery address"
-                          checked={
-                            hasSecondaryDestinationAddress === 'true' && hasTertiaryDestinationAddress !== 'true'
-                          }
+                          checked={hasSecondaryDestinationAddress === 'true'}
                         />
                         <Field
                           as={Radio}
