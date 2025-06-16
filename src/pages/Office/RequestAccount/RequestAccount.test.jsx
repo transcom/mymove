@@ -1,6 +1,5 @@
 import React from 'react';
-import { MemoryRouter } from 'react-router';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 import selectEvent from 'react-select-event';
@@ -9,7 +8,7 @@ import { RequestAccount } from './RequestAccount';
 
 import { generalRoutes } from 'constants/routes';
 import { createOfficeAccountRequest, searchTransportationOfficesOpen } from 'services/ghcApi';
-import { ReactQueryWrapper } from 'testUtils';
+import { renderWithProviders } from 'testUtils';
 
 jest.mock('hooks/queries', () => ({
   useRolesPrivilegesQueriesOfficeApp: () => ({
@@ -68,13 +67,7 @@ const mockSearchTransportationOfficesOpen = () => Promise.resolve([mockTransport
 
 describe('RequestAccount page', () => {
   it('renders the RequestAccount form', async () => {
-    render(
-      <ReactQueryWrapper>
-        <MemoryRouter>
-          <RequestAccount />
-        </MemoryRouter>
-      </ReactQueryWrapper>,
-    );
+    renderWithProviders(<RequestAccount />);
 
     const formHeader = screen.getByRole('heading', { name: 'Request Office Account', level: 2 });
     expect(formHeader).toBeInTheDocument();
@@ -84,13 +77,7 @@ describe('RequestAccount page', () => {
     const props = {
       setFlashMessage: jest.fn(),
     };
-    render(
-      <ReactQueryWrapper>
-        <MemoryRouter>
-          <RequestAccount {...props} />
-        </MemoryRouter>
-      </ReactQueryWrapper>,
-    );
+    renderWithProviders(<RequestAccount {...props} />);
 
     const mockResponse = {
       ok: true,
@@ -133,13 +120,7 @@ describe('RequestAccount page', () => {
   });
 
   it('should display error message on failed submit', async () => {
-    render(
-      <ReactQueryWrapper>
-        <MemoryRouter>
-          <RequestAccount />
-        </MemoryRouter>
-      </ReactQueryWrapper>,
-    );
+    renderWithProviders(<RequestAccount />);
 
     const mockResponse = {
       status: 500,
@@ -189,13 +170,7 @@ describe('RequestAccount page', () => {
   });
 
   it('goes back to the sign in page when the cancel button is clicked', async () => {
-    render(
-      <ReactQueryWrapper>
-        <MemoryRouter>
-          <RequestAccount />
-        </MemoryRouter>
-      </ReactQueryWrapper>,
-    );
+    renderWithProviders(<RequestAccount />);
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 

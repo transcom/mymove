@@ -288,7 +288,7 @@ type CreateOfficeUserHandler struct {
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
-	services.RoleAssociator
+	services.RoleFetcher
 	services.UserPrivilegeAssociator
 	services.TransportationOfficeAssignmentUpdater
 }
@@ -398,7 +398,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
 
-			roles, err := h.RoleAssociator.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
+			roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
@@ -767,7 +767,7 @@ func (h DeleteOfficeUserHandler) Handle(params officeuserop.DeleteOfficeUserPara
 // GetRolesPrivilegesHandler retrieves a list of unique role to privilege mappings via GET /office_users/roles-privileges
 type GetRolesPrivilegesHandler struct {
 	handlers.HandlerConfig
-	services.RoleAssociator
+	services.RoleFetcher
 }
 
 func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivilegesParams) middleware.Responder {
@@ -779,7 +779,7 @@ func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivileges
 				return officeuserop.NewGetRolesPrivilegesUnauthorized(), nil
 			}
 
-			rolesWithRolePrivs, err := h.RoleAssociator.FetchRolesPrivileges(appCtx)
+			rolesWithRolePrivs, err := h.RoleFetcher.FetchRolesPrivileges(appCtx)
 			if err != nil && errors.Is(err, sql.ErrNoRows) {
 				return officeuserop.NewGetRolesPrivilegesNotFound(), err
 			} else if err != nil {

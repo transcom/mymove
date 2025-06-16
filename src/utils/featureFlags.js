@@ -156,7 +156,7 @@ export async function isBooleanFlagEnabledUnauthenticated(flagKey) {
 }
 
 // isBooleanFlagEnabledUnauthenticated returns the Flipt feature flag value
-// only used within the customer app and for unauthenticated users
+// only used within the office app and for unauthenticated users
 export async function isBooleanFlagEnabledUnauthenticatedOffice(flagKey) {
   return getBooleanFeatureFlagUnauthenticatedOffice(flagKey, {})
     .then((result) => {

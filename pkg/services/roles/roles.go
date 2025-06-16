@@ -11,7 +11,7 @@ import (
 type rolesFetcher struct {
 }
 
-func NewRolesFetcher() services.RoleAssociator {
+func NewRolesFetcher() services.RoleFetcher {
 	return rolesFetcher{}
 }
 
