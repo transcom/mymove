@@ -21,18 +21,27 @@
     }
 
     .rejectBtn {
-        width: 100px;
-        height: 38px;
-        background-color:  #d84006;
-        font-size: 11pt;
-        color: #fff;
+      height: 38px;
+      width: 120px;
+      background-color: transparent !important;
+      border: 2px solid $error !important;
+      color: #e1400a !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        &:active,
-        &:hover,
-        &:focus {
-          background-color:  #d84006;
-          opacity: 80%;
-        }
+    .rejectBtn:hover {
+      opacity: 0.8;
+    }
+
+    .deleteBtn {
+      height: 38px;
+      width: 120px;
+      background-color: $error !important;
+      color: white !important;
+      display: flex;
+      gap: 8px;
     }
 }
 

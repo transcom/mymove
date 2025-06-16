@@ -15,6 +15,8 @@ import {
   useRecordContext,
 } from 'react-admin';
 
+import adminStyles from '../adminStyles.module.scss';
+
 import styles from './RequestedOfficeUserShow.module.scss';
 import RequestedOfficeUserPrivilegeConfirm from './RequestedOfficeUserPrivilegeConfirm';
 
@@ -32,14 +34,17 @@ const RequestedOfficeUserShowTitle = () => {
   return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
 };
 
+// Helper to filter only SUPERVISOR privileges from a privileges array
+function getFilteredPrivileges(privileges) {
+  return (privileges || []).filter((priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR);
+}
+
 // RecordInitializer: Initializes userData and isOfficeUserRequestedPrivileges state from the current record context.
 // Sets userData to the current record and sets isOfficeUserRequestedPrivileges to true if privileges(Supervisor) was requested/exist.
 const RecordInitializer = ({ setUserData, setIsOfficeUserRequestedPrivileges }) => {
   const record = useRecordContext();
   useEffect(() => {
-    const filteredPrivileges = (record?.privileges || []).filter(
-      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
-    );
+    const filteredPrivileges = getFilteredPrivileges(record?.privileges);
     setUserData(record || {});
     setIsOfficeUserRequestedPrivileges(filteredPrivileges.length > 0);
   }, [record, setUserData, setIsOfficeUserRequestedPrivileges]);
@@ -179,9 +184,7 @@ const RequestedOfficeUserEdit = () => {
 
   // Approve button success handler
   const handleOnClickApprove = async (data) => {
-    const filteredPrivileges = (data.privileges || []).filter(
-      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
-    );
+    const filteredPrivileges = getFilteredPrivileges(data.privileges);
     if (isRequestAccountPrivilegesFF && filteredPrivileges.length > 0 && isOfficeUserRequestedPrivileges) {
       setUserData(data);
       setCheckedPrivileges(filteredPrivileges.map((priv) => priv.id));
@@ -194,10 +197,8 @@ const RequestedOfficeUserEdit = () => {
   // Handler for privilege confirmation dialog
   const handlePrivilegeConfirm = async () => {
     setApproveDialogOpen(false);
-    // Only include checked privileges in approval, and only SUPERVISOR privileges
-    const filteredPrivileges = (userData.privileges || []).filter(
-      (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
-    );
+    // Only include checked privileges in approval, and only SUPERVISOR privilege
+    const filteredPrivileges = getFilteredPrivileges(userData.privileges);
     const approvedPrivileges = filteredPrivileges.filter((priv) => checkedPrivileges.includes(priv.id)) || [];
     await approve({ ...userData, privileges: approvedPrivileges });
   };
@@ -216,26 +217,7 @@ const RequestedOfficeUserEdit = () => {
             {validationCheck}
           </Alert>
         )}
-        <Toolbar sx={{ display: 'flex', gap: '10px' }}>
-          <SaveButton
-            type="button"
-            alwaysEnable
-            label="Approve"
-            mutationOptions={{
-              onSuccess: handleOnClickApprove,
-            }}
-          />
-          <SaveButton
-            type="button"
-            color="error"
-            alwaysEnable
-            label="Reject"
-            mutationOptions={{
-              onSuccess: async (data) => {
-                await reject(data);
-              },
-            }}
-          />
+        <Toolbar className={adminStyles.flexSplit} sx={{ gap: '20px' }}>
           <DeleteButton
             mutationOptions={{
               onSuccess: async (data) => {
@@ -244,7 +226,45 @@ const RequestedOfficeUserEdit = () => {
                 handleClick();
               },
             }}
+            sx={{
+              backgroundColor: '#e1400a !important',
+              width: 120,
+              '&:hover': {
+                opacity: '0.8',
+              },
+            }}
           />
+          <div className={adminStyles.flexRight}>
+            <SaveButton
+              type="button"
+              alwaysEnable
+              label="Reject"
+              mutationOptions={{
+                onSuccess: async (data) => {
+                  await reject(data);
+                },
+              }}
+              sx={{
+                backgroundColor: 'transparent !important',
+                border: '1px solid #e1400a',
+                '&:hover': {
+                  opacity: '0.8',
+                },
+                color: '#e1400a',
+                '& .MuiSvgIcon-root': {
+                  color: '#e1400a',
+                },
+              }}
+            />
+            <SaveButton
+              type="button"
+              alwaysEnable
+              label="Approve"
+              mutationOptions={{
+                onSuccess: handleOnClickApprove,
+              }}
+            />
+          </div>
         </Toolbar>
       </>
     );
