@@ -35,6 +35,25 @@ describe('EditFacilityInfoModal', () => {
     lotNumber: '11232',
   };
 
+  it('renders form fields and asterisks for required fields', async () => {
+    const mockOnSubmit = jest.fn();
+    const mockStore = configureStore({});
+    render(
+      <Provider store={mockStore.store}>
+        <EditFacilityInfoModal
+          onClose={() => {}}
+          onSubmit={mockOnSubmit}
+          storageFacility={storageFacility}
+          serviceOrderNumber="12345"
+          shipmentType="HHG_INTO_NTS"
+        />
+      </Provider>,
+    );
+
+    expect(screen.getByLabelText(/Facility name */)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Service order number */)).toBeRequired();
+  });
+
   it('calls onSubmit prop on save button click when the form has valid data', async () => {
     const mockOnSubmit = jest.fn();
     const mockStore = configureStore({});
