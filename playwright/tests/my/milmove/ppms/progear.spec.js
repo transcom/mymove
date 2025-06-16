@@ -33,6 +33,26 @@ test.describe('Progear', () => {
   });
 });
 
+test.describe('Progear', () => {
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+
+  forEachViewport(async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.clickOnGoToMoveButton();
+      await customerPpmPage.navigateToAboutPage();
+      await customerPpmPage.navigateFromWeightTicketPageBadUpload();
+      await customerPpmPage.navigateFromCloseoutReviewPageToAddProGearPage();
+    });
+
+    test('Test upload of wrong xlsx file to progear page', async ({ customerPpmPage }) => {
+      await customerPpmPage.selectMeProGear();
+      await customerPpmPage.submitIncorrectXlsxFileForProGear();
+    });
+  });
+});
+
 test.describe('(MultiMove) Progear', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
 
