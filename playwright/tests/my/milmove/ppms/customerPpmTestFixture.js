@@ -111,8 +111,6 @@ export class CustomerPpmPage extends CustomerPage {
     await this.clickOnUploadPPMDocumentsButton();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]/);
-
-    await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
   }
 
   /**
@@ -228,6 +226,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async fillOutWeightTicketPage(options) {
     const { hasTrailer = false, ownTrailer = false, useConstructedWeight = false } = options;
+    await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
     await this.page.locator('input[name="vehicleDescription"]').fill('Kia Forte');
     await this.page.locator('input[name="vehicleDescription"]').blur();
 

@@ -494,7 +494,6 @@ const ServicesCounselingQueue = ({
       }
     };
 
-    getOriginLocationList(true, selectedGbloc);
     getOriginLocationList(false, selectedGbloc);
 
     const fetchData = async () => {

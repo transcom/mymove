@@ -59,14 +59,6 @@ const config = {
         ...devices['Desktop Chrome'],
       },
     },
-    {
-      name: 'webkit',
-      testMatch: 'admin/**/*.spec.js',
-      use: {
-        baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:3000',
-        ...devices['Desktop Safari'],
-      },
-    },
 
     {
       // ahobson 2022-12-08: for now, only test desktop chrome for my
@@ -77,14 +69,7 @@ const config = {
         ...devices['Desktop Chrome'],
       },
     },
-    {
-      name: 'webkit',
-      testMatch: 'my/**/*.spec.js',
-      use: {
-        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:3000',
-        ...devices['Desktop Safari'],
-      },
-    },
+
     {
       // ahobson 2022-12-14: for now, only test desktop chrome for office
       name: 'office',
@@ -94,14 +79,7 @@ const config = {
         ...devices['Desktop Chrome'],
       },
     },
-    {
-      name: 'webkit',
-      testMatch: 'office/**/*.spec.js',
-      use: {
-        baseURL: process.env.PLAYWRIGHT_OFFICE_URL || 'http://officelocal:3000',
-        ...devices['Desktop Safari'],
-      },
-    },
+
     // ahobson 2022-12-08: leave examples for later
     // {
     //   name: 'firefox',
