@@ -541,6 +541,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 					}
 				}
 
+				// Update move status
 				checkMoveStatus = true
 			}
 		}
