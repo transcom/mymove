@@ -1132,7 +1132,7 @@ describe('MoveDetails page', () => {
       expect(advanceStatus.condition(ppmAdvanceRequestedAndRejected)).toBe(false);
     });
 
-    it('returns true from useErrorIfMissing if the advance is not approvd or pending', async () => {
+    it('returns true from useErrorIfMissing if the advance is not approved or pending', async () => {
       const { result } = renderHook(() => useErrorIfMissing(false));
       const advanceStatus = result.current.PPM.find((f) => f.fieldName === 'advanceStatus');
       expect(advanceStatus.condition(ppmAdvanceRequestedAndReceived)).toBe(true);

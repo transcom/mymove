@@ -123,7 +123,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		AdditionalDocuments:                            additionalDocumentsPayload,
 		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
 		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
-		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
+		TOOTaskOrderAssignedUser:                       AssignedOfficeUser(move.TOOTaskOrderAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
@@ -647,9 +647,9 @@ func Order(order *models.Order) *ghcmessages.Order {
 		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*order.OrdersTypeDetail)
 	}
 
-	var grade ghcmessages.Grade
+	var grade ghcmessages.OrderPayGrade
 	if order.Grade != nil {
-		grade = ghcmessages.Grade(*order.Grade)
+		grade = ghcmessages.OrderPayGrade(*order.Grade)
 	}
 	//
 	var affiliation ghcmessages.Affiliation
@@ -1425,6 +1425,7 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
 		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+		GccMultiplier:         swag.Float32(float32(*ppmCloseout.GCCMultiplier)),
 	}
 
 	return payload
@@ -2551,8 +2552,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if queueType == string(models.QueueTypeCloseout) && move.SCCloseoutAssignedUser != nil {
 			assignedToUser = move.SCCloseoutAssignedUser
 		}
-		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
-			assignedToUser = move.TOOAssignedUser
+		if queueType == string(models.QueueTypeTaskOrder) && move.TOOTaskOrderAssignedUser != nil {
+			assignedToUser = move.TOOTaskOrderAssignedUser
 		}
 		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
 			assignedToUser = move.TOODestinationAssignedUser
@@ -3062,4 +3063,19 @@ func Countries(countries models.Countries) ghcmessages.Countries {
 		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
+	var payloadPayGrades []*ghcmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := ghcmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }

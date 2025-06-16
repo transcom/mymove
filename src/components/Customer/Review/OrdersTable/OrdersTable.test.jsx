@@ -3,7 +3,7 @@ import { render, screen, act } from '@testing-library/react';
 
 import OrdersTable from './OrdersTable';
 
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const testOrders = {
   authorizedWeight: 5000,
@@ -95,7 +95,7 @@ describe('Orders table', () => {
           orderType={testOrders.orders_type}
           reportByDate={testOrders.report_by_date}
           uploads={testOrders.uploaded_orders.uploads}
-          payGrade={ORDERS_PAY_GRADE_OPTIONS[testOrders?.grade] || ''}
+          payGrade={ORDERS_PAY_GRADE_TYPE[testOrders?.grade] || ''}
           originDutyLocationName={testOrders.origin_duty_location.name}
           orderId={testOrders.id}
           counselingOfficeName="Test Counseling Office"

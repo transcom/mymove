@@ -321,6 +321,12 @@ export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };
 
+export const formatPayGradeOptions = (payGrades) => {
+  return payGrades.map((grade) => {
+    return { key: grade.grade, value: grade.description };
+  });
+};
+
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
 export const formatAgeToDays = (age) => {
   if (age < 1) {
@@ -696,8 +702,8 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
 
   assignOfficeUser(
     ASSIGNMENT_IDS.TASK_ORDERING_OFFICER_DESTINATION,
-    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.ASSIGNED,
-    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.RE_ASSIGNED,
+    ASSIGNMENT_NAMES.DESTINATION_TASK_ORDERING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.DESTINATION_TASK_ORDERING_OFFICER.RE_ASSIGNED,
   ); // destination request queue
   return newValues;
 };
@@ -732,3 +738,20 @@ export function formatPortInfo(port) {
 export function formatFullName(firstName, middleName, lastName) {
   return [firstName, middleName, lastName].filter(Boolean).join(' ');
 }
+
+export const calculateTotal = (sectionInfo) => {
+  let total = 0;
+
+  if (sectionInfo?.haulPrice) total += sectionInfo.haulPrice;
+  if (sectionInfo?.haulFSC) total += sectionInfo.haulFSC;
+  if (sectionInfo?.packPrice) total += sectionInfo.packPrice;
+  if (sectionInfo?.unpackPrice) total += sectionInfo.unpackPrice;
+  if (sectionInfo?.dop) total += sectionInfo.dop;
+  if (sectionInfo?.ddp) total += sectionInfo.ddp;
+  if (sectionInfo?.intlPackingPrice) total += sectionInfo.intlPackingPrice;
+  if (sectionInfo?.intlUnpackPrice) total += sectionInfo.intlUnpackPrice;
+  if (sectionInfo?.intlLinehaulPrice) total += sectionInfo.intlLinehaulPrice;
+  if (sectionInfo?.sitReimbursement) total += sectionInfo.sitReimbursement;
+
+  return formatCents(total);
+};

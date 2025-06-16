@@ -1,7 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
 import { MockProviders } from 'testUtils';
@@ -9,7 +11,12 @@ import { useOrdersDocumentQueries } from 'hooks/queries';
 import { MOVE_DOCUMENT_TYPE, MOVE_STATUSES } from 'shared/constants';
 import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatYesNoAPIValue } from 'utils/formatters';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const mockOriginDutyLocation = {
   address: {
@@ -118,6 +125,28 @@ jest.mock('services/ghcApi', () => ({
   },
   counselingUpdateOrder: jest.fn(),
   getOrder: jest.fn(),
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const E_5 = 'E-5';
+    const E_6 = 'E-6';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
+
+    return Promise.resolve({
+      body: [
+        {
+          grade: E_5,
+          description: E_5,
+        },
+        {
+          grade: E_6,
+          description: E_6,
+        },
+        {
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
+        },
+      ],
+    });
+  }),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -273,6 +302,9 @@ describe('Orders page', () => {
 
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
       expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
+
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
     });
 
     it('populates initial field values', async () => {
@@ -291,7 +323,7 @@ describe('Orders page', () => {
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
-      expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
+      expect(screen.getByTestId('payGradeInput')).toHaveValue(ORDERS_PAY_GRADE_TYPE.E_5);
     });
 
     it('disables fields for correct statuses', async () => {
@@ -482,7 +514,7 @@ describe('Orders page', () => {
       const hhgSacInput = screen.getByTestId('hhgSacInput');
       await userEvent.clear(hhgSacInput);
       await userEvent.type(hhgSacInput, '****');
-      hhgSacInput.blur();
+      await userEvent.tab();
       await waitFor(() => {
         // no *
         expect(screen.getByText('SAC cannot contain * or " characters')).toBeInTheDocument();
@@ -509,6 +541,31 @@ describe('Orders page', () => {
       await waitFor(() => {
         expect(screen.getByText('NTS SAC cannot contain * or " characters')).toBeInTheDocument();
       });
+    });
+
+    it('SAC fields can be more than 4 digits', async () => {
+      const props = {
+        ...ordersMockProps,
+        sac: '',
+        ntsSac: '',
+      };
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...props} />
+        </MockProviders>,
+      );
+
+      // SAC
+      const hhgSacInput = screen.getByTestId('hhgSacInput');
+      await userEvent.type(hhgSacInput, 'MoreThan4Digits');
+      expect(hhgSacInput).toHaveValue('E2P3MoreThan4Digits');
+
+      // NTS SAC
+      const ntsSacInput = screen.getByTestId('ntsSacInput');
+      await userEvent.type(ntsSacInput, '4DigitsOrMore');
+      expect(ntsSacInput).toHaveValue('R6X14DigitsOrMore');
     });
   });
 
@@ -1015,6 +1072,45 @@ describe('Orders page', () => {
             }),
           }),
         );
+      });
+    });
+  });
+
+  describe('Order type: Wounded Warrior', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('wounded warrior FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
+    });
+
+    it('wounded warrior FF turned off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+        expect(hasWoundedWarrior).toBe(false);
       });
     });
   });

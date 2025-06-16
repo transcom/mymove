@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingAddOrders from './ServicesCounselingAddOrders';
@@ -9,6 +9,7 @@ import { counselingCreateOrder } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -38,6 +39,28 @@ jest.mock('services/ghcApi', () => ({
       ],
     }),
   ),
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const E_5 = 'E-5';
+    const E_6 = 'E-6';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
+
+    return Promise.resolve({
+      body: [
+        {
+          grade: E_5,
+          description: E_5,
+        },
+        {
+          grade: E_6,
+          description: E_6,
+        },
+        {
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
+        },
+      ],
+    });
+  }),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -365,7 +388,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
@@ -403,7 +426,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '29 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
@@ -425,6 +448,29 @@ describe('ServicesCounselingAddOrders component', () => {
     });
   });
 
+  it('wounded warrior FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(false);
+    });
+  });
+  it('wounded warrior FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(true);
+    });
+  });
+
   it('routes to the move details page when the next button is clicked for OCONUS orders', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     renderWithMocks();
@@ -437,7 +483,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText('Altus');

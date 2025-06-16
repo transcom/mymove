@@ -809,3 +809,18 @@ func Countries(countries models.Countries) internalmessages.Countries {
 	}
 	return payload
 }
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
+	var payloadPayGrades []*internalmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := internalmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
+}

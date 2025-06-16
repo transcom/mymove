@@ -1037,7 +1037,7 @@ func init() {
           "x-nullable": true
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "userID": {
           "type": "string",
@@ -2132,7 +2132,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "reportByDate": {
           "description": "Date that the service member must report to the new DutyLocation by.",
@@ -2157,6 +2157,73 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "OrderPayGrade": {
+      "type": "string",
+      "title": "Grade",
+      "enum": [
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
     },
     "OrdersStatus": {
       "type": "string",
@@ -2359,39 +2426,7 @@ func init() {
       }
     },
     "Rank": {
-      "description": "Rank of the service member, must match specific list of available ranks.",
-      "type": "string",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ]
+      "$ref": "#/definitions/OrderPayGrade"
     },
     "ReServiceCode": {
       "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
@@ -2541,6 +2576,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
+            "CLEAN",
             "NO_THREATS_FOUND",
             "PROCESSING"
           ]
@@ -4020,7 +4056,7 @@ func init() {
           "x-nullable": true
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "userID": {
           "type": "string",
@@ -5115,7 +5151,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "reportByDate": {
           "description": "Date that the service member must report to the new DutyLocation by.",
@@ -5140,6 +5176,73 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "OrderPayGrade": {
+      "type": "string",
+      "title": "Grade",
+      "enum": [
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
     },
     "OrdersStatus": {
       "type": "string",
@@ -5341,41 +5444,7 @@ func init() {
         }
       }
     },
-    "Rank": {
-      "description": "Rank of the service member, must match specific list of available ranks.",
-      "type": "string",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ]
-    },
+    "Rank": {},
     "ReServiceCode": {
       "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
       "type": "string",
@@ -5524,6 +5593,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
+            "CLEAN",
             "NO_THREATS_FOUND",
             "PROCESSING"
           ]

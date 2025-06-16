@@ -338,7 +338,6 @@ describe('EstimatedWeightsProGear page', () => {
     };
 
     await waitFor(() => {
-      // screen.debug();
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag);
     });
   });
@@ -380,7 +379,6 @@ describe('EstimatedWeightsProGear page', () => {
     };
 
     await waitFor(() => {
-      // screen.debug();
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag);
     });
   });

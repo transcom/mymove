@@ -39,7 +39,7 @@ func (suite *OfficeUserServiceSuite) TestDeleteOfficeUser() {
 		_ = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					TOOAssignedID: &officeUser.ID,
+					TOOTaskOrderAssignedID: &officeUser.ID,
 				},
 			},
 			{
@@ -112,7 +112,7 @@ func (suite *OfficeUserServiceSuite) TestDeleteOfficeUser() {
 		err := deleter.DeleteOfficeUser(suite.AppContextForTest(), testOfficeUser.ID)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.ErrorContains(err, "violates foreign key constraint \"moves_too_assigned_id_fkey\" on table \"moves\"")
+		suite.ErrorContains(err, "violates foreign key constraint \"moves_too_task_order_assigned_id_fkey\" on table \"moves\"")
 
 		var user models.User
 		err = suite.DB().Where("id = ?", testUser.ID).First(&user)

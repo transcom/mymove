@@ -1,13 +1,15 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { Formik } from 'formik';
+import userEvent from '@testing-library/user-event';
 
 import OrdersDetailForm from './OrdersDetailForm';
 
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
+import { renderWithRouter } from 'testUtils';
 
 const dutyLocation = {
   address: {
@@ -43,7 +45,7 @@ const initialValues = {
 const deptOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_TYPE);
 
 const defaultProps = {
   deptIndicatorOptions: deptOptions,
@@ -59,7 +61,7 @@ const defaultProps = {
 };
 
 function renderOrdersDetailForm(props) {
-  render(
+  renderWithRouter(
     <Formik initialValues={initialValues}>
       <form>
         <OrdersDetailForm {...defaultProps} {...props} />
@@ -273,5 +275,23 @@ describe('OrdersDetailForm', () => {
   it('renders dependents authorized checkbox field', async () => {
     renderOrdersDetailForm();
     expect(await screen.findByTestId('dependentsAuthorizedInput')).toBeInTheDocument();
+  });
+
+  it('allows typing more than 4 characters into a SAC field', async () => {
+    renderOrdersDetailForm();
+
+    // there are two SAC fields (HHG SAC and NTS SAC)
+    const sacInputs = screen.getAllByLabelText('SAC');
+    expect(sacInputs.length).toBeGreaterThanOrEqual(1);
+
+    const firstSacInput = sacInputs[0];
+    await userEvent.type(firstSacInput, 'ABCDE');
+    // Sac is already in the initial values, so we can confirm we can append to that
+    expect(firstSacInput).toHaveValue('SacABCDE');
+
+    // NTS SAC is not in the initial values, so we can check for exactly what we put in
+    const secondSacInput = sacInputs[1];
+    await userEvent.type(secondSacInput, 'FGHIJ123');
+    expect(secondSacInput).toHaveValue('FGHIJ123');
   });
 });

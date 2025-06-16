@@ -44,6 +44,7 @@ type PPMCloseout struct {
 	IntlUnpackPrice       *unit.Cents
 	IntlLinehaulPrice     *unit.Cents
 	SITReimbursement      *unit.Cents
+	GCCMultiplier         *float64
 }
 
 type PPMActualWeight struct {
@@ -261,6 +262,8 @@ type PPMShipment struct {
 	IsActualExpenseReimbursement   *bool                `json:"is_actual_expense_reimbursement" db:"is_actual_expense_reimbursement"`
 	HasGunSafe                     *bool                `json:"has_gun_safe" db:"has_gun_safe"`
 	GunSafeWeight                  *unit.Pound          `json:"gun_safe_weight" db:"gun_safe_weight"`
+	GCCMultiplierID                *uuid.UUID           `json:"gcc_multiplier_id" db:"gcc_multiplier_id"`
+	GCCMultiplier                  *GCCMultiplier       `belongs_to:"gcc_multipliers" fk_id:"gcc_multiplier_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -315,6 +318,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalCentIsPositive{Name: "SITEstimatedCost", Field: p.SITEstimatedCost},
 		&OptionalUUIDIsPresent{Name: "AOAPacketID", Field: p.AOAPacketID},
 		&OptionalUUIDIsPresent{Name: "PaymentPacketID", Field: p.PaymentPacketID},
+		&OptionalUUIDIsPresent{Name: "GCCMultiplierID", Field: p.GCCMultiplierID},
 	), nil
 
 }

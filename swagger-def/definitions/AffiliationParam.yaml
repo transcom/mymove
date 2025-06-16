@@ -1,0 +1,14 @@
+name: affiliation
+in: path
+required: true
+type: string
+enum:
+  - ARMY
+  - NAVY
+  - MARINES
+  - AIR_FORCE
+  - COAST_GUARD
+  - SPACE_FORCE
+  - OTHER
+x-nullable: true
+description: Military branch of service

@@ -336,6 +336,13 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated before this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "before",
+            "in": "query"
+          },
+          {
             "type": "boolean",
             "x-nullable": true,
             "description": "When set to true, only moves where both the move and all its shipments are acknowledged will be included in the results. When set to false, only moves where either the move or any one (or more) of its shipments are NOT acknowledged will be included in the results.",
@@ -5673,6 +5680,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
+            "CLEAN",
             "NO_THREATS_FOUND",
             "PROCESSING"
           ]
@@ -6347,6 +6355,13 @@ func init() {
             "format": "date-time",
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated before this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "before",
             "in": "query"
           },
           {
@@ -12012,6 +12027,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
+            "CLEAN",
             "NO_THREATS_FOUND",
             "PROCESSING"
           ]
