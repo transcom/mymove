@@ -265,7 +265,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(rejectedOfficeUser.ID.String()),
 		}
 
-		mockRoleAssociator := &mocks.RoleAssociator{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -275,7 +275,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 				UpdatedAt: time.Now(),
 			},
 		}
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -285,7 +285,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 		handler := GetRejectedOfficeUserHandler{
 			suite.HandlerConfig(),
 			rejectedofficeusers.NewRejectedOfficeUserFetcher(queryBuilder),
-			mockRoleAssociator,
+			mockRoleFetcher,
 			query.NewQueryFilter,
 		}
 
@@ -309,7 +309,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 			mock.Anything,
 		).Return(rejectedOfficeUser, nil).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociator{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -319,7 +319,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 				UpdatedAt: time.Now(),
 			},
 		}
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -328,7 +328,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 		handler := GetRejectedOfficeUserHandler{
 			suite.HandlerConfig(),
 			rejectedOfficeUserFetcher,
-			mockRoleAssociator,
+			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 
@@ -353,7 +353,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 			mock.Anything,
 		).Return(models.OfficeUser{}, expectedError).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociator{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -363,7 +363,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 				UpdatedAt: time.Now(),
 			},
 		}
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -372,7 +372,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 		handler := GetRejectedOfficeUserHandler{
 			suite.HandlerConfig(),
 			rejectedOfficeUserFetcher,
-			mockRoleAssociator,
+			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 

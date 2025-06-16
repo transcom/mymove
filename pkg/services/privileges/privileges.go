@@ -11,7 +11,7 @@ import (
 type privilegesFetcher struct {
 }
 
-func NewPrivilegesFetcher() services.PrivilegeAssociator {
+func NewPrivilegesFetcher() services.PrivilegeFetcher {
 	return privilegesFetcher{}
 }
 

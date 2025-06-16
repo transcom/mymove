@@ -23,24 +23,24 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUserCreator, *mocks.UserRoleAssociator, *mocks.RoleAssociator, *mocks.UserPrivilegeAssociator, *mocks.PrivilegeAssociator, *mocks.TransportationOfficeAssignmentUpdater, *RequestOfficeUserHandler) {
+func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUserCreator, *mocks.UserRoleAssociator, *mocks.RoleFetcher, *mocks.UserPrivilegeAssociator, *mocks.PrivilegeFetcher, *mocks.TransportationOfficeAssignmentUpdater, *RequestOfficeUserHandler) {
 	mockCreator := &mocks.OfficeUserCreator{}
 	mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-	mockRoleAssociator := &mocks.RoleAssociator{}
+	mockRoleFetcher := &mocks.RoleFetcher{}
 	mockUserPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
-	mockPrivilegeAssociator := &mocks.PrivilegeAssociator{}
+	mockPrivilegeFetcher := &mocks.PrivilegeFetcher{}
 	mockTransportationOfficeAssignmentUpdater := &mocks.TransportationOfficeAssignmentUpdater{}
 	handler := &RequestOfficeUserHandler{
 		HandlerConfig:                         suite.HandlerConfig(),
 		OfficeUserCreator:                     mockCreator,
 		NewQueryFilter:                        query.NewQueryFilter,
 		UserRoleAssociator:                    mockUserRoleAssociator,
-		RoleAssociator:                        mockRoleAssociator,
+		RoleFetcher:                           mockRoleFetcher,
 		UserPrivilegeAssociator:               mockUserPrivilegeAssociator,
-		PrivilegeAssociator:                   mockPrivilegeAssociator,
+		PrivilegeFetcher:                      mockPrivilegeFetcher,
 		TransportationOfficeAssignmentUpdater: mockTransportationOfficeAssignmentUpdater,
 	}
-	return mockCreator, mockUserRoleAssociator, mockRoleAssociator, mockUserPrivilegeAssociator, mockPrivilegeAssociator, mockTransportationOfficeAssignmentUpdater, handler
+	return mockCreator, mockUserRoleAssociator, mockRoleFetcher, mockUserPrivilegeAssociator, mockPrivilegeFetcher, mockTransportationOfficeAssignmentUpdater, handler
 }
 
 // Services Counselor. Task Ordering Officer (TOO), Task Invoicing Officer (TIO),
