@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -18,24 +16,27 @@ func (suite *ServiceParamValueLookupsSuite) TestRateAreaLookup() {
 	setupTestData := func(code models.ReServiceCode) {
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "62225")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "62225",
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					State:              usprc.State,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
-		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-				},
-			},
-		}, nil)
+
+		destAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
