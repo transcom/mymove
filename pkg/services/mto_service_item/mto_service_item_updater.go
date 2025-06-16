@@ -527,7 +527,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	if len(shipment.SITDurationUpdates) > 0 {
 		if mtoServiceItem.SITDepartureDate != nil && endDate != nil {
 			today := time.Now()
-			move := shipment.MoveTaskOrder
 			if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
 				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = ?, decision_date = ? WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusRemoved, today, models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
 				if err != nil {
@@ -542,13 +541,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 					}
 				}
 
-				// Update move status from APPROVALS REQUESTED back to APPROVED
-				if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
-					_, err = p.moveRouter.ApproveOrRequestApproval(appCtx, move)
-					if err != nil {
-						return nil, err
-					}
-				}
+				checkMoveStatus = true
 			}
 		}
 	}
