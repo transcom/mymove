@@ -5041,6 +5041,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
+			HasReceivedAdvance:    models.BoolPointer(true),
 		},
 	}
 
