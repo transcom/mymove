@@ -13,7 +13,7 @@ export default {
     <>
       <div>Payment Requests Addressed</div>
       {changedValues?.tio_payment_request_assigned_id !== undefined ? (
-        <div>Task Invoicing Officer Unassigned</div>
+        <div>Task invoicing officer unassigned</div>
       ) : null}
     </>
   ),
