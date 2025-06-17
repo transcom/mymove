@@ -1570,6 +1570,84 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
+		suite.Run("Final Incentive - Skips recalculation when GCC multiplier and actual move date unchanged", func() {
+			setupPricerData()
+			weightOverride := unit.Pound(19500)
+			maxIncentive := unit.Cents(90000000)
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate: models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:   &maxIncentive,
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+					},
+				},
+			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
+
+			oldPPMShipment.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
+					},
+				}, nil),
+			}
+
+			newPPM := oldPPMShipment
+			// make sure actual move date and GCC multiplier are the same (I know this isn't needed but adding for test clarity)
+			newPPM.ActualMoveDate = oldPPMShipment.ActualMoveDate
+			newPPM.GCCMultiplierID = oldPPMShipment.GCCMultiplierID
+
+			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NoError(err)
+			suite.Equal(*oldPPMShipment.FinalIncentive, *finalIncentive)
+		})
+
+		suite.Run("Final Incentive - recalculates when old multiplier is nil and new is valid", func() {
+			validMultiplierID := uuid.Must(uuid.NewV4())
+			setupPricerData()
+			weightOverride := unit.Pound(19500)
+			maxIncentive := unit.Cents(90000000)
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate: models.TimePointer(actualMoveDate),
+						Status:         models.PPMShipmentStatusWaitingOnCustomer,
+						MaxIncentive:   &maxIncentive,
+						FinalIncentive: models.CentPointer(unit.Cents(500000)),
+					},
+				},
+			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
+
+			oldPPMShipment.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight: &weightOverride,
+						},
+					},
+				}, nil),
+			}
+
+			newPPM := oldPPMShipment
+			newPPM.GCCMultiplierID = &validMultiplierID // introduce a new multiplier
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil).Once()
+
+			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NoError(err)
+
+			suite.NotEqual(*oldPPMShipment.FinalIncentive, *finalIncentive)
+		})
+
 		suite.Run("Sum Weights - sum weights for original shipment with standard weight ticket and new shipment with standard weight ticket", func() {
 			oldFullWeight := unit.Pound(10000)
 			oldEmptyWeight := unit.Pound(6000)
