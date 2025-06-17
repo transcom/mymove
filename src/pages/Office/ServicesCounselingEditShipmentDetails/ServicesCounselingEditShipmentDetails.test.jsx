@@ -385,7 +385,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
       expect(screen.getByRole('textbox', { name: 'Planned Departure Date' })).toHaveValue('28 Jun 2022');
 
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
         ppmShipment.ppmShipment.pickupAddress.streetAddress1,
       );
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
@@ -401,7 +401,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         )[0],
       );
 
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
         ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
       );
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
@@ -686,7 +686,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
+        expect(screen.getByLabelText('Estimated PPM weight *')).toHaveValue('1,111');
       });
       await userEvent.type(screen.getByLabelText(/Closeout location/), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));
@@ -717,7 +717,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
+        expect(screen.getByLabelText('Estimated PPM weight *')).toHaveValue('1,111');
       });
       await userEvent.type(screen.getByLabelText(/Closeout location/), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));

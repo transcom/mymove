@@ -300,6 +300,7 @@ const ServicesCounselingOrders = ({
     const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
 
       setOrderTypesOptions((prevOptions) => {
         const options = { ...prevOptions };
@@ -311,7 +312,9 @@ const ServicesCounselingOrders = ({
         if (!isWoundedWarriorEnabled) {
           delete options.WOUNDED_WARRIOR;
         }
-
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
+        }
         return options;
       });
     };
@@ -468,15 +471,15 @@ const ServicesCounselingOrders = ({
                 {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
+                    <Button type="button" secondary onClick={handleClose}>
+                      Cancel
+                    </Button>
                     <Button
                       type="submit"
                       disabled={formik.isSubmitting || !counselorCanEdit}
                       onClick={scrollToViewFormikError(formik)}
                     >
                       Save
-                    </Button>
-                    <Button type="button" secondary onClick={handleClose}>
-                      Cancel
                     </Button>
                   </div>
                 </div>

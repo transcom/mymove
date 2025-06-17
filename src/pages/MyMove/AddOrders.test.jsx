@@ -728,3 +728,34 @@ describe('Order type: Wounded Warrior', () => {
     });
   });
 });
+
+describe('Order type: BLUEBARK', () => {
+  it('BLUEBARK FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(false);
+    });
+  });
+  it('BLUEBARK FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(true);
+    });
+  });
+});
