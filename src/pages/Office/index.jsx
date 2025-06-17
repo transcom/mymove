@@ -257,6 +257,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                           <HeadquartersQueues
                             isQueueManagementFFEnabled={queueManagementFlag}
                             activeRole={props.activeRole}
+                            isApprovalRequestTypeColEnabled={approvalRequestTypeFlag}
                           />
                         </PrivateRoute>
                       }
@@ -347,6 +348,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             <HeadquartersQueues
                               isQueueManagementFFEnabled={queueManagementFlag}
                               activeRole={props.activeRole}
+                              isApprovalRequestTypeColEnabled={approvalRequestTypeFlag}
                             />
                           </PrivateRoute>
                         }
