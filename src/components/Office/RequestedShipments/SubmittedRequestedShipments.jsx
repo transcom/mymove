@@ -349,124 +349,121 @@ const SubmittedRequestedShipments = ({
   const debouncedSubmit = useCallback(debounce(formik.handleSubmit, 5000, { leading: true }), []);
 
   return (
-    <>
-      <div className={styles.RequestedShipments} data-testid="requested-shipments">
-        <div
-          id="approvalConfirmationModal"
-          data-testid="approvalConfirmationModal"
-          style={{ display: isModalVisible ? 'block' : 'none' }}
-        >
-          <ShipmentApprovalPreview
-            mtoShipments={filteredShipments}
-            ordersInfo={ordersInfo}
-            allowancesInfo={allowancesInfo}
-            customerInfo={customerInfo}
-            setIsModalVisible={setIsModalVisible}
-            onSubmit={debouncedSubmit}
-            counselingFee={formik.values.counselingFee}
-            shipmentManagementFee={formik.values.shipmentManagementFee}
-            isSubmitting={formik.isSubmitting}
-          />
-        </div>
-
-        <form onSubmit={formik.handleSubmit}>
-          <div className={styles.sectionHeader}>
-            <h2>Requested shipments</h2>
-            <div className={styles.buttonDropdown}>
-              {!isMoveLocked && (
-                <Restricted to={permissionTypes.createTxoShipment}>
-                  <ButtonDropdown
-                    ariaLabel="Add a new shipment"
-                    data-testid="addShipmentButton"
-                    onChange={handleButtonDropdownChange}
-                  >
-                    <option value="" label="Add a new shipment">
-                      Add a new shipment
-                    </option>
-                    {allowedShipmentOptions()}
-                  </ButtonDropdown>
-                </Restricted>
-              )}
-            </div>
-          </div>
-          <div className={shipmentCardsStyles.shipmentCards}>
-            {mtoShipments &&
-              mtoShipments.map((shipment) => {
-                const editUrl = `../${generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
-                  shipmentId: shipment.id,
-                })}`;
-
-                return (
-                  <ShipmentDisplay
-                    key={shipment.id}
-                    isSubmitted
-                    shipmentId={shipment.id}
-                    shipmentType={shipment.shipmentType}
-                    displayInfo={shipmentDisplayInfo(shipment, dutyLocationPostal)}
-                    ordersLOA={ordersLOA}
-                    errorIfMissing={errorIfMissing[shipment.shipmentType]}
-                    showWhenCollapsed={
-                      shipment.usesExternalVendor
-                        ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
-                        : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
-                    }
-                    editURL={editUrl}
-                    /* eslint-disable-next-line react/jsx-props-no-spreading */
-                    {...formik.getFieldProps(`shipments`)}
-                    isMoveLocked={isMoveLocked}
-                  />
-                );
-              })}
-          </div>
-          <Restricted to={permissionTypes.updateShipment}>
-            <div className={styles.serviceItems}>
-              {!hideAddServiceItemsForm && (
-                <>
-                  <h2 id="orders">Add service items to this move</h2>
-                  <Fieldset legend="MTO service items" legendsronly="true" id="input-type-fieldset">
-                    {!hideMoveManagementCheckbox && (
-                      <Checkbox
-                        id="shipmentManagementFee"
-                        label={serviceItemCodes.MS}
-                        name="shipmentManagementFee"
-                        onChange={formik.handleChange}
-                        checked={moveManagementChecked}
-                        disabled={moveManagementDisabled}
-                        data-testid="shipmentManagementFee"
-                      />
-                    )}
-                    {hideCounselingCheckbox ? (
-                      <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
-                        The customer has received counseling for this move.
-                      </p>
-                    ) : (
-                      <Checkbox
-                        id="counselingFee"
-                        label={serviceItemCodes.CS}
-                        name="counselingFee"
-                        onChange={formik.handleChange}
-                        data-testid="counselingFee"
-                        disabled={isMoveLocked || disableCounselingCheckbox}
-                      />
-                    )}
-                  </Fieldset>
-                </>
-              )}
-              <Button
-                data-testid="shipmentApproveButton"
-                className={styles.approveButton}
-                onClick={handleReviewClick}
-                type="button"
-                disabled={!isButtonEnabled || isMoveLocked}
-              >
-                <span>Approve selected</span>
-              </Button>
-            </div>
-          </Restricted>
-        </form>
+    <div className={styles.RequestedShipments} data-testid="requested-shipments">
+      <div
+        id="approvalConfirmationModal"
+        data-testid="approvalConfirmationModal"
+        style={{ display: isModalVisible ? 'block' : 'none' }}
+      >
+        <ShipmentApprovalPreview
+          mtoShipments={filteredShipments}
+          ordersInfo={ordersInfo}
+          allowancesInfo={allowancesInfo}
+          customerInfo={customerInfo}
+          setIsModalVisible={setIsModalVisible}
+          onSubmit={debouncedSubmit}
+          counselingFee={formik.values.counselingFee}
+          shipmentManagementFee={formik.values.shipmentManagementFee}
+          isSubmitting={formik.isSubmitting}
+        />
       </div>
-      <div id="orders" />
-    </>
+
+      <form onSubmit={formik.handleSubmit}>
+        <div className={styles.sectionHeader}>
+          <h2>Requested shipments</h2>
+          <div className={styles.buttonDropdown}>
+            {!isMoveLocked && (
+              <Restricted to={permissionTypes.createTxoShipment}>
+                <ButtonDropdown
+                  ariaLabel="Add a new shipment"
+                  data-testid="addShipmentButton"
+                  onChange={handleButtonDropdownChange}
+                >
+                  <option value="" label="Add a new shipment">
+                    Add a new shipment
+                  </option>
+                  {allowedShipmentOptions()}
+                </ButtonDropdown>
+              </Restricted>
+            )}
+          </div>
+        </div>
+        <div className={shipmentCardsStyles.shipmentCards}>
+          {mtoShipments &&
+            mtoShipments.map((shipment) => {
+              const editUrl = `../${generatePath(tooRoutes.SHIPMENT_EDIT_PATH, {
+                shipmentId: shipment.id,
+              })}`;
+
+              return (
+                <ShipmentDisplay
+                  key={shipment.id}
+                  isSubmitted
+                  shipmentId={shipment.id}
+                  shipmentType={shipment.shipmentType}
+                  displayInfo={shipmentDisplayInfo(shipment, dutyLocationPostal)}
+                  ordersLOA={ordersLOA}
+                  errorIfMissing={errorIfMissing[shipment.shipmentType]}
+                  showWhenCollapsed={
+                    shipment.usesExternalVendor
+                      ? showWhenCollapsedWithExternalVendor[shipment.shipmentType]
+                      : showWhenCollapsedWithGHCPrime[shipment.shipmentType]
+                  }
+                  editURL={editUrl}
+                  /* eslint-disable-next-line react/jsx-props-no-spreading */
+                  {...formik.getFieldProps(`shipments`)}
+                  isMoveLocked={isMoveLocked}
+                />
+              );
+            })}
+        </div>
+        <Restricted to={permissionTypes.updateShipment}>
+          <div className={styles.serviceItems}>
+            {!hideAddServiceItemsForm && (
+              <>
+                <h2>Add service items to this move</h2>
+                <Fieldset legend="MTO service items" legendsronly="true" id="input-type-fieldset">
+                  {!hideMoveManagementCheckbox && (
+                    <Checkbox
+                      id="shipmentManagementFee"
+                      label={serviceItemCodes.MS}
+                      name="shipmentManagementFee"
+                      onChange={formik.handleChange}
+                      checked={moveManagementChecked}
+                      disabled={moveManagementDisabled}
+                      data-testid="shipmentManagementFee"
+                    />
+                  )}
+                  {hideCounselingCheckbox ? (
+                    <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
+                      The customer has received counseling for this move.
+                    </p>
+                  ) : (
+                    <Checkbox
+                      id="counselingFee"
+                      label={serviceItemCodes.CS}
+                      name="counselingFee"
+                      onChange={formik.handleChange}
+                      data-testid="counselingFee"
+                      disabled={isMoveLocked || disableCounselingCheckbox}
+                    />
+                  )}
+                </Fieldset>
+              </>
+            )}
+            <Button
+              data-testid="shipmentApproveButton"
+              className={styles.approveButton}
+              onClick={handleReviewClick}
+              type="button"
+              disabled={!isButtonEnabled || isMoveLocked}
+            >
+              <span>Approve selected</span>
+            </Button>
+          </div>
+        </Restricted>
+      </form>
+    </div>
   );
 };
 

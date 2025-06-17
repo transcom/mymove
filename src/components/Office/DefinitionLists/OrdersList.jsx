@@ -119,7 +119,7 @@ const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
           <dt>HHG TAC</dt>
           <dd data-testid="tacMDC">{!ordersInfo.tacMDC ? missingText : ordersInfo.tacMDC}</dd>
         </div>
-        <div id="allowances" className={descriptionListStyles.row}>
+        <div className={descriptionListStyles.row}>
           <dt>HHG SAC</dt>
           <dd data-testid="sacSDN">{!ordersInfo.sacSDN ? '—' : ordersInfo.sacSDN}</dd>
         </div>

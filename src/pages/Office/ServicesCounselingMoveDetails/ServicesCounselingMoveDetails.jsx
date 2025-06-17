@@ -855,7 +855,7 @@ const ServicesCounselingMoveDetails = ({
             </div>
           ) : null}
 
-          <div className={styles.section}>
+          <div className={styles.section} id="shipments">
             <DetailsPanel
               editButton={
                 !isMoveLocked &&
@@ -932,8 +932,7 @@ const ServicesCounselingMoveDetails = ({
             </DetailsPanel>
           </div>
 
-          <div id="orders" style={{ paddingTop: '150px' }} />
-          <div className={styles.section}>
+          <div className={styles.section} id="orders">
             <DetailsPanel
               title="Orders"
               editButton={
@@ -952,7 +951,7 @@ const ServicesCounselingMoveDetails = ({
               <OrdersList ordersInfo={ordersInfo} moveInfo={move} />
             </DetailsPanel>
           </div>
-          <div className={styles.section}>
+          <div className={styles.section} id="allowances">
             <DetailsPanel
               title="Allowances"
               editButton={

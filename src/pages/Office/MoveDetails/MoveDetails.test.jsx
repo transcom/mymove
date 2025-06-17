@@ -1083,17 +1083,14 @@ describe('MoveDetails page', () => {
       expect(navLinks.at(0).contains(1)).toBe(true);
       expect(navLinks.at(0).prop('href')).toBe('#requested-shipments');
 
-      expect(navLinks.at(1).contains('Shipments')).toBe(true);
-      expect(navLinks.at(1).prop('href')).toBe('#shipments');
+      expect(navLinks.at(1).contains('Orders')).toBe(true);
+      expect(navLinks.at(1).prop('href')).toBe('#orders');
 
-      expect(navLinks.at(2).contains('Orders')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#orders');
+      expect(navLinks.at(2).contains('Allowances')).toBe(true);
+      expect(navLinks.at(2).prop('href')).toBe('#allowances');
 
-      expect(navLinks.at(3).contains('Allowances')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#allowances');
-
-      expect(navLinks.at(4).contains('Customer info')).toBe(true);
-      expect(navLinks.at(4).prop('href')).toBe('#customer-info');
+      expect(navLinks.at(3).contains('Customer info')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#customer-info');
     });
 
     it('renders the Submitted Requested Shipments component', () => {
@@ -1101,6 +1098,7 @@ describe('MoveDetails page', () => {
     });
 
     it('renders the Orders Table', () => {
+      expect(wrapper.find('#orders h2').text()).toEqual('Orders');
       expect(wrapper.find('dd[data-testid="NTStac"]').text()).toEqual('1111');
       expect(wrapper.find('dd[data-testid="NTSsac"]').text()).toEqual('2222');
     });
@@ -1155,6 +1153,7 @@ describe('MoveDetails page', () => {
       </MockProviders>,
     );
     it('renders the Orders Table', () => {
+      expect(wrapper.find('#orders h2').text()).toEqual('Orders');
       expect(wrapper.find('[data-testid="newDutyLocationLabel"]').text()).toEqual('HOR, HOS, or PLEAD');
       expect(wrapper.find('[data-testid="reportByDateLabel"]').text()).toEqual('Date of retirement');
     });
@@ -1214,17 +1213,14 @@ describe('MoveDetails page', () => {
       expect(navLinks.at(1).contains('Approved shipments')).toBe(true);
       expect(navLinks.at(1).prop('href')).toBe('#approved-shipments');
 
-      expect(navLinks.at(2).contains('Shipments')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#shipments');
+      expect(navLinks.at(2).contains('Orders')).toBe(true);
+      expect(navLinks.at(2).prop('href')).toBe('#orders');
 
-      expect(navLinks.at(3).contains('Orders')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#orders');
+      expect(navLinks.at(3).contains('Allowances')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#allowances');
 
-      expect(navLinks.at(4).contains('Allowances')).toBe(true);
-      expect(navLinks.at(4).prop('href')).toBe('#allowances');
-
-      expect(navLinks.at(5).contains('Customer info')).toBe(true);
-      expect(navLinks.at(5).prop('href')).toBe('#customer-info');
+      expect(navLinks.at(4).contains('Customer info')).toBe(true);
+      expect(navLinks.at(4).prop('href')).toBe('#customer-info');
     });
   });
 

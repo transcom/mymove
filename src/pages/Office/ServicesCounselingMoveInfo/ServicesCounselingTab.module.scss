@@ -8,10 +8,6 @@
   flex-grow: 1;
   padding-top: 26px;
 
-  .leftNav {
-    top: 200px;
-  }
-
   .pageHeader {
     @include u-margin-y(3);
 
@@ -32,6 +28,7 @@
   }
 
   .gridContainer {
+    margin-top: 100px;
     .shipmentCard {
       @include u-padding-left(4);
     }
@@ -77,15 +74,18 @@
   background: $bg-white;
   border-radius: 3px;
   border: 1px solid #dfe1e2;
+  scroll-margin: 200px;
 }
 
 .section + .section,
 .shipmentCard + .shipmentCard {
   @include u-margin-top(4);
+  scroll-margin: 200px;
 }
 
 
 .section:last-child,
 .shipmentCard:last-child {
   margin-bottom: 135px;
+  scroll-margin: 200px;
 }
