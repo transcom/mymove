@@ -72,8 +72,8 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminAPI.RequestedOfficeUsersGetRequestedOfficeUserHandler = GetRequestedOfficeUserHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
-		newRolesFetcher,
 		userPrivilegesCreator,
+		newRolesFetcher,
 		query.NewQueryFilter,
 	}
 
@@ -112,7 +112,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
-	transportaionOfficeAssignmentUpdater := transportationofficeassignments.NewTransportaionOfficeAssignmentUpdater()
+	transportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
@@ -120,7 +120,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		newRolesFetcher,
 		userPrivilegesCreator,
-		transportaionOfficeAssignmentUpdater,
+		transportationOfficeAssignmentUpdater,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
@@ -130,7 +130,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		userPrivilegesCreator,
 		user.NewUserSessionRevocation(queryBuilder),
-		transportaionOfficeAssignmentUpdater,
+		transportationOfficeAssignmentUpdater,
 	}
 
 	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{

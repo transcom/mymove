@@ -288,9 +288,9 @@ type CreateOfficeUserHandler struct {
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
-	services.RoleAssociator
+	services.RoleFetcher
 	services.UserPrivilegeAssociator
-	services.TransportaionOfficeAssignmentUpdater
+	services.TransportationOfficeAssignmentUpdater
 }
 
 // Handle creates an office user
@@ -378,7 +378,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
 
-			roles, err := h.RoleAssociator.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
+			roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
@@ -400,7 +400,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 			}
 
 			transportationOfficeAssignments, err :=
-				h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, createdOfficeUser.ID, updatedTransportationOfficeAssignments)
+				h.TransportationOfficeAssignmentUpdater.UpdateTransportationOfficeAssignments(appCtx, createdOfficeUser.ID, updatedTransportationOfficeAssignments)
 			if err != nil {
 				appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
@@ -426,7 +426,7 @@ type UpdateOfficeUserHandler struct {
 	services.UserRoleAssociator
 	services.UserPrivilegeAssociator
 	services.UserSessionRevocation
-	services.TransportaionOfficeAssignmentUpdater
+	services.TransportationOfficeAssignmentUpdater
 }
 
 // Handle updates an office user
@@ -551,7 +551,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 
 				updatedTransportationOfficeAssignments, err :=
-					h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, updatedOfficeUser.ID, transportationOfficeAssignmentsFromPayload)
+					h.TransportationOfficeAssignmentUpdater.UpdateTransportationOfficeAssignments(appCtx, updatedOfficeUser.ID, transportationOfficeAssignmentsFromPayload)
 				if err != nil {
 					appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
 					return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
@@ -658,7 +658,7 @@ func getPrimaryTransportationOfficeIDFromPayload(payload []*adminmessages.Office
 		}
 	}
 
-	return transportationOfficeID, apperror.NewBadDataError("Could not identify primary transportaion office from list of assignments")
+	return transportationOfficeID, apperror.NewBadDataError("Could not identify primary transportation office from list of assignments")
 }
 
 // DeleteOfficeUserHandler deletes an office user via DELETE /office_user/{officeUserId}
@@ -698,7 +698,7 @@ func (h DeleteOfficeUserHandler) Handle(params officeuserop.DeleteOfficeUserPara
 // GetRolesPrivilegesHandler retrieves a list of unique role to privilege mappings via GET /office_users/roles-privileges
 type GetRolesPrivilegesHandler struct {
 	handlers.HandlerConfig
-	services.RoleAssociator
+	services.RoleFetcher
 }
 
 func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivilegesParams) middleware.Responder {
@@ -710,7 +710,7 @@ func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivileges
 				return officeuserop.NewGetRolesPrivilegesUnauthorized(), nil
 			}
 
-			rolesWithRolePrivs, err := h.RoleAssociator.FetchRolesPrivileges(appCtx)
+			rolesWithRolePrivs, err := h.RoleFetcher.FetchRolesPrivileges(appCtx)
 			if err != nil && errors.Is(err, sql.ErrNoRows) {
 				return officeuserop.NewGetRolesPrivilegesNotFound(), err
 			} else if err != nil {

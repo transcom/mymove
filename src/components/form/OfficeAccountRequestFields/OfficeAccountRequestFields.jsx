@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { func } from 'prop-types';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { func, array } from 'prop-types';
 import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
 
@@ -13,18 +13,14 @@ import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
 import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
-import { useRolesPrivilegesQueriesOfficeApp } from 'hooks/queries';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { roleTypes } from 'constants/userRoles';
 
-export const OfficeAccountRequestFields = ({ render }) => {
+export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privileges = [] }) => {
   const { values, errors, touched, setFieldTouched, validateField } = useFormikContext();
   const [edipiRequired, setEdipiRequired] = useState(false);
   const [uniqueIdRequired, setUniqueIdRequired] = useState(false);
   const [enableRequestAccountPrivileges, setEnableRequestAccountPrivileges] = useState(false);
-
-  const { result } = useRolesPrivilegesQueriesOfficeApp();
-  const { privileges, rolesWithPrivs } = result;
 
   const filteredPrivileges = privileges.filter((privilege) => {
     if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY) {
@@ -35,7 +31,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
 
   const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime' && r.roleType !== roleTypes.CUSTOMER);
 
-  const hasAnyRoleSelected = React.useMemo(
+  const hasAnyRoleSelected = useMemo(
     () => availableRoles.some(({ roleType }) => !!values[`${roleType}Checkbox`]),
     [availableRoles, values],
   );
@@ -213,8 +209,10 @@ export const OfficeAccountRequestFields = ({ render }) => {
             required
           />
           <Label data-testid="requestedRolesHeading">
-            Requested Role(s)
-            <RequiredAsterisk />
+            <span>
+              Requested Role(s)
+              <RequiredAsterisk />
+            </span>
           </Label>
           {showRequestedRolesError && (
             <ErrorMessage
@@ -279,10 +277,14 @@ export const OfficeAccountRequestFields = ({ render }) => {
 
 OfficeAccountRequestFields.propTypes = {
   render: func,
+  rolesWithPrivs: array,
+  privileges: array,
 };
 
 OfficeAccountRequestFields.defaultProps = {
   render: (fields) => fields,
+  rolesWithPrivs: [],
+  privileges: [],
 };
 
 export default OfficeAccountRequestFields;
