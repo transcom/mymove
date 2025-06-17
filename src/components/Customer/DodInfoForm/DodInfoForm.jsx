@@ -12,6 +12,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const DodInfoForm = ({ initialValues, onSubmit }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
@@ -66,11 +67,12 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
             <h1>Create your profile</h1>
             <p>Before we can schedule your move, we need to know a little more about you.</p>
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <DropdownInput
                 label="Branch of service"
                 name="affiliation"
                 id="affiliation"
-                hint="Required"
+                showRequiredAsterisk
                 required
                 options={branchOptions}
                 onChange={(e) => {
@@ -82,11 +84,11 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
                 label="DOD ID number"
                 name="edipi"
                 id="edipi"
-                required
                 maxLength="10"
                 inputMode="numeric"
                 pattern="[0-9]{10}"
-                labelHint="Required"
+                showRequiredAsterisk
+                required
                 isDisabled={isDodidDisabled}
               />
               {showEmplid && (
@@ -94,8 +96,8 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
                   label="EMPLID"
                   name="emplid"
                   id="emplid"
+                  showRequiredAsterisk
                   required
-                  labelHint="Required"
                   maxLength="7"
                   inputMode="numeric"
                   pattern="[0-9]{7}"

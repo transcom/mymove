@@ -8,6 +8,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const NameForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
@@ -24,9 +25,10 @@ const NameForm = ({ initialValues, onSubmit, onBack }) => {
           <Form className={formStyles.form}>
             <h1>Name</h1>
             <SectionWrapper className={formStyles.formSection}>
-              <TextField label="First name" name="first_name" id="firstName" required labelHint="Required" />
+              {requiredAsteriskMessage}
+              <TextField label="First name" name="first_name" id="firstName" required showRequiredAsterisk />
               <TextField label="Middle name" name="middle_name" id="middleName" />
-              <TextField label="Last name" name="last_name" id="lastName" required labelHint="Required" />
+              <TextField label="Last name" name="last_name" id="lastName" required showRequiredAsterisk />
               <TextField label="Suffix" name="suffix" id="suffix" />
             </SectionWrapper>
             <div className={formStyles.formActions}>

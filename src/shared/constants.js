@@ -263,6 +263,7 @@ export const FEATURE_FLAG_KEYS = {
   WOUNDED_WARRIOR_MOVE: 'wounded_warrior_move',
   REQUEST_ACCOUNT_PRIVILEGES: 'request_account_privileges',
   DISABLE_MOVE_APPROVAL: 'disable_move_approval',
+  BLUEBARK_MOVE: 'bluebark_move',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
