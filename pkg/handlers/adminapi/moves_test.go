@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -210,14 +209,7 @@ func (suite *HandlerSuite) TestMovePayload() {
 	})
 
 	suite.Run("Verify available to Prime is returned with the payload", func() {
-		availableToPrime := time.Now()
-		defaultMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					AvailableToPrimeAt: &availableToPrime,
-				},
-			},
-		}, nil)
+		defaultMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := moveop.GetMoveParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID)),
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
@@ -230,7 +222,7 @@ func (suite *HandlerSuite) TestMovePayload() {
 
 		suite.IsType(&moveop.GetMoveOK{}, response)
 		okResponse := response.(*moveop.GetMoveOK)
-		suite.Equal(strfmt.DateTime(availableToPrime).String(), (*okResponse.Payload.AvailableToPrimeAt).String())
+		suite.Equal(strfmt.DateTime(*defaultMove.AvailableToPrimeAt).String(), (*okResponse.Payload.AvailableToPrimeAt).String())
 	})
 }
 

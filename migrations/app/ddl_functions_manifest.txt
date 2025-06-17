@@ -23,8 +23,6 @@
 20250430175435_fn_is_role_privilege_allowed.up.sql
 20250502144039_fn_calculate_ppm_closeouts.up.sql
 20250505143424_fn_get_payment_request_queue.up.sql
-20250512165319_fn_calculate_ppm_sit_cost.up.sql
-20250512175124_fn_calculate_ppm_incentive.up.sql
 20250509183824_fn_get_origin_queue.up.sql
 20250512165319_fn_calculate_ppm_sit_cost.up.sql
 20250512175124_fn_calculate_ppm_incentive.up.sql
