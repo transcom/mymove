@@ -48,6 +48,10 @@ type PPMCloseout struct {
 	// Government Constructive Cost (GCC)
 	Gcc *int64 `json:"gcc"`
 
+	// Multiplier applied to incentives
+	// Example: 1.3
+	GccMultiplier *float32 `json:"gccMultiplier"`
+
 	// The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
 	//
 	// Read Only: true

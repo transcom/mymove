@@ -65,7 +65,7 @@ func (_m *FileStorer) Fetch(_a0 string) (io.ReadCloser, error) {
 	return r0, r1
 }
 
-// FileSystem provides a mock function with no fields
+// FileSystem provides a mock function with given fields:
 func (_m *FileStorer) FileSystem() *afero.Afero {
 	ret := _m.Called()
 
@@ -173,7 +173,7 @@ func (_m *FileStorer) Tags(_a0 string) (map[string]string, error) {
 	return r0, r1
 }
 
-// TempFileSystem provides a mock function with no fields
+// TempFileSystem provides a mock function with given fields:
 func (_m *FileStorer) TempFileSystem() *afero.Afero {
 	ret := _m.Called()
 

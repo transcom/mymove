@@ -14,12 +14,14 @@ BEGIN
             AND tablename NOT IN ('country_holidays',
                                   'country_weekends',
                                   'gbloc_aors',
+                                  'gcc_multipliers',
                                   'ghc_diesel_fuel_prices',
                                   'addresses',
                                   'hhg_allowances',
                                   'intl_city_countries',
                                   'jppso_regions',
                                   'jppso_region_state_assignments',
+                                  'pay_grade_ranks',
                                   'pay_grades',
                                   'ports',
                                   'port_locations',
@@ -33,7 +35,7 @@ BEGIN
                                   're_domestic_accessorial_prices',
                                   're_domestic_other_prices',
                                   're_domestic_linehaul_prices',
-                                  're_domestic_service_areas',
+                                  're_domestic_service_area',
                                   're_domestic_service_area_prices',
                                   're_fsc_multipliers',
                                   're_intl_accessorial_prices',
@@ -59,7 +61,7 @@ BEGIN
                                   'ub_allowances',
                                   'us_post_region_cities',
                                   'zip3_distances',
-                                  'pay_grade_ranks'
+                                  'ranks'
                                     ) order by tablename ) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;

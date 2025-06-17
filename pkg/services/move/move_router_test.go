@@ -1304,7 +1304,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 			{
 				Model:    originTOO,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 			{
 				Model:    destTOO,
@@ -1323,7 +1323,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
-		suite.Nil(moveInDB.TOOAssignedID)
+		suite.Nil(moveInDB.TOOTaskOrderAssignedID)
 		suite.Nil(moveInDB.TOODestinationAssignedID)
 	})
 
@@ -1337,7 +1337,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 			{
 				Model:    originTOO,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 			{
 				Model:    destTOO,
@@ -1368,7 +1368,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		err = suite.DB().Find(&moveInDB, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
-		suite.Nil(moveInDB.TOOAssignedID)
+		suite.Nil(moveInDB.TOOTaskOrderAssignedID)
 		suite.Nil(moveInDB.TOODestinationAssignedID)
 	})
 
@@ -1383,7 +1383,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 			{
 				Model:    originTOO,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 			{
 				Model:    destTOO,
@@ -1402,7 +1402,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
-		suite.NotNil(moveInDB.TOOAssignedID)
+		suite.NotNil(moveInDB.TOOTaskOrderAssignedID)
 		suite.Nil(moveInDB.TOODestinationAssignedID)
 	})
 
@@ -1417,7 +1417,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 			{
 				Model:    originTOO,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 			{
 				Model:    destTOO,
@@ -1436,7 +1436,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
-		suite.NotNil(moveInDB.TOOAssignedID)
+		suite.NotNil(moveInDB.TOOTaskOrderAssignedID)
 		suite.Nil(moveInDB.TOODestinationAssignedID)
 	})
 
@@ -1453,7 +1453,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
-		suite.NotNil(moveInDB.TOOAssignedID)
+		suite.NotNil(moveInDB.TOOTaskOrderAssignedID)
 		suite.NotNil(moveInDB.TOODestinationAssignedID)
 	})
 
@@ -1462,7 +1462,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 			{
 				Model:    originTOO,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 			{
 				Model:    destTOO,
@@ -1497,7 +1497,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
-		suite.Nil(moveInDB.TOOAssignedID)
+		suite.Nil(moveInDB.TOOTaskOrderAssignedID)
 		suite.NotNil(moveInDB.TOODestinationAssignedID)
 	})
 
@@ -1540,7 +1540,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 			{
 				Model:    originTOO,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 			{
 				Model:    destTOO,
@@ -1559,7 +1559,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
-		suite.NotNil(moveInDB.TOOAssignedID)
+		suite.NotNil(moveInDB.TOOTaskOrderAssignedID)
 		suite.Nil(moveInDB.TOODestinationAssignedID)
 	})
 
@@ -1568,7 +1568,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 			{
 				Model:    originTOO,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 			{
 				Model:    destTOO,
@@ -1604,7 +1604,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
-		suite.NotNil(moveInDB.TOOAssignedID)
+		suite.NotNil(moveInDB.TOOTaskOrderAssignedID)
 		suite.Nil(moveInDB.TOODestinationAssignedID)
 	})
 
@@ -1613,7 +1613,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 			{
 				Model:    originTOO,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 			{
 				Model:    destTOO,
@@ -1649,7 +1649,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
-		suite.Nil(moveInDB.TOOAssignedID)
+		suite.Nil(moveInDB.TOOTaskOrderAssignedID)
 		suite.NotNil(moveInDB.TOODestinationAssignedID)
 	})
 }
@@ -1788,7 +1788,7 @@ func (suite *MoveServiceSuite) createServiceItem(createOrigin bool, createDest b
 		{
 			Model:    originTOO,
 			LinkOnly: true,
-			Type:     &factory.OfficeUsers.TOOAssignedUser,
+			Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 		},
 		{
 			Model:    destTOO,

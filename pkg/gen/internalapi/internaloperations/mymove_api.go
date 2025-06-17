@@ -156,6 +156,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AddressesGetOconusLocationHandler: addresses.GetOconusLocationHandlerFunc(func(params addresses.GetOconusLocationParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.GetOconusLocation has not yet been implemented")
 		}),
+		OrdersGetPayGradesHandler: orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
+		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
@@ -399,6 +402,8 @@ type MymoveAPI struct {
 	AddressesGetLocationByZipCityStateHandler addresses.GetLocationByZipCityStateHandler
 	// AddressesGetOconusLocationHandler sets the operation handler for the get oconus location operation
 	AddressesGetOconusLocationHandler addresses.GetOconusLocationHandler
+	// OrdersGetPayGradesHandler sets the operation handler for the get pay grades operation
+	OrdersGetPayGradesHandler orders.GetPayGradesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -660,6 +665,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AddressesGetOconusLocationHandler == nil {
 		unregistered = append(unregistered, "addresses.GetOconusLocationHandler")
+	}
+	if o.OrdersGetPayGradesHandler == nil {
+		unregistered = append(unregistered, "orders.GetPayGradesHandler")
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
@@ -1007,6 +1015,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/addresses/oconus-lookup/{country}/{search}"] = addresses.NewGetOconusLocation(o.context, o.AddressesGetOconusLocationHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/paygrade/{affiliation}"] = orders.NewGetPayGrades(o.context, o.OrdersGetPayGradesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

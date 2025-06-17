@@ -411,18 +411,28 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 			verrs.Add("tertiaryDeliveryAddress", "the tertiary delivery address already exists and cannot be updated with this endpoint")
 		}
 
-		// If we have all the data, calculate RDD
-		if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
-			older.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil && older.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
-			weight := latestEstimatedWeight
+		pickupIsAlaska, _ := latestPickupAddress.IsAddressAlaska()
+		destinationIsAlaska, _ := latestDestinationAddress.IsAddressAlaska()
+		// If we have all the necessary data for the shipment type and locations, calculate RDD
+		if latestSchedPickupDate != nil && latestPickupAddress != nil && latestDestinationAddress != nil &&
+			((pickupIsAlaska && destinationIsAlaska) ||
+				latestEstimatedWeight != nil ||
+				(older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && older.NTSRecordedWeight != nil)) &&
+			older.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
+
+			var weight *int
 			if older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && older.NTSRecordedWeight != nil {
-				weight = older.NTSRecordedWeight
+				weight = models.IntPointer(older.NTSRecordedWeight.Int())
+			} else if latestEstimatedWeight != nil {
+				weight = models.IntPointer(latestEstimatedWeight.Int())
 			}
+
 			requiredDeliveryDate, err := CalculateRequiredDeliveryDate(appCtx, planner, *latestPickupAddress,
-				*latestDestinationAddress, *latestSchedPickupDate, weight.Int(), older.MarketCode, older.MoveTaskOrderID, older.ShipmentType)
+				*latestDestinationAddress, *latestSchedPickupDate, weight, older.MoveTaskOrderID, older.ShipmentType)
 			if err != nil {
 				verrs.Add("requiredDeliveryDate", err.Error())
 			}
+
 			newer.RequiredDeliveryDate = requiredDeliveryDate
 		}
 		return verrs

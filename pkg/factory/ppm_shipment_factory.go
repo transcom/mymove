@@ -194,6 +194,15 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&ppmShipment, cPPMShipment)
+	// we need to populate the GCC multiplier if it applies to the PPM's expected departure date
+	var nilTime time.Time
+	if db != nil && ppmShipment.ExpectedDepartureDate != nilTime {
+		gccMultiplier, _ := models.FetchGccMultiplier(db, ppmShipment)
+		if gccMultiplier.ID != uuid.Nil {
+			ppmShipment.GCCMultiplierID = &gccMultiplier.ID
+			ppmShipment.GCCMultiplier = &gccMultiplier
+		}
+	}
 
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {

@@ -365,6 +365,26 @@ func (suite *PayloadsSuite) TestCountriesPayload() {
 	})
 }
 
+func (suite *PayloadsSuite) TestPayGrades() {
+	payGrades := models.PayGrades{
+		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
+		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
+		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+	}
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
+
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
+}
+
 func (suite *PayloadsSuite) TestVIntlLocation() {
 	suite.Run("correctly maps VIntlLocation with all fields populated", func() {
 		city := "LONDON"

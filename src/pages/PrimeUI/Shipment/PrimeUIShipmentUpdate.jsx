@@ -381,7 +381,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       pickupAddress: addressSchema,
       destinationAddress: addressSchema,
       scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-      actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+      actualPickupDate: Yup.date().nullable().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
       scheduledDeliveryDate: Yup.date().nullable().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
       actualDeliveryDate: Yup.date().nullable().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     });
@@ -401,9 +401,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                   </Alert>
                 </div>
               )}
-              <Button type="button" onClick={onCancelShipmentClick} className="usa-button usa-button-secondary">
-                Cancel Shipment
-              </Button>
               <Formik
                 initialValues={initialValues}
                 onSubmit={onSubmit}
@@ -413,6 +410,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                 {({ isValid, isSubmitting, handleSubmit, setFieldValue, setFieldTouched }) => {
                   return (
                     <Form className={formStyles.form}>
+                      <div className={primeStyles.cancelShipmentBtn}>
+                        <Button type="button" onClick={onCancelShipmentClick}>
+                          Cancel Shipment
+                        </Button>
+                      </div>
                       {isPPM ? (
                         <PrimeUIShipmentUpdatePPMForm />
                       ) : (
