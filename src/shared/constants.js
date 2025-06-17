@@ -91,9 +91,9 @@ export const UPLOAD_DOC_STATUS = {
 
 export const UPLOAD_DOC_STATUS_DISPLAY_MESSAGE = {
   FILE_NOT_FOUND: 'File Not Found',
-  UPLOADING: 'Uploading',
-  SCANNING: 'Scanning',
-  ESTABLISHING_DOCUMENT_FOR_VIEWING: 'Establishing document for viewing',
+  UPLOADING: 'Uploading: Uploading the file...',
+  SCANNING: 'Uploading: Scanning the file...',
+  ESTABLISHING_DOCUMENT_FOR_VIEWING: 'Uploading: Establishing the file for viewing...',
   INFECTED_FILE_MESSAGE:
     'Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a photo of the original document instead.',
 };
