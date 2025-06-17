@@ -173,17 +173,41 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     return <MaintenancePage />;
   }
 
+  // routes that render <CustomerHeader /> component
+  // TODO: add more routes as needed
+  const hasCustomerHeader =
+    matchPath(
+      {
+        path: `/moves/:moveCode/*`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`,
+      },
+      location.pathname,
+    );
+
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
       <SelectedGblocProvider>
         <div id="app-root">
           <div className={siteClasses}>
-            <BypassBlock />
-            <CUIHeader />
-            {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
-            <main id="main" role="main" className="site__content site-office__content">
+            <div className={styles.fixedHeader}>
+              <BypassBlock />
+              <CUIHeader />
+              {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
+              {displayChangeRole && <Link to="/select-application">Change user role</Link>}
+              {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
+            </div>
+            <main
+              id="main"
+              role="main"
+              className={classnames('site__content site-office__content', {
+                [styles.headerMargin]: hasCustomerHeader,
+              })}
+            >
               <ConnectedLogoutOnInactivity />
               {props.hasRecentError && location.pathname === '/' && (
                 <SystemError>
