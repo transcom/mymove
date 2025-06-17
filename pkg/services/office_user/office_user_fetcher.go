@@ -75,18 +75,20 @@ func (o *officeUserFetcherPop) FetchOfficeUserByIDWithTransportationOfficeAssign
 }
 
 // Fetch office users of the same role within a gbloc, for assignment purposes
-func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
+func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType) ([]models.OfficeUser, error) {
 	var officeUsers []models.OfficeUser
 
 	err := appCtx.DB().EagerPreload(
 		"User",
 		"User.Roles",
 		"User.Privileges",
+		"TransportationOfficeAssignments",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
 		Join("roles", "users_roles.role_id = roles.id").
-		Where("transportation_office_id = ?", officeID).
+		Join("transportation_office_assignments", "transportation_office_assignments.id = office_users.id").
+		Where("transportation_office_assignments.transportation_office_id = ?", appCtx.Session().ActiveOfficeID).
 		Where("role_type = ?", role).
 		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").
@@ -101,20 +103,22 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 	return officeUsers, nil
 }
 
-func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
+func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType) ([]models.OfficeUser, error) {
 	var officeUsers []models.OfficeUser
 
 	err := appCtx.DB().EagerPreload(
 		"User",
 		"User.Roles",
 		"User.Privileges",
+		"TransportationOfficeAssignments",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
 		Join("roles", "users_roles.role_id = roles.id").
+		Join("transportation_office_assignments", "transportation_office_assignments.id = office_users.id").
 		LeftJoin("users_privileges", "users.id = users_privileges.user_id").
 		LeftJoin("privileges", "privileges.id = users_privileges.privilege_id").
-		Where("transportation_office_id = ?", officeID).
+		Where("transportation_office_assignments.transportation_office_id = ?", appCtx.Session().ActiveOfficeID).
 		Where("role_type = ?", role).
 		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").

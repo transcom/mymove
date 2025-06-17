@@ -133,6 +133,9 @@ definitions:
         $ref: '#/definitions/Role'
         # The user can sign in without a role, they'll just have no permissions
         x-nullable: true
+      activeOffice:
+        $ref: '#/definitions/TransportationOffice'
+        x-nullable: true
       inactiveRoles:
         type: array
         items:

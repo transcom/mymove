@@ -73,7 +73,7 @@ func (o *OfficeUser) Validate(_ *pop.Connection) (*validate.Errors, error) {
 // FetchOfficeUserByEmail looks for an office user with a specific email
 func FetchOfficeUserByEmail(tx *pop.Connection, email string) (*OfficeUser, error) {
 	var users OfficeUsers
-	err := tx.Where("LOWER(email) = $1", strings.ToLower(email)).All(&users)
+	err := tx.Eager("TransportationOfficeAssignments").Where("LOWER(email) = $1", strings.ToLower(email)).All(&users)
 	if err != nil {
 		return nil, err
 	}
@@ -97,4 +97,24 @@ func GetAssignedGBLOCs(o OfficeUser) []string {
 		assignedGblocs = append(assignedGblocs, toa.TransportationOffice.Gbloc)
 	}
 	return assignedGblocs
+}
+
+func (o OfficeUser) PrimaryOffice() TransportationOffice {
+	var office TransportationOffice
+	for _, toa := range o.TransportationOfficeAssignments {
+		if toa.PrimaryOffice != nil && *toa.PrimaryOffice {
+			office = toa.TransportationOffice
+		}
+	}
+	return office
+}
+
+func (o OfficeUser) SecondaryOffice() TransportationOffice {
+	var office TransportationOffice
+	for _, toa := range o.TransportationOfficeAssignments {
+		if toa.PrimaryOffice != nil && !*toa.PrimaryOffice {
+			office = toa.TransportationOffice
+		}
+	}
+	return office
 }

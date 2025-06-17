@@ -234,6 +234,7 @@ type Session struct {
 	// It is still possible and allowed for an office user to have multiple roles, just not utilize them all
 	// in the same session. They must swap roles on the frontend to receive a new role for the session
 	ActiveRole      roles.Role
+	ActiveOfficeID  uuid.UUID
 	Permissions     []string
 	AccessToken     string
 	ClientID        string

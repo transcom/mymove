@@ -126,12 +126,25 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 						return userop.NewIsLoggedInUserInternalServerError(), err
 					}
 				}
+				if (appCtx.Session().ActiveOfficeID == uuid.Nil) && officeUser.PrimaryOffice().ID != uuid.Nil {
+					appCtx.Session().ActiveOfficeID = officeUser.PrimaryOffice().ID
+				}
+				var activeOffice models.TransportationOffice
+				if officeUser.PrimaryOffice().ID == appCtx.Session().ActiveOfficeID {
+					appCtx.Session().ActiveOfficeID = officeUser.PrimaryOffice().ID
+					activeOffice = officeUser.PrimaryOffice()
+				}
+				if officeUser.SecondaryOffice().ID == appCtx.Session().ActiveOfficeID {
+					appCtx.Session().ActiveOfficeID = officeUser.SecondaryOffice().ID
+					activeOffice = officeUser.SecondaryOffice()
+				}
 
 				userPayload := internalmessages.LoggedInUserPayload{
-					ID:         handlers.FmtUUID(appCtx.Session().UserID),
-					FirstName:  appCtx.Session().FirstName,
-					Email:      appCtx.Session().Email,
-					OfficeUser: payloads.OfficeUser(&officeUser),
+					ID:           handlers.FmtUUID(appCtx.Session().UserID),
+					FirstName:    appCtx.Session().FirstName,
+					Email:        appCtx.Session().Email,
+					OfficeUser:   payloads.OfficeUser(&officeUser),
+					ActiveOffice: payloads.TransportationOffice(activeOffice),
 				}
 
 				decoratePayloadWithCurrentAndInactiveRoles(appCtx.Session(), &userPayload, userRoles)
