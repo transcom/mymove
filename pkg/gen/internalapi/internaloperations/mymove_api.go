@@ -159,6 +159,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AddressesGetLocationByZipCityStateHandler: addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		}),
+		OrdersGetPayGradesHandler: orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
+		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
@@ -407,6 +410,8 @@ type MymoveAPI struct {
 	MovesGetAllMovesHandler moves.GetAllMovesHandler
 	// AddressesGetLocationByZipCityStateHandler sets the operation handler for the get location by zip city state operation
 	AddressesGetLocationByZipCityStateHandler addresses.GetLocationByZipCityStateHandler
+	// OrdersGetPayGradesHandler sets the operation handler for the get pay grades operation
+	OrdersGetPayGradesHandler orders.GetPayGradesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -673,6 +678,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AddressesGetLocationByZipCityStateHandler == nil {
 		unregistered = append(unregistered, "addresses.GetLocationByZipCityStateHandler")
+	}
+	if o.OrdersGetPayGradesHandler == nil {
+		unregistered = append(unregistered, "orders.GetPayGradesHandler")
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
@@ -1027,6 +1035,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/addresses/zip-city-lookup/{search}"] = addresses.NewGetLocationByZipCityState(o.context, o.AddressesGetLocationByZipCityStateHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/paygrade/{affiliation}"] = orders.NewGetPayGrades(o.context, o.OrdersGetPayGradesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

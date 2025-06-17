@@ -217,7 +217,7 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 	// Limitation: once the status code header has been written (first response), we are not able to update the status for subsequent responses.
 	// Standard 200 OK used with common SSE paradigm
 	rw.WriteHeader(http.StatusOK)
-	if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED {
+	if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED || uploadStatus == models.ClamAVStatusCLEAN || uploadStatus == models.ClamAVStatusINFECTED {
 		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
 		o.writeEventStreamMessage(rw, producer, 1, "close", "Connection closed")
 		return // skip notification loop since object already tagged from anti-virus
@@ -299,7 +299,7 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 
 				o.writeEventStreamMessage(rw, producer, id_counter, "message", string(uploadStatus))
 
-				if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED {
+				if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED || uploadStatus == models.ClamAVStatusCLEAN || uploadStatus == models.ClamAVStatusINFECTED {
 					return errors.New("connection_closed")
 				}
 
@@ -444,7 +444,13 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
-
+				// if isWeightEstimatorFile is false, throw an error, and send message to front end to let user know.
+				if !isWeightEstimatorFile {
+					message := "The uploaded .xlsx file does not match the expected weight estimator file format."
+					return ppmop.NewCreatePPMUploadForbidden().WithPayload(&ghcmessages.Error{
+						Message: &message,
+					}), nil
+				}
 				_, err = file.Data.Seek(0, io.SeekStart)
 
 				if err != nil {
@@ -500,6 +506,12 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					default:
 						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
 					}
+				}
+
+				newUserUpload, verrs1, err := h.UserUploader.UpdateUserXlsxUploadFilename(appCtx, newUserUpload, filename)
+
+				if verrs1.HasAny() || err != nil {
+					appCtx.Logger().Error("failed to rename uploaded filename", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 				}
 
 				err = h.WeightTicketGenerator.CleanupFile(aFile)

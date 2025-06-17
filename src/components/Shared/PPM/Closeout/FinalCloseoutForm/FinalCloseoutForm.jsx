@@ -26,6 +26,7 @@ import { APP_NAME } from 'constants/apps';
 import { PPM_TYPES } from 'shared/constants';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, move, appName }) => {
   const isCustomerPage = appName === APP_NAME.MYMOVE;
@@ -148,9 +149,10 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
                 I understand the penalty for willfully making a false statement of claim is a maximum fine of $10,000,
                 maximum imprisonment of five years, or both (U.S.C, Title 18, Section 287).
               </p>
+              {requiredAsteriskMessage}
               <div>
                 <div className={styles.signatureField}>
-                  <TextField label="Signature" id="signature" name="signature" />
+                  <TextField label="Signature" id="signature" name="signature" showRequiredAsterisk required />
                 </div>
                 <div className={styles.dateField}>
                   <TextField label="Date" id="date" name="date" disabled />

@@ -407,10 +407,10 @@ describe('PrimeUIShipmentCreateForm', () => {
 
     expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
     expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
 
     expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
   });
 
   it('renders secondary/tertiary address', async () => {
@@ -436,26 +436,26 @@ describe('PrimeUIShipmentCreateForm', () => {
 
     expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
     expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
 
     const hasSecondaryPickup = await screen.findByTestId('has-secondary-pickup');
     await userEvent.click(hasSecondaryPickup);
-    expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
 
     const hasTertiaryPickup = await screen.findByTestId('has-tertiary-pickup');
     await userEvent.click(hasTertiaryPickup);
-    expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveValue('');
 
     expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[3]).toHaveValue('');
 
     const hasSecondaryDestination = await screen.findByTestId('has-secondary-destination');
     await userEvent.click(hasSecondaryDestination);
-    expect(screen.getAllByLabelText('Address 1')[4]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[4]).toHaveValue('');
 
     const hasTertiaryDestination = await screen.findByTestId('has-tertiary-destination');
     await userEvent.click(hasTertiaryDestination);
-    expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[5]).toHaveValue('');
 
     expect(
       screen.getByText('Will the movers deliver any belongings to a third address?', {

@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 import { roleTypes } from 'constants/userRoles';
+import serviceBranches from 'content/serviceMemberAgencies';
 
 const mockPickupLocation = [
   {
@@ -333,6 +334,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: serviceBranches.ARMY,
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },
@@ -429,6 +431,7 @@ describe('CreateCustomerForm', () => {
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },
@@ -574,6 +577,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
         },
@@ -655,6 +659,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'COAST_GUARD',
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
         },
@@ -730,10 +735,43 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: true,
         },
       });
+    });
+  }, 50000);
+
+  it('show bluebark question when BLUEBARK FF is on', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+
+    render(
+      <MockProviders initialState={serviceCounselorState}>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Is this a Bluebark move?')).toBeInTheDocument();
+    });
+  }, 50000);
+
+  it('hide bluebark question when BLUEBARK FF is off', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+
+    render(
+      <MockProviders initialState={serviceCounselorState}>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('Is this a Bluebark move?')).not.toBeInTheDocument();
     });
   }, 50000);
 });

@@ -7,12 +7,14 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { officeRoles, roleTypes } from 'constants/userRoles';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentWeightInput = ({ userRole }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
         <h2 className={styles.SectionHeader}>Weight</h2>
+        {userRole === roleTypes.TOO ? requiredAsteriskMessage : null}
         <Grid row gap>
           <Grid col={6}>
             <FormGroup>
@@ -20,7 +22,8 @@ const ShipmentWeightInput = ({ userRole }) => {
                 label="Previously recorded weight (lbs)"
                 name="ntsRecordedWeight"
                 id="ntsRecordedWeight"
-                optional={userRole !== roleTypes.TOO}
+                showRequiredAsterisk={userRole === roleTypes.TOO}
+                required={userRole === roleTypes.TOO}
               />
             </FormGroup>
           </Grid>

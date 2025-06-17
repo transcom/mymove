@@ -101,6 +101,7 @@ export { default as approveSITExtensionShipment } from './ApproveSITExtension/ap
 export { default as denySITExtension } from './DenySITExtension/denySITExtension';
 export { default as denySITExtensionMove } from './DenySITExtension/denySITExtensionMove';
 export { default as denySITExtensionServiceItem } from './DenySITExtension/denySITExtensionServiceItem';
+export { default as removeSITExtensionServiceItem } from './RemoveSITExtension/removeSITExtensionServiceItem';
 export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/updateAllowanceUpdateOrder';
 export { default as updateMTOShipmentUpdateAllowance } from './UpdateMTOShipment/updateMTOShipmentUpdateAllowance';
 export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';

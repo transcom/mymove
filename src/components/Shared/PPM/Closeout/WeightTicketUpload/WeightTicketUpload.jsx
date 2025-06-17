@@ -14,6 +14,7 @@ import {
   UploadDropZoneLabel,
   UploadDropZoneLabelMobile,
 } from 'content/uploads';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 export const acceptableFileTypes = [
   'image/jpeg',
@@ -113,7 +114,11 @@ const WeightTicketUpload = ({
       />
       <FormGroup>
         <div className="labelWrapper">
-          <Label htmlFor={fieldName}> {weightTicketUploadLabel(fieldName, missingWeightTicket)} </Label>
+          <Label htmlFor={fieldName}>
+            <span>
+              {weightTicketUploadLabel(fieldName, missingWeightTicket)} <RequiredAsterisk />
+            </span>
+          </Label>
         </div>
         <Hint className={styles.uploadTypeHint}> {weightTicketUploadHint()} </Hint>
         <FileUpload

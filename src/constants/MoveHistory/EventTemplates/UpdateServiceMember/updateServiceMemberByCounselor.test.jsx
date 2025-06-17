@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import updateServiceMemberByCounselor from 'constants/MoveHistory/EventTemplates/UpdateServiceMember/updateServiceMemberByCounselor';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 describe('When a service counselor updates shipping allowances', () => {
   const historyRecord = {
@@ -11,7 +12,7 @@ describe('When a service counselor updates shipping allowances', () => {
     eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'NAVY',
-      grade: 'E_4',
+      grade: ORDERS_PAY_GRADE_TYPE.E_4,
     },
   };
   it('it correctly matches the event that updates the service member profile ', () => {
