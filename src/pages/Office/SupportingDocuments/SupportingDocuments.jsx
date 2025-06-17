@@ -17,7 +17,7 @@ const SupportingDocuments = ({ move, uploads }) => {
     })
     ?.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
   return (
-    <div className={styles.DocumentWrapper}>
+    <div className={styles.DocumentWrapper} style={{ marginTop: 0 }}>
       <div className={styles.embed}>
         {!filteredAndSortedUploads ||
         filteredAndSortedUploads.constructor !== Array ||
@@ -27,7 +27,7 @@ const SupportingDocuments = ({ move, uploads }) => {
           <DocumentViewer files={filteredAndSortedUploads} allowDownload isFileUploading={isFileUploading} />
         )}
       </div>
-      <Restricted to={permissionTypes.createSupportingDocuments}>
+      <Restricted to={permissionTypes.createSupportingDocuments} style={{ marginTop: 0 }}>
         <div className={styles.sidebar}>
           <div className={styles.content}>
             <div className={classNames(styles.top, styles.noBottomBorder)}>

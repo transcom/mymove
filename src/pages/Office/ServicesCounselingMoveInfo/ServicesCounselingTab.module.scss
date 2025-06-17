@@ -28,6 +28,7 @@
   }
 
   .gridContainer {
+    margin-top: 100px;
     .shipmentCard {
       @include u-padding-left(4);
     }

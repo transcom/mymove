@@ -161,7 +161,7 @@ const MoveDetails = ({
   const errorIfMissing = useErrorIfMissing(isRetirementOrSeparation);
 
   let sections = useMemo(() => {
-    return ['shipments', 'orders', 'allowances', 'customer-info'];
+    return ['orders', 'allowances', 'customer-info'];
   }, []);
 
   // use mutation calls
