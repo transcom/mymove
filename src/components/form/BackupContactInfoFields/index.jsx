@@ -36,6 +36,7 @@ export const BackupContactInfoFields = ({ name, legend, className, render, label
             name={firstNameFieldName}
             required
             labelHint={labelHintProp}
+            showRequiredAsterisk={showRequiredAsterisk}
           />
           <TextField
             label="Last Name"
