@@ -503,6 +503,8 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	eTag string,
 ) (*models.MTOServiceItem, error) {
 	checkMoveStatus := false
+	checkShipmentStatus := false
+	today := time.Now()
 	if mtoServiceItem.RequestedApprovalsRequestedStatus != nil {
 		checkMoveStatus = *mtoServiceItem.RequestedApprovalsRequestedStatus
 	}
@@ -526,22 +528,14 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	// then REMOVE any pending sit extensions and update move status
 	if len(shipment.SITDurationUpdates) > 0 {
 		if mtoServiceItem.SITDepartureDate != nil && endDate != nil {
-			today := time.Now()
 			if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
 				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = ?, decision_date = ? WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusRemoved, today, models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
 				if err != nil {
 					return nil, err
 				}
 
-				// Update sihpment status from APPROVALS REQUESTED back to APPROVED
-				if shipment.Status == models.MTOShipmentStatusApprovalsRequested {
-					err := p.shipmentRouter.Approve(appCtx, &shipment)
-					if err != nil {
-						return nil, err
-					}
-				}
-
-				// Update move status
+				// Update shipment and move status after SIT extension removal
+				checkShipmentStatus = true
 				checkMoveStatus = true
 			}
 		}
@@ -560,6 +554,35 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 			}
 		}
 
+	}
+
+	if checkShipmentStatus {
+		// get the shipment with the latest service items update
+		latestShipment := &models.MTOShipment{}
+		query := appCtx.DB().EagerPreload(
+			"MoveTaskOrder",
+			"MTOServiceItems",
+			"SITDurationUpdates",
+		)
+		query.Where("id = $1", shipment.ID)
+		err = query.First(latestShipment)
+		if err != nil {
+			return nil, err
+		}
+
+		// Check that shipment can be approved before approving
+		canApproveShipment := models.IsShipmentApprovable(*latestShipment)
+		if shipment.Status == models.MTOShipmentStatusApprovalsRequested && canApproveShipment {
+			err = p.shipmentRouter.Approve(appCtx, latestShipment)
+			if err != nil {
+				return nil, err
+			}
+			shipment.Status = models.MTOShipmentStatusApproved
+			err = appCtx.DB().RawQuery("UPDATE mto_shipments SET status = ?, approved_date = ? WHERE status = ? AND id = ?", models.MTOShipmentStatusApproved, today, models.MTOShipmentStatusApprovalsRequested, updatedServiceItem.MTOShipmentID).Exec()
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	if checkMoveStatus {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import updateShipmentAfterSitExtRemoval from 'constants/MoveHistory/EventTemplates/UpdateShipmentAfterSitExtRemoval/updateShipmentAfterSitExtRemoval';
+import updateShipmentAfterSitExtRemoval from 'constants/MoveHistory/EventTemplates/ApproveShipmentAfterSitExtRemoval/approveShipmentAfterSitExtRemoval';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
