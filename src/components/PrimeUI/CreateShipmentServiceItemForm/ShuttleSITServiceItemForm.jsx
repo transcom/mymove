@@ -48,7 +48,7 @@ const ShuttleSITServiceItemForm = ({ shipment, submission, handleCancel }) => {
           options={domesticShuttleServiceItemCodeOptions}
           showRequiredAsterisk
         />
-        <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk reason />
+        <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk required />
         <MaskedTextField
           data-testid="estimatedWeightInput"
           name="estimatedWeight"

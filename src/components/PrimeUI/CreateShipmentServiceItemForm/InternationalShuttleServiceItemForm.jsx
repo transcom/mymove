@@ -48,7 +48,7 @@ const InternationalShuttleServiceItemForm = ({ shipment, submission, handleCance
           options={internationalShuttleServiceItemCodeOptions}
           showRequiredAsterisk
         />
-        <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk reason />
+        <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk required />
         <MaskedTextField
           data-testid="estimatedWeightInput"
           name="estimatedWeight"

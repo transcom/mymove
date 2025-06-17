@@ -64,7 +64,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
             Service item type <RequiredAsterisk />
           </span>
         </Label>
-        <Dropdown id="serviceItemType" name="serviceItemType" onChange={handleServiceItemTypeChange}>
+        <Dropdown id="serviceItemType" name="serviceItemType" onChange={handleServiceItemTypeChange} required>
           <>
             <option value={MTOServiceItemOriginSIT}>Origin SIT</option>
             <option value={MTOServiceItemDestSIT}>Destination SIT</option>
