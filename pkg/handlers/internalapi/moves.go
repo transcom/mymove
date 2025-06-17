@@ -494,7 +494,6 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 							shipment.PPMShipment.HasGunSafe = nil
 						}
 					}
-					move.Orders.Entitlement.GunSafe = false
 					move.Orders.Entitlement.GunSafeWeight = 0
 					if move.Orders.Entitlement.WeightAllotted != nil {
 						move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
@@ -560,7 +559,6 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 								shipment.PPMShipment.HasGunSafe = nil
 							}
 						}
-						move.Orders.Entitlement.GunSafe = false
 						move.Orders.Entitlement.GunSafeWeight = 0
 						if move.Orders.Entitlement.WeightAllotted != nil {
 							move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
