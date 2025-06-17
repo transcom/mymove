@@ -109,7 +109,9 @@ describe('ProGearForm component', () => {
 
     it('displays reminder to include pro-gear weight in total', () => {
       render(<ProGearForm {...defaultProps} appName={APP_NAME.OFFICE} />, { wrapper: MockProviders });
-      expect(screen.getByText(/This pro-gear should be included in your total weight moved./)).toBeInTheDocument();
+      expect(
+        screen.getByText(/This pro-gear weight should be included in your total weight moved./),
+      ).toBeInTheDocument();
     });
 
     it('does not select a radio when belongsToSelf is null', () => {

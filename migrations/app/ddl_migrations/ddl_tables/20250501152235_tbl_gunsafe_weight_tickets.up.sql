@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	deleted_at timestamptz
 );
 
--- B-23368 need these to stay consistent with other PPM documents
+-- B-23368 need these "submitted" columns to stay consistent with other PPM documents
 ALTER TABLE gunsafe_weight_tickets
 ADD COLUMN IF NOT EXISTS submitted_has_weight_tickets bool DEFAULT false;
 
@@ -33,5 +33,7 @@ COMMENT on COLUMN gunsafe_weight_tickets.has_weight_tickets IS 'Indicates if the
 COMMENT on COLUMN gunsafe_weight_tickets.description IS 'Stores a description of the gun safe that was moved.';
 COMMENT on COLUMN gunsafe_weight_tickets.weight IS 'Stores the weight of the gun safe.';
 COMMENT on COLUMN gunsafe_weight_tickets.document_id IS 'The ID of the document that is associated with the user uploads containing the gun safe weight.';
-COMMENT on COLUMN progear_weight_tickets.status IS 'Status of the expense, e.g. APPROVED.';
-COMMENT on COLUMN progear_weight_tickets.reason IS 'Contains the reason an expense is excluded or rejected; otherwise null.';
+COMMENT on COLUMN gunsafe_weight_tickets.status IS 'Status of the expense, e.g. APPROVED.';
+COMMENT on COLUMN gunsafe_weight_tickets.reason IS 'Contains the reason an expense is excluded or rejected; otherwise null.';
+COMMENT on COLUMN gunsafe_weight_tickets.submitted_weight IS 'Stores the customer submitted value for the weight of the gun safe when uploading weight tickets';
+COMMENT on COLUMN gunsafe_weight_tickets.submitted_has_weight_tickets IS 'Stores the customer submitted value for the "I don''t have this weight ticket" checkbox when uploading gun safe weights';

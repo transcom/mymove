@@ -15,6 +15,7 @@ import Inaccessible from 'shared/Inaccessible';
 import { roleTypes } from 'constants/userRoles';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -56,6 +57,7 @@ const ServicesCounselingMoveInfo = () => {
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
+  const [gunSafeEnabled, setGunSafeEnabled] = useState(false);
   const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
       setInfoSavedAlert({
@@ -76,15 +78,6 @@ const ServicesCounselingMoveInfo = () => {
   const { move, order, customerData, isLoading, isError, errors } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
-
-  const [supportingDocsFF, setSupportingDocsFF] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
-    };
-    fetchData();
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -110,6 +103,13 @@ const ServicesCounselingMoveInfo = () => {
 
     fetchData();
   }, [infoSavedAlert, location, move, officeUserID, moveLockFlag]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const { pathname } = useLocation();
   const hideNav =
@@ -199,6 +199,13 @@ const ServicesCounselingMoveInfo = () => {
     ) ||
     matchPath(
       {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
         path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
         end: true,
       },
@@ -282,8 +289,12 @@ const ServicesCounselingMoveInfo = () => {
           />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} end element={<ProGear />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} end element={<ProGear />} />
-          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} end element={<GunSafe />} />
-          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} end element={<GunSafe />} />
+          {gunSafeEnabled && (
+            <>
+              <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} end element={<GunSafe />} />
+              <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} end element={<GunSafe />} />
+            </>
+          )}
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end
@@ -325,13 +336,11 @@ const ServicesCounselingMoveInfo = () => {
             }
           />
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
-          {supportingDocsFF && (
-            <Route
-              path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
-              end
-              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
-            />
-          )}
+          <Route
+            path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
+            end
+            element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
+          />
           <Route
             path={servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}
             end

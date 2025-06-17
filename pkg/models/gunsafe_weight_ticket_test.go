@@ -60,7 +60,7 @@ func (suite *ModelSuite) TestGunSafeWeightTicketValidation() {
 		tc := tc
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&tc.gunSafeWeightTicket, tc.expectedErrs)
+			suite.verifyValidationErrors(&tc.gunSafeWeightTicket, tc.expectedErrs, suite.AppContextForTest())
 		})
 	}
 }

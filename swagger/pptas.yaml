@@ -708,6 +708,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/PPTASShipment'
+      maxBillableWeight:
+        type: number
+        format: double
+        x-nullable: true
   PPTASReports:
     type: array
     items:

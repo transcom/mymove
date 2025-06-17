@@ -263,10 +263,21 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 				return handlers.ResponseForError(logger, err), err
 			}
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+
 			/* Don't send Move Creation email if orders type is BLUEBARK/SAFETY */
 			if move.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
-					notifications.NewMoveSubmitted(moveID),
+					notifications.NewMoveSubmitted(moveID, isGunSafeFeatureOn),
 				)
 				if err != nil {
 					logger.Error("problem sending email to user", zap.Error(err))
@@ -343,6 +354,17 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			gunSafeFlag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = gunSafeFlag.Match
 			}
 
 			var movesList models.Moves
@@ -463,6 +485,21 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				}
 				/** End of Feature Flag Block **/
 
+				/** Feature Flag - Gun Safe **/
+				if !isGunSafeFeatureOn {
+					if len(move.MTOShipments) > 0 {
+						for _, shipment := range move.MTOShipments {
+							shipment.PPMShipment.GunSafeWeight = nil
+							shipment.PPMShipment.GunSafeWeightTickets = nil
+							shipment.PPMShipment.HasGunSafe = nil
+						}
+					}
+					move.Orders.Entitlement.GunSafeWeight = 0
+					if move.Orders.Entitlement.WeightAllotted != nil {
+						move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
+					}
+				}
+
 				if latestMove.CreatedAt == nilTime {
 					latestMove = move
 					break
@@ -510,6 +547,22 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 							filteredShipments = append(filteredShipments, move.MTOShipments[i])
 						}
 						move.MTOShipments = filteredShipments
+					}
+					/** End of Feature Flag Block **/
+
+					/** Feature Flag - Gun Safe **/
+					if !isGunSafeFeatureOn {
+						if len(move.MTOShipments) > 0 {
+							for _, shipment := range move.MTOShipments {
+								shipment.PPMShipment.GunSafeWeight = nil
+								shipment.PPMShipment.GunSafeWeightTickets = nil
+								shipment.PPMShipment.HasGunSafe = nil
+							}
+						}
+						move.Orders.Entitlement.GunSafeWeight = 0
+						if move.Orders.Entitlement.WeightAllotted != nil {
+							move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
+						}
 					}
 					/** End of Feature Flag Block **/
 

@@ -99,6 +99,8 @@ const (
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 	// MTOShipmentTerminatedForCause indicates that a shipment has been terminated for cause by a COR
 	MTOShipmentStatusTerminatedForCause MTOShipmentStatus = "TERMINATED_FOR_CAUSE"
+	// MoveStatusAPPROVALSREQUESTED is the approvals requested status type for MTO Shipments
+	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS_REQUESTED"
 )
 
 // LOAType represents the possible TAC and SAC types for a mto shipment
@@ -205,8 +207,9 @@ func (m MTOShipment) TableName() string {
 type MTOShipments []MTOShipment
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
+func (m *MTOShipment) Validate(db *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
+	var customVerrs []validate.Errors
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Status), Name: "Status", List: []string{
 		string(MTOShipmentStatusApproved),
 		string(MTOShipmentStatusRejected),
@@ -216,7 +219,18 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusCanceled),
 		string(MTOShipmentStatusDiversionRequested),
 		string(MTOShipmentStatusTerminatedForCause),
+		string(MTOShipmentStatusApprovalsRequested),
 	}})
+	// Check if the status of the original shipment is terminated
+	if m.ID != uuid.Nil && db != nil {
+		var existingShipment MTOShipment
+		err := db.Find(&existingShipment, m.ID)
+		if err == nil && existingShipment.Status == MTOShipmentStatusTerminatedForCause {
+			terminationVerr := validate.NewErrors()
+			terminationVerr.Add("status", "Cannot update shipment with status TERMINATED_FOR_CAUSE")
+			customVerrs = append(customVerrs, *terminationVerr)
+		}
+	}
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: 0, Name: "PrimeEstimatedWeight"})
@@ -285,7 +299,17 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		})
 	}
 
-	return validate.Validate(vs...), nil
+	verrs := validate.Validate(vs...)
+	// Add our custom verrs the ole manual way because the types
+	// didn't want to append together
+	for _, e := range customVerrs {
+		for field, msgs := range e.Errors {
+			for _, msg := range msgs {
+				verrs.Add(field, msg)
+			}
+		}
+	}
+	return verrs, nil
 }
 
 // GetCustomerFromShipment gets the service member given a shipment id
@@ -570,4 +594,29 @@ func PrimeCanUpdateDeliveryAddress(shipmentType MTOShipmentType) bool {
 	}
 
 	return isValid
+}
+
+func IsShipmentApprovable(dbShipment MTOShipment) bool {
+	// check if any service items on current shipment still need to be reviewed
+	if dbShipment.MTOServiceItems != nil {
+		for _, serviceItem := range dbShipment.MTOServiceItems {
+			if serviceItem.Status == MTOServiceItemStatusSubmitted {
+				return false
+			}
+		}
+	}
+	// check if all SIT Extensions are reviewed
+	if dbShipment.SITDurationUpdates != nil {
+		for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == SITExtensionStatusPending {
+				return false
+			}
+		}
+	}
+	// check if all Delivery Address updates are reviewed
+	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == ShipmentAddressUpdateStatusRequested {
+		return false
+	}
+
+	return true
 }

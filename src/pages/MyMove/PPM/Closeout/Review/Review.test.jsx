@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 
 import { MockProviders } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
 import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
@@ -348,6 +349,11 @@ jest.mock('store/entities/selectors', () => ({
   selectServiceMemberFromLoggedInUser: jest.fn(() => mockServiceMember),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -441,7 +447,7 @@ const mockRoutes = [
   { path: '/', element: <div>Home Page</div> },
 ];
 
-const renderReviewPage = (props) => {
+const renderReviewPage = async (props) => {
   return render(
     <MockProviders
       path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH}
@@ -462,8 +468,9 @@ describe('Review page', () => {
     expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
   });
 
-  it('renders the page headings', () => {
-    renderReviewPage();
+  it('renders the page headings', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    await renderReviewPage();
 
     expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Review');
@@ -475,8 +482,21 @@ describe('Review page', () => {
     expect(screen.getAllByRole('heading', { level: 3 })[3]).toHaveTextContent('Expenses');
   });
 
-  it('renders the empty message when there are no weight tickets', () => {
-    renderReviewPage();
+  it('excludes gun safe from the page headings when FF is toggled off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    await renderReviewPage();
+
+    expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Review');
+    expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('About Your PPM');
+    expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Documents');
+    expect(screen.getAllByRole('heading', { level: 3 })[0]).toHaveTextContent('Weight moved');
+    expect(screen.getAllByRole('heading', { level: 3 })[1]).toHaveTextContent('Pro-gear');
+    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Expenses');
+  });
+
+  it('renders the empty message when there are no weight tickets', async () => {
+    await renderReviewPage();
 
     expect(
       screen.getByText('No weight moved documented. At least one trip is required to continue.'),
@@ -484,7 +504,7 @@ describe('Review page', () => {
   });
 
   it('routes to the edit about your ppm page when the edit link is clicked', async () => {
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[0]);
 
@@ -494,7 +514,7 @@ describe('Review page', () => {
   });
 
   it('routes to the add weight ticket page when the add link is clicked', async () => {
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getByText('Add More Weight'));
 
@@ -506,7 +526,7 @@ describe('Review page', () => {
   it('routes to the edit weight ticket page when the edit link is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
 
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[1]);
 
@@ -516,7 +536,7 @@ describe('Review page', () => {
   });
 
   it('routes to the add pro-gear page when the add link is clicked', async () => {
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getByText('Add Pro-gear Weight'));
 
@@ -528,7 +548,7 @@ describe('Review page', () => {
   it('routes to the edit pro-gear page when the edit link is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithProGear);
 
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[1]);
 
@@ -538,7 +558,8 @@ describe('Review page', () => {
   });
 
   it('routes to the add gun safe page when the add link is clicked', async () => {
-    renderReviewPage();
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    await renderReviewPage();
 
     await userEvent.click(screen.getByText('Add Gun safe Weight'));
 
@@ -547,10 +568,17 @@ describe('Review page', () => {
     });
   });
 
-  it('routes to the edit pro-gear page when the edit link is clicked', async () => {
+  it('excludes the links to add a gun safe when the FF is toggled off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    await renderReviewPage();
+    expect(screen.queryByText('Add Gun Safe Weight', { exact: false })).toBeNull();
+  });
+
+  it('routes to the edit gun safe page when the edit link is clicked', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithGunSafe);
 
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[1]);
 
@@ -559,8 +587,15 @@ describe('Review page', () => {
     });
   });
 
+  it('excludes gun safe edit links when the FF is toggled off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithGunSafe);
+    await renderReviewPage();
+    expect(screen.queryByText('Edit Gun Safe Weight Ticket Page', { exact: false })).toBeNull();
+  });
+
   it('routes to the add expenses page when the add link is clicked', async () => {
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getByText('Add Expenses'));
 
@@ -572,7 +607,7 @@ describe('Review page', () => {
   it('routes to the edit expense page when the edit link is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithExpenses);
 
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[1]);
 
@@ -582,7 +617,7 @@ describe('Review page', () => {
   });
 
   it('routes to the home page when the return to homepage link is clicked', async () => {
-    renderReviewPage();
+    await renderReviewPage();
 
     // await userEvent.click(screen.getByText('Return To Homepage'));
     await userEvent.click(screen.getByTestId('reviewReturnToHomepageLink'));
@@ -597,7 +632,7 @@ describe('Review page', () => {
   it('routes to the complete page when the save and continue link is clicked', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
 
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getByText('Save & Continue'));
 
@@ -608,7 +643,7 @@ describe('Review page', () => {
 
   it('disables the save and continue link when there are no weight tickets', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipment);
-    renderReviewPage();
+    await renderReviewPage();
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
@@ -616,7 +651,7 @@ describe('Review page', () => {
 
   it('disables the save and continue link when there is an incomplete weight ticket', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithIncompleteWeightTicket);
-    renderReviewPage();
+    await renderReviewPage();
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
@@ -624,7 +659,7 @@ describe('Review page', () => {
 
   it('error message is displayed when a PPM shipment is in an incomplete state', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithIncompleteWeightTicket);
-    renderReviewPage();
+    await renderReviewPage();
 
     expect(
       screen.getByText(
@@ -637,7 +672,7 @@ describe('Review page', () => {
 
   it('displays the delete confirmation modal when the delete button for Weight Moved/Trip 2 is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
 
@@ -657,7 +692,7 @@ describe('Review page', () => {
     deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
     getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithWeightTicketDeleted);
 
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
@@ -684,7 +719,7 @@ describe('Review page', () => {
     const mockDeleteProGearWeightTicket = jest.fn().mockResolvedValue({});
     deleteProGearWeightTicket.mockImplementationOnce(mockDeleteProGearWeightTicket);
     getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithProGearDeleted);
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
@@ -708,11 +743,12 @@ describe('Review page', () => {
   });
 
   it('calls the delete gun safe weight ticket api when confirm is clicked', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithGunSafe);
     const mockDeleteGunSafeWeightTicket = jest.fn().mockResolvedValue({});
     deleteGunSafeWeightTicket.mockImplementationOnce(mockDeleteGunSafeWeightTicket);
     getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithGunSafeDeleted);
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
@@ -735,12 +771,23 @@ describe('Review page', () => {
     });
   });
 
+  it('excludes links to delete gun safe tickets when the FF is toggled off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithGunSafe);
+    const mockDeleteGunSafeWeightTicket = jest.fn().mockResolvedValue({});
+    deleteGunSafeWeightTicket.mockImplementationOnce(mockDeleteGunSafeWeightTicket);
+    getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithGunSafeDeleted);
+    await renderReviewPage();
+
+    expect(screen.queryAllByRole('button', { name: 'Delete' })).toHaveLength(0);
+  });
+
   it('calls the delete moving expense api when confirm is clicked', async () => {
     selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithExpenses);
     const mockDeleteMovingExpense = jest.fn().mockResolvedValue({});
     deleteMovingExpense.mockImplementationOnce(mockDeleteMovingExpense);
     getMTOShipmentsForMove.mockResolvedValue(mockMTOShipmentWithExpensesDeleted);
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
@@ -762,7 +809,7 @@ describe('Review page', () => {
     });
   });
 
-  it('disables the save and continue link for small package shipments with no expenses', () => {
+  it('disables the save and continue link for small package shipments with no expenses', async () => {
     const mockMTOShipmentWithSmallPackageNoExpense = {
       id: mockMTOShipmentId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -780,14 +827,14 @@ describe('Review page', () => {
     };
 
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithSmallPackageNoExpense);
-    renderReviewPage();
+    await renderReviewPage();
 
     const saveButton = screen.getByText('Save & Continue');
     expect(saveButton).toHaveClass('usa-button--disabled');
     expect(saveButton).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('enables the save and continue link for small package shipments when at least one expense exists', () => {
+  it('enables the save and continue link for small package shipments when at least one expense exists', async () => {
     const mockMTOShipmentWithSmallPackageExpense = {
       id: mockMTOShipmentId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -805,7 +852,7 @@ describe('Review page', () => {
     };
 
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithSmallPackageExpense);
-    renderReviewPage();
+    await renderReviewPage();
 
     const saveButton = screen.getByText('Save & Continue');
     expect(saveButton).not.toHaveClass('usa-button--disabled');

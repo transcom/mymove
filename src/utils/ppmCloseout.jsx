@@ -50,7 +50,14 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           value: getW2Address(ppmShipment.w2Address),
         },
       ],
-      renderEditLink: () => (editPath ? <Link to={generatePath(editPath, editParams)}>Edit</Link> : ''),
+      renderEditLink: () =>
+        editPath ? (
+          <Link data-testid="aboutYourPPMEditLink" to={generatePath(editPath, editParams)}>
+            Edit
+          </Link>
+        ) : (
+          ''
+        ),
     },
   ];
 };

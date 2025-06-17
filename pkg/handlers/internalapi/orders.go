@@ -73,6 +73,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		dBAuthorizedWeight = models.Int64Pointer(int64(*order.Entitlement.AuthorizedWeight()))
 		entitlement.ProGear = models.Int64Pointer(int64(order.Entitlement.ProGearWeight))
 		entitlement.ProGearSpouse = models.Int64Pointer(int64(order.Entitlement.ProGearWeightSpouse))
+		entitlement.GunSafeWeight = models.Int64Pointer(int64(order.Entitlement.GunSafeWeight))
 		if order.Entitlement.AccompaniedTour != nil {
 			entitlement.AccompaniedTour = models.BoolPointer(*order.Entitlement.AccompaniedTour)
 		}
@@ -256,6 +257,11 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
 
+			maxGunSafeWeightAllowance, err := models.GetMaxGunSafeAllowance(appCtx)
+			if err == nil {
+				weightAllotment.GunSafeWeight = maxGunSafeWeightAllowance
+			}
+
 			// Assign default SIT allowance based on customer type.
 			// We only have service members right now, but once we introduce more, this logic will have to change.
 			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
@@ -270,6 +276,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				ProGearWeight:           weightAllotment.ProGearWeight,
 				ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
 				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+				GunSafeWeight:           weightAllotment.GunSafeWeight,
 			}
 
 			/*

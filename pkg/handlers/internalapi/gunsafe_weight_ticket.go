@@ -23,6 +23,22 @@ type CreateGunSafeWeightTicketHandler struct {
 func (h CreateGunSafeWeightTicketHandler) Handle(params gunsafeops.CreateGunSafeWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+
+			if !isGunSafeFeatureOn {
+				return gunsafeops.NewCreateGunSafeWeightTicketForbidden(), apperror.NewSessionError("Feature flag for gun safe related endpoints has not been enabled.")
+			}
+
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
 				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
@@ -63,6 +79,21 @@ func (h UpdateGunSafeWeightTicketHandler) Handle(params gunsafeops.UpdateGunSafe
 	// track every request with middleware:
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+
+			if !isGunSafeFeatureOn {
+				return gunsafeops.NewUpdateGunSafeWeightTicketForbidden(), apperror.NewSessionError("Feature flag for gun safe related endpoints has not been enabled.")
+			}
 
 			if appCtx.Session() == nil {
 				noSessionErr := apperror.NewSessionError("No user session")
@@ -141,6 +172,22 @@ type DeleteGunSafeWeightTicketHandler struct {
 func (h DeleteGunSafeWeightTicketHandler) Handle(params gunsafeops.DeleteGunSafeWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+
+			if !isGunSafeFeatureOn {
+				return gunsafeops.NewDeleteGunSafeWeightTicketForbidden(), apperror.NewSessionError("Feature flag for gun safe related endpoints has not been enabled.")
+			}
+
 			if appCtx.Session() == nil {
 				noSessionErr := apperror.NewSessionError("No user session")
 				appCtx.Logger().Error("internalapi.DeleteGunSafeWeightTicketHandler", zap.Error(noSessionErr))

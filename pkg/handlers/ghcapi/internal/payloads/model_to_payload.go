@@ -707,9 +707,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var proGearWeight, proGearWeightSpouse, gunSafeWeight, totalWeight int64
 	proGearWeight = int64(entitlement.ProGearWeight)
 	proGearWeightSpouse = int64(entitlement.ProGearWeightSpouse)
+	gunSafeWeight = int64(entitlement.GunSafeWeight)
 
 	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
 		if *entitlement.DependentsAuthorized {
@@ -768,6 +769,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               sit,
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
@@ -1013,6 +1015,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
 		GunSafeWeightTickets:           GunSafeWeightTickets(storer, ppmShipment.GunSafeWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
@@ -1420,6 +1424,7 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
 		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+		GccMultiplier:         swag.Float32(float32(*ppmCloseout.GCCMultiplier)),
 	}
 
 	return payload
@@ -2295,6 +2300,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusApprovalsRequested ||
 		status == models.MTOShipmentStatusDiversionRequested ||
 		status == models.MTOShipmentStatusCancellationRequested ||
 		status == models.MTOShipmentStatusTerminatedForCause
