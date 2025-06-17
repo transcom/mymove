@@ -677,7 +677,7 @@ func (suite *PayloadsSuite) TestCustomerToServiceMember() {
 		suite.Equal(result.BackupContacts[0].Phone, *payload.BackupContact.Phone)
 		suite.Equal(result.BackupContacts[0].Email, *payload.BackupContact.Email)
 	})
-}    
+}
 
 func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	suite.Run("Success - Complete input", func() {
