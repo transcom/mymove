@@ -1448,6 +1448,13 @@ definitions:
         description: >
           Spouse's pro-gear weight limit as set by an Office user, distinct from
           the service member's default weight allotment determined by pay grade
+      gunSafeWeight:
+        type: integer
+        example: 500
+        x-nullable: true
+        description: >
+          Gun safe weight limit as set by an Office user, distinct from the
+          service member's default weight allotment determined by pay grade
       accompanied_tour:
         type: boolean
         example: true
@@ -1749,11 +1756,15 @@ definitions:
       pro_gear_weight_spouse:
         type: integer
         example: 500
+      gun_safe_weight:
+        type: integer
+        example: 500
     required:
       - total_weight_self
       - total_weight_self_plus_dependents
       - pro_gear_weight
       - pro_gear_weight_spouse
+      - gun_safe_weight
   IndexEntitlements:
     type: object
     additionalProperties:

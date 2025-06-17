@@ -337,10 +337,19 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			DocumentID:    userUpload.Document.ID,
 		}
 
+		gunSafe := &models.GunSafeWeightTicket{
+			PPMShipmentID: ppmShipment.ID,
+			Document:      userUpload.Document,
+			DocumentID:    userUpload.Document.ID,
+		}
+
 		err := suite.DB().Create(movingExpense)
 		suite.NoError(err)
 
 		err = suite.DB().Create(proGear)
+		suite.NoError(err)
+
+		err = suite.DB().Create(gunSafe)
 		suite.NoError(err)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
@@ -366,6 +375,9 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		suite.Len(actualPPMShipment.ProgearWeightTickets, 1)
 		suite.Len(actualPPMShipment.ProgearWeightTickets[0].Document.UserUploads, 1)
+
+		suite.Len(actualPPMShipment.GunSafeWeightTickets, 1)
+		suite.Len(actualPPMShipment.GunSafeWeightTickets[0].Document.UserUploads, 1)
 	})
 }
 

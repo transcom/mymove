@@ -85,7 +85,7 @@ const ProGearForm = ({
       <div className={closingPageStyles['closing-section']}>
         <p>
           If you moved pro-gear for yourself or your spouse as part of this PPM, document the total weight here.
-          Reminder: This pro-gear should be included in your total weight moved.
+          Reminder: This pro-gear weight should be included in your total weight moved.
         </p>
       </div>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>

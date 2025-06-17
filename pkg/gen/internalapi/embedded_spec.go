@@ -5509,6 +5509,12 @@ func init() {
           "x-nullable": true,
           "example": 5
         },
+        "gunSafeWeight": {
+          "description": "Gun safe weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -9579,9 +9585,14 @@ func init() {
         "total_weight_self",
         "total_weight_self_plus_dependents",
         "pro_gear_weight",
-        "pro_gear_weight_spouse"
+        "pro_gear_weight_spouse",
+        "gun_safe_weight"
       ],
       "properties": {
+        "gun_safe_weight": {
+          "type": "integer",
+          "example": 500
+        },
         "pro_gear_weight": {
           "type": "integer",
           "example": 2000
@@ -16063,6 +16074,12 @@ func init() {
           "x-nullable": true,
           "example": 5
         },
+        "gunSafeWeight": {
+          "description": "Gun safe weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -20148,9 +20165,14 @@ func init() {
         "total_weight_self",
         "total_weight_self_plus_dependents",
         "pro_gear_weight",
-        "pro_gear_weight_spouse"
+        "pro_gear_weight_spouse",
+        "gun_safe_weight"
       ],
       "properties": {
+        "gun_safe_weight": {
+          "type": "integer",
+          "example": 500
+        },
         "pro_gear_weight": {
           "type": "integer",
           "example": 2000
