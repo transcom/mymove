@@ -1,6 +1,6 @@
 import React from 'react';
 
-import RequestAccountView from './RequestAccountView';
+import RequestAccountForm from './RequestAccountForm';
 
 import { MockProviders } from 'testUtils';
 
@@ -29,14 +29,14 @@ const initialValues = {
 };
 
 export default {
-  title: 'Office Components/RequestAccount',
+  title: 'Office Components/RequestAccountForm',
+  component: RequestAccountForm,
   parameters: { layout: 'fullscreen' },
 };
 
-export const Form = () => (
+export const Blank = () => (
   <MockProviders>
-    <RequestAccountView
-      serverError={null}
+    <RequestAccountForm
       onCancel={() => {}}
       onSubmit={() => {}}
       initialValues={initialValues}
