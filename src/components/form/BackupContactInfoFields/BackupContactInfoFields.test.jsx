@@ -42,7 +42,7 @@ describe('BackupContactInfoFields component', () => {
           <BackupContactInfoFields legend="Backup contact" />
         </Formik>,
       );
-    
+
       expect(await screen.findByLabelText('First Name *')).toHaveValue(initialValues.name);
       expect(await screen.findByLabelText('Last Name *')).toHaveValue(initialValues.name);
       expect(await screen.findByLabelText('Email *')).toHaveValue(initialValues.email);
