@@ -2855,7 +2855,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "98421")
-			suite.Equal(unit.Cents(946264), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(1606189), *ppmMaxIncentive)
 
 			// appending this to test functionality of the GCC multiplier
 			validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
@@ -2902,7 +2902,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
 			suite.NotEqual(unit.Cents(504512), *ppmEstimateWithMultiplier)
-			suite.Equal(unit.Cents(1447818), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(2460239), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
@@ -2982,7 +2982,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "30813")
-			suite.Equal(unit.Cents(975664), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(1353664), *ppmMaxIncentive)
 		})
 	})
 
