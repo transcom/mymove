@@ -42,6 +42,13 @@ const ClientCertCreate = (props) => (
         ]}
       />
       <SelectInput
+        source="pptasAffiliation"
+        choices={[
+          { id: 'NAVY', name: 'Navy' },
+          { id: 'MARINES', name: 'Marine Corps' },
+        ]}
+      />
+      <SelectInput
         source="allowOrdersAPI"
         choices={[
           { id: true, name: 'Yes' },

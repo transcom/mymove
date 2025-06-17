@@ -107,6 +107,13 @@ const ClientCertEdit = (props) => (
           { id: false, name: 'No' },
         ]}
       />
+      <SelectInput
+        source="pptasAffiliation"
+        choices={[
+          { id: 'NAVY', name: 'Navy' },
+          { id: 'MARINES', name: 'Marine Corps' },
+        ]}
+      />
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />
     </SimpleForm>
