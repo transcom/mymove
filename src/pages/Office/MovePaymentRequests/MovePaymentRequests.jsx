@@ -295,7 +295,7 @@ const MovePaymentRequests = ({
               isMoveLocked={isMoveLocked}
             />
           </div>
-          <h2>Payment requests</h2>
+          <h1>Payment requests</h1>
           <div className={txoStyles.section} id="payment-requests">
             {paymentRequests?.length > 0 ? (
               paymentRequests.map((paymentRequest) => (
