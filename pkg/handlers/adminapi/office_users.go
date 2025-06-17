@@ -456,7 +456,7 @@ type UpdateOfficeUserHandler struct {
 	services.UserPrivilegeAssociator
 	services.UserSessionRevocation
 	services.TransportationOfficeAssignmentUpdater
-	services.RoleAssociator
+	services.RoleFetcher
 }
 
 // Handle updates an office user
@@ -557,7 +557,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
 
-				roles, err := h.RoleAssociator.FetchRolesForUser(appCtx, *updatedOfficeUser.UserID)
+				roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *updatedOfficeUser.UserID)
 
 				if err != nil {
 					appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
