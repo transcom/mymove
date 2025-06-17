@@ -8,7 +8,6 @@
 import { expect, test, forEachViewport } from './customerPpmTestFixture';
 
 test.describe('Progear', () => {
-  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
@@ -32,8 +31,6 @@ test.describe('Progear', () => {
 });
 
 test.describe('Progear', () => {
-  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
@@ -52,7 +49,6 @@ test.describe('Progear', () => {
 });
 
 test.describe('(MultiMove) Progear', () => {
-  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
