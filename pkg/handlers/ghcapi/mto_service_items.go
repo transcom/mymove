@@ -148,7 +148,7 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 				if shipment != nil {
 					_, shipmentWithSITInfo, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 					if err != nil {
-						appCtx.Logger().Error(fmt.Sprintf("Could not calculate the shipment SIT status for shipment ID: %s: %s", shipment.ID, err))
+						appCtx.Logger().Error(fmt.Sprintf("Could not calculate the shipment SIT status for shipment ID: %s: %s", mtoshipmentID, err))
 					}
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -261,7 +261,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 				if shipment != nil {
 					_, shipmentWithSITInfo, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 					if err != nil {
-						appCtx.Logger().Error(fmt.Sprintf("Could not calculate the shipment SIT status for shipment ID: %s: %s", shipment.ID, err))
+						appCtx.Logger().Error(fmt.Sprintf("Could not calculate the shipment SIT status for shipment ID: %s: %s", mtoshipmentID, err))
 					}
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
