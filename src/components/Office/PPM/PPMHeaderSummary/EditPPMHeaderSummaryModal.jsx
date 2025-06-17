@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button, FormGroup, Radio, Label } from '@trussworks/react-uswds';
+import { Button, Radio, Fieldset } from '@trussworks/react-uswds';
 
 import styles from './EditPPMHeaderSummaryModal.module.scss';
 
@@ -16,6 +16,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { requiredAddressSchema } from 'utils/validation';
 import { FEATURE_FLAG_KEYS, getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editItemName, grade }) => {
   const [ppmSprFF, setPpmSprFF] = useState(false);
@@ -78,6 +79,12 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
 
   const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
 
+  const editingAddressField =
+    editItemName === 'pickupAddress' ||
+    editItemName === 'destinationAddress' ||
+    editItemName === 'pickupAddress' ||
+    editItemName === 'destinationAddress';
+
   return (
     <div>
       <Overlay />
@@ -96,6 +103,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
               return (
                 <Form>
                   <div>
+                    {!editingAddressField && requiredAsteriskMessage}
                     {editItemName === 'actualMoveDate' && (
                       <DatePickerInput
                         name="actualMoveDate"
@@ -106,6 +114,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                           handleChange,
                           setFieldTouched: formikProps.setFieldTouched,
                         }}
+                        showRequiredAsterisk
+                        required
                       />
                     )}
                     {editItemName === 'advanceAmountReceived' && (
@@ -120,6 +130,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         thousandsSeparator=","
                         lazy={false} // immediate masking evaluation
                         prefix="$"
+                        showRequiredAsterisk
+                        required
                       />
                     )}
                     {editItemName === 'pickupAddress' && (
@@ -151,13 +163,18 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         lazy={false} // immediate masking evaluation
                         suffix="lbs"
                         data-testid="editAllowableWeightInput"
+                        showRequiredAsterisk
+                        required
                       />
                     )}
                     {editItemName === 'expenseType' && (
-                      <FormGroup>
-                        <Label className={styles.Label} htmlFor="ppmType">
-                          What is the PPM type?
-                        </Label>
+                      <Fieldset>
+                        <legend>
+                          <span className="usa-label" aria-label="Required: What is the PPM type?">
+                            What is the PPM type? <RequiredAsterisk />
+                          </span>
+                        </legend>
+
                         <Field
                           as={Radio}
                           id="isIncentiveBased"
@@ -191,7 +208,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                             data-testid="isSmallPackage"
                           />
                         )}
-                      </FormGroup>
+                      </Fieldset>
                     )}
                   </div>
                   <ModalActions>
