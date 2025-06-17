@@ -24,6 +24,7 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { getWeightTicketNetWeight } from 'utils/shipmentWeights';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   emptyWeight: Yup.number().required('Enter the empty weight'),
@@ -252,6 +253,7 @@ function ReviewWeightTicket({
                 <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
                 <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
                 <div className={styles.displayValue}>{vehicleDescription}</div>
+                {requiredAsteriskMessage}
 
                 <MaskedTextField
                   defaultValue="0"
@@ -269,6 +271,8 @@ function ReviewWeightTicket({
                   suffix="lbs"
                   onBlur={handleWeightFieldsChange}
                   disabled={readOnly}
+                  showRequiredAsterisk
+                  required
                 />
 
                 <MaskedTextField
@@ -287,6 +291,8 @@ function ReviewWeightTicket({
                   suffix="lbs"
                   onBlur={handleWeightFieldsChange}
                   disabled={readOnly}
+                  showRequiredAsterisk
+                  required
                 />
 
                 <EditPPMNetWeight
@@ -355,7 +361,9 @@ function ReviewWeightTicket({
                   </FormGroup>
                 )}
                 <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
-                <p>Add a review for this Weight Ticket</p>
+                <p>
+                  <RequiredAsterisk /> Add a review for this Weight Ticket
+                </p>
                 <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
                 <Fieldset className={styles.statusOptions}>
                   <div
@@ -374,6 +382,7 @@ function ReviewWeightTicket({
                       disabled={
                         (values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument) || readOnly
                       }
+                      required
                     />
                   </div>
                   <div
@@ -390,6 +399,7 @@ function ReviewWeightTicket({
                       onChange={handleApprovalChange}
                       data-testid="rejectRadio"
                       disabled={readOnly}
+                      required
                     />
 
                     {values.status === ppmDocumentStatus.REJECTED && (

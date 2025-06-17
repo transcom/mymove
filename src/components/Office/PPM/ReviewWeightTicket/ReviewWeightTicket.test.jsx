@@ -416,19 +416,21 @@ jest.mock('pages/Office/PPM/ReviewDocuments/ReviewDocuments', () => {
 
 describe('ReviewWeightTicket component', () => {
   describe('displays form', () => {
-    it('renders blank form on load with defaults', async () => {
+    it('renders blank form on load with defaults and asterisks for required fields', async () => {
       render(
         <MockProviders>
           <ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />
         </MockProviders>,
       );
 
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 3, name: 'Trip 1' })).toBeInTheDocument();
       });
 
       expect(screen.getByText('Vehicle description')).toBeInTheDocument();
-      expect(screen.getByLabelText('Full weight')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Full weight *')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Net weight')).toBeInTheDocument();
       expect(screen.getByText('Did they use a trailer they owned?')).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
@@ -450,8 +452,8 @@ describe('ReviewWeightTicket component', () => {
       await waitFor(() => {
         expect(screen.getByText('Kia Forte')).toBeInTheDocument();
       });
-      expect(screen.getByLabelText('Empty weight', { description: 'Weight tickets' })).toHaveDisplayValue('400');
-      expect(screen.getByLabelText('Full weight', { description: 'Weight tickets' })).toHaveDisplayValue('1,200');
+      expect(screen.getByLabelText('Empty weight *', { description: 'Weight tickets' })).toHaveDisplayValue('400');
+      expect(screen.getByLabelText('Full weight *', { description: 'Weight tickets' })).toHaveDisplayValue('1,200');
       expect(screen.getAllByText('800 lbs')).toHaveLength(2);
       expect(screen.getByLabelText('No')).toBeChecked();
     });
@@ -463,9 +465,9 @@ describe('ReviewWeightTicket component', () => {
         </MockProviders>,
       );
       await waitFor(() => {
-        expect(screen.getByLabelText('Empty weight', { description: 'Vehicle weight' })).toBeInTheDocument();
+        expect(screen.getByLabelText('Empty weight *', { description: 'Vehicle weight' })).toBeInTheDocument();
       });
-      expect(screen.getByLabelText('Full weight', { description: 'Constructed weight' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Full weight *', { description: 'Constructed weight' })).toBeInTheDocument();
     });
 
     it('toggles the reason field when Reject is selected', async () => {
@@ -614,7 +616,7 @@ describe('ReviewWeightTicket component', () => {
       });
 
       expect(screen.getByText('Vehicle description')).toBeInTheDocument();
-      expect(screen.getByLabelText('Full weight')).toBeDisabled();
+      expect(screen.getByLabelText('Full weight *')).toBeDisabled();
       expect(screen.getByText('Did they use a trailer they owned?')).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeDisabled();
       expect(screen.getByLabelText('No')).toBeDisabled();
@@ -635,10 +637,10 @@ describe('ReviewWeightTicket component', () => {
       await waitFor(() => {
         expect(screen.getByText('Kia Forte')).toBeInTheDocument();
       });
-      expect(screen.getByLabelText('Empty weight', { description: 'Weight tickets' })).toHaveDisplayValue('400');
-      expect(screen.getByLabelText('Empty weight', { description: 'Weight tickets' })).toBeDisabled();
-      expect(screen.getByLabelText('Full weight', { description: 'Weight tickets' })).toHaveDisplayValue('1,200');
-      expect(screen.getByLabelText('Full weight', { description: 'Weight tickets' })).toBeDisabled();
+      expect(screen.getByLabelText('Empty weight *', { description: 'Weight tickets' })).toHaveDisplayValue('400');
+      expect(screen.getByLabelText('Empty weight *', { description: 'Weight tickets' })).toBeDisabled();
+      expect(screen.getByLabelText('Full weight *', { description: 'Weight tickets' })).toHaveDisplayValue('1,200');
+      expect(screen.getByLabelText('Full weight *', { description: 'Weight tickets' })).toBeDisabled();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByLabelText('No')).toBeDisabled();
     });
@@ -650,9 +652,9 @@ describe('ReviewWeightTicket component', () => {
         </MockProviders>,
       );
       await waitFor(() => {
-        expect(screen.getByLabelText('Empty weight', { description: 'Vehicle weight' })).toBeDisabled();
+        expect(screen.getByLabelText('Empty weight *', { description: 'Vehicle weight' })).toBeDisabled();
       });
-      expect(screen.getByLabelText('Full weight', { description: 'Constructed weight' })).toBeDisabled();
+      expect(screen.getByLabelText('Full weight *', { description: 'Constructed weight' })).toBeDisabled();
     });
   });
 });
