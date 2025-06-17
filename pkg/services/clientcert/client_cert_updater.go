@@ -73,8 +73,8 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 	if payload.AllowPPTAS != nil {
 		foundClientCert.AllowPPTAS = *payload.AllowPPTAS
 	}
-	if payload.PptasBranch != nil {
-		foundClientCert.PPTASBranch = (*models.ServiceMemberAffiliation)(payload.PptasBranch)
+	if payload.PptasAffiliation != nil {
+		foundClientCert.PPTASAffiliation = (*models.ServiceMemberAffiliation)(payload.PptasAffiliation)
 	}
 
 	verrs, err := o.builder.UpdateOne(appCtx, &foundClientCert, nil)

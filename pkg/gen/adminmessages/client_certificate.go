@@ -71,8 +71,8 @@ type ClientCertificate struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// pptas branch
-	PptasBranch *Affiliation `json:"pptasBranch,omitempty"`
+	// pptas affiliation
+	PptasAffiliation *Affiliation `json:"pptasAffiliation,omitempty"`
 
 	// sha256 digest
 	// Example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
@@ -105,7 +105,7 @@ func (m *ClientCertificate) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validatePptasBranch(formats); err != nil {
+	if err := m.validatePptasAffiliation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -147,17 +147,17 @@ func (m *ClientCertificate) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ClientCertificate) validatePptasBranch(formats strfmt.Registry) error {
-	if swag.IsZero(m.PptasBranch) { // not required
+func (m *ClientCertificate) validatePptasAffiliation(formats strfmt.Registry) error {
+	if swag.IsZero(m.PptasAffiliation) { // not required
 		return nil
 	}
 
-	if m.PptasBranch != nil {
-		if err := m.PptasBranch.Validate(formats); err != nil {
+	if m.PptasAffiliation != nil {
+		if err := m.PptasAffiliation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pptasBranch")
+				return ve.ValidateName("pptasAffiliation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pptasBranch")
+				return ce.ValidateName("pptasAffiliation")
 			}
 			return err
 		}
@@ -198,7 +198,7 @@ func (m *ClientCertificate) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
-	if err := m.contextValidatePptasBranch(ctx, formats); err != nil {
+	if err := m.contextValidatePptasAffiliation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -221,19 +221,19 @@ func (m *ClientCertificate) contextValidateCreatedAt(ctx context.Context, format
 	return nil
 }
 
-func (m *ClientCertificate) contextValidatePptasBranch(ctx context.Context, formats strfmt.Registry) error {
+func (m *ClientCertificate) contextValidatePptasAffiliation(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.PptasBranch != nil {
+	if m.PptasAffiliation != nil {
 
-		if swag.IsZero(m.PptasBranch) { // not required
+		if swag.IsZero(m.PptasAffiliation) { // not required
 			return nil
 		}
 
-		if err := m.PptasBranch.ContextValidate(ctx, formats); err != nil {
+		if err := m.PptasAffiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pptasBranch")
+				return ve.ValidateName("pptasAffiliation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pptasBranch")
+				return ce.ValidateName("pptasAffiliation")
 			}
 			return err
 		}

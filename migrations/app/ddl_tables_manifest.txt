@@ -22,3 +22,4 @@
 20250506180256_tbl_create_re_intl_cities.up.sql
 20250506180318_tbl_create_intl_city_countries.up.sql
 20250506180535_tbl_B-23565_alter_addresses.up.sql
+20250617171809_tbl_B-23407_alter_client_certs.up.sql

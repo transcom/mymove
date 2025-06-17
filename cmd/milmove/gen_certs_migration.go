@@ -68,7 +68,7 @@ INSERT INTO public.client_certs (
     allow_orders_api,
     allow_prime,
 	allow_pptas,
-	pptas_branch,
+	pptas_affiliation,
     created_at,
     updated_at,
     allow_air_force_orders_read,

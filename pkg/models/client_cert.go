@@ -30,7 +30,7 @@ type ClientCert struct {
 	AllowNavyOrdersWrite        bool                      `db:"allow_navy_orders_write"`
 	AllowPrime                  bool                      `db:"allow_prime"`
 	AllowPPTAS                  bool                      `db:"allow_pptas"`
-	PPTASBranch                 *ServiceMemberAffiliation `db:"pptas_branch"`
+	PPTASAffiliation            *ServiceMemberAffiliation `db:"pptas_affiliation"`
 	UserID                      uuid.UUID                 `db:"user_id"`
 }
 

@@ -2659,7 +2659,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "pptasBranch": {
+        "pptasAffiliation": {
           "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
@@ -2733,7 +2733,7 @@ func init() {
           "type": "string",
           "example": "user@example.com"
         },
-        "pptasBranch": {
+        "pptasAffiliation": {
           "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
@@ -2805,7 +2805,7 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pptasBranch": {
+        "pptasAffiliation": {
           "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
@@ -6738,7 +6738,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "pptasBranch": {
+        "pptasAffiliation": {
           "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
@@ -6812,7 +6812,7 @@ func init() {
           "type": "string",
           "example": "user@example.com"
         },
-        "pptasBranch": {
+        "pptasAffiliation": {
           "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
@@ -6884,7 +6884,7 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pptasBranch": {
+        "pptasAffiliation": {
           "$ref": "#/definitions/Affiliation"
         },
         "sha256Digest": {
