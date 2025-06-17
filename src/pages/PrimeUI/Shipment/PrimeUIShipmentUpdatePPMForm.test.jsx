@@ -176,6 +176,8 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
   it('renders the form and asterisks for required fields', async () => {
     renderShipmentUpdatePPMForm();
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(await screen.findByText('Dates')).toBeInTheDocument();
     expect(await screen.findByLabelText('Expected Departure Date *')).toHaveValue(
       formatCustomerDate(initialValues.ppmShipment.expectedDepartureDate),
