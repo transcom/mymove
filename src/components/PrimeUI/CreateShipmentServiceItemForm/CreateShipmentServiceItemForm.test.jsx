@@ -81,6 +81,8 @@ describe('CreateShipmentServiceItemForm component', () => {
       </MockProviders>,
     );
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(screen.getByLabelText('Service item type *')).toBeInTheDocument();
 
     expect(screen.getByRole('combobox', { name: 'Service item type' })).toBeInTheDocument();

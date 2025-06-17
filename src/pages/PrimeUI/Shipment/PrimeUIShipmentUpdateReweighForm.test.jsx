@@ -8,7 +8,7 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
   const testProps = {
     initialValues: {
       reweighWeight: '0',
-      reweighRemarks: '',
+      reweighRemarks: 'test',
     },
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
     handleClose: jest.fn(),
@@ -32,6 +32,9 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
     const reweighInput = screen.getByLabelText('Reweigh Weight (lbs) *');
     await userEvent.clear(reweighInput);
     await userEvent.type(reweighInput, '123');
+
+    const textarea = await screen.getByLabelText(/Remarks */);
+    expect(textarea).toBeInTheDocument();
     await userEvent.type(screen.getByTestId('remarks'), 'test');
 
     await waitFor(() => {

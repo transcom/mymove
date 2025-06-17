@@ -95,5 +95,6 @@ describe('OriginSITServiceItemForm component', () => {
 
     expect(screen.getByLabelText('Reason *')).toBeInTheDocument();
     expect(screen.getByLabelText('SIT postal code *')).toBeInTheDocument();
+    expect(screen.getByLabelText('SIT entry Date *')).toBeInTheDocument();
   });
 });

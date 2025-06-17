@@ -53,8 +53,10 @@ describe('PrimeUI Acknowledge Shipment Page', () => {
     jest.resetAllMocks();
   });
 
-  it('renders the form with the data from an acknowledged shipment', async () => {
+  it('renders the form with the data from an acknowledged shipment and asterisks for required fields', async () => {
     renderShipmentComponent('2');
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     const heading = screen.getByText('Acknowledge Shipment');
     expect(heading).toBeInTheDocument();
@@ -71,8 +73,10 @@ describe('PrimeUI Acknowledge Shipment Page', () => {
     expect(dateInput).toHaveValue('13 Apr 2025');
   });
 
-  it('renders the form with the data from an unacknowledged shipment', async () => {
+  it('renders the form with the data from an unacknowledged shipment and asterisks for required fields', async () => {
     renderShipmentComponent('3');
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     const heading = screen.getByText('Acknowledge Shipment');
     expect(heading).toBeInTheDocument();
