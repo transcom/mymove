@@ -70,9 +70,11 @@ function renderOrdersDetailForm(props) {
 }
 
 describe('OrdersDetailForm', () => {
-  it('renders the Form', async () => {
+  it('renders the Form and asterisks for required fields', async () => {
     renderOrdersDetailForm();
     expect(await screen.findByText('Current duty location')).toBeInTheDocument();
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     // hidden fields are default visible
     expect(screen.getByLabelText('Department indicator *')).toBeInTheDocument();
