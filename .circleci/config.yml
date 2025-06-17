@@ -895,7 +895,6 @@ commands:
             export FEATURE_FLAG_HEADQUARTERS_ROLE=true
             export FEATURE_FLAG_GSR_ROLE=false
             export FEATURE_FLAG_SAFETY_MOVE=false
-            export FEATURE_FLAG_MANAGE_SUPPORTING_DOCS=false
             export FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE=false
             export FEATURE_FLAG_QUEUE_MANAGEMENT=false
             export FEATURE_FLAG_UNACCOMPANIED_BAGGAGE=false
@@ -941,7 +940,6 @@ commands:
             FEATURE_FLAG_HEADQUARTERS_ROLE: 'true'
             FEATURE_FLAG_GSR_ROLE: 'false'
             FEATURE_FLAG_SAFETY_MOVE: 'false'
-            FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
             FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE: 'false'
             FEATURE_FLAG_QUEUE_MANAGEMENT: 'false'
             FEATURE_FLAG_UNACCOMPANIED_BAGGAGE: 'false'

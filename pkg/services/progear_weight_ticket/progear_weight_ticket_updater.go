@@ -73,6 +73,12 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 			return apperror.NewQueryError("ProgearWeightTicket update", err, "")
 		}
 
+		if err := txnCtx.DB().
+			RawQuery("SELECT update_actual_progear_weight_totals($1)", mergedProgearWeightTicket.PPMShipmentID).
+			Exec(); err != nil {
+			return apperror.NewQueryError("update_actual_progear_weight_totals", err, "")
+		}
+
 		return nil
 	})
 

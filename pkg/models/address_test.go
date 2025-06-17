@@ -36,7 +36,7 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 		"state":           {"State can not be blank."},
 		"postal_code":     {"PostalCode can not be blank."},
 	}
-	suite.verifyValidationErrors(&newAddress, expErrors)
+	suite.verifyValidationErrors(&newAddress, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestAddressCountryCode() {

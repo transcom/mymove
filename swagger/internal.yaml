@@ -2213,6 +2213,14 @@ definitions:
         example: false
         x-omitempty: false
         x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+      gunSafeWeight:
+        type: integer
+        x-nullable: true
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -3090,7 +3098,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   SITLocationType:
@@ -3867,6 +3874,19 @@ definitions:
         description: >-
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
         x-omitempty: false

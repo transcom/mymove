@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -30,6 +31,7 @@ type Entitlement struct {
 	DependentsTwelveAndOver                      *int             `db:"dependents_twelve_and_over"`
 	UBAllowance                                  *int             `db:"ub_allowance"`
 	GunSafe                                      bool             `db:"gun_safe"`
+	GunSafeWeight                                int              `db:"gun_safe_weight"`
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
 	ProGearWeight                                int              `db:"pro_gear_weight"`
@@ -54,6 +56,8 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 		&validators.IntIsLessThan{Field: e.ProGearWeight, Compared: 2001, Name: "ProGearWeight"},
 		&validators.IntIsGreaterThan{Field: e.ProGearWeightSpouse, Compared: -1, Name: "ProGearWeightSpouse"},
 		&validators.IntIsLessThan{Field: e.ProGearWeightSpouse, Compared: 501, Name: "ProGearWeightSpouse"},
+		&validators.IntIsGreaterThan{Field: e.GunSafeWeight, Compared: -1, Name: "GunSafeWeight"},
+		&validators.IntIsLessThan{Field: e.GunSafeWeight, Compared: 501, Name: "GunSafeWeight"},
 	)
 
 	if e.DependentsUnderTwelve != nil {
@@ -237,6 +241,17 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 	}
 }
 
+func GetMaxGunSafeAllowance(appCtx appcontext.AppContext) (int, error) {
+	var maxGunSafeAllowance int
+	err := appCtx.DB().
+		RawQuery(`SELECT parameter_value::int FROM application_parameters WHERE parameter_name = 'maxGunSafeAllowance' LIMIT 1`).
+		First(&maxGunSafeAllowance)
+	if err != nil {
+		return maxGunSafeAllowance, apperror.NewQueryError("ApplicationParameters", err, "error fetching max gun safe allowance")
+	}
+	return maxGunSafeAllowance, nil
+}
+
 // WeightAllotment represents the weights allotted for a rank
 type WeightAllotment struct {
 	TotalWeightSelf               int
@@ -244,4 +259,5 @@ type WeightAllotment struct {
 	ProGearWeight                 int
 	ProGearWeightSpouse           int
 	UnaccompaniedBaggageAllowance int
+	GunSafeWeight                 int
 }

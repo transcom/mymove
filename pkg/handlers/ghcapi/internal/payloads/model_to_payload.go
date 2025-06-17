@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 	"time"
 
@@ -706,9 +707,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var proGearWeight, proGearWeightSpouse, gunSafeWeight, totalWeight int64
 	proGearWeight = int64(entitlement.ProGearWeight)
 	proGearWeightSpouse = int64(entitlement.ProGearWeightSpouse)
+	gunSafeWeight = int64(entitlement.GunSafeWeight)
 
 	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
 		if *entitlement.DependentsAuthorized {
@@ -717,6 +719,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 			totalWeight = int64(weightAllotment.TotalWeightSelf)
 		}
 	}
+
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
 		aw := int64(*entitlement.AuthorizedWeight())
@@ -766,6 +769,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               sit,
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
@@ -1011,6 +1015,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
@@ -1370,6 +1376,7 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
 		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+		GccMultiplier:         swag.Float32(float32(*ppmCloseout.GCCMultiplier)),
 	}
 
 	return payload
@@ -2244,6 +2251,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusApprovalsRequested ||
 		status == models.MTOShipmentStatusDiversionRequested ||
 		status == models.MTOShipmentStatusCancellationRequested ||
 		status == models.MTOShipmentStatusTerminatedForCause
@@ -2434,6 +2442,28 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 		}
 
+		// sorting the dates from earliest -> latest that will be displayed in the destination TOO queue
+		var dates []time.Time
+		for _, sh := range move.MTOShipments {
+			if queueIncludeShipmentStatus(sh.Status) && sh.DeletedAt == nil {
+				if d := findEarliestDateForRequestedMoveDate(sh); d != nil {
+					dates = append(dates, *d)
+				}
+			}
+		}
+		// sorting chronologically before formatting to a string
+		sort.Slice(dates, func(i, j int) bool { return dates[i].Before(dates[j]) })
+
+		var formatted []string
+		for _, dt := range dates {
+			formatted = append(formatted, dt.Format("Jan 2 2006"))
+		}
+		var requestedDatesStr *string
+		if len(formatted) > 0 {
+			s := strings.Join(formatted, ", ")
+			requestedDatesStr = &s
+		}
+
 		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
@@ -2532,6 +2562,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			apiAvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 
+		var destinationDutyLocation *ghcmessages.DutyLocation
+		if queueType != string(models.QueueTypeTaskOrder) {
+			destinationDutyLocation = DutyLocation(&move.Orders.NewDutyLocation)
+		} else {
+			destinationDutyLocation = nil
+		}
+
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
 			Status:                  ghcmessages.MoveStatus(move.Status),
@@ -2540,10 +2577,11 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
 			AppearedInTooAt:         handlers.FmtDateTimePtr(findLastSentToTOO(move)),
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
+			RequestedMoveDates:      requestedDatesStr,
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
-			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
+			DestinationDutyLocation: destinationDutyLocation,
 			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
