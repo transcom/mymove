@@ -73,6 +73,12 @@ func (d *progearWeightTicketDeleter) DeleteProgearWeightTicket(appCtx appcontext
 			return err
 		}
 
+		if err := appCtx.DB().
+			RawQuery("SELECT update_actual_progear_weight_totals($1)", ppmID).
+			Exec(); err != nil {
+			return apperror.NewQueryError("update_actual_progear_weight_totals", err, "")
+		}
+
 		return nil
 	})
 

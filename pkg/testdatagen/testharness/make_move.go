@@ -23,6 +23,7 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/storage"
@@ -5239,6 +5240,185 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 	return *newmove
 }
 
+func MakeApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+
+	progearTickets := []struct {
+		weight        unit.Pound
+		belongsToSelf bool
+	}{
+		{weight: 100, belongsToSelf: true},
+		{weight: 200, belongsToSelf: true},
+		{weight: 50, belongsToSelf: false},
+		{weight: 25, belongsToSelf: false},
+	}
+
+	var tickets []models.ProgearWeightTicket
+	for _, pt := range progearTickets {
+		t := factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+			{Model: move.Orders.ServiceMember, LinkOnly: true},
+			{Model: shipment, LinkOnly: true},
+			{
+				Model: models.ProgearWeightTicket{
+					Weight:        models.PoundPointer(pt.weight),
+					BelongsToSelf: models.BoolPointer(pt.belongsToSelf),
+				},
+			},
+		}, nil)
+		tickets = append(tickets, t)
+	}
+
+	newAppCtx := appcontext.NewAppContext(appCtx.DB(), nil, &auth.Session{
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: move.Orders.ServiceMember.ID},
+		nil)
+
+	updater := progear.NewOfficeProgearWeightTicketUpdater()
+	for _, t := range tickets {
+		et := etag.GenerateEtag(t.UpdatedAt)
+		_, err := updater.UpdateProgearWeightTicket(newAppCtx, t, et)
+		if err != nil {
+			log.Panic(fmt.Errorf("failed to update progear weight ticket: %w", err))
+		}
+	}
+
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ApprovedAt:            &approvedAt,
+			Status:                models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			HasReceivedAdvance:    models.BoolPointer(true),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
+			W2Address:             &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+
+	progearTickets := []struct {
+		weight        unit.Pound
+		belongsToSelf bool
+	}{
+		{weight: 100, belongsToSelf: true},
+		{weight: 200, belongsToSelf: true},
+		{weight: 50, belongsToSelf: false},
+		{weight: 25, belongsToSelf: false},
+	}
+
+	var tickets []models.ProgearWeightTicket
+	for _, pt := range progearTickets {
+		t := factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+			{Model: move.Orders.ServiceMember, LinkOnly: true},
+			{Model: shipment, LinkOnly: true},
+			{
+				Model: models.ProgearWeightTicket{
+					Weight:        models.PoundPointer(pt.weight),
+					BelongsToSelf: models.BoolPointer(pt.belongsToSelf),
+				},
+			},
+		}, nil)
+		tickets = append(tickets, t)
+	}
+
+	newAppCtx := appcontext.NewAppContext(appCtx.DB(), nil, &auth.Session{
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: move.Orders.ServiceMember.ID},
+		nil)
+
+	deleter := progear.NewProgearWeightTicketDeleter()
+	err := deleter.DeleteProgearWeightTicket(newAppCtx, shipment.ID, tickets[3].ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to delete progear weight ticket: %w", err))
+	}
+
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
 func MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
@@ -9152,7 +9332,8 @@ func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) mod
 		},
 		{
 			Model: models.Move{
-				Status: models.MoveStatusServiceCounselingCompleted,
+				Status:             models.MoveStatusServiceCounselingCompleted,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 	}, nil)
