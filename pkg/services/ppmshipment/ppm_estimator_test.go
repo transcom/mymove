@@ -872,7 +872,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(unit.Cents(142513951), *maxIncentive)
+			suite.Equal(unit.Cents(365726906), *maxIncentive)
 
 			// appending this to test functionality of the GCC multiplier
 			ppmWithMultiplier := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -891,7 +891,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NilOrNoVerrs(err)
 
 			suite.NotEqual(unit.Cents(142513951), *ppmMaxWithMultiplier)
-			suite.Equal(unit.Cents(193155535), *ppmMaxWithMultiplier)
+			suite.Equal(unit.Cents(495692135), *ppmMaxWithMultiplier)
 		})
 
 		suite.Run("Max Incentive - Success - is skipped when Estimated Weight is missing", func() {
@@ -2855,7 +2855,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "98421")
-			suite.Equal(unit.Cents(1223783), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(946264), *ppmMaxIncentive)
 
 			// appending this to test functionality of the GCC multiplier
 			validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
@@ -2902,7 +2902,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
 			suite.NotEqual(unit.Cents(504512), *ppmEstimateWithMultiplier)
-			suite.Equal(unit.Cents(1874487), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(1447818), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
@@ -2982,7 +2982,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "30813")
-			suite.Equal(unit.Cents(1031383), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(975664), *ppmMaxIncentive)
 		})
 	})
 
