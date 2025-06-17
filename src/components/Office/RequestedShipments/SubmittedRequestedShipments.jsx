@@ -421,7 +421,7 @@ const SubmittedRequestedShipments = ({
           <div className={styles.serviceItems}>
             {!hideAddServiceItemsForm && (
               <>
-                <h2 id="orders">Add service items to this move</h2>
+                <h2>Add service items to this move</h2>
                 <Fieldset legend="MTO service items" legendsronly="true" id="input-type-fieldset">
                   {!hideMoveManagementCheckbox && (
                     <Checkbox
