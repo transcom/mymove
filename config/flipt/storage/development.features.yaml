@@ -251,7 +251,7 @@ flags:
       - segment:
           key: mil-app
           value: false
-  - key: approval_request_type
+  - key: approval_request_type_column
     name: Approval request type UI column feature flag
     type: BOOLEAN_FLAG_TYPE
     enabled: false
