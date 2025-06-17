@@ -2,7 +2,7 @@ import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { Checkbox, Radio, FormGroup, Grid } from '@trussworks/react-uswds';
+import { Checkbox, Radio, FormGroup, Grid, Button } from '@trussworks/react-uswds';
 
 import styles from './CustomerContactInfoForm.module.scss';
 
@@ -12,7 +12,6 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { phoneSchema, requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
 import Hint from 'components/Hint';
@@ -73,7 +72,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h2 className={styles.sectionHeader}>Backup contact</h2>
 
-                    <BackupContactInfoFields />
+                    <BackupContactInfoFields showRequiredAsterisk />
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h3>CAC Validation</h3>
@@ -108,12 +107,12 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                     </FormGroup>
                   </SectionWrapper>
                   <div className={formStyles.formActions}>
-                    <WizardNavigation
-                      editMode
-                      disableNext={!isValid}
-                      onCancelClick={onBack}
-                      onNextClick={handleSubmit}
-                    />
+                    <Button type="button" secondary onClick={onBack}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={!isValid} onClick={handleSubmit}>
+                      Save
+                    </Button>
                   </div>
                 </Form>
               );
