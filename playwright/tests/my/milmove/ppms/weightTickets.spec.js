@@ -7,8 +7,6 @@
 // @ts-check
 import { test, forEachViewport } from './customerPpmTestFixture';
 
-const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
-
 test.describe('About Your PPM', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   forEachViewport(async () => {
@@ -53,7 +51,6 @@ test.describe('About You PPM with incorrect Xlsx Upload', () => {
 
 test.describe('(MultiMove) About Your PPM', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
