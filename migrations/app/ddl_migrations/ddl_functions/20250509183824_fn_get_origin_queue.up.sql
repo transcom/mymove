@@ -423,7 +423,7 @@ BEGIN
                 )
             ),
             ''uploaded_amended_orders_id'', uploaded_amended_orders_id,
-            ''amended_orders_acknowledged_at'', amended_orders_acknowledged_at
+            ''amended_orders_acknowledged_at'', amended_orders_acknowledged_at::TIMESTAMP WITH TIME ZONE
         )::JSONB AS orders,
         COALESCE(mto_shipments, ''[]''::JSONB) AS mto_shipments,
         COALESCE(mto_service_items, ''[]''::JSONB) AS mto_service_items,
