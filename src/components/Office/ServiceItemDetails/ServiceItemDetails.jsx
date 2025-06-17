@@ -117,8 +117,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === SERVICE_ITEM_CODES.DDSFSC || code === SERVICE_ITEM_CODES.IDSFSC
-          ? generateDetailText(
+        {(code === SERVICE_ITEM_CODES.DDSFSC || code === SERVICE_ITEM_CODES.IDSFSC) && (
+          <>
+            {generateDetailText(
               {
                 'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
@@ -130,8 +131,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
-            )
-          : null}
+            )}
+          </>
+        )}
         {code === SERVICE_ITEM_CODES.DDDSIT && (
           <React.Fragment key={`${id}-${code}-DDDSIT`}>
             {generateDetailText(
@@ -244,6 +246,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
+        {generateDetailText({
+          'Estimated Price':
+            details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+        })}
       </dl>
     </div>
   );
@@ -271,6 +277,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -321,6 +331,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -357,6 +371,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
