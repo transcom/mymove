@@ -259,7 +259,7 @@ const MoveQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
-  isApprovalRequestTypeColEnabled,
+  isApprovalRequestTypeFFEnabled,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
@@ -408,7 +408,7 @@ const MoveQueue = ({
             isQueueManagementFFEnabled,
             queueType,
             setRefetchQueue,
-            isApprovalRequestTypeColEnabled,
+            isApprovalRequestTypeFFEnabled,
             showBranchFilter,
           )}
           title="All moves"
@@ -445,7 +445,7 @@ const MoveQueue = ({
             isQueueManagementFFEnabled,
             queueType,
             setRefetchQueue,
-            isApprovalRequestTypeColEnabled,
+            isApprovalRequestTypeFFEnabled,
             showBranchFilter,
           )}
           title="Destination requests"

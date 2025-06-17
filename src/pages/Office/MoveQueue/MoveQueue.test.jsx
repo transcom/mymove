@@ -217,7 +217,7 @@ const GetMountedComponent = (queueTypeToMount) => {
   reactRouterDom.useParams.mockReturnValue({ queueType: queueTypeToMount });
   const wrapper = mount(
     <MockProviders>
-      <MoveQueue isQueueManagementFFEnabled />
+      <MoveQueue isQueueManagementFFEnabled isApprovalRequestTypeFFEnabled />
     </MockProviders>,
   );
   return wrapper;
@@ -696,6 +696,54 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     await waitFor(() => {
       const assignedSelect = screen.queryByTestId('assigned-col');
       expect(assignedSelect).not.toBeInTheDocument();
+    });
+  });
+  it('renders an approval request type column when the feature flag is on - MoveQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isApprovalRequestTypeFFEnabled />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const approvalRequestColumn = screen.queryAllByTestId('approvalRequestTypes');
+      expect(approvalRequestColumn).not.toHaveLength(0);
+    });
+  });
+  it('renders an approval request type column when the feature flag is on - DestinationRequestsQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isApprovalRequestTypeFFEnabled />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const approvalRequestColumn = screen.queryAllByTestId('approvalRequestTypes');
+      expect(approvalRequestColumn).not.toHaveLength(0);
+    });
+  });
+  it('does not render an approval request type column when the feature flag is off - MoveQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isApprovalRequestTypeFFEnable={false} />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const approvalRequestColumn = screen.queryByTestId('approvalRequestTypes');
+      expect(approvalRequestColumn).not.toBeInTheDocument();
+    });
+  });
+  it('does not render an approval request type column when the feature flag is off - DestinationRequestsQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isApprovalRequestTypeFFEnable={false} />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const approvalRequestColumn = screen.queryAllByTestId('approvalRequestTypes');
+      expect(approvalRequestColumn).toHaveLength(0);
     });
   });
 });
