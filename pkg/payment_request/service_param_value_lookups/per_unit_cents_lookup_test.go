@@ -360,7 +360,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 			ContractID:    contractYear.ContractID,
 		})
 		suite.NoError(err)
-		suite.Equal(perUnitCents, "20")
+		suite.Equal(perUnitCents, "14")
 	})
 
 	suite.Run("success - returns perUnitCent value for IUBPK", func() {
