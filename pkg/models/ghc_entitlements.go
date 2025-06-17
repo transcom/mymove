@@ -56,6 +56,8 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 		&validators.IntIsLessThan{Field: e.ProGearWeight, Compared: 2001, Name: "ProGearWeight"},
 		&validators.IntIsGreaterThan{Field: e.ProGearWeightSpouse, Compared: -1, Name: "ProGearWeightSpouse"},
 		&validators.IntIsLessThan{Field: e.ProGearWeightSpouse, Compared: 501, Name: "ProGearWeightSpouse"},
+		&validators.IntIsGreaterThan{Field: e.GunSafeWeight, Compared: -1, Name: "GunSafeWeight"},
+		&validators.IntIsLessThan{Field: e.GunSafeWeight, Compared: 501, Name: "GunSafeWeight"},
 	)
 
 	if e.DependentsUnderTwelve != nil {

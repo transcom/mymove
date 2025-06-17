@@ -18,6 +18,7 @@
 20250409212810_fn_get_gbloc_indicator.up.sql
 20250409212825_fn_get_counseling_offices_for_conus.up.sql
 20250409212838_fn_get_counseling_offices_for_oconus.up.sql
+20250423160104_fn_get_rate_area.up.sql
 20250424183918_fn_get_application_parameter_value.up.sql
 20250502144039_fn_calculate_ppm_closeouts.up.sql
 20250505143424_fn_get_payment_request_queue.up.sql
@@ -26,3 +27,4 @@
 20250512175124_fn_calculate_ppm_incentive.up.sql
 20250513192427_fn_update_actual_progear_weight_totals.up.sql
 20250514141532_fn_create_accessorial_service_items_for_shipment.up.sql
+20250528195649_fn_get_moves_for_bulk_assignment.up.sql
