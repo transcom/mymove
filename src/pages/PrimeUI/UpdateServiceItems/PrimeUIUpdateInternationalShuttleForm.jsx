@@ -16,6 +16,7 @@ import { primeSimulatorRoutes } from 'constants/routes';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField } from 'components/form/fields';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const PrimeUIUpdateInternationalShuttleForm = ({ onUpdateServiceItem, serviceItem }) => {
   const { moveCodeOrID } = useParams();
@@ -136,16 +137,21 @@ const PrimeUIUpdateInternationalShuttleForm = ({ onUpdateServiceItem, serviceIte
                   }}
                 />
                 {serviceItem.status === SERVICE_ITEM_STATUSES.REJECTED && (
-                  <TextField
-                    display="textarea"
-                    label="Update Reason"
-                    data-testid="updateReason"
-                    name="updateReason"
-                    className={`${formStyles.remarks}`}
-                    placeholder=""
-                    id="updateReason"
-                    maxLength={500}
-                  />
+                  <>
+                    {requiredAsteriskMessage}
+                    <TextField
+                      display="textarea"
+                      label="Update Reason"
+                      data-testid="updateReason"
+                      name="updateReason"
+                      className={`${formStyles.remarks}`}
+                      placeholder=""
+                      id="updateReason"
+                      maxLength={500}
+                      showRequiredAsterisk
+                      required
+                    />
+                  </>
                 )}
                 {serviceItem.status === SERVICE_ITEM_STATUSES.REJECTED && (
                   <CheckboxField
