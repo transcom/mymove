@@ -50,6 +50,8 @@ describe('EditFacilityInfoModal', () => {
       </Provider>,
     );
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(screen.getByLabelText(/Facility name */)).toBeInTheDocument();
     expect(screen.getByLabelText(/Service order number */)).toBeRequired();
   });

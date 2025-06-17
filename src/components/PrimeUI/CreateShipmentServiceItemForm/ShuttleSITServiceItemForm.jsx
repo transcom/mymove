@@ -53,7 +53,6 @@ const ShuttleSITServiceItemForm = ({ shipment, submission, handleCancel }) => {
           data-testid="estimatedWeightInput"
           name="estimatedWeight"
           label="Estimated weight (lbs)"
-          labelHint="Optional"
           id="estimatedWeightInput"
           mask={Number}
           scale={0}
@@ -64,7 +63,6 @@ const ShuttleSITServiceItemForm = ({ shipment, submission, handleCancel }) => {
           data-testid="actualWeightInput"
           name="actualWeight"
           label="Actual weight (lbs)"
-          labelHint="Optional"
           id="actualWeightInput"
           mask={Number}
           scale={0}
