@@ -1,5 +1,6 @@
 --B-22466  M.Inthavongsay Adding initial migration file for calculate_escalated_price stored procedure using new migration process.
 --Also updating to allow IOPSIT and IDDSIT SIT service items.
+-- B-22742  C. Kleinjan  Migrate function to DDL Migrations and adding the ability to get escalated price for ICRT and IUCRT
 
 -- function to calculate the escalated price, takes in:
 -- origin rate area
@@ -30,6 +31,29 @@ BEGIN
     peak_period := is_peak_period(requested_pickup_date);
     IF service_code IN ('IOSHUT','IDSHUT') THEN
 		IF service_code = 'IOSHUT' THEN
+        	SELECT ra.is_oconus
+        	INTO is_oconus
+        	FROM re_rate_areas ra
+        	WHERE ra.id = o_rate_area_id;
+		ELSE
+			SELECT ra.is_oconus
+        	INTO is_oconus
+        	FROM re_rate_areas ra
+        	WHERE ra.id = d_rate_area_id;
+		END IF;
+
+        SELECT rip.per_unit_cents
+        INTO per_unit_cents
+        FROM re_intl_accessorial_prices rip
+        WHERE
+            rip.market = (CASE
+                WHEN is_oconus THEN 'O'
+                ELSE 'C'
+			END)
+          AND rip.service_id = re_service_id
+          AND rip.contract_id = c_id;
+    ELSIF service_code IN ('IUCRT', 'ICRT') THEN
+        IF service_code = 'ICRT' THEN
         	SELECT ra.is_oconus
         	INTO is_oconus
         	FROM re_rate_areas ra
@@ -95,15 +119,11 @@ BEGIN
         RAISE EXCEPTION 'No per unit cents found for service item id: %, origin rate area: %, dest rate area: %, and contract_id: %', re_service_id, o_rate_area_id, d_rate_area_id, c_id;
     END IF;
 
-    SELECT rcy.escalation_compounded
-    INTO escalation_factor
-    FROM re_contract_years rcy
-    WHERE rcy.contract_id = c_id
-        AND requested_pickup_date BETWEEN rcy.start_date AND rcy.end_date;
+    escalation_factor := calculate_escalation_factor(
+        c_id,
+        requested_pickup_date
+    );
 
-    IF escalation_factor IS NULL THEN
-        RAISE EXCEPTION 'Escalation factor not found for contract_id %', c_id;
-    END IF;
     -- calculate the escalated price, return in dollars (dividing by 100)
     per_unit_cents := per_unit_cents / 100; -- putting in dollars
     escalated_price := ROUND(per_unit_cents * escalation_factor, 2); -- rounding to two decimals (100.00)

@@ -40,6 +40,12 @@ type UpdateAllowancePayload struct {
 	// True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
 	GunSafe *bool `json:"gunSafe,omitempty"`
 
+	// unit is in lbs
+	// Example: 500
+	// Maximum: 500
+	// Minimum: 0
+	GunSafeWeight *int64 `json:"gunSafeWeight,omitempty"`
+
 	// only for Army
 	OrganizationalClothingAndIndividualEquipment *bool `json:"organizationalClothingAndIndividualEquipment,omitempty"`
 
@@ -86,6 +92,10 @@ func (m *UpdateAllowancePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateGrade(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateGunSafeWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,6 +154,22 @@ func (m *UpdateAllowancePayload) validateGrade(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdateAllowancePayload) validateGunSafeWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.GunSafeWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("gunSafeWeight", "body", *m.GunSafeWeight, 0, false); err != nil {
+		return err
+	}
+
+	if err := validate.MaximumInt("gunSafeWeight", "body", *m.GunSafeWeight, 500, false); err != nil {
+		return err
 	}
 
 	return nil
