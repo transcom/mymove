@@ -796,4 +796,36 @@ describe('CreateCustomerForm', () => {
       });
     });
   }, 50000);
+
+  it('show bluebark question when BLUEBARK FF is on', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+
+    render(
+      <MockProviders initialState={serviceCounselorState}>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Is this a Bluebark move?')).toBeInTheDocument();
+    });
+  }, 50000);
+
+  it('hide bluebark question when BLUEBARK FF is off', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+
+    render(
+      <MockProviders initialState={serviceCounselorState}>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('Is this a Bluebark move?')).not.toBeInTheDocument();
+    });
+  }, 50000);
 });
