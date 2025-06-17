@@ -15,7 +15,7 @@
     .pdf-viewer,
     .photo-viewer-container {
       height: 100%;
-      overflow-y: scroll;
+      overflow: scroll;
     }
 
     .pdf-canvas {
@@ -25,11 +25,22 @@
       padding-bottom: 75px;
     }
 
-    .photo-viewer-container {
-      align-items: unset; // must override to get it to respect calculating padding-top
-      // spacing for controls/title bar
-      padding-top: 75px;
-      padding-bottom: 75px;
+    .photo-viewer-container{
+      align-items: center;
+    }
+
+    .photo-viewer-image-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 30%;
+      aspect-ratio: 1;
+      width: 100%;
+      height: auto;
+    }
+
+    .photo{
+      padding: 15%;
     }
   }
   .zoomDisplayButton {
@@ -56,8 +67,8 @@
     background: rgba(255, 255, 255, 0.75);
     height: 50px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     svg {
       @include u-margin-right(1);
     }

@@ -154,4 +154,17 @@ describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith(primeSimulatorRoutes.VIEW_MOVE_PATH);
   });
+
+  it('renders asterisks for required fields', async () => {
+    renderWithProviders(
+      <PrimeUIUpdateInternationalFuelSurchargeForm
+        moveTaskOrder={moveTaskOrder}
+        mtoServiceItemId={mtoServiceItemID}
+        onUpdateServiceItem={onUpdateServiceItemMock}
+      />,
+    );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+    expect(await screen.getByLabelText(/Port Code */)).toBeInTheDocument();
+  });
 });
