@@ -54,6 +54,7 @@ func validateAndSave(appCtx appcontext.AppContext, move *models.Move) (*validate
 // only shipments in these statuses should have their weights included in the totals
 func availableShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusApprovalsRequested ||
 		status == models.MTOShipmentStatusDiversionRequested ||
 		status == models.MTOShipmentStatusCancellationRequested
 }
@@ -205,7 +206,7 @@ func sumWeightsFromShipment(shipment models.MTOShipment) SumOfWeights {
 	var sumEstimatedWeightOfUbShipments int
 	var sumActualWeightOfUbShipments int
 
-	if shipment.Status != models.MTOShipmentStatusApproved {
+	if shipment.Status != models.MTOShipmentStatusApproved && shipment.Status != models.MTOShipmentStatusApprovalsRequested {
 		return SumOfWeights{}
 	}
 

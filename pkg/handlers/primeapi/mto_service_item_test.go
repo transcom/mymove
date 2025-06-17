@@ -64,6 +64,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			}, nil)
 		} else {
 			if isInternational {
+				parameter := models.ApplicationParameters{
+					ParameterName:  models.StringPointer("maxSitDaysAllowance"),
+					ParameterValue: models.StringPointer("90"),
+				}
+				suite.MustCreate(&parameter)
 				subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 					{
 						Model:    mto,
