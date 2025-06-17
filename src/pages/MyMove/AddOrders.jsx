@@ -19,9 +19,10 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import withRouter from 'utils/routing';
 import { setCanAddOrders as setCanAddOrdersAction, setMoveId as setMoveIdAction } from 'store/general/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const AddOrders = ({
-  context,
   serviceMemberId,
   updateServiceMember,
   updateOrders,
@@ -33,6 +34,7 @@ const AddOrders = ({
   const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
   const navigate = useNavigate();
 
   // if the user did NOT come from the create a move button, we want to redirect them to their current move
@@ -47,6 +49,28 @@ const AddOrders = ({
     };
     redirectUser();
   }, [canAddOrders, navigate, hasSubmitted, moveId]);
+
+  useEffect(() => {
+    const checkFeatureFlags = async () => {
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
+        }
+
+        return options;
+      });
+    };
+
+    checkFeatureFlags();
+  }, []);
 
   const handleBack = () => {
     navigate(generalRoutes.HOME_PATH);
@@ -146,14 +170,7 @@ const AddOrders = ({
     counseling_office_id: '',
     civilian_tdy_ub_allowance: '',
   };
-
-  // Only allow PCS unless feature flag is on
-  const showAllOrdersTypes = context.flags?.allOrdersTypes;
-  const allowedOrdersTypes = showAllOrdersTypes
-    ? ORDERS_TYPE_OPTIONS
-    : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
-
-  const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
+  const ordersTypeOptions = dropdownInputOptions(orderTypesOptions);
 
   if (isLoading) {
     return <LoadingPlaceholder />;
