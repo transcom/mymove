@@ -103,7 +103,7 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     await userEvent.type(screen.getByLabelText(/Address 1/), '23 City Str');
     await userEvent.type(screen.getByLabelText(/Address 2/), 'Apt 23');
     await userEvent.type(screen.getByLabelText(/Address 3/), 'C/O Twenty Three');
-    await userEvent.type(screen.getByLabelText('Contractor Remarks'), 'Test remarks');
+    await userEvent.type(screen.getByLabelText('Contractor Remarks *'), 'Test remarks');
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
     await waitFor(() => {
