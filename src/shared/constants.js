@@ -262,6 +262,7 @@ export const FEATURE_FLAG_KEYS = {
   APPROVAL_REQUEST_TYPE_COLUMN: 'approval_request_type_column',
   WOUNDED_WARRIOR_MOVE: 'wounded_warrior_move',
   DISABLE_MOVE_APPROVAL: 'disable_move_approval',
+  BLUEBARK_MOVE: 'bluebark_move',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
