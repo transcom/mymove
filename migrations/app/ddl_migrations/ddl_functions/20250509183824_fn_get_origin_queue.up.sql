@@ -38,6 +38,10 @@ RETURNS TABLE (
     mto_service_items JSONB,
     counseling_transportation_office JSONB,
     too_assigned JSONB,
+    excess_weight_qualified_at TIMESTAMP WITH TIME ZONE,
+    excess_weight_acknowledged_at TIMESTAMP WITH TIME ZONE,
+    excess_unaccompanied_baggage_weight_qualified_at TIMESTAMP WITH TIME ZONE,
+    excess_unaccompanied_baggage_weight_acknowledged_at TIMESTAMP WITH TIME ZONE,
     total_count BIGINT
 ) AS $$
 DECLARE
@@ -113,6 +117,10 @@ BEGIN
             moves.counseling_transportation_office_id,
             moves.service_counseling_completed_at,
             moves.approvals_requested_at,
+            moves.excess_weight_qualified_at,
+            moves.excess_weight_acknowledged_at,
+            moves.excess_unaccompanied_baggage_weight_qualified_at,
+            moves.excess_unaccompanied_baggage_weight_acknowledged_at,
             orders.id AS orders_id_inner,
             orders.orders_type,
             orders.department_indicator AS orders_department_indicator,
@@ -164,8 +172,21 @@ BEGIN
                                 ''expected_departure_date'', TO_CHAR(ppm.expected_departure_date, ''YYYY-MM-DD"T00:00:00Z"'')
                             )
                             ELSE NULL
-                        END
+                        END,
+                        ''diversion'', ms.diversion,
+                        ''sit_duration_updates'', (
+                            SELECT json_agg(
+                                json_build_object(
+                                    ''status'', se.status
+                                )
+                            )
+                            FROM sit_extensions se
+                            LEFT JOIN mto_shipments ON mto_shipments.id = se.mto_shipment_id
+                            LEFT JOIN mto_service_items ON mto_shipments.id = mto_service_items.mto_shipment_id
+                            RIGHT JOIN re_services ON mto_service_items.re_service_id = re_services.id
+                            WHERE se.mto_shipment_id = ms.id AND re_services.code IN (''DOFSIT'', ''DOASIT'', ''DOPSIT'', ''DOSFSC'', ''IOFSIT'', ''IOASIT'', ''IOPSIT'', ''IOSFSC'')
                         )
+                    )
                 )::JSONB AS mto_shipments,
                 MIN(ms.requested_pickup_date) AS earliest_requested_pickup_date,
                 MIN(ms.requested_delivery_date) AS earliest_requested_delivery_date
@@ -403,6 +424,10 @@ BEGIN
         COALESCE(mto_service_items, ''[]''::JSONB) AS mto_service_items,
         json_build_object(''name'', counseling_office_name)::JSONB AS counseling_transportation_office,
         json_build_object(''first_name'', too_user_first_name, ''last_name'', too_user_last_name, ''id'', too_user_id)::JSONB AS too_assigned,
+        excess_weight_qualified_at::TIMESTAMP WITH TIME ZONE,
+        excess_weight_acknowledged_at::TIMESTAMP WITH TIME ZONE,
+        excess_unaccompanied_baggage_weight_qualified_at::TIMESTAMP WITH TIME ZONE,
+        excess_unaccompanied_baggage_weight_acknowledged_at::TIMESTAMP WITH TIME ZONE,
         COUNT(*) OVER() AS total_count
         FROM base ';
 
