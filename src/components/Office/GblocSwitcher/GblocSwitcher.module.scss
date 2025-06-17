@@ -7,7 +7,10 @@
   --top-color: #{$link-light};
   @include mix-mm-header-font-properties;
   @include mix-mm-dropdown($top-color: white, $background-color: transparent){
-      padding-right: 2rem;
+      padding: 0.4rem {
+        right: 2.4rem;
+        left: 1rem;
+      };
       background-color: var(--bg-color, inherit);
       color: var(--top-color, inherit);
       height: 100%;
