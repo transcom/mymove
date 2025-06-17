@@ -111,7 +111,7 @@
   }
 
   .pageHeaderDetails {
-    color: $base;
+    color: $base-dark;
     text-align: right;
   }
 }
@@ -131,7 +131,7 @@
   }
 
   .pageFooterDetails {
-    color: $base;
+    color: $base-dark;
     text-align: left;
     @include u-margin-bottom(64px);
   }

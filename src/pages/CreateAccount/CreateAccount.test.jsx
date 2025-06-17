@@ -34,12 +34,13 @@ describe('CreateAccount Component', () => {
       </MockProviders>,
     );
 
-  it('renders the form with expected fields', async () => {
+  it('renders the form with expected fields and asterisks for required fields', async () => {
     renderComponent();
     await waitFor(() => {
       expect(screen.getByTestId('modal')).toBeInTheDocument();
     });
     fireEvent.click(screen.getByText('Yes'));
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
     expect(screen.getByTestId('affiliationInput')).toBeInTheDocument();
     expect(screen.getByTestId('edipiInput')).toBeInTheDocument();
     expect(screen.getByTestId('edipiConfirmationInput')).toBeInTheDocument();
@@ -56,6 +57,19 @@ describe('CreateAccount Component', () => {
     expect(screen.getByTestId('submitBtn')).toBeDisabled();
     expect(screen.getByTestId('cancelBtn')).toBeInTheDocument();
     expect(screen.getByTestId('cancelBtn')).toBeEnabled();
+
+    expect(screen.getByLabelText('Branch of service *')).toBeRequired();
+    expect(screen.getByLabelText('DoD ID number *')).toBeRequired();
+    expect(screen.getByLabelText('Confirm DoD ID number *')).toBeRequired();
+
+    expect(screen.getByLabelText('First Name *')).toBeRequired();
+    expect(screen.getByLabelText('Last Name *')).toBeRequired();
+    expect(screen.getByLabelText('Email *')).toBeRequired();
+    expect(screen.getByLabelText('Telephone *')).toBeRequired();
+
+    await userEvent.selectOptions(screen.getByLabelText(/Branch of service/i), ['COAST_GUARD']);
+    expect(screen.getByLabelText('EMPLID *')).toBeRequired();
+    expect(screen.getByLabelText('Confirm EMPLID *')).toBeRequired();
   });
 
   it('shows the ValidCACModal on load', async () => {
@@ -137,7 +151,7 @@ describe('CreateAccount Component', () => {
     // submit the validation code
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     expect(nextBtn).toBeDisabled();
-    await userEvent.type(screen.getByLabelText('Validation code'), 'TestCode123123');
+    await userEvent.type(screen.getByLabelText('Validation code *'), 'TestCode123123');
     expect(nextBtn).toBeEnabled();
     await userEvent.click(nextBtn);
 
