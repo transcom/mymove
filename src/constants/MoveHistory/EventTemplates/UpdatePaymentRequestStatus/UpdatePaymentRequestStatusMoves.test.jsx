@@ -37,6 +37,6 @@ describe('When given a completed services counseling for a move', () => {
 
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Payment Requests Addressed')).toBeInTheDocument();
-    expect(screen.getByText('Task Invoicing Officer Unassigned')).toBeInTheDocument();
+    expect(screen.getByText('Task invoicing officer unassigned')).toBeInTheDocument();
   });
 });
