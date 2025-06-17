@@ -19,6 +19,7 @@ describe('When given a create order event for the orders table from the office s
       new_duty_location_name: 'Fairchild AFB',
       has_dependents: true,
       grade: 'E-1',
+      rank: 'AB',
     },
     context: [
       {
@@ -41,6 +42,7 @@ describe('When given a create order event for the orders table from the office s
       ['New duty location name', ': Fairchild AFB'],
       ['Dependents included', ': Yes'],
       ['Pay grade', ': E-1'],
+      ['Rank', ': AB'],
     ])('displays the proper details value for %s', async (label, value) => {
       const result = getTemplate(item);
       render(result.getDetails(item));

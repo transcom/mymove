@@ -1,7 +1,7 @@
 --B-23635   Jonathan Spight  Alter pay grades table
 
 
-WITH updates (id, grade, grade_description, "order") AS (
+WITH updates (id, grade, grade_description, "sort_order") AS (
     VALUES
         --Enlisted pay Grades
         ('6cb785d0-cabf-479a-a36d-a6aec294a4d0', 'E-1', 'E-1', 0),
@@ -41,8 +41,8 @@ UPDATE pay_grades
 SET
     grade = updates.grade,
     grade_description = updates.grade_description,
-    "order" = updates."order"
+    "sort_order" = updates."sort_order"
 FROM updates
 WHERE pay_grades.id = updates.id::uuid;
 
-INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('ec620134-d40f-4ebb-bfeb-0e4e0ef06d14', 'ACADEMY_GRADUATE', 'Academy Graduate', NOW(), NOW(),28);
+INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "sort_order")VALUES ('ec620134-d40f-4ebb-bfeb-0e4e0ef06d14', 'ACADEMY_GRADUATE', 'Academy Graduate', NOW(), NOW(),28);
