@@ -1,7 +1,7 @@
 -- B-23540 - Daniel Jordan - initial function creation for TOO origin queue refactor into db func
 -- B-23739 - Daniel Jordan - updating returns to consider lock_expires_at
 -- B-23767  Daniel Jordan - updating query to exclude FULL PPM types that provide SC and null PPM types
--- B-22712 -- Paul Stonebraker - add move data for excess weight, attach diversions and SIT extensions to mto shipments
+-- B-22712 -- Paul Stonebraker - add move data for excess weight, amended orders; attach diversions and SIT extensions to mto shipments
 
 DROP FUNCTION IF EXISTS get_origin_queue;
 CREATE OR REPLACE FUNCTION get_origin_queue(
@@ -126,6 +126,8 @@ BEGIN
             orders.orders_type,
             orders.department_indicator AS orders_department_indicator,
             orders.gbloc,
+            orders.uploaded_amended_orders_id,
+            orders.amended_orders_acknowledged_at,
             service_members.id AS sm_id,
             service_members.first_name AS sm_first_name,
             service_members.last_name AS sm_last_name,
@@ -419,7 +421,9 @@ BEGIN
                     ''state'',            origin_duty_location_state,
                     ''postal_code'',      origin_duty_location_postal_code
                 )
-            )
+            ),
+            ''uploaded_amended_orders_id'', uploaded_amended_orders_id,
+            ''amended_orders_acknowledged_at'', amended_orders_acknowledged_at
         )::JSONB AS orders,
         COALESCE(mto_shipments, ''[]''::JSONB) AS mto_shipments,
         COALESCE(mto_service_items, ''[]''::JSONB) AS mto_service_items,
