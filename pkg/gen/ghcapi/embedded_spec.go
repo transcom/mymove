@@ -7694,6 +7694,7 @@ func init() {
               "type": "string",
               "enum": [
                 "INFECTED",
+                "CLEAN",
                 "NO_THREATS_FOUND",
                 "PROCESSING"
               ],
@@ -12077,10 +12078,10 @@ func init() {
         "TIOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -17261,6 +17262,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
+            "CLEAN",
             "NO_THREATS_FOUND",
             "PROCESSING"
           ],
@@ -27350,6 +27352,7 @@ func init() {
               "type": "string",
               "enum": [
                 "INFECTED",
+                "CLEAN",
                 "NO_THREATS_FOUND",
                 "PROCESSING"
               ],
@@ -31742,10 +31745,10 @@ func init() {
         "TIOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -37064,6 +37067,7 @@ func init() {
           "type": "string",
           "enum": [
             "INFECTED",
+            "CLEAN",
             "NO_THREATS_FOUND",
             "PROCESSING"
           ],

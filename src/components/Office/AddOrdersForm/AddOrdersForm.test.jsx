@@ -231,6 +231,9 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
 
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
+
     // Saftey option should not be available for non safety moves
     const options = ordersTypeDropdown.querySelectorAll('option');
     const isSafetyOptionPresent = Array.from(options).some((option) => option.value === ORDERS_TYPE.SAFETY);

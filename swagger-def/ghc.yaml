@@ -5166,6 +5166,7 @@ paths:
             type: string
             enum:
               - INFECTED
+              - CLEAN
               - NO_THREATS_FOUND
               - PROCESSING
             readOnly: true
@@ -6157,7 +6158,7 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TOOAssignedUser:
+      TOOTaskOrderAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TIOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'

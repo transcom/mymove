@@ -177,7 +177,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"CounselingOffice",
 			"SCCounselingAssignedUser",
 			"SCCloseoutAssignedUser",
-			"TOOAssignedUser",
+			"TOOTaskOrderAssignedUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -196,7 +196,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
 		if role == roles.RoleTypeTOO {
-			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
+			query.LeftJoin("office_users as assigned_user", "moves.too_task_order_assigned_id  = assigned_user.id")
 		}
 
 		if params.NeedsPPMCloseout != nil {
@@ -324,8 +324,8 @@ type MoveWithCount struct {
 	MTOShipments                  *models.MTOShipments         `json:"-"`
 	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
 	CounselingOffice              *models.TransportationOffice `json:"-"`
-	TOOAssignedUserRaw            json.RawMessage              `json:"too_assigned" db:"too_assigned"`
-	TOOAssignedUser               *models.OfficeUser           `json:"-"`
+	TOOTaskOrderAssignedUserRaw   json.RawMessage              `json:"too_task_order_assigned" db:"too_task_order_assigned"`
+	TOOTaskOrderAssignedUser      *models.OfficeUser           `json:"-"`
 	TOODestinationAssignedUserRaw json.RawMessage              `json:"too_destination_assigned" db:"too_destination_assigned"`
 	TOODestinationAssignedUser    *models.OfficeUser           `json:"-"`
 	MTOServiceItemsRaw            json.RawMessage              `json:"mto_service_items" db:"mto_service_items"`
@@ -425,11 +425,11 @@ func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, off
 		movesWithCount[i].CounselingOffice = &counselingTransportationOffice
 
 		var tooAssigned models.OfficeUser
-		if err := json.Unmarshal(movesWithCount[i].TOOAssignedUserRaw, &tooAssigned); err != nil {
+		if err := json.Unmarshal(movesWithCount[i].TOOTaskOrderAssignedUserRaw, &tooAssigned); err != nil {
 			return nil, 0, fmt.Errorf("error unmarshaling too_assigned JSON: %w", err)
 		}
-		movesWithCount[i].TOOAssignedUserRaw = nil
-		movesWithCount[i].TOOAssignedUser = &tooAssigned
+		movesWithCount[i].TOOTaskOrderAssignedUserRaw = nil
+		movesWithCount[i].TOOTaskOrderAssignedUser = &tooAssigned
 	}
 
 	for _, moveWithCount := range movesWithCount {

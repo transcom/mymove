@@ -73,7 +73,7 @@ const mockStore = configureStore({});
 
 describe('AboutForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load - Customer Page', async () => {
+    it('renders blank form on load - Customer Page and asterisks for required fields', async () => {
       render(
         <Provider store={mockStore.store}>
           <AboutForm {...defaultProps} appName={APP_NAME.MYMOVE} />
@@ -95,7 +95,7 @@ describe('AboutForm component', () => {
 
       expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
 
-      expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('When did you leave your origin? *')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
@@ -141,7 +141,7 @@ describe('AboutForm component', () => {
       expect(headings[5]).toHaveTextContent('W-2 address');
 
       expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
-      expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('When did you leave your origin? *')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
@@ -178,7 +178,7 @@ describe('AboutForm component', () => {
 
         expect(requiredAlerts[0]).toHaveTextContent('Required');
         expect(
-          within(requiredAlerts[0].nextElementSibling).getByLabelText('When did you leave your origin?'),
+          within(requiredAlerts[0].nextElementSibling).getByLabelText('When did you leave your origin? *'),
         ).toBeInTheDocument();
 
         expect(requiredAlerts[1]).toHaveTextContent('Required');
@@ -202,12 +202,12 @@ describe('AboutForm component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByLabelText('When did you leave your origin?')).toHaveDisplayValue('31 May 2022');
+        expect(screen.getByLabelText('When did you leave your origin? *')).toHaveDisplayValue('31 May 2022');
       });
 
       expect(screen.getByTestId('yes-has-received-advance')).toBeChecked();
       expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
-      expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,000');
+      expect(screen.getByLabelText('How much did you receive? *')).toHaveDisplayValue('1,000');
 
       expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveDisplayValue('11 NE Elm Road');
       expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
@@ -244,17 +244,6 @@ describe('AboutForm component', () => {
       // verify save is enabled
       await userEvent.type(input, '123 Street');
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
-
-      // 'Optional' labelHint on address display. expecting a total of 9(3 for pickup address, 3 delivery address, 3 w2 address).
-      // This is to verify Required labelHints are displayed correctly for PPM doc uploading for the delivery address
-      // street 1 is now OPTIONAL for onboarding but required for PPM doc upload. If this fails it means addtional labelHints
-      // have been introduced elsewhere within the control.
-      const hints = document.getElementsByClassName('usa-hint');
-      expect(hints.length).toBe(18);
-      // verify labelHints are actually 'Optional'
-      for (let i = 0; i < hints.length; i += 1) {
-        expect(hints[i]).toHaveTextContent('Required');
-      }
     });
 
     it('displays type error messages for invalid input', async () => {
@@ -264,7 +253,7 @@ describe('AboutForm component', () => {
         </Provider>,
       );
 
-      await userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
+      await userEvent.type(screen.getByLabelText('When did you leave your origin? *'), '1 January 2022');
       await userEvent.tab();
     });
 
@@ -277,7 +266,7 @@ describe('AboutForm component', () => {
 
       await userEvent.click(screen.getByTestId('yes-has-received-advance'));
 
-      await userEvent.type(screen.getByLabelText('How much did you receive?'), '0');
+      await userEvent.type(screen.getByLabelText('How much did you receive? *'), '0');
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toHaveTextContent(
@@ -421,7 +410,7 @@ describe('AboutForm component', () => {
         const headings = screen.getAllByRole('heading', { level: 2 });
         expect(headings[2]).toHaveTextContent('Shipped Date');
 
-        expect(screen.getByLabelText('When did you ship your package?')).toBeInTheDocument();
+        expect(screen.getByLabelText('When did you ship your package? *')).toBeInTheDocument();
 
         expect(
           screen.queryByText(/If you picked things up or dropped things off from other places/),

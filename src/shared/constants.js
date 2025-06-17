@@ -75,9 +75,11 @@ export const PPM_DOCUMENT_TYPES = {
 };
 
 export const UPLOAD_SCAN_STATUS = {
-  CLEAN: 'NO_THREATS_FOUND',
-  INFECTED: 'INFECTED',
+  NO_THREATS_FOUND: 'NO_THREATS_FOUND',
+  LEGACY_INFECTED: 'INFECTED',
   PROCESSING: 'PROCESSING',
+  LEGACY_CLEAN: 'CLEAN',
+  THREATS_FOUND: 'THREATS_FOUND',
 };
 
 export const UPLOAD_DOC_STATUS = {
@@ -258,6 +260,8 @@ export const FEATURE_FLAG_KEYS = {
   TERMINATING_SHIPMENTS: 'terminating_shipments',
   GUN_SAFE: 'gun_safe',
   APPROVAL_REQUEST_TYPE_COLUMN: 'approval_request_type_column',
+  WOUNDED_WARRIOR_MOVE: 'wounded_warrior_move',
+  DISABLE_MOVE_APPROVAL: 'disable_move_approval',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

@@ -19,6 +19,7 @@ type ListMovesURL struct {
 	Acknowledged       *bool
 	AcknowledgedAfter  *strfmt.DateTime
 	AcknowledgedBefore *strfmt.DateTime
+	Before             *strfmt.DateTime
 	Since              *strfmt.DateTime
 
 	_basePath string
@@ -77,6 +78,14 @@ func (o *ListMovesURL) Build() (*url.URL, error) {
 	}
 	if acknowledgedBeforeQ != "" {
 		qs.Set("acknowledgedBefore", acknowledgedBeforeQ)
+	}
+
+	var beforeQ string
+	if o.Before != nil {
+		beforeQ = o.Before.String()
+	}
+	if beforeQ != "" {
+		qs.Set("before", beforeQ)
 	}
 
 	var sinceQ string

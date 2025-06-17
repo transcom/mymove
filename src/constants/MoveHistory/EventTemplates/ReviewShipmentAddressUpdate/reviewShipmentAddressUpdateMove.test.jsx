@@ -36,7 +36,7 @@ describe('when given a updated shipment address request, update move history rec
   it('displays correct details when a TOO is unassigned', () => {
     historyRecord.changedValues = {
       ...historyRecord.changedValues,
-      too_assigned_id: null,
+      too_task_order_assigned_id: null,
     };
     const template = getTemplate(historyRecord);
 
@@ -52,6 +52,6 @@ describe('when given a updated shipment address request, update move history rec
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('Task ordering officer unassigned')).toBeInTheDocument();
+    expect(screen.getByText('Destination task ordering officer unassigned')).toBeInTheDocument();
   });
 });

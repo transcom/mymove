@@ -67,6 +67,9 @@ const (
 
 	// Default value for parameter store environment variable
 	tppsSFTPFileFormatNoCustomDate string = "MILMOVE-enYYYYMMDD.csv"
+
+	//LEGACY clam av scan status
+	LegacyAVStatusCLEAN string = "CLEAN"
 )
 
 type S3API interface {
@@ -183,7 +186,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get S3 object tags: %w", err)
 	}
 
-	if avStatus == AVStatusCLEAN {
+	if avStatus == AVStatusCLEAN || avStatus == LegacyAVStatusCLEAN {
 		logger.Info(fmt.Sprintf("GuardDutyMalwareScanStatus is NO_THREATS_FOUND for TPPS file: %s", tppsFilename))
 
 		// get the S3 object, download file to /tmp dir for processing if clean
