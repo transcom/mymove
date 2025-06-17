@@ -785,7 +785,7 @@ describe('formatLastNameFirstName', () => {
   it('if first and last is non-empty and padded, return last name first name trimmed', () => {
     expect(formatLastNameFirstName('  John ', '  Smith  ')).toBe('Smith, John');
   });
-});    
+});
 
 describe('formatMoveHistoryGunSafe', () => {
   const { formatMoveHistoryGunSafe } = formatters;
