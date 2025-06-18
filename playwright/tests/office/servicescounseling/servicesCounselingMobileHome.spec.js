@@ -232,7 +232,7 @@ test.describe('Services counselor user', () => {
     // Submit edits
     await page.getByTestId('submitForm').click();
     await scPage.waitForLoading();
-    await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+    await page.waitForSelector('text=Your changes were saved.');
 
     // Check that the data in the shipment card now matches what we just submitted
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();

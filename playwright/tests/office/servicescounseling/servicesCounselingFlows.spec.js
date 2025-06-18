@@ -127,7 +127,7 @@ test.describe('Services counselor user', () => {
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+      await page.waitForSelector('text=Your changes were saved.');
     });
     test('is able to view Origin GBLOC', async ({ page }) => {
       test.slow();
@@ -341,7 +341,7 @@ test.describe('Services counselor user', () => {
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+      await page.waitForSelector('text=Your changes were saved.');
     });
 
     test('is able to update destination type if delivery address is unknown', async ({ page, scPage }) => {
@@ -367,7 +367,7 @@ test.describe('Services counselor user', () => {
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+      await page.waitForSelector('text=Your changes were saved.');
     });
 
     test('is able to see that the tag next to shipment is updated', async ({ page, scPage }) => {
