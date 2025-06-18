@@ -2,6 +2,8 @@ import React from 'react';
 import { Create, SimpleForm, TextInput, SelectInput, required } from 'react-admin';
 import { Typography } from '@material-ui/core';
 
+import SaveToolbar from '../Shared/SaveToolbar';
+
 const IDENTITY_DESCRIPTION = `
 This section is used create the client certificate and user relationship needed
 to authenticate via mutual TLS (mTLS).
@@ -14,7 +16,7 @@ the roles you give a particulate client certificate.
 
 const ClientCertCreate = (props) => (
   <Create {...props}>
-    <SimpleForm>
+    <SimpleForm toolbar={<SaveToolbar />}>
       <Typography variant="h5" gutterBottom>
         Identity
       </Typography>

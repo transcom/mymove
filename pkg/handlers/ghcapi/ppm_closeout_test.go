@@ -61,6 +61,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		gcc := unit.Cents(500)
 		actualMoveDate := time.Now()
 		plannedMoveDate := time.Now()
+		gccMultiplier := float64(1.3)
 		ppmCloseoutObj := models.PPMCloseout{
 			ID:                    &ppmShipment.ID,
 			SITReimbursement:      &SITReimbursement,
@@ -81,6 +82,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 			ProGearWeightSpouse:   &ProGearWeightSpouse,
 			RemainingIncentive:    &remainingIncentive,
 			UnpackPrice:           &UnpackPrice,
+			GCCMultiplier:         &gccMultiplier,
 		}
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		fetcher := setUpMockCloseoutFetcher(&ppmCloseoutObj, nil)

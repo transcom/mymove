@@ -1,11 +1,18 @@
 import React from 'react';
 import { Create, SimpleForm, TextInput, SelectInput, required } from 'react-admin';
 
+import SaveToolbar from '../Shared/SaveToolbar';
+
 import { WEBHOOK_SUBSCRIPTION_STATUS } from 'shared/constants';
 
 const WebhookSubscriptionCreate = () => (
   <Create>
-    <SimpleForm sx={{ '& .MuiInputBase-input': { width: 232 } }} mode="onBlur" reValidateMode="onBlur">
+    <SimpleForm
+      sx={{ '& .MuiInputBase-input': { width: 232 } }}
+      mode="onBlur"
+      reValidateMode="onBlur"
+      toolbar={<SaveToolbar />}
+    >
       <TextInput label="Subscriber Id" source="subscriberId" validate={required()} />
       <TextInput source="eventKey" validate={required()} />
       <TextInput source="callbackUrl" validate={required()} />

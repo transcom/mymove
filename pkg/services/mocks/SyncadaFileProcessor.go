@@ -14,7 +14,7 @@ type SyncadaFileProcessor struct {
 	mock.Mock
 }
 
-// EDIType provides a mock function with no fields
+// EDIType provides a mock function with given fields:
 func (_m *SyncadaFileProcessor) EDIType() models.EDIType {
 	ret := _m.Called()
 

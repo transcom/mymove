@@ -55,11 +55,11 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 	return false
 }
 
-func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment *models.MTOShipment, newAddress *models.Address, oldAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
+func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, addressCreator services.AddressCreator, shipment *models.MTOShipment, newAddress *models.Address, oldAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
 	// Change the SITDeliveryMiles of origin SIT service items
 	var updatedMtoServiceItems models.MTOServiceItems
 
-	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems"}
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems"}
 	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
 	if err != nil {
 		return &updatedMtoServiceItems, err
@@ -70,25 +70,30 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 		serviceItem := s
 		reServiceCode := serviceItem.ReService.Code
 		if reServiceCode == models.ReServiceCodeDOPSIT ||
-			reServiceCode == models.ReServiceCodeDOSFSC {
+			reServiceCode == models.ReServiceCodeDOSFSC ||
+			reServiceCode == models.ReServiceCodeIOPSIT ||
+			reServiceCode == models.ReServiceCodeIOSFSC {
 
-			var milesCalculated int
-			var err error
+			if serviceItem.SITOriginHHGActualAddress != nil {
+				milesCalculated, err := planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
+				if err != nil {
+					return nil, err
+				}
+				serviceItem.SITDeliveryMiles = &milesCalculated
 
-			// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
-			if serviceItem.SITOriginHHGOriginalAddress != nil {
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+				updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
+
 			} else {
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
+				milesCalculated, err := planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
+				if err != nil {
+					return nil, err
+				}
+				serviceItem.SITDeliveryMiles = &milesCalculated
+				updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
 			}
-			if err != nil {
-				return nil, err
-			}
-			serviceItem.SITDeliveryMiles = &milesCalculated
-
-			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
 		}
 	}
+
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		// update service item SITDeliveryMiles
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&updatedMtoServiceItems)
@@ -247,14 +252,15 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 			}
 		}
 
-		_, err = UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(&mtoShipment.MTOServiceItems, newAddress, appCtx)
+		_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, f.addressCreator, &mtoShipment, newAddress, &oldAddress, appCtx)
 		if err != nil {
 			return apperror.NewQueryError("No updated service items on shipment address change", err, "")
 		}
 
-		_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, &mtoShipment, newAddress, &oldAddress, appCtx)
+		// update the service item pricing if relevant fields have changed..ie mileage
+		err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &mtoShipment, nil)
 		if err != nil {
-			return apperror.NewQueryError("No updated service items on shipment address change", err, "")
+			return err
 		}
 
 		return err

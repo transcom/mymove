@@ -305,6 +305,47 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 	return mtoServiceItem, paymentRequest, paramLookup
 }
 
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithIntlFSCWeight(itemEstimatedWeight unit.Pound, itemOriginalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: code,
+				Name: string(code),
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:         shipmentType,
+				MarketCode:           models.MarketCodeInternational,
+				PrimeEstimatedWeight: &itemEstimatedWeight,
+				PrimeActualWeight:    &itemOriginalWeight,
+			},
+		},
+	}, nil)
+
+	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PaymentRequest{
+				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+			},
+		},
+	}, nil)
+
+	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	suite.FatalNoError(err)
+
+	return mtoServiceItem, paymentRequest, paramLookup
+}
+
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("contract passed in", func() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{

@@ -1,6 +1,9 @@
 package ppmshipment
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -222,6 +225,41 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			updatedPPMShipment.TertiaryDestinationAddress = updatedAddress
 		}
 
+		// if the expected departure date falls within a multiplier window, we need to apply that here
+		// but only if the expected departure date is being changed
+		// if the actual move date is being updated, we need to refer to that instead
+		var updatedDate time.Time
+		var oldDate time.Time
+		if updatedPPMShipment.ActualMoveDate != nil {
+			updatedDate = *updatedPPMShipment.ActualMoveDate
+			if oldPPMShipment.ActualMoveDate != nil {
+				oldDate = *oldPPMShipment.ActualMoveDate
+			} else {
+				oldDate = oldPPMShipment.ExpectedDepartureDate
+			}
+		} else {
+			updatedDate = updatedPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+			oldDate = oldPPMShipment.ExpectedDepartureDate.Truncate(time.Hour * 24)
+		}
+		if !updatedDate.Equal(oldDate) {
+			gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *updatedPPMShipment)
+			if err != nil {
+				return err
+			}
+			// check if there's a valid gccMultiplier and if it's different from the current one (if there is one)
+			if gccMultiplier.ID != uuid.Nil &&
+				(updatedPPMShipment.GCCMultiplierID == nil || *oldPPMShipment.GCCMultiplierID != gccMultiplier.ID) {
+				updatedPPMShipment.GCCMultiplierID = &gccMultiplier.ID
+				updatedPPMShipment.GCCMultiplier = &gccMultiplier
+			} else {
+				// only reset if there is no valid GCCMultiplierID and there's currently one on the PPM
+				if updatedPPMShipment.GCCMultiplierID != nil {
+					updatedPPMShipment.GCCMultiplierID = nil
+					updatedPPMShipment.GCCMultiplier = nil
+				}
+			}
+		}
+
 		// if the actual move date is being provided, we no longer need to calculate the estimate - it has already happened
 		if updatedPPMShipment.ActualMoveDate == nil {
 			estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
@@ -233,10 +271,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
-		if oldPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer &&
-			oldPPMShipment.Status != models.PPMShipmentStatusCloseoutComplete &&
-			oldPPMShipment.Status != models.PPMShipmentStatusComplete &&
-			oldPPMShipment.Status != models.PPMShipmentStatusNeedsCloseout {
+		if oldPPMShipment.Status != models.PPMShipmentStatusComplete {
 			maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
 			if err != nil {
 				return err
@@ -319,20 +354,15 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				}
 
 				entitlement := move.Orders.Entitlement
-				entitlement.GunSafe = *updatedPPMShipment.HasGunSafe
-
-				maxGunSafeWeight := 0
-				if updatedPPMShipment.HasGunSafe != nil && *updatedPPMShipment.HasGunSafe {
-					maxGunSafeWeight, err = models.GetMaxGunSafeAllowance(appCtx)
-					if err != nil {
-						return err
-					}
+				if entitlement == nil {
+					return apperror.NewQueryError("Entitlement", fmt.Errorf("entitlement is nil after fetching move with ID %s", move.ID), "Move is missing an associated entitlement.")
 				}
-				entitlement.GunSafeWeight = maxGunSafeWeight
+
+				entitlement.GunSafe = *updatedPPMShipment.HasGunSafe
 
 				verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
 				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the Entitlement.")
+					return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the gun safe entitlement.")
 				}
 				if err != nil {
 					return apperror.NewQueryError("Entitlement", err, "")

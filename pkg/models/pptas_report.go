@@ -42,6 +42,7 @@ type PPTASReport struct {
 	FinancialReviewFlag    *bool
 	FinancialReviewRemarks *string
 	Shipments              []*pptasmessages.PPTASShipment
+	MaxBillableWeight      *unit.Pound
 }
 
 type PPTASReports []PPTASReport

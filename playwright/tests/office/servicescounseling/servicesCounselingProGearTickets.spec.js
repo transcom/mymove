@@ -40,3 +40,41 @@ test('A service counselor can approve/reject pro-gear weight tickets', async ({ 
   await page.getByRole('button', { name: 'Yes' }).click();
   await scPage.waitForPage.moveDetails();
 });
+
+test('A service counselor can see the total for a progear weight ticket regular and spouse after update', async ({
+  page,
+  scPage,
+}) => {
+  // To solve timeout issues
+  test.slow();
+  // Create a move with TestHarness, and then navigate to the move details page for it
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice();
+  const reviewShipmentPage = scPage.waitForPage.reviewShipmentWeights();
+  await scPage.navigateToCloseoutMove(move.locator);
+
+  // Navigate to the "Review documents" page
+  await page.getByRole('button', { name: 'Review shipment weights' }).click();
+  await reviewShipmentPage;
+
+  await expect(page.locator('[data-testid="proGear-0"]')).toHaveText('300 lbs');
+  await expect(page.locator('[data-testid="spouseProGear-0"]')).toHaveText('75 lbs');
+});
+
+test('A service counselor can see the total for a progear weight ticket regular and spouse after delete', async ({
+  page,
+  scPage,
+}) => {
+  // To solve timeout issues
+  test.slow();
+  // Create a move with TestHarness, and then navigate to the move details page for it
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2();
+  const reviewShipmentPage = scPage.waitForPage.reviewShipmentWeights();
+  await scPage.navigateToCloseoutMove(move.locator);
+
+  // Navigate to the "Review documents" page
+  await page.getByRole('button', { name: 'Review shipment weights' }).click();
+  await reviewShipmentPage;
+
+  await expect(page.locator('[data-testid="proGear-0"]')).toHaveText('300 lbs');
+  await expect(page.locator('[data-testid="spouseProGear-0"]')).toHaveText('50 lbs');
+});

@@ -24,3 +24,10 @@ export const ADVANCE_STATUSES = {
   RECEIVED: { apiValue: 'RECEIVED', displayValue: 'Received' },
   NOT_RECEIVED: { apiValue: 'NOT_RECEIVED', displayValue: 'Not received' },
 };
+
+export const renderMultiplier = (multiplier) => {
+  if (multiplier === '') {
+    return null;
+  }
+  return `(with ${multiplier}x multiplier)`;
+};

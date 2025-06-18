@@ -1,12 +1,6 @@
 import { test, expect } from '../../utils/my/customerTest';
 
-const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
-const manageSupportDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
-
 test.describe('Additional Documents', () => {
-  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.skip(manageSupportDocsEnabled === 'false', 'Skip if manage supporting docs workflow is not enabled.');
-
   test('Users can download documents uploaded to Additional Documents', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
@@ -25,6 +19,6 @@ test.describe('Additional Documents', () => {
     await customerPage.uploadFileViaFilepond(filepondContainer, 'trustedAgent.pdf');
 
     // Verify filename is a downloadable link
-    await expect(page.getByRole('link', { name: 'trustedAgent.pdf' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /trustedAgent-\d{14}.+/ })).toBeVisible();
   });
 });

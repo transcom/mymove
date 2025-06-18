@@ -14,6 +14,8 @@ import {
 } from 'react-admin';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import SaveToolbar from '../Shared/SaveToolbar';
+
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { roleTypes } from 'constants/userRoles';
 
@@ -99,6 +101,7 @@ const OfficeUserCreate = () => {
         mode="onSubmit" // Array input validation doesn't update properly until the form is submitted due to a bug in a dependancy of the version of react-admin in use
         reValidateMode="onSubmit"
         validate={validateForm}
+        toolbar={<SaveToolbar />}
       >
         <TextInput source="firstName" mode="onBlur" />
         <TextInput source="middleInitials" />
@@ -121,7 +124,7 @@ const OfficeUserCreate = () => {
                 size="extrasmall"
                 data-testid="addTransportationOfficeButton"
                 sx={{
-                  backgroundColor: '#1976d2',
+                  backgroundColor: '#005ea2',
                   '&:hover': {
                     backgroundColor: '#1565c0',
                   },
@@ -140,7 +143,10 @@ const OfficeUserCreate = () => {
                   '&:hover': {
                     backgroundColor: '#d23c0f',
                   },
+                  width: '100px',
                   color: 'white',
+                  visibility: 'visible',
+                  opacity: 1,
                 }}
                 label="remove"
               >
@@ -167,7 +173,7 @@ const OfficeUserCreate = () => {
 const TransportationOfficePicker = (props) => {
   return (
     <>
-      <AutocompleteInput optionText="name" sx={{ width: 256 }} {...props} />
+      <AutocompleteInput optionText="name" sx={{ width: '25vw' }} {...props} />
       <SelectInput source="offices.gbloc" label="GBLOC" optionText="gbloc" {...props} disabled sx={{ width: 128 }} />
     </>
   );

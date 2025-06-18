@@ -66,17 +66,6 @@ const exporter = async (data) => {
   });
 };
 
-// Overriding the default toolbar
-const ListActions = () => {
-  const { total, resource, sort, filterValues } = useListController();
-
-  return (
-    <TopToolbar>
-      <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
-    </TopToolbar>
-  );
-};
-
 const filterList = [
   <SearchInput source="search" alwaysOn />,
   <TextInput label="Email" source="emails" />,
@@ -93,11 +82,20 @@ const RejectedOfficeUserListFilter = () => (
     <div className={styles.searchBar}>
       <FilterForm filters={filterList} />
     </div>
-    <div className={styles.filters}>
-      <FilterButton filters={filterList} />
-    </div>
   </div>
 );
+
+// Overriding the default toolbar
+const ListActions = () => {
+  const { total, resource, sort, filterValues } = useListController();
+
+  return (
+    <TopToolbar>
+      <FilterButton filters={filterList} />
+      <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
+    </TopToolbar>
+  );
+};
 
 const defaultSort = { field: 'createdAt', order: 'DESC' };
 

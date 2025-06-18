@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { CheckboxGroupInput } from 'react-admin';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { useRolesPrivilegesQueries } from 'hooks/queries';
-import { roleTypes } from 'constants/userRoles';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 const RolesPrivilegesCheckboxInput = (props) => {
   const { adminUser, validate } = props;
   const { result } = useRolesPrivilegesQueries();
   const { rolesWithPrivs, privileges } = result;
-  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
 
   let rolesSelected = [];
   let privilegesSelected = [];
@@ -18,12 +15,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
     style: 'long',
     type: 'conjunction',
   });
-
-  useEffect(() => {
-    isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
-      setHeadquartersRoleFF(enabled);
-    });
-  }, []);
 
   const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime'); // Prime isn't an office role
 
@@ -48,9 +39,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
 
     return roles.reduce((rolesArray, role) => {
       if (role.roleType) {
-        if (isHeadquartersRoleFF || (!isHeadquartersRoleFF && role.roleType !== roleTypes.HQ)) {
-          rolesArray.push(role.roleType);
-        }
+        rolesArray.push(role.roleType);
       }
 
       rolesSelected = rolesArray;
@@ -60,11 +49,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
 
   const parseRolesCheckboxInput = (input) => {
     let result = [...input];
-
-    if (!isHeadquartersRoleFF) {
-      const idx = result.indexOf(roleTypes.HQ);
-      if (idx !== -1) result.splice(idx, 1);
-    }
 
     privilegesSelected.forEach((privType) => {
       const allowed = allowedRolesByPrivilege[privType] || new Set();

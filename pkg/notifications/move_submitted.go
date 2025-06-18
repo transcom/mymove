@@ -26,18 +26,20 @@ var (
 
 // MoveSubmitted has notification content for submitted moves
 type MoveSubmitted struct {
-	moveID       uuid.UUID
-	htmlTemplate *html.Template
-	textTemplate *text.Template
+	moveID             uuid.UUID
+	htmlTemplate       *html.Template
+	textTemplate       *text.Template
+	isGunSafeFeatureOn bool
 }
 
 // NewMoveSubmitted returns a new move submitted notification
-func NewMoveSubmitted(moveID uuid.UUID) *MoveSubmitted {
+func NewMoveSubmitted(moveID uuid.UUID, isGunSafeFeatureOn bool) *MoveSubmitted {
 
 	return &MoveSubmitted{
-		moveID:       moveID,
-		htmlTemplate: moveSubmittedHTMLTemplate,
-		textTemplate: moveSubmittedTextTemplate,
+		moveID:             moveID,
+		htmlTemplate:       moveSubmittedHTMLTemplate,
+		textTemplate:       moveSubmittedTextTemplate,
+		isGunSafeFeatureOn: isGunSafeFeatureOn,
 	}
 }
 
@@ -126,6 +128,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		WeightAllowance:                   humanize.Comma(int64(weight)),
 		ProvidesGovernmentCounseling:      providesGovernmentCounseling,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		IsGunSafeFeatureOn:                m.isGunSafeFeatureOn,
 	})
 
 	if err != nil {
@@ -166,6 +169,7 @@ type moveSubmittedEmailData struct {
 	WeightAllowance                   string
 	ProvidesGovernmentCounseling      bool
 	OneSourceTransportationOfficeLink string
+	IsGunSafeFeatureOn                bool
 }
 
 // RenderHTML renders the html for the email

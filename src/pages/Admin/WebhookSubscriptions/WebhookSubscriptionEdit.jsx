@@ -1,18 +1,14 @@
 import React from 'react';
-import { Edit, required, SaveButton, SelectInput, SimpleForm, TextInput, Toolbar } from 'react-admin';
+import { Edit, required, SelectInput, SimpleForm, TextInput } from 'react-admin';
+
+import SaveToolbar from '../Shared/SaveToolbar';
 
 import { WEBHOOK_SUBSCRIPTION_STATUS } from 'shared/constants';
-
-const WebhookSubscriptionEditToolbar = (props) => (
-  <Toolbar {...props}>
-    <SaveButton />
-  </Toolbar>
-);
 
 const WebhookSubscriptionEdit = () => (
   <Edit>
     <SimpleForm
-      toolbar={<WebhookSubscriptionEditToolbar />}
+      toolbar={<SaveToolbar />}
       sx={{ '& .MuiInputBase-input': { width: 232 } }}
       mode="onBlur"
       reValidateMode="onBlur"

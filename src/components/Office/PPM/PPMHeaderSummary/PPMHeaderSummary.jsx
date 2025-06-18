@@ -40,6 +40,7 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemN
     intlPackPrice: ppmCloseout.intlPackPrice,
     intlUnpackPrice: ppmCloseout.intlUnpackPrice,
     intlLinehaulPrice: ppmCloseout.intlLinehaulPrice,
+    gccMultiplier: ppmCloseout.gccMultiplier,
   };
 
   return (

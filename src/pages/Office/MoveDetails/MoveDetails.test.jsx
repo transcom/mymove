@@ -2,15 +2,17 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import userEvent from '@testing-library/user-event';
 
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 
-import MoveDetails from './MoveDetails';
+import MoveDetails, { useErrorIfMissing } from './MoveDetails';
 
 import { MockProviders } from 'testUtils';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { SHIPMENT_TYPES } from 'shared/constants';
 
@@ -975,6 +977,25 @@ const shipmentInvalidRequestedPickupDate = {
   updatedAt: '2020-05-10T15:58:02.404031Z',
 };
 
+const ppmAdvanceRequestedAndApproved = {
+  ppmShipment: {
+    hasRequestedAdvance: true,
+    advanceStatus: ADVANCE_STATUSES.APPROVED.apiValue,
+  },
+};
+const ppmAdvanceRequestedAndRejected = {
+  ppmShipment: {
+    hasRequestedAdvance: true,
+    advanceStatus: ADVANCE_STATUSES.REJECTED.apiValue,
+  },
+};
+const ppmAdvanceRequestedAndReceived = {
+  ppmShipment: {
+    hasRequestedAdvance: true,
+    advanceStatus: ADVANCE_STATUSES.RECEIVED.apiValue,
+  },
+};
+
 const loadingReturnValue = {
   isLoading: true,
   isError: false,
@@ -1100,6 +1121,21 @@ describe('MoveDetails page', () => {
     it('updates the unapproved shipments tag state', () => {
       expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(1);
       expect(setUnapprovedShipmentCount.mock.calls[0][0]).toBe(1);
+    });
+  });
+
+  describe('When a PPM has an advance requested', () => {
+    it('returns false from useErrorIfMissing if the advance is approved or rejected', async () => {
+      const { result } = renderHook(() => useErrorIfMissing(false));
+      const advanceStatus = result.current.PPM.find((f) => f.fieldName === 'advanceStatus');
+      expect(advanceStatus.condition(ppmAdvanceRequestedAndApproved)).toBe(false);
+      expect(advanceStatus.condition(ppmAdvanceRequestedAndRejected)).toBe(false);
+    });
+
+    it('returns true from useErrorIfMissing if the advance is not approved or pending', async () => {
+      const { result } = renderHook(() => useErrorIfMissing(false));
+      const advanceStatus = result.current.PPM.find((f) => f.fieldName === 'advanceStatus');
+      expect(advanceStatus.condition(ppmAdvanceRequestedAndReceived)).toBe(true);
     });
   });
 

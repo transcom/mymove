@@ -6,7 +6,7 @@ test.describe('Services counselor user', () => {
     const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     await scPage.navigateToMove(move.locator);
 
-    const deliveryDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
     await page.getByTestId('dropdown').selectOption({ label: 'Boat' });
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
@@ -22,10 +22,11 @@ test.describe('Services counselor user', () => {
     await page.locator('label[for="isRoadworthyYes"]').click();
     await page.locator('label[for="typeTowAway"]').click();
 
-    await page.locator('#requestedPickupDate').fill(deliveryDate);
+    await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 120 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDate);
     await page.locator('#requestedDeliveryDate').blur();
 
     await page.getByLabel('Counselor remarks').fill('Sample counselor remarks');
@@ -56,7 +57,7 @@ test.describe('Services counselor user', () => {
     const move = await scPage.testHarness.buildBoatHaulAwayMoveNeedsSC();
     await scPage.navigateToMove(move.locator);
 
-    const deliveryDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
 
     await expect(page.getByText('Shipment method')).toBeVisible();
     await expect(page.getByTestId('shipmentType')).not.toHaveText('BTA');
@@ -88,10 +89,11 @@ test.describe('Services counselor user', () => {
     await page.locator('label[for="isRoadworthyYes"]').click();
     await page.locator('label[for="typeTowAway"]').click();
 
-    await page.locator('#requestedPickupDate').fill(deliveryDate);
+    await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 120 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDate);
     await page.locator('#requestedDeliveryDate').blur();
 
     await page.getByLabel('Counselor remarks').fill('Sample counselor remarks');

@@ -7,7 +7,19 @@
 // @ts-check
 import { expect, test, forEachViewport, CustomerPpmPage } from './customerPpmTestFixture';
 
-const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
+/**
+ * @param {string} dateString
+ */
+function formatDate(dateString) {
+  const [month, day, year] = dateString.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+
+  const dayFormatted = String(date.getDate()).padStart(2, '0');
+  const monthFormatted = date.toLocaleString('default', { month: 'short' });
+  const yearFormatted = date.getFullYear();
+
+  return `${dayFormatted} ${monthFormatted} ${yearFormatted}`;
+}
 
 /**
  * CustomerPpmOnboardingPage test fixture. Our linting rules (like
@@ -42,7 +54,9 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await expect(shipmentInfo.getByText('4,000 lbs')).toBeVisible();
     await expect(shipmentInfo.getByText('90210')).toBeVisible();
     await expect(shipmentInfo.getByText('76127')).toBeVisible();
-    await expect(shipmentInfo.getByText('01 Feb 2022')).toBeVisible();
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const formattedDate = formatDate(expectedDeparture);
+    await expect(shipmentInfo.getByText(formattedDate)).toBeVisible();
   }
 
   /**
@@ -79,7 +93,8 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await this.page.locator('label[for="sitExpectedNo"]').click();
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
-    await this.page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
 
     // Change closeout location
@@ -113,51 +128,6 @@ test.describe('About Form Date flow', () => {
 });
 
 test.describe('Entire PPM onboarding flow', () => {
-  /** @type {CustomerPpmOnboardingPage} */
-  let customerPpmOnboardingPage;
-
-  forEachViewport(async ({ isMobile }) => {
-    test.beforeEach(async ({ customerPpmPage }) => {
-      const move = await customerPpmPage.testHarness.buildDraftMoveWithPPMWithDepartureDate();
-      customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
-      await customerPpmOnboardingPage.signInForPPMWithMove(move);
-    });
-
-    test('flows through happy path for existing shipment', async () => {
-      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-      await customerPpmOnboardingPage.submitsDateAndLocation();
-      await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
-      await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
-      await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
-      await customerPpmOnboardingPage.navigateToAgreementAndSign();
-      await customerPpmOnboardingPage.submitMove();
-      await customerPpmOnboardingPage.verifyManagePPMStepExistsAndBtnIsDisabled();
-    });
-
-    test('happy path with edits and backs', async () => {
-      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-
-      await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();
-
-      await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
-      await customerPpmOnboardingPage.verifyEstimatedWeightsAndProGear();
-
-      await customerPpmOnboardingPage.verifyShipmentSpecificInfoOnEstimatedIncentivePage();
-      await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
-
-      await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
-
-      await customerPpmOnboardingPage.navigateToAgreementAndSign();
-
-      await customerPpmOnboardingPage.submitMove();
-      await customerPpmOnboardingPage.verifyManagePPMStepExistsAndBtnIsDisabled();
-    });
-  });
-});
-
-test.describe('(MultiMove) Entire PPM onboarding flow', () => {
-  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 

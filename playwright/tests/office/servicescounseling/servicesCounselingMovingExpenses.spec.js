@@ -55,12 +55,14 @@ test('Review documents page displays correct value for Total days in SIT', async
   await page.getByRole('button', { name: /Review documents/i }).click();
 
   await scPage.waitForPage.reviewWeightTicket();
-  await page.getByText('Accept').click();
-  await page.getByRole('button', { name: 'Continue' }).click();
+  await expect(page.getByTestId('approveRadio')).toBeEnabled();
+  await page.getByTestId('approveRadio').dispatchEvent('click');
+  await page.getByTestId('reviewDocumentsContinueButton').dispatchEvent('click');
 
   await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
-  await page.getByText('Accept').click();
-  await page.getByRole('button', { name: 'Continue' }).click();
+  await expect(page.getByTestId('acceptRadio')).toBeEnabled();
+  await page.getByTestId('acceptRadio').dispatchEvent('click');
+  await page.getByTestId('reviewDocumentsContinueButton').dispatchEvent('click');
 
   // Storage expense ticket.
   await scPage.waitForPage.reviewExpenseTicket('Storage', 2, 1);

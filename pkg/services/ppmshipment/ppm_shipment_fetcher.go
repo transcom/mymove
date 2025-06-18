@@ -287,6 +287,7 @@ func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*mod
 			"DestinationAddress.Country",
 			"SecondaryDestinationAddress.Country",
 			"TertiaryDestinationAddress.Country",
+			"GCCMultiplier",
 		).
 		Where("shipment_id = ?", mtoID).First(&ppmShipment)
 

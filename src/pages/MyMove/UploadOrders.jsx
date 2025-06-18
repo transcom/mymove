@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router';
-
-import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 
 import './UploadOrders.css';
 
@@ -26,7 +24,6 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
   const { orderId } = useParams();
   const currentOrders = orders.find((order) => order.id === orderId);
   const uploads = currentOrders?.uploaded_orders?.uploads || [];
-  const [multiMove, setMultiMove] = useState(false);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrders?.uploaded_orders?.id;
@@ -61,9 +58,6 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
       await getAllMoves(serviceMemberId).then((response) => {
         updateAllMoves(response);
       });
-      isBooleanFlagEnabled('multi_move').then((enabled) => {
-        setMultiMove(enabled);
-      });
     };
     fetchData();
   }, [updateOrders, orderId, serviceMemberId, updateAllMoves]);
@@ -74,11 +68,7 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
 
   const handleBack = () => {
     const moveId = currentOrders.moves[0];
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
   const handleNext = () => {
     const moveId = currentOrders.moves[0];

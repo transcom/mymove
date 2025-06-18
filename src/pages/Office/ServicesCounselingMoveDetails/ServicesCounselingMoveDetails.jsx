@@ -418,6 +418,7 @@ const ServicesCounselingMoveDetails = ({
     totalWeight: allowances.totalWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
+    gunSafeWeight: allowances.gunSafeWeight,
     storageInTransit: allowances.storageInTransit,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
@@ -779,7 +780,7 @@ const ServicesCounselingMoveDetails = ({
             )}
             {infoSavedAlert && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert headingLevel="h4" slim type={infoSavedAlert.alertType}>
+                <Alert data-testid="infoSavedMessage" headingLevel="h4" slim type={infoSavedAlert.alertType}>
                   {infoSavedAlert.message}
                 </Alert>
               </Grid>

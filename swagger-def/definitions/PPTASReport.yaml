@@ -160,3 +160,7 @@ properties:
     type: array
     items:
       $ref: 'PPTASShipment.yaml'
+  maxBillableWeight:
+    type: number
+    format: double
+    x-nullable: true

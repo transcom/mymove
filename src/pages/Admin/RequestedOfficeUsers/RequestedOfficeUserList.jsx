@@ -43,6 +43,16 @@ const RolesField = () => {
   return <div>{UserRolesToString(record)}</div>;
 };
 
+const RequestedOfficeUserListFilter = [
+  <SearchInput source="search" alwaysOn />,
+  <TextInput label="Email" source="email" />,
+  <TextInput label="First Name" source="firstName" />,
+  <TextInput label="Last Name" source="lastName" />,
+  <TextInput label="Office" source="office" />,
+  <TextInput label="Requested On" placeholder="MM/DD/YYYY" source="requestedOn" />,
+  <TextInput label="Roles" source="roles" />,
+];
+
 const ListActions = () => {
   const { total, resource, sort, filterValues } = useListController();
   const dataProvider = useDataProvider();
@@ -85,28 +95,16 @@ const ListActions = () => {
 
   return (
     <TopToolbar>
+      <FilterButton filters={RequestedOfficeUserListFilter} />
       <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
     </TopToolbar>
   );
 };
 
-const RequestedOfficeUserListFilter = [
-  <SearchInput source="search" alwaysOn />,
-  <TextInput label="Email" source="email" />,
-  <TextInput label="First Name" source="firstName" />,
-  <TextInput label="Last Name" source="lastName" />,
-  <TextInput label="Office" source="office" />,
-  <TextInput label="Requested On" placeholder="MM/DD/YYYY" source="requestedOn" />,
-  <TextInput label="Roles" source="roles" />,
-];
-
 const SearchFilters = () => (
   <div className={styles.searchContainer}>
     <div className={styles.searchBar}>
       <FilterForm filters={RequestedOfficeUserListFilter} />
-    </div>
-    <div className={styles.filters}>
-      <FilterButton filters={RequestedOfficeUserListFilter} />
     </div>
   </div>
 );

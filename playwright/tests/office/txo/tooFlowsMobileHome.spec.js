@@ -10,7 +10,7 @@ import { test, expect } from '../../utils/office/officeTest';
 import { TooFlowPage } from './tooTestFixture';
 
 const today = new Date();
-const pickupDate = today;
+const pickupDate = new Date(new Date().setDate(today.getDate() + 1));
 const pickupDateString = pickupDate.toLocaleDateString('en-US');
 const deliveryDate = new Date(new Date().setDate(today.getDate() + 14));
 const deliveryDateString = deliveryDate.toLocaleDateString('en-US');
@@ -106,7 +106,7 @@ test.describe('TOO user', () => {
   });
 
   test('TOO can create a mobile home shipment and view shipment card info', async ({ page }) => {
-    const deliveryDate = new Date().toLocaleDateString('en-US');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
     await page.getByTestId('dropdown').selectOption({ label: 'Mobile Home' });
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
@@ -119,10 +119,11 @@ test.describe('TOO user', () => {
     await page.getByTestId('widthFeet').fill('22');
     await page.getByTestId('heightFeet').fill('22');
 
-    await page.locator('#requestedPickupDate').fill(deliveryDate);
+    await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDate);
     await page.locator('#requestedDeliveryDate').blur();
 
     // Save the shipment

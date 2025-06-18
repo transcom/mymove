@@ -80,6 +80,10 @@ func BuildProgearWeightTicket(db *pop.Connection, customs []Customization, trait
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&progearWeightTicket, cProgearWeightTicket)
 
+	if cProgearWeightTicket.BelongsToSelf != nil {
+		progearWeightTicket.BelongsToSelf = cProgearWeightTicket.BelongsToSelf
+	}
+
 	if db != nil {
 		mustCreate(db, &progearWeightTicket)
 	}

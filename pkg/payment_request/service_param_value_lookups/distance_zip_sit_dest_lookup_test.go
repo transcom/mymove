@@ -232,4 +232,25 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		suite.FatalNoError(err)
 
 	})
+
+	suite.Run("sets distance to NOT one when origin and destination postal codes are different", func() {
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+
+		distanceZipLookup := DistanceZipSITDestLookup{
+			FinalDestinationAddress: models.Address{PostalCode: "10001"},
+			DestinationAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
+		}
+
+		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
+			planner:       suite.planner,
+			mtoShipmentID: &mtoServiceItem.MTOShipment.ID,
+		})
+
+		suite.FatalNoError(err)
+
+		//Check if distance not equal 1
+		suite.NotEqual("1", distance)
+		suite.FatalNoError(err)
+
+	})
 }
