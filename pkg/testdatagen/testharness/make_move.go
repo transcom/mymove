@@ -692,6 +692,13 @@ func MakeHHGMoveWithIntlCratingServiceItemsTOO(appCtx appcontext.AppContext) mod
 		},
 	}, nil)
 
+	// to prevent calls to get distance with INTL zip3s that are not in the DB we set the ScheduledPickupDate to nil
+	MTOShipment.ScheduledPickupDate = nil
+
+	if appCtx.DB() != nil {
+		testdatagen.MustSave(appCtx.DB(), &MTOShipment)
+	}
+
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
@@ -914,6 +921,13 @@ func MakeHHGMoveWithIntlShuttleServiceItemsTOO(appCtx appcontext.AppContext) mod
 			LinkOnly: true,
 		},
 	}, nil)
+
+	// to prevent calls to get distance with INTL zip3s that are not in the DB we set the ScheduledPickupDate to nil
+	MTOShipment.ScheduledPickupDate = nil
+
+	if appCtx.DB() != nil {
+		testdatagen.MustSave(appCtx.DB(), &MTOShipment)
+	}
 
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
