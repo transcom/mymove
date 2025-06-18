@@ -329,7 +329,7 @@ export function waitForAvScan(uploadId, { signal } = {}) {
     // Handle incremental SSE messages
     // these cases are all provided by the
     // CustomGetUploadStatusResponse from the backend
-    // See pkg/handlers/ghcapi/uploads.go
+    // See pkg/handlers/internalapi/uploads.go
     es.onmessage = ({ data }) => {
       switch (data) {
         case UPLOAD_SCAN_STATUS.PROCESSING:
