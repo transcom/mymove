@@ -574,11 +574,12 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		canApproveShipment := models.IsShipmentApprovable(*latestShipment)
 		if shipment.Status == models.MTOShipmentStatusApprovalsRequested && canApproveShipment {
 			err = p.shipmentRouter.Approve(appCtx, latestShipment)
-			if err != nil {
-				return nil, err
-			}
-			err = appCtx.DB().RawQuery("UPDATE mto_shipments SET status = ?, approved_date = ? WHERE status = ? AND id = ?", models.MTOShipmentStatusApproved, today, models.MTOShipmentStatusApprovalsRequested, updatedServiceItem.MTOShipmentID).Exec()
-			if err != nil {
+			if err == nil {
+				err = appCtx.DB().RawQuery("UPDATE mto_shipments SET status = ?, approved_date = ? WHERE status = ? AND id = ?", models.MTOShipmentStatusApproved, today, models.MTOShipmentStatusApprovalsRequested, updatedServiceItem.MTOShipmentID).Exec()
+				if err != nil {
+					return nil, err
+				}
+			} else {
 				return nil, err
 			}
 		}
