@@ -6,15 +6,15 @@
 .switchGblocButton {
   --top-color: #{$link-light};
   @include mix-mm-header-font-properties;
-  @include mix-mm-dropdown($top-color: white, $background-color: transparent){
-      padding: 0.4rem {
-        right: 2.4rem;
-        left: 1rem;
-      };
+  @include mix-mm-dropdown($top-color: white, $background-color: transparent, $chevron-offset: -0.2rem){
       background-color: var(--bg-color, inherit);
       color: var(--top-color, inherit);
       height: 100%;
-      width: 100%;
       border-radius: 0;
+      text-align: center;
+
+      box-sizing: content-box;
+      padding: 0rem 1.8rem 0rem 0rem;
+      width: min-content;
   }
 }

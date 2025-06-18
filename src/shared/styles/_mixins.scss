@@ -62,8 +62,8 @@ $z-index-back: -100;
   font-size: 1.06rem;
 }
 
-@mixin mix-mm-dropdown ($top-color: black, $background-color: $mm-blue) {
-  --background-url: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'><path d='M0 0h24v24H0z' fill='none' /><path stroke='#{$top-color}' fill='#{$top-color}' d='M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z'/></svg>") no-repeat right 0.5rem center / 1.25rem;
+@mixin mix-mm-dropdown ($top-color: black, $background-color: $mm-blue, $chevron-offset: 0.5rem) {
+  --background-url: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'><path d='M0 0h24v24H0z' fill='none' /><path stroke='#{$top-color}' fill='#{$top-color}' d='M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z'/></svg>") no-repeat right #{$chevron-offset} center / 1.25rem;
   @scope (&) {
       color: #{$top-color};
       background-color: $background-color;
@@ -72,6 +72,7 @@ $z-index-back: -100;
       border: 0;
       margin: 0;
       text-align: left;
+      line-height: inherit;
 
       option {
         background-color: $bg-white;
