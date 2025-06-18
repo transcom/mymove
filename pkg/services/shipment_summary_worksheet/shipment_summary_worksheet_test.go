@@ -1194,11 +1194,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
 	hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
 	locator := "ABCDEF"
 	hhg.ShipmentLocator = &locator
+	defaultDate := time.Now().AddDate(0, 0, 5)
 
 	page3Map, err := formatAdditionalHHG(page3Map, i, hhg)
 	suite.NoError(err)
 	suite.Equal(*hhg.ShipmentLocator+" HHG", page3Map["AddShipmentNumberAndTypes1"])
-	suite.Equal("16-Mar-2024 Actual", page3Map["AddShipmentPickUpDates1"])
+	suite.Equal(FormatDate(defaultDate)+" Actual", page3Map["AddShipmentPickUpDates1"])
 	suite.Equal("980 Actual", page3Map["AddShipmentWeights1"])
 	suite.Equal(FormatEnum(string(hhg.Status), ""), page3Map["AddShipmentStatus1"])
 }
