@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 )
 
@@ -107,13 +106,17 @@ func (suite *ModelSuite) TestOfficeGetters() {
 	}
 	suite.MustSave(&dad)
 	office := CreateTestShippingOffice(suite)
-
-	address := models.Address{
-		ID:             uuid.Must(uuid.NewV4()),
-		StreetAddress1: "123 Any Street",
-		City:           "Missoula",
-		PostalCode:     "59801",
-		State:          "MT",
+	fetchedUsPostRegionCity, err := m.FindByZipCodeAndCity(suite.DB(), "59801", "MISSOULA")
+	suite.NoError(err)
+	address := m.Address{
+		ID:                 uuid.Must(uuid.NewV4()),
+		StreetAddress1:     "123 Any Street",
+		City:               fetchedUsPostRegionCity.USPostRegionCityNm,
+		PostalCode:         fetchedUsPostRegionCity.UsprZipID,
+		State:              "MT",
+		County:             m.StringPointer("MISSOULA"),
+		IsOconus:           m.BoolPointer(false),
+		UsPostRegionCityID: &fetchedUsPostRegionCity.ID,
 	}
 
 	suite.MustSave(&address)
@@ -125,9 +128,9 @@ func (suite *ModelSuite) TestOfficeGetters() {
 		Latitude:  32.6806,
 		Longitude: -117.1779,
 		Address:   address,
-		Note:      models.StringPointer("Accessible to Public"),
-		Hours:     models.StringPointer("9am-9pm"),
-		Services:  models.StringPointer("CAC creation"),
+		Note:      m.StringPointer("Accessible to Public"),
+		Hours:     m.StringPointer("9am-9pm"),
+		Services:  m.StringPointer("CAC creation"),
 		AddressID: address.ID,
 	}
 	office2 := m.TransportationOffice{
@@ -137,9 +140,9 @@ func (suite *ModelSuite) TestOfficeGetters() {
 		Latitude:  39.6806,
 		Longitude: -101.1779,
 		Address:   address,
-		Note:      models.StringPointer("Accessible to Public"),
-		Hours:     models.StringPointer("9am-9pm"),
-		Services:  models.StringPointer("CAC creation"),
+		Note:      m.StringPointer("Accessible to Public"),
+		Hours:     m.StringPointer("9am-9pm"),
+		Services:  m.StringPointer("CAC creation"),
 		AddressID: address.ID,
 	}
 

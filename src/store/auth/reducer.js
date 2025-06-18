@@ -43,18 +43,20 @@ const authReducer = (state = initialState, action = {}) => {
         };
 
       const {
-        payload: { roles = [] },
+        payload: {
+          roles = [],
+          office_user: { transportation_office_assignments: transportationOfficeAssignments },
+        },
       } = action;
-      const officeUser = action?.payload?.office_user;
       const firstOfficeRole = roles?.find((r) => officeRoles.indexOf(r.roleType) > -1)?.roleType;
-      const primaryOffice = officeUser?.transportation_office_assignments?.find(
-        (office) => office.primaryOffice === true,
-      );
+      const activeOffice =
+        state.activeOffice ||
+        transportationOfficeAssignments.find((office) => office.primaryOffice === true).transportationOffice;
 
       return {
         ...state,
         activeRole: firstOfficeRole,
-        activeOffice: primaryOffice?.transportationOffice,
+        activeOffice,
         hasSucceeded: true,
         hasErrored: false,
         isLoading: false,
