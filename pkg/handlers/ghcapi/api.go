@@ -113,7 +113,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	)
 
 	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher, ppmEstimator)
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	serviceItemFetcher := serviceitem.NewServiceItemFetcher()
@@ -869,6 +869,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		countrySearcher,
 	}
+
+	ghcAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
 
 	return ghcAPI
 }

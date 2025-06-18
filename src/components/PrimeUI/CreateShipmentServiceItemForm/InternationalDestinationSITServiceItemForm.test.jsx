@@ -113,7 +113,7 @@ describe('InternationalDestinationSITServiceItemForm component', () => {
     expect(createBtn).toBeInTheDocument();
   });
 
-  it('submits values when create service item button is clicked for international destination SIT', async () => {
+  it('submits values when create service item button is clicked for international destination SIT and asterisks for required fields', async () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
     const submissionMock = jest.fn();
 
@@ -121,14 +121,14 @@ describe('InternationalDestinationSITServiceItemForm component', () => {
       <InternationalDestinationSITServiceItemForm shipment={shipment} submission={submissionMock} isDomestic={false} />,
     );
 
-    await userEvent.type(screen.getByLabelText('Reason'), 'Testing');
+    await userEvent.type(screen.getByLabelText('Reason *'), 'Testing');
     await userEvent.type(screen.getByLabelText('First available delivery date'), '01 Feb 2024');
     await userEvent.type(screen.getByLabelText('First date of attempted contact'), '28 Dec 2023');
     await userEvent.type(screen.getByLabelText('First time of attempted contact'), '1400Z');
     await userEvent.type(screen.getByLabelText('Second available delivery date'), '05 Feb 2024');
     await userEvent.type(screen.getByLabelText('Second date of attempted contact'), '05 Jan 2024');
     await userEvent.type(screen.getByLabelText('Second time of attempted contact'), '1400Z');
-    await userEvent.type(screen.getByLabelText('SIT entry date'), '10 Jan 2024');
+    await userEvent.type(screen.getByLabelText('SIT entry date *'), '10 Jan 2024');
     await userEvent.type(screen.getByLabelText('SIT departure date'), '24 Jan 2024');
 
     // Submit form

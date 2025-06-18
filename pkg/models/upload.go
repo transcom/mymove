@@ -24,10 +24,17 @@ const (
 	AVStatusCLEAN AVStatusType = "NO_THREATS_FOUND"
 	// AVStatusINFECTED string INFECTED
 	AVStatusINFECTED AVStatusType = "THREATS_FOUND"
+	//ClamAVStatusCLEAN string CLAMAV_CLEAN
+	ClamAVStatusCLEAN AVStatusType = "CLEAN"
+	// ClamAVStatusINFECTED string CLAMAV_INFECTED
+	ClamAVStatusINFECTED AVStatusType = "INFECTED"
 )
 
 func GetAVStatusFromTags(tags map[string]string) AVStatusType {
 	if status, exists := tags["GuardDutyMalwareScanStatus"]; exists {
+		return AVStatusType(status)
+	}
+	if status, exists := tags["av-status"]; exists {
 		return AVStatusType(status)
 	}
 	return AVStatusType(AVStatusPROCESSING)
