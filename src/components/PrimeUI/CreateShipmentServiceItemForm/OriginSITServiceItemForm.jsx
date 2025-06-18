@@ -66,15 +66,17 @@ const OriginSITServiceItemForm = ({ shipment, submission, handleCancel }) => {
             <input type="hidden" name="mtoShipmentID" />
             <input type="hidden" name="modelType" />
             <input type="hidden" name="reServiceCode" />
-            <TextField name="reason" id="reason" label="Reason" />
+            <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk required />
             <MaskedTextField
               id="sitPostalCode"
               name="sitPostalCode"
               label="SIT postal code"
               mask="00000[{-}0000]"
               placeholder="62225"
+              showRequiredAsterisk
+              required
             />
-            <DatePickerInput label="SIT entry Date" name="sitEntryDate" />
+            <DatePickerInput label="SIT entry Date" name="sitEntryDate" showRequiredAsterisk required />
             <DatePickerInput label="SIT departure Date" name="sitDepartureDate" />
             <h3 className={formStyles.sectionHeader}>SIT HHG actual origin address</h3>
             <AddressFields name="sitHHGActualOrigin" formikProps={formikProps} />
