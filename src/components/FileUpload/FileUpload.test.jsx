@@ -118,7 +118,7 @@ describe('FileUpload processing', () => {
 
   it('it shows file failure when av scan returns INFECTED', async () => {
     const createUpload = jest.fn(() => Promise.resolve({ id: 'abc123' }));
-    waitForAvScan.mockRejectedValueOnce(new Error(UPLOAD_SCAN_STATUS.INFECTED));
+    waitForAvScan.mockRejectedValueOnce(new Error(UPLOAD_SCAN_STATUS.LEGACY_INFECTED));
 
     const wrapper = mount(<FileUpload createUpload={createUpload} />);
 

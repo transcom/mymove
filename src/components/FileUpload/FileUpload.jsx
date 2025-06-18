@@ -86,7 +86,7 @@ const FileUpload = forwardRef(
         })
         .catch((err) => {
           if (err.name === 'AbortError') return; // controller close
-          if (err.message === UPLOAD_SCAN_STATUS.INFECTED) {
+          if (err.message === UPLOAD_SCAN_STATUS.THREATS_FOUND || err.message === UPLOAD_SCAN_STATUS.LEGACY_INFECTED) {
             pondRef.current?.setOptions({
               labelFileProcessing: 'File failed virus scan',
             });
