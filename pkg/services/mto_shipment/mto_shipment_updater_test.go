@@ -5310,7 +5310,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 
 		// Fetch the INPK market factor from the DB
 		inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
-		ntsMarketFactor, err := fetchMarketFactor(suite.AppContextForTest(), contract.ID, inpkReService.ID, "O")
+		ntsMarketFactor, err := models.FetchMarketFactor(suite.AppContextForTest(), contract.ID, inpkReService.ID, "O")
 		suite.FatalNoError(err)
 
 		// Assert basic service items
