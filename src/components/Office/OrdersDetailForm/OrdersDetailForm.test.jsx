@@ -2,6 +2,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Formik } from 'formik';
+import userEvent from '@testing-library/user-event';
 
 import OrdersDetailForm from './OrdersDetailForm';
 
@@ -273,5 +274,23 @@ describe('OrdersDetailForm', () => {
   it('renders dependents authorized checkbox field', async () => {
     renderOrdersDetailForm();
     expect(await screen.findByTestId('dependentsAuthorizedInput')).toBeInTheDocument();
+  });
+
+  it('allows typing more than 4 characters into a SAC field', async () => {
+    renderOrdersDetailForm();
+
+    // there are two SAC fields (HHG SAC and NTS SAC)
+    const sacInputs = screen.getAllByLabelText('SAC');
+    expect(sacInputs.length).toBeGreaterThanOrEqual(1);
+
+    const firstSacInput = sacInputs[0];
+    await userEvent.type(firstSacInput, 'ABCDE');
+    // Sac is already in the initial values, so we can confirm we can append to that
+    expect(firstSacInput).toHaveValue('SacABCDE');
+
+    // NTS SAC is not in the initial values, so we can check for exactly what we put in
+    const secondSacInput = sacInputs[1];
+    await userEvent.type(secondSacInput, 'FGHIJ123');
+    expect(secondSacInput).toHaveValue('FGHIJ123');
   });
 });

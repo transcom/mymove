@@ -41,7 +41,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"packing_and_shipping_instructions": {"PackingAndShippingInstructions can not be blank."},
 	}
 
-	suite.verifyValidationErrors(order, expErrors)
+	suite.verifyValidationErrors(order, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
@@ -55,7 +55,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 
 		expErrors := map[string][]string{}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	})
 
 	suite.Run("test UploadedAmendedOrdersID is not nil UUID", func() {
@@ -65,7 +65,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 			"uploaded_amended_orders_id": {"UploadedAmendedOrdersID can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	})
 }
 
@@ -85,7 +85,7 @@ func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
 
 		expErrors := map[string][]string{}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	}
 }
 
@@ -111,7 +111,7 @@ func (suite *ModelSuite) TestTacFormat() {
 			"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters."},
 		}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	}
 }
 
@@ -137,7 +137,7 @@ func (suite *ModelSuite) TestTacForbiddenCharacters() {
 					},
 				}
 
-				suite.verifyValidationErrors(&order, expErrors)
+				suite.verifyValidationErrors(&order, expErrors, nil)
 			})
 		}
 	})
@@ -162,7 +162,7 @@ func (suite *ModelSuite) TestTacForbiddenCharacters() {
 					},
 				}
 
-				suite.verifyValidationErrors(&order, expErrors)
+				suite.verifyValidationErrors(&order, expErrors, nil)
 			})
 		}
 	})
@@ -187,7 +187,7 @@ func (suite *ModelSuite) TestSacForbiddenCharacters() {
 					"sac": {"SAC cannot contain * or \" characters."},
 				}
 
-				suite.verifyValidationErrors(&order, expErrors)
+				suite.verifyValidationErrors(&order, expErrors, nil)
 			})
 		}
 	})
@@ -210,7 +210,7 @@ func (suite *ModelSuite) TestSacForbiddenCharacters() {
 					"nts_sac": {"NTS SAC cannot contain * or \" characters."},
 				}
 
-				suite.verifyValidationErrors(&order, expErrors)
+				suite.verifyValidationErrors(&order, expErrors, nil)
 			})
 		}
 	})

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,12 +32,14 @@ import (
 // SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMComputer struct {
 	services.PPMCloseoutFetcher
+	estimator services.PPMEstimator
 }
 
 // NewSSWPPMComputer creates a SSWPPMComputer
-func NewSSWPPMComputer(ppmCloseoutFetcher services.PPMCloseoutFetcher) services.SSWPPMComputer {
+func NewSSWPPMComputer(ppmCloseoutFetcher services.PPMCloseoutFetcher, estimator services.PPMEstimator) services.SSWPPMComputer {
 	return &SSWPPMComputer{
 		ppmCloseoutFetcher,
+		estimator,
 	}
 }
 
@@ -60,8 +63,8 @@ func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGener
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
-	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData, isPaymentPacket)
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(appCtx appcontext.AppContext, shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
+	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(appCtx, shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
 		return page1, services.Page2Values{}, services.Page3Values{}, errors.WithStack(err)
 	}
@@ -250,7 +253,7 @@ const (
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
+func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(appCtx appcontext.AppContext, data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
 	var err error
 	page1 := services.Page1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
@@ -311,12 +314,12 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	// Fill out form fields related to Actual Expense Reimbursement status
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
-		page1.GCCExpenseReimbursementType = "Actual Expense Reimbursement"
+		page1.GCCExpenseReimbursementType = "AER"
 	}
 
 	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
 		page1.IsSmallPackageReimbursement = true
-		page1.GCCExpenseReimbursementType = "Small Package Reimbursement"
+		page1.GCCExpenseReimbursementType = "SPR"
 	}
 
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
@@ -324,7 +327,6 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.MaxIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -333,6 +335,62 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 
 	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
 		page1.SafetyMoveHeading = safetyMoveText
+	}
+
+	// for payment packets we use the actual move date for the multiplier
+	// AOAs we use the expected departure date for the multiplier
+	// since the multiplier on the PPM is what is "current", we need to manually check the multiplier for an aoa since it can be different
+	var estimatedMultiplierStr, actualMultiplierStr string
+	var estimatedGccMultiplier, actualGccMultiplier models.GCCMultiplier
+
+	// the gcc multiplier might be different between actual/expected move dates
+	if data.PPMShipment.ActualMoveDate != nil {
+		actualGccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), *data.PPMShipment.ActualMoveDate)
+		if err != nil {
+			return page1, err
+		}
+		actualMultiplierStr = strconv.FormatFloat(actualGccMultiplier.Multiplier, 'g', -1, 64)
+	} else {
+		// we will use the expected departure date as a failsafe here
+		actualGccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), data.PPMShipment.ExpectedDepartureDate)
+		if err != nil {
+			return page1, err
+		}
+		actualMultiplierStr = strconv.FormatFloat(actualGccMultiplier.Multiplier, 'g', -1, 64)
+	}
+
+	// for advances, we use the multiplier from the expected departure date since that's
+	// what the estimated incentive is based upon (advance is 60% of est incentive)
+	estimatedGccMultiplier, err = models.FetchGccMultiplierByDate(appCtx.DB(), data.PPMShipment.ExpectedDepartureDate)
+	if err != nil {
+		return page1, err
+	}
+	estimatedMultiplierStr = strconv.FormatFloat(estimatedGccMultiplier.Multiplier, 'g', -1, 64)
+
+	// if this is an AOA we need to check the max incentive that would've been calculated at time of AOA decision
+	if !isPaymentPacket {
+		data.PPMShipment.GCCMultiplier = &estimatedGccMultiplier
+		maxIncentive, err := s.estimator.MaxIncentive(appCtx, models.PPMShipment{}, &data.PPMShipment)
+		if err != nil {
+			return page1, err
+		}
+		page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + FormatDollarFromCents(*maxIncentive)
+
+		// setting all fields the same for an AOA
+		page1.GCCMultiplierAdvance = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+		page1.GCCMultiplierMaxAdvance = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+		page1.GCCMultiplierMax = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+		page1.GCCMultiplierActual = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+	} else {
+		page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.MaxIncentive
+
+		// when a payment packet is generated, we know the advances are based off of estimated incentive which consumes the expected departure date
+		page1.GCCMultiplierAdvance = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+		page1.GCCMultiplierMaxAdvance = fmt.Sprintf("(with %sx multiplier)", estimatedMultiplierStr)
+
+		// the current max and actual/final incentives will be driven off of the actual move date
+		page1.GCCMultiplierMax = fmt.Sprintf("(with %sx multiplier)", actualMultiplierStr)
+		page1.GCCMultiplierActual = fmt.Sprintf("(with %sx multiplier)", actualMultiplierStr)
 	}
 
 	return page1, nil
@@ -412,13 +470,13 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.SignatureDate = certificationInfo.DateField
 
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
-		page2.IncentiveExpenseReimbursementType = "Actual Expense Reimbursement"
+		page2.IncentiveExpenseReimbursementType = "AER"
 		page2.HeaderExpenseReimbursementType = `This PPM is being processed as actual expense reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
 	}
 
 	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
-		page2.IncentiveExpenseReimbursementType = "Small Package Reimbursement"
+		page2.IncentiveExpenseReimbursementType = "SPR"
 		page2.HeaderExpenseReimbursementType = `This PPM is being processed as small package reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
 	}
@@ -686,7 +744,7 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 	for _, cert := range signedCertifications {
 		if cert.PpmID != nil { // Required to avoid error, service members signatures have nil ppm ids
 			if *cert.PpmID == ppmid { // PPM ID needs to be checked to prevent signatures from other PPMs on the same move from populating
-				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT {
+				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT || *cert.CertificationType == models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT {
 					sswDate := FormatDate(cert.UpdatedAt) // We use updatedat to get the most recent signature dates
 					return sswDate, nil
 				}
@@ -1106,6 +1164,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"W2Address",
 		"WeightTickets",
 		"MovingExpenses",
+		"GCCMultiplier",
 	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
