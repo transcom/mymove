@@ -50,7 +50,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 
 		err = validatePaymentRequest(appCtx, *paymentRequestArg, nil, checks...)
 		if err != nil {
-			return apperror.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
+			return apperror.NewInvalidCreateInputError(nil, fmt.Sprintf("Invalid Create Input Error: %s", err.Error()))
 		}
 		// Gather information for logging
 		mtoMessageString := " MTO ID <" + paymentRequestArg.MoveTaskOrderID.String() + ">"
@@ -206,7 +206,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			// Validate that all params are available to prices the service item that is in
 			// the payment request
 			//
-			validParamList, validateMessage := paymentHelper.ValidServiceParamList(mtoServiceItem, reServiceParams, paymentServiceItem.PaymentServiceItemParams)
+			validParamList, validateMessage := paymentHelper.ValidServiceParamList(appCtx, mtoServiceItem, reServiceParams, paymentServiceItem.PaymentServiceItemParams)
 			if !validParamList {
 				errMessage := "service item param list is not valid (will not be able to price the item) " + validateMessage + " for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
