@@ -65,12 +65,12 @@ func (suite *FactorySuite) TestBuildRankHelpers() {
 		precount, err := suite.DB().Count(&models.Rank{})
 		suite.NoError(err)
 
-		rank := FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), string(models.AffiliationAIRFORCE))
+		rank := FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), string(models.AffiliationARMY))
 		suite.NoError(err)
 
-		suite.Equal("SrA", rank.RankAbbv)
-		suite.Equal(string(models.AffiliationAIRFORCE), rank.Affiliation)
-		suite.Equal("Senior Airman", rank.RankName)
+		suite.Equal("CPL", rank.RankAbbv)
+		suite.Equal(string(models.AffiliationARMY), rank.Affiliation)
+		suite.Equal("Corporal", rank.RankName)
 
 		// Count how many ranks are in the DB, no new ranks should have been created.
 		count, err := suite.DB().Count(&models.Rank{})
