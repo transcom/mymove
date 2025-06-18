@@ -8,15 +8,15 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type transportaionOfficeAssignmentFetcher struct {
+type transportationOfficeAssignmentFetcher struct {
 }
 
-// NewTransportaionOfficeAssignmentUpdater creates a new struct with the service dependencies
-func NewTransportaionOfficeAssignmentFetcher() services.TransportaionOfficeAssignmentFetcher {
-	return transportaionOfficeAssignmentFetcher{}
+// NewTransportationOfficeAssignmentUpdater creates a new struct with the service dependencies
+func NewTransportationOfficeAssignmentFetcher() services.TransportationOfficeAssignmentFetcher {
+	return transportationOfficeAssignmentFetcher{}
 }
 
-func (fetcher transportaionOfficeAssignmentFetcher) FetchTransportaionOfficeAssignmentsByOfficeUserID(
+func (fetcher transportationOfficeAssignmentFetcher) FetchTransportationOfficeAssignmentsByOfficeUserID(
 	appCtx appcontext.AppContext,
 	officeUserId uuid.UUID,
 ) (models.TransportationOfficeAssignments, error) {

@@ -7,10 +7,10 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
-// RoleAssociater is the service object interface for fetching roles for a user id
+// RoleFetcher is the service object interface for fetching roles for a user id
 //
-//go:generate mockery --name RoleAssociater
-type RoleAssociater interface {
+//go:generate mockery --name RoleFetcher
+type RoleFetcher interface {
 	FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error)
 	FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.Role, error)
 	FetchRoleTypes(appCtx appcontext.AppContext) ([]roles.RoleType, error)

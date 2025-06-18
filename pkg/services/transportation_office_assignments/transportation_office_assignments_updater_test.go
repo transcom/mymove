@@ -14,8 +14,8 @@ import (
 
 type TransportationOfficeAssignmentsUpdaterServiceSuite struct {
 	*testingsuite.PopTestSuite
-	toaFetcher services.TransportaionOfficeAssignmentFetcher
-	toaUpdater services.TransportaionOfficeAssignmentUpdater
+	toaFetcher services.TransportationOfficeAssignmentFetcher
+	toaUpdater services.TransportationOfficeAssignmentUpdater
 }
 
 func TestTransportationOfficeAssignmentsUpdaterServiceSuite(t *testing.T) {
@@ -29,20 +29,20 @@ func TestTransportationOfficeAssignmentsUpdaterServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTransportaionOfficeAssignments_AddInitialAssignment() {
-	suite.toaUpdater = NewTransportaionOfficeAssignmentUpdater()
+func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTransportationOfficeAssignments_AddInitialAssignment() {
+	suite.toaUpdater = NewTransportationOfficeAssignmentUpdater()
 
 	officeUser := factory.BuildOfficeUserWithoutTransportationOfficeAssignment(suite.DB(), nil, nil)
 	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
-	transportaionOfficeAssignmentToAdd := models.TransportationOfficeAssignment{
+	transportationOfficeAssignmentToAdd := models.TransportationOfficeAssignment{
 		ID:                     officeUser.ID,
 		TransportationOfficeID: transportationOffice.ID,
 		PrimaryOffice:          models.BoolPointer(true),
 	}
-	toasToAdd := models.TransportationOfficeAssignments{transportaionOfficeAssignmentToAdd}
+	toasToAdd := models.TransportationOfficeAssignments{transportationOfficeAssignmentToAdd}
 
-	assignments, err := suite.toaUpdater.UpdateTransportaionOfficeAssignments(suite.AppContextForTest(), officeUser.ID, toasToAdd)
+	assignments, err := suite.toaUpdater.UpdateTransportationOfficeAssignments(suite.AppContextForTest(), officeUser.ID, toasToAdd)
 
 	suite.NoError(err)
 	suite.Equal(1, len(assignments))
@@ -50,24 +50,24 @@ func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTran
 	suite.Equal(true, *assignments[0].PrimaryOffice)
 }
 
-func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTransportaionOfficeAssignments_AddAdditionalAssignment() {
-	suite.toaFetcher = NewTransportaionOfficeAssignmentFetcher()
-	suite.toaUpdater = NewTransportaionOfficeAssignmentUpdater()
+func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTransportationOfficeAssignments_AddAdditionalAssignment() {
+	suite.toaFetcher = NewTransportationOfficeAssignmentFetcher()
+	suite.toaUpdater = NewTransportationOfficeAssignmentUpdater()
 
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
-	existingAssignments, _ := suite.toaFetcher.FetchTransportaionOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
+	existingAssignments, _ := suite.toaFetcher.FetchTransportationOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
 
-	transportaionOfficeAssignmentToAdd := models.TransportationOfficeAssignment{
+	transportationOfficeAssignmentToAdd := models.TransportationOfficeAssignment{
 		ID:                     officeUser.ID,
 		TransportationOfficeID: transportationOffice.ID,
 		PrimaryOffice:          models.BoolPointer(false),
 	}
 
-	toasToAdd := models.TransportationOfficeAssignments{existingAssignments[0], transportaionOfficeAssignmentToAdd}
+	toasToAdd := models.TransportationOfficeAssignments{existingAssignments[0], transportationOfficeAssignmentToAdd}
 
-	assignments, err := suite.toaUpdater.UpdateTransportaionOfficeAssignments(suite.AppContextForTest(), officeUser.ID, toasToAdd)
+	assignments, err := suite.toaUpdater.UpdateTransportationOfficeAssignments(suite.AppContextForTest(), officeUser.ID, toasToAdd)
 
 	suite.NoError(err)
 	suite.Equal(2, len(assignments))
@@ -85,16 +85,16 @@ func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTran
 	suite.Equal(transportationOffice.ID, assignments[secondaryAssignmentIndex].TransportationOfficeID)
 }
 
-func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTransportaionOfficeAssignments_SwapPrimaryOffice() {
-	suite.toaFetcher = NewTransportaionOfficeAssignmentFetcher()
-	suite.toaUpdater = NewTransportaionOfficeAssignmentUpdater()
+func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTransportationOfficeAssignments_SwapPrimaryOffice() {
+	suite.toaFetcher = NewTransportationOfficeAssignmentFetcher()
+	suite.toaUpdater = NewTransportationOfficeAssignmentUpdater()
 
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	secondaryTransportationOfficeAssignment := factory.BuildAlternateTransportationOfficeAssignment(suite.DB(), []factory.Customization{
 		{Model: officeUser, LinkOnly: true},
 	}, nil)
 
-	existingAssignments, err := suite.toaFetcher.FetchTransportaionOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
+	existingAssignments, err := suite.toaFetcher.FetchTransportationOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
 
 	primaryAssignmentIndex := slices.IndexFunc(existingAssignments, func(toa models.TransportationOfficeAssignment) bool {
 		return *toa.PrimaryOffice
@@ -112,7 +112,7 @@ func (suite *TransportationOfficeAssignmentsUpdaterServiceSuite) Test_UpdateTran
 	existingAssignments[secondaryAssignmentIndex].PrimaryOffice = models.BoolPointer(true)
 
 	toasToAdd := models.TransportationOfficeAssignments{existingAssignments[secondaryAssignmentIndex], existingAssignments[primaryAssignmentIndex]}
-	assignments, err := suite.toaUpdater.UpdateTransportaionOfficeAssignments(suite.AppContextForTest(), officeUser.ID, toasToAdd)
+	assignments, err := suite.toaUpdater.UpdateTransportationOfficeAssignments(suite.AppContextForTest(), officeUser.ID, toasToAdd)
 
 	suite.NoError(err)
 	suite.Equal(2, len(assignments))
