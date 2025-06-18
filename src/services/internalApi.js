@@ -337,12 +337,12 @@ export function waitForAvScan(uploadId, { signal } = {}) {
         case UPLOAD_SCAN_STATUS.NO_THREATS_FOUND:
         case UPLOAD_SCAN_STATUS.LEGACY_CLEAN:
           cleanup();
-          resolve(UPLOAD_SCAN_STATUS.CLEAN);
+          resolve(UPLOAD_SCAN_STATUS.NO_THREATS_FOUND);
           break;
         case UPLOAD_SCAN_STATUS.INFECTED:
         case UPLOAD_SCAN_STATUS.THREATS_FOUND:
           cleanup();
-          reject(new Error(UPLOAD_SCAN_STATUS.INFECTED));
+          reject(new Error(UPLOAD_SCAN_STATUS.THREATS_FOUND));
           break;
         case UPLOAD_SCAN_STATUS.CONNECTION_CLOSED:
           cleanup();

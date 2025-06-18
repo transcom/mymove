@@ -115,7 +115,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
       setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
     }
 
-    if (selectedFile) {
+    if (selectedFile && !isFileUploading) {
       // Begin scanning
       handleFileProcessing(UPLOAD_SCAN_STATUS.PROCESSING); // Adjust label
       waitForAvScan(selectedFile.id)
@@ -123,8 +123,8 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
           handleFileProcessing(status);
         })
         .catch((err) => {
-          if (err.message === UPLOAD_SCAN_STATUS.INFECTED) {
-            handleFileProcessing(UPLOAD_SCAN_STATUS.INFECTED);
+          if (err.message === UPLOAD_SCAN_STATUS.LEGACY_INFECTED || err.message === UPLOAD_SCAN_STATUS.THREATS_FOUND) {
+            handleFileProcessing(UPLOAD_SCAN_STATUS.THREATS_FOUND);
           } else {
             handleFileProcessing(UPLOAD_SCAN_STATUS.CONNECTION_CLOSED);
           }
