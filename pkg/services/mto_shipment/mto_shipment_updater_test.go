@@ -2929,7 +2929,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	var eTag string
 	var mto models.Move
 
-	setupTestData := func() {
+	suite.PreloadData(func() {
 		for i := range expectedReServiceCodes {
 			factory.FetchReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
@@ -3036,7 +3036,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		}, nil)
 		shipment.Status = models.MTOShipmentStatusSubmitted
 		eTag = etag.GenerateEtag(shipment.UpdatedAt)
-	}
+	})
 
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -3056,7 +3056,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
 	suite.Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func() {
-		setupTestData()
 
 		appCtx := suite.AppContextForTest()
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
@@ -3105,7 +3104,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func() {
-		setupTestData()
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 			MaxDaysTransitTime: 12,
@@ -3179,7 +3177,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Test that correct addresses are being used to calculate required delivery date", func() {
-		setupTestData()
 		appCtx := suite.AppContextForTest()
 
 		ghcDomesticTransitTime0LbsUpper := models.GHCDomesticTransitTime{
@@ -3637,8 +3634,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Cannot set SUBMITTED status on shipment via UpdateMTOShipmentStatus", func() {
-		setupTestData()
-
 		// The only time a shipment gets set to the SUBMITTED status is when it is created, whether by the customer
 		// or the Prime. This happens in the internal and prime API in the CreateMTOShipmentHandler. In that case,
 		// the handlers will call ShipmentRouter.Submit().
@@ -3655,8 +3650,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Rejecting a shipment in SUBMITTED status with a rejection reason should return no error", func() {
-		setupTestData()
-
 		eTag = etag.GenerateEtag(shipment2.UpdatedAt)
 		rejectionReason := "Rejection reason"
 		returnedShipment, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment2.ID, "REJECTED", &rejectionReason, nil, eTag)
@@ -3672,8 +3665,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Rejecting a shipment with no rejection reason returns an InvalidInputError", func() {
-		setupTestData()
-
 		eTag = etag.GenerateEtag(shipment3.UpdatedAt)
 		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment3.ID, "REJECTED", nil, nil, eTag)
 
@@ -3682,8 +3673,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Rejecting a shipment in APPROVED status returns a ConflictStatusError", func() {
-		setupTestData()
-
 		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
 		rejectionReason := "Rejection reason"
 		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), approvedShipment.ID, "REJECTED", &rejectionReason, nil, eTag)
@@ -3693,8 +3682,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Approving a shipment in REJECTED status returns a ConflictStatusError", func() {
-		setupTestData()
-
 		eTag = etag.GenerateEtag(rejectedShipment.UpdatedAt)
 		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), rejectedShipment.ID, "APPROVED", nil, nil, eTag)
 
@@ -3703,8 +3690,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Passing in a stale identifier returns a PreconditionFailedError", func() {
-		setupTestData()
-
 		staleETag := etag.GenerateEtag(time.Now())
 
 		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment4.ID, "APPROVED", nil, nil, staleETag)
@@ -3714,8 +3699,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Passing in an invalid status returns a ConflictStatus error", func() {
-		setupTestData()
-
 		eTag = etag.GenerateEtag(shipment4.UpdatedAt)
 
 		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment4.ID, "invalid", nil, nil, eTag)
@@ -3725,8 +3708,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Passing in a bad shipment id returns a Not Found error", func() {
-		setupTestData()
-
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
 		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), badShipmentID, "APPROVED", nil, nil, eTag)
@@ -3736,8 +3717,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Changing to APPROVED status records approved_date", func() {
-		setupTestData()
-
 		shipment5 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
@@ -3760,8 +3739,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Changing to a non-APPROVED status does not record approved_date", func() {
-		setupTestData()
-
 		shipment6 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
@@ -3788,8 +3765,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("When move is not yet approved, cannot approve shipment", func() {
-		setupTestData()
-
 		submittedMTO := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		mtoShipment := submittedMTO.MTOShipments[0]
 		eTag = etag.GenerateEtag(mtoShipment.UpdatedAt)
@@ -3815,8 +3790,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("An approved shipment can change to CANCELLATION_REQUESTED", func() {
-		setupTestData()
-
 		approvedShipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -3841,8 +3814,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("A CANCELLATION_REQUESTED shipment can change to CANCELED", func() {
-		setupTestData()
-
 		cancellationRequestedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -3867,8 +3838,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("An APPROVED shipment CANNOT change to CANCELED - ERROR", func() {
-		setupTestData()
-
 		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(
@@ -3882,8 +3851,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("An APPROVALS_REQUESTED shipment CANNOT change to CANCELED - ERROR", func() {
-		setupTestData()
-
 		testShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
@@ -3903,8 +3870,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("An APPROVED shipment CAN change to Diversion Requested", func() {
-		setupTestData()
-
 		shipmentToDivert := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
@@ -3928,7 +3893,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("A diversion or diverted shipment can change to APPROVED", func() {
-		setupTestData()
 		diversionReason := "Test reason"
 
 		// a diversion or diverted shipment is when the PRIME sets the diversion field to true

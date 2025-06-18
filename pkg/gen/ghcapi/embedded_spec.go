@@ -11222,10 +11222,13 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TIOAssignedUser": {
+        "SCCounselingAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOOAssignedUser": {
@@ -29906,10 +29909,13 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TIOAssignedUser": {
+        "SCCounselingAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOOAssignedUser": {
