@@ -170,6 +170,17 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 		suite.Equal(perUnitCents, "6997")
 	})
 
+	suite.Run("success - returns perUnitCent value for INPK", func() {
+		setupTestData(models.ReServiceCodeINPK)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal(perUnitCents, "6997")
+	})
+
 	suite.Run("success - returns perUnitCent value for IHUPK", func() {
 		setupTestData(models.ReServiceCodeIHUPK)
 
