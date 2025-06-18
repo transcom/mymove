@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -872,8 +873,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
 		mockRoleAssociator := &mocks.RoleAssociater{}
+		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
+		privilegeFetcher := &mocks.PrivilegeAssociator{}
 
 		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", requestedOfficeUser.ID)),
@@ -895,6 +898,11 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
 
+		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(requestedOfficeUser, nil, nil).Once()
+
 		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -910,7 +918,8 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 				UpdatedAt: time.Now(),
 			},
 		}
-		mockPrivileges := []roles.Privilege{
+
+		mockPrivileges := roles.Privileges{
 			{
 				ID:            uuid.Must(uuid.NewV4()),
 				PrivilegeType: roles.PrivilegeTypeSupervisor,
@@ -934,11 +943,12 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 			mock.Anything,
 		).Return(nil, nil, nil).Once()
 
-		userPrivilegeAssociator.On(
+		privilegeFetcher.On(
 			"FetchPrivilegesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockPrivileges, nil)
+
 		mockRoleAssociator.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -947,8 +957,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 
 		handler := UpdateRequestedOfficeUserHandler{
 			suite.HandlerConfig(),
+			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,
+			privilegeFetcher,
 			mockUserRoleAssociator,
 			mockRoleAssociator,
 		}
@@ -965,8 +977,6 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 	suite.Run("test - update requested office user handler - REJECT supervisor privilege", func() {
 		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		supervisorPrivilegeName := "Supervisor"
-		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
 		requestedOfficeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 			{
 				Model: models.User{
@@ -990,21 +1000,28 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
 		mockRoleAssociator := &mocks.RoleAssociater{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
+		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
+		privilegeFetcher := &mocks.PrivilegeAssociator{}
 
 		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", requestedOfficeUser.ID)),
 			Body: &adminmessages.RequestedOfficeUserUpdate{
-
 				Roles: []*adminmessages.OfficeUserRole{
 					{
 						Name:     &tooRoleName,
 						RoleType: &tooRoleType,
 					},
 				},
+				Privileges: []*adminmessages.OfficeUserPrivilege{},
 			},
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
+
+		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(requestedOfficeUser, nil, nil).Once()
 
 		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1021,15 +1038,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 				UpdatedAt: time.Now(),
 			},
 		}
-		mockPrivileges := []roles.Privilege{
-			{
-				ID:            uuid.Must(uuid.NewV4()),
-				PrivilegeType: roles.PrivilegeTypeSupervisor,
-				PrivilegeName: "Supervisor",
-				CreatedAt:     time.Now(),
-				UpdatedAt:     time.Now(),
-			},
-		}
+		mockPrivileges := roles.Privileges{}
 
 		mockUserRoleAssociator.On(
 			"UpdateUserRoles",
@@ -1045,21 +1054,31 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 			mock.Anything,
 		).Return(nil, nil, nil).Once()
 
-		userPrivilegeAssociator.On(
+		privilegeFetcher.On(
 			"FetchPrivilegesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockPrivileges, nil)
+
 		mockRoleAssociator.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
 
+		notificationSender := &notificationMocks.NotificationSender{}
+
+		notificationSender.On("SendNotification", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(nil)
+
+		suiteHandler := suite.HandlerConfig()
+		suiteHandler.SetNotificationSender(notificationSender)
+
 		handler := UpdateRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suiteHandler,
+			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,
+			privilegeFetcher,
 			mockUserRoleAssociator,
 			mockRoleAssociator,
 		}
@@ -1068,9 +1087,8 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 		suite.IsType(&requestedofficeuserop.UpdateRequestedOfficeUserOK{}, response)
 		okResponse := response.(*requestedofficeuserop.UpdateRequestedOfficeUserOK)
 		suite.Equal(officeUser.ID.String(), okResponse.Payload.ID.String())
-		suite.Len(okResponse.Payload.Privileges, 1)
-		suite.Equal(supervisorPrivilegeName, okResponse.Payload.Privileges[0].PrivilegeName)
-		suite.Equal(supervisorPrivilegeType, okResponse.Payload.Privileges[0].PrivilegeType)
+		suite.Empty(okResponse.Payload.Privileges)
+		notificationSender.AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 }
 
@@ -1114,8 +1132,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
 		mockRoleAssociator := &mocks.RoleAssociator{}
+		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
+		privilegeFetcher := &mocks.PrivilegeAssociator{}
 
 		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", officeUserID)),
@@ -1131,6 +1151,11 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			},
 			OfficeUserID: strfmt.UUID(officeUserID.String()),
 		}
+
+		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(requestedOfficeUser, nil, nil).Once()
 
 		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1162,10 +1187,18 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			mock.Anything,
 		).Return(mockRoles, nil)
 
+		privilegeFetcher.On(
+			"FetchPrivilegesForUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(roles.Privileges{}, nil)
+
 		handler := UpdateRequestedOfficeUserHandler{
 			suite.HandlerConfig(),
+			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,
+			privilegeFetcher,
 			mockUserRoleAssociator,
 			mockRoleAssociator,
 		}
@@ -1220,8 +1253,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
 		mockRoleAssociator := &mocks.RoleAssociator{}
+		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
+		privilegeFetcher := &mocks.PrivilegeAssociator{}
 
 		status := "APPROVED"
 		email := "example@example.com"
@@ -1248,6 +1283,11 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 
 		defer goth.ClearProviders()
 		goth.UseProviders(provider)
+
+		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(requestedOfficeUser, nil, nil).Once()
 
 		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1279,10 +1319,18 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			mock.Anything,
 		).Return(mockRoles, nil)
 
+		privilegeFetcher.On(
+			"FetchPrivilegesForUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(roles.Privileges{}, nil)
+
 		handler := UpdateRequestedOfficeUserHandler{
 			suite.HandlerConfig(),
+			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,
+			privilegeFetcher,
 			mockUserRoleAssociator,
 			mockRoleAssociator,
 		}
@@ -1330,8 +1378,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
 		mockRoleAssociator := &mocks.RoleAssociator{}
+		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
+		privilegeFetcher := &mocks.PrivilegeAssociator{}
 
 		status := "APPROVED"
 		email := "example@example.com"
@@ -1358,6 +1408,11 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 
 		defer goth.ClearProviders()
 		goth.UseProviders(provider)
+
+		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(requestedOfficeUser, nil, nil).Once()
 
 		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1389,10 +1444,18 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			mock.Anything,
 		).Return(mockRoles, nil)
 
+		privilegeFetcher.On(
+			"FetchPrivilegesForUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(roles.Privileges{}, nil)
+
 		handler := UpdateRequestedOfficeUserHandler{
 			suite.HandlerConfig(),
+			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,
+			privilegeFetcher,
 			mockUserRoleAssociator,
 			mockRoleAssociator,
 		}
