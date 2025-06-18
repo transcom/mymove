@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { func } from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 
-import RequestAccountView from './RequestAccountView';
+import styles from './RequestAccount.module.scss';
 
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAccountForm';
 import { createOfficeAccountRequest } from 'services/ghcApi';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes } from 'constants/routes';
 import { useRolesPrivilegesQueriesOfficeApp } from 'hooks/queries';
 import { setShowLoadingSpinner } from 'store/general/actions';
@@ -20,7 +23,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
 
   useEffect(() => {
     if (isLoading) {
-      dispatch(setShowLoadingSpinner(true, 'Loading...'));
+      dispatch(setShowLoadingSpinner(true, null));
     } else {
       dispatch(setShowLoadingSpinner(false, null));
     }
@@ -123,14 +126,37 @@ export const RequestAccount = ({ setFlashMessage }) => {
   }
 
   return (
-    <RequestAccountView
-      serverError={serverError}
-      onCancel={handleCancel}
-      onSubmit={handleSubmit}
-      initialValues={initialValues}
-      rolesWithPrivs={result.rolesWithPrivs}
-      privileges={result.privileges}
-    />
+    <GridContainer>
+      <NotificationScrollToTop dependency={serverError} />
+
+      {serverError && (
+        <Grid row>
+          <Alert
+            data-testid="alert2"
+            type="error"
+            headingLevel="h4"
+            heading="An error occurred"
+            className={styles.error}
+          >
+            {serverError}
+          </Alert>
+        </Grid>
+      )}
+      <Grid row>
+        <Grid col desktop={{ col: 8 }} className={styles.formContainer}>
+          <RequestAccountForm
+            onCancel={handleCancel}
+            onSubmit={handleSubmit}
+            Add
+            commentMore
+            actions
+            initialValues={initialValues}
+            rolesWithPrivs={result.rolesWithPrivs}
+            privileges={result.privileges}
+          />
+        </Grid>
+      </Grid>
+    </GridContainer>
   );
 };
 
