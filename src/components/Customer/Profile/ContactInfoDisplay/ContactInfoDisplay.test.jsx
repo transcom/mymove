@@ -23,12 +23,6 @@ describe('ContactInfoDisplay component', () => {
       city: 'El Paso',
       state: 'TX',
       postalCode: '79912',
-      country: {
-        code: 'US',
-        name: 'UNITED STATES',
-        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
-      },
-      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     backupMailingAddress: {
       streetAddress1: '448 Washington Blvd NE',
@@ -37,12 +31,6 @@ describe('ContactInfoDisplay component', () => {
       city: 'El Paso',
       state: 'TX',
       postalCode: '79936',
-      country: {
-        code: 'US',
-        name: 'UNITED STATES',
-        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
-      },
-      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     backupContact: {
       name: 'Gabriela Sáenz Perez',
