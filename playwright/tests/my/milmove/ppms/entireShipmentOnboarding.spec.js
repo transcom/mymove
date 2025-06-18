@@ -7,8 +7,6 @@
 // @ts-check
 import { expect, test, forEachViewport, CustomerPpmPage } from './customerPpmTestFixture';
 
-const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
-
 /**
  * @param {string} dateString
  */
@@ -130,51 +128,6 @@ test.describe('About Form Date flow', () => {
 });
 
 test.describe('Entire PPM onboarding flow', () => {
-  /** @type {CustomerPpmOnboardingPage} */
-  let customerPpmOnboardingPage;
-
-  forEachViewport(async ({ isMobile }) => {
-    test.beforeEach(async ({ customerPpmPage }) => {
-      const move = await customerPpmPage.testHarness.buildDraftMoveWithPPMWithDepartureDate();
-      customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
-      await customerPpmOnboardingPage.signInForPPMWithMove(move);
-    });
-
-    test('flows through happy path for existing shipment', async () => {
-      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-      await customerPpmOnboardingPage.submitsDateAndLocation();
-      await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
-      await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
-      await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
-      await customerPpmOnboardingPage.navigateToAgreementAndSign();
-      await customerPpmOnboardingPage.submitMove();
-      await customerPpmOnboardingPage.verifyManagePPMStepExistsAndBtnIsDisabled();
-    });
-
-    test('happy path with edits and backs', async () => {
-      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-
-      await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();
-
-      await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
-      await customerPpmOnboardingPage.verifyEstimatedWeightsAndProGear();
-
-      await customerPpmOnboardingPage.verifyShipmentSpecificInfoOnEstimatedIncentivePage();
-      await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
-
-      await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
-
-      await customerPpmOnboardingPage.navigateToAgreementAndSign();
-
-      await customerPpmOnboardingPage.submitMove();
-      await customerPpmOnboardingPage.verifyManagePPMStepExistsAndBtnIsDisabled();
-    });
-  });
-});
-
-test.describe('(MultiMove) Entire PPM onboarding flow', () => {
-  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 

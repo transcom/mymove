@@ -19,6 +19,8 @@ export class PpmPage extends ServiceCounselorPage {
    * @param {boolean} [options.hasProGear=false]
    * @param {string} [options.proGearWeight=1000]
    * @param {string} [options.spouseProGearWeight=500]
+   * @param {boolean} [options.hasGunSafe=false]
+   * @param {string} [options.gunSafeWeight=400]
    *
    * @returns Promise<void>
    */
@@ -28,6 +30,8 @@ export class PpmPage extends ServiceCounselorPage {
       hasProGear = false,
       proGearWeight = '1000',
       spouseProGearWeight = '500',
+      hasGunSafe = false,
+      gunSafeWeight = '400',
     } = options;
 
     await this.page.locator('input[name="estimatedWeight"]').clear();
@@ -39,6 +43,11 @@ export class PpmPage extends ServiceCounselorPage {
       await this.page.locator('input[name="spouseProGearWeight"]').fill(spouseProGearWeight);
     } else {
       await this.page.locator('label[for="hasProGearNo"]').click();
+    }
+
+    if (hasGunSafe) {
+      await this.page.locator('label[for="hasGunSafeYes"]').click();
+      await this.page.locator('input[name="gunSafeWeight"]').fill(gunSafeWeight);
     }
   }
 

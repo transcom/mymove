@@ -20,6 +20,7 @@ function formatDate(dateString) {
 
   return `${dayFormatted} ${monthFormatted} ${yearFormatted}`;
 }
+const gunSafeEnabled = process.env.FEATURE_FLAG_GUN_SAFE;
 
 test.describe('Services counselor user', () => {
   test.beforeEach(async ({ ppmPage }) => {
@@ -138,6 +139,48 @@ test.describe('Services counselor user', () => {
     await expect(shipmentContainer.locator('[data-testid="counselorRemarks"]')).toContainText(
       'Added correct incentive',
     );
+  });
+
+  test('is able to edit a PPM shipment with gun safe', async ({ page, ppmPage }) => {
+    test.skip(gunSafeEnabled === 'false', 'Skip if Gun Safe FF is disabled.');
+
+    const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
+    await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
+    await expect(shipmentContainer.locator('[data-testid="gunSafeWeight"]')).toContainText('No');
+    // View existing shipment
+    await page.locator('[data-testid="ShipmentContainer"] .usa-button').click();
+
+    await page.locator('label[for="hasGunSafeYes"]').click();
+    await page.locator('input[name="gunSafeWeight"]').fill('200');
+    await expect(
+      page.getByText(
+        'The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.',
+      ),
+    ).toBeVisible();
+    await ppmPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
+
+    // Submit page 1 of form
+    await page.locator('[data-testid="submitForm"]').click();
+    await ppmPage.waitForLoading();
+
+    // Verify estimated incentive
+    await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();
+
+    // Update page 2
+    await ppmPage.fillOutIncentiveAndAdvance();
+    await page.locator('[data-testid="counselor-remarks"]').fill('Increased incentive to max');
+    await page.locator('[data-testid="counselor-remarks"]').blur();
+
+    // Submit page 2 of form
+    await page.locator('[data-testid="submitForm"]').click();
+    await ppmPage.waitForLoading();
+
+    // Expand details and verify information
+    await expect(page.getByText('Your changes were saved.')).toBeVisible();
+    await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
+
+    await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
+    await expect(shipmentContainer.locator('[data-testid="gunSafeWeight"]')).toContainText('Yes, 200 lbs');
   });
 });
 
