@@ -34,10 +34,12 @@ test.describe('Mobile Home shipment', () => {
     await expect(page.getByTestId('tag')).toContainText('Mobile Home');
 
     await expect(page.getByText('Pickup info')).toBeVisible();
-    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred pickup date').fill(pickupDate);
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred delivery date').fill(deliveryDate);
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByRole('button', { name: 'Save & Continue' }).click();
     await customerPage.waitForPage.reviewShipments();
@@ -76,10 +78,12 @@ test.describe('Mobile Home shipment', () => {
     await expect(page.getByTestId('tag')).toContainText('Mobile Home');
 
     await expect(page.getByText('Pickup info')).toBeVisible();
-    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred pickup date').fill(pickupDate);
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred delivery date').fill(deliveryDate);
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByRole('button', { name: 'Save & Continue' }).click();
     await customerPage.waitForPage.reviewShipments();

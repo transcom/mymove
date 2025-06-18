@@ -13,6 +13,12 @@ const defaultProps = {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '10001',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       destinationAddress: {
         streetAddress1: '813 S 129th St',
@@ -20,6 +26,12 @@ const defaultProps = {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '10002',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       expectedDepartureDate: '2022-07-04',
       estimatedWeight: 3456,
@@ -40,6 +52,12 @@ const zeroIncentiveProps = {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '10001',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       destinationAddress: {
         streetAddress1: '813 S 129th St',
@@ -47,6 +65,12 @@ const zeroIncentiveProps = {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '10002',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       expectedDepartureDate: '2022-07-04',
       estimatedWeight: 3456,
@@ -67,6 +91,12 @@ const optionalSecondaryProps = {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '10001',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       destinationAddress: {
         streetAddress1: '813 S 129th St',
@@ -74,6 +104,12 @@ const optionalSecondaryProps = {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '10002',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       secondaryPickupAddress: {
         streetAddress1: '813 S 129th St',
@@ -81,6 +117,12 @@ const optionalSecondaryProps = {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '10003',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       secondaryDestinationAddress: {
         streetAddress1: '814 S 129th St',
@@ -88,6 +130,12 @@ const optionalSecondaryProps = {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '10004',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       hasSecondaryPickupAddress: true,
       hasSecondaryDestinationAddress: true,

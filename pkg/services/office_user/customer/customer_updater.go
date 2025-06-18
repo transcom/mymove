@@ -46,6 +46,9 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 				if residentialAddress.UsPostRegionCityID != nil {
 					existingCustomer.ResidentialAddress.UsPostRegionCityID = residentialAddress.UsPostRegionCityID
 				}
+				if residentialAddress.CountryId != nil {
+					existingCustomer.ResidentialAddress.CountryId = residentialAddress.CountryId
+				}
 			} else {
 				newResidentialAddress := models.Address{
 					StreetAddress1: residentialAddress.StreetAddress1,
@@ -98,6 +101,9 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 				}
 				if backupAddress.UsPostRegionCityID != nil {
 					existingCustomer.BackupMailingAddress.UsPostRegionCityID = backupAddress.UsPostRegionCityID
+				}
+				if backupAddress.CountryId != nil {
+					existingCustomer.BackupMailingAddress.CountryId = backupAddress.CountryId
 				}
 			} else {
 				newBackupAddress := models.Address{

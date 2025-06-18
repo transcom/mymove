@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
@@ -179,6 +180,35 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 			if verrs, err = h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
+
+			/** Feature Flag - **/
+			featureFlagName := "oconus_city_finder"
+			countrySelectOn := false
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+			} else {
+				countrySelectOn = flag.Match
+			}
+			// If country search is turned off set address country ID to default(US).
+			if !countrySelectOn {
+				country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+				if err != nil {
+					appCtx.Logger().Error("Cannot set default country id for address", zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				if serviceMember.ResidentialAddress != nil {
+					if serviceMember.ResidentialAddress.CountryId.IsNil() || serviceMember.ResidentialAddress.CountryId == &uuid.Nil {
+						serviceMember.ResidentialAddress.CountryId = &country.ID
+					}
+				}
+				if serviceMember.BackupMailingAddress != nil {
+					if serviceMember.BackupMailingAddress.CountryId.IsNil() || serviceMember.BackupMailingAddress.CountryId == &uuid.Nil {
+						serviceMember.BackupMailingAddress.CountryId = &country.ID
+					}
+				}
+			}
+			/*******************/
 
 			if verrs, err = models.SaveServiceMember(appCtx, &serviceMember); verrs.HasAny() || err != nil {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

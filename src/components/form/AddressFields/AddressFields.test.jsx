@@ -1,19 +1,42 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import { Provider } from 'react-redux';
 
 import { AddressFields } from './AddressFields';
 
 import { configureStore } from 'shared/store';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(true)),
+}));
 
 describe('AddressFields component', () => {
   const mockStore = configureStore({});
 
-  it('renders a legend and all address inputs', () => {
-    const { getByText, getByLabelText, getByTestId } = render(
+  it('renders a legend and all address inputs', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    const initialValues = {
+      address: {
+        streetAddress1: '123 Main St',
+        streetAddress2: 'Apt 3A',
+        city: 'New York',
+        state: 'NY',
+        postalCode: '10002',
+        county: 'NEW YORK',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+    };
+    const { getByText, getByLabelText, getByTestId } = await render(
       <Provider store={mockStore.store}>
-        <Formik>
+        <Formik initialValues={initialValues}>
           <AddressFields legend="Address Form" name="address" />
         </Formik>
       </Provider>,
@@ -24,11 +47,13 @@ describe('AddressFields component', () => {
     expect(getByTestId('City')).toBeInstanceOf(HTMLLabelElement);
     expect(getByTestId('State')).toBeInstanceOf(HTMLLabelElement);
     expect(getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
+    expect(getByLabelText(/Country Lookup/)).toBeInstanceOf(HTMLInputElement);
     expect(getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
   });
 
   describe('with pre-filled values', () => {
-    it('renders a legend and all address inputs', () => {
+    it('renders a legend and all address inputs', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       const initialValues = {
         address: {
           streetAddress1: '123 Main St',
@@ -37,6 +62,12 @@ describe('AddressFields component', () => {
           state: 'NY',
           postalCode: '10002',
           county: 'NEW YORK',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
 
@@ -57,11 +88,17 @@ describe('AddressFields component', () => {
           `${initialValues.address.city}, ${initialValues.address.state} ${initialValues.address.postalCode} (${initialValues.address.county})`,
         ),
       );
+
+      await waitFor(() => {
+        const elements = screen.queryAllByText(/(US)/);
+        expect(elements).toHaveLength(1);
+      });
     });
   });
 
   describe('zip city enabled with pre-filled values', () => {
-    it('renders zip city lookup with info', () => {
+    it('renders zip city lookup with info', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       const initialValues = {
         address: {
           streetAddress1: '123 Main St',
@@ -70,6 +107,12 @@ describe('AddressFields component', () => {
           state: 'NY',
           postalCode: '10002',
           county: 'NEW YORK',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
 
@@ -92,6 +135,11 @@ describe('AddressFields component', () => {
           `${initialValues.address.city}, ${initialValues.address.state} ${initialValues.address.postalCode} (${initialValues.address.county})`,
         ),
       );
+
+      await waitFor(() => {
+        const elements = screen.queryAllByText(/(US)/);
+        expect(elements).toHaveLength(1);
+      });
     });
   });
 });

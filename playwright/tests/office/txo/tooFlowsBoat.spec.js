@@ -20,7 +20,7 @@ test.describe('TOO user', () => {
     await tooFlowPage.waitForLoading();
     await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
 
-    const deliveryDate = new Date().toLocaleDateString('en-US');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
     await page.getByTestId('dropdown').selectOption({ label: 'Boat' });
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
@@ -36,10 +36,11 @@ test.describe('TOO user', () => {
     await page.locator('label[for="isRoadworthyYes"]').click();
     await page.locator('label[for="typeTowAway"]').click();
 
-    await page.locator('#requestedPickupDate').fill(deliveryDate);
+    await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDate);
     await page.locator('#requestedDeliveryDate').blur();
 
     // Save the shipment
@@ -70,7 +71,7 @@ test.describe('TOO user', () => {
     await tooFlowPage.waitForLoading();
     await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
 
-    const deliveryDate = new Date().toLocaleDateString('en-US');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
 
     await expect(page.getByText('Shipment method')).toBeVisible();
     await expect(page.getByTestId('shipmentType')).not.toHaveText('BTA');
@@ -101,10 +102,11 @@ test.describe('TOO user', () => {
     await page.locator('label[for="hasTrailerNo"]').click();
     await page.locator('label[for="typeHaulAway"]').click();
 
-    await page.locator('#requestedPickupDate').fill(deliveryDate);
+    await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('19 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDate);
     await page.locator('#requestedDeliveryDate').blur();
     await page.getByRole('button', { name: 'Save' }).click();
 
@@ -136,7 +138,7 @@ test.describe('TOO user', () => {
     await expect(page.getByTestId('tag')).toHaveText('Boat');
     await page.getByRole('button', { name: 'Delete shipment' }).click();
 
-    await expect(page.getByRole('heading', { level: 3 })).toHaveText('Are you sure?');
+    await expect(page.getByText('Are you sure?')).toBeVisible();
     await page.getByTestId('modal').getByTestId('button').click();
     await officePage.waitForPage.moveDetails();
 

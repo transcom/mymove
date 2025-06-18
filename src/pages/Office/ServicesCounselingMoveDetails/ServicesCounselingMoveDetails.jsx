@@ -780,7 +780,7 @@ const ServicesCounselingMoveDetails = ({
             )}
             {infoSavedAlert && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert headingLevel="h4" slim type={infoSavedAlert.alertType}>
+                <Alert data-testid="infoSavedMessage" headingLevel="h4" slim type={infoSavedAlert.alertType}>
                   {infoSavedAlert.message}
                 </Alert>
               </Grid>

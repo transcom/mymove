@@ -25,7 +25,8 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
     const errorMessage = page.locator('[class="usa-error-message"]');
     await expect(errorMessage).toContainText('Enter a complete date in DD MMM YYYY format (day, month, year).');
     await page.locator('input[name="expectedDepartureDate"]').clear();
-    await page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
     await page.locator('input[name="expectedDepartureDate"]').blur();
     await expect(errorMessage).not.toBeVisible();
 

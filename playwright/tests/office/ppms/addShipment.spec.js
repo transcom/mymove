@@ -7,6 +7,19 @@
 // @ts-check
 import { test, expect } from './ppmTestFixture';
 
+/**
+ * @param {string} dateString
+ */
+function formatDate(dateString) {
+  const [month, day, year] = dateString.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+
+  const dayFormatted = String(date.getDate()).padStart(2, '0');
+  const monthFormatted = date.toLocaleString('default', { month: 'short' });
+  const yearFormatted = date.getFullYear();
+
+  return `${dayFormatted} ${monthFormatted} ${yearFormatted}`;
+}
 const gunSafeEnabled = process.env.FEATURE_FLAG_GUN_SAFE;
 
 test.describe('Services counselor user', () => {
@@ -50,7 +63,9 @@ test.describe('Services counselor user', () => {
     await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     // Verify unexpanded view
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2025');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const formattedDate = formatDate(expectedDeparture);
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText(formattedDate);
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('BEVERLY HILLS');

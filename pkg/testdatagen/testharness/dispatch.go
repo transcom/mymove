@@ -194,6 +194,9 @@ var actionDispatcher = map[string]actionFunc{
 	"SubmittedMoveWithPPMShipmentForSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeSubmittedMoveWithPPMShipmentForSC(appCtx)
 	},
+	"SubmittedMoveWithAerPPMShipmentForSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeSubmittedMoveWithAerPPMShipmentForSC(appCtx)
+	},
 	"ApprovedMoveWithSubmittedPPMShipmentForSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithSubmittedPPMShipmentForSC(appCtx)
 	},

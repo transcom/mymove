@@ -86,7 +86,7 @@ export class PpmPage extends ServiceCounselorPage {
 
   /**
    * @param {Object} options
-   * @param {string} [options.expectedDepartureDate='09 Jun 2025']
+   * @param {string} [options.expectedDepartureDate='today plus 2 days']
    * @param {string} [options.pickupPostalCode=90210]
    * @param {string} [options.secondPickupPostalCode='07003']
    *
@@ -94,8 +94,8 @@ export class PpmPage extends ServiceCounselorPage {
    */
   async fillOutOriginInfo() {
     const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
-
-    await this.page.locator('input[name="expectedDepartureDate"]').fill('09 Jun 2025');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
 
     await this.page.locator('input[name="pickup.address.streetAddress1"]').fill('123 Street');
     await this.page.locator('input[id="pickup.address-input"]').fill('90210');

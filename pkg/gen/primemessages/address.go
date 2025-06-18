@@ -25,12 +25,13 @@ type Address struct {
 	// Required: true
 	City *string `json:"city"`
 
-	// Country
-	//
-	// Two-letter country code
-	// Example: US
-	// Pattern: ^[A-Z]{2}$
-	Country *string `json:"country,omitempty"`
+	// country
+	Country *Country `json:"country,omitempty"`
+
+	// country ID
+	// Example: a56a4180-65aa-42ec-a945-5fd21dec0573
+	// Format: uuid
+	CountryID strfmt.UUID `json:"countryID,omitempty"`
 
 	// County
 	// Example: LOS ANGELES
@@ -95,6 +96,10 @@ func (m *Address) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCountryID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationGbloc(formats); err != nil {
 		res = append(res, err)
 	}
@@ -139,7 +144,26 @@ func (m *Address) validateCountry(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("country", "body", *m.Country, `^[A-Z]{2}$`); err != nil {
+	if m.Country != nil {
+		if err := m.Country.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("country")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("country")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Address) validateCountryID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CountryID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("countryID", "body", "uuid", m.CountryID.String(), formats); err != nil {
 		return err
 	}
 
@@ -398,6 +422,10 @@ func (m *Address) validateUsPostRegionCitiesID(formats strfmt.Registry) error {
 func (m *Address) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCountry(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -405,6 +433,27 @@ func (m *Address) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Address) contextValidateCountry(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Country != nil {
+
+		if swag.IsZero(m.Country) { // not required
+			return nil
+		}
+
+		if err := m.Country.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("country")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("country")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

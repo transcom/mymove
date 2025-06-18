@@ -693,6 +693,13 @@ func MakeHHGMoveWithIntlCratingServiceItemsTOO(appCtx appcontext.AppContext) mod
 		},
 	}, nil)
 
+	// to prevent calls to get distance with INTL zip3s that are not in the DB we set the ScheduledPickupDate to nil
+	MTOShipment.ScheduledPickupDate = nil
+
+	if appCtx.DB() != nil {
+		testdatagen.MustSave(appCtx.DB(), &MTOShipment)
+	}
+
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
@@ -915,6 +922,13 @@ func MakeHHGMoveWithIntlShuttleServiceItemsTOO(appCtx appcontext.AppContext) mod
 			LinkOnly: true,
 		},
 	}, nil)
+
+	// to prevent calls to get distance with INTL zip3s that are not in the DB we set the ScheduledPickupDate to nil
+	MTOShipment.ScheduledPickupDate = nil
+
+	if appCtx.DB() != nil {
+		testdatagen.MustSave(appCtx.DB(), &MTOShipment)
+	}
 
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
@@ -4873,6 +4887,14 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 }
 
 func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.Move {
+	return makeSubmittedMoveWithPPMShipmentForSC(appCtx, models.PPMTypeIncentiveBased)
+}
+
+func MakeSubmittedMoveWithAerPPMShipmentForSC(appCtx appcontext.AppContext) models.Move {
+	return makeSubmittedMoveWithPPMShipmentForSC(appCtx, models.PPMTypeActualExpense)
+}
+
+func makeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, ppmType models.PPMType) models.Move {
 	userUploader := newUserUploader(appCtx)
 
 	userInfo := newUserInfo("customer")
@@ -4888,7 +4910,12 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
-	move := scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+	var move = models.Move{}
+	if ppmType == models.PPMTypeActualExpense {
+		move = scenario.CreateSubmittedMoveWithAerPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+	} else {
+		move = scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
+	}
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -5131,6 +5158,8 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			FinalIncentive:        models.CentPointer(50000000),
 		},
 	}
 
@@ -5206,6 +5235,8 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 			HasReceivedAdvance:    models.BoolPointer(true),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
+			PPMType:               models.PPMTypeActualExpense,
+			FinalIncentive:        models.CentPointer(50000000),
 		},
 	}
 
@@ -5844,6 +5875,8 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+	shipment.Shipment.PickupAddress = &address
+	shipment.Shipment.DestinationAddress = &address
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
 	sitCost := unit.Cents(200000)
@@ -5970,10 +6003,11 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 			ID:                    uuid.Must(uuid.NewV4()),
 			ApprovedAt:            &approvedAt,
 			Status:                models.PPMShipmentStatusNeedsCloseout,
-			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualMoveDate:        models.TimePointer(time.Date(time.Now().Year(), time.March, 16, 0, 0, 0, 0, time.UTC)),
 			HasReceivedAdvance:    models.BoolPointer(true),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
+			FinalIncentive:        models.CentPointer(50000000),
 		},
 	}
 
@@ -7805,7 +7839,18 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 			},
 		},
 	}, nil)
-
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
 	originalDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
@@ -7835,10 +7880,8 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 			},
 		},
 		{
-			Model: models.Move{
-				Status:             models.MoveStatusAPPROVALSREQUESTED,
-				AvailableToPrimeAt: models.TimePointer(time.Now()),
-			},
+			Model:    mto,
+			LinkOnly: true,
 		},
 		{
 			Model: models.MTOShipment{
@@ -9261,6 +9304,7 @@ func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) model
 // MakeInternationalAlaskaHHGMoveForTOO is a function
 // that creates an iHHG move with an Alaska destination address
 func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) models.Move {
+	now := time.Now()
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -9335,7 +9379,7 @@ func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) mod
 		{
 			Model: models.Move{
 				Status:             models.MoveStatusServiceCounselingCompleted,
-				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				AvailableToPrimeAt: &now,
 			},
 		},
 	}, nil)

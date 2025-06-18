@@ -36,9 +36,10 @@ test.describe('Orders', () => {
     await expect(page.getByLabel('Current duty location')).toBeEmpty();
     await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'origin_duty_location');
 
-    const counselingDropdown = page.getByRole('combobox', { name: 'Counseling Office' });
+    const counselingDropdown = page.getByRole('combobox', { name: 'Counseling office' });
+    await counselingDropdown.click(); // we need to click the counseling dropdown before it will start populating results
     await expect(counselingDropdown.locator('option')).toHaveCount(17);
-    await page.getByRole('combobox', { name: 'Counseling Office' }).selectOption({ label: 'PPPO DMO Camp Pendleton' });
+    await page.getByRole('combobox', { name: 'Counseling office' }).selectOption({ label: 'PPPO DMO Camp Pendleton' });
     await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
 
     await customerPage.navigateForward();
@@ -57,9 +58,9 @@ test.describe('Orders', () => {
     // Delete orders in draft status
     await page.getByTestId('stepContainer2').getByRole('button', { name: 'Edit' }).click();
     await customerPage.waitForPage.editOrders();
-    await expect(page.getByText('AF Orders Sample.pdf')).toBeVisible();
+    await expect(page.getByText(/AF Orders Sample-\d{14}\.pdf/)).toBeVisible();
     await page.getByRole('button', { name: 'Delete' }).click();
-    await expect(page.getByText('AF Orders Sample.pdf')).not.toBeVisible();
+    await expect(page.getByText(/AF Orders Sample-\d{14}\.pdf/)).not.toBeVisible();
   });
 });
 
@@ -83,7 +84,7 @@ test.describe('Download Orders', () => {
     await customerPage.uploadFileViaFilepond(filepondContainer, 'secondOrders.pdf');
 
     // Verify filename is a downloadable link
-    await expect(page.getByRole('link', { name: 'secondOrders.pdf' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /secondOrders-\d{14}\.pdf/ })).toBeVisible();
   });
 });
 
@@ -106,6 +107,6 @@ test.describe('Download Amended Orders', () => {
     await customerPage.uploadFileViaFilepond(filepondContainer, 'amendedOrders.pdf');
 
     // Verify filename is a downloadable link
-    await expect(page.getByRole('link', { name: 'amendedOrders.pdf' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /amendedOrders-\d{14}\.pdf/ })).toBeVisible();
   });
 });

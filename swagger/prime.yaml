@@ -2094,6 +2094,37 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /addresses/countries:
+    get:
+      summary: Returns the countries matching the search query
+      description: >
+        Search API using search string that returns list of countries containing
+        its code and name. Will return all if 'search' query string parameter is
+        not available/empty. If 2 chars are provided search will do an exact
+        match on country code and also do a starts with match on country name.
+        If not 2 characters search will do a starts with match on country name.
+      operationId: searchCountries
+      tags:
+        - addresses
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: false
+          description: Search string for countries
+      responses:
+        '200':
+          description: countries matching the search query
+          schema:
+            $ref: '#/definitions/Countries'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   Amendments:
     description: |
@@ -3678,6 +3709,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/VLocation'
+  Countries:
+    type: array
+    items:
+      $ref: '#/definitions/Country'
   ClientError:
     type: object
     properties:
@@ -3692,6 +3727,571 @@ definitions:
       - title
       - detail
       - instance
+  Country:
+    description: Country code and name
+    type: object
+    properties:
+      code:
+        title: Country Code
+        type: string
+        x-display-value:
+          A2: A2
+          AD: AD
+          AE: AE
+          AF: AF
+          AG: AG
+          AI: AI
+          AL: AL
+          AM: AM
+          AN: AN
+          AO: AO
+          AQ: AQ
+          AR: AR
+          AS: AS
+          AT: AT
+          AU: AU
+          AW: AW
+          AZ: AZ
+          BA: BA
+          BB: BB
+          BD: BD
+          BE: BE
+          BF: BF
+          BG: BG
+          BH: BH
+          BI: BI
+          BJ: BJ
+          BL: BL
+          BM: BM
+          BN: BN
+          BO: BO
+          BQ: BQ
+          BR: BR
+          BS: BS
+          BT: BT
+          BV: BV
+          BW: BW
+          BY: BY
+          BZ: BZ
+          CA: CA
+          CC: CC
+          CD: CD
+          CF: CF
+          CG: CG
+          CH: CH
+          CI: CI
+          CK: CK
+          CL: CL
+          CM: CM
+          CN: CN
+          CO: CO
+          CP: CP
+          CR: CR
+          CU: CU
+          CV: CV
+          CW: CW
+          CX: CX
+          CY: CY
+          CZ: CZ
+          DE: DE
+          DG: DG
+          DJ: DJ
+          DK: DK
+          DM: DM
+          DO: DO
+          DZ: DZ
+          EC: EC
+          EE: EE
+          EG: EG
+          ER: ER
+          ES: ES
+          ET: ET
+          FI: FI
+          FJ: FJ
+          FK: FK
+          FM: FM
+          FO: FO
+          FR: FR
+          GA: GA
+          GB: GB
+          GD: GD
+          GE: GE
+          GF: GF
+          GG: GG
+          GH: GH
+          GI: GI
+          GL: GL
+          GM: GM
+          GN: GN
+          GP: GP
+          GQ: GQ
+          GR: GR
+          GS: GS
+          GT: GT
+          GU: GU
+          GW: GW
+          GY: GY
+          HK: HK
+          HM: HM
+          HN: HN
+          HR: HR
+          HT: HT
+          HU: HU
+          ID: ID
+          IE: IE
+          IL: IL
+          IM: IM
+          IN: IN
+          IO: IO
+          IQ: IQ
+          IR: IR
+          IS: IS
+          IT: IT
+          JE: JE
+          JM: JM
+          JO: JO
+          JP: JP
+          KE: KE
+          KG: KG
+          KH: KH
+          KI: KI
+          KM: KM
+          KN: KN
+          KP: KP
+          KR: KR
+          KW: KW
+          KY: KY
+          KZ: KZ
+          LA: LA
+          LB: LB
+          LC: LC
+          LI: LI
+          LK: LK
+          LR: LR
+          LS: LS
+          LT: LT
+          LV: LV
+          LY: LY
+          MA: MA
+          MD: MD
+          ME: ME
+          MF: MF
+          MG: MG
+          MH: MH
+          MK: MK
+          ML: ML
+          MM: MM
+          MN: MN
+          MO: MO
+          MP: MP
+          MQ: MQ
+          MS: MS
+          MT: MT
+          MU: MU
+          MV: MV
+          MW: MW
+          MY: MY
+          MZ: MZ
+          NA: NA
+          NC: NC
+          NE: NE
+          NG: NG
+          NL: NL
+          'NO': 'NO'
+          NP: NP
+          NU: NU
+          NZ: NZ
+          OM: OM
+          PA: PA
+          PF: PF
+          PG: PG
+          PH: PH
+          PL: PL
+          PM: PM
+          PN: PN
+          PR: PR
+          PW: PW
+          PY: PY
+          QA: QA
+          QM: QM
+          QS: QS
+          QU: QU
+          QW: QW
+          QX: QX
+          QZ: QZ
+          RO: RO
+          RS: RS
+          RW: RW
+          SA: SA
+          SB: SB
+          SC: SC
+          SD: SD
+          SE: SE
+          SG: SG
+          SH: SH
+          SI: SI
+          SK: SK
+          SM: SM
+          SN: SN
+          SO: SO
+          SR: SR
+          SS: SS
+          ST: ST
+          SV: SV
+          SX: SX
+          SZ: SZ
+          TC: TC
+          TD: TD
+          TF: TF
+          TH: TH
+          TJ: TJ
+          TK: TK
+          TN: TN
+          TO: TO
+          TR: TR
+          TT: TT
+          TV: TV
+          TW: TW
+          UA: UA
+          UG: UG
+          US: US
+          UY: UY
+          VA: VA
+          VC: VC
+          VG: VG
+          VI: VI
+          VN: VN
+          VU: VU
+          WS: WS
+          XA: XA
+          XB: XB
+          XC: XC
+          XD: XD
+          XE: XE
+          XG: XG
+          XH: XH
+          XJ: XJ
+          XK: XK
+          XL: XL
+          XM: XM
+          XP: XP
+          XQ: XQ
+          XR: XR
+          XS: XS
+          XU: XU
+          XV: XV
+          XW: XW
+          YE: YE
+          YT: YT
+          ZA: ZA
+          ZM: ZM
+          LU: LU
+          EH: EH
+          MC: MC
+          ZW: ZW
+          VE: VE
+          WF: WF
+          XT: XT
+          MR: MR
+          MX: MX
+          NF: NF
+          NI: NI
+          NR: NR
+          PE: PE
+          PK: PK
+          PT: PT
+          RE: RE
+          RU: RU
+          SL: SL
+          SY: SY
+          TG: TG
+          TL: TL
+          TM: TM
+          TZ: TZ
+          UZ: UZ
+        enum:
+          - A2
+          - AD
+          - AE
+          - AF
+          - AG
+          - AI
+          - AL
+          - AM
+          - AN
+          - AO
+          - AQ
+          - AR
+          - AS
+          - AT
+          - AU
+          - AW
+          - AZ
+          - BA
+          - BB
+          - BD
+          - BE
+          - BF
+          - BG
+          - BH
+          - BI
+          - BJ
+          - BL
+          - BM
+          - BN
+          - BO
+          - BQ
+          - BR
+          - BS
+          - BT
+          - BV
+          - BW
+          - BY
+          - BZ
+          - CA
+          - CC
+          - CD
+          - CF
+          - CG
+          - CH
+          - CI
+          - CK
+          - CL
+          - CM
+          - CN
+          - CO
+          - CP
+          - CR
+          - CU
+          - CV
+          - CW
+          - CX
+          - CY
+          - CZ
+          - DE
+          - DG
+          - DJ
+          - DK
+          - DM
+          - DO
+          - DZ
+          - EC
+          - EE
+          - EG
+          - ER
+          - ES
+          - ET
+          - FI
+          - FJ
+          - FK
+          - FM
+          - FO
+          - FR
+          - GA
+          - GB
+          - GD
+          - GE
+          - GF
+          - GG
+          - GH
+          - GI
+          - GL
+          - GM
+          - GN
+          - GP
+          - GQ
+          - GR
+          - GS
+          - GT
+          - GU
+          - GW
+          - GY
+          - HK
+          - HM
+          - HN
+          - HR
+          - HT
+          - HU
+          - ID
+          - IE
+          - IL
+          - IM
+          - IN
+          - IO
+          - IQ
+          - IR
+          - IS
+          - IT
+          - JE
+          - JM
+          - JO
+          - JP
+          - KE
+          - KG
+          - KH
+          - KI
+          - KM
+          - KN
+          - KP
+          - KR
+          - KW
+          - KY
+          - KZ
+          - LA
+          - LB
+          - LC
+          - LI
+          - LK
+          - LR
+          - LS
+          - LT
+          - LV
+          - LY
+          - MA
+          - MD
+          - ME
+          - MF
+          - MG
+          - MH
+          - MK
+          - ML
+          - MM
+          - MN
+          - MO
+          - MP
+          - MQ
+          - MS
+          - MT
+          - MU
+          - MV
+          - MW
+          - MY
+          - MZ
+          - NA
+          - NC
+          - NE
+          - NG
+          - NL
+          - 'NO'
+          - NP
+          - NU
+          - NZ
+          - OM
+          - PA
+          - PF
+          - PG
+          - PH
+          - PL
+          - PM
+          - PN
+          - PR
+          - PW
+          - PY
+          - QA
+          - QM
+          - QS
+          - QU
+          - QW
+          - QX
+          - QZ
+          - RO
+          - RS
+          - RW
+          - SA
+          - SB
+          - SC
+          - SD
+          - SE
+          - SG
+          - SH
+          - SI
+          - SK
+          - SM
+          - SN
+          - SO
+          - SR
+          - SS
+          - ST
+          - SV
+          - SX
+          - SZ
+          - TC
+          - TD
+          - TF
+          - TH
+          - TJ
+          - TK
+          - TN
+          - TO
+          - TR
+          - TT
+          - TV
+          - TW
+          - UA
+          - UG
+          - US
+          - UY
+          - VA
+          - VC
+          - VG
+          - VI
+          - VN
+          - VU
+          - WS
+          - XA
+          - XB
+          - XC
+          - XD
+          - XE
+          - XG
+          - XH
+          - XJ
+          - XK
+          - XL
+          - XM
+          - XP
+          - XQ
+          - XR
+          - XS
+          - XU
+          - XV
+          - XW
+          - YE
+          - YT
+          - ZA
+          - ZM
+          - LU
+          - EH
+          - MC
+          - ZW
+          - VE
+          - WF
+          - XT
+          - MR
+          - MX
+          - NF
+          - NI
+          - NR
+          - PE
+          - PK
+          - PT
+          - RE
+          - RU
+          - SL
+          - SY
+          - TG
+          - TL
+          - TM
+          - TZ
+          - UZ
+      name:
+        type: string
+        example: UNITED STATES
+        title: Country Name
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
   Address:
     description: A postal address
     type: object
@@ -3835,13 +4435,11 @@ definitions:
         example: '90210'
         pattern: ^(\d{5}([\-]\d{4})?)$
       country:
+        $ref: '#/definitions/Country'
+      countryID:
         type: string
-        title: Country
-        x-nullable: true
-        example: US
-        default: US
-        pattern: ^[A-Z]{2}$
-        description: Two-letter country code
+        format: uuid
+        example: a56a4180-65aa-42ec-a945-5fd21dec0573
       county:
         type: string
         title: County
