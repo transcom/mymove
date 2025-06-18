@@ -82,7 +82,7 @@ import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationCo
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 import { getResponseError } from 'services/internalApi';
-import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentForm = (props) => {
   const {
@@ -1465,13 +1465,10 @@ const ShipmentForm = (props) => {
                         data-testid="ppmTypeSection"
                       >
                         <h3>PPM Type</h3>
-                        {requiredAsteriskMessage}
                         <FormGroup>
                           <div>
                             <Label className={styles.Label} htmlFor="ppmType">
-                              <span>
-                                Indicate the PPM Type <RequiredAsterisk />
-                              </span>
+                              <span>Indicate the PPM Type</span>
                             </Label>
                             <Field
                               as={Radio}
