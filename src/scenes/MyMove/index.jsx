@@ -57,6 +57,7 @@ import SmartCardRedirect from 'shared/SmartCardRedirect/SmartCardRedirect';
 import OktaErrorBanner from 'components/OktaErrorBanner/OktaErrorBanner';
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const CreateAccount = lazy(() => import('pages/CreateAccount/CreateAccount'));
@@ -90,17 +91,17 @@ const AdditionalDocuments = lazy(() => import('pages/MyMove/AdditionalDocuments/
 const PPMFeedback = lazy(() => import('pages/MyMove/PPM/Closeout/Feedback/Feedback'));
 
 const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props }) => {
-  const [multiMoveFeatureFlag, setMultiMoveFeatureFlag] = useState(false);
   const [cacValidatedFeatureFlag, setCacValidatedFeatureFlag] = useState(false);
   const [oktaErrorBanner, setOktaErrorBanner] = useState(false);
+  const [gunSafeEnabled, setGunSafeEnabled] = useState(false);
 
   useEffect(() => {
     loadInternalSchema();
     loadUser();
     initOnboarding();
 
-    isBooleanFlagEnabled('multi_move').then(setMultiMoveFeatureFlag);
     isBooleanFlagEnabled('cac_validated_login').then(setCacValidatedFeatureFlag);
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE).then(setGunSafeEnabled);
 
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('okta_error') === 'true') {
@@ -197,12 +198,8 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
                   {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
 
                   {/* ROOT */}
-                  {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
-                  {multiMoveFeatureFlag ? (
-                    <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
-                  ) : (
-                    <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
-                  )}
+                  {/* Home page will route to dashboard element. */}
+                  <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
 
                   {getWorkflowRoutes(props)}
 
@@ -243,8 +240,12 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
                   <Route end path="/processing-upload" element={<ProcessingUpload />} />
                   <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
                   <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />
-                  <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} element={<GunSafe />} />
-                  <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} element={<GunSafe />} />
+                  {gunSafeEnabled && (
+                    <>
+                      <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} element={<GunSafe />} />
+                      <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} element={<GunSafe />} />
+                    </>
+                  )}
 
                   {/* Errors */}
                   <Route
@@ -280,20 +281,12 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
                   <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
                   <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
                   <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
-
                   {/* auth required */}
                   {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
-
                   {/* ROOT */}
-                  {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
-                  {multiMoveFeatureFlag ? (
-                    <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
-                  ) : (
-                    <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
-                  )}
-
+                  {/* Home page will route to dashboard element. */}
+                  <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
                   {getWorkflowRoutes(props)}
-
                   <Route end path={customerRoutes.MOVE_HOME_PAGE} element={<Home />} />
                   <Route end path={customerRoutes.MOVE_HOME_PATH} element={<MoveHome />} />
                   <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
@@ -335,10 +328,13 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
                   <Route end path="/infected-upload" element={<InfectedUpload />} />
                   <Route end path="/processing-upload" element={<ProcessingUpload />} />
                   <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
-                  <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />
-                  <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} element={<GunSafe />} />
-                  <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} element={<GunSafe />} />
-
+                  <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />\
+                  {gunSafeEnabled && (
+                    <>
+                      <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} element={<GunSafe />} />
+                      <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} element={<GunSafe />} />
+                    </>
+                  )}
                   {/* Errors */}
                   <Route
                     end
@@ -359,7 +355,6 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
                     }
                   />
                   <Route end path="/invalid-permissions" element={<InvalidPermissions />} />
-
                   {/* 404 - user logged in but at unknown route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

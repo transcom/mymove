@@ -77,6 +77,11 @@ describe('EstimatedWeightsProGearForm component', () => {
       expect(screen.queryByText(/Do you have a gun safe that you'll move in this PPM/)).toBeNull();
       expect(screen.queryByTestId('hasGunSafeYes')).not.toBeInTheDocument();
       expect(screen.queryByTestId('hasGunSafeNo')).not.toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Estimate the full weight of your PPM, including everything you plan to move. If you are moving pro-gear in this PPM, include that weight in this estimate.',
+        ),
+      ).toBeInTheDocument();
     });
 
     it('renders blank form on load with gun safe (ff on)', async () => {
@@ -93,6 +98,11 @@ describe('EstimatedWeightsProGearForm component', () => {
       expect(screen.getByTestId('hasGunSafeYes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTestId('hasGunSafeNo')).toBeInstanceOf(HTMLInputElement);
       expect(screen.queryByLabelText(/Estimated weight of your gun safe/)).toBeNull();
+      expect(
+        screen.getByText(
+          'Estimate the full weight of your PPM, including everything you plan to move. If you are moving pro-gear and/or a gun safe in this PPM, include that weight in this estimate.',
+        ),
+      ).toBeInTheDocument();
     });
   });
 

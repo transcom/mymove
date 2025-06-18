@@ -357,6 +357,16 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build iHHG move with iNTS basic accessory service items
+   * for TIO review
+   * eg, INPK
+   * @returns {Promise<Move>}
+   */
+  async buildInternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO() {
+    return this.buildDefault('InternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO');
+  }
+
+  /**
    * Use testharness to build move with NTS for TOO
    * @returns {Promise<Move>}
    */

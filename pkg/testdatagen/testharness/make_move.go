@@ -23,6 +23,7 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
@@ -9407,7 +9408,8 @@ func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) mod
 		},
 		{
 			Model: models.Move{
-				Status: models.MoveStatusServiceCounselingCompleted,
+				Status:             models.MoveStatusServiceCounselingCompleted,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
 			},
 		},
 	}, nil)
@@ -9473,7 +9475,7 @@ func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) mod
 // MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO creates an iHHG move
 // that has been approved by TOO & updated by Prime that has now requested payment for
 // four basic international service items
-func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppContext) models.Move {
+func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppContext, includeNTS bool) models.Move {
 	userUploader := newUserUploader(appCtx)
 
 	islhCost := unit.Cents(71068)
@@ -9549,7 +9551,7 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		{
 			Model: models.Address{
 				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
-				PostalCode: "85004",
+				PostalCode: "90035",
 			},
 		},
 	}, nil)
@@ -9592,6 +9594,57 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 			LinkOnly: true,
 		},
 	}, nil)
+
+	var mtoShipmentNTS models.MTOShipment // Empty unless NTS is included
+	if includeNTS {
+		// Setup NTS shipment
+		storageFacility := factory.BuildStorageFacility(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.StorageFacility{
+					FacilityName: *models.StringPointer("Test Storage Name"),
+					Email:        models.StringPointer("old@email.com"),
+					LotNumber:    models.StringPointer("Test lot number"),
+					Phone:        models.StringPointer("555-555-5555"),
+				},
+			},
+			{
+				Model:    alaskaDestAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		mtoShipmentNTS = factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:             models.MoveStatusAPPROVED,
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
+			},
+			{
+				Model:    shipmentPickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    alaskaDestAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:           models.MarketCodeInternational,
+					Status:               models.MTOShipmentStatusSubmitted,
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
+
+	}
 
 	// Create Releasing Agent
 	agentUserInfo := newUserInfo("agent")
@@ -9649,7 +9702,7 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
 			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format("2006-01-0=2"),
+			Value:   currentTime.Format("2006-01-02"),
 		},
 		{
 			Key:     models.ServiceItemParamNameWeightOriginal,
@@ -9681,6 +9734,64 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 			KeyType: models.ServiceItemParamTypeString,
 			Value:   "Award Year 1",
 		},
+	}
+
+	if includeNTS {
+		// 1.45 is a ref to the untruncated db data
+		ntsFactor := 1.45
+		basicPaymentServiceItemParams = append(basicPaymentServiceItemParams, factory.CreatePaymentServiceItemParams{
+			Key:     models.ServiceItemParamNameNTSPackingFactor,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   strconv.FormatFloat(ntsFactor, 'f', -1, 64),
+		})
+		// Reference date already set previously
+
+		// Create an approved INPK
+		inpk := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					MoveTaskOrderID: mto.ID,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentNTS,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeINPK,
+				},
+			},
+		}, nil)
+
+		// Create a payment request for the approved INPK
+
+		planner := &routemocks.Planner{}
+		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+			planner,
+			ghcrateengine.NewServiceItemPricer(),
+		)
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: mto.ID,
+			SequenceNumber:  2,
+		}
+		paymentServiceItems := []models.PaymentServiceItem{{
+			MTOServiceItemID: inpk.ID,
+			MTOServiceItem:   inpk,
+		}}
+
+		paymentRequest.PaymentServiceItems = paymentServiceItems
+
+		// Create the payment request, this will come with the service params when looked up from the playwright browser
+		_, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
+		if err != nil {
+			log.Fatalf("Error creating INPK payment request: %s", err)
+		}
 	}
 
 	islh := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{

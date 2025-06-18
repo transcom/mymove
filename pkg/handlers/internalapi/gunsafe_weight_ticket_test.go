@@ -13,6 +13,7 @@ import (
 	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	gunsafe "github.com/transcom/mymove/pkg/services/gunsafe_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -21,7 +22,7 @@ import (
 // CREATE TEST
 func (suite *HandlerSuite) TestCreateGunSafeWeightTicketHandler() {
 	// Reusable objects
-	gunSafeCreator := gunsafe.NewOfficeGunSafeWeightTicketCreator()
+	gunSafeCreator := gunsafe.NewCustomerGunSafeWeightTicketCreator()
 
 	type gunSafeCreateSubtestData struct {
 		ppmShipment models.PPMShipment
@@ -109,15 +110,45 @@ func (suite *HandlerSuite) TestCreateGunSafeWeightTicketHandler() {
 
 		suite.IsType(&gunSafeops.CreateGunSafeWeightTicketInternalServerError{}, response)
 	})
+
+	suite.Run("Fails to Create GunSafe Weight Ticket When FF is Toggled OFF - Integration Test", func() {
+		subtestData := makeCreateSubtestData(true)
+
+		gunSafeCreator := gunsafe.NewCustomerGunSafeWeightTicketCreator()
+
+		// Overwrite handler config in order to return false for FF
+		handlerConfig := suite.HandlerConfig()
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		handler := CreateGunSafeWeightTicketHandler{
+			handlerConfig,
+			gunSafeCreator,
+		}
+
+		response := handler.Handle(subtestData.params)
+		suite.IsType(&gunSafeops.CreateGunSafeWeightTicketForbidden{}, response)
+	})
 }
 
 //
-// UPDATE Office test
+// UPDATE test
 //
 
 func (suite *HandlerSuite) TestUpdateGunSafeWeightTicketHandler() {
 	// Reusable objects
-	gunSafeUpdater := gunsafe.NewOfficeGunSafeWeightTicketUpdater()
+	gunSafeUpdater := gunsafe.NewCustomerGunSafeWeightTicketUpdater()
 
 	type gunSafeUpdateSubtestData struct {
 		ppmShipment models.PPMShipment
@@ -260,6 +291,52 @@ func (suite *HandlerSuite) TestUpdateGunSafeWeightTicketHandler() {
 		errResponse := response.(*gunSafeops.UpdateGunSafeWeightTicketInternalServerError)
 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 	})
+
+	suite.Run("UPDATE failure - Fails when FF is toggled OFF", func() {
+		subtestData := makeUpdateSubtestData(true)
+
+		params := subtestData.params
+
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.gunSafe.Document,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		gunSafeDes := "Gun safe desctription"
+		hasWeightTickets := true
+		params.UpdateGunSafeWeightTicket = &internalmessages.UpdateGunSafeWeightTicket{
+			Description:      gunSafeDes,
+			HasWeightTickets: hasWeightTickets,
+			Weight:           handlers.FmtInt64(4000),
+		}
+
+		// Overwrite handler config in order to return false for FF
+		handlerConfig := suite.HandlerConfig()
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		handler := UpdateGunSafeWeightTicketHandler{
+			handlerConfig,
+			gunSafeUpdater,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&gunSafeops.UpdateGunSafeWeightTicketForbidden{}, response)
+	})
 }
 
 // DELETE test
@@ -401,5 +478,36 @@ func (suite *HandlerSuite) TestDeleteGunSafeWeightTicketHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&gunSafeops.DeleteGunSafeWeightTicketInternalServerError{}, response)
+	})
+
+	suite.Run("DELETE failure - Fails to Create GunSafe Weight Ticket When FF is Toggled OFF - Integration Test", func() {
+		subtestData := makeDeleteSubtestData(true)
+
+		// Overwrite handler config in order to return false for FF
+		handlerConfig := suite.HandlerConfig()
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		gunSafeWeightTicketDeleter := gunsafe.NewGunSafeWeightTicketDeleter()
+		handler := DeleteGunSafeWeightTicketHandler{
+			handlerConfig,
+			gunSafeWeightTicketDeleter,
+		}
+
+		params := subtestData.params
+		response := handler.Handle(params)
+
+		suite.IsType(&gunSafeops.DeleteGunSafeWeightTicketForbidden{}, response)
 	})
 }

@@ -1,15 +1,13 @@
 --B-23342 Tae Jung create gunsafe_weight_tickets table for gun safe feature E-06078
---B-23368 Brooklyn Welsh adding the "submitted_has_weight_tickets" and "submitted_weight" columns, need these to stay consistent with other PPM documents
+-- B-23368 Brooklyn Welsh - added "submitted" columns to stay consistent with other PPM documents
 CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	id uuid PRIMARY KEY,
 	ppm_shipment_id uuid NOT NULL
 		CONSTRAINT gunsafe_weight_tickets_ppm_shipment_id_fkey
 	    REFERENCES ppm_shipments,
 	has_weight_tickets bool,
-	submitted_has_weight_tickets bool DEFAULT false,
 	description varchar,
 	weight int CHECK (weight >= 0),
-	submitted_weight int CHECK (weight >= 0),
 	document_id uuid NOT NULL
 	    CONSTRAINT gunsafe_weight_tickets_document_id_fkey
 	    REFERENCES documents,
@@ -19,6 +17,12 @@ CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	updated_at timestamp NOT NULL,
 	deleted_at timestamptz
 );
+
+ALTER TABLE gunsafe_weight_tickets
+ADD COLUMN IF NOT EXISTS submitted_has_weight_tickets bool;
+
+ALTER TABLE gunsafe_weight_tickets
+ADD COLUMN IF NOT EXISTS submitted_weight int CHECK (weight >= 0);
 
 CREATE INDEX IF NOT EXISTS gunsafe_weight_tickets_ppm_shipment_id_idx ON gunsafe_weight_tickets USING hash (ppm_shipment_id);
 CREATE INDEX IF NOT EXISTS gunsafe_weight_tickets_deleted_at_idx ON gunsafe_weight_tickets USING btree (deleted_at);

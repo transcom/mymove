@@ -112,7 +112,7 @@ export function hasCompletedAllProGear(proGear) {
 }
 
 export function isGunSafeComplete(gunSafe) {
-  const hasADocumentUpload = gunSafe.document.uploads.length > 0;
+  const hasADocumentUpload = gunSafe?.document?.uploads?.length > 0;
   return !!(gunSafe.weight && gunSafe.description && hasADocumentUpload);
 }
 
