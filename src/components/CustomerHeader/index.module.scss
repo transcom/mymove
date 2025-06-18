@@ -14,7 +14,10 @@
   padding-top: 13px;
   padding-bottom: 13px;
   @include u-text('white');
-  height: 90px;
+  height: 80px;
+  position: fixed;
+  top: 6.4rem;
+  z-index: 1000;
   .details {
     color: $base-lighter;
   }
