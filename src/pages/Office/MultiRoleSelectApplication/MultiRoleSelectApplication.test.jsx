@@ -63,7 +63,7 @@ describe('MultiRoleSelectApplication component', () => {
     );
 
     expect(await screen.findByText('Role:')).toBeInTheDocument();
-    expect(await screen.findByText(roleLookupValues.services_counselor.name)).toBeInTheDocument();
+    expect(await screen.findByText(roleLookupValues.services_counselor.abbv)).toBeInTheDocument();
   });
 
   it('renders options for each of the user’s roles, and does not render options for roles the user doesn’t have', async () => {
