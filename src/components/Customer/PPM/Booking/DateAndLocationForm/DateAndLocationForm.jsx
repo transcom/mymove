@@ -23,7 +23,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 import LoadingButton from 'components/LoadingButton/LoadingButton';
-import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 let meta = '';
 
@@ -227,11 +227,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         <Fieldset>
                           <legend
                             className="usa-label"
-                            aria-label="Required: Will you add items to your PPM from a second address?"
+                            aria-label="Will you add items to your PPM from a second address?"
                           >
-                            <span required>
-                              Will you add items to your PPM from a second address? <RequiredAsterisk />
-                            </span>
+                            <span>Will you add items to your PPM from a second address?</span>
                           </legend>
 
                           <div className={formStyles.radioGroup}>
@@ -283,11 +281,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <FormGroup>
                             <legend
                               className="usa-label"
-                              aria-label="Required: Will you add items to your PPM from a third address?"
+                              aria-label="Will you add items to your PPM from a third address?"
                             >
-                              <span required>
-                                Will you add items to your PPM from a third address? <RequiredAsterisk />
-                              </span>
+                              <span>Will you add items to your PPM from a third address?</span>
                             </legend>
                             <Fieldset>
                               <div className={formStyles.radioGroup}>
@@ -366,11 +362,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <Fieldset>
                             <legend
                               className="usa-label"
-                              aria-label="Required: Will you deliver part of your PPM to a second address?"
+                              aria-label="Will you deliver part of your PPM to a second address?"
                             >
-                              <span required>
-                                Will you deliver part of your PPM to a second address? <RequiredAsterisk />
-                              </span>
+                              <span>Will you deliver part of your PPM to a second address?</span>
                             </legend>
                             <div className={formStyles.radioGroup}>
                               <Field
@@ -427,11 +421,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <FormGroup>
                             <legend
                               className="usa-label"
-                              aria-label="Required: Will you deliver part of your PPM to a third address?"
+                              aria-label="Will you deliver part of your PPM to a third address?"
                             >
-                              <span required>
-                                Will you deliver part of your PPM to a third address? <RequiredAsterisk />
-                              </span>
+                              <span>Will you deliver part of your PPM to a third address?</span>
                             </legend>
                             <Fieldset>
                               <div className={formStyles.radioGroup}>
@@ -517,12 +509,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
               )}
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Storage</h2>
-                {requiredAsteriskMessage}
                 <Fieldset>
                   <Label htmlFor="hasDeliveryAddress">
-                    <span data-testid="preferredDeliveryAddress">
-                      Do you plan to store items from your PPM? <RequiredAsterisk />
-                    </span>
+                    <span data-testid="preferredDeliveryAddress">Do you plan to store items from your PPM?</span>
                   </Label>
                   <Field
                     as={Radio}
