@@ -371,8 +371,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				}
 
 				isSupervisorPrivilegeRejected := false
-
-				if requestedOfficeUser.UserID != nil && body.Privileges != nil {
+				if requestedOfficeUser.UserID != nil && (body.Privileges != nil || len(body.Privileges) == 0) {
 					updatedPrivileges := privilegesPayloadToModel(body.Privileges)
 					if _, err := h.UserPrivilegeAssociator.UpdateUserPrivileges(txAppCtx, *requestedOfficeUser.UserID, updatedPrivileges); err != nil {
 						txAppCtx.Logger().Error("Error updating user privileges", zap.Error(err))
@@ -383,9 +382,6 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 						isSupervisorPrivilegeRejected = true
 					}
 				}
-				// if priorRequestedOfficeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) && body.Privileges == nil {
-				// 	isSupervisorPrivilegeRejected = true
-				// }
 
 				privileges, err := h.PrivilegeAssociator.FetchPrivilegesForUser(txAppCtx, *requestedOfficeUser.UserID)
 				if err != nil {
