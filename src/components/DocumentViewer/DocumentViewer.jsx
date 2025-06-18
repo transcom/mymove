@@ -139,6 +139,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
       setTimeout(() => {
         setFileStatus(UPLOAD_DOC_STATUS.LOADED);
+        setShowContentError(false);
       }, 2000);
     }
   }, [fileStatus]);
