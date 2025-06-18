@@ -56,7 +56,7 @@ import { isPreceedingAddressComplete } from 'shared/utils';
 import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -549,11 +549,9 @@ class MtoShipmentForm extends Component {
                           <Fieldset legend="Delivery Address">
                             {!isNTSR && (
                               <FormGroup>
-                                <Label htmlFor="hasDeliveryAddress">
-                                  <span data-testid="preferredDeliveryAddress">
-                                    Do you know your delivery address yet? <RequiredAsterisk />
-                                  </span>
-                                </Label>
+                                <legend className="usa-label" htmlFor="hasDeliveryAddress">
+                                  Do you know your delivery address yet?
+                                </legend>
                                 <div className={formStyles.radioGroup} required>
                                   <Field
                                     as={Radio}
