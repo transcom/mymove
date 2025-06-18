@@ -147,3 +147,30 @@ type CheckForLockedMovesAndUnlockHandler interface {
 type MoveAssigner interface {
 	BulkMoveAssignment(appCtx appcontext.AppContext, queueType string, officeUserData []*ghcmessages.BulkAssignmentForUser, movesToAssign models.Moves) (*models.Moves, error)
 }
+
+type CounselingQueueFetcher interface {
+	FetchCounselingQueue(appCtx appcontext.AppContext, ListOrderParams CounselingQueueParams) ([]models.Move, int64, error)
+}
+
+type CounselingQueueParams struct {
+	Branch                 *string
+	CustomerName           *string
+	Edipi                  *string
+	Emplid                 *string
+	Status                 []string
+	Locator                *string
+	Order                  *string
+	OriginDutyLocation     []string
+	SubmittedAt            *time.Time
+	RequestedMoveDate      *string
+	Page                   *int64
+	PerPage                *int64
+	Sort                   *string
+	ViewAsGBLOC            *string
+	CounselingOffice       *string
+	SCAssignedUser         *string
+	HasSafetyPrivilege     *bool
+	OriginDutyLocationName *string
+	UserGbloc              *string
+	RequestedMoveDateTime  *time.Time
+}
