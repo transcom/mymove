@@ -4,8 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import styles from './FinalCloseout.module.scss';
 
 import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
@@ -29,7 +27,6 @@ const FinalCloseout = () => {
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [multiMove, setMultiMove] = useState(false);
   const { moveId, mtoShipmentId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
@@ -37,9 +34,6 @@ const FinalCloseout = () => {
   const selectedMove = useSelector((state) => selectMove(state, moveId));
 
   useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
     getMTOShipmentsForMove(moveId)
       .then((response) => {
         dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
@@ -57,11 +51,7 @@ const FinalCloseout = () => {
   }
 
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
 
   const handleSubmit = (values) => {
@@ -87,11 +77,7 @@ const FinalCloseout = () => {
           setFlashMessage('PPM_SUBMITTED', 'success', 'You submitted documentation for review.', undefined, false),
         );
 
-        if (multiMove) {
-          navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-        } else {
-          navigate(customerRoutes.MOVE_HOME_PAGE);
-        }
+        navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
       })
       .catch((err) => {
         setErrorMessage(getResponseError(err.response, 'Failed to submit PPM documentation due to server error.'));
