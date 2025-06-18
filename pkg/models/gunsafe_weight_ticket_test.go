@@ -64,3 +64,34 @@ func (suite *ModelSuite) TestGunSafeWeightTicketValidation() {
 		})
 	}
 }
+
+func (suite *ModelSuite) TestGunSafeWeightTickets_FilterDeleted() {
+	suite.Run("Filters out tickets that have the DeletedAt field present", func() {
+		now := time.Now()
+		gunSafeTickets := models.GunSafeWeightTickets{
+			models.GunSafeWeightTicket{
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+				DeletedAt: &now,
+			},
+			models.GunSafeWeightTicket{
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+				DeletedAt: &now,
+			},
+			models.GunSafeWeightTicket{
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+
+		filteredTickets := gunSafeTickets.FilterDeleted()
+		suite.Equal(1, len(filteredTickets)) // Should only include the one ticket without the DeletedAt field.
+	})
+
+	suite.Run("Returns back immediately if an empty object is passed in", func() {
+		gunSafeTickets := models.GunSafeWeightTickets{}
+		filteredTickets := gunSafeTickets.FilterDeleted()
+		suite.Equal(0, len(filteredTickets))
+	})
+}

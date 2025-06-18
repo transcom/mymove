@@ -499,17 +499,7 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 
 				/** Feature Flag - Gun Safe **/
 				if !isGunSafeFeatureOn {
-					if len(move.MTOShipments) > 0 {
-						for _, shipment := range move.MTOShipments {
-							shipment.PPMShipment.GunSafeWeight = nil
-							shipment.PPMShipment.GunSafeWeightTickets = nil
-							shipment.PPMShipment.HasGunSafe = nil
-						}
-					}
-					move.Orders.Entitlement.GunSafeWeight = 0
-					if move.Orders.Entitlement.WeightAllotted != nil {
-						move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
-					}
+					nilOutGunSafeItems(&move)
 				}
 
 				if latestMove.CreatedAt == nilTime {
@@ -564,17 +554,7 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 
 					/** Feature Flag - Gun Safe **/
 					if !isGunSafeFeatureOn {
-						if len(move.MTOShipments) > 0 {
-							for _, shipment := range move.MTOShipments {
-								shipment.PPMShipment.GunSafeWeight = nil
-								shipment.PPMShipment.GunSafeWeightTickets = nil
-								shipment.PPMShipment.HasGunSafe = nil
-							}
-						}
-						move.Orders.Entitlement.GunSafeWeight = 0
-						if move.Orders.Entitlement.WeightAllotted != nil {
-							move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
-						}
+						nilOutGunSafeItems(&move)
 					}
 					/** End of Feature Flag Block **/
 
@@ -659,4 +639,18 @@ func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStore
 		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload, nil
+}
+
+func nilOutGunSafeItems(move *models.Move) {
+	if len(move.MTOShipments) > 0 {
+		for _, shipment := range move.MTOShipments {
+			shipment.PPMShipment.GunSafeWeight = nil
+			shipment.PPMShipment.GunSafeWeightTickets = nil
+			shipment.PPMShipment.HasGunSafe = nil
+		}
+	}
+	move.Orders.Entitlement.GunSafeWeight = 0
+	if move.Orders.Entitlement.WeightAllotted != nil {
+		move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
+	}
 }
