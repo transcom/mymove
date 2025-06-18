@@ -302,7 +302,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		response := handler.Handle(params)
 		resp, ok := response.(*mtoshipmentops.UpdateMTOShipmentAddressConflict)
 		suite.True(ok, "Expected response to be of type UpdateMTOShipmentAddressConflict")
-		suite.Contains(*resp.Payload.Detail, "This shipment is approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address")
+		suite.Contains(*resp.Payload.Detail, "This shipment has already been approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address")
 	})
 
 	suite.Run("Fail - Conflict due to updating pickup address on NTS-Release shipment", func() {

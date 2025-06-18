@@ -4210,6 +4210,8 @@ definitions:
       - SITScheduleOrigin
       - SITServiceAreaDest
       - SITServiceAreaOrigin
+      - SITRateAreaDest
+      - SITRateAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated
@@ -5250,6 +5252,7 @@ definitions:
           - CANCELED
           - DIVERSION_REQUESTED
           - TERMINATION_FOR_CAUSE
+          - APPROVALS_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:

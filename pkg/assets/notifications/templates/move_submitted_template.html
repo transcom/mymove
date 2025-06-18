@@ -37,7 +37,13 @@
   if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the
   weight moved, up to HomeSafe’s weight estimate plus 10%.
 </p>
-
+{{ if .IsGunSafeFeatureOn }}
+<p>
+  If you are doing a Personally Procured Move (PPM) shipment: The government authorizes the shipment of a gun safe up to 500 lbs.
+  This is not charged against the authorized weight entitlement. The weight entitlement is charged for any weight over 500 lbs.
+  The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.
+</p>
+{{ end }}
 <h4>Next Steps for your Government-arranged Shipment(s):</h4>
 {{ if .ProvidesGovernmentCounseling }}
 <ul>

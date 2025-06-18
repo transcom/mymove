@@ -99,6 +99,8 @@ const (
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 	// MTOShipmentTerminatedForCause indicates that a shipment has been terminated for cause by a COR
 	MTOShipmentStatusTerminatedForCause MTOShipmentStatus = "TERMINATED_FOR_CAUSE"
+	// MoveStatusAPPROVALSREQUESTED is the approvals requested status type for MTO Shipments
+	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS_REQUESTED"
 )
 
 // LOAType represents the possible TAC and SAC types for a mto shipment
@@ -216,6 +218,7 @@ func (m *MTOShipment) Validate(db *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusCanceled),
 		string(MTOShipmentStatusDiversionRequested),
 		string(MTOShipmentStatusTerminatedForCause),
+		string(MTOShipmentStatusApprovalsRequested),
 	}})
 	// Check if the status of the original shipment is terminated
 	if m.ID != uuid.Nil && db != nil {
@@ -503,6 +506,7 @@ func CreateInternationalAccessorialServiceItemsForShipment(db *pop.Connection, s
 // a db stored proc that will handle updating the pricing_estimate columns of basic service items for shipment types:
 // iHHG
 // iUB
+// iNTS
 func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, shipment *MTOShipment, mileage *int) error {
 	err := db.RawQuery("CALL update_service_item_pricing($1, $2)", shipment.ID, mileage).Exec()
 	if err != nil {
@@ -590,4 +594,29 @@ func PrimeCanUpdateDeliveryAddress(shipmentType MTOShipmentType) bool {
 	}
 
 	return isValid
+}
+
+func IsShipmentApprovable(dbShipment MTOShipment) bool {
+	// check if any service items on current shipment still need to be reviewed
+	if dbShipment.MTOServiceItems != nil {
+		for _, serviceItem := range dbShipment.MTOServiceItems {
+			if serviceItem.Status == MTOServiceItemStatusSubmitted {
+				return false
+			}
+		}
+	}
+	// check if all SIT Extensions are reviewed
+	if dbShipment.SITDurationUpdates != nil {
+		for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == SITExtensionStatusPending {
+				return false
+			}
+		}
+	}
+	// check if all Delivery Address updates are reviewed
+	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == ShipmentAddressUpdateStatusRequested {
+		return false
+	}
+
+	return true
 }

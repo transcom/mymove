@@ -357,6 +357,16 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build iHHG move with iNTS basic accessory service items
+   * for TIO review
+   * eg, INPK
+   * @returns {Promise<Move>}
+   */
+  async buildInternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO() {
+    return this.buildDefault('InternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO');
+  }
+
+  /**
    * Use testharness to build move with NTS for TOO
    * @returns {Promise<Move>}
    */
@@ -589,6 +599,22 @@ export class TestHarness {
    */
   async buildApprovedMoveWithPPMProgearWeightTicketOffice() {
     return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicketOffice');
+  }
+
+  /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice');
+  }
+
+  /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2() {
+    return this.buildDefault('ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2');
   }
 
   /**
