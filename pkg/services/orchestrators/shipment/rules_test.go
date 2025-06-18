@@ -38,3 +38,32 @@ func (suite *ShipmentSuite) TestCheckShipmentType() {
 		})
 	}
 }
+
+func (suite *ShipmentSuite) TestCheckShipmentStatus() {
+	suite.Run("checkStatus", func() {
+		testCases := map[models.MTOShipmentStatus]bool{
+			"":                                true,
+			models.MTOShipmentStatusDraft:     true,
+			models.MTOShipmentStatusSubmitted: true,
+			models.MTOShipmentStatusApproved:  true,
+			models.MTOShipmentStatusCancellationRequested: true,
+			models.MTOShipmentStatusDiversionRequested:    true,
+			models.MTOShipmentStatusRejected:              false,
+			models.MTOShipmentStatusCanceled:              false,
+			models.MTOShipmentStatusTerminatedForCause:    false,
+		}
+		for status, allowed := range testCases {
+			suite.Run("status "+string(status), func() {
+				err := checkStatus().Validate(
+					suite.AppContextForTest(),
+					models.MTOShipment{Status: status},
+				)
+				if allowed {
+					suite.Empty(err.Error())
+				} else {
+					suite.NotEmpty(err.Error())
+				}
+			})
+		}
+	})
+}
