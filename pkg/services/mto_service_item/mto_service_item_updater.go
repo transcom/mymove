@@ -577,7 +577,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 			if err != nil {
 				return nil, err
 			}
-			shipment.Status = models.MTOShipmentStatusApproved
 			err = appCtx.DB().RawQuery("UPDATE mto_shipments SET status = ?, approved_date = ? WHERE status = ? AND id = ?", models.MTOShipmentStatusApproved, today, models.MTOShipmentStatusApprovalsRequested, updatedServiceItem.MTOShipmentID).Exec()
 			if err != nil {
 				return nil, err
