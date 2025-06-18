@@ -76,10 +76,15 @@ const Orders = ({ serviceMemberId, updateOrders, orders }) => {
   useEffect(() => {
     const checkFeatureFlags = async () => {
       const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
       setOrderTypesOptions((prevOptions) => {
         const options = { ...prevOptions };
         if (!isWoundedWarriorEnabled) {
           delete options.WOUNDED_WARRIOR;
+        }
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
         }
         return options;
       });
