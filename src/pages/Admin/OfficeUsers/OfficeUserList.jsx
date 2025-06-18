@@ -48,6 +48,16 @@ const transformRowData = (rowData, officeObjects) => {
   return transformedData;
 };
 
+const filterList = [
+  <SearchInput source="search" alwaysOn />,
+  <TextInput label="Email" source="email" />,
+  <TextInput label="Telephone" source="phone" />,
+  <TextInput label="First Name" source="firstName" />,
+  <TextInput label="Last Name" source="lastName" />,
+  <TextInput label="Office" source="office" />,
+  <TextInput label="Active" source="active" placeholder="yes or no" />,
+];
+
 // Overriding the default toolbar for customizations
 const ListActions = () => {
   const { total, resource, sort, filterValues } = useListController();
@@ -78,6 +88,7 @@ const ListActions = () => {
 
   return (
     <TopToolbar>
+      <FilterButton filters={filterList} />
       <CreateButton />
       <ImportOfficeUserButton resource={resource} />
       <ExportButton
@@ -92,23 +103,10 @@ const ListActions = () => {
   );
 };
 
-const filterList = [
-  <SearchInput source="search" alwaysOn />,
-  <TextInput label="Email" source="email" />,
-  <TextInput label="Telephone" source="phone" />,
-  <TextInput label="First Name" source="firstName" />,
-  <TextInput label="Last Name" source="lastName" />,
-  <TextInput label="Office" source="office" />,
-  <TextInput label="Active" source="active" placeholder="yes or no" />,
-];
-
 const SearchFilters = () => (
   <div className={styles.searchContainer}>
     <div className={styles.searchBar}>
       <FilterForm filters={filterList} />
-    </div>
-    <div className={styles.filters}>
-      <FilterButton filters={filterList} />
     </div>
   </div>
 );

@@ -14,14 +14,15 @@ import (
 
 // ReIntlOtherPrice is the ghc rate engine international price
 type ReIntlOtherPrice struct {
-	ID           uuid.UUID  `json:"id" db:"id"`
-	ContractID   uuid.UUID  `json:"contract_id" db:"contract_id"`
-	ServiceID    uuid.UUID  `json:"service_id" db:"service_id"`
-	RateAreaID   uuid.UUID  `json:"rate_area_id" db:"rate_area_id"`
-	IsPeakPeriod bool       `json:"is_peak_period" db:"is_peak_period"`
-	PerUnitCents unit.Cents `json:"per_unit_cents" db:"per_unit_cents"`
-	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at" db:"updated_at"`
+	ID            uuid.UUID  `json:"id" db:"id"`
+	ContractID    uuid.UUID  `json:"contract_id" db:"contract_id"`
+	ServiceID     uuid.UUID  `json:"service_id" db:"service_id"`
+	RateAreaID    uuid.UUID  `json:"rate_area_id" db:"rate_area_id"`
+	IsPeakPeriod  bool       `json:"is_peak_period" db:"is_peak_period"`
+	PerUnitCents  unit.Cents `json:"per_unit_cents" db:"per_unit_cents"`
+	CreatedAt     time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at" db:"updated_at"`
+	IsLess50Miles *bool      `json:"is_less_50_miles" db:"is_less_50_miles"`
 
 	// Associations
 	Contract ReContract `belongs_to:"re_contract" fk_id:"contract_id"`

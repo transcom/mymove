@@ -31,6 +31,20 @@ func (suite *MoveServiceSuite) TestMoveCanceler() {
 		suite.Error(err)
 	})
 
+	suite.Run("fails to cancel move with approvals_requested hhg shipment", func() {
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+
+		move.MTOShipments[0].Status = models.MTOShipmentStatusApprovalsRequested
+		_, err := moveCanceler.CancelMove(suite.AppContextForTest(), move.ID)
+		suite.Error(err)
+	})
+
 	suite.Run("fails to cancel move with close complete ppm shipment", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 

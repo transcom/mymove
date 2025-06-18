@@ -395,6 +395,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 		suite.Nil(err)
 		suite.NotNil(ppmCloseoutObj)
 		suite.NotEmpty(ppmCloseoutObj)
+		suite.NotNil(ppmCloseoutObj.GCCMultiplier)
 
 		// final incentive is updated
 		var updatedPPM models.PPMShipment

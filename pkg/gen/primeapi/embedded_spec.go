@@ -3299,7 +3299,8 @@ func init() {
             "CANCELLATION_REQUESTED",
             "CANCELED",
             "DIVERSION_REQUESTED",
-            "TERMINATION_FOR_CAUSE"
+            "TERMINATION_FOR_CAUSE",
+            "APPROVALS_REQUESTED"
           ],
           "readOnly": true
         },
@@ -4267,6 +4268,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -9001,7 +9004,8 @@ func init() {
             "CANCELLATION_REQUESTED",
             "CANCELED",
             "DIVERSION_REQUESTED",
-            "TERMINATION_FOR_CAUSE"
+            "TERMINATION_FOR_CAUSE",
+            "APPROVALS_REQUESTED"
           ],
           "readOnly": true
         },
@@ -9959,6 +9963,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
