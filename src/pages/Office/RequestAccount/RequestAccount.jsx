@@ -23,7 +23,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
 
   useEffect(() => {
     if (isLoading) {
-      dispatch(setShowLoadingSpinner(true, 'Loading...'));
+      dispatch(setShowLoadingSpinner(true, null));
     } else {
       dispatch(setShowLoadingSpinner(false, null));
     }
