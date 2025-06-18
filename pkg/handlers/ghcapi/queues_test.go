@@ -3347,7 +3347,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesAssignedToFilter() {
 		Status: models.MoveStatusSUBMITTED,
 	}
 
-	move.TOOAssignedID = &officeUser.ID
+	move.TOOTaskOrderAssignedID = &officeUser.ID
 	shipment := models.MTOShipment{
 		Status: models.MTOShipmentStatusSubmitted,
 	}
