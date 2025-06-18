@@ -9449,6 +9449,7 @@ definitions:
         enum:
           - INFECTED
           - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
         readOnly: true
       createdAt:
