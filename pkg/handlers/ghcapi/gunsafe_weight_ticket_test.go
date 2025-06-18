@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestCreateGunSafeWeightTicketHandler() {
 		suite.IsType(&gunsafeops.CreateGunSafeWeightTicketForbidden{}, response)
 	})
 
-	suite.Run("DELETE failure - 404- Create not found", func() {
+	suite.Run("POST failure - 404- Create not found", func() {
 		subtestData := makeCreateSubtestData(true)
 		params := subtestData.params
 
