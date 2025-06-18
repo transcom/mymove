@@ -123,6 +123,8 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     hasProGear: !!ppmShipment.hasProGear,
     proGearWeight: (ppmShipment.proGearWeight || '').toString(),
     spouseProGearWeight: (ppmShipment.spouseProGearWeight || '').toString(),
+    hasGunSafe: !!ppmShipment.hasGunSafe,
+    gunSafeWeight: (ppmShipment.gunSafeWeight || '').toString(),
 
     estimatedIncentive: ppmShipment.estimatedIncentive,
     advanceRequested: ppmShipment.hasRequestedAdvance ?? false,
@@ -299,6 +301,7 @@ export function formatPpmShipmentForAPI(formValues) {
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
+    hasGunSafe: !!formValues.hasGunSafe,
     hasRequestedAdvance: formValues.advanceRequested,
     advanceStatus: formValues.advanceStatus,
     hasSecondaryPickupAddress: formValues.hasSecondaryPickup === 'true',
@@ -349,6 +352,13 @@ export function formatPpmShipmentForAPI(formValues) {
       ...ppmShipmentValues,
       proGearWeight: formValues.proGearWeight ? Number(formValues.proGearWeight) : undefined,
       spouseProGearWeight: formValues.spouseProGearWeight ? Number(formValues.spouseProGearWeight) : undefined,
+    };
+  }
+
+  if (formValues.hasGunSafe) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      gunSafeWeight: formValues.gunSafeWeight ? Number(formValues.gunSafeWeight) : undefined,
     };
   }
 
