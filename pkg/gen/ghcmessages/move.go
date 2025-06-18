@@ -19,8 +19,11 @@ import (
 // swagger:model Move
 type Move struct {
 
-	// s c assigned user
-	SCAssignedUser *AssignedOfficeUser `json:"SCAssignedUser,omitempty"`
+	// s c closeout assigned user
+	SCCloseoutAssignedUser *AssignedOfficeUser `json:"SCCloseoutAssignedUser,omitempty"`
+
+	// s c counseling assigned user
+	SCCounselingAssignedUser *AssignedOfficeUser `json:"SCCounselingAssignedUser,omitempty"`
 
 	// t i o assigned user
 	TIOAssignedUser *AssignedOfficeUser `json:"TIOAssignedUser,omitempty"`
@@ -163,7 +166,11 @@ type Move struct {
 func (m *Move) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateSCAssignedUser(formats); err != nil {
+	if err := m.validateSCCloseoutAssignedUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSCCounselingAssignedUser(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -293,17 +300,36 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Move) validateSCAssignedUser(formats strfmt.Registry) error {
-	if swag.IsZero(m.SCAssignedUser) { // not required
+func (m *Move) validateSCCloseoutAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.SCCloseoutAssignedUser) { // not required
 		return nil
 	}
 
-	if m.SCAssignedUser != nil {
-		if err := m.SCAssignedUser.Validate(formats); err != nil {
+	if m.SCCloseoutAssignedUser != nil {
+		if err := m.SCCloseoutAssignedUser.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("SCAssignedUser")
+				return ve.ValidateName("SCCloseoutAssignedUser")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("SCAssignedUser")
+				return ce.ValidateName("SCCloseoutAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateSCCounselingAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.SCCounselingAssignedUser) { // not required
+		return nil
+	}
+
+	if m.SCCounselingAssignedUser != nil {
+		if err := m.SCCounselingAssignedUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("SCCounselingAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("SCCounselingAssignedUser")
 			}
 			return err
 		}
@@ -749,7 +775,11 @@ func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateSCAssignedUser(ctx, formats); err != nil {
+	if err := m.contextValidateSCCloseoutAssignedUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSCCounselingAssignedUser(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -811,19 +841,40 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 	return nil
 }
 
-func (m *Move) contextValidateSCAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+func (m *Move) contextValidateSCCloseoutAssignedUser(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.SCAssignedUser != nil {
+	if m.SCCloseoutAssignedUser != nil {
 
-		if swag.IsZero(m.SCAssignedUser) { // not required
+		if swag.IsZero(m.SCCloseoutAssignedUser) { // not required
 			return nil
 		}
 
-		if err := m.SCAssignedUser.ContextValidate(ctx, formats); err != nil {
+		if err := m.SCCloseoutAssignedUser.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("SCAssignedUser")
+				return ve.ValidateName("SCCloseoutAssignedUser")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("SCAssignedUser")
+				return ce.ValidateName("SCCloseoutAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateSCCounselingAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SCCounselingAssignedUser != nil {
+
+		if swag.IsZero(m.SCCounselingAssignedUser) { // not required
+			return nil
+		}
+
+		if err := m.SCCounselingAssignedUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("SCCounselingAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("SCCounselingAssignedUser")
 			}
 			return err
 		}

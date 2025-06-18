@@ -82,11 +82,13 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 		"User",
 		"User.Roles",
 		"User.Privileges",
+		"TransportationOfficeAssignments",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
 		Join("roles", "users_roles.role_id = roles.id").
-		Where("transportation_office_id = ?", officeID).
+		Join("transportation_office_assignments", "transportation_office_assignments.id = office_users.id").
+		Where("transportation_office_assignments.transportation_office_id = ?", officeID).
 		Where("role_type = ?", role).
 		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").
@@ -108,13 +110,15 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 		"User",
 		"User.Roles",
 		"User.Privileges",
+		"TransportationOfficeAssignments",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
 		Join("roles", "users_roles.role_id = roles.id").
+		Join("transportation_office_assignments", "transportation_office_assignments.id = office_users.id").
 		LeftJoin("users_privileges", "users.id = users_privileges.user_id").
 		LeftJoin("privileges", "privileges.id = users_privileges.privilege_id").
-		Where("transportation_office_id = ?", officeID).
+		Where("transportation_office_assignments.transportation_office_id = ?", officeID).
 		Where("role_type = ?", role).
 		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").
@@ -135,6 +139,21 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID, queueType string) ([]models.OfficeUserWithWorkload, error) {
 	var officeUsers []models.OfficeUserWithWorkload
 
+	var queueTypeJoin string
+
+	switch queueType {
+	case string(models.QueueTypeCounseling):
+		queueTypeJoin += `(roles.role_type = 'services_counselor' AND moves.sc_counseling_assigned_id = office_users.id)`
+	case string(models.QueueTypeCloseout):
+		queueTypeJoin += `(roles.role_type = 'services_counselor' AND moves.sc_closeout_assigned_id = office_users.id)`
+	case string(models.QueueTypeTaskOrder):
+		queueTypeJoin = `(roles.role_type = 'task_ordering_officer' AND moves.too_assigned_id = office_users.id)`
+	case string(models.QueueTypeDestinationRequest):
+		queueTypeJoin = `(roles.role_type = 'task_ordering_officer' AND moves.too_destination_assigned_id = office_users.id)`
+	case string(models.QueueTypePaymentRequest):
+		queueTypeJoin = `(roles.role_type = 'task_invoicing_officer' AND moves.tio_assigned_id = office_users.id)`
+	}
+
 	query :=
 		`SELECT office_users.id,
 			office_users.first_name,
@@ -149,15 +168,7 @@ func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCt
 		JOIN transportation_offices ON office_users.transportation_office_id = transportation_offices.id
 		LEFT JOIN moves
 			ON (`
-	if queueType == string(models.QueueTypeTaskOrder) {
-		query += `(roles.role_type = 'task_ordering_officer' AND moves.too_assigned_id = office_users.id)`
-	} else if queueType == string(models.QueueTypeDestinationRequest) {
-		query += `(roles.role_type = 'task_ordering_officer' AND moves.too_destination_assigned_id = office_users.id)`
-	} else {
-		query += `
-			(roles.role_type = 'services_counselor' AND moves.sc_assigned_id = office_users.id) OR
-			(roles.role_type = 'task_invoicing_officer' AND moves.tio_assigned_id = office_users.id)`
-	}
+	query += queueTypeJoin
 
 	query += `)
 		WHERE roles.role_type = $1

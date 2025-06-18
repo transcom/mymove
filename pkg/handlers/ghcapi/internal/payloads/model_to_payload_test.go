@@ -2097,57 +2097,9 @@ func (suite *PayloadsSuite) TestCounselingOffices() {
 	})
 }
 
-func (suite *PayloadsSuite) TestGetAssignedUserAndID() {
-	// Create mock users and IDs
-	userTOO := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userTOODestination := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userSC := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	idTOO := uuid.Must(uuid.NewV4())
-	idTOODestination := uuid.Must(uuid.NewV4())
-	idSC := uuid.Must(uuid.NewV4())
-
-	// Create a mock move with assigned users
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				ID:                         uuid.Must(uuid.NewV4()),
-				TOOAssignedUser:            userTOO,
-				TOOAssignedID:              &idTOO,
-				TOODestinationAssignedUser: userTOODestination,
-				TOODestinationAssignedID:   &idTOODestination,
-				SCAssignedUser:             userSC,
-				SCAssignedID:               &idSC,
-			},
-			LinkOnly: true,
-		},
-	}, nil)
-
-	// Define test cases
-	testCases := []struct {
-		name         string
-		role         string
-		queueType    string
-		officeUser   *models.OfficeUser
-		officeUserID *uuid.UUID
-	}{
-		{"TOO assigned user for TaskOrder queue", string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), userTOO, &idTOO},
-		{"TOO assigned user for DestinationRequest queue", string(roles.RoleTypeTOO), string(models.QueueTypeDestinationRequest), userTOODestination, &idTOODestination},
-		{"SC assigned user", string(roles.RoleTypeServicesCounselor), "", userSC, &idSC},
-		{"Unknown role should return nil", "UnknownRole", "", nil, nil},
-		{"TOO with unknown queue should return nil", string(roles.RoleTypeTOO), "UnknownQueue", nil, nil},
-	}
-
-	// Run test cases
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			expectedOfficeUser, expectedOfficeUserID := getAssignedUserAndID(tc.role, tc.queueType, move)
-			suite.Equal(tc.officeUser, expectedOfficeUser)
-			suite.Equal(tc.officeUserID, expectedOfficeUserID)
-		})
-	}
-}
-
 func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
 			Model: models.User{
@@ -2157,6 +2109,19 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 					},
 				},
 			},
+		},
+	}, nil)
+
+	factory.BuildPrimaryTransportationOfficeAssignment(suite.DB(), []factory.Customization{
+		{
+			Model:    transportationOffice,
+			LinkOnly: true,
+		},
+		{
+			Model: models.OfficeUser{
+				ID: officeUser.ID,
+			},
+			LinkOnly: true,
 		},
 	}, nil)
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -2232,7 +2197,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 	suite.Run("successfully attaches approvalRequestTypes to move", func() {
 		moves := models.Moves{}
 		moves = append(moves, move)
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 
 		var empty []string
 		suite.Len(queueMoves, 1)
@@ -2246,7 +2211,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 
 		moves := models.Moves{}
 		moves = append(moves, move)
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
@@ -2262,7 +2227,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 
 		suite.Len(moves[0].MTOServiceItems, 2)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
@@ -2281,7 +2246,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2298,7 +2263,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2309,7 +2274,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2321,7 +2286,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2335,7 +2300,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2346,7 +2311,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2357,7 +2322,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2370,7 +2335,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2386,7 +2351,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2402,7 +2367,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2417,7 +2382,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2430,7 +2395,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2443,7 +2408,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2455,7 +2420,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		moves := models.Moves{}
 		moves = append(moves, move)
 
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 		suite.Len(queueMoves, 1)
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
@@ -2474,7 +2439,7 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 			moves := models.Moves{}
 			moves = append(moves, move)
 
-			queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+			queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), transportationOffice.ID)
 			if status == models.MTOShipmentStatusSubmitted {
 				suite.Len(queueMoves, 1)
 				suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
@@ -2491,11 +2456,26 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 }
 
 func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
 			Model: models.User{
 				Roles: []roles.Role{{RoleType: roles.RoleTypeTOO}},
 			},
+		},
+	}, nil)
+
+	factory.BuildPrimaryTransportationOfficeAssignment(suite.DB(), []factory.Customization{
+		{
+			Model:    transportationOffice,
+			LinkOnly: true,
+		},
+		{
+			Model: models.OfficeUser{
+				ID: officeUser.ID,
+			},
+			LinkOnly: true,
 		},
 	}, nil)
 
@@ -2550,6 +2530,7 @@ func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 		nil,
 		string(roles.RoleTypeTOO),
 		string(models.QueueTypeTaskOrder),
+		transportationOffice.ID,
 	)
 
 	suite.Require().Len(queueMoves, 1)

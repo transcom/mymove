@@ -1,9 +1,10 @@
-import { LOG_OUT, SET_ACTIVE_ROLE } from './actions';
+import { LOG_OUT, SET_ACTIVE_OFFICE, SET_ACTIVE_ROLE } from './actions';
 
 import { officeRoles } from 'constants/userRoles';
 
 export const initialState = {
   activeRole: null,
+  activeOffice: null,
   isLoggedIn: false,
   hasSucceeded: false,
   hasErrored: false,
@@ -42,13 +43,20 @@ const authReducer = (state = initialState, action = {}) => {
         };
 
       const {
-        payload: { roles = [] },
+        payload: {
+          roles = [],
+          office_user: { transportation_office_assignments: transportationOfficeAssignments },
+        },
       } = action;
       const firstOfficeRole = roles?.find((r) => officeRoles.indexOf(r.roleType) > -1)?.roleType;
+      const activeOffice =
+        state.activeOffice ||
+        transportationOfficeAssignments.find((office) => office.primaryOffice === true).transportationOffice;
 
       return {
         ...state,
         activeRole: firstOfficeRole,
+        activeOffice,
         hasSucceeded: true,
         hasErrored: false,
         isLoading: false,
@@ -67,6 +75,12 @@ const authReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         activeRole: action.payload,
+      };
+    }
+    case SET_ACTIVE_OFFICE: {
+      return {
+        ...state,
+        activeOffice: action.payload,
       };
     }
 

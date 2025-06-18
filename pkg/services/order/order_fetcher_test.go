@@ -1542,21 +1542,21 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	appCtx := suite.AppContextWithSessionForTest(&session)
 
 	createdMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-	createdMove.SCAssignedID = &scUser.ID
-	createdMove.SCAssignedUser = &scUser
+	createdMove.SCCounselingAssignedID = &scUser.ID
+	createdMove.SCCounselingAssignedUser = &scUser
 	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, models.QueueTypeCounseling)
 
 	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
-		SCAssignedUser: &scUser.LastName,
+		AssignedTo: &scUser.LastName, NeedsPPMCloseout: models.BoolPointer(false),
 	})
 
 	suite.FatalNoError(err)
 	suite.FatalNoError(updateError)
 	suite.Equal(1, len(moves))
-	suite.Equal(moves[0].SCAssignedID, createdMove.SCAssignedID)
-	suite.Equal(createdMove.SCAssignedUser.ID, moves[0].SCAssignedUser.ID)
-	suite.Equal(createdMove.SCAssignedUser.FirstName, moves[0].SCAssignedUser.FirstName)
-	suite.Equal(createdMove.SCAssignedUser.LastName, moves[0].SCAssignedUser.LastName)
+	suite.Equal(moves[0].SCCounselingAssignedID, createdMove.SCCounselingAssignedID)
+	suite.Equal(createdMove.SCCounselingAssignedUser.ID, moves[0].SCCounselingAssignedUser.ID)
+	suite.Equal(createdMove.SCCounselingAssignedUser.FirstName, moves[0].SCCounselingAssignedUser.FirstName)
+	suite.Equal(createdMove.SCCounselingAssignedUser.LastName, moves[0].SCCounselingAssignedUser.LastName)
 }
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	waf := entitlements.NewWeightAllotmentFetcher()

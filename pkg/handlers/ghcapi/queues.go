@@ -60,7 +60,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Sort:                    params.Sort,
 				Order:                   params.Order,
 				OrderType:               params.OrderType,
-				TOOAssignedUser:         params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 				CounselingOffice:        params.CounselingOffice,
 			}
 
@@ -69,6 +69,10 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				activeRole = *params.ActiveRole
 			}
 
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
+			}
 			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested
 			if params.Status == nil {
 				ListOrderParams.Status = []string{string(models.MoveStatusServiceCounselingCompleted), string(models.MoveStatusAPPROVALSREQUESTED), string(models.MoveStatusSUBMITTED)}
@@ -114,7 +118,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTOO,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -125,7 +129,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -169,7 +173,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeTaskOrder))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeTaskOrder), officeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -204,23 +208,23 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			}
 
 			ListOrderParams := services.ListOrderParams{
-				Branch:                     params.Branch,
-				Locator:                    params.Locator,
-				Edipi:                      params.Edipi,
-				Emplid:                     params.Emplid,
-				CustomerName:               params.CustomerName,
-				DestinationDutyLocation:    params.DestinationDutyLocation,
-				OriginDutyLocation:         params.OriginDutyLocation,
-				AppearedInTOOAt:            handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
-				RequestedMoveDate:          params.RequestedMoveDate,
-				Status:                     params.Status,
-				Page:                       params.Page,
-				PerPage:                    params.PerPage,
-				Sort:                       params.Sort,
-				Order:                      params.Order,
-				OrderType:                  params.OrderType,
-				TOODestinationAssignedUser: params.AssignedTo,
-				CounselingOffice:           params.CounselingOffice,
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				Edipi:                   params.Edipi,
+				Emplid:                  params.Emplid,
+				CustomerName:            params.CustomerName,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				OriginDutyLocation:      params.OriginDutyLocation,
+				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
+				RequestedMoveDate:       params.RequestedMoveDate,
+				Status:                  params.Status,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				OrderType:               params.OrderType,
+				AssignedTo:              params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			var activeRole string
@@ -230,6 +234,11 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			// we only care about moves in APPROVALS REQUESTED status
 			if params.Status == nil {
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVALSREQUESTED)}
+			}
+
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
 			}
 
 			// default pagination values
@@ -282,7 +291,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTOO,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -293,7 +302,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -324,7 +333,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest), officeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -435,6 +444,11 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				activeRole = *params.ActiveRole
 			}
 
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
+			}
+
 			listPaymentRequestParams.Status = []string{string(models.PaymentRequestStatusPending)}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
@@ -479,7 +493,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTIO,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -490,7 +504,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTIO,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			}
 
@@ -590,12 +604,17 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,
 				CounselingOffice:        params.CounselingOffice,
-				SCAssignedUser:          params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 			}
 
 			var activeRole string
 			if params.ActiveRole != nil {
 				activeRole = *params.ActiveRole
+			}
+
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
 			}
 
 			var requestedPpmStatus models.PPMShipmentStatus
@@ -650,7 +669,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeServicesCounselor,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -661,7 +680,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -707,7 +726,12 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
+			queueType := string(models.QueueTypeCounseling)
+			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				queueType = string(models.QueueTypeCloseout)
+			}
+
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, queueType, officeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
