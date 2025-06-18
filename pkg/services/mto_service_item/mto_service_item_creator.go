@@ -233,8 +233,6 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 	var adjustedWeight *unit.Pound
 	if isPPM {
 		adjustedWeight = GetAdjustedWeight(*mtoShipment.PPMShipment.EstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
-	} else if mtoShipment.PrimeActualWeight != nil {
-		adjustedWeight = GetAdjustedWeight(*mtoShipment.PrimeActualWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
 	} else if mtoShipment.PrimeEstimatedWeight != nil {
 		adjustedWeight = GetAdjustedWeight(*mtoShipment.PrimeEstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
 	} else {
