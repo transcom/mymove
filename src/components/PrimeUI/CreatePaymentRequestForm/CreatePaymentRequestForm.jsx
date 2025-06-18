@@ -153,6 +153,7 @@ const CreatePaymentRequestForm = ({
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDSHUT ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IHPK ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IHUPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.INPK ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.ISLH ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.POEFSC ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.PODFSC ||

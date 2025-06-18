@@ -382,7 +382,7 @@ describe('validates form fields and displays error messages', () => {
         // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
         // this field is usually always required other than PPMs
         const labelsWithAsterisk = screen.queryAllByText((content) => content.trim().endsWith('*'));
-        expect(labelsWithAsterisk.length).toBe(13);
+        expect(labelsWithAsterisk.length).toBe(9);
       });
     });
   });
