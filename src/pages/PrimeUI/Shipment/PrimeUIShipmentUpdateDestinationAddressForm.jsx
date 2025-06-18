@@ -56,7 +56,13 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
                   If any of those change, the address change will require TOO approval.
                 </div>
                 <AddressFields name={name} formikProps={formikProps} />
-                <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
+                <TextField
+                  label="Contractor Remarks"
+                  id="contractorRemarks"
+                  name="contractorRemarks"
+                  showRequiredAsterisk
+                  required
+                />
               </SectionWrapper>
               <div className={formStyles.formActions}>
                 <WizardNavigation

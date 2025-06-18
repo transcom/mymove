@@ -9,6 +9,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object({
   reweighWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
@@ -21,6 +22,7 @@ const ReweighForm = ({ onSubmit, handleClose, initialValues }) => {
       {({ isValid, isSubmitting, handleSubmit, handleChange, setTouched, values }) => (
         <Form className={formStyles.form}>
           <SectionWrapper className={formStyles.formSection}>
+            {requiredAsteriskMessage}
             <MaskedTextField
               defaultValue="0"
               inputTestId="reweighWeightInput"
@@ -32,9 +34,16 @@ const ReweighForm = ({ onSubmit, handleClose, initialValues }) => {
               scale={0} // digits after point, 0 for integers
               signed={false} // disallow negative
               thousandsSeparator=","
+              showRequiredAsterisk
+              required
             />
-            <Label htmlFor="remarks">Remarks</Label>
+            <Label htmlFor="remarks" required>
+              <span required>
+                Remarks <RequiredAsterisk />
+              </span>
+            </Label>
             <Textarea
+              aria-label="Remarks"
               data-testid="remarks"
               id="reweighRemarks"
               maxLength={500}
@@ -42,6 +51,8 @@ const ReweighForm = ({ onSubmit, handleClose, initialValues }) => {
               onChange={handleChange}
               onBlur={() => setTouched({ reweighRemarks: true }, false)}
               value={values.reweighRemarks}
+              showRequiredAsteriskAdd
+              required
             />
           </SectionWrapper>
 
