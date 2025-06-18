@@ -2494,6 +2494,27 @@ func (suite *PayloadsSuite) TestCountriesPayload() {
 	})
 }
 
+func (suite *PayloadsSuite) TestVIntlLocation() {
+	suite.Run("correctly maps VIntlLocation with all fields populated", func() {
+		city := "LONDON"
+		principalDivision := "CARDIFF"
+		intlCityCountriesId := uuid.Must(uuid.NewV4())
+
+		vIntlLocation := &models.VIntlLocation{
+			CityName:            &city,
+			CountryPrnDivName:   &principalDivision,
+			IntlCityCountriesID: &intlCityCountriesId,
+		}
+
+		payload := VIntlLocation(vIntlLocation)
+
+		suite.IsType(payload, &ghcmessages.VIntlLocation{})
+		suite.Equal(handlers.FmtUUID(intlCityCountriesId), &payload.IntlCityCountriesID, "Expected IntlCityCountriesID to match")
+		suite.Equal(city, payload.City, "Expected City to match")
+		suite.Equal(principalDivision, payload.PrincipalDivision, "Expected State to match")
+	})
+}
+
 func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{

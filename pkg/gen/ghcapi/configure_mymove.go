@@ -354,6 +354,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation queues.GetMovesQueue has not yet been implemented")
 		})
 	}
+	if api.AddressesGetOconusLocationHandler == nil {
+		api.AddressesGetOconusLocationHandler = addresses.GetOconusLocationHandlerFunc(func(params addresses.GetOconusLocationParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetOconusLocation has not yet been implemented")
+		})
+	}
 	if api.OrderGetOrderHandler == nil {
 		api.OrderGetOrderHandler = order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")

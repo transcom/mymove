@@ -1064,6 +1064,20 @@ func VLocationModel(vLocation *primemessages.VLocation) *models.VLocation {
 	}
 }
 
+func VIntlLocationModel(vIntlLocation *primemessages.VIntlLocation) *models.VIntlLocation {
+	if vIntlLocation == nil {
+		return nil
+	}
+
+	intlCityCountriesID := uuid.FromStringOrNil(vIntlLocation.IntlCityCountriesID.String())
+
+	return &models.VIntlLocation{
+		CityName:            &vIntlLocation.City,
+		CountryPrnDivName:   &vIntlLocation.PrincipalDivision,
+		IntlCityCountriesID: &intlCityCountriesID,
+	}
+}
+
 // validateReasonInternationalOriginSIT validates that International Origin SIT service items have required Reason field
 func validateReasonInternationalOriginSIT(m primemessages.MTOServiceItemInternationalOriginSIT) *validate.Errors {
 	verrs := validate.NewErrors()

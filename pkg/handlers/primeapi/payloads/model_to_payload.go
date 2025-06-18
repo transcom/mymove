@@ -1265,3 +1265,29 @@ func Countries(countries models.Countries) primemessages.Countries {
 	}
 	return payload
 }
+
+// VIntlLocation payload
+func VIntlLocation(vIntlLocation *models.VIntlLocation) *primemessages.VIntlLocation {
+	if vIntlLocation == nil {
+		return nil
+	}
+	if *vIntlLocation == (models.VIntlLocation{}) {
+		return nil
+	}
+
+	return &primemessages.VIntlLocation{
+		City:                *vIntlLocation.CityName,
+		PrincipalDivision:   *vIntlLocation.CountryPrnDivName,
+		IntlCityCountriesID: *handlers.FmtUUID(*vIntlLocation.IntlCityCountriesID),
+	}
+}
+
+// VIntlLocations payload
+func VIntlLocations(vLIntlocations models.VIntlLocations) primemessages.VIntlLocations {
+	payload := make(primemessages.VIntlLocations, len(vLIntlocations))
+	for i, vIntlLocation := range vLIntlocations {
+		copyOfVIntlLocation := vIntlLocation
+		payload[i] = VIntlLocation(&copyOfVIntlLocation)
+	}
+	return payload
+}
