@@ -175,7 +175,9 @@ BEGIN
                         'origin_duty_location_name',
                         (SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.origin_duty_location_id)),
                         'new_duty_location_name',
-                        (SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.new_duty_location_id))
+                        (SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.new_duty_location_id)),
+						            'rank',
+						            (SELECT ranks.rank_abbv from ranks where ranks.id = uuid(c.rank_id))
                     )
                 ))::TEXT, '[{}]'::TEXT
             ) AS context,
@@ -188,7 +190,8 @@ BEGIN
         JOIN moves ON orders.id = moves.orders_id
         JOIN jsonb_to_record(audit_history.changed_data) AS c(
             origin_duty_location_id TEXT,
-            new_duty_location_id TEXT
+            new_duty_location_id TEXT,
+			      rank_id TEXT
         ) ON TRUE
         WHERE audit_history.table_name = 'orders'
             AND moves.id = v_move_id

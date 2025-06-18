@@ -20,6 +20,7 @@ describe('when given an Order update history record', () => {
         new_duty_location_id: 'ID2',
         has_dependents: true,
         grade: ORDERS_PAY_GRADE_TYPE.E_2,
+        rank: 'AMN',
       },
       context: [
         {
@@ -65,6 +66,7 @@ describe('when given an Order update history record', () => {
       ['New duty location name', ': Fairchild AFB', historyRecord.RELOCATION],
       ['Dependents included', ': Yes', historyRecord.RELOCATION],
       ['Pay grade', ': E-2', historyRecord.RELOCATION],
+      ['Rank', ': AMN', historyRecord.RELOCATION],
       ['Date of separation', ': 12 Oct 2022', historyRecord.SEPARATION],
       ['Orders type', ': Retirement', historyRecord.RETIREMENT],
       ['Date of retirement', ': 12 Oct 2022', historyRecord.RETIREMENT],

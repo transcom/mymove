@@ -395,11 +395,11 @@ func (suite *PayloadsSuite) TestGetRankDropdownOptions() {
 
 	testCases := map[models.ServiceMemberAffiliation]testCase{
 		models.ServiceMemberAffiliation(models.AffiliationARMY): {
-			grade: "E_4",
+			grade: "E-4",
 			count: 2,
 		},
 		models.ServiceMemberAffiliation(models.AffiliationNAVY): {
-			grade: "E_2",
+			grade: "E-2",
 			count: 1,
 		},
 	}
