@@ -108,7 +108,9 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewProGear() {
-    await base.expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
+    const selector = this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 });
+    await selector.waitFor({ state: 'visible' });
+    // await base.expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
   }
 
   /**
@@ -129,7 +131,9 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewWeightTicket() {
-    await base.expect(this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 })).toBeVisible();
+    const selector = this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 });
+    await selector.waitFor({ state: 'visible' });
+    // await base.expect(this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 })).toBeVisible();
   }
 
   /**
