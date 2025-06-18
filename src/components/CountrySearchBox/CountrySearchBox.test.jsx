@@ -2,32 +2,19 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import LocationSearchBox from './CountrySearchBox';
+import CountrySearchBox from './CountrySearchBox';
 
-import dutyLocationFactory from 'utils/test/factories/dutyLocation';
-
-const mockLocations = [
-  dutyLocationFactory(),
-  dutyLocationFactory(),
-  dutyLocationFactory(),
-  dutyLocationFactory(),
-  dutyLocationFactory(),
-  dutyLocationFactory(),
-  dutyLocationFactory(),
+const mockCountries = [
+  {
+    code: 'US',
+    name: 'UNITED STATES',
+    id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+  },
 ];
 
-const selectedLocations = mockLocations[2];
-const mockAddress = selectedLocations.address;
-const displayAddress = `${mockAddress.city}, ${mockAddress.state} ${mockAddress.postalCode}`;
-const optionName = selectedLocations.name.split(' AFB')[0];
+const selectedCountries = mockCountries[0];
 
-jest.mock('./api.js', () => ({
-  ShowAddress: async () => {
-    return mockAddress;
-  },
-}));
-
-const mockLocationSearch = jest.fn(async (search) => {
+const mockCountrySearch = jest.fn(async (search) => {
   if (search === 'empty') {
     return [];
   }
@@ -36,29 +23,29 @@ const mockLocationSearch = jest.fn(async (search) => {
     throw new Error('Server returned an error');
   }
 
-  return mockLocations;
+  return mockCountries;
 });
 
-describe('LocationSearchBoxContainer', () => {
+describe('CountrySearchBoxContainer', () => {
   describe('basic rendering', () => {
     it('renders with minimal props', () => {
       render(
-        <LocationSearchBox
+        <CountrySearchBox
           input={{ name: 'test_component' }}
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
-      expect(screen.getByLabelText('Name of Duty Location:')).toBeInTheDocument();
+      expect(screen.getByText('Start typing a country name, code')).toBeInTheDocument();
     });
 
     it('renders the title', () => {
       render(
-        <LocationSearchBox
+        <CountrySearchBox
           input={{ name: 'test_component' }}
           name="test_component"
           title="Test Component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
       expect(screen.getByLabelText('Test Component')).toBeInTheDocument();
@@ -66,21 +53,21 @@ describe('LocationSearchBoxContainer', () => {
 
     it('renders the default placeholder text', () => {
       render(
-        <LocationSearchBox
+        <CountrySearchBox
           input={{ name: 'test_component' }}
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
-      expect(screen.getByText('Start typing a duty location...')).toBeInTheDocument();
+      expect(screen.getByText('Start typing a country name, code')).toBeInTheDocument();
     });
 
     it('renders the required asterisk when prop is provided', () => {
       render(
-        <LocationSearchBox
+        <CountrySearchBox
           input={{ name: 'test_component' }}
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
           showRequiredAsterisk
         />,
       );
@@ -88,72 +75,60 @@ describe('LocationSearchBoxContainer', () => {
     });
 
     it('renders an error message', () => {
+      const onChange = jest.fn();
+      const locationState = jest.fn();
       render(
-        <LocationSearchBox
-          input={{ name: 'test_component' }}
+        <CountrySearchBox
+          input={{ name: 'test_component', onChange, locationState }}
           name="test_component"
           errorMsg="Test Error Message"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
       expect(screen.getByText('Test Error Message')).toBeInTheDocument();
     });
 
-    it('renders a value passed in via prop', () => {
+    it('renders a value passed in via prop', async () => {
       render(
-        <LocationSearchBox
+        <CountrySearchBox
           name="test_component"
           input={{
             name: 'test_component',
             value: {
-              ...selectedLocations,
-              address: mockAddress,
+              ...mockCountries,
+              country: selectedCountries,
             },
           }}
+          searchCountries={mockCountrySearch}
         />,
       );
-      expect(screen.getByText(selectedLocations.name)).toBeInTheDocument();
-      expect(screen.getByText(displayAddress)).toBeInTheDocument();
-    });
-
-    it('can render without the address', () => {
-      render(
-        <LocationSearchBox
-          name="test_component"
-          displayAddress={false}
-          searchLocations={mockLocationSearch}
-          input={{
-            name: 'test_component',
-            value: {
-              ...selectedLocations,
-              address: mockAddress,
-            },
-          }}
-        />,
-      );
-      expect(screen.getByText(selectedLocations.name)).toBeInTheDocument();
-      expect(screen.queryByText(displayAddress)).not.toBeInTheDocument();
+      await waitFor(() => {
+        const elements = screen.queryAllByText(/(US)/);
+        expect(elements).toHaveLength(1);
+      });
     });
 
     it('can show placeholder text based on prop', () => {
       const testPlaceholderText = 'Test Placeholder Text';
       render(
-        <LocationSearchBox
+        <CountrySearchBox
           input={{ name: 'test_component' }}
           name="test_component"
           placeholder={testPlaceholderText}
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
       expect(screen.getByText(testPlaceholderText)).toBeInTheDocument();
     });
 
     it('renders a required asterisk', () => {
+      const onChange = jest.fn();
+      const locationState = jest.fn();
       render(
-        <LocationSearchBox
-          input={{ name: 'test_component' }}
+        <CountrySearchBox
+          input={{ name: 'test_component', onChange, locationState }}
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
           showRequiredAsterisk
         />,
       );
@@ -163,30 +138,31 @@ describe('LocationSearchBoxContainer', () => {
 
   describe('updating options based on text', () => {
     it('searches user input and renders options', async () => {
+      const onChange = jest.fn();
+      const locationState = jest.fn();
       render(
-        <LocationSearchBox
-          input={{ name: 'test_component' }}
+        <CountrySearchBox
+          input={{ name: 'test_component', onChange, locationState }}
           title="Test Component"
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
-      await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
+      await userEvent.type(screen.getByLabelText('Test Component'), 'UNITED STATES');
 
-      const option = await screen.findByText(optionName);
+      const option = await screen.findByText('(US)');
       expect(option).toBeInTheDocument();
-
-      const optionsContainer = option.closest('div').parentElement;
-      expect(optionsContainer.children.length).toEqual(7);
     });
 
     it('searches user input and renders a message if empty', async () => {
+      const onChange = jest.fn();
+      const locationState = jest.fn();
       render(
-        <LocationSearchBox
-          input={{ name: 'test_component' }}
+        <CountrySearchBox
+          input={{ name: 'test_component', onChange, locationState }}
           title="Test Component"
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
       await userEvent.type(screen.getByLabelText('Test Component'), 'empty');
@@ -195,12 +171,14 @@ describe('LocationSearchBoxContainer', () => {
     });
 
     it("doesnt search if user input isn't 2+ characters in length", async () => {
+      const onChange = jest.fn();
+      const locationState = jest.fn();
       render(
-        <LocationSearchBox
-          input={{ name: 'test_component' }}
+        <CountrySearchBox
+          input={{ name: 'test_component', onChange, locationState }}
           title="Test Component"
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
       await userEvent.type(screen.getByLabelText('Test Component'), '1');
@@ -209,12 +187,14 @@ describe('LocationSearchBoxContainer', () => {
     });
 
     it('handles server errors', async () => {
+      const onChange = jest.fn();
+      const locationState = jest.fn();
       render(
-        <LocationSearchBox
-          input={{ name: 'test_component' }}
+        <CountrySearchBox
+          input={{ name: 'test_component', onChange, locationState }}
           title="Test Component"
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchCountries={mockCountrySearch}
         />,
       );
       await userEvent.type(screen.getByLabelText('Test Component'), 'broken');
@@ -228,20 +208,21 @@ describe('LocationSearchBoxContainer', () => {
       const onChange = jest.fn();
       const locationState = jest.fn();
       render(
-        <LocationSearchBox
+        <CountrySearchBox
           input={{ name: 'test_component', onChange, locationState }}
           title="Test Component"
           name="test_component"
-          searchLocations={mockLocationSearch}
+          searchLocations={mockCountrySearch}
         />,
       );
-      await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
-      await userEvent.click(await screen.findByText(optionName));
+
+      await userEvent.type(screen.getByLabelText('Test Component'), 'UNITED STATES');
+      await userEvent.click(await screen.findByText('(US)'));
 
       await waitFor(() =>
         expect(onChange).toHaveBeenCalledWith({
-          ...selectedLocations,
-          address: mockAddress,
+          ...mockCountries,
+          country: selectedCountries,
         }),
       );
     });

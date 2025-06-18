@@ -133,7 +133,7 @@ export const CountrySearchBoxComponent = ({
     if (loadDefaultCountry) {
       setLoadDefaultCountry(false);
 
-      if (value === null || value.city === '') {
+      if (value === null || (value !== undefined && value.city === '')) {
         const country = 'UNITED STATES';
         searchCountries(country)
           .then((locations) => {
@@ -180,7 +180,7 @@ export const CountrySearchBoxComponent = ({
     setInputValue(text);
   };
 
-  const inputId = `${name}-input`;
+  const inputId = `${name}-country-input`;
 
   const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
   const labelClasses = classNames(styles.title, {
@@ -263,7 +263,6 @@ export const CountrySearchBoxContainer = (props) => {
 };
 
 CountrySearchBoxContainer.propTypes = {
-  displayAddress: PropTypes.bool,
   name: PropTypes.string.isRequired,
   errorMsg: PropTypes.string,
   title: PropTypes.string,

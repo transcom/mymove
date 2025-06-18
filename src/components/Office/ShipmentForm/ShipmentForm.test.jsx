@@ -57,6 +57,12 @@ const mockMtoShipment = {
     state: 'TX',
     postalCode: '78234',
     county: 'BEXAR',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
@@ -64,6 +70,12 @@ const mockMtoShipment = {
     state: 'WA',
     postalCode: '98421',
     county: 'PIERCE',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   mtoAgents: [
     {
@@ -189,6 +201,12 @@ const mockUBShipment = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
 };
@@ -201,6 +219,12 @@ const mockHHGWithSecondaryAddresses = {
     state: 'TX',
     postalCode: '78234',
     county: 'BEXAR',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   secondaryDeliveryAddress: {
     streetAddress1: '123 N Main',
@@ -208,6 +232,12 @@ const mockHHGWithSecondaryAddresses = {
     state: 'WA',
     postalCode: '98421',
     county: 'PIERCE',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   hasSecondaryPickupAddress: true,
   hasSecondaryDeliveryAddress: true,
@@ -228,6 +258,12 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
     county: 'MUSCOGEE',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   originDutyLocationAddress: {
     city: 'Fort Benning',
@@ -236,6 +272,12 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
     county: 'MUSCOGEE',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   serviceMember: {
     weightAllotment: {
@@ -1445,6 +1487,12 @@ describe('ShipmentForm component', () => {
             postalCode: '98421',
             streetAddress2: '',
             county: 'PIERCE',
+            country: {
+              code: 'US',
+              name: 'UNITED STATES',
+              id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+            },
+            countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
           },
           pickupAddress: {
             streetAddress1: '812 S 129th St',
@@ -1453,6 +1501,12 @@ describe('ShipmentForm component', () => {
             postalCode: '78234',
             streetAddress2: '',
             county: 'BEXAR',
+            country: {
+              code: 'US',
+              name: 'UNITED STATES',
+              id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+            },
+            countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
           },
           agents: [
             {
