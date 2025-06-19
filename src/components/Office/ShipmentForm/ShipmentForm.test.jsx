@@ -251,6 +251,12 @@ const defaultProps = {
   userRole: roleTypes.SERVICES_COUNSELOR,
   orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   isForServivcesCounseling: false,
+  backupContact: {
+    firstName: 'John',
+    lastName: 'Miller',
+    email: 'johnmiller@abcdefg.edu',
+    telephone: '444-567-5432',
+  },
 };
 
 const mockShipmentWithDestinationType = {
@@ -523,7 +529,13 @@ describe('ShipmentForm component', () => {
       expect(screen.getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
       expect(screen.getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
 
+      const contactCheckboxes = screen.getAllByLabelText('Use backup contact');
+      expect(contactCheckboxes).toHaveLength(2);
+
       expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBeInTheDocument();
+      expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBe(contactCheckboxes[0]);
       expect(screen.getAllByLabelText('First name')[0]).toHaveAttribute('name', 'pickup.agent.firstName');
       expect(screen.getAllByLabelText('Last name')[0]).toHaveAttribute('name', 'pickup.agent.lastName');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveAttribute('name', 'pickup.agent.phone');
@@ -541,6 +553,9 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBeInTheDocument();
+      expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBe(contactCheckboxes[1]);
       expect(screen.getAllByLabelText('First name')[1]).toHaveAttribute('name', 'delivery.agent.firstName');
       expect(screen.getAllByLabelText('Last name')[1]).toHaveAttribute('name', 'delivery.agent.lastName');
       expect(screen.getAllByLabelText('Phone')[1]).toHaveAttribute('name', 'delivery.agent.phone');
