@@ -9,7 +9,7 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
-import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
@@ -69,9 +69,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
               onInput={handleEstimatedWeight}
             />
             <Label className={styles.radioLabel}>
-              <span required>
-                Pro-gear? <RequiredAsterisk />
-              </span>
+              <span>Pro-gear?</span>
             </Label>
             <FormGroup className={styles.radioGroup}>
               <Radio

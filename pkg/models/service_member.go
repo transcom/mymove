@@ -367,12 +367,13 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 }
 
 // CreateBackupContact creates a backup contact model tied to the service member
-func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
+func (s ServiceMember) CreateBackupContact(db *pop.Connection, firstName string, lastName string, email string, phone string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
 	newContact := BackupContact{
 		ServiceMemberID: s.ID,
 		ServiceMember:   s,
-		Name:            name,
 		Email:           email,
+		FirstName:       firstName,
+		LastName:        lastName,
 		Phone:           phone,
 		Permission:      permission,
 	}

@@ -247,11 +247,9 @@ const ExpenseForm = ({
                         <Fieldset>
                           <legend
                             className="usa-label"
-                            aria-label="Required: Did you pay with your GTCC (Government Travel Charge Card)?"
+                            aria-label="Did you pay with your GTCC (Government Travel Charge Card)?"
                           >
-                            <span required>
-                              Did you pay with your GTCC (Government Travel Charge Card)? <RequiredAsterisk />
-                            </span>
+                            <span>Did you pay with your GTCC (Government Travel Charge Card)?</span>
                           </legend>
                           <Field
                             as={Radio}
