@@ -46,7 +46,9 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
         </div>
         <div>
           <p className={styles.details}>
-            <span data-testid="deptPayGrade">{ORDERS_BRANCH_OPTIONS[`${order.agency}`]}</span>
+            <span data-testid="deptPayGrade">
+              {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {order.grade}
+            </span>
             <span className={styles.verticalBar}>|</span>
             <span data-testid="edipi" className={styles.details}>
               DoD ID {customer.edipi}
