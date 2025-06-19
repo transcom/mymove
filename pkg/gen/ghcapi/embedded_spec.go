@@ -4569,6 +4569,56 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
+      "post": {
+        "description": "Routes the PPM shipment to the service\ncounselor PPM Closeout queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Saves signature and routes PPM shipment to service counselor",
+        "operationId": "submitPPMShipmentDocumentation",
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
@@ -5186,7 +5236,7 @@ func init() {
     },
     "/queues/counselingQueue": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here once they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
         "produces": [
           "application/json"
         ],
@@ -5215,10 +5265,8 @@ func init() {
               "emplid",
               "branch",
               "locator",
-              "status",
-              "requestedMoveDate",
+              "requestedMoveDates",
               "submittedAt",
-              "originGBLOC",
               "originDutyLocation",
               "counselingOffice",
               "assignedTo"
@@ -5252,7 +5300,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters using a prefix match on the service member's last name",
+            "description": "filters using a prefix match on the service member's first and last name",
             "name": "customerName",
             "in": "query"
           },
@@ -5276,8 +5324,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the requested pickup date of a shipment on the move",
-            "name": "requestedMoveDate",
+            "description": "filters the requested pickup dates from shipments on the move",
+            "name": "requestedMoveDates",
             "in": "query"
           },
           {
@@ -5304,25 +5352,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "NEEDS SERVICE COUNSELING",
-                "SERVICE COUNSELING COMPLETED"
+                "NEEDS SERVICE COUNSELING"
               ],
               "type": "string"
             },
             "description": "filters the status of the move",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
-            "name": "needsPPMCloseout",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "closeout location",
-            "name": "closeoutLocation",
             "in": "query"
           },
           {
@@ -5333,8 +5368,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to illustrate which user is assigned to this payment request.\n",
-            "name": "assignedTo",
+            "description": "Used to illustrate which user is assigned to provide services counseling to this move.\n",
+            "name": "SCCounselingAssigned",
             "in": "query"
           },
           {
@@ -8251,7 +8286,6 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -8261,6 +8295,11 @@ func init() {
           "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -8321,6 +8360,14 @@ func init() {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
           "type": "boolean",
           "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -9013,7 +9060,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -9036,6 +9084,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -9552,6 +9608,11 @@ func init() {
         "gunSafe": {
           "type": "boolean",
           "example": false
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         },
         "id": {
           "type": "string",
@@ -11341,7 +11402,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -12665,7 +12727,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -12732,6 +12793,14 @@ func init() {
           "title": "GCC",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gccMultiplier": {
+          "description": "Multiplier applied to incentives",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 1.3
         },
         "grossIncentive": {
           "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
@@ -13163,32 +13232,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -13261,6 +13310,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -14193,7 +14254,11 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "id": {
           "type": "string",
@@ -14241,6 +14306,11 @@ func init() {
         "requestedMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "requestedMoveDates": {
+          "description": "comma‑separated list of shipment dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -15567,6 +15637,14 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -16022,28 +16100,10 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received\n",
@@ -16083,6 +16143,16 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
@@ -22858,6 +22928,82 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
+      "post": {
+        "description": "Routes the PPM shipment to the service\ncounselor PPM Closeout queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Saves signature and routes PPM shipment to service counselor",
+        "operationId": "submitPPMShipmentDocumentation",
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
@@ -23613,7 +23759,7 @@ func init() {
     },
     "/queues/counselingQueue": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here once they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
         "produces": [
           "application/json"
         ],
@@ -23642,10 +23788,8 @@ func init() {
               "emplid",
               "branch",
               "locator",
-              "status",
-              "requestedMoveDate",
+              "requestedMoveDates",
               "submittedAt",
-              "originGBLOC",
               "originDutyLocation",
               "counselingOffice",
               "assignedTo"
@@ -23679,7 +23823,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters using a prefix match on the service member's last name",
+            "description": "filters using a prefix match on the service member's first and last name",
             "name": "customerName",
             "in": "query"
           },
@@ -23703,8 +23847,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the requested pickup date of a shipment on the move",
-            "name": "requestedMoveDate",
+            "description": "filters the requested pickup dates from shipments on the move",
+            "name": "requestedMoveDates",
             "in": "query"
           },
           {
@@ -23731,25 +23875,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "NEEDS SERVICE COUNSELING",
-                "SERVICE COUNSELING COMPLETED"
+                "NEEDS SERVICE COUNSELING"
               ],
               "type": "string"
             },
             "description": "filters the status of the move",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
-            "name": "needsPPMCloseout",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "closeout location",
-            "name": "closeoutLocation",
             "in": "query"
           },
           {
@@ -23760,8 +23891,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to illustrate which user is assigned to this payment request.\n",
-            "name": "assignedTo",
+            "description": "Used to illustrate which user is assigned to provide services counseling to this move.\n",
+            "name": "SCCounselingAssigned",
             "in": "query"
           },
           {
@@ -27114,7 +27245,6 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -27124,6 +27254,11 @@ func init() {
           "$ref": "#/definitions/MoveStatus"
         },
         "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -27184,6 +27319,15 @@ func init() {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
           "type": "boolean",
           "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -27880,7 +28024,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -27903,6 +28048,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -28419,6 +28572,11 @@ func init() {
         "gunSafe": {
           "type": "boolean",
           "example": false
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         },
         "id": {
           "type": "string",
@@ -30208,7 +30366,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -31532,7 +31691,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -31599,6 +31757,14 @@ func init() {
           "title": "GCC",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gccMultiplier": {
+          "description": "Multiplier applied to incentives",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 1.3
         },
         "grossIncentive": {
           "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
@@ -32103,32 +32269,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -32202,6 +32348,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -33136,7 +33294,11 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "id": {
           "type": "string",
@@ -33184,6 +33346,11 @@ func init() {
         "requestedMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "requestedMoveDates": {
+          "description": "comma‑separated list of shipment dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -34562,6 +34729,15 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -35021,28 +35197,10 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received\n",
@@ -35083,6 +35241,16 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {

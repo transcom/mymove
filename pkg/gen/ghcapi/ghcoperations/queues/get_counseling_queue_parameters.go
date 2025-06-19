@@ -34,7 +34,7 @@ type GetCounselingQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Used to illustrate which user is assigned to this payment request.
+	/*Used to illustrate which user is assigned to provide services counseling to this move.
 
 	  In: query
 	*/

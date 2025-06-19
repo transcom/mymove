@@ -87,6 +87,10 @@ type CounselingQueueMove struct {
 	// submitted at
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
+
+	// updated at
+	// Format: date-time
+	UpdatedAt *strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this counseling queue move
@@ -146,6 +150,10 @@ func (m *CounselingQueueMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSubmittedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -367,6 +375,18 @@ func (m *CounselingQueueMove) validateSubmittedAt(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CounselingQueueMove) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

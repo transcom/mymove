@@ -38,7 +38,8 @@ RETURNS TABLE (
     mtos_earliest_requested_pickup_date TIMESTAMP WITH TIME zone,
     mtos_earliest_requested_delivery_date TIMESTAMP WITH TIME zone,
     ppms_earliest_expected_departure_date TIMESTAMP WITH TIME zone,
-    ppm_shipments JSONB
+    ppm_shipments JSONB,
+    updated_at TIMESTAMP WITH TIME ZONE
 ) LANGUAGE plpgsql AS $$
 DECLARE
   sql_query 	TEXT;
@@ -102,7 +103,8 @@ BEGIN
 	  ms_agg.mtos_earliest_requested_pickup_date::timestamptz AS mtos_earliest_requested_pickup_date,
 	  ms_agg.mtos_earliest_requested_delivery_date::timestamptz AS mtos_earliest_requested_delivery_date,
 	  ppm_agg.ppms_earliest_expected_departure_date::timestamptz AS ppms_earliest_expected_departure_date,
-    COALESCE(ppm_agg.ppm_shipments, ''[]'')::JSONB AS ppm_shipments
+    COALESCE(ppm_agg.ppm_shipments, ''[]'')::JSONB AS ppm_shipments,
+    m.updated_at AS updated_at
     From moves m
     JOIN orders o ON m.orders_id = o.id
     JOIN service_members sm ON o.service_member_id = sm.id

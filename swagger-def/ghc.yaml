@@ -8194,6 +8194,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      updatedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       appearedInTooAt:
         format: date-time
         type: string

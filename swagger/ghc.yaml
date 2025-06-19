@@ -4210,8 +4210,9 @@ paths:
         - in: query
           name: SCCounselingAssigned
           type: string
-          description: |
-            Used to illustrate which user is assigned to this payment request.
+          description: >
+            Used to illustrate which user is assigned to provide services
+            counseling to this move.
         - in: query
           name: activeRole
           type: string
@@ -6106,6 +6107,10 @@ definitions:
         example: 500
         type: integer
         x-formatting: weight
+      gunSafeWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
       storageInTransit:
         example: 90
         type: integer
@@ -7016,6 +7021,14 @@ definitions:
         maximum: 500
         x-formatting: weight
         x-nullable: true
+      gunSafeWeight:
+        description: unit is in lbs
+        example: 500
+        type: integer
+        minimum: 0
+        maximum: 500
+        x-formatting: weight
+        x-nullable: true
       requiredMedicalEquipmentWeight:
         description: unit is in lbs
         example: 2000
@@ -7123,6 +7136,14 @@ definitions:
         x-formatting: weight
         x-nullable: true
       proGearWeightSpouse:
+        minimum: 0
+        maximum: 500
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      gunSafeWeight:
         minimum: 0
         maximum: 500
         description: unit is in lbs
@@ -7658,6 +7679,17 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
+        type: integer
+        x-nullable: true
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -8154,6 +8186,13 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+      gunSafeWeight:
+        type: integer
+        x-nullable: true
       isActualExpenseReimbursement:
         description: >-
           Used for PPM shipments only. Denotes if this shipment uses the Actual
@@ -8173,6 +8212,7 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+      - hasGunSafe
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -8487,6 +8527,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -8495,7 +8539,10 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+        x-nullable: true
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
@@ -8558,6 +8605,10 @@ definitions:
       locator:
         type: string
       submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      updatedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -10308,6 +10359,7 @@ definitions:
       - CANCELED
       - DIVERSION_REQUESTED
       - TERMINATED_FOR_CAUSE
+      - APPROVALS_REQUESTED
   ReweighRequester:
     type: string
     enum:
@@ -10557,7 +10609,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   OmittablePPMDocumentStatus:
@@ -11328,6 +11379,19 @@ definitions:
         description: >-
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
         x-omitempty: false
@@ -12203,6 +12267,13 @@ definitions:
           separate from the estimated incentive.
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      gccMultiplier:
+        description: Multiplier applied to incentives
+        type: number
+        format: float
+        example: 1.3
         x-nullable: true
         x-omitempty: false
     required:
