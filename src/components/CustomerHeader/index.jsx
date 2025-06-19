@@ -45,8 +45,8 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
           <span className="usa-tag usa-tag--cyan usa-tag--large">#{moveCode}</span>
         </div>
         <div>
-          <p className={styles.details}>
-            <span data-testid="deptPayGrade">
+          <p>
+            <span data-testid="deptPayGrade" className={styles.details}>
               {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {order.grade}
             </span>
             <span className={styles.verticalBar}>|</span>
@@ -70,7 +70,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
       <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
-          {order.originDutyLocation.name}
+          <h4>{order.originDutyLocation.name}</h4>
         </div>
         {order.destinationDutyLocation.name && (
           <div>

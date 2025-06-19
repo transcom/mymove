@@ -174,7 +174,6 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   }
 
   // routes that render <CustomerHeader /> component
-  // TODO: add more routes as needed
   const hasCustomerHeader =
     matchPath(
       {
@@ -205,7 +204,9 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
               id="main"
               role="main"
               className={classnames('site__content site-office__content', {
-                [styles.headerMargin]: hasCustomerHeader,
+                [styles.headerMargin]: hasCustomerHeader && displayChangeRole,
+                [styles.headerMarginSingle]: hasCustomerHeader && !displayChangeRole,
+                [styles.prime]: props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR,
               })}
             >
               <ConnectedLogoutOnInactivity />

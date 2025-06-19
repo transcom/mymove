@@ -6,15 +6,3 @@
 .site--fullscreen {
   height: 100vh;
 }
-
-.custHeader {
-  position: fixed; /* Keeps it at the top while scrolling */
-  top: 70px; /* Stick to the top */
-  width: 100%; /* Full width */
-  flex-direction: column;
-  display: block;
-  align-items: center;
-  justify-content: space-around;
-  z-index: 1000; /* Ensures it stays above other content */
-  margin-bottom: 100px;
-}

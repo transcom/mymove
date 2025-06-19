@@ -16,7 +16,6 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import EvaluationReportView from 'components/Office/EvaluationReportView/EvaluationReportView';
-import { roleTypes } from 'constants/userRoles';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -132,13 +131,7 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader
-        move={move}
-        order={order}
-        customer={customerData}
-        moveCode={moveCode}
-        userRole={roleTypes.SERVICES_COUNSELOR}
-      />
+      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
       {renderLockedBanner()}
       {hasRecentError && (
         <SystemError>
