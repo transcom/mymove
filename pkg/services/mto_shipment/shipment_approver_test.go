@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -1905,20 +1904,6 @@ func computeINPKExpectedPriceCents(
 	return unit.Cents(final)
 }
 
-// fetchMarketFactor retrieves the market factor for a given service and contract
-func fetchMarketFactor(appCtx appcontext.AppContext, contractID, serviceID uuid.UUID, marketCode string) (float64, error) {
-	var shipmentTypePrice models.ReShipmentTypePrice
-
-	err := appCtx.DB().Where("contract_id = ? AND service_id = ? AND market = ?", contractID, serviceID, marketCode).
-		First(&shipmentTypePrice)
-
-	if err != nil {
-		return 0, errors.Wrap(err, "error fetching market factor")
-	}
-
-	return shipmentTypePrice.Factor, nil
-}
-
 func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimatePricing() {
 	now := time.Now()
 	tomorrow := now.AddDate(0, 0, 1)
@@ -2054,7 +2039,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 
 			// Fetch the INPK market factor from the DB
 			inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
-			ntsMarketFactor, err := fetchMarketFactor(suite.AppContextForTest(), contract.ID, inpkReService.ID, "O")
+			ntsMarketFactor, err := models.FetchMarketFactor(suite.AppContextForTest(), contract.ID, inpkReService.ID, "O")
 			suite.FatalNoError(err)
 
 			// Assert basic service items
