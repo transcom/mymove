@@ -188,27 +188,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
       },
       location.pathname,
     );
-  // If path is not in office user tabs
-  // do not make the header sticky
-  // let isSticky = false;
-  // const notStickyList = [
-  //   '/counseling',
-  //   '/',
-  //   '/sign-in',
-  //   '/PPM-closeout',
-  //   '/search',
-  //   '/customer-search',
-  //   '/select-application',
-  //   '/move-queue',
-  //   '/destination-requests',
-  //   '/payment-requests',
-  //   '/invalid-permissions',
-  // ];
-  // if (!notStickyList.includes(location.pathname) && !location.pathname.includes('simulator')) {
-  //   isSticky = true;
-  // }
 
-  // TODO add check for multi role user before calling testing header
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
       <SelectedGblocProvider>
@@ -615,7 +595,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             hqRoleFlag ? roleTypes.HQ : undefined,
                           ]}
                         >
-                          <TXOMoveInfo isMultiRole={displayChangeRole} />
+                          <TXOMoveInfo />
                         </PrivateRoute>
                       }
                     />

@@ -73,7 +73,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
       <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
-          <h4>{order.originDutyLocation.name}</h4>
+          {order.originDutyLocation.name}
         </div>
         {order.destinationDutyLocation.name && (
           <div>

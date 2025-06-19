@@ -14,10 +14,11 @@
   padding-top: 13px;
   padding-bottom: 13px;
   @include u-text('white');
-  height: 80px;
+  height: 95px;
   position: fixed;
   top: 6.4rem;
   z-index: 1000;
+
   .details {
     color: $base-lighter;
   }
@@ -52,9 +53,11 @@
   }
   .infoBlock {
     display: flex;
+    box-sizing: border-box;
     div {
       border-left: 4px solid $mm-periwinkle;
       box-sizing: border-box;
+      min-width: 5px;
       @include u-padding-left(2);
       @include u-padding-right(3);
       &:last-child {
