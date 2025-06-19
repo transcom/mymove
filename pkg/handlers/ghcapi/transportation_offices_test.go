@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandler() {
 	}
 
 	handler := GetTransportationOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)
@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestNoTransportationOfficesHandler() {
 	}
 
 	handler := GetTransportationOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)
@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesOpenHandler() {
 	}
 
 	handler := GetTransportationOfficesOpenHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)
@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesGBLOCsHandler() {
 	}
 
 	handler := GetTransportationOfficesGBLOCsHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher,
 	}
 
@@ -191,7 +191,7 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 	}
 
 	handler := ShowCounselingOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)

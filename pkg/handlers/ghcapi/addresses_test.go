@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		}
 
 		handler := GetLocationByZipCityStateHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			VLocation:     vLocationService}
 
 		response := handler.Handle(params)

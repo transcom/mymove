@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestShowAvailableMoveDatesHandler() {
 		strfmt.Date(time.Date(2018, 12, 26, 0, 0, 0, 0, time.UTC)),
 	}
 
-	showHandler := ShowAvailableMoveDatesHandler{suite.HandlerConfig()}
+	showHandler := ShowAvailableMoveDatesHandler{suite.NewHandlerConfig()}
 	response := showHandler.Handle(params)
 
 	suite.IsType(&calendarop.ShowAvailableMoveDatesOK{}, response)
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestIsDateSelectionWeekendHolidayHandler() {
 		mock.AnythingOfType("time.Time"),
 	).Return(&info, nil)
 
-	showHandler := IsDateWeekendHolidayHandler{suite.HandlerConfig(), &mockDateSelectionChecker}
+	showHandler := IsDateWeekendHolidayHandler{suite.NewHandlerConfig(), &mockDateSelectionChecker}
 	response := showHandler.Handle(params)
 
 	suite.IsType(&calendarop.IsDateWeekendHolidayOK{}, response)

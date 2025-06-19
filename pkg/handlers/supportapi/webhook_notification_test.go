@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			Body:        requestPayload,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateWebhookNotificationHandler{handlerConfig}
 
 		// CALL FUNCTION UNDER TEST
@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			HTTPRequest: request,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateWebhookNotificationHandler{handlerConfig}
 
 		// CALL FUNCTION UNDER TEST
@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			Body:        requestPayload,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateWebhookNotificationHandler{handlerConfig}
 
 		// CALL FUNCTION UNDER TEST

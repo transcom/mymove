@@ -17,9 +17,11 @@ func (suite *MoveLockerServiceSuite) TestLockMove() {
 
 	suite.Run("successfully returns move with office user values and lockExpiresAt value", func() {
 		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		defaultRole, err := tooUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           tooUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -42,9 +44,11 @@ func (suite *MoveLockerServiceSuite) TestLockMove() {
 
 	suite.Run("locking a move doesn't change the moves updated_at value", func() {
 		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		defaultRole, err := tooUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           tooUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -67,9 +71,11 @@ func (suite *MoveLockerServiceSuite) TestLockMoves() {
 
 	suite.Run("successfully returns move with office user values and lockExpiresAt value", func() {
 		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		defaultRole, err := tooUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           tooUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -85,7 +91,7 @@ func (suite *MoveLockerServiceSuite) TestLockMoves() {
 		idsToLock[1] = move2.ID
 		idsToLock[2] = move3.ID
 
-		err := moveLocker.LockMoves(appCtx, idsToLock, tooUser.ID)
+		err = moveLocker.LockMoves(appCtx, idsToLock, tooUser.ID)
 		suite.FatalNoError(err)
 
 		moveFetcher := movefetcher.NewMoveFetcher()
@@ -117,9 +123,11 @@ func (suite *MoveLockerServiceSuite) TestLockMoves() {
 
 	suite.Run("locking moves doesn't change the moves' updated_at value", func() {
 		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		defaultRole, err := tooUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           tooUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -132,7 +140,7 @@ func (suite *MoveLockerServiceSuite) TestLockMoves() {
 		idsToLock[0] = move1.ID
 		idsToLock[1] = move2.ID
 
-		err := moveLocker.LockMoves(appCtx, idsToLock, tooUser.ID)
+		err = moveLocker.LockMoves(appCtx, idsToLock, tooUser.ID)
 		suite.FatalNoError(err)
 
 		moveFetcher := movefetcher.NewMoveFetcher()

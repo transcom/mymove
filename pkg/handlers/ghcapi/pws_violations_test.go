@@ -17,7 +17,7 @@ func (suite *HandlerSuite) TestGetPWSViolationsHandler() {
 		params := pwsviolationsop.GetPWSViolationsParams{
 			HTTPRequest: request,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetPWSViolationsHandler{
 			HandlerConfig:        handlerConfig,
 			PWSViolationsFetcher: fetcher,

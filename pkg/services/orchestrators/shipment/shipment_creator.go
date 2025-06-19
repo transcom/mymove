@@ -92,7 +92,7 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 				return err
 			}
 
-			if txnAppCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			if txnAppCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor {
 				err = s.moveTaskOrderUpdater.SignCertificationPPMCounselingCompleted(txnAppCtx, mtoShipment.MoveTaskOrderID, mtoShipment.PPMShipment.ID)
 				if err != nil {
 					return err

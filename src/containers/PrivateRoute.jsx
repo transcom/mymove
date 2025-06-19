@@ -3,27 +3,23 @@ import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectLoggedInUser } from 'store/entities/selectors';
-import getRoleTypesFromRoles from 'utils/user';
 import { useTitle } from 'hooks/custom';
-import { UserRolesShape } from 'types';
 
-export function userIsAuthorized(userRoles, requiredRoles) {
+export function userIsAuthorized(activeRole, requiredRoles) {
   // Return true if no roles are required
   if (!requiredRoles || !requiredRoles.length) return true;
 
-  // Return false if user has no roles
-  if (!userRoles || !userRoles.length) return false;
+  // Return false if user has no role
+  if (!activeRole) return false;
 
-  // User must have at least one of the roles defined in requiredRoles
-  return !!userRoles?.find((r) => requiredRoles.indexOf(r) > -1);
+  // User active role must be defined in requiredRoles
+  return requiredRoles.includes(activeRole);
 }
 
-function PrivateRoute({ requiredRoles, userRoles, children }) {
+function PrivateRoute({ requiredRoles, activeRole, children }) {
   useTitle();
-  const userRoleTypes = getRoleTypesFromRoles(userRoles);
 
-  if (!userIsAuthorized(userRoleTypes, requiredRoles)) {
+  if (!userIsAuthorized(activeRole, requiredRoles)) {
     return <Navigate to="/invalid-permissions" />;
   }
 
@@ -34,19 +30,17 @@ PrivateRoute.displayName = 'PrivateRoute';
 
 PrivateRoute.propTypes = {
   requiredRoles: PropTypes.arrayOf(PropTypes.string),
-  userRoles: UserRolesShape,
+  activeRole: PropTypes.string,
 };
 
 PrivateRoute.defaultProps = {
   requiredRoles: [],
-  userRoles: [],
+  activeRole: null,
 };
 
 const mapStateToProps = (state) => {
-  const user = selectLoggedInUser(state);
-
   return {
-    userRoles: user?.roles || [],
+    activeRole: state.auth.activeRole,
   };
 };
 

@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := GetOktaProfileHandler{suite.HandlerConfig()}
+	handler := GetOktaProfileHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(nil, response)
@@ -126,7 +126,7 @@ func (suite *HandlerSuite) TestUpdateOktaProfileHandler() {
 		UpdateOktaUserProfileData: &reqPayload,
 	}
 
-	handler := UpdateOktaProfileHandler{suite.HandlerConfig()}
+	handler := UpdateOktaProfileHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	// TODO figure out how to write this test correctly
