@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react';
+import { render, fireEvent, waitFor, screen, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 import { roleTypes } from 'constants/userRoles';
+import serviceBranches from 'content/serviceMemberAgencies';
 
 const mockPickupLocation = [
   {
@@ -317,7 +318,16 @@ describe('CreateCustomerForm', () => {
       await userEvent.click(selectedBackupLocation);
     });
 
-    await user.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    const backupContactSection =
+      getByRole('heading', { name: /backup contact/i }).closest('section') ||
+      getByRole('heading', { name: /backup contact/i }).parentElement;
+
+    const [backupContactFirstName, backupContactLastName] = fakePayload.backup_contact.name
+      .split(/ (.+)/)
+      .filter(Boolean);
+
+    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
     await user.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await user.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
@@ -333,6 +343,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: serviceBranches.ARMY,
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },
@@ -407,7 +418,16 @@ describe('CreateCustomerForm', () => {
       await userEvent.click(selectedBackupLocation);
     });
 
-    await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    const backupContactSection =
+      getByRole('heading', { name: /backup contact/i }).closest('section') ||
+      getByRole('heading', { name: /backup contact/i }).parentElement;
+
+    const [backupContactFirstName, backupContactLastName] = fakePayload.backup_contact.name
+      .split(/ (.+)/)
+      .filter(Boolean);
+
+    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
@@ -429,6 +449,7 @@ describe('CreateCustomerForm', () => {
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },
@@ -485,7 +506,16 @@ describe('CreateCustomerForm', () => {
       await userEvent.click(selectedBackupLocation);
     });
 
-    await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    const backupContactSection =
+      getByRole('heading', { name: /backup contact/i }).closest('section') ||
+      getByRole('heading', { name: /backup contact/i }).parentElement;
+
+    const [backupContactFirstName, backupContactLastName] = fakePayload.backup_contact.name
+      .split(/ (.+)/)
+      .filter(Boolean);
+
+    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
@@ -561,7 +591,16 @@ describe('CreateCustomerForm', () => {
       await userEvent.click(selectedBackupLocation);
     });
 
-    await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
+    const backupContactSection =
+      getByRole('heading', { name: /backup contact/i }).closest('section') ||
+      getByRole('heading', { name: /backup contact/i }).parentElement;
+
+    const [backupContactFirstName, backupContactLastName] = fakePayload.backup_contact.name
+      .split(/ (.+)/)
+      .filter(Boolean);
+
+    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
@@ -574,6 +613,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
         },
@@ -639,7 +679,16 @@ describe('CreateCustomerForm', () => {
       await userEvent.click(selectedBackupLocation);
     });
 
-    await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
+    const backupContactSection =
+      getByRole('heading', { name: /backup contact/i }).closest('section') ||
+      getByRole('heading', { name: /backup contact/i }).parentElement;
+
+    const [backupContactFirstName, backupContactLastName] = fakePayload.backup_contact.name
+      .split(/ (.+)/)
+      .filter(Boolean);
+
+    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
@@ -655,6 +704,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'COAST_GUARD',
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
         },
@@ -715,7 +765,16 @@ describe('CreateCustomerForm', () => {
       await userEvent.click(selectedBackupLocation);
     });
 
-    await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
+    const backupContactSection =
+      getByRole('heading', { name: /backup contact/i }).closest('section') ||
+      getByRole('heading', { name: /backup contact/i }).parentElement;
+
+    const [backupContactFirstName, backupContactLastName] = fakePayload.backup_contact.name
+      .split(/ (.+)/)
+      .filter(Boolean);
+
+    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
@@ -730,10 +789,43 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: true,
         },
       });
+    });
+  }, 50000);
+
+  it('show bluebark question when BLUEBARK FF is on', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+
+    render(
+      <MockProviders initialState={serviceCounselorState}>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Is this a Bluebark move?')).toBeInTheDocument();
+    });
+  }, 50000);
+
+  it('hide bluebark question when BLUEBARK FF is off', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+
+    render(
+      <MockProviders initialState={serviceCounselorState}>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('Is this a Bluebark move?')).not.toBeInTheDocument();
     });
   }, 50000);
 });

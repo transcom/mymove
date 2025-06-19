@@ -873,9 +873,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		backupContacts := models.BackupContacts{}
 		backupContacts = append(backupContacts, models.BackupContact{
-			Name:  "Backup contact name",
-			Phone: "555-555-5555",
-			Email: "backup@backup.com",
+			FirstName: "Backup",
+			LastName:  "contact name",
+			Phone:     "555-555-5555",
+			Email:     "backup@backup.com",
 		})
 		successMove.Orders.ServiceMember.BackupContacts = backupContacts
 
@@ -908,7 +909,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(orders.ServiceMember.ID.String(), ordersPayload.Customer.ID.String())
 		suite.Equal(*orders.ServiceMember.Edipi, ordersPayload.Customer.DodID)
 		suite.Equal(orders.ServiceMember.UserID.String(), ordersPayload.Customer.UserID.String())
-		suite.Equal(orders.ServiceMember.BackupContacts[0].Name, backupContacts[0].Name)
+		suite.Equal(orders.ServiceMember.BackupContacts[0].FirstName, backupContacts[0].FirstName)
+		suite.Equal(orders.ServiceMember.BackupContacts[0].LastName, backupContacts[0].LastName)
 		suite.Equal(orders.ServiceMember.BackupContacts[0].Phone, backupContacts[0].Phone)
 		suite.Equal(orders.ServiceMember.BackupContacts[0].Email, backupContacts[0].Email)
 
@@ -2922,4 +2924,100 @@ func (suite *HandlerSuite) TestAcknowledgeMovesAndShipmentsHandler() {
 		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsUnprocessableEntity)
 		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsUnprocessableEntity{}, handlerResponse)
 	})
+}
+
+func (suite *HandlerSuite) TestListMovesHandler_BeforeSearchParam() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+	today := time.Now()
+	aYearAgo := today.AddDate(-1, 0, 0)
+	aMonthAgo := today.AddDate(0, -1, 0)
+	aWeekAgo := today.AddDate(0, 0, -7)
+	yesterday := today.AddDate(0, 0, -1)
+
+	// Set up a hidden move so we can check if it's in the output:
+	factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{{
+		Model: models.Move{
+			Show: models.BoolPointer(false),
+		},
+	}}, nil)
+	// Make a default, not Prime-available move:
+	factory.BuildMove(suite.DB(), nil, nil)
+
+	// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
+	// Make some Prime moves:
+	primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil) // uses default updated_at of today
+	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
+	primeMove4 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	shipmentForPrimeMove4 := factory.BuildMTOShipmentWithMove(&primeMove4, suite.DB(), nil, nil)
+	reweighsForPrimeMove4, _ := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		MTOShipment: shipmentForPrimeMove4,
+	})
+	paymentRequestForPrimeMove3, _ := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusReviewed,
+		},
+	})
+
+	// update primeMove1, primeMove3, and primeMove4 updated_at for moves, orders, mto_shipments, payment_requests, reweighs
+	// into the past so we can include them in the results:
+	// Note: primeMove2 is intentionally left with an updated_at today, so it should not be included in the results.
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3, $4);",
+		aMonthAgo, primeMove1.ID, primeMove3.ID, primeMove4.ID).Exec())
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id IN ($2, $3);",
+		aMonthAgo, primeMove1.OrdersID, primeMove4.OrdersID).Exec())
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
+		aWeekAgo, shipmentForPrimeMove4.ID).Exec())
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE payment_requests SET updated_at=$1 WHERE id=$2;",
+		aWeekAgo, paymentRequestForPrimeMove3.ID).Exec())
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE reweighs SET updated_at=$1 WHERE id=$2;",
+		yesterday, reweighsForPrimeMove4.ID).Exec())
+
+	// make the request without `before` to get all Prime moves:
+	request := httptest.NewRequest("GET", "/moves?", nil)
+	params := movetaskorderops.ListMovesParams{HTTPRequest: request}
+	handlerConfig := suite.NewHandlerConfig()
+
+	handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+	listMoves := response.(*movetaskorderops.ListMovesOK)
+	movesList := listMoves.Payload
+
+	// Validate outgoing payload
+	suite.NoError(movesList.Validate(strfmt.Default))
+	suite.Len(movesList, 4, "Should return all 4 prime moves when no 'before' filter is applied")
+
+	// make the request with `before` to get only primeMove1, primeMove3, and primeMove4 updated before today:
+	before := handlers.FmtDateTime(today)
+	request = httptest.NewRequest("GET", fmt.Sprintf("/moves?before=%s", before.String()), nil)
+	params = movetaskorderops.ListMovesParams{HTTPRequest: request, Before: before}
+	handlerConfig = suite.NewHandlerConfig()
+
+	handler = ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
+	response = handler.Handle(params)
+	suite.IsNotErrResponse(response)
+	listMovesResponse := response.(*movetaskorderops.ListMovesOK)
+	movesList = listMovesResponse.Payload
+
+	// Validate outgoing payload
+	suite.NoError(movesList.Validate(strfmt.Default))
+	suite.Len(movesList, 3, "Should return only primeMove1, primeMove3, and primeMove4 for 'before' filter")
+
+	// make the request with `before` for date in the past with no records match to get no Prime moves
+	before = handlers.FmtDateTime(aYearAgo)
+	request = httptest.NewRequest("GET", fmt.Sprintf("/moves?before=%s", before.String()), nil)
+	params = movetaskorderops.ListMovesParams{HTTPRequest: request, Before: before}
+	handlerConfig = suite.NewHandlerConfig()
+
+	handler = ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
+	response = handler.Handle(params)
+	suite.IsNotErrResponse(response)
+	listMovesResponse = response.(*movetaskorderops.ListMovesOK)
+	movesList = listMovesResponse.Payload
+
+	// Validate outgoing payload
+	suite.NoError(movesList.Validate(strfmt.Default))
+	suite.Len(movesList, 0, "No moves should be returned for a before date far in the past")
 }

@@ -5092,6 +5092,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 			ActualMoveDate:        models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
+			HasReceivedAdvance:    models.BoolPointer(true),
 		},
 	}
 
@@ -9529,7 +9530,7 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		{
 			Model: models.Address{
 				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
-				PostalCode: "85004",
+				PostalCode: "90035",
 			},
 		},
 	}, nil)

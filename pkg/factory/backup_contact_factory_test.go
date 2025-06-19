@@ -16,7 +16,8 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 		// SETUP
 		defaultContact := models.BackupContact{
 			Permission: models.BackupContactPermissionEDIT,
-			Name:       "name",
+			FirstName:  "firstName",
+			LastName:   "lastName",
 			Email:      "email@example.com",
 			Phone:      "555-555-5555",
 		}
@@ -31,7 +32,8 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 
 		// VALIDATE RESULTS
 		suite.Equal(defaultContact.Permission, backupContact.Permission)
-		suite.Equal(defaultContact.Name, backupContact.Name)
+		suite.Equal(defaultContact.FirstName, backupContact.FirstName)
+		suite.Equal(defaultContact.LastName, backupContact.LastName)
 		suite.Equal(defaultContact.Email, backupContact.Email)
 		suite.Equal(defaultContact.Phone, backupContact.Phone)
 
@@ -50,7 +52,8 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 		// SETUP
 		customBackupContact := models.BackupContact{
 			ID:         uuid.Must(uuid.NewV4()),
-			Name:       "Fake Name",
+			FirstName:  "Fake",
+			LastName:   "Name",
 			Email:      "email@example.com",
 			Phone:      "555-444-4444",
 			Permission: models.BackupContactPermissionVIEW,
@@ -69,7 +72,8 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 
 		// VALIDATE RESULTS
 		suite.Equal(customBackupContact.ID, backupContact.ID)
-		suite.Equal(customBackupContact.Name, backupContact.Name)
+		suite.Equal(customBackupContact.FirstName, backupContact.FirstName)
+		suite.Equal(customBackupContact.LastName, backupContact.LastName)
 		suite.Equal(customBackupContact.Email, backupContact.Email)
 		suite.Equal(customBackupContact.Permission, backupContact.Permission)
 		suite.Equal(customBackupContact.Phone, backupContact.Phone)
@@ -116,13 +120,15 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 		backupContact := BuildBackupContact(nil, []Customization{
 			{
 				Model: models.BackupContact{
-					Name: "Another Name",
+					FirstName: "Another",
+					LastName:  "Name",
 				},
 			},
 		}, nil)
 		count, err := suite.DB().Count(&models.BackupContact{})
 		suite.Equal(precount, count)
 		suite.NoError(err)
-		suite.Equal("Another Name", backupContact.Name)
+		suite.Equal("Another", backupContact.FirstName)
+		suite.Equal("Name", backupContact.LastName)
 	})
 }

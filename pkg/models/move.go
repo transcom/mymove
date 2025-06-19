@@ -77,10 +77,10 @@ type Move struct {
 	PrimeCounselingCompletedAt                     *time.Time            `db:"prime_counseling_completed_at"`
 	ExcessUnaccompaniedBaggageWeightQualifiedAt    *time.Time            `db:"excess_unaccompanied_baggage_weight_qualified_at"` // UB specific excess tracking
 	ExcessUnaccompaniedBaggageWeightAcknowledgedAt *time.Time            `db:"excess_unaccompanied_baggage_weight_acknowledged_at"`
-	ExcessWeightQualifiedAt                        *time.Time            `db:"excess_weight_qualified_at"` // Overall excess weight tracking (Includes UB in the sum if it violates excess)
+	ExcessWeightQualifiedAt                        *time.Time            `json:"excess_weight_qualified_at" db:"excess_weight_qualified_at"` // Overall excess weight tracking (Includes UB in the sum if it violates excess)
 	ExcessWeightUploadID                           *uuid.UUID            `db:"excess_weight_upload_id"`
 	ExcessWeightUpload                             *Upload               `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
-	ExcessWeightAcknowledgedAt                     *time.Time            `db:"excess_weight_acknowledged_at"`
+	ExcessWeightAcknowledgedAt                     *time.Time            `json:"excess_weight_acknowledged_at" db:"excess_weight_acknowledged_at"`
 	BillableWeightsReviewedAt                      *time.Time            `db:"billable_weights_reviewed_at"`
 	FinancialReviewFlag                            bool                  `db:"financial_review_flag"`
 	FinancialReviewFlagSetAt                       *time.Time            `db:"financial_review_flag_set_at"`
@@ -101,10 +101,12 @@ type Move struct {
 	SCCounselingAssignedUser                       *OfficeUser           `belongs_to:"office_users" fk_id:"sc_counseling_assigned_id"`
 	SCCloseoutAssignedID                           *uuid.UUID            `json:"sc_closeout_assigned_id" db:"sc_closeout_assigned_id"`
 	SCCloseoutAssignedUser                         *OfficeUser           `belongs_to:"office_users" fk_id:"sc_closeout_assigned_id"`
-	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`
-	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"`
+	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`                           // old column
+	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"` // old column
 	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
 	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	TOOTaskOrderAssignedID                         *uuid.UUID            `json:"too_task_order_assigned_id" db:"too_task_order_assigned_id"`
+	TOOTaskOrderAssignedUser                       *OfficeUser           `belongs_to:"office_users" fk_id:"too_task_order_assigned_id"`
 	TOODestinationAssignedID                       *uuid.UUID            `json:"too_destination_assigned_id" db:"too_destination_assigned_id"`
 	TOODestinationAssignedUser                     *OfficeUser           `json:"too_destination_assigned" belongs_to:"office_users" fk_id:"too_destination_assigned_id"`
 	CounselingOfficeID                             *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
@@ -860,8 +862,8 @@ func ClearTOOAssignments(move *Move) (*Move, error) {
 
 	// clear out the origin-TOO assignment if nothing origin-type is still pending
 	if !originPending {
-		move.TOOAssignedID = nil
-		move.TOOAssignedUser = nil
+		move.TOOTaskOrderAssignedID = nil
+		move.TOOTaskOrderAssignedUser = nil
 	}
 
 	// clear out the destination-TOO assignment if nothing destination-type is still pending

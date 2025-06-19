@@ -12,6 +12,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import formStyles from 'styles/form.module.scss';
 import { dropdownInputOptions } from 'utils/formatters';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -91,7 +92,15 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Type</h2>
-      <DropdownInput label="Shipment type" name="shipmentType" options={shipmentTypeOptions} id="shipmentType" />
+      {requiredAsteriskMessage}
+      <DropdownInput
+        label="Shipment type"
+        name="shipmentType"
+        options={shipmentTypeOptions}
+        id="shipmentType"
+        showRequiredAsterisk
+        required
+      />
 
       {isPPM && (
         <>
@@ -100,11 +109,13 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             label="Expected Departure Date"
             id="ppmShipment.expectedDepartureDateInput"
             name="ppmShipment.expectedDepartureDate"
+            showRequiredAsterisk
+            required
           />
-          <h2 className={styles.sectionHeader}>Origin Info</h2>
           <AddressFields
             name="ppmShipment.pickupAddress"
             legend="Pickup Address"
+            className={styles.pickupAddressHeading}
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -138,7 +149,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                       name="ppmShipment.hasSecondaryPickupAddress"
                       value="false"
                       title="No, there is not a second pickup address"
-                      checked={hasSecondaryPickupAddress !== 'true' && hasTertiaryPickupAddress !== 'true'}
+                      checked={hasSecondaryPickupAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
@@ -199,11 +210,10 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
               </>
             )}
           />
-          <h2 className={styles.sectionHeader}>Destination Info</h2>
           <AddressFields
             name="ppmShipment.destinationAddress"
             legend="Delivery Address"
-            address1LabelHint="Optional"
+            optionalAddress1
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -236,7 +246,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                       name="ppmShipment.hasSecondaryDestinationAddress"
                       value="false"
                       title="No, there is not a second destination location"
-                      checked={hasSecondaryDestinationAddress !== 'true' && hasTertiaryDestinationAddress !== 'true'}
+                      checked={hasSecondaryDestinationAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
@@ -306,6 +316,8 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                 id="ppmShipment.sitLocationInput"
                 name="ppmShipment.sitLocation"
                 options={sitLocationOptions}
+                showRequiredAsterisk
+                required
               />
               <MaskedTextField
                 label="SIT Estimated Weight (lbs)"
@@ -316,6 +328,8 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                 signed={false} // disallow negative
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
+                showRequiredAsterisk
+                required
               />
               <DatePickerInput
                 label="SIT Estimated Entry Date"
@@ -339,6 +353,8 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             signed={false} // disallow negative
             thousandsSeparator=","
             lazy={false} // immediate masking evaluation
+            showRequiredAsterisk
+            required
           />
           <CheckboxField label="Has Pro Gear" id="ppmShipment.hasProGearInput" name="ppmShipment.hasProGear" />
           {hasProGear && (
@@ -373,7 +389,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
       {hasShipmentType && !isPPM && (
         <>
           <h2 className={styles.sectionHeader}>Shipment Dates</h2>
-          <DatePickerInput name="requestedPickupDate" label="Requested pickup" />
+          <DatePickerInput name="requestedPickupDate" label="Requested pickup" showRequiredAsterisk required />
 
           <h2 className={styles.sectionHeader}>Diversion</h2>
           <CheckboxField
@@ -388,8 +404,9 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
               label="Diverted from Shipment ID"
               id="divertedFromShipmentIdInput"
               name="divertedFromShipmentId"
-              labelHint="Required if diversion box is checked"
               validate={(value) => validateUUID(value)}
+              showRequiredAsterisk
+              required
             />
           )}
 
@@ -409,7 +426,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
           />
 
           <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
-          <h5 className={styles.sectionHeader}>Pickup Address</h5>
+          <h3 className={styles.sectionHeader}>Pickup Address</h3>
           <AddressFields
             name="pickupAddress"
             formikProps={{
@@ -436,7 +453,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                           name="hasSecondaryPickupAddress"
                           value="true"
                           title="Yes, there is a second pickup address"
-                          checked={hasSecondaryPickupAddress === 'true' && hasTertiaryPickupAddress !== 'true'}
+                          checked={hasSecondaryPickupAddress === 'true'}
                         />
                         <Field
                           as={Radio}
@@ -509,8 +526,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
               </>
             )}
           />
-
-          <h3 className={styles.sectionHeader}>Destination Info</h3>
           <AddressFields
             name="destinationAddress"
             legend="Delivery Address"
@@ -538,9 +553,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                           name="hasSecondaryDestinationAddress"
                           value="true"
                           title="Yes, there is a second delivery address"
-                          checked={
-                            hasSecondaryDestinationAddress === 'true' && hasTertiaryDestinationAddress !== 'true'
-                          }
+                          checked={hasSecondaryDestinationAddress === 'true'}
                         />
                         <Field
                           as={Radio}
@@ -624,9 +637,17 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             name="boatShipment.year"
             mask={Number}
             maxLength={4}
+            showRequiredAsterisk
+            required
           />
-          <TextField label="Make" id="boatShipment.makeInput" name="boatShipment.make" />
-          <TextField label="Model" id="boatShipment.modelInput" name="boatShipment.model" />
+          <TextField label="Make" id="boatShipment.makeInput" name="boatShipment.make" showRequiredAsterisk required />
+          <TextField
+            label="Model"
+            id="boatShipment.modelInput"
+            name="boatShipment.model"
+            showRequiredAsterisk
+            required
+          />
           <h2 className={styles.sectionHeader}>Boat Dimensions</h2>
           <figure>
             <figcaption>
@@ -645,12 +666,16 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             mask={Number}
             min={Number.MIN_SAFE_INTEGER}
             max={Number.MAX_SAFE_INTEGER}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Length (Inches)"
             id="boatShipment.lengthInInchesInput"
             name="boatShipment.lengthInInches"
             mask={Number}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Width (Feet)"
@@ -659,12 +684,16 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             mask={Number}
             min={Number.MIN_SAFE_INTEGER}
             max={Number.MAX_SAFE_INTEGER}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Width (Inches)"
             id="boatShipment.widthInInchesInput"
             name="boatShipment.widthInInches"
             mask={Number}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Height (Feet)"
@@ -673,12 +702,16 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             mask={Number}
             min={Number.MIN_SAFE_INTEGER}
             max={Number.MAX_SAFE_INTEGER}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Height (Inches)"
             id="boatShipment.heightInInchesInput"
             name="boatShipment.heightInInches"
             mask={Number}
+            showRequiredAsterisk
+            required
           />
           <h2 className={styles.sectionHeader}>Trailer</h2>
           <CheckboxField label="Has Trailer" id="boatShipment.hasTrailerInput" name="boatShipment.hasTrailer" />
@@ -703,9 +736,23 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             name="mobileHomeShipment.year"
             mask={Number}
             maxLength={4}
+            showRequiredAsterisk
+            required
           />
-          <TextField label="Make" id="mobileHomeShipment.makeInput" name="mobileHomeShipment.make" />
-          <TextField label="Model" id="mobileHomeShipment.modelInput" name="mobileHomeShipment.model" />
+          <TextField
+            label="Make"
+            id="mobileHomeShipment.makeInput"
+            name="mobileHomeShipment.make"
+            showRequiredAsterisk
+            required
+          />
+          <TextField
+            label="Model"
+            id="mobileHomeShipment.modelInput"
+            name="mobileHomeShipment.model"
+            showRequiredAsterisk
+            required
+          />
           <h2 className={styles.sectionHeader}>Mobile Home Dimensions</h2>
           <MaskedTextField
             label="Length (Feet)"
@@ -714,12 +761,16 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             mask={Number}
             min={Number.MIN_SAFE_INTEGER}
             max={Number.MAX_SAFE_INTEGER}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Length (Inches)"
             id="mobileHomeShipment.lengthInInchesInput"
             name="mobileHomeShipment.lengthInInches"
             mask={Number}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Width (Feet)"
@@ -728,12 +779,16 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             mask={Number}
             min={Number.MIN_SAFE_INTEGER}
             max={Number.MAX_SAFE_INTEGER}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Width (Inches)"
             id="mobileHomeShipment.widthInInchesInput"
             name="mobileHomeShipment.widthInInches"
             mask={Number}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Height (Feet)"
@@ -742,6 +797,8 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             mask={Number}
             min={Number.MIN_SAFE_INTEGER}
             max={Number.MAX_SAFE_INTEGER}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Height (Inches)"
@@ -749,6 +806,8 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             name="mobileHomeShipment.heightInInches"
             mask={Number}
             max={11}
+            showRequiredAsterisk
+            required
           />
           <h2 className={styles.sectionHeader}>Remarks</h2>
           <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>

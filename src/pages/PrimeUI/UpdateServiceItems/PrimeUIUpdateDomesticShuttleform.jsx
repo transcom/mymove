@@ -16,6 +16,7 @@ import { primeSimulatorRoutes } from 'constants/routes';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField } from 'components/form/fields';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const PrimeUIUpdateDomesticShuttleForm = ({ onUpdateServiceItem, serviceItem }) => {
   const { moveCodeOrID } = useParams();
@@ -136,16 +137,21 @@ const PrimeUIUpdateDomesticShuttleForm = ({ onUpdateServiceItem, serviceItem }) 
                   }}
                 />
                 {serviceItem.status === SERVICE_ITEM_STATUSES.REJECTED && (
-                  <TextField
-                    display="textarea"
-                    label="Update Reason"
-                    data-testid="updateReason"
-                    name="updateReason"
-                    className={`${formStyles.remarks}`}
-                    placeholder=""
-                    id="updateReason"
-                    maxLength={500}
-                  />
+                  <>
+                    {requiredAsteriskMessage}
+                    <TextField
+                      display="textarea"
+                      label="Update Reason"
+                      data-testid="updateReason"
+                      name="updateReason"
+                      className={`${formStyles.remarks}`}
+                      placeholder=""
+                      id="updateReason"
+                      maxLength={500}
+                      showRequiredAsterisk
+                      required
+                    />
+                  </>
                 )}
                 {serviceItem.status === SERVICE_ITEM_STATUSES.REJECTED && (
                   <CheckboxField
@@ -156,14 +162,15 @@ const PrimeUIUpdateDomesticShuttleForm = ({ onUpdateServiceItem, serviceItem }) 
                   />
                 )}
               </SectionWrapper>
-              <WizardNavigation
-                editMode
-                className={formStyles.formActions}
-                aria-label="Update Domestic Shuttle Service Item"
-                type="submit"
-                onCancelClick={handleClose}
-                onNextClick={handleSubmit}
-              />
+              <div className={formStyles.formActions}>
+                <WizardNavigation
+                  editMode
+                  aria-label="Update Domestic Shuttle Service Item"
+                  type="submit"
+                  onCancelClick={handleClose}
+                  onNextClick={handleSubmit}
+                />
+              </div>
             </div>
           </FormGroup>
         </Form>

@@ -76,7 +76,8 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 		},
 		{
 			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+				Status:               models.MTOShipmentStatusApproved,
+				PrimeEstimatedWeight: models.PoundPointer(1000),
 			},
 		},
 	}, nil)
@@ -146,5 +147,9 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 
 		suite.Equal(1, len(reports))
 		suite.Equal(tac.TAC, *reports[0].TAC)
+
+		// 110% of prime estimated weight
+		maxBillableWeight := move.MTOShipments[0].PrimeEstimatedWeight.Float64() * 1.1
+		suite.Equal(int(maxBillableWeight), reports[0].MaxBillableWeight.Int())
 	})
 }

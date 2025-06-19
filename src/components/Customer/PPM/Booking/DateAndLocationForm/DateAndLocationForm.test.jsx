@@ -50,16 +50,17 @@ const mockStore = configureStore({});
 
 describe('DateAndLocationForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load', async () => {
+    it('renders blank form on load and asterisks for required fields', async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
       expect(screen.getByRole('heading', { level: 2, name: 'Pickup Address' })).toBeInTheDocument();
       const postalCodes = screen.getAllByTestId('ZIP');
       const locationLookups = screen.getAllByLabelText(/Location Lookup/);
-      const address1 = screen.getAllByLabelText(/Address 1/);
+      const address1 = screen.getAllByLabelText(/Address 1 */);
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
       const state = screen.getAllByTestId(/State/);
@@ -183,7 +184,7 @@ describe('DateAndLocationForm component', () => {
         await userEvent.click(hasSecondaryPickupAddress);
         const postalCodes = screen.getAllByTestId(/ZIP/);
         const locationLookups = screen.getAllByLabelText(/Location Lookup/);
-        const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+        const address1 = screen.getAllByLabelText(/Address 1 */, { exact: false });
         const address2 = screen.getAllByLabelText('Address 2', { exact: false });
         const state = screen.getAllByTestId(/State/);
         const city = screen.getAllByTestId(/City/);
@@ -236,7 +237,7 @@ describe('DateAndLocationForm component', () => {
       await userEvent.click(screen.getByLabelText('Use my current delivery address'));
 
       const postalCodes = screen.getAllByTestId(/ZIP/);
-      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const address1 = screen.getAllByLabelText(/Address 1 */, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const state = screen.getAllByTestId(/State/);
       const city = screen.getAllByTestId(/City/);
@@ -255,7 +256,7 @@ describe('DateAndLocationForm component', () => {
       await userEvent.click(hasSecondaryDestinationAddress);
       const secondaryPostalCodes = screen.getAllByTestId(/ZIP/);
       const locationLookups = screen.getAllByLabelText(/Location Lookup/);
-      const secondaryAddress1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const secondaryAddress1 = screen.getAllByLabelText(/Address 1 */, { exact: false });
       const secondaryAddress2 = screen.getAllByLabelText('Address 2', { exact: false });
       const secondaryAddress3 = screen.getAllByLabelText('Address 3', { exact: false });
       const secondaryState = screen.getAllByTestId(/State/);
@@ -286,7 +287,7 @@ describe('DateAndLocationForm component', () => {
       );
 
       expect(screen.getByText('Closeout Office')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Which closeout office should review your PPM\?/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Which closeout office should review your PPM\? */)).toBeInTheDocument();
       expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
     });
   });
@@ -303,7 +304,7 @@ describe('DateAndLocationForm component', () => {
         </Provider>,
       );
       expect(screen.getByText('Closeout Office')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Which closeout office should review your PPM\?/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Which closeout office should review your PPM\? */)).toBeInTheDocument();
       expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
     });
   });
@@ -321,7 +322,7 @@ describe('DateAndLocationForm component', () => {
         </Provider>,
       );
       expect(screen.queryByText('Closeout Office')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText(/Which closeout office should review your PPM\?/)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/Which closeout office should review your PPM\? */)).not.toBeInTheDocument();
       expect(screen.queryByText('Start typing a closeout office...')).not.toBeInTheDocument();
     });
   });
@@ -336,7 +337,7 @@ describe('validates form fields and displays error messages', () => {
     );
 
     await act(async () => {
-      await userEvent.click(screen.getByLabelText(/Which closeout office should review your PPM\?/));
+      await userEvent.click(screen.getByLabelText(/Which closeout office should review your PPM\? */));
       await userEvent.keyboard('{backspace}[Tab]');
     });
 
@@ -359,7 +360,7 @@ describe('validates form fields and displays error messages', () => {
         </Provider>,
       );
 
-      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM? */), '1 January 2022');
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
@@ -371,7 +372,7 @@ describe('validates form fields and displays error messages', () => {
         // Departure date
         expect(requiredAlerts[0]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
         expect(
-          within(requiredAlerts[0].nextElementSibling).getByLabelText(/When do you plan to start moving your PPM?/),
+          within(requiredAlerts[0].nextElementSibling).getByLabelText(/When do you plan to start moving your PPM? */),
         ).toBeInTheDocument();
       });
     });
@@ -398,15 +399,10 @@ describe('validates form fields and displays error messages', () => {
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
-        // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 delivery address with 2 misc).
-        // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
-        // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
-        const hints = document.getElementsByClassName('usa-hint');
-        expect(hints.length).toBe(13);
-        // verify labelHints are actually 'Optional'
-        for (let i = 0; i < hints.length; i += 1) {
-          expect(hints[i]).toHaveTextContent('Required');
-        }
+        // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
+        // this field is usually always required other than PPMs
+        const labelsWithAsterisk = screen.queryAllByText((content) => content.trim().endsWith('*'));
+        expect(labelsWithAsterisk.length).toBe(9);
       });
     });
   });
@@ -424,7 +420,7 @@ describe('validates form fields and displays error messages', () => {
       await userEvent.click(hasTertiaryPickupAddress);
       const postalCodes = screen.getAllByTestId(/ZIP/);
       const locationLookups = screen.getAllByLabelText(/Location Lookup/);
-      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const address1 = screen.getAllByLabelText(/Address 1 */, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const state = screen.getAllByTestId(/State/);
       const city = screen.getAllByTestId(/City/);
@@ -450,7 +446,7 @@ describe('validates form fields and displays error messages', () => {
 
       await userEvent.click(hasTertiaryDestinationAddress);
       const postalCodes = screen.getAllByTestId(/ZIP/);
-      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const address1 = screen.getAllByLabelText(/Address 1 */, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
       const state = screen.getAllByTestId(/State/);
@@ -512,8 +508,8 @@ describe('validates form fields and displays error messages', () => {
       });
       await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
-      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
-      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
+      const address1 = screen.getAllByLabelText(/Address 1 */, { exact: false });
+      const locationLookups = screen.getAllByLabelText(/Location Lookup */);
 
       // verify pickup address is populated
       expect(address1[0]).toHaveValue('123 Main');

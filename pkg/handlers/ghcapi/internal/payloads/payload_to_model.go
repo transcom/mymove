@@ -59,9 +59,10 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 	var backupContacts []models.BackupContact
 	if payload.BackupContact != nil {
 		backupContacts = []models.BackupContact{{
-			Email: *payload.BackupContact.Email,
-			Name:  *payload.BackupContact.Name,
-			Phone: *payload.BackupContact.Phone,
+			Email:     *payload.BackupContact.Email,
+			FirstName: *payload.BackupContact.FirstName,
+			LastName:  *payload.BackupContact.LastName,
+			Phone:     *payload.BackupContact.Phone,
 		}}
 	}
 
@@ -325,6 +326,7 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		SITExpected:     ppmShipment.SitExpected,
 		EstimatedWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:      ppmShipment.HasProGear,
+		HasGunSafe:      ppmShipment.HasGunSafe,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
@@ -394,6 +396,10 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	if model.HasProGear != nil && *model.HasProGear {
 		model.ProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight)
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
+	}
+
+	if model.HasGunSafe != nil && *model.HasGunSafe {
+		model.GunSafeWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.GunSafeWeight)
 	}
 
 	return model
@@ -716,6 +722,14 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	sitEstimatedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedDepartureDate)
 	if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
+	}
+
+	if ppmShipment.HasGunSafe != nil {
+		model.HasGunSafe = ppmShipment.HasGunSafe
+	}
+
+	if ppmShipment.GunSafeWeight != nil {
+		model.GunSafeWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.GunSafeWeight)
 	}
 
 	return model

@@ -123,7 +123,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		AdditionalDocuments:                            additionalDocumentsPayload,
 		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
 		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
-		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
+		TOOTaskOrderAssignedUser:                       AssignedOfficeUser(move.TOOTaskOrderAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
@@ -595,9 +595,10 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	}
 
 	bc := &ghcmessages.BackupContact{
-		Name:  &backupContact.Name,
-		Email: &backupContact.Email,
-		Phone: &backupContact.Phone,
+		FirstName: &backupContact.FirstName,
+		LastName:  &backupContact.LastName,
+		Email:     &backupContact.Email,
+		Phone:     &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
@@ -647,9 +648,9 @@ func Order(order *models.Order) *ghcmessages.Order {
 		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*order.OrdersTypeDetail)
 	}
 
-	var grade ghcmessages.Grade
+	var grade ghcmessages.OrderPayGrade
 	if order.Grade != nil {
-		grade = ghcmessages.Grade(*order.Grade)
+		grade = ghcmessages.OrderPayGrade(*order.Grade)
 	}
 	//
 	var affiliation ghcmessages.Affiliation
@@ -708,9 +709,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var proGearWeight, proGearWeightSpouse, gunSafeWeight, totalWeight int64
 	proGearWeight = int64(entitlement.ProGearWeight)
 	proGearWeightSpouse = int64(entitlement.ProGearWeightSpouse)
+	gunSafeWeight = int64(entitlement.GunSafeWeight)
 
 	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
 		if *entitlement.DependentsAuthorized {
@@ -769,6 +771,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               sit,
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
@@ -878,19 +881,21 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	if len(contacts) == 0 {
 		return nil
 	}
-	var name, email, phone string
+	var firstName, lastName, email, phone string
 
 	if len(contacts) != 0 {
 		contact := contacts[0]
-		name = contact.Name
+		firstName = contact.FirstName
+		lastName = contact.LastName
 		email = contact.Email
 		phone = contact.Phone
 	}
 
 	return &ghcmessages.BackupContact{
-		Name:  &name,
-		Email: &email,
-		Phone: &phone,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Email:     &email,
+		Phone:     &phone,
 	}
 }
 
@@ -1014,6 +1019,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
@@ -1373,6 +1380,7 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
 		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+		GccMultiplier:         swag.Float32(float32(*ppmCloseout.GCCMultiplier)),
 	}
 
 	return payload
@@ -2369,6 +2377,9 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
 		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
 	}
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
 	for _, shipment := range move.MTOShipments {
 		if shipment.Status == models.MTOShipmentStatusSubmitted {
 			if shipment.Diversion {
@@ -2439,6 +2450,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			requestedDatesStr = &s
 		}
 
+		closeoutInitiatedStr := FormatPPMCloseoutInitiatedStr(move)
+
 		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
@@ -2494,8 +2507,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if queueType == string(models.QueueTypeCloseout) && move.SCCloseoutAssignedUser != nil {
 			assignedToUser = move.SCCloseoutAssignedUser
 		}
-		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
-			assignedToUser = move.TOOAssignedUser
+		if queueType == string(models.QueueTypeTaskOrder) && move.TOOTaskOrderAssignedUser != nil {
+			assignedToUser = move.TOOTaskOrderAssignedUser
 		}
 		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
 			assignedToUser = move.TOODestinationAssignedUser
@@ -2560,6 +2573,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutInitiatedDates:  closeoutInitiatedStr,
 			CloseoutLocation:        &closeoutLocation,
 			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
@@ -2575,6 +2589,28 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		}
 	}
 	return &queueMoves
+}
+
+func FormatPPMCloseoutInitiatedStr(move models.Move) *string {
+	var closeoutDates []time.Time
+	var formattedDates []string
+	for _, shipment := range move.MTOShipments {
+		if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+			// This shipment has a closed out PPM for us to format
+			closeoutDates = append(closeoutDates, *shipment.PPMShipment.SubmittedAt)
+		}
+	}
+	// Sort chronologically
+	sort.Slice(closeoutDates, func(i, j int) bool { return closeoutDates[i].Before(closeoutDates[j]) })
+	for _, closeoutDate := range closeoutDates {
+		formattedDates = append(formattedDates, closeoutDate.Format("Jan 2 2006"))
+	}
+	var requestedDatesStr *string
+	if len(formattedDates) > 0 {
+		s := strings.Join(formattedDates, ", ")
+		requestedDatesStr = &s
+	}
+	return requestedDatesStr
 }
 
 func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
@@ -2982,4 +3018,19 @@ func Countries(countries models.Countries) ghcmessages.Countries {
 		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
+	var payloadPayGrades []*ghcmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := ghcmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }
