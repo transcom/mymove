@@ -12,7 +12,8 @@ describe('BackupContactInfoFields component', () => {
       </Formik>,
     );
     expect(screen.getByText('Backup contact')).toBeInstanceOf(HTMLLegendElement);
-    expect(screen.getByLabelText('Name')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('First Name')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Last Name')).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByLabelText('Email')).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByLabelText('Phone')).toBeInstanceOf(HTMLInputElement);
   });
@@ -21,7 +22,8 @@ describe('BackupContactInfoFields component', () => {
     it('renders a legend and all backup contact info inputs', async () => {
       const initialValues = {
         email: 'test@example.com',
-        name: 'test',
+        firstName: 'test',
+        lastName: 'case',
         telephone: '555-123-4567',
       };
 
@@ -30,7 +32,8 @@ describe('BackupContactInfoFields component', () => {
           <BackupContactInfoFields legend="Backup contact" />
         </Formik>,
       );
-      expect(await screen.findByLabelText('Name')).toHaveValue(initialValues.name);
+      expect(await screen.findByLabelText('First Name')).toHaveValue(initialValues.firstName);
+      expect(await screen.findByLabelText('Last Name')).toHaveValue(initialValues.lastName);
       expect(await screen.findByLabelText('Email')).toHaveValue(initialValues.email);
       expect(await screen.findByLabelText('Phone')).toHaveValue(initialValues.telephone);
     });
@@ -41,7 +44,8 @@ describe('BackupContactInfoFields component', () => {
 
     const initialBackupInfo = {
       email: 'test@example.com',
-      name: 'test',
+      firstName: 'test',
+      lastName: 'test',
       telephone: '555-123-4567',
     };
 
@@ -55,7 +59,8 @@ describe('BackupContactInfoFields component', () => {
       </Formik>,
     );
 
-    expect(await screen.findByLabelText('Name')).toHaveValue(initialBackupInfo.name);
+    expect(await screen.findByLabelText('First Name')).toHaveValue(initialBackupInfo.firstName);
+    expect(await screen.findByLabelText('Last Name')).toHaveValue(initialBackupInfo.lastName);
     expect(await screen.findByLabelText('Email')).toHaveValue(initialBackupInfo.email);
     expect(await screen.findByLabelText('Phone')).toHaveValue(initialBackupInfo.telephone);
   });

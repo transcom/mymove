@@ -37,9 +37,10 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 
 	backupContacts := models.BackupContacts{}
 	backupContacts = append(backupContacts, models.BackupContact{
-		Name:  "Backup contact name",
-		Phone: "555-555-5555",
-		Email: "backup@backup.com",
+		FirstName: "Backup",
+		LastName:  "contact name",
+		Phone:     "555-555-5555",
+		Email:     "backup@backup.com",
 	})
 	serviceMember := models.ServiceMember{
 		BackupContacts: backupContacts,
@@ -93,7 +94,8 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)))
 		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
 		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
-		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].FirstName, returnedModel.Order.Customer.BackupContact.FirstName)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].LastName, returnedModel.Order.Customer.BackupContact.LastName)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
 		suite.Equal(handlers.FmtDateTimePtr(basicMove.PrimeAcknowledgedAt), returnedModel.PrimeAcknowledgedAt)
