@@ -1945,7 +1945,6 @@ func computeINPKExpectedPriceCents(
 func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimatePricing() {
 	now := time.Now()
 	tomorrow := now.AddDate(0, 0, 1)
-
 	setupOconusToConusNtsShipment := func(estimatedWeight *unit.Pound) (models.StorageFacility, models.Address, models.Address, models.MTOShipment) {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
 			{
@@ -2095,7 +2094,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 					if shipment.PrimeEstimatedWeight == nil {
 						return nil
 					}
-
 					ihpkService, err := models.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIHPK)
 					suite.FatalNoError(err)
 

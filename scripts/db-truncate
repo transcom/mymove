@@ -19,12 +19,12 @@ BEGIN
                                     'hhg_allowances',
                                     'jppso_region_state_assignments',
                                     'jppso_regions',
-                                    'pay_grade_ranks',
                                     'pay_grades',
                                     'port_locations',
                                     'ports',
                                     'postal_code_to_gblocs',
                                     'privileges',
+                                    'ranks',
                                     're_cities',
                                     're_contract_years',
                                     're_contracts',
@@ -53,8 +53,7 @@ BEGIN
                                     'service_params',
                                     'ub_allowances',
                                     'us_post_region_cities',
-                                    'zip3_distances',
-                                    'ranks'
+                                    'zip3_distances'
                                     ) order by tablename ) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;
