@@ -51,7 +51,7 @@ describe('AdvanceForm component', () => {
       ).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByText('Would you like to request an advance on your incentive?')).toHaveTextContent('*');
+      expect(screen.getByText('Would you like to request an advance on your incentive?')).toBeInTheDocument();
     });
 
     it('renders DTOD unavailable message when incentive is zero', async () => {
@@ -63,7 +63,7 @@ describe('AdvanceForm component', () => {
       ).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByText('Would you like to request an advance on your incentive?')).toHaveTextContent('*');
+      expect(screen.getByText('Would you like to request an advance on your incentive?')).toBeInTheDocument();
     });
   });
 

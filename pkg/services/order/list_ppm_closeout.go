@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
@@ -25,6 +26,7 @@ type PPMCloseoutQueueItem struct {
 	FullOrPartialPPM                 *string            `json:"full_or_partial_ppm" db:"full_or_partial_ppm"`
 	OrdersID                         *uuid.UUID         `json:"orders_id" db:"orders_id"`
 	LockedBy                         *uuid.UUID         `json:"locked_by" db:"locked_by"`
+	LockExpiresAt                    *time.Time         `json:"lock_expires_at" db:"lock_expires_at"`
 	SCCloseoutAssignedID             *uuid.UUID         `json:"sc_closeout_assigned_id" db:"sc_closeout_assigned_id"`
 	CounselingTransportationOfficeID *uuid.UUID         `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
 	Orders                           json.RawMessage    `json:"orders" db:"orders"`
@@ -159,6 +161,10 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 		if queueItem.LockedBy != nil {
 			move.LockedByOfficeUserID = queueItem.LockedBy
 		}
+		if queueItem.LockExpiresAt != nil {
+			move.LockExpiresAt = queueItem.LockExpiresAt
+		}
+
 		if queueItem.SCCloseoutAssignedID != nil {
 			move.SCCounselingAssignedID = queueItem.SCCloseoutAssignedID
 		}
@@ -170,25 +176,35 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 		if err := json.Unmarshal(queueItem.Orders, &order); err != nil {
 			return nil, fmt.Errorf("unmarshal Orders JSON: %w", err)
 		}
+		move.OrdersID = order.ID
 		move.Orders = order
 
-		var counselOffice models.TransportationOffice
+		var counselOffice *models.TransportationOffice
 		if err := json.Unmarshal(queueItem.CounselingTransportationOffice, &counselOffice); err != nil {
 			return nil, fmt.Errorf("unmarshal CounselingTransportationOffice JSON: %w", err)
 		}
-		move.CounselingOffice = &counselOffice
+		if counselOffice != nil {
+			move.CounselingOfficeID = &counselOffice.ID
+			move.CounselingOffice = counselOffice
+		}
 
-		var closeOffice models.TransportationOffice
+		var closeOffice *models.TransportationOffice
 		if err := json.Unmarshal(queueItem.PpmCloseoutLocation, &closeOffice); err != nil {
 			return nil, fmt.Errorf("unmarshal PpmCloseoutLocation JSON: %w", err)
 		}
-		move.CloseoutOffice = &closeOffice
+		if closeOffice != nil {
+			move.CloseoutOfficeID = &closeOffice.ID
+			move.CloseoutOffice = closeOffice
+		}
 
-		var scUser models.OfficeUser
+		var scUser *models.OfficeUser
 		if err := json.Unmarshal(queueItem.ScAssigned, &scUser); err != nil {
 			return nil, fmt.Errorf("unmarshal ScAssigned JSON: %w", err)
 		}
-		move.SCCloseoutAssignedUser = &scUser
+		if scUser != nil {
+			move.SCCloseoutAssignedID = &scUser.ID
+			move.SCCloseoutAssignedUser = scUser
+		}
 
 		// Account for the json agg of multiple mts
 		var mtoShipments models.MTOShipments

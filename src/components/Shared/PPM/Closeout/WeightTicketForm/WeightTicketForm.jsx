@@ -196,13 +196,8 @@ const WeightTicketForm = ({
                   <h3>Trailer</h3>
                   <FormGroup>
                     <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend
-                        className="usa-label"
-                        aria-label="Required: On this trip, were you using a trailer that you own?"
-                      >
-                        <span required>
-                          On this trip, were you using a trailer that you own? <RequiredAsterisk />
-                        </span>
+                      <legend className="usa-label" aria-label="On this trip, were you using a trailer that you own?">
+                        <span>On this trip, were you using a trailer that you own?</span>
                       </legend>
                       <Field
                         as={Radio}
@@ -223,13 +218,8 @@ const WeightTicketForm = ({
                     </Fieldset>
                     {values.ownsTrailer === 'true' && (
                       <Fieldset className={styles.trailerClaimedFieldset}>
-                        <legend
-                          className="usa-label"
-                          aria-label="Required: Does your trailer meet all of these criteria?"
-                        >
-                          <span required>
-                            Does your trailer meet all of these criteria? <RequiredAsterisk />
-                          </span>
+                        <legend className="usa-label" aria-label="Does your trailer meet all of these criteria?">
+                          <span>Does your trailer meet all of these criteria?</span>
                         </legend>
                         <ul>
                           <li>Single axle</li>
