@@ -31,3 +31,4 @@
 20250513172017_tbl_country_weekends.up.sql
 20250516151608_tbl_pay_grades.up.sql
 20250528192635_tbl_backup_contacts.up.sql
+20250619190417_tbl_backup_contact.up.sql
