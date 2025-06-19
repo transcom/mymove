@@ -262,7 +262,7 @@ export default function ReviewBillableWeight() {
   const fileList =
     selectedShipment.shipmentType !== 'PPM' ? getAllFiles() : getAllPPMShipmentFiles(selectedShipment.ppmShipment);
   return (
-    <div className={styles.DocumentWrapper} style={{ marginTop: '0px' }}>
+    <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
         <DocumentViewer files={fileList} />
       </div>

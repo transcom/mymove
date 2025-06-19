@@ -2,11 +2,15 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
+
+.gridContainer {
+  margin-top: 2rem;
+}
+
 .customerContactForm {
   display: flex;
   flex-direction: column;
   width: 50vw;
-  margin-top: 200px;
 }
 
 .formSectionHeader {

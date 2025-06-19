@@ -2,7 +2,6 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import 'styles/office.scss';
-import PropTypes from 'prop-types';
 
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
@@ -17,6 +16,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import EvaluationReportView from 'components/Office/EvaluationReportView/EvaluationReportView';
+import { roleTypes } from 'constants/userRoles';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -33,7 +33,7 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
 const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
-const TXOMoveInfo = ({ isMultiRole }) => {
+const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [shipmentsWithDeliveryAddressUpdateRequestedCount, setShipmentsWithDeliveryAddressUpdateRequestedCount] =
@@ -132,17 +132,14 @@ const TXOMoveInfo = ({ isMultiRole }) => {
 
   return (
     <>
-      {isMultiRole ? (
-        <div className="custHeader" style={{ marginTop: '25px' }}>
-          <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
-          {renderLockedBanner()}
-        </div>
-      ) : (
-        <div className="custHeader" style={{ marginTop: 0 }}>
-          <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
-          {renderLockedBanner()}
-        </div>
-      )}
+      <CustomerHeader
+        move={move}
+        order={order}
+        customer={customerData}
+        moveCode={moveCode}
+        userRole={roleTypes.SERVICES_COUNSELOR}
+      />
+      {renderLockedBanner()}
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
@@ -308,14 +305,6 @@ const TXOMoveInfo = ({ isMultiRole }) => {
       </Suspense>
     </>
   );
-};
-
-TXOMoveInfo.propTypes = {
-  isMultiRole: PropTypes.bool,
-};
-
-TXOMoveInfo.defaultProps = {
-  isMultiRole: false,
 };
 
 export default TXOMoveInfo;

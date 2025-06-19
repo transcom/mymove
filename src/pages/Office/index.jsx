@@ -55,7 +55,6 @@ import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGbloc
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import StickyOfficeHeader from 'components/Office/StickyOfficeHeader/StickyOfficeHeader';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -174,47 +173,41 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     return <MaintenancePage />;
   }
 
-  // If path is not in office user tabs
-  // do not make the header sticky
-  let isSticky = false;
-  const notStickyList = [
-    '/counseling',
-    '/',
-    '/sign-in',
-    '/PPM-closeout',
-    '/search',
-    '/customer-search',
-    '/select-application',
-    '/move-queue',
-    '/destination-requests',
-    '/payment-requests',
-    '/invalid-permissions',
-  ];
-  if (!notStickyList.includes(location.pathname) && !location.pathname.includes('simulator')) {
-    isSticky = true;
-  }
+  // routes that render <CustomerHeader /> component
+  // TODO: add more routes as needed
+  const hasCustomerHeader =
+    matchPath(
+      {
+        path: `/moves/:moveCode/*`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`,
+      },
+      location.pathname,
+    );
 
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
       <SelectedGblocProvider>
         <div id="app-root">
           <div className={siteClasses}>
-            <BypassBlock />
-            {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {!props.userIsLoggedIn && (
-              <div>
-                <CUIHeader /> <LoggedOutHeader app={pageNames.OFFICE} />
-              </div>
-            )}
-            {props.userIsLoggedIn && isSticky && <StickyOfficeHeader displayChangeRole={displayChangeRole} />}
-            {props.userIsLoggedIn && !isSticky && (
-              <div>
-                <CUIHeader />
-                {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-                <OfficeLoggedInHeader />
-              </div>
-            )}
-            <main id="main" role="main" className="site__content site-office__content">
+            <div className={styles.fixedHeader}>
+              <BypassBlock />
+              <CUIHeader />
+              {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
+              {displayChangeRole && <Link to="/select-application">Change user role</Link>}
+              {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
+            </div>
+            <main
+              id="main"
+              role="main"
+              className={classnames('site__content site-office__content', {
+                [styles.headerMargin]: hasCustomerHeader,
+              })}
+            >
               <ConnectedLogoutOnInactivity />
               {props.hasRecentError && location.pathname === '/' && (
                 <SystemError>
@@ -397,7 +390,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingMoveInfo isMultiRole={displayChangeRole} />
+                          <ServicesCounselingMoveInfo />
                         </PrivateRoute>
                       }
                     />
@@ -436,7 +429,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <ServicesCounselingMoveInfo isMultiRole={displayChangeRole} />
+                          <ServicesCounselingMoveInfo />
                         </PrivateRoute>
                       }
                     />
@@ -610,7 +603,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             roleTypes.HQ,
                           ]}
                         >
-                          <TXOMoveInfo isMultiRole={displayChangeRole} />
+                          <TXOMoveInfo />
                         </PrivateRoute>
                       }
                     />

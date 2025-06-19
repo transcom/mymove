@@ -15,6 +15,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
+import CustomerHeader from 'components/CustomerHeader';
 
 const AddShipment = () => {
   const params = useParams();
@@ -64,32 +65,35 @@ const AddShipment = () => {
   };
 
   return (
-    <div className={styles.tabContent}>
-      <div className={styles.container}>
-        <GridContainer className={styles.gridContainer}>
-          <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
-              <ShipmentForm
-                submitHandler={mutateMTOShipments}
-                isCreatePage
-                currentResidence={customer.current_address}
-                originDutyLocationAddress={order.originDutyLocation?.address}
-                newDutyLocationAddress={order.destinationDutyLocation?.address}
-                shipmentType={shipmentType}
-                serviceMember={{ weightAllotment, agency: customer.agency, grade }}
-                moveTaskOrderID={move.id}
-                mtoShipments={mtoShipments}
-                TACs={TACs}
-                SACs={SACs}
-                userRole={roleTypes.TOO}
-                displayDestinationType={isRetirementOrSeparation}
-                move={move}
-              />
+    <>
+      <CustomerHeader move={move} order={order} customer={customer} moveCode={moveCode} />
+      <div className={styles.tabContent}>
+        <div className={styles.container}>
+          <GridContainer className={styles.gridContainer}>
+            <Grid row>
+              <Grid col desktop={{ col: 8, offset: 2 }}>
+                <ShipmentForm
+                  submitHandler={mutateMTOShipments}
+                  isCreatePage
+                  currentResidence={customer.current_address}
+                  originDutyLocationAddress={order.originDutyLocation?.address}
+                  newDutyLocationAddress={order.destinationDutyLocation?.address}
+                  shipmentType={shipmentType}
+                  serviceMember={{ weightAllotment, agency: customer.agency, grade }}
+                  moveTaskOrderID={move.id}
+                  mtoShipments={mtoShipments}
+                  TACs={TACs}
+                  SACs={SACs}
+                  userRole={roleTypes.TOO}
+                  displayDestinationType={isRetirementOrSeparation}
+                  move={move}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-        </GridContainer>
+          </GridContainer>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

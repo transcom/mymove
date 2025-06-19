@@ -11,13 +11,12 @@
   width: 230px;
   position: sticky;
   align-self: flex-start;
-  margin-top: 26px;
-  top: 200px;
+  top: 210px;
+  scroll-margin: 200px;
 
   > a {
     @include u-text('base');
     @include u-text('no-underline');
-
     @include u-padding-y(1.5); //12px
     @include u-padding-x(2.5); //20px
     @include u-border(0);

@@ -48,7 +48,9 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
           <p className={styles.details}>
             <span data-testid="deptPayGrade">{ORDERS_BRANCH_OPTIONS[`${order.agency}`]}</span>
             <span className={styles.verticalBar}>|</span>
-            <span data-testid="edipi">DoD ID {customer.edipi}</span>
+            <span data-testid="edipi" className={styles.details}>
+              DoD ID {customer.edipi}
+            </span>
             {isCoastGuard && (
               <>
                 <span className={styles.verticalBar}>|</span>
@@ -66,7 +68,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
       <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
-          <h4>{order.originDutyLocation.name}</h4>
+          {order.originDutyLocation.name}
         </div>
         {order.destinationDutyLocation.name && (
           <div>
