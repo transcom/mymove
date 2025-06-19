@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	ppm "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -693,5 +694,175 @@ func (suite *HandlerSuite) TestSendPPMToCustomerHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&ppm.SendPPMToCustomerNotFound{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
+	setUpPPMShipment := func() models.PPMShipment {
+
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
+
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+		ppmShipment.CreatedAt = time.Now()
+		ppmShipment.UpdatedAt = ppmShipment.CreatedAt.AddDate(0, 0, 5)
+		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = uuid.Must(uuid.NewV4())
+
+		return ppmShipment
+	}
+
+	setUpRequestAndParams := func(
+		ppmShipmentID uuid.UUID,
+	) ppm.SubmitPPMShipmentDocumentationParams {
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipmentID.String())
+		request := httptest.NewRequest("POST", endpoint, nil)
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		return ppm.SubmitPPMShipmentDocumentationParams{
+			HTTPRequest:   request,
+			PpmShipmentID: handlers.FmtUUIDValue(ppmShipmentID),
+		}
+	}
+
+	setUpPPMShipmentNewSubmitter := func(returnValue ...interface{}) services.PPMShipmentNewSubmitter {
+		mockSubmitter := &mocks.PPMShipmentNewSubmitter{}
+
+		mockSubmitter.On(
+			"SubmitNewCustomerCloseOut",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockSubmitter
+	}
+
+	setUpHandler := func(submitter services.PPMShipmentNewSubmitter) SubmitPPMShipmentDocumentationHandler {
+		return SubmitPPMShipmentDocumentationHandler{
+			suite.HandlerConfig(),
+			submitter,
+		}
+	}
+
+	suite.Run("Returns an error if the PPMShipment ID in the url is invalid", func() {
+		params := setUpRequestAndParams(uuid.Nil)
+
+		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, nil))
+
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppm.SubmitPPMShipmentDocumentationBadRequest{}, response) {
+			errResponse := response.(*ppm.SubmitPPMShipmentDocumentationBadRequest)
+
+			suite.Contains(*errResponse.Payload.Message, "nil PPM shipment ID")
+		}
+	})
+
+	suite.Run("Returns an error if the request doesn't come from the office app", func() {
+		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, nil))
+		ppmShipment := setUpPPMShipment()
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipment.ID.String())
+		request := httptest.NewRequest("POST", endpoint, nil)
+		params := ppm.SubmitPPMShipmentDocumentationParams{
+			HTTPRequest:   request,
+			PpmShipmentID: handlers.FmtUUIDValue(ppmShipment.ID),
+		}
+		params.HTTPRequest = suite.AuthenticateRequest(params.HTTPRequest, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+		response := handler.Handle(params)
+
+		err := apperror.NewSessionError("Request should come from the office app.")
+
+		if suite.IsType(&ppm.SubmitPPMShipmentDocumentationForbidden{}, response) {
+			errResponse := response.(*ppm.SubmitPPMShipmentDocumentationForbidden)
+
+			suite.Contains(*errResponse.Payload.Message, err.Error())
+		}
+	})
+
+	suite.Run("Returns an error if the submitter service returns a NotFoundError", func() {
+		ppmShipment := setUpPPMShipment()
+
+		params := setUpRequestAndParams(ppmShipment.ID)
+
+		err := apperror.NewNotFoundError(ppmShipment.ID, "Can't find PPM shipment")
+
+		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppm.SubmitPPMShipmentDocumentationNotFound{}, response) {
+			errResponse := response.(*ppm.SubmitPPMShipmentDocumentationNotFound)
+
+			suite.Contains(*errResponse.Payload.Message, err.Error())
+		}
+	})
+
+	suite.Run("Returns an error if the submitter service returns a QueryError", func() {
+		ppmShipment := setUpPPMShipment()
+
+		params := setUpRequestAndParams(ppmShipment.ID)
+
+		err := apperror.NewQueryError("PPMShipment", nil, "Error getting PPM shipment")
+
+		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+		response := handler.Handle(params)
+
+		suite.IsType(&ppm.SubmitPPMShipmentDocumentationInternalServerError{}, response)
+	})
+
+	suite.Run("Returns an error if the submitter service returns a ConflictError", func() {
+		ppmShipment := setUpPPMShipment()
+
+		params := setUpRequestAndParams(ppmShipment.ID)
+
+		err := apperror.NewConflictError(ppmShipment.ID, "Can't route PPM shipment")
+
+		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppm.SubmitPPMShipmentDocumentationConflict{}, response) {
+			errResponse := response.(*ppm.SubmitPPMShipmentDocumentationConflict)
+
+			suite.Contains(*errResponse.Payload.Message, err.Error())
+		}
+	})
+
+	suite.Run("Returns an error if the submitter service returns an unexpected error", func() {
+		ppmShipment := setUpPPMShipment()
+
+		params := setUpRequestAndParams(ppmShipment.ID)
+
+		err := apperror.NewNotImplementedError("Not implemented")
+
+		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+		response := handler.Handle(params)
+
+		suite.IsType(&ppm.SubmitPPMShipmentDocumentationInternalServerError{}, response)
+	})
+
+	suite.Run("Returns the PPM shipment if all goes well", func() {
+		ppmShipment := setUpPPMShipment()
+
+		params := setUpRequestAndParams(ppmShipment.ID)
+
+		expectedPPMShipment := ppmShipment
+		expectedPPMShipment.Status = models.PPMShipmentStatusNeedsCloseout
+		expectedPPMShipment.SubmittedAt = models.TimePointer(time.Now())
+		signedCertification := models.SignedCertification{}
+
+		expectedPPMShipment.SignedCertification = &signedCertification
+
+		handler := setUpHandler(setUpPPMShipmentNewSubmitter(&expectedPPMShipment, nil))
+
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppm.SubmitPPMShipmentDocumentationOK{}, response) {
+			okResponse := response.(*ppm.SubmitPPMShipmentDocumentationOK)
+			returnedPPMShipment := okResponse.Payload
+
+			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
+
+			suite.EqualUUID(expectedPPMShipment.ID, returnedPPMShipment.ID)
+		}
 	})
 }

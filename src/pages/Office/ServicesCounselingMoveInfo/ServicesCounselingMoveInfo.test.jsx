@@ -26,8 +26,6 @@ const mockMTOShipment = {
   ppmShipment: {
     id: mockPPMShipmentId,
     actualMoveDate: '2022-05-01',
-    actualPickupPostalCode: '10003',
-    actualDestinationPostalCode: '10004',
     advanceReceived: true,
     advanceAmountReceived: '6000000',
     expectedDepartureDate: '2022-04-30',
@@ -223,11 +221,9 @@ describe('Services Counseling Move Info Container', () => {
     });
   });
 
-  it('should render the Supporting Documents component if the feature flag is enabled', async () => {
+  it('should render the Supporting Documents component', async () => {
     const componentName = 'Supporting Documents';
     const nestedPath = 'supporting-documents';
-
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     renderSCMoveInfo(nestedPath);
 
@@ -237,21 +233,6 @@ describe('Services Counseling Move Info Container', () => {
     // Assert that the mock component is rendered
     await waitFor(() => {
       expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
-    });
-  });
-
-  it('should not render the Supporting Documents component if the feature flag is turned off', async () => {
-    const componentName = 'Supporting Documents';
-    const nestedPath = 'counseling/supporting-documents';
-
-    renderSCMoveInfo(nestedPath);
-
-    // Wait for loading to finish
-    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
-
-    // Assert that the mock component has not been rendered
-    await waitFor(() => {
-      expect(screen.queryByText(`Mock ${componentName} Component`)).not.toBeInTheDocument();
     });
   });
 

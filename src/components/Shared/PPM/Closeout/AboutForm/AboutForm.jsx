@@ -9,7 +9,7 @@ import styles from './AboutForm.module.scss';
 
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import closingPageStyles from 'components/Shared/PPM/Closeout/Closeout.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Hint from 'components/Hint';
@@ -63,8 +63,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
 
   const initialValues = {
     actualMoveDate: actualMoveDate || '',
-    actualPickupPostalCode: '',
-    actualDestinationPostalCode: '',
     pickupAddress,
     secondaryPickupAddress: hasSecondaryPickupAddress ? secondaryPickupAddress : {},
     destinationAddress,
@@ -80,6 +78,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
       city: mtoShipment?.ppmShipment?.w2Address?.city || '',
       state: mtoShipment?.ppmShipment?.w2Address?.state || '',
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
+      county: mtoShipment?.ppmShipment?.w2Address?.county || '',
       usPostRegionCitiesID: mtoShipment?.ppmShipment?.w2Address?.usPostRegionCitiesID || '',
     },
   };

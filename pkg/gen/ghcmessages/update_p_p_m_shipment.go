@@ -19,25 +19,9 @@ import (
 // swagger:model UpdatePPMShipment
 type UpdatePPMShipment struct {
 
-	// ZIP
-	//
-	// The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
-	//
-	// Example: 90210
-	// Pattern: ^(\d{5})$
-	ActualDestinationPostalCode *string `json:"actualDestinationPostalCode,omitempty"`
-
 	// actual move date
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate,omitempty"`
-
-	// ZIP
-	//
-	// The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
-	//
-	// Example: 90210
-	// Pattern: ^(\d{5})$
-	ActualPickupPostalCode *string `json:"actualPickupPostalCode,omitempty"`
 
 	// The amount received for an advance, or null if no advance is received
 	//
@@ -68,6 +52,13 @@ type UpdatePPMShipment struct {
 	//
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate,omitempty"`
+
+	// The estimated weight of the gun safe being moved belonging to the service member.
+	GunSafeWeight *int64 `json:"gunSafeWeight,omitempty"`
+
+	// Indicates whether PPM shipment has gun safe.
+	//
+	HasGunSafe *bool `json:"hasGunSafe,omitempty"`
 
 	// Indicates whether PPM shipment has pro-gear.
 	//
@@ -157,15 +148,7 @@ type UpdatePPMShipment struct {
 func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateActualDestinationPostalCode(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateActualMoveDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateActualPickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -231,36 +214,12 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdatePPMShipment) validateActualDestinationPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.ActualDestinationPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("actualDestinationPostalCode", "body", *m.ActualDestinationPostalCode, `^(\d{5})$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *UpdatePPMShipment) validateActualMoveDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ActualMoveDate) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("actualMoveDate", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdatePPMShipment) validateActualPickupPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.ActualPickupPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("actualPickupPostalCode", "body", *m.ActualPickupPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 

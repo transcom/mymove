@@ -194,6 +194,15 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&ppmShipment, cPPMShipment)
+	// we need to populate the GCC multiplier if it applies to the PPM's expected departure date
+	var nilTime time.Time
+	if db != nil && ppmShipment.ExpectedDepartureDate != nilTime {
+		gccMultiplier, _ := models.FetchGccMultiplier(db, ppmShipment)
+		if gccMultiplier.ID != uuid.Nil {
+			ppmShipment.GCCMultiplierID = &gccMultiplier.ID
+			ppmShipment.GCCMultiplier = &gccMultiplier
+		}
+	}
 
 	// If db is false, it's a stub. No need to create in database
 	if db != nil {
@@ -280,8 +289,6 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 	ppmShipment := buildApprovedPPMShipmentWaitingOnCustomer(db, userUploader, customs)
 
 	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
-	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupAddress.PostalCode
-	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationAddress.PostalCode
 
 	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
 		ppmShipment.HasReceivedAdvance = models.BoolPointer(true)
@@ -988,17 +995,15 @@ func GetTraitApprovedPPMWithActualInfo() []Customization {
 		},
 		{
 			Model: models.PPMShipment{
-				Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-				SubmittedAt:                 &submittedTime,
-				ApprovedAt:                  &approvedTime,
-				ExpectedDepartureDate:       expectedDepartureDate,
-				ActualMoveDate:              models.TimePointer(expectedDepartureDate.AddDate(0, 0, 1)),
-				ActualPickupPostalCode:      models.StringPointer("30813"),
-				ActualDestinationPostalCode: models.StringPointer("50309"),
-				HasRequestedAdvance:         models.BoolPointer(true),
-				AdvanceAmountRequested:      models.CentPointer(unit.Cents(598700)),
-				HasReceivedAdvance:          models.BoolPointer(true),
-				AdvanceAmountReceived:       models.CentPointer(unit.Cents(598700)),
+				Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+				SubmittedAt:            &submittedTime,
+				ApprovedAt:             &approvedTime,
+				ExpectedDepartureDate:  expectedDepartureDate,
+				ActualMoveDate:         models.TimePointer(expectedDepartureDate.AddDate(0, 0, 1)),
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
+				HasReceivedAdvance:     models.BoolPointer(true),
+				AdvanceAmountReceived:  models.CentPointer(unit.Cents(598700)),
 			},
 		},
 		{

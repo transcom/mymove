@@ -2551,6 +2551,40 @@ paths:
           description: ppm not found
         '500':
           description: internal server error
+  /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    post:
+      summary: Saves signature and routes PPM shipment to service counselor
+      description: |
+        Routes the PPM shipment to the service
+        counselor PPM Closeout queue for review.
+      operationId: submitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: '#/definitions/PPMShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
@@ -5945,6 +5979,10 @@ definitions:
         example: 500
         type: integer
         x-formatting: weight
+      gunSafeWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
       storageInTransit:
         example: 90
         type: integer
@@ -6855,6 +6893,14 @@ definitions:
         maximum: 500
         x-formatting: weight
         x-nullable: true
+      gunSafeWeight:
+        description: unit is in lbs
+        example: 500
+        type: integer
+        minimum: 0
+        maximum: 500
+        x-formatting: weight
+        x-nullable: true
       requiredMedicalEquipmentWeight:
         description: unit is in lbs
         example: 2000
@@ -6962,6 +7008,14 @@ definitions:
         x-formatting: weight
         x-nullable: true
       proGearWeightSpouse:
+        minimum: 0
+        maximum: 500
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      gunSafeWeight:
         minimum: 0
         maximum: 500
         description: unit is in lbs
@@ -7423,32 +7477,12 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
           - $ref: '#/definitions/PPMDestinationAddress'
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -7515,6 +7549,17 @@ definitions:
         type: integer
         x-nullable: true
       spouseProGearWeight:
+        type: integer
+        x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
       hasRequestedAdvance:
@@ -8013,6 +8058,13 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+      gunSafeWeight:
+        type: integer
+        x-nullable: true
       isActualExpenseReimbursement:
         description: >-
           Used for PPM shipments only. Denotes if this shipment uses the Actual
@@ -8032,6 +8084,7 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+      - hasGunSafe
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -8342,6 +8395,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -8350,7 +8407,10 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+        x-nullable: true
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
@@ -10089,6 +10149,7 @@ definitions:
       - CANCELED
       - DIVERSION_REQUESTED
       - TERMINATED_FOR_CAUSE
+      - APPROVALS_REQUESTED
   ReweighRequester:
     type: string
     enum:
@@ -10338,7 +10399,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   OmittablePPMDocumentStatus:
@@ -11047,17 +11107,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       destinationAddress:
         $ref: '#/definitions/Address'
       secondaryDestinationAddress:
@@ -11078,17 +11127,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require
@@ -11131,6 +11169,19 @@ definitions:
         description: >-
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
         x-omitempty: false
@@ -12008,6 +12059,13 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      gccMultiplier:
+        description: Multiplier applied to incentives
+        type: number
+        format: float
+        example: 1.3
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
   PPMActualWeight:
@@ -12257,6 +12315,8 @@ definitions:
       - SITScheduleOrigin
       - SITServiceAreaDest
       - SITServiceAreaOrigin
+      - SITRateAreaDest
+      - SITRateAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated

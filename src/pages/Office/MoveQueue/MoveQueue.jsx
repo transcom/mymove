@@ -22,7 +22,7 @@ import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
+import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE } from 'shared/constants';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
@@ -32,7 +32,7 @@ import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { handleQueueAssignment, getQueue, formatApprovalRequestTypes } from 'utils/queues';
+import { handleQueueAssignment, getQueue } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
@@ -43,6 +43,7 @@ export const columns = (
   setRefetchQueue,
   showBranchFilter = true,
 ) => {
+  const isDestinationQueue = queueType === tooRoutes.DESTINATION_REQUESTS_QUEUE;
   const cols = [
     createHeader('ID', 'id', { id: 'id' }),
     createHeader(
@@ -94,40 +95,42 @@ export const columns = (
       id: 'emplid',
       isFilterable: true,
     }),
-    createHeader(
-      'Status',
-      (row) => {
-        return MOVE_STATUS_LABELS[`${row.status}`];
-      },
-      {
-        id: 'status',
-        isFilterable: true,
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
-      },
-    ),
-    createHeader(
-      'Approval Request Type',
-      (row) => {
-        if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
-          return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
-        }
-        return '';
-      },
-      {
-        id: 'approvalRequestTypes',
-        isFilterable: false,
-        disableSortBy: true,
-      },
-    ),
+    !isDestinationQueue
+      ? createHeader(
+          'Status',
+          (row) => {
+            return MOVE_STATUS_LABELS[`${row.status}`];
+          },
+          {
+            id: 'status',
+            isFilterable: true,
+            Filter: (props) => (
+              <MultiSelectCheckBoxFilter
+                options={MOVE_STATUS_OPTIONS}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+              />
+            ),
+          },
+        )
+      : createHeader(
+          'Status',
+          (row) => {
+            return MOVE_STATUS_LABELS[`${row.status}`];
+          },
+          {
+            id: 'status',
+            disableSortBy: true,
+          },
+        ),
     createHeader('Move code', 'locator', {
       id: 'locator',
       isFilterable: true,
     }),
     createHeader(
-      'Requested move date',
+      'Requested move date(s)',
       (row) => {
-        return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
+        return row.requestedMoveDates;
       },
       {
         id: 'requestedMoveDate',
@@ -163,14 +166,22 @@ export const columns = (
       },
     ),
     createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
-    createHeader('Origin duty location', 'originDutyLocation.name', {
-      id: 'originDutyLocation',
-      isFilterable: true,
-      exportValue: (row) => {
-        return row.originDutyLocation?.name;
-      },
-    }),
-    createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    !isDestinationQueue
+      ? createHeader('Origin duty location', 'originDutyLocation.name', {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
+        })
+      : createHeader('Destination duty location', 'destinationDutyLocation.name', {
+          id: 'destinationDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.newDutyLocation?.name;
+          },
+        }),
+    ...(!isDestinationQueue ? [createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true })] : []),
     createHeader('Counseling office', 'counselingOffice', {
       id: 'counselingOffice',
       isFilterable: true,
@@ -368,7 +379,7 @@ const MoveQueue = ({
           showPagination
           manualSortBy
           defaultCanSort
-          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          defaultSortedColumns={[{ id: 'status', desc: true }]}
           disableMultiSort
           disableSortBy={false}
           columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}

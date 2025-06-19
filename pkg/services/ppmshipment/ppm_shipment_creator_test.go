@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -135,6 +136,72 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		suite.NotNil(createdPPMShipment)
 		suite.Equal(createdPPMShipment.PPMType, models.PPMTypeIncentiveBased)
 		suite.Equal(createdPPMShipment.Shipment.MarketCode, models.MarketCodeDomestic)
+	})
+
+	suite.Run("Can successfully create a domestic PPMShipment with applicable GCC multiplier", func() {
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+
+		appCtx := suite.AppContextWithSessionForTest(session)
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+
+		// Set required fields for PPMShipment
+		subtestData := createSubtestData(models.PPMShipment{
+			ExpectedDepartureDate: validGccMultiplierDate,
+			SITExpected:           models.BoolPointer(false),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50308",
+				County:         models.StringPointer("POLK"),
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30183",
+				County:         models.StringPointer("COLUMBIA"),
+			},
+		}, nil)
+
+		ppmEstimator.On(
+			"EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil, nil).Once()
+
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil).Once()
+
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
+
+		suite.Nil(err)
+		suite.NotNil(createdPPMShipment)
+		suite.Equal(createdPPMShipment.PPMType, models.PPMTypeIncentiveBased)
+		suite.Equal(createdPPMShipment.Shipment.MarketCode, models.MarketCodeDomestic)
+		suite.NotNil(createdPPMShipment.GCCMultiplier)
+		suite.NotNil(createdPPMShipment.GCCMultiplierID)
 	})
 
 	suite.Run("Can successfully create an international PPMShipment", func() {
@@ -387,7 +454,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(&sitExpected, createdPPMShipment.SITExpected)
 			suite.Equal(&estimatedWeight, createdPPMShipment.EstimatedWeight)
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
-			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, createdPPMShipment.Status)
+			suite.Equal(models.PPMShipmentStatusDraft, createdPPMShipment.Status)
 			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
 			suite.Equal(&maxIncentive, createdPPMShipment.MaxIncentive)
 			suite.NotZero(createdPPMShipment.CreatedAt)
@@ -472,4 +539,224 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		suite.NotNil(createdPPMShipment.MaxIncentive)
 		suite.Equal(*createdPPMShipment.MaxIncentive, unit.Cents(maxIncentive))
 	})
+
+	suite.Run("Can update gun safe authorized when HasGunSafe value changes", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		// Set required fields for PPMShipment
+		subtestData := createSubtestData(models.PPMShipment{
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			SITExpected:           models.BoolPointer(false),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50308",
+				County:         models.StringPointer("POLK"),
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "WALESKA",
+				State:          "GA",
+				PostalCode:     "30183",
+				County:         models.StringPointer("COLUMBIA"),
+			},
+			HasGunSafe: models.BoolPointer(true),
+		}, nil)
+
+		ppmEstimator.On(
+			"EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil, nil).Once()
+
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil).Once()
+
+		newPPMShipment := subtestData.newPPMShipment
+
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, newPPMShipment)
+		suite.NotNil(createdPPMShipment)
+		suite.NilOrNoVerrs(err)
+
+		var updatedEntitlement models.Entitlement
+		err = appCtx.DB().Find(&updatedEntitlement, subtestData.move.Orders.EntitlementID)
+		suite.NoError(err)
+
+		suite.True(updatedEntitlement.GunSafe)
+	})
+
+	suite.Run("Returns QueryError When Entitlement Is Nil", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		// Create an order and link it to the entitlement
+		orders := factory.BuildOrder(suite.DB(), nil, nil)
+
+		// Manually set EntitlementID to a fake UUID to simulate broken preload
+		orders.EntitlementID = nil
+		orders.Entitlement = nil
+		suite.MustSave(&orders)
+
+		// Create a move and link it to the order
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    orders,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Create an MTOShipment linked to the move
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+					Status:       models.MTOShipmentStatusDraft,
+				},
+			},
+		}, nil)
+
+		// Initialize a valid PPMShipment properly with the MTOShipment
+		newPPMShipment := &models.PPMShipment{
+			ShipmentID:            mtoShipment.ID,
+			Shipment:              mtoShipment,
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			SITExpected:           models.BoolPointer(false),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50308",
+				County:         models.StringPointer("POLK"),
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "WALESKA",
+				State:          "GA",
+				PostalCode:     "30183",
+				County:         models.StringPointer("COLUMBIA"),
+			},
+			HasGunSafe: models.BoolPointer(true),
+		}
+
+		ppmEstimator.On(
+			"EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil, nil).Once()
+
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil).Once()
+
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, newPPMShipment)
+
+		suite.Nil(createdPPMShipment)
+		suite.Error(err)
+		suite.IsType(apperror.QueryError{}, err)
+		suite.Contains(err.Error(), "Move is missing an associated entitlement.")
+
+	})
+}
+
+func (suite *PPMShipmentSuite) TestPPMShipmentCreator_StatusMapping() {
+	ppmEstimator := &mocks.PPMEstimator{}
+
+	creator := NewPPMShipmentCreator(ppmEstimator, address.NewAddressCreator())
+
+	sc := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	session := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *sc.UserID,
+		IDToken:         "fake token",
+	}
+	session.Roles = append(session.Roles, sc.User.Roles...)
+	appCtx := suite.AppContextWithSessionForTest(session)
+
+	makePPM := func(ms models.MoveStatus) *models.PPMShipment {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{{
+			Model: models.Move{Status: ms},
+		}}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusDraft,
+			}},
+			{Model: move, LinkOnly: true},
+		}, nil)
+		return &models.PPMShipment{
+			ShipmentID:            shipment.ID,
+			Shipment:              shipment,
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			SITExpected:           models.BoolPointer(false),
+			PPMType:               models.PPMTypeIncentiveBased,
+			PickupAddress: &models.Address{
+				StreetAddress1: "123 Test St",
+				City:           "Tulsa",
+				State:          "OK",
+				PostalCode:     "74133",
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "456 Test Ave",
+				City:           "Beverly Hills",
+				State:          "CA",
+				PostalCode:     "90210",
+			},
+		}
+	}
+
+	cases := []struct {
+		name          string
+		moveStatus    models.MoveStatus
+		wantPPMStatus models.PPMShipmentStatus
+	}{
+		{"draft → draft", models.MoveStatusDRAFT, models.PPMShipmentStatusDraft},
+		{"needs service counseling → submitted", models.MoveStatusNeedsServiceCounseling, models.PPMShipmentStatusSubmitted},
+		{"submitted → waiting on customer", models.MoveStatusSUBMITTED, models.PPMShipmentStatusWaitingOnCustomer},
+		{"approvals requested → waiting on customer", models.MoveStatusAPPROVALSREQUESTED, models.PPMShipmentStatusWaitingOnCustomer},
+		{"approved → waiting on customer", models.MoveStatusAPPROVED, models.PPMShipmentStatusWaitingOnCustomer},
+		{"service counseling completed → waiting on customer", models.MoveStatusServiceCounselingCompleted, models.PPMShipmentStatusWaitingOnCustomer},
+	}
+
+	for _, tc := range cases {
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil, nil).Once()
+		ppm := makePPM(tc.moveStatus)
+		created, err := creator.CreatePPMShipmentWithDefaultCheck(appCtx, ppm)
+		suite.NoError(err, tc.name)
+		suite.Equal(tc.wantPPMStatus, created.Status, tc.name)
+	}
 }
