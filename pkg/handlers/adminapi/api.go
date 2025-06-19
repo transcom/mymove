@@ -129,6 +129,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userPrivilegesCreator,
 		user.NewUserSessionRevocation(queryBuilder),
 		transportationOfficeAssignmentUpdater,
+		newRolesFetcher,
 	}
 
 	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{

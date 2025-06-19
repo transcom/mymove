@@ -10,7 +10,6 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 import { test, expect } from './servicesCounselingTestFixture';
 
 const completePPMCloseoutForCustomerEnabled = process.env.FEATURE_FLAG_COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER;
-const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
 test.describe('Services counselor user', () => {
@@ -235,7 +234,6 @@ test.describe('Services counselor user', () => {
 
     test('is able to add and delete supporting documents', async ({ page, officePage }) => {
       test.slow();
-      test.skip(supportingDocsEnabled === 'false', 'Skip if Supporting Documents is not enabled.');
       await page.getByRole('link', { name: 'Supporting Documents' }).click();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
 
@@ -387,6 +385,18 @@ test.describe('Services counselor user', () => {
 
   test('can complete review of PPM shipment documents and view documents after', async ({ page, scPage }) => {
     test.slow();
+    await page.route('**/ghc/v1/ppm-shipments/*/payment-packet', async (route) => {
+      // mocked blob
+      const fakePdfBlob = new Blob(['%PDF-1.4 foo'], { type: 'application/pdf' });
+      const arrayBuffer = await fakePdfBlob.arrayBuffer();
+      // playwright route mocks only want a Buffer or string
+      const bodyBuffer = Buffer.from(arrayBuffer);
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/pdf',
+        body: bodyBuffer,
+      });
+    });
     const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
     await scPage.navigateToCloseoutMove(move.locator);
 
@@ -411,7 +421,10 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'PPM Review Complete' }).click();
+    await page.getByRole('button', { name: 'Preview PPM Payment Packet' }).click();
+    await expect(page.getByTestId('loading-spinner')).not.toBeVisible();
+    await page.getByRole('button', { name: 'Complete PPM Review' }).click();
+    await page.getByRole('button', { name: 'Yes' }).click();
     await scPage.waitForPage.moveDetails();
 
     // Navigate to the "View documents" page
