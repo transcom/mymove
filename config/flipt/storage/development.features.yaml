@@ -1,4 +1,4 @@
-version: '1.2'
+version: "1.2"
 namespace: development
 flags:
   - key: gsr_role
@@ -129,6 +129,14 @@ flags:
       - segment:
           key: mil-app
           value: true
+  - key: wounded_warrior_move
+    name: Wounded Warrior feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
   - key: bulk_assignment
     name: bulk assignment feature flag
     type: BOOLEAN_FLAG_TYPE
@@ -243,8 +251,16 @@ flags:
       - segment:
           key: mil-app
           value: false
-  - key: approval_request_type_column
-    name: Approval request type UI column feature flag
+  - key: disable_move_approval
+    name: Move approval disabled or not
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: bluebark_move
+    name: Bluebark Move feature flag
     type: BOOLEAN_FLAG_TYPE
     enabled: false
     rollouts:
@@ -253,6 +269,14 @@ flags:
           value: false
   - key: request_account_privileges
     name: Request account privileges feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: approval_request_type_column
+    name: Approval request type UI column feature flag
     type: BOOLEAN_FLAG_TYPE
     enabled: false
     rollouts:

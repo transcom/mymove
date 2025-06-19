@@ -1,15 +1,16 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
-import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
+import { ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const mockOriginDutyLocation = {
   address: {
@@ -127,6 +128,11 @@ jest.mock('services/ghcApi', () => ({
   }),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const useOrdersDocumentQueriesReturnValue = {
   orders: {
     1: {
@@ -205,6 +211,7 @@ describe('Orders page', () => {
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       useOrdersDocumentQueries.mockReturnValueOnce(errorReturnValue);
 
       render(
@@ -536,6 +543,90 @@ describe('Orders page', () => {
       await waitFor(() => {
         expect(screen.queryByText(/Manage Orders/)).not.toBeInTheDocument();
         expect(screen.queryByText(/Manage Amended Orders/)).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('wounded warrior FF', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('wounded warrior FF turned off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+        expect(hasWoundedWarrior).toBe(false);
+      });
+    });
+
+    it('wounded warrior FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+        expect(hasWoundedWarrior).toBe(true);
+      });
+    });
+  });
+
+  describe('BLUEBARK FF', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('BLUEBARK FF turned off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+        expect(hasBluebark).toBe(false);
+      });
+    });
+
+    it('BLUEBARK FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+        expect(hasBluebark).toBe(true);
       });
     });
   });

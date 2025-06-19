@@ -2,7 +2,7 @@ import { React, useEffect, useState } from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
-import { Button, Form, Checkbox, Radio, FormGroup } from '@trussworks/react-uswds';
+import { Button, Form, Checkbox, Radio, FormGroup, Label } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -20,10 +20,10 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import RequiredTag from 'components/form/RequiredTag';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 import LoadingButton from 'components/LoadingButton/LoadingButton';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 let meta = '';
 
@@ -219,7 +219,6 @@ const DateAndLocationForm = ({
                 <h2>Pickup Address</h2>
                 <AddressFields
                   name="pickupAddress.address"
-                  labelHint="Required"
                   formikProps={formikProps}
                   render={(fields) => (
                     <>
@@ -234,8 +233,12 @@ const DateAndLocationForm = ({
                       {fields}
                       <FormGroup>
                         <Fieldset>
-                          <legend className="usa-label">Will you add items to your PPM from a second address?</legend>
-                          <RequiredTag />
+                          <legend
+                            className="usa-label"
+                            aria-label="Will you add items to your PPM from a second address?"
+                          >
+                            <span>Will you add items to your PPM from a second address?</span>
+                          </legend>
 
                           <div className={formStyles.radioGroup}>
                             <Field
@@ -268,11 +271,7 @@ const DateAndLocationForm = ({
                       {values.hasSecondaryPickupAddress === 'true' && (
                         <>
                           <h4>Second Pickup Address</h4>
-                          <AddressFields
-                            labelHint="Required"
-                            name="secondaryPickupAddress.address"
-                            formikProps={formikProps}
-                          />
+                          <AddressFields name="secondaryPickupAddress.address" formikProps={formikProps} />
                           <Hint className={ppmStyles.hint}>
                             <p>
                               A second pickup address could mean that your final incentive is lower than your estimate.
@@ -288,8 +287,12 @@ const DateAndLocationForm = ({
                       {isTertiaryAddressEnabled && values.hasSecondaryPickupAddress === 'true' && (
                         <div>
                           <FormGroup>
-                            <legend className="usa-label">Will you add items to your PPM from a third address?</legend>
-                            <RequiredTag />
+                            <legend
+                              className="usa-label"
+                              aria-label="Will you add items to your PPM from a third address?"
+                            >
+                              <span>Will you add items to your PPM from a third address?</span>
+                            </legend>
                             <Fieldset>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -336,11 +339,7 @@ const DateAndLocationForm = ({
                         values.hasTertiaryPickupAddress === 'true' && (
                           <>
                             <h4>Third Pickup Address</h4>
-                            <AddressFields
-                              labelHint="Required"
-                              name="tertiaryPickupAddress.address"
-                              formikProps={formikProps}
-                            />
+                            <AddressFields name="tertiaryPickupAddress.address" formikProps={formikProps} />
                           </>
                         )}
                     </>
@@ -351,11 +350,10 @@ const DateAndLocationForm = ({
                 <h2>Delivery Address</h2>
                 <AddressFields
                   name="destinationAddress.address"
-                  labelHint="Required"
                   formikProps={formikProps}
-                  // White spaces are used specifically to override incoming labelHint prop
-                  // not to display anything.
-                  address1LabelHint=" "
+                  // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
+                  // this field is usually always required other than PPMs
+                  optionalAddress1
                   render={(fields) => (
                     <>
                       <p>Please input your delivery address.</p>
@@ -370,10 +368,12 @@ const DateAndLocationForm = ({
                       <FormGroup>
                         <div className={formStyles.radioGroup}>
                           <Fieldset>
-                            <legend className="usa-label">
-                              Will you deliver part of your PPM to a second address?
+                            <legend
+                              className="usa-label"
+                              aria-label="Will you deliver part of your PPM to a second address?"
+                            >
+                              <span>Will you deliver part of your PPM to a second address?</span>
                             </legend>
-                            <RequiredTag />
                             <div className={formStyles.radioGroup}>
                               <Field
                                 as={Radio}
@@ -410,11 +410,7 @@ const DateAndLocationForm = ({
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
                           <h4>Second Delivery Address</h4>
-                          <AddressFields
-                            name="secondaryDestinationAddress.address"
-                            labelHint="Required"
-                            formikProps={formikProps}
-                          />
+                          <AddressFields name="secondaryDestinationAddress.address" formikProps={formikProps} />
                           <Hint className={ppmStyles.hint}>
                             <p>
                               A second delivery address could mean that your final incentive is lower than your
@@ -431,8 +427,12 @@ const DateAndLocationForm = ({
                       {isTertiaryAddressEnabled && values.hasSecondaryDestinationAddress === 'true' && (
                         <div>
                           <FormGroup>
-                            <legend className="usa-label">Will you deliver part of your PPM to a third address?</legend>
-                            <RequiredTag />
+                            <legend
+                              className="usa-label"
+                              aria-label="Will you deliver part of your PPM to a third address?"
+                            >
+                              <span>Will you deliver part of your PPM to a third address?</span>
+                            </legend>
                             <Fieldset>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -479,11 +479,7 @@ const DateAndLocationForm = ({
                         values.hasTertiaryDestinationAddress === 'true' && (
                           <>
                             <h4>Third Delivery Address</h4>
-                            <AddressFields
-                              name="tertiaryDestinationAddress.address"
-                              labelHint="Required"
-                              formikProps={formikProps}
-                            />
+                            <AddressFields name="tertiaryDestinationAddress.address" formikProps={formikProps} />
                           </>
                         )}
                     </>
@@ -502,10 +498,12 @@ const DateAndLocationForm = ({
                         select, contact your origin transportation office.
                       </p>
                     </Hint>
+                    {requiredAsteriskMessage}
                     <DutyLocationInput
                       name="closeoutOffice"
                       label="Which closeout office should review your PPM?"
-                      hint="Required"
+                      showRequiredAsterisk
+                      required
                       placeholder="Start typing a closeout office..."
                       searchLocations={searchTransportationOffices}
                       metaOverride={meta}
@@ -520,13 +518,16 @@ const DateAndLocationForm = ({
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Storage</h2>
                 <Fieldset>
-                  <legend className="usa-label">Do you plan to store items from your PPM?</legend>
-                  <RequiredTag />
+                  <Label htmlFor="hasDeliveryAddress">
+                    <span data-testid="preferredDeliveryAddress">Do you plan to store items from your PPM?</span>
+                  </Label>
                   <Field
                     as={Radio}
                     id="sitExpectedYes"
                     data-testid="storePPMYes"
                     label="Yes"
+                    showRequiredAsterisk
+                    required
                     name="sitExpected"
                     value="true"
                     checked={values.sitExpected === 'true'}
@@ -562,8 +563,10 @@ const DateAndLocationForm = ({
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
+                {requiredAsteriskMessage}
                 <DatePickerInput
-                  hint="Required"
+                  showRequiredAsterisk
+                  required
                   name="expectedDepartureDate"
                   label="When do you plan to start moving your PPM?"
                 />

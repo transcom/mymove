@@ -46,6 +46,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
   const backupContactName = 'backup_contact';
 
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+  const [isBluebarkMoveFF, setBluebarkMoveFF] = useState(false);
 
   const uniqueDodid = generateUniqueDodid();
   const uniqueEmplid = generateUniqueEmplid();
@@ -53,6 +54,12 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
   useEffect(() => {
     isBooleanFlagEnabled('safety_move')?.then((enabled) => {
       setSafetyMoveFF(enabled);
+    });
+  }, []);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('bluebark_move')?.then((enabled) => {
+      setBluebarkMoveFF(enabled);
     });
   }, []);
 
@@ -90,7 +97,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
       postalCode: '',
     },
     [backupContactName]: {
-      name: '',
+      firstName: '',
+      lastName: '',
       telephone: '',
       email: '',
     },
@@ -109,6 +117,10 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     const createOktaAccount = values.create_okta_account === 'true';
     const cacUser = values.cac_user === 'true';
 
+    const valuesBackupFirstName = (values[backupContactName].firstName || '').trim();
+    const valuesBackupLastName = (values[backupContactName].lastName || '').trim();
+    const valuesBackupFullName = `${valuesBackupFirstName} ${valuesBackupLastName}`.trim();
+
     const body = {
       affiliation: values.affiliation,
       edipi: values.edipi,
@@ -125,7 +137,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
       residentialAddress: values[residentialAddressName],
       backupMailingAddress: values[backupAddressName],
       backupContact: {
-        name: values[backupContactName].name,
+        name: valuesBackupFullName,
+        firstName: valuesBackupFirstName,
+        lastName: valuesBackupLastName,
         email: values[backupContactName].email,
         phone: values[backupContactName].telephone,
       },
@@ -310,61 +324,65 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
               return (
                 <Form className={classnames(formStyles.form, styles.form)}>
                   <h1 className={styles.header}>Create Customer Profile</h1>
-                  <SectionWrapper className={sectionStyles}>
-                    <h3>Special Moves</h3>
-                    {isSafetyPrivileged && (
-                      <Fieldset className={styles.trailerOwnershipFieldset}>
-                        <legend className="usa-label">Is this a Safety move?</legend>
-                        <div className="grid-row grid-gap">
-                          <Field
-                            as={Radio}
-                            id="isSafetyMoveYes"
-                            label="Yes"
-                            name="is_safety_move"
-                            value="true"
-                            data-testid="is-safety-move-yes"
-                            onChange={handleIsSafetyMove}
-                            checked={values.is_safety_move === 'true'}
-                          />
-                          <Field
-                            as={Radio}
-                            id="isSafetyMoveNo"
-                            label="No"
-                            name="is_safety_move"
-                            value="false"
-                            data-testid="is-safety-move-no"
-                            onChange={handleIsSafetyMove}
-                            checked={values.is_safety_move === 'false'}
-                          />
-                        </div>
-                      </Fieldset>
-                    )}
-                    <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Is this a Bluebark move?</legend>
-                      <div className="grid-row grid-gap">
-                        <Field
-                          as={Radio}
-                          id="isBluebarkYes"
-                          label="Yes"
-                          name="is_bluebark"
-                          value="true"
-                          data-testid="is-bluebark-yes"
-                          onChange={handleBluebarkChange}
-                          checked={values.is_bluebark === 'true'}
-                        />
-                        <Field
-                          as={Radio}
-                          id="isBluebarkNo"
-                          label="No"
-                          name="is_bluebark"
-                          value="false"
-                          data-testid="is-bluebark-no"
-                          onChange={handleBluebarkChange}
-                          checked={values.is_bluebark === 'false'}
-                        />
-                      </div>
-                    </Fieldset>
-                  </SectionWrapper>
+                  {(isSafetyPrivileged || isBluebarkMoveFF) && (
+                    <SectionWrapper className={sectionStyles}>
+                      <h3>Special Moves</h3>
+                      {isSafetyPrivileged && (
+                        <Fieldset className={styles.trailerOwnershipFieldset}>
+                          <legend className="usa-label">Is this a Safety move?</legend>
+                          <div className="grid-row grid-gap">
+                            <Field
+                              as={Radio}
+                              id="isSafetyMoveYes"
+                              label="Yes"
+                              name="is_safety_move"
+                              value="true"
+                              data-testid="is-safety-move-yes"
+                              onChange={handleIsSafetyMove}
+                              checked={values.is_safety_move === 'true'}
+                            />
+                            <Field
+                              as={Radio}
+                              id="isSafetyMoveNo"
+                              label="No"
+                              name="is_safety_move"
+                              value="false"
+                              data-testid="is-safety-move-no"
+                              onChange={handleIsSafetyMove}
+                              checked={values.is_safety_move === 'false'}
+                            />
+                          </div>
+                        </Fieldset>
+                      )}
+                      {isBluebarkMoveFF && (
+                        <Fieldset className={styles.trailerOwnershipFieldset}>
+                          <legend className="usa-label">Is this a Bluebark move?</legend>
+                          <div className="grid-row grid-gap">
+                            <Field
+                              as={Radio}
+                              id="isBluebarkYes"
+                              label="Yes"
+                              name="is_bluebark"
+                              value="true"
+                              data-testid="is-bluebark-yes"
+                              onChange={handleBluebarkChange}
+                              checked={values.is_bluebark === 'true'}
+                            />
+                            <Field
+                              as={Radio}
+                              id="isBluebarkNo"
+                              label="No"
+                              name="is_bluebark"
+                              value="false"
+                              data-testid="is-bluebark-no"
+                              onChange={handleBluebarkChange}
+                              checked={values.is_bluebark === 'false'}
+                            />
+                          </div>
+                        </Fieldset>
+                      )}
+                    </SectionWrapper>
+                  )}
                   <SectionWrapper className={sectionStyles}>
                     <h3>Customer Affiliation</h3>
                     <DropdownInput
@@ -449,7 +467,13 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Backup Contact</h3>
-                    <TextField label="Name" id="backupContactName" name="backup_contact.name" required />
+                    <TextField
+                      label="First Name"
+                      id="backupContactFirstName"
+                      name="backup_contact.firstName"
+                      required
+                    />
+                    <TextField label="Last Name" id="backupContactLastName" name="backup_contact.lastName" required />
                     <TextField label="Email" id="backupContactEmail" name="backup_contact.email" required />
                     <MaskedTextField
                       label="Phone"

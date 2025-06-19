@@ -15,6 +15,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, moveTaskOrder, mtoServiceItemId }) => {
   const { moveCodeOrID } = useParams();
@@ -111,6 +112,7 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
                     </dd>
                   </div>
                 </dl>
+                {requiredAsteriskMessage}
                 <TextField
                   data-testid="portCode"
                   name="portCode"
@@ -123,16 +125,18 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
                   onChange={(e) => {
                     setFieldValue('portCode', e.target.value.toUpperCase());
                   }}
+                  showRequiredAsterisk
                 />
               </SectionWrapper>
-              <WizardNavigation
-                editMode
-                className={formStyles.formActions}
-                aria-label="Update International Fuel Surcharge Service Item"
-                type="submit"
-                onCancelClick={handleClose}
-                onNextClick={handleSubmit}
-              />
+              <div className={formStyles.formActions}>
+                <WizardNavigation
+                  editMode
+                  aria-label="Update International Fuel Surcharge Service Item"
+                  type="submit"
+                  onCancelClick={handleClose}
+                  onNextClick={handleSubmit}
+                />
+              </div>
             </div>
           </FormGroup>
         </Form>

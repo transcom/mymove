@@ -199,7 +199,8 @@ describe('DocumentViewer component', () => {
   });
 
   describe('regarding content errors', () => {
-    const errorMessageText = 'If your document does not display, please refresh your browser.';
+    const errorMessageText =
+      'MilMove encountered an issue during the scanning phase of this document. Contact the service member. Ask them to upload a photo of the original document instead.';
     const downloadLinkText = 'Download file';
     it('no error message normally', async () => {
       renderWithProviders(<DocumentViewer files={mockFiles} />);
@@ -318,22 +319,12 @@ describe('Test DocumentViewer File Upload Statuses', () => {
   it('displays Establishing document for viewing  status', async () => {
     renderDocumentViewer({ files: mockFiles });
     await act(async () => {
-      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.CLEAN });
+      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.NO_THREATS_FOUND });
     });
     await waitFor(() => {
       expect(
         findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEWING),
       ).toBeInTheDocument();
-    });
-  });
-
-  it('displays infected file message', async () => {
-    renderDocumentViewer({ files: mockFiles });
-    await act(async () => {
-      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.INFECTED });
-    });
-    await waitFor(() => {
-      expect(findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE)).toBeInTheDocument();
     });
   });
 
