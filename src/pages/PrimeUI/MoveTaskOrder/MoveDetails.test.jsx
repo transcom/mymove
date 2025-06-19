@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import * as ReactRouterDom from 'react-router-dom';
 
 import MoveDetails from './MoveDetails';
 
@@ -198,6 +199,8 @@ const moveTaskOrder = {
       weightRestriction: 500,
       ubWeightRestriction: 350,
     },
+    rank: 'E-5',
+    grade: 'SGT',
   },
 };
 
@@ -435,6 +438,90 @@ describe('PrimeUI MoveDetails page', () => {
       // Check for Edit buttons
       const editButtons = screen.getAllByRole('link', { name: 'Edit' });
       expect(editButtons).toHaveLength(5);
+    });
+  });
+  describe('MoveDetails component - Rank and Pay Grade', () => {
+    usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+    let useParamsSpy;
+
+    beforeEach(() => {
+      useParamsSpy = jest.spyOn(ReactRouterDom, 'useParams').mockReturnValue({ moveCodeOrID: 'MOCK123' });
+    });
+
+    afterEach(() => {
+      useParamsSpy.mockRestore();
+    });
+
+    it('renders Rank information correctly', () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      renderWithProviders(<MoveDetails />);
+
+      const rankLabel = screen.getByText('Rank:');
+      expect(rankLabel).toBeInTheDocument();
+
+      const rankValue = rankLabel.nextElementSibling;
+      expect(rankValue).toBeInTheDocument();
+      expect(rankValue.textContent).toBe('E-5');
+    });
+
+    it('renders Pay Grade information correctly', () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      renderWithProviders(<MoveDetails />);
+
+      const payGradeLabel = screen.getByText('Pay Grade:');
+      expect(payGradeLabel).toBeInTheDocument();
+
+      const rankValue = payGradeLabel.nextElementSibling;
+      expect(rankValue).toBeInTheDocument();
+      expect(rankValue.textContent).toBe('SGT');
+    });
+
+    it('handles missing Rank information', () => {
+      usePrimeSimulatorGetMove.mockReturnValue({
+        moveTaskOrder: {
+          order: {
+            grade: 'SGT',
+            entitlement: {
+              gunSafe: true,
+            },
+          },
+        },
+        isLoading: false,
+        isError: false,
+      });
+
+      renderWithProviders(<MoveDetails />);
+
+      const rankLabel = screen.getByText('Rank:');
+      expect(rankLabel).toBeInTheDocument();
+
+      const rankValue = rankLabel.nextElementSibling;
+      expect(rankValue).toBeInTheDocument();
+      expect(rankValue.textContent).toBe('undefined');
+    });
+
+    it('handles missing Pay Grade information', () => {
+      usePrimeSimulatorGetMove.mockReturnValue({
+        moveTaskOrder: {
+          order: {
+            rank: 'E-5',
+            entitlement: {
+              gunSafe: true,
+            },
+          },
+        },
+        isLoading: false,
+        isError: false,
+      });
+
+      renderWithProviders(<MoveDetails />);
+
+      const payGradeLabel = screen.getByText('Pay Grade:');
+      expect(payGradeLabel).toBeInTheDocument();
+
+      const payGradeValue = payGradeLabel.nextElementSibling;
+      expect(payGradeValue).toBeInTheDocument();
+      expect(payGradeValue.textContent).toBe('undefined');
     });
   });
 });
