@@ -46,6 +46,7 @@ INSERT INTO service_params (id, service_id, service_item_param_key_id, created_a
 VALUES
 	('3e5d143e-ccde-477f-bf49-1f73df480e16', (SELECT id FROM re_services WHERE code = 'IDASIT'), (SELECT id FROM service_item_param_keys WHERE key = 'SITPaymentRequestEnd'), now(), now(), false);
 
+
 -- Associate DistanceZipSITDest to service lookup for IDDSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
