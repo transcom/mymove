@@ -43,9 +43,10 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 
 	backupContacts := models.BackupContacts{}
 	backupContacts = append(backupContacts, models.BackupContact{
-		Name:  "Backup contact name",
-		Phone: "555-555-5555",
-		Email: "backup@backup.com",
+		FirstName: "Backup",
+		LastName:  "contact name",
+		Phone:     "555-555-5555",
+		Email:     "backup@backup.com",
 	})
 	serviceMember := models.ServiceMember{
 		BackupContacts: backupContacts,
@@ -127,7 +128,8 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
 		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, returnedModel.MtoShipments[0].PickupAddress.County)
-		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].FirstName, returnedModel.Order.Customer.BackupContact.FirstName)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].LastName, returnedModel.Order.Customer.BackupContact.LastName)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
 		suite.Equal(handlers.FmtDateTimePtr(basicMove.PrimeAcknowledgedAt), returnedModel.PrimeAcknowledgedAt)
