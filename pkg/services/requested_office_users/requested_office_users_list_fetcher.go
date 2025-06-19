@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -68,9 +69,21 @@ func (o *requestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx ap
 			})
 		}
 	}
-
+	for i := range requestedUsers {
+		var liveRoles []roles.Role
+		err := appCtx.DB().Q().
+			Join("users_roles", "users_roles.role_id = roles.id").
+			Where("users_roles.user_id = ?", requestedUsers[i].User.ID).
+			Where("users_roles.deleted_at IS NULL").
+			All(&liveRoles)
+		if err != nil {
+			return nil, 0, err
+		}
+		requestedUsers[i].User.Roles = liveRoles
+	}
 	count := query.Paginator.TotalEntriesSize
 	return requestedUsers, count, nil
+
 }
 
 // FetchAdminUserList uses the passed query builder to fetch a list of office users

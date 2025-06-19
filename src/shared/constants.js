@@ -75,9 +75,11 @@ export const PPM_DOCUMENT_TYPES = {
 };
 
 export const UPLOAD_SCAN_STATUS = {
-  CLEAN: 'CLEAN',
-  INFECTED: 'INFECTED',
+  NO_THREATS_FOUND: 'NO_THREATS_FOUND',
+  LEGACY_INFECTED: 'INFECTED',
   PROCESSING: 'PROCESSING',
+  LEGACY_CLEAN: 'CLEAN',
+  THREATS_FOUND: 'THREATS_FOUND',
 };
 
 export const UPLOAD_DOC_STATUS = {
@@ -89,9 +91,9 @@ export const UPLOAD_DOC_STATUS = {
 
 export const UPLOAD_DOC_STATUS_DISPLAY_MESSAGE = {
   FILE_NOT_FOUND: 'File Not Found',
-  UPLOADING: 'Uploading',
-  SCANNING: 'Scanning',
-  ESTABLISHING_DOCUMENT_FOR_VIEWING: 'Establishing document for viewing',
+  UPLOADING: 'Uploading: Uploading the file...',
+  SCANNING: 'Uploading: Scanning the file...',
+  ESTABLISHING_DOCUMENT_FOR_VIEWING: 'Uploading: Establishing the file for viewing...',
   INFECTED_FILE_MESSAGE:
     'Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a photo of the original document instead.',
 };
@@ -257,6 +259,10 @@ export const FEATURE_FLAG_KEYS = {
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
   TERMINATING_SHIPMENTS: 'terminating_shipments',
   GUN_SAFE: 'gun_safe',
+  APPROVAL_REQUEST_TYPE_COLUMN: 'approval_request_type_column',
+  WOUNDED_WARRIOR_MOVE: 'wounded_warrior_move',
+  DISABLE_MOVE_APPROVAL: 'disable_move_approval',
+  BLUEBARK_MOVE: 'bluebark_move',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

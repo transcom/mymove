@@ -12,7 +12,8 @@ export default {
 };
 
 const emptyInitialValues = {
-  name: '',
+  firstName: '',
+  lastName: '',
   telephone: '',
   email: '',
 };
@@ -29,7 +30,8 @@ export const DefaultState = (argTypes) => (
 export const WithInitialValues = (argTypes) => (
   <BackupContactForm
     initialValues={{
-      name: 'Leo Spaceman',
+      firstName: 'Leo',
+      lastName: 'Spaceman',
       telephone: '555-555-5555',
       email: 'test@sample.com',
     }}

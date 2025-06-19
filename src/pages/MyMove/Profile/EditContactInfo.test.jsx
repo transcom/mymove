@@ -20,6 +20,10 @@ jest.mock('services/internalApi', () => ({
   patchServiceMember: jest.fn(),
 }));
 
+jest.mock('services/ghcApi', () => ({
+  getPayGradeOptions: jest.fn(),
+}));
+
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
@@ -34,7 +38,8 @@ describe('EditContactInfo page', () => {
     currentBackupContacts: [
       {
         id: 'backupContactID',
-        name: 'Barbara St. Juste',
+        firstName: 'Barbara',
+        lastName: 'St. Juste',
         email: 'bsj@example.com',
         telephone: '915-555-1234',
         permission: 'NONE',
@@ -111,9 +116,10 @@ describe('EditContactInfo page', () => {
   });
 
   it('saves backup contact info when it is updated and the save button is clicked', async () => {
-    const newName = 'Rosalie Wexler';
+    const newFirstName = 'Rosalie';
+    const newLastName = 'Wexler';
 
-    const expectedPayload = { ...testProps.currentBackupContacts[0], name: newName };
+    const expectedPayload = { ...testProps.currentBackupContacts[0], firstName: newFirstName, lastName: newLastName };
 
     const patchResponse = {
       ...expectedPayload,
@@ -131,11 +137,13 @@ describe('EditContactInfo page', () => {
       </MockProviders>,
     );
 
-    const backupNameInput = await screen.findByLabelText(/Name/);
+    const backupFirstNameInput = await screen.findByLabelText(/First Name/);
+    const backupLastNameInput = await screen.findByLabelText(/Last Name/);
 
-    await userEvent.clear(backupNameInput);
-
-    await userEvent.type(backupNameInput, newName);
+    await userEvent.clear(backupFirstNameInput);
+    await userEvent.type(backupFirstNameInput, newFirstName);
+    await userEvent.clear(backupLastNameInput);
+    await userEvent.type(backupLastNameInput, newLastName);
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -168,11 +176,13 @@ describe('EditContactInfo page', () => {
       </MockProviders>,
     );
 
-    const backupNameInput = await screen.findByLabelText(/Name/);
+    const backupFirstNameInput = await screen.findByLabelText(/First Name/);
+    const backupLastNameInput = await screen.findByLabelText(/Last Name/);
 
-    await userEvent.clear(backupNameInput);
-
-    await userEvent.type(backupNameInput, 'Rosalie Wexler');
+    await userEvent.clear(backupFirstNameInput);
+    await userEvent.type(backupFirstNameInput, 'Rosalie');
+    await userEvent.clear(backupLastNameInput);
+    await userEvent.type(backupLastNameInput, 'Wexler');
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 

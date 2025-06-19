@@ -575,9 +575,13 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
-          "example": "Bob Smith"
+          "example": "Bob"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Smith"
         },
         "phone": {
           "type": "string",
@@ -4564,6 +4568,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },
@@ -5279,9 +5284,13 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
-          "example": "Bob Smith"
+          "example": "Bob"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Smith"
         },
         "phone": {
           "type": "string",
@@ -9270,6 +9279,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },

@@ -7,6 +7,7 @@ import ConnectedProfile from './Profile';
 
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -15,7 +16,6 @@ jest.mock('react-router-dom', () => ({
 
 describe('Profile component', () => {
   const testProps = {};
-  const multiMove = process.env.FEATURE_FLAG_MULTI_MOVE;
 
   it('renders the Profile Page', async () => {
     const mockState = {
@@ -75,7 +75,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -91,19 +91,11 @@ describe('Profile component', () => {
     };
     useLocation.mockReturnValue({ state: { moveId: 'test' } });
 
-    if (multiMove) {
-      render(
-        <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
-          <ConnectedProfile {...testProps} />
-        </MockProviders>,
-      );
-    } else {
-      render(
-        <MockProviders initialState={mockState}>
-          <ConnectedProfile {...testProps} />
-        </MockProviders>,
-      );
-    }
+    render(
+      <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
+        <ConnectedProfile {...testProps} />
+      </MockProviders>,
+    );
 
     const mainHeader = await screen.findByRole('heading', { name: 'Profile', level: 1 });
 
@@ -174,7 +166,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -189,19 +181,11 @@ describe('Profile component', () => {
     };
     useLocation.mockReturnValue({ state: { moveId: 'test' } });
 
-    if (multiMove) {
-      render(
-        <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
-          <ConnectedProfile {...testProps} />
-        </MockProviders>,
-      );
-    } else {
-      render(
-        <MockProviders initialState={mockState}>
-          <ConnectedProfile {...testProps} />
-        </MockProviders>,
-      );
-    }
+    render(
+      <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
+        <ConnectedProfile {...testProps} />
+      </MockProviders>,
+    );
 
     const mainHeader = await screen.findByRole('heading', { name: 'Profile', level: 1 });
 
@@ -287,7 +271,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -303,19 +287,11 @@ describe('Profile component', () => {
     };
     useLocation.mockReturnValue({ state: { moveId: 'test' } });
 
-    if (multiMove) {
-      render(
-        <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
-          <ConnectedProfile {...testProps} />
-        </MockProviders>,
-      );
-    } else {
-      render(
-        <MockProviders initialState={mockState}>
-          <ConnectedProfile {...testProps} />
-        </MockProviders>,
-      );
-    }
+    render(
+      <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
+        <ConnectedProfile {...testProps} />
+      </MockProviders>,
+    );
 
     const alert = screen.getByText(
       'You can change these details later by talking to a move counselor or customer care representative.',
@@ -395,7 +371,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -412,19 +388,11 @@ describe('Profile component', () => {
 
     useLocation.mockReturnValue({ state: { needsToVerifyProfile: true, moveId: 'test' } });
 
-    if (multiMove) {
-      render(
-        <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
-          <ConnectedProfile {...testProps} />
-        </MockProviders>,
-      );
-    } else {
-      render(
-        <MockProviders initialState={mockState}>
-          <ConnectedProfile {...testProps} />
-        </MockProviders>,
-      );
-    }
+    render(
+      <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
+        <ConnectedProfile {...testProps} />
+      </MockProviders>,
+    );
 
     const returnToDashboardLink = screen.getByText('Return to Dashboard');
     expect(returnToDashboardLink).toBeInTheDocument();

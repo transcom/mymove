@@ -33,7 +33,8 @@ const useCustomerQueryReturnValue = {
   customerData: {
     backup_contact: {
       email: 'backup@mail.com',
-      name: 'Jane Backup',
+      firstName: 'Jane',
+      lastName: 'Backup',
       phone: '555-555-1234',
     },
     backupAddress: {
@@ -100,10 +101,11 @@ describe('CreateMoveCustomerInfo', () => {
 
     renderWithProviders(<CreateMoveCustomerInfo />, mockRoutingConfig);
     const { customerData } = useCustomerQueryReturnValue;
+
     await waitFor(() => {
-      expect(screen.getByLabelText('First name').value).toEqual(customerData.first_name);
+      expect(screen.getByLabelText('First name *').value).toEqual(customerData.first_name);
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(customerData.middle_name);
-      expect(screen.getByLabelText('Last name').value).toEqual(customerData.last_name);
+      expect(screen.getByLabelText('Last name *').value).toEqual(customerData.last_name);
       expect(screen.getByLabelText(/Suffix/i).value).toEqual(customerData.suffix);
       // to get around the two inputs labeled "Phone" on the screen
       expect(screen.getByDisplayValue(customerData.phone).value).toEqual(customerData.phone);
@@ -120,7 +122,8 @@ describe('CreateMoveCustomerInfo', () => {
       expect(screen.getByText('CA')).toHaveTextContent(customerData.current_address.state);
       expect(screen.getByText('90210')).toHaveTextContent(customerData.current_address.postalCode);
       expect(screen.getByText('Beverly Hills, CA 90210 ()'));
-      expect(screen.getByDisplayValue('Jane Backup').value).toEqual(customerData.backup_contact.name);
+      expect(screen.getByDisplayValue('Jane').value).toEqual(customerData.backup_contact.firstName);
+      expect(screen.getByDisplayValue('Backup').value).toEqual(customerData.backup_contact.lastName);
     });
   });
 

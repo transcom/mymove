@@ -33,7 +33,8 @@ func BuildBackupContact(db *pop.Connection, customs []Customization, traits []Tr
 		ServiceMemberID: serviceMember.ID,
 		ServiceMember:   serviceMember,
 		Permission:      models.BackupContactPermissionEDIT,
-		Name:            "name",
+		FirstName:       "firstName",
+		LastName:        "lastName",
 		Email:           "email@example.com",
 		Phone:           "555-555-5555",
 	}

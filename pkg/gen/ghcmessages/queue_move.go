@@ -40,6 +40,9 @@ type QueueMove struct {
 	// Format: date-time
 	CloseoutInitiated *strfmt.DateTime `json:"closeoutInitiated,omitempty"`
 
+	// comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)
+	CloseoutInitiatedDates *string `json:"closeoutInitiatedDates,omitempty"`
+
 	// closeout location
 	CloseoutLocation *string `json:"closeoutLocation,omitempty"`
 
