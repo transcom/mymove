@@ -10,7 +10,9 @@
 20250227211534_update_re_country_prn_divisions.up.sql
 20250303210036_B-22462_service_params_add_param_and_remove_ones__not_needed.up.sql
 20250305204911_B-22483_init_mappings_on_roles_privileges.up.sql
+20250306163108_B-22663_insert_INPK_service_params.up.sql
 20250306215742_B-22770_upd_base_names.up.sql
+20250307190914_b-22663-update-nts-packing-param.up.sql
 20250310151829_B-22463_add_supporting_service_params_for_request_payment.up.sql
 20250312122657_B-22839_upd_pobox_zips.up.sql
 20250314180812_B-22770_upd_base_names_again.up.sql
@@ -25,6 +27,7 @@
 20250409235021_B-22468_add_service_item_param_keys_and_service_params.up.sql
 20250410182525_B-22810_update_shipment_status_approvals_requested.up.sql
 20250416140435_B-22762_add_appl_params_emails.up.sql
+20250417123645_b-22662-inpk-nts-factor.up.sql
 20250418132629_B-22761_add_flagSentToGexStaleInterval_to_application_parameters.up.sql
 20250422164417_B-23147_add_ranks.up.sql
 20250424182556_B-22463_add_max_sit_days_application_parameter.up.sql
@@ -39,3 +42,12 @@
 20250522135232_B-22466_v2_add_distance_lookup_service_params.up.sql
 20250528155401_B-23736_add_multipliers.up.sql
 20250528212207_B-23301_add_data_to_backup_contacts.up.sql
+20250605155517_B-23748_fix_re_intl_cities00.up.sql
+20250605155518_B-23748_fix_re_intl_cities01.up.sql
+20250605155519_B-23748_fix_re_intl_cities02.up.sql
+20250605212547_B-23748_fix_intl_city_countries00.up.sql
+20250605212548_B-23748_fix_intl_city_countries01.up.sql
+20250605212549_B-23748_fix_intl_city_countries02.up.sql
+20250605212550_B-23748_fix_intl_city_countries03.up.sql
+20250605212551_B-23748_fix_intl_city_countries04.up.sql
+20250605212552_B-23748_fix_intl_city_countries05.up.sql
