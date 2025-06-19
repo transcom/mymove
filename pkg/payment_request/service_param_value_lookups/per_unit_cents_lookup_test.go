@@ -26,6 +26,12 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	}
 
 	setupTestDataPickupOCONUS := func(serviceCode models.ReServiceCode, sitDeliveryMileage *int) models.Move {
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -88,6 +94,12 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	}
 
 	setupTestDataDestOCONUS := func(serviceCode models.ReServiceCode, sitDeliveryMileage *int) models.Move {
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -149,6 +161,17 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 	suite.Run("success - returns perUnitCent value for IHPK", func() {
 		setupTestData(models.ReServiceCodeIHPK)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal(perUnitCents, "6997")
+	})
+
+	suite.Run("success - returns perUnitCent value for INPK", func() {
+		setupTestData(models.ReServiceCodeINPK)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
