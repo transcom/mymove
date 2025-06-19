@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 	suite.Run("successful city name lookup", func() {
 		country := "GB"
-		city := "LONDON"
+		city := "LONDON COLNEY"
 		var fetchedVIntlLocation models.VIntlLocation
 		err := suite.DB().Where("city_name = $1", city).First(&fetchedVIntlLocation)
 
