@@ -108,3 +108,37 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		suite.Equal(zip, responsePayload.Payload[0].PostalCode)
 	})
 }
+
+func (suite *HandlerSuite) TestGetOconusLocationHandler() {
+	suite.Run("successful city name lookup", func() {
+		country := "GB"
+		city := "LONDON"
+		cityResult := "LONDON COLNEY"
+		var fetchedVIntlLocation models.VIntlLocation
+		err := suite.DB().Where("city_name = $1", city).First(&fetchedVIntlLocation)
+
+		suite.NoError(err)
+		suite.Equal(city, *fetchedVIntlLocation.CityName)
+
+		vIntlLocationService := address.NewVIntlLocation()
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		req := httptest.NewRequest("GET", "/addresses/oconus_lookup/"+country+"/"+city, nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		params := addressop.GetOconusLocationParams{
+			HTTPRequest: req,
+			Country:     country,
+			Search:      city,
+		}
+
+		handler := GetOconusLocationHandler{
+			HandlerConfig: suite.HandlerConfig(),
+			VIntlLocation: vIntlLocationService}
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&addressop.GetOconusLocationOK{}, response)
+		responsePayload := response.(*addressop.GetOconusLocationOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.Equal(cityResult, responsePayload.Payload[0].City)
+	})
+}

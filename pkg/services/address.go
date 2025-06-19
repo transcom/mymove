@@ -17,3 +17,8 @@ type AddressUpdater interface {
 type VLocation interface {
 	GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, exactMatch ...bool) (*models.VLocations, error)
 }
+
+//go:generate mockery --name VLocation
+type VIntlLocation interface {
+	GetOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch bool) (*models.VIntlLocations, error)
+}

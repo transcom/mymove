@@ -212,6 +212,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		})
 	}
+	if api.AddressesGetOconusLocationHandler == nil {
+		api.AddressesGetOconusLocationHandler = addresses.GetOconusLocationHandlerFunc(func(params addresses.GetOconusLocationParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetOconusLocation has not yet been implemented")
+		})
+	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
 		api.TransportationOfficesGetTransportationOfficesHandler = transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")

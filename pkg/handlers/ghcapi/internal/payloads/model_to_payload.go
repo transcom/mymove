@@ -2935,6 +2935,32 @@ func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
 	return payload
 }
 
+// VIntlLocation payload
+func VIntlLocation(vIntlLocation *models.VIntlLocation) *ghcmessages.VIntlLocation {
+	if vIntlLocation == nil {
+		return nil
+	}
+	if *vIntlLocation == (models.VIntlLocation{}) {
+		return nil
+	}
+
+	return &ghcmessages.VIntlLocation{
+		City:                *vIntlLocation.CityName,
+		PrincipalDivision:   *vIntlLocation.CountryPrnDivName,
+		IntlCityCountriesID: *handlers.FmtUUID(*vIntlLocation.IntlCityCountriesID),
+	}
+}
+
+// VIntlLocations payload
+func VIntlLocations(vLIntlocations models.VIntlLocations) ghcmessages.VIntlLocations {
+	payload := make(ghcmessages.VIntlLocations, len(vLIntlocations))
+	for i, vIntlLocation := range vLIntlocations {
+		copyOfVIntlLocation := vIntlLocation
+		payload[i] = VIntlLocation(&copyOfVIntlLocation)
+	}
+	return payload
+}
+
 // ReServiceItem payload
 func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
 	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {

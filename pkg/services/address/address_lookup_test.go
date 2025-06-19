@@ -1,6 +1,8 @@
 package address
 
 import (
+	"strings"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 )
@@ -72,5 +74,41 @@ func (suite *AddressSuite) TestAddressLookup() {
 		address, err = addressLookup.GetLocationsByZipCityState(appCtx, hiSearch, excludedStates[:])
 		suite.Nil(err)
 		suite.Nil((*address))
+	})
+}
+
+func (suite *AddressSuite) TestOconusAddressLookup() {
+	country := "GB"
+	city := "LONDON"
+
+	suite.Run("Successfully search for location by principal division", func() {
+		principalDivision := "CARDIFF"
+		principalDivisionForSearch := "LONDON, CARDIFF"
+
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
+		addressLookup := NewVIntlLocation()
+		address, err := addressLookup.GetOconusLocations(appCtx, country, principalDivisionForSearch, false)
+
+		suite.Nil(err)
+		suite.NotNil(address)
+		returnCity := (*address)[0].CityName
+		suite.Contains(strings.ToUpper(*returnCity), strings.ToUpper(city))
+		returnedPrincipalDivision := (*address)[0].CountryPrnDivName
+		suite.Contains(strings.ToUpper(*returnedPrincipalDivision), strings.ToUpper(principalDivision))
+	})
+
+	suite.Run("Successfully search for location by city name", func() {
+		principalDivision := "ABERDEEN CITY"
+
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
+		addressLookup := NewVIntlLocation()
+		address, err := addressLookup.GetOconusLocations(appCtx, country, city, false)
+
+		suite.Nil(err)
+		suite.NotNil(address)
+		returnCity := (*address)[0].CityName
+		suite.Contains(strings.ToUpper(*returnCity), strings.ToUpper(city))
+		returnedPrincipalDivision := (*address)[0].CountryPrnDivName
+		suite.Contains(strings.ToUpper(*returnedPrincipalDivision), strings.ToUpper(principalDivision))
 	})
 }
