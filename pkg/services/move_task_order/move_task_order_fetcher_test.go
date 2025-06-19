@@ -2,7 +2,6 @@ package movetaskorder_test
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -1490,25 +1489,22 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 		suite.Nil(actualMTO.Orders.RankID)
 		suite.Nil(actualMTO.Orders.Rank)
 	})
-}
-func (suite *MoveTaskOrderServiceSuite) TestFindRankByPayGradeID() {
-	waf := entitlements.NewWeightAllotmentFetcher()
-	fetcher := m.NewMoveTaskOrderFetcher(waf)
 
-	// Create a test rank
-	customs := []factory.Customization{
-		{
-			Model: models.Rank{
-				ID:       uuid.Must(uuid.NewV4()),
-				RankName: "Custom Rank",
-				RankAbbv: "CR",
+	suite.Run("Valid PayGradeID", func() {
+		waf := entitlements.NewWeightAllotmentFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
+
+		customs := []factory.Customization{
+			{
+				Model: models.Rank{
+					ID:       uuid.Must(uuid.NewV4()),
+					RankName: "Custom Rank",
+					RankAbbv: "CR",
+				},
 			},
-		},
-	}
-	rank := factory.FetchOrBuildRank(suite.DB(), customs, nil)
+		}
+		rank := factory.FetchOrBuildRank(suite.DB(), customs, nil)
 
-	// Test case 1: Valid PayGradeID
-	suite.T().Run("Valid PayGradeID", func(t *testing.T) {
 		result, err := fetcher.FindRankByRankID(suite.AppContextForTest(), rank.ID)
 
 		suite.NoError(err)
@@ -1518,7 +1514,10 @@ func (suite *MoveTaskOrderServiceSuite) TestFindRankByPayGradeID() {
 	})
 
 	// Test case 2: Invalid PayGradeID
-	suite.T().Run("Invalid PayGradeID", func(t *testing.T) {
+	suite.Run("Invalid PayGradeID", func() {
+		waf := entitlements.NewWeightAllotmentFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
+
 		invalidID := uuid.Must(uuid.NewV4())
 		result, err := fetcher.FindRankByRankID(suite.AppContextForTest(), invalidID)
 
