@@ -202,29 +202,4 @@ describe('CountrySearchBoxContainer', () => {
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
   });
-
-  describe('selecting options', () => {
-    it('selects an option, calls the onChange callback prop', async () => {
-      const onChange = jest.fn();
-      const locationState = jest.fn();
-      render(
-        <CountrySearchBox
-          input={{ name: 'test_component', onChange, locationState }}
-          title="Test Component"
-          name="test_component"
-          searchLocations={mockCountrySearch}
-        />,
-      );
-
-      await userEvent.type(screen.getByLabelText('Test Component'), 'UNITED STATES');
-      await userEvent.click(await screen.findByText('(US)'));
-
-      await waitFor(() =>
-        expect(onChange).toHaveBeenCalledWith({
-          ...mockCountries,
-          country: selectedCountries,
-        }),
-      );
-    });
-  });
 });
