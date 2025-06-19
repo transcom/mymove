@@ -41,7 +41,7 @@ func (suite *GhcAPISuite) TestUploads() {
 
 		suite.Equal(http.StatusOK, rr.Code)
 		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
-		suite.Equal("id: 0\nevent: message\ndata: CLEAN\n\nid: 1\nevent: close\ndata: Connection closed\n\n", rr.Body.String())
+		suite.Equal("id: 0\nevent: message\ndata: NO_THREATS_FOUND\n\nid: 1\nevent: close\ndata: Connection closed\n\n", rr.Body.String())
 	})
 
 	suite.Run("Received statuses for upload, receiving multiple statuses with event queue", func() {
@@ -79,7 +79,7 @@ func (suite *GhcAPISuite) TestUploads() {
 		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
 
 		suite.Contains(rr.Body.String(), "PROCESSING")
-		suite.Contains(rr.Body.String(), "CLEAN")
+		suite.Contains(rr.Body.String(), "NO_THREATS_FOUND")
 		suite.Contains(rr.Body.String(), "Connection closed")
 	})
 }
