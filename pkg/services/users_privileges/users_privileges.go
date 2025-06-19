@@ -1,10 +1,15 @@
 package usersprivileges
 
 import (
+	"fmt"
+
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -109,4 +114,40 @@ func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContex
 		}
 	}
 	return userPrivilegesToDelete, nil
+}
+
+func (u usersPrivilegesCreator) VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, roles []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (*validate.Errors, error) {
+	verrs := validate.NewErrors()
+	for _, privilege := range privileges {
+		for _, role := range roles {
+
+			var allowed bool
+			err := appCtx.DB().RawQuery("SELECT * FROM is_role_privilege_allowed($1, $2)", role.RoleType, privilege.PrivilegeType).First(&allowed)
+
+			if err != nil {
+				return nil, err
+			}
+
+			if !allowed {
+				err = apperror.NewBadDataError(fmt.Sprintf("%s is not an authorized role for %s privileges", *role.Name, *privilege.Name))
+				appCtx.Logger().Error(err.Error())
+				verrs.Add("Validation Error", err.Error())
+			}
+		}
+	}
+
+	if verrs.HasAny() {
+		return verrs, nil
+
+	}
+
+	return nil, nil
+}
+
+func (f usersPrivilegesCreator) FetchPrivilegesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Privileges, error) {
+	var privileges roles.Privileges
+	err := appCtx.DB().Q().Join("users_privileges", "users_privileges.privilege_id = privileges.id").
+		Where("users_privileges.deleted_at IS NULL AND users_privileges.user_id = ?", (userID)).
+		All(&privileges)
+	return privileges, err
 }

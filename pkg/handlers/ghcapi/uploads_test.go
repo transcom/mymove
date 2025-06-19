@@ -32,6 +32,7 @@ const FixtureTXT = "test.txt"
 const FixtureXLS = "Weight Estimator.xls"
 const FixtureXLSX = "Weight Estimator.xlsx"
 const WeightEstimatorFullXLSX = "Weight Estimator Full.xlsx"
+const WeightEstimatorXlsxFail = "Weight Estimator Expect Failed Upload.xlsx"
 const WeightEstimatorPrefix = "Weight Estimator Full"
 const FixtureEmpty = "empty.pdf"
 const FixtureScreenshot = "Screenshot 2024-10-10 at 10.46.48 AM.png"
@@ -636,5 +637,17 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 		badResponseErr := response.(*handlers.ErrResponse)
 		suite.Equal("File has length of 0", badResponseErr.Err.Error())
+	})
+
+	suite.Run("Non-weight Estimator FIle Submitted for upload", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		_, params := createPPMPrereqs(suite, WeightEstimatorXlsxFail, true)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
+
+		suite.IsType(&ppmop.CreatePPMUploadForbidden{}, response)
+		incorrectXlsxResponse, _ := response.(*ppmop.CreatePPMUploadForbidden)
+		suite.Equal("The uploaded .xlsx file does not match the expected weight estimator file format.", *incorrectXlsxResponse.Payload.Message)
 	})
 }

@@ -39,6 +39,7 @@ const FixtureTXT = "test.txt"
 const FixtureXLS = "Weight Estimator.xls"
 const FixtureXLSX = "Weight Estimator.xlsx"
 const WeightEstimatorFullXLSX = "Weight Estimator Full.xlsx"
+const WeightEstimatorXlsxFail = "Weight Estimator Expect Failed Upload.xlsx"
 const WeightEstimatorPrefix = "Weight Estimator Full"
 const FixtureEmpty = "empty.pdf"
 const FixtureScreenshot = "Screenshot 2024-10-10 at 10.46.48 AM.png"
@@ -706,5 +707,17 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 		badResponseErr := response.(*handlers.ErrResponse)
 		suite.Equal("File has length of 0", badResponseErr.Err.Error())
+	})
+
+	suite.Run("Non-weight Estimator File submitted for upload", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, WeightEstimatorXlsxFail, true)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&ppmop.CreatePPMUploadForbidden{}, response)
+		incorrectXlsxResponse, _ := response.(*ppmop.CreatePPMUploadForbidden)
+		suite.Equal("The uploaded .xlsx file does not match the expected weight estimator file format. Please visit https://www.ustranscom.mil/dp3/weightestimator.cfm to download the weight estimator template file.", *incorrectXlsxResponse.Payload.Detail)
+
 	})
 }

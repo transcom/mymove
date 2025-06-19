@@ -3,43 +3,8 @@ package privileges
 import (
 	"slices"
 
-	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models/roles"
-	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 )
-
-func (suite *PrivilegesServiceSuite) TestFetchPrivileges() {
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-	id1, _ := uuid.NewV4()
-	priv1 := roles.Privilege{
-		ID:            id1,
-		PrivilegeType: "priv1",
-	}
-	id2, _ := uuid.NewV4()
-	priv2 := roles.Privilege{
-		ID:            id2,
-		PrivilegeType: "priv2",
-	}
-	// Create privileges
-	ps := roles.Privileges{priv1, priv2}
-	err := suite.DB().Create(ps)
-	suite.NoError(err)
-	// Associate privileges
-	var privilegeTypes []roles.PrivilegeType
-	for _, p := range ps {
-		privilegeTypes = append(privilegeTypes, p.PrivilegeType)
-	}
-	upc := usersprivileges.NewUsersPrivilegesCreator()
-	_, err = upc.UpdateUserPrivileges(suite.AppContextForTest(), *officeUser.UserID, privilegeTypes)
-	suite.NoError(err)
-	// Fetch privileges
-	pf := NewPrivilegesFetcher()
-	fps, err := pf.FetchPrivilegesForUser(suite.AppContextForTest(), *officeUser.UserID)
-	suite.NoError(err)
-	suite.Len(fps, 2)
-}
 
 func (suite *PrivilegesServiceSuite) TestFetchPrivilegeTypes() {
 	// Initialize the privileges fetcher

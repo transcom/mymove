@@ -444,7 +444,13 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
-
+				// if isWeightEstimatorFile is false, throw an error, and send message to front end to let user know.
+				if !isWeightEstimatorFile {
+					message := "The uploaded .xlsx file does not match the expected weight estimator file format."
+					return ppmop.NewCreatePPMUploadForbidden().WithPayload(&ghcmessages.Error{
+						Message: &message,
+					}), nil
+				}
 				_, err = file.Data.Seek(0, io.SeekStart)
 
 				if err != nil {
@@ -500,6 +506,12 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					default:
 						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
 					}
+				}
+
+				newUserUpload, verrs1, err := h.UserUploader.UpdateUserXlsxUploadFilename(appCtx, newUserUpload, filename)
+
+				if verrs1.HasAny() || err != nil {
+					appCtx.Logger().Error("failed to rename uploaded filename", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 				}
 
 				err = h.WeightTicketGenerator.CleanupFile(aFile)

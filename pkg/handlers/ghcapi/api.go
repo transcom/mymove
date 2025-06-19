@@ -115,8 +115,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	serviceItemFetcher := serviceitem.NewServiceItemFetcher()
 
-	ghcAPI.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = BooleanFeatureFlagsUnauthenticatedHandler{handlerConfig}
-
 	ghcAPI.RolePrivilegesGetRolesPrivilegesHandler = GetRolesPrivilegesHandler{
 		handlerConfig,
 		roles.NewRolesFetcher(),

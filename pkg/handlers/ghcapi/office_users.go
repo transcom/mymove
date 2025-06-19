@@ -263,7 +263,7 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
 			}
 
-			privileges, err := h.PrivilegeFetcher.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
+			privileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err

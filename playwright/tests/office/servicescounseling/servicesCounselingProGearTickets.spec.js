@@ -41,6 +41,35 @@ test('A service counselor can approve/reject pro-gear weight tickets', async ({ 
   await scPage.waitForPage.moveDetails();
 });
 
+test('The only Xlsx file that a service counselor can only upload is a weight estimator file template.', async ({
+  page,
+  scPage,
+}) => {
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
+  await scPage.signInAsNewServicesCounselorUser();
+  await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+  // click on "Complete PPM on behalf of customer"
+  await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+  // expect the new page to have heading "Review"
+  await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+
+  // click on Set 1 of Pro-gear section
+
+  await expect(page.getByRole('heading', { name: 'Pro-gear' })).toBeVisible();
+
+  await expect(page.getByText('Add Pro-gear Weight')).toBeVisible();
+  await page.getByText('Add Pro-gear Weight').click();
+
+  await expect(page.getByRole('heading', { name: 'Pro-gear' })).toBeVisible();
+  const progearTypeSelector = `label[for="ownerOfProGearSelf"]`;
+  await page.locator(progearTypeSelector).click();
+  await expect(page.getByRole('heading', { name: 'Description' })).toBeVisible();
+
+  await scPage.fillOutProGearWithIncorrectXlsx();
+});
+
 test('A service counselor can see the total for a progear weight ticket regular and spouse after update', async ({
   page,
   scPage,

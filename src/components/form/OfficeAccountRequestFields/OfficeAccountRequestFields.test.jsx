@@ -7,11 +7,11 @@ import OfficeAccountRequestFields from './OfficeAccountRequestFields';
 
 import { officeAccountRequestSchema } from 'utils/validation';
 import { ReactQueryWrapper } from 'testUtils';
-import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabledUnauthenticatedOffice: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabledUnauthenticated: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const initialValues = {
@@ -36,7 +36,7 @@ const mockRolesWithPrivs = [
 const mockPrivileges = [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }];
 
 describe('OfficeAccountRequestFields component', () => {
-  isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
+  isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
   it('renders the form inputs', async () => {
     render(
       <ReactQueryWrapper>

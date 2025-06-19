@@ -11,7 +11,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
-import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { roleTypes } from 'constants/userRoles';
@@ -43,7 +43,7 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
 
   useEffect(() => {
     const fetchData = async () => {
-      isBooleanFlagEnabledUnauthenticatedOffice(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES)?.then((enabled) => {
+      isBooleanFlagEnabledUnauthenticated(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES)?.then((enabled) => {
         setEnableRequestAccountPrivileges(enabled);
       });
     };
