@@ -104,7 +104,7 @@ BEGIN
 	  ms_agg.mtos_earliest_requested_delivery_date::timestamptz AS mtos_earliest_requested_delivery_date,
 	  ppm_agg.ppms_earliest_expected_departure_date::timestamptz AS ppms_earliest_expected_departure_date,
     COALESCE(ppm_agg.ppm_shipments, ''[]'')::JSONB AS ppm_shipments,
-    m.updated_at AS updated_at
+    m.updated_at::TIMESTAMP WITH TIME ZONE AS updated_at
     From moves m
     JOIN orders o ON m.orders_id = o.id
     JOIN service_members sm ON o.service_member_id = sm.id
