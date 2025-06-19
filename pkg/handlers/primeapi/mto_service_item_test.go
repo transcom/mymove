@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		sitEntryDate := time.Now()
-		sitPostalCode := "00000"
+		sitPostalCode := "00988"
 		requestApprovalRequestedStatus := false
 
 		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
@@ -812,7 +812,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		sitEntryDate := time.Now()
-		sitPostalCode := "00000"
+		sitPostalCode := "00988"
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
@@ -946,7 +946,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 				Model: models.MTOServiceItem{
 					Reason:        models.StringPointer("lorem ipsum"),
 					SITEntryDate:  models.TimePointer(time.Now()),
-					SITPostalCode: models.StringPointer("00000"),
+					SITPostalCode: models.StringPointer("00988"),
 				},
 			},
 		}, nil)
@@ -1011,7 +1011,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Now()
-		sitPostalCode := "00000"
+		sitPostalCode := "00988"
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID: mto.ID,
@@ -1106,7 +1106,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Date(2024, time.February, 27, 0, 0, 0, 0, time.UTC)
 		sitDepartureDate := time.Date(2024, time.February, 28, 0, 0, 0, 0, time.UTC)
-		sitPostalCode := "00000"
+		sitPostalCode := "00988"
 
 		// Original customer pickup address
 		subtestData.originalPickupAddress = subtestData.mtoShipment.PickupAddress

@@ -173,7 +173,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Eisenhower",
+				City:           "WALESKA",
 				State:          "GA",
 				PostalCode:     "30183",
 				County:         models.StringPointer("COLUMBIA"),
