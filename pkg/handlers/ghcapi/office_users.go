@@ -1,16 +1,19 @@
 package ghcapi
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	officeuserop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
+	rpop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/role_privileges"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -26,7 +29,9 @@ type RequestOfficeUserHandler struct {
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
-	services.RoleAssociater
+	services.RoleFetcher
+	services.UserPrivilegeAssociator
+	services.PrivilegeFetcher
 	services.TransportationOfficeAssignmentUpdater
 }
 
@@ -34,12 +39,29 @@ type RequestOfficeUserHandler struct {
 func payloadForRole(r roles.Role) *ghcmessages.Role {
 	roleType := string(r.RoleType)
 	roleName := string(r.RoleName)
+	sort := int32(r.Sort)
 	return &ghcmessages.Role{
 		ID:        handlers.FmtUUID(r.ID),
 		RoleType:  &roleType,
 		RoleName:  &roleName,
+		Sort:      sort,
 		CreatedAt: *handlers.FmtDateTime(r.CreatedAt),
 		UpdatedAt: *handlers.FmtDateTime(r.UpdatedAt),
+	}
+}
+
+// Convert internal privilege model to ghc privilege model
+func payloadForPrivilege(p roles.Privilege) *ghcmessages.Privilege {
+	privilegeType := string(p.PrivilegeType)
+	privilegeName := string(p.PrivilegeName)
+	sort := int32(p.Sort)
+	return &ghcmessages.Privilege{
+		ID:            handlers.FmtUUID(p.ID),
+		PrivilegeType: &privilegeType,
+		PrivilegeName: &privilegeName,
+		Sort:          sort,
+		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
+		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
 	}
 }
 
@@ -52,6 +74,41 @@ func rolesPayloadToModel(payload []*ghcmessages.OfficeUserRole) []roles.RoleType
 		}
 	}
 	return rt
+}
+
+// Convert ghc privilege models to internal privilege models
+func privilegesPayloadToModel(payload []*ghcmessages.OfficeUserPrivilege) []roles.PrivilegeType {
+	var pt []roles.PrivilegeType
+	for _, role := range payload {
+		if role.PrivilegeType != nil {
+			pt = append(pt, roles.PrivilegeType(*role.PrivilegeType))
+		}
+	}
+	return pt
+}
+
+func payloadForRolePrivilege(role roles.Role) *ghcmessages.Role {
+	sort := int32(role.Sort)
+	r := &ghcmessages.Role{
+		ID:        handlers.FmtUUID(role.ID),
+		RoleType:  handlers.FmtString(string(role.RoleType)),
+		RoleName:  handlers.FmtString(string(role.RoleName)),
+		Sort:      sort,
+		CreatedAt: *handlers.FmtDateTime(role.CreatedAt),
+		UpdatedAt: *handlers.FmtDateTime(role.UpdatedAt),
+	}
+	for _, rp := range role.RolePrivileges {
+		privSort := int32(rp.Privilege.Sort)
+		r.Privileges = append(r.Privileges, &ghcmessages.Privilege{
+			ID:            handlers.FmtUUID(rp.PrivilegeID),
+			PrivilegeType: handlers.FmtString(string(rp.Privilege.PrivilegeType)),
+			PrivilegeName: handlers.FmtString(string(rp.Privilege.PrivilegeName)),
+			Sort:          privSort,
+			CreatedAt:     *handlers.FmtDateTime(rp.Privilege.CreatedAt),
+			UpdatedAt:     *handlers.FmtDateTime(rp.Privilege.UpdatedAt),
+		})
+	}
+	return r
 }
 
 // Convert internal office user model to ghc office user model
@@ -84,6 +141,9 @@ func payloadForOfficeUserModel(o models.OfficeUser) *ghcmessages.OfficeUser {
 	}
 	for _, role := range user.Roles {
 		payload.Roles = append(payload.Roles, payloadForRole(role))
+	}
+	for _, privilege := range user.Privileges {
+		payload.Privileges = append(payload.Privileges, payloadForPrivilege(privilege))
 	}
 	return payload
 }
@@ -124,6 +184,8 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				appCtx.Logger().Error(err.Error())
 				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity(), err
 			}
+
+			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
 
 			// Enforce identification rule for this payload
 			if payload.Edipi == nil && payload.OtherUniqueID == nil {
@@ -188,13 +250,27 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
 			}
 
-			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
+			_, err = h.UserPrivilegeAssociator.UpdateUserPrivileges(appCtx, *createdOfficeUser.UserID, updatedPrivileges)
+
+			if err != nil {
+				appCtx.Logger().Error("Error updating user privileges", zap.Error(err))
+				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
+			}
+
+			roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
 			}
 
+			privileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
+				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
+			}
+
 			createdOfficeUser.User.Roles = roles
+			createdOfficeUser.User.Privileges = privileges
 
 			transportationOfficeAssignments := models.TransportationOfficeAssignments{
 				{
@@ -268,5 +344,32 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 			returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
 			return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload), nil
+		})
+}
+
+// GetRolesPrivilegesHandler retrieves a list of unique role to privilege mappings via GET /office_users/roles-privileges
+type GetRolesPrivilegesHandler struct {
+	handlers.HandlerConfig
+	services.RoleFetcher
+}
+
+func (h GetRolesPrivilegesHandler) Handle(params rpop.GetRolesPrivilegesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			rolesWithRolePrivs, err := h.RoleFetcher.FetchRolesPrivileges(appCtx)
+			if err != nil && errors.Is(err, sql.ErrNoRows) {
+				return rpop.NewGetRolesPrivilegesNotFound(), err
+			} else if err != nil {
+				appCtx.Logger().Error(err.Error())
+				return rpop.NewGetRolesPrivilegesInternalServerError(), err
+			}
+
+			payload := make([]*ghcmessages.Role, len(rolesWithRolePrivs))
+			for i, rwrp := range rolesWithRolePrivs {
+				payload[i] = payloadForRolePrivilege(rwrp)
+			}
+
+			return rpop.NewGetRolesPrivilegesOK().WithPayload(payload), nil
 		})
 }
