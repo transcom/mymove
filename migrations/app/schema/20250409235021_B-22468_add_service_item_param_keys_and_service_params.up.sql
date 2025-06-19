@@ -78,15 +78,15 @@ INSERT INTO service_params (id, service_id, service_item_param_key_id, created_a
 VALUES
 	('ec15cea9-f844-4ef5-b389-014def85735b', (SELECT id FROM re_services WHERE code = 'IOPSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'ZipSITOriginHHGOriginalAddress'), now(), now(), false);
 
--- Associate EscalationCompounded to service lookup for IDDSIT.
-INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
-VALUES
-	('d657323f-a729-4318-a8f1-2302e2941a51', (SELECT id FROM re_services WHERE code = 'IDDSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'EscalationCompounded'), now(), now(), false);
-
 -- Associate EscalationCompounded to service lookup for IOPSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
 	('60a07db6-3fc7-48d4-b1f6-da5f99ac2e3c', (SELECT id FROM re_services WHERE code = 'IOPSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'EscalationCompounded'), now(), now(), false);
+
+-- Associate EscalationCompounded to service lookup for IDDSIT.
+INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
+VALUES
+	('d657323f-a729-4318-a8f1-2302e2941a51', (SELECT id FROM re_services WHERE code = 'IDDSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'EscalationCompounded'), now(), now(), false);
 
 -- Associate IsPeak to service lookup for IOPSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
