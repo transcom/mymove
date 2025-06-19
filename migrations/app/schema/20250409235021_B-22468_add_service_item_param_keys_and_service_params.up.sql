@@ -52,7 +52,6 @@ INSERT INTO service_params (id, service_id, service_item_param_key_id, created_a
 VALUES
 	('839fb0cc-43df-4c72-8731-9ab627796f8b', (SELECT id FROM re_services WHERE code = 'IDDSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'DistanceZipSITDest'), now(), now(), false);
 
-
 -- Associate ZipSITDestHHGFinalAddress to service lookup for IDDSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
@@ -73,6 +72,11 @@ INSERT INTO service_params (id, service_id, service_item_param_key_id, created_a
 VALUES
 	('e1a0533e-300b-4e6a-96e2-6fd7943c58e6', (SELECT id FROM re_services WHERE code = 'IDDSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'PriceRateOrFactor'), now(), now(), false);
 
+-- Associate EscalationCompounded to service lookup for IDDSIT.
+INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
+VALUES
+	('d657323f-a729-4318-a8f1-2302e2941a51', (SELECT id FROM re_services WHERE code = 'IDDSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'EscalationCompounded'), now(), now(), false);
+
 -- Associate ZipSITOriginHHGOriginalAddress to service lookup for IOPSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
@@ -82,11 +86,6 @@ VALUES
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
 	('60a07db6-3fc7-48d4-b1f6-da5f99ac2e3c', (SELECT id FROM re_services WHERE code = 'IOPSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'EscalationCompounded'), now(), now(), false);
-
--- Associate EscalationCompounded to service lookup for IDDSIT.
-INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
-VALUES
-	('d657323f-a729-4318-a8f1-2302e2941a51', (SELECT id FROM re_services WHERE code = 'IDDSIT'), (SELECT id FROM service_item_param_keys WHERE key = 'EscalationCompounded'), now(), now(), false);
 
 -- Associate IsPeak to service lookup for IOPSIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
