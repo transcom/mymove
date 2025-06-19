@@ -16,7 +16,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { requiredAddressSchema } from 'utils/validation';
 import { FEATURE_FLAG_KEYS, getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editItemName, grade }) => {
   const [ppmSprFF, setPpmSprFF] = useState(false);
@@ -79,11 +79,12 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
 
   const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
 
-  const editingAddressField =
-    editItemName === 'pickupAddress' ||
-    editItemName === 'destinationAddress' ||
-    editItemName === 'pickupAddress' ||
-    editItemName === 'destinationAddress';
+  const requiredAsteriskNeeded =
+    editItemName !== 'expenseType' &&
+    editItemName !== 'pickupAddress' &&
+    editItemName !== 'destinationAddress' &&
+    editItemName !== 'pickupAddress' &&
+    editItemName !== 'destinationAddress';
 
   return (
     <div>
@@ -103,7 +104,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
               return (
                 <Form>
                   <div>
-                    {!editingAddressField && requiredAsteriskMessage}
+                    {requiredAsteriskNeeded && requiredAsteriskMessage}
                     {editItemName === 'actualMoveDate' && (
                       <DatePickerInput
                         name="actualMoveDate"
@@ -170,8 +171,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     {editItemName === 'expenseType' && (
                       <Fieldset>
                         <legend>
-                          <span className="usa-label" aria-label="Required: What is the PPM type?">
-                            What is the PPM type? <RequiredAsterisk />
+                          <span className="usa-label" aria-label="What is the PPM type?">
+                            What is the PPM type?
                           </span>
                         </legend>
 

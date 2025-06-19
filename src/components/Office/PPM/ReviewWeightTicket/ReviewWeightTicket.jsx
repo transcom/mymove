@@ -330,7 +330,11 @@ function ReviewWeightTicket({
                 {values.ownsTrailer === 'true' && (
                   <FormGroup>
                     <Fieldset>
-                      <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
+                      <legend className="usa-label">
+                        <span required>
+                          {`Is the trailer's weight claimable?`} <RequiredAsterisk />
+                        </span>
+                      </legend>
                       <ErrorMessage display={!!errors?.trailerMeetsCriteria && !!touched?.trailerMeetsCriteria}>
                         {errors.trailerMeetsCriteria}
                       </ErrorMessage>
@@ -343,6 +347,7 @@ function ReviewWeightTicket({
                         checked={values.trailerMeetsCriteria === 'true'}
                         onChange={handleTrailerClaimableChange}
                         disabled={readOnly}
+                        required
                       />
                       <Field
                         as={Radio}
@@ -353,6 +358,7 @@ function ReviewWeightTicket({
                         checked={values.trailerMeetsCriteria === 'false'}
                         onChange={handleTrailerClaimableChange}
                         disabled={readOnly}
+                        required
                       />
                       {values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument && (
                         <Alert type="info">Proof of ownership is needed to accept this item.</Alert>
@@ -404,7 +410,11 @@ function ReviewWeightTicket({
 
                     {values.status === ppmDocumentStatus.REJECTED && (
                       <FormGroup className={styles.reason}>
-                        <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason</Label>
+                        <Label htmlFor={`rejectReason-${weightTicket?.id}`}>
+                          <span required>
+                            Reason <RequiredAsterisk />
+                          </span>
+                        </Label>
                         {!canEditRejection && (
                           <p data-testid="rejectionReasonReadOnly">{weightTicket?.reason || values.rejectionReason}</p>
                         )}
@@ -423,6 +433,7 @@ function ReviewWeightTicket({
                               value={values.rejectionReason}
                               placeholder="Type something"
                               disabled={readOnly}
+                              required={canEditRejection}
                             />
                             <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                           </>

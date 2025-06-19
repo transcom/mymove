@@ -470,7 +470,7 @@ describe('ReviewWeightTicket component', () => {
       expect(screen.getByLabelText('Full weight *', { description: 'Constructed weight' })).toBeInTheDocument();
     });
 
-    it('toggles the reason field when Reject is selected', async () => {
+    it('toggles the reason field when Reject is selected and shows asterisks for required fields', async () => {
       render(
         <MockProviders>
           <ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} />
@@ -482,7 +482,8 @@ describe('ReviewWeightTicket component', () => {
       await act(async () => {
         await fireEvent.click(screen.getByLabelText('Reject'));
       });
-      expect(screen.getByLabelText('Reason')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+      expect(screen.getByLabelText('Reason *')).toBeInstanceOf(HTMLTextAreaElement);
       await act(async () => {
         await fireEvent.click(screen.getByLabelText('Accept'));
       });
@@ -525,7 +526,9 @@ describe('ReviewWeightTicket component', () => {
         </MockProviders>,
       );
       await waitFor(() => {
+        expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
+        expect(screen.queryByText("Is the trailer's weight claimable?")).toHaveTextContent('*');
       });
       const claimableYesButton = screen.getAllByRole('radio', { name: 'Yes' })[1];
       await act(async () => {
