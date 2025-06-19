@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/storage"
@@ -188,10 +187,10 @@ func main() {
 				} else if namedScenario == tdgs.DevSeedScenario.Name {
 					// Something is different about our cert config in CI so only running this
 					// for the devseed scenario not e2e_basic for Cypress
-					certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
-					if certificates == nil || rootCAs == nil || certErr != nil {
-						logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
-					}
+					// certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
+					// if certificates == nil || rootCAs == nil || certErr != nil {
+					// 	logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
+					// }
 
 					// Initialize setup
 					tdgs.DevSeedScenario.Setup(appCtx, userUploader, primeUploader)

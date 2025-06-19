@@ -217,6 +217,30 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return apperror.NewQueryError("Update PPM incentives", err, "")
 		}
 
+		// authorize gunsafe in orders.Entitlement if customer has selected that they have gun safe when creating a ppm shipment
+		if ppmShipment.HasGunSafe != nil && *ppmShipment.HasGunSafe {
+			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), mtoShipment.MoveTaskOrderID)
+			if err != nil {
+				return err
+			}
+
+			entitlement := move.Orders.Entitlement
+			if entitlement == nil {
+				return apperror.NewQueryError("Entitlement", fmt.Errorf("entitlement is nil after fetching move with ID %s", move.ID), "Move is missing an associated entitlement.")
+			}
+
+			entitlement.GunSafe = *ppmShipment.HasGunSafe
+
+			verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the gun safe entitlement.")
+			}
+			if err != nil {
+				return apperror.NewQueryError("Entitlement", err, "")
+			}
+
+		}
+
 		return err
 	})
 

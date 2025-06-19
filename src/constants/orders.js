@@ -111,10 +111,10 @@ export const ORDERS_PAY_GRADE_OPTIONS = {
   W_3: 'W-3',
   W_4: 'W-4',
   W_5: 'W-5',
-  AVIATION_CADET: 'Aviation Cadet',
-  CIVILIAN_EMPLOYEE: 'Civilian Employee',
-  ACADEMY_CADET: 'Service Academy Cadet',
-  MIDSHIPMAN: 'Midshipman',
+  AVIATION_CADET: 'AVIATION_CADET',
+  CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
+  ACADEMY_CADET: 'ACADEMY_CADET',
+  MIDSHIPMAN: 'MIDSHIPMAN',
 };
 
 export const ORDERS_BRANCH_OPTIONS = {

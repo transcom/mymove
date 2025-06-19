@@ -23,6 +23,7 @@ BEGIN
                                     'ports',
                                     'port_locations',
                                     'postal_code_to_gblocs',
+                                    'ranks',
                                     're_cities',
                                     're_countries',
                                     're_domestic_accessorial_prices',
@@ -49,11 +50,11 @@ BEGIN
                                     're_contracts',
                                     're_contract_years',
                                     'service_params',
+                                    're_shipment_type_prices',
                                     'service_item_param_keys',
                                     'ub_allowances',
                                     'us_post_region_cities',
-                                    'zip3_distances',
-                                    'ranks'
+                                    'zip3_distances'
                                     ) order by tablename ) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;

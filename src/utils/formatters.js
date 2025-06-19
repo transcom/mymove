@@ -303,8 +303,28 @@ export const formatMoveHistoryMaxBillableWeight = (historyRecord) => {
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
+export const formatMoveHistoryGunSafe = (historyRecord) => {
+  const { changedValues } = historyRecord;
+  const newChangedValues = { ...changedValues };
+  if (changedValues.gun_safe !== undefined) {
+    newChangedValues.gun_safe_authorized = changedValues.gun_safe;
+    delete newChangedValues.gun_safe;
+  }
+  if (changedValues.gun_safe_weight !== undefined) {
+    newChangedValues.gun_safe_weight_allowance = changedValues.gun_safe_weight;
+    delete newChangedValues.gun_safe_weight;
+  }
+  return { ...historyRecord, changedValues: newChangedValues };
+};
+
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
+};
+
+export const formatPayGradeOptions = (payGrades) => {
+  return payGrades.map((grade) => {
+    return { key: grade.grade, value: grade.description };
+  });
 };
 
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days

@@ -343,6 +343,19 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 	})
 }
 
+func (suite *PayloadsSuite) TestPayGrades() {
+	payGrades := models.PayGrades{
+		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
+		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
+		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+	}
+
+	result := PayGrades(payGrades)
+
+	suite.Equal(len(payGrades), len(result))
+	suite.Equal(payGrades[0].Grade, result[0].Grade)
+}
+
 func (suite *PayloadsSuite) TestGetRankDropdownOptions() {
 	type testCase struct {
 		grade string
@@ -351,11 +364,11 @@ func (suite *PayloadsSuite) TestGetRankDropdownOptions() {
 
 	testCases := map[models.ServiceMemberAffiliation]testCase{
 		models.ServiceMemberAffiliation(models.AffiliationARMY): {
-			grade: "E_4",
+			grade: "E-4",
 			count: 2,
 		},
 		models.ServiceMemberAffiliation(models.AffiliationNAVY): {
-			grade: "E_2",
+			grade: "E-2",
 			count: 1,
 		},
 	}

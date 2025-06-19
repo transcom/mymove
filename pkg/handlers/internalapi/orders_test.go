@@ -38,6 +38,13 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}, nil)
 
 	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
+	parameterName := "maxGunSafeAllowance"
+	parameterValue := "500"
+	param := models.ApplicationParameters{
+		ParameterName:  &parameterName,
+		ParameterValue: &parameterValue,
+	}
+	suite.MustSave(&param)
 
 	suite.Run("can create conus orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -127,6 +134,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.Nil(createdEntitlement.DependentsTwelveAndOver)
 		suite.Nil(createdEntitlement.DependentsUnderTwelve)
 		suite.Assertions.Equal(rank.RankAbbv, okResponse.Payload.Rank.RankAbbv)
+		suite.Equal(createdEntitlement.GunSafeWeight, 500)
 	})
 
 	suite.Run("can create oconus orders", func() {
