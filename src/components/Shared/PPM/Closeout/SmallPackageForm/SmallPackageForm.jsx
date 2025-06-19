@@ -42,10 +42,8 @@ const SmallPackageForm = () => {
         above.
       </Hint>
       <TextField label="Tracking number" name="trackingNumber" id="trackingNumber" showRequiredAsterisk required />
-      <legend className="usa-label" aria-label="Required: Was this pro-gear?">
-        <span required>
-          Was this pro-gear? <RequiredAsterisk />
-        </span>
+      <legend className="usa-label" aria-label="Was this pro-gear?">
+        <span>Was this pro-gear?</span>
       </legend>
       <div>
         <Field
