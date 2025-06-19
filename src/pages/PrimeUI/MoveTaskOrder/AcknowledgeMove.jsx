@@ -23,6 +23,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import Hint from 'components/Hint/index';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const AcknowledgeMove = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -112,10 +113,13 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
                         <dt>Move Id:</dt>
                         <dd>{moveTaskOrder.id}</dd>
                       </div>
+                      {requiredAsteriskMessage}
                       <DatePickerInput
                         data-testid="primeAcknowledgedAt"
                         name="primeAcknowledgedAt"
                         label="Prime Acknowledged At"
+                        showRequiredAsterisk
+                        required
                         disabled={moveTaskOrder.primeAcknowledgedAt}
                       />
                       <Hint id="primeAcknowledgedAtHint" data-testid="primeAcknowledgedAtHint">

@@ -14,9 +14,12 @@ describe('BackupContactInfoFields component', () => {
     expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
 
     expect(screen.getByText('Backup contact')).toBeInstanceOf(HTMLLegendElement);
-    expect(screen.getByLabelText('Name *')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText(/Name */)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Name */)).toBeRequired();
+    expect(screen.getByLabelText('First Name *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText(/First Name */)).toBeInTheDocument();
+    expect(screen.getByLabelText(/First Name */)).toBeRequired();
+    expect(screen.getByLabelText('Last Name *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText(/Last Name */)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Last Name */)).toBeRequired();
     expect(screen.getByLabelText('Email *')).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByLabelText(/Email */)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email */)).toBeRequired();
@@ -29,7 +32,8 @@ describe('BackupContactInfoFields component', () => {
     it('renders a legend and all backup contact info inputs', async () => {
       const initialValues = {
         email: 'test@example.com',
-        name: 'test',
+        firstName: 'test',
+        lastName: 'case',
         telephone: '555-123-4567',
       };
 
@@ -38,7 +42,9 @@ describe('BackupContactInfoFields component', () => {
           <BackupContactInfoFields legend="Backup contact" />
         </Formik>,
       );
-      expect(await screen.findByLabelText('Name *')).toHaveValue(initialValues.name);
+
+      expect(await screen.findByLabelText('First Name *')).toHaveValue(initialValues.name);
+      expect(await screen.findByLabelText('Last Name *')).toHaveValue(initialValues.name);
       expect(await screen.findByLabelText('Email *')).toHaveValue(initialValues.email);
       expect(await screen.findByLabelText('Phone *')).toHaveValue(initialValues.telephone);
     });
@@ -49,7 +55,8 @@ describe('BackupContactInfoFields component', () => {
 
     const initialBackupInfo = {
       email: 'test@example.com',
-      name: 'test',
+      firstName: 'test',
+      lastName: 'test',
       telephone: '555-123-4567',
     };
 
@@ -63,7 +70,8 @@ describe('BackupContactInfoFields component', () => {
       </Formik>,
     );
 
-    expect(await screen.findByLabelText('Name *')).toHaveValue(initialBackupInfo.name);
+    expect(await screen.findByLabelText('First Name *')).toHaveValue(initialBackupInfo.name);
+    expect(await screen.findByLabelText('Last Name *')).toHaveValue(initialBackupInfo.name);
     expect(await screen.findByLabelText('Email *')).toHaveValue(initialBackupInfo.email);
     expect(await screen.findByLabelText('Phone *')).toHaveValue(initialBackupInfo.telephone);
   });
