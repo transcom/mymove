@@ -1,7 +1,6 @@
 import queryString from 'query-string';
 
 import { getBooleanFeatureFlagUnauthenticated, getBooleanFeatureFlagForUser } from '../services/internalApi';
-import { getBooleanFeatureFlagUnauthenticatedOffice } from '../services/ghcApi';
 
 import { milmoveLogger } from 'utils/milmoveLog';
 
@@ -143,22 +142,6 @@ export async function isBooleanFlagEnabled(flagKey) {
 // only used within the customer app and for unauthenticated users
 export async function isBooleanFlagEnabledUnauthenticated(flagKey) {
   return getBooleanFeatureFlagUnauthenticated(flagKey, {})
-    .then((result) => {
-      if (result && typeof result.match !== 'undefined') {
-        return result.match;
-      }
-      throw new Error(`feature flag is undefined ${flagKey}`);
-    })
-    .catch((error) => {
-      milmoveLogger.error(error);
-      return false;
-    });
-}
-
-// isBooleanFlagEnabledUnauthenticated returns the Flipt feature flag value
-// only used within the office app and for unauthenticated users
-export async function isBooleanFlagEnabledUnauthenticatedOffice(flagKey) {
-  return getBooleanFeatureFlagUnauthenticatedOffice(flagKey, {})
     .then((result) => {
       if (result && typeof result.match !== 'undefined') {
         return result.match;

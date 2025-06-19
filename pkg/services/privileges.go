@@ -1,8 +1,6 @@
 package services
 
 import (
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
@@ -11,6 +9,5 @@ import (
 //
 //go:generate mockery --name PrivilegeFetcher
 type PrivilegeFetcher interface {
-	FetchPrivilegesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Privileges, error)
 	FetchPrivilegeTypes(appCtx appcontext.AppContext) ([]roles.PrivilegeType, error)
 }

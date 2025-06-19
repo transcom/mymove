@@ -26,7 +26,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/feature_flags"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
@@ -104,9 +103,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ReportViolationsAssociateReportViolationsHandler: report_violations.AssociateReportViolationsHandlerFunc(func(params report_violations.AssociateReportViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.AssociateReportViolations has not yet been implemented")
-		}),
-		FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler: feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
-			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
 		}),
 		PaymentRequestsBulkDownloadHandler: payment_requests.BulkDownloadHandlerFunc(func(params payment_requests.BulkDownloadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
@@ -532,8 +528,6 @@ type MymoveAPI struct {
 	ShipmentApproveShipmentsHandler shipment.ApproveShipmentsHandler
 	// ReportViolationsAssociateReportViolationsHandler sets the operation handler for the associate report violations operation
 	ReportViolationsAssociateReportViolationsHandler report_violations.AssociateReportViolationsHandler
-	// FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler sets the operation handler for the boolean feature flag unauthenticated operation
-	FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler feature_flags.BooleanFeatureFlagUnauthenticatedHandler
 	// PaymentRequestsBulkDownloadHandler sets the operation handler for the bulk download operation
 	PaymentRequestsBulkDownloadHandler payment_requests.BulkDownloadHandler
 	// MoveCheckForLockedMovesAndUnlockHandler sets the operation handler for the check for locked moves and unlock operation
@@ -884,9 +878,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ReportViolationsAssociateReportViolationsHandler == nil {
 		unregistered = append(unregistered, "report_violations.AssociateReportViolationsHandler")
-	}
-	if o.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
-		unregistered = append(unregistered, "feature_flags.BooleanFeatureFlagUnauthenticatedHandler")
 	}
 	if o.PaymentRequestsBulkDownloadHandler == nil {
 		unregistered = append(unregistered, "payment_requests.BulkDownloadHandler")
@@ -1375,10 +1366,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/report-violations/{reportID}"] = report_violations.NewAssociateReportViolations(o.context, o.ReportViolationsAssociateReportViolationsHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/open/feature-flags/boolean/{key}"] = feature_flags.NewBooleanFeatureFlagUnauthenticated(o.context, o.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

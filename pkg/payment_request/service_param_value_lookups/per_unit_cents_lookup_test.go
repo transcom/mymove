@@ -361,6 +361,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 		})
 		suite.NoError(err)
 		suite.Equal(perUnitCents, "20")
+
 	})
 
 	suite.Run("success - returns perUnitCent value for IUBPK", func() {

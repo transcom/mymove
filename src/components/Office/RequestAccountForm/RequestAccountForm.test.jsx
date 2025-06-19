@@ -8,7 +8,7 @@ import RequestAccountForm from './RequestAccountForm';
 
 import { renderWithRouter } from 'testUtils';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
-import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -23,7 +23,7 @@ jest.mock('services/ghcApi', () => ({
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabledUnauthenticatedOffice: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabledUnauthenticated: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const mockRolesWithPrivs = [
@@ -57,7 +57,7 @@ describe('RequestAccountForm component', () => {
   };
 
   it('renders the form inputs', async () => {
-    isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
+    isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
     const firstName = screen.getByTestId('officeAccountRequestFirstName');
@@ -200,7 +200,7 @@ describe('RequestAccountForm component', () => {
   });
 
   it('submits requesting office account with supervisor privilege form when submit button is clicked', async () => {
-    isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
+    isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
     const mockOfficeId = '3210a533-19b8-4805-a564-7eb452afce10';
     const mockTransportationOffice = {
       address: {

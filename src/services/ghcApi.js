@@ -856,11 +856,6 @@ export async function getShipmentsPaymentSITBalance(key, paymentRequestID) {
   return makeGHCRequest('paymentRequests.getShipmentsPaymentSITBalance', { paymentRequestID });
 }
 
-export async function getBooleanFeatureFlagUnauthenticatedOffice(key, flagContext) {
-  const normalize = false;
-  return makeGHCRequest('featureFlags.booleanFeatureFlagUnauthenticated', { key, flagContext }, { normalize });
-}
-
 export function updateFinancialFlag({ moveID, ifMatchETag, body }) {
   const operationPath = 'move.setFinancialReviewFlag';
   // What is the schemakey and normalize for?
