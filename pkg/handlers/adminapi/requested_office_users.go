@@ -318,10 +318,9 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
 			}
 
-			priorRequestedOfficeUser, err := h.FetchRequestedOfficeUser(appCtx, []services.QueryFilter{query.NewQueryFilter("id", "=", requestedOfficeUserID)})
+			priorPrivileges, err := h.PrivilegeAssociator.FetchPrivilegesForUser(appCtx, requestedOfficeUserID)
 			if err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("Could not retrieve requested office user %s", params.OfficeUserID.String()), zap.Error(err))
-				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
+				appCtx.Logger().Error("Error retreiving prior user privileges", zap.Error(err))
 			}
 
 			body := params.Body
@@ -370,22 +369,43 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 					}
 				}
 
+				payloadPrivileges := &[]*adminmessages.OfficeUserPrivilege{}
+				if body.Privileges != nil {
+					payloadPrivileges = &body.Privileges
+				}
+				updatedPrivileges := privilegesPayloadToModel(*payloadPrivileges)
+
+				privilegesDiffer := false
 				isSupervisorPrivilegeRejected := false
-				if requestedOfficeUser.UserID != nil && (body.Privileges != nil || len(body.Privileges) == 0) {
-					updatedPrivileges := privilegesPayloadToModel(body.Privileges)
+
+				if len(updatedPrivileges) == len(priorPrivileges) {
+					for i, priv := range updatedPrivileges {
+						if priv != priorPrivileges[i].PrivilegeType {
+							privilegesDiffer = true
+							break
+						}
+					}
+				} else {
+					privilegesDiffer = true
+				}
+
+				if requestedOfficeUser.UserID != nil && privilegesDiffer {
 					if _, err := h.UserPrivilegeAssociator.UpdateUserPrivileges(txAppCtx, *requestedOfficeUser.UserID, updatedPrivileges); err != nil {
 						txAppCtx.Logger().Error("Error updating user privileges", zap.Error(err))
 						return err
 					}
 
-					if priorRequestedOfficeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) && !slices.Contains(updatedPrivileges, roles.PrivilegeTypeSupervisor) {
+					if priorPrivileges.HasPrivilege(roles.PrivilegeTypeSupervisor) && !slices.Contains(updatedPrivileges, roles.PrivilegeTypeSupervisor) {
 						isSupervisorPrivilegeRejected = true
 					}
 				}
 
-				privileges, err := h.PrivilegeAssociator.FetchPrivilegesForUser(txAppCtx, *requestedOfficeUser.UserID)
-				if err != nil {
-					appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				privileges := priorPrivileges
+				if privilegesDiffer {
+					privileges, err = h.PrivilegeAssociator.FetchPrivilegesForUser(txAppCtx, *requestedOfficeUser.UserID)
+					if err != nil {
+						appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+					}
 				}
 
 				roles, err := h.RoleAssociator.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
