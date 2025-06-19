@@ -135,6 +135,7 @@ export const tioRoutes = {
 };
 
 export const tooRoutes = {
+  BASE_MOVES_PATH,
   BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
   MOVE_QUEUE: `move-queue`,
   BASE_MOVE_QUEUE: `/move-queue`,

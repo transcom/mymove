@@ -188,6 +188,26 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
       location.pathname,
     );
 
+  const isFormOrTXOPage =
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${tooRoutes.SHIPMENT_ADD_PATH}`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${tooRoutes.BASE_MOVES_PATH}/*`,
+      },
+      location.pathname,
+    );
+
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
       <SelectedGblocProvider>
@@ -205,7 +225,9 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
               role="main"
               className={classnames('site__content site-office__content', {
                 [styles.headerMargin]: hasCustomerHeader && displayChangeRole,
+                [styles.formMargin]: hasCustomerHeader && displayChangeRole && isFormOrTXOPage,
                 [styles.headerMarginSingle]: hasCustomerHeader && !displayChangeRole,
+                [styles.headerMarginNoRoleChange]: !hasCustomerHeader && !displayChangeRole,
                 [styles.prime]: props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR,
               })}
             >
