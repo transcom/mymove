@@ -505,7 +505,7 @@ describe('Orders page', () => {
       const hhgSacInput = screen.getByTestId('hhgSacInput');
       await userEvent.clear(hhgSacInput);
       await userEvent.type(hhgSacInput, '****');
-      hhgSacInput.blur();
+      await userEvent.tab();
       await waitFor(() => {
         // no *
         expect(screen.getByText('SAC cannot contain * or " characters')).toBeInTheDocument();
@@ -532,6 +532,31 @@ describe('Orders page', () => {
       await waitFor(() => {
         expect(screen.getByText('NTS SAC cannot contain * or " characters')).toBeInTheDocument();
       });
+    });
+
+    it('SAC fields can be more than 4 digits', async () => {
+      const props = {
+        ...ordersMockProps,
+        sac: '',
+        ntsSac: '',
+      };
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...props} />
+        </MockProviders>,
+      );
+
+      // SAC
+      const hhgSacInput = screen.getByTestId('hhgSacInput');
+      await userEvent.type(hhgSacInput, 'MoreThan4Digits');
+      expect(hhgSacInput).toHaveValue('E2P3MoreThan4Digits');
+
+      // NTS SAC
+      const ntsSacInput = screen.getByTestId('ntsSacInput');
+      await userEvent.type(ntsSacInput, '4DigitsOrMore');
+      expect(ntsSacInput).toHaveValue('R6X14DigitsOrMore');
     });
   });
 

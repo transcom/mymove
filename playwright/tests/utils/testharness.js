@@ -298,6 +298,17 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build terminated hhg move for TOO
+   * They should still be able to approve/deny service items
+   * but not request cancellation, diversion, reweigh, or other shipment-specific
+   * actions. Only actions associated with the shipment
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveInTerminatedStatus() {
+    return this.buildDefault('HHGMoveInTerminatedStatus');
+  }
+
+  /**
    * Use testharness to build hhg move for TOO with Alaska address
    * @returns {Promise<Move>}
    */
@@ -343,6 +354,16 @@ export class TestHarness {
    */
   async buildHHGMoveWithNTSShipmentsForTOO() {
     return this.buildDefault('HHGMoveWithNTSShipmentsForTOO');
+  }
+
+  /**
+   * Use testharness to build iHHG move with iNTS basic accessory service items
+   * for TIO review
+   * eg, INPK
+   * @returns {Promise<Move>}
+   */
+  async buildInternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO() {
+    return this.buildDefault('InternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO');
   }
 
   /**
@@ -578,6 +599,22 @@ export class TestHarness {
    */
   async buildApprovedMoveWithPPMProgearWeightTicketOffice() {
     return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicketOffice');
+  }
+
+  /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice');
+  }
+
+  /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2() {
+    return this.buildDefault('ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2');
   }
 
   /**

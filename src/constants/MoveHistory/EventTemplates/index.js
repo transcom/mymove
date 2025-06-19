@@ -2,6 +2,7 @@ export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeigh
 export { default as acknowledgeExcessUnaccompaniedBaggageWeightRisk } from './AcknowledgeExcessUnaccompaniedBaggageWeightRisk/acknowledgeExcessUnaccompaniedBaggageWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
+export { default as approveShipmentDiversionApproveMove } from './ApproveShipmentDiversion/approveShipmentDiversionApproveMove';
 export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
 export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
@@ -133,3 +134,4 @@ export { default as approveShipmentsServiceItem } from './ApproveShipments/appro
 export { default as createTermination } from './CreateTermination/createTermination';
 export { default as acknowledgMove } from './AcknowledgeMovesAndShipments/acknowledgeMove';
 export { default as acknowledgeShipment } from './AcknowledgeMovesAndShipments/acknowledgeShipment';
+export { default as createMTOServiceItemUpdateShipmentStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateShipmentStatus';

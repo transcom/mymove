@@ -52,12 +52,6 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT or SUBMITTED status associated with MTO shipment")
 		}
 
-		if ppmShipment.Status == "" {
-			ppmShipment.Status = models.PPMShipmentStatusDraft
-		} else if ppmShipment.Status != models.PPMShipmentStatusDraft && ppmShipment.Status != models.PPMShipmentStatusSubmitted {
-			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT or SUBMITTED status associated with PPM shipment")
-		}
-
 		// default PPM type is incentive based
 		if ppmShipment.PPMType == "" {
 			ppmShipment.PPMType = models.PPMType(models.PPMTypeIncentiveBased)
@@ -148,7 +142,7 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		var mtoShipment models.MTOShipment
-		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
+		if err := txnAppCtx.DB().EagerPreload("MoveTaskOrder").Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
 			return err
 		}
 
@@ -164,6 +158,31 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			ppmShipment.Shipment = mtoShipment
+		}
+
+		moveStatus := mtoShipment.MoveTaskOrder.Status
+		switch moveStatus {
+		case models.MoveStatusDRAFT:
+			ppmShipment.Status = models.PPMShipmentStatusDraft
+		case models.MoveStatusNeedsServiceCounseling:
+			ppmShipment.Status = models.PPMShipmentStatusSubmitted
+		case models.MoveStatusSUBMITTED,
+			models.MoveStatusAPPROVALSREQUESTED,
+			models.MoveStatusServiceCounselingCompleted:
+			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+		default:
+			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+		}
+
+		// if the expected departure date falls within a multiplier window, we need to apply that here
+		gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *ppmShipment)
+		if err != nil {
+			return err
+		}
+		// apply the GCC multiplier if there is one
+		if gccMultiplier.ID != uuid.Nil {
+			ppmShipment.GCCMultiplierID = &gccMultiplier.ID
+			ppmShipment.GCCMultiplier = &gccMultiplier
 		}
 
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
@@ -189,7 +208,6 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 
 		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 			mtoShipment.Status = models.MTOShipmentStatusApproved
-			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 			now := time.Now()
 			ppmShipment.ApprovedAt = &now
 		}
@@ -197,6 +215,30 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		// save the updated incentives back to the PPM
 		if err := txnAppCtx.DB().Update(ppmShipment); err != nil {
 			return apperror.NewQueryError("Update PPM incentives", err, "")
+		}
+
+		// authorize gunsafe in orders.Entitlement if customer has selected that they have gun safe when creating a ppm shipment
+		if ppmShipment.HasGunSafe != nil && *ppmShipment.HasGunSafe {
+			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), mtoShipment.MoveTaskOrderID)
+			if err != nil {
+				return err
+			}
+
+			entitlement := move.Orders.Entitlement
+			if entitlement == nil {
+				return apperror.NewQueryError("Entitlement", fmt.Errorf("entitlement is nil after fetching move with ID %s", move.ID), "Move is missing an associated entitlement.")
+			}
+
+			entitlement.GunSafe = *ppmShipment.HasGunSafe
+
+			verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the gun safe entitlement.")
+			}
+			if err != nil {
+				return apperror.NewQueryError("Entitlement", err, "")
+			}
+
 		}
 
 		return err

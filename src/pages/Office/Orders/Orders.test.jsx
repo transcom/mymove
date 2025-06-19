@@ -354,6 +354,26 @@ describe('Orders page', () => {
         expect(screen.getByText('NTS SAC cannot contain * or " characters')).toBeInTheDocument();
       });
     });
+
+    it('SAC fields can be more than 4 digits', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders permissions={[permissionTypes.updateOrders]}>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // SAC
+      const hhgSacInput = screen.getByTestId('hhgSacInput');
+      await userEvent.type(hhgSacInput, 'MoreThan4Digits');
+      expect(hhgSacInput).toHaveValue('E2P3MoreThan4Digits');
+
+      // NTS SAC
+      const ntsSacInput = screen.getByTestId('ntsSacInput');
+      await userEvent.type(ntsSacInput, '4DigitsOrMore');
+      expect(ntsSacInput).toHaveValue('22224DigitsOrMore');
+    });
   });
 
   describe('LOA validation', () => {

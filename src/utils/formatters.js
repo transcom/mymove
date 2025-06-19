@@ -303,6 +303,20 @@ export const formatMoveHistoryMaxBillableWeight = (historyRecord) => {
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
+export const formatMoveHistoryGunSafe = (historyRecord) => {
+  const { changedValues } = historyRecord;
+  const newChangedValues = { ...changedValues };
+  if (changedValues.gun_safe !== undefined) {
+    newChangedValues.gun_safe_authorized = changedValues.gun_safe;
+    delete newChangedValues.gun_safe;
+  }
+  if (changedValues.gun_safe_weight !== undefined) {
+    newChangedValues.gun_safe_weight_allowance = changedValues.gun_safe_weight;
+    delete newChangedValues.gun_safe_weight;
+  }
+  return { ...historyRecord, changedValues: newChangedValues };
+};
+
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };
@@ -617,6 +631,22 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
+export const formatServiceMemberNameToString = (serviceMember) => {
+  let formattedUser = '';
+  if (serviceMember.first_name && serviceMember.last_name) {
+    formattedUser += `${serviceMember.first_name}`;
+    formattedUser += ` ${serviceMember.last_name}`;
+  } else {
+    if (serviceMember.first_name) {
+      formattedUser += `${serviceMember.first_name}`;
+    }
+    if (serviceMember.last_name) {
+      formattedUser += `${serviceMember.last_name}`;
+    }
+  }
+  return formattedUser;
+};
+
 export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   const { changedValues, context, oldValues } = historyRecord;
   if (!context || context.length === 0) return {};
@@ -706,3 +736,20 @@ export function formatPortInfo(port) {
 export function formatFullName(firstName, middleName, lastName) {
   return [firstName, middleName, lastName].filter(Boolean).join(' ');
 }
+
+export const calculateTotal = (sectionInfo) => {
+  let total = 0;
+
+  if (sectionInfo?.haulPrice) total += sectionInfo.haulPrice;
+  if (sectionInfo?.haulFSC) total += sectionInfo.haulFSC;
+  if (sectionInfo?.packPrice) total += sectionInfo.packPrice;
+  if (sectionInfo?.unpackPrice) total += sectionInfo.unpackPrice;
+  if (sectionInfo?.dop) total += sectionInfo.dop;
+  if (sectionInfo?.ddp) total += sectionInfo.ddp;
+  if (sectionInfo?.intlPackingPrice) total += sectionInfo.intlPackingPrice;
+  if (sectionInfo?.intlUnpackPrice) total += sectionInfo.intlUnpackPrice;
+  if (sectionInfo?.intlLinehaulPrice) total += sectionInfo.intlLinehaulPrice;
+  if (sectionInfo?.sitReimbursement) total += sectionInfo.sitReimbursement;
+
+  return formatCents(total);
+};

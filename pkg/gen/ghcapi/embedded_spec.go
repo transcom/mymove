@@ -8120,6 +8120,14 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -8811,7 +8819,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -8834,6 +8843,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -9350,6 +9367,11 @@ func init() {
         "gunSafe": {
           "type": "boolean",
           "example": false
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         },
         "id": {
           "type": "string",
@@ -11072,7 +11094,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -12540,6 +12563,14 @@ func init() {
           "title": "GCC",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gccMultiplier": {
+          "description": "Multiplier applied to incentives",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 1.3
         },
         "grossIncentive": {
           "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
@@ -14874,6 +14905,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -15376,6 +15409,14 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -15874,6 +15915,16 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
@@ -26825,6 +26876,15 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -27520,7 +27580,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -27543,6 +27604,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -28059,6 +28128,11 @@ func init() {
         "gunSafe": {
           "type": "boolean",
           "example": false
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         },
         "id": {
           "type": "string",
@@ -29781,7 +29855,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -31249,6 +31324,14 @@ func init() {
           "title": "GCC",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gccMultiplier": {
+          "description": "Multiplier applied to incentives",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 1.3
         },
         "grossIncentive": {
           "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
@@ -33709,6 +33792,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -34213,6 +34298,15 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -34716,6 +34810,16 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
