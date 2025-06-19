@@ -2571,6 +2571,9 @@ func (suite *PayloadsSuite) TestCounselingQueueMovesApprovalRequestTypes() {
 		suite.Len(queueMoves, 1)
 		suite.Nil(queueMoves[0].ApprovalRequestTypes)
 		suite.Equal(empty, queueMoves[0].ApprovalRequestTypes)
+
+		// Test that updatedAt is returned in payload
+		suite.NotNil(queueMoves[0].UpdatedAt)
 	})
 	suite.Run("successfully attaches submitted service item request to move", func() {
 		serviceItems := models.MTOServiceItems{}

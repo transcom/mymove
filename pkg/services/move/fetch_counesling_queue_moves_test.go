@@ -236,6 +236,9 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 		suite.Equal("AAA3T2", string(returnedMoves[1].Locator))
 		suite.Equal("AAA3T0", string(returnedMoves[2].Locator))
 
+		// Test that updated_at is returned for move
+		suite.NotNil("AAA3T0", returnedMoves[2].UpdatedAt)
+
 		sortBy = "requestedPickupDates"
 		orderBy = "asc"
 		counselingQueueParams = services.CounselingQueueParams{
