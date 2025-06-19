@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/feature_flags"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
@@ -123,11 +122,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ReportViolationsAssociateReportViolationsHandler == nil {
 		api.ReportViolationsAssociateReportViolationsHandler = report_violations.AssociateReportViolationsHandlerFunc(func(params report_violations.AssociateReportViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.AssociateReportViolations has not yet been implemented")
-		})
-	}
-	if api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
-		api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
-			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsBulkDownloadHandler == nil {
