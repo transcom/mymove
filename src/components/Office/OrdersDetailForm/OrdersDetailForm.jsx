@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { func, string, bool } from 'prop-types';
 import { useLocation } from 'react-router';
 
@@ -11,6 +11,8 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
 import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { getRankOptions } from 'services/ghcApi';
+import { sortRankOptions } from 'shared/utils';
 
 const OrdersDetailForm = ({
   deptIndicatorOptions,
@@ -40,12 +42,36 @@ const OrdersDetailForm = ({
   formIsDisabled,
   hhgLongLineOfAccounting,
   ntsLongLineOfAccounting,
+  affiliation,
+  handleChange,
 }) => {
   const location = useLocation();
 
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
   const noStarOrQuote = (value) => (/^[^*"]*$/.test(value) ? undefined : 'SAC cannot contain * or " characters');
+  const [grade, setGrade] = useState('');
+
+  const [rankOptions, setRankOptions] = useState([]);
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      // setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getRankOptions(affiliation, grade);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankOptions(fetchedRanks.body);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        // const { message } = error;
+        // milmoveLogger.error({ message, info: null });
+        // retryPageLoading(error);
+      }
+      // setShowLoadingSpinner(false, null);
+    };
+
+    fetchRankGradeOptions();
+  }, [affiliation, grade]);
   // The text/placeholder are different if the customer is retiring or separating.
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
   return (
@@ -68,14 +94,21 @@ const OrdersDetailForm = ({
       />
       <DropdownInput
         data-testid="payGradeInput"
-        name="payGrade"
+        name="grade"
         label="Pay grade"
         id="payGradeInput"
         options={payGradeOptions || location.state.payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
+        onChange={(e) => {
+          setGrade(e.target.value);
+          handleChange(e);
+        }}
       />
+      {grade !== '' ? (
+        <DropdownInput label="Rank" name="rank" id="rank" required options={rankOptions} showRequiredAsterisk />
+      ) : null}
       <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk disabled={formIsDisabled} />
       <DatePickerInput name="reportByDate" label={reportDateRowLabel} showRequiredAsterisk disabled={formIsDisabled} />
       {showDepartmentIndicator && (

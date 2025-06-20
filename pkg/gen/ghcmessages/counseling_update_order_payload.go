@@ -75,6 +75,9 @@ type CounselingUpdateOrderPayload struct {
 	// Format: uuid
 	OriginDutyLocationID *strfmt.UUID `json:"originDutyLocationId"`
 
+	// rank
+	Rank *Rank `json:"rank,omitempty"`
+
 	// Report-by date
 	//
 	// Report By Date
@@ -131,6 +134,10 @@ func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginDutyLocationID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -306,6 +313,25 @@ func (m *CounselingUpdateOrderPayload) validateOriginDutyLocationID(formats strf
 	return nil
 }
 
+func (m *CounselingUpdateOrderPayload) validateRank(formats strfmt.Registry) error {
+	if swag.IsZero(m.Rank) { // not required
+		return nil
+	}
+
+	if m.Rank != nil {
+		if err := m.Rank.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CounselingUpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("reportByDate", "body", m.ReportByDate); err != nil {
@@ -377,6 +403,10 @@ func (m *CounselingUpdateOrderPayload) ContextValidate(ctx context.Context, form
 	}
 
 	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRank(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -498,6 +528,27 @@ func (m *CounselingUpdateOrderPayload) contextValidateOrdersTypeDetail(ctx conte
 				return ve.ValidateName("ordersTypeDetail")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("ordersTypeDetail")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Rank != nil {
+
+		if swag.IsZero(m.Rank) { // not required
+			return nil
+		}
+
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
 			}
 			return err
 		}

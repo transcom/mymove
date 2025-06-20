@@ -1166,3 +1166,7 @@ export function getResponseError(errorOrResponse, defaultErrorMessage) {
 export async function getPayGradeOptions(affiliation) {
   return makeGHCRequestRaw('orders.getPayGrades', { affiliation });
 }
+
+export async function getRankOptions(affiliation, grade) {
+  return makeGHCRequestRaw('order.getRanks', { affiliation, grade }, { normalize: false });
+}
