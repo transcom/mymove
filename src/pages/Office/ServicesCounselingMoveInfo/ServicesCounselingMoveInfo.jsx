@@ -79,6 +79,24 @@ const ServicesCounselingMoveInfo = () => {
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
 
+  // checking for the move_lock flag, if it's turned on we need to assess if the move should be locked to the user
+  useEffect(() => {
+    isBooleanFlagEnabled('move_lock').then(setMoveLockFlag);
+  }, []);
+
+  useEffect(() => {
+    const checkLock = async () => {
+      const now = new Date();
+      const isLocked =
+        moveLockFlag &&
+        move?.lockedByOfficeUserID &&
+        officeUserID !== move?.lockedByOfficeUserID &&
+        now < new Date(move?.lockExpiresAt);
+      setIsMoveLocked(isLocked);
+    };
+    checkLock();
+  }, [move, officeUserID, moveLockFlag]);
+
   useEffect(() => {
     const fetchData = async () => {
       if (
@@ -93,16 +111,10 @@ const ServicesCounselingMoveInfo = () => {
       ) {
         setInfoSavedAlert(null);
       }
-      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-      setMoveLockFlag(lockedMoveFlag);
-      const now = new Date();
-      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt) && moveLockFlag) {
-        setIsMoveLocked(true);
-      }
     };
 
     fetchData();
-  }, [infoSavedAlert, location, move, officeUserID, moveLockFlag]);
+  }, [infoSavedAlert, location]);
 
   useEffect(() => {
     const fetchData = async () => {
