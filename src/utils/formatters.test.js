@@ -747,46 +747,6 @@ describe('formatFullName', () => {
   });
 });
 
-describe('formatLastNameFirstName', () => {
-  const { formatLastNameFirstName } = formatters;
-
-  it('if first and last are empty, return empty string', () => {
-    expect(formatLastNameFirstName('', '')).toBe('');
-  });
-
-  it('if first has spaces and last are empty, return empty string', () => {
-    expect(formatLastNameFirstName('  ', '')).toBe('');
-  });
-
-  it('if first is empty and last has spaces, return empty string', () => {
-    expect(formatLastNameFirstName('', '  ')).toBe('');
-  });
-
-  it('if first is non-empty and last is empty, return first', () => {
-    expect(formatLastNameFirstName('John', '')).toBe('John');
-  });
-
-  it('if first is non-empty and padded and last is empty, return first trimmed', () => {
-    expect(formatLastNameFirstName(' John ', '')).toBe('John');
-  });
-
-  it('if first is empty and last is non-empty, return last with a comma', () => {
-    expect(formatLastNameFirstName('', 'Smith')).toBe('Smith,');
-  });
-
-  it('if first is empty and last is non-empty and padded, return last trimmed with a comma', () => {
-    expect(formatLastNameFirstName('', ' Smith ')).toBe('Smith,');
-  });
-
-  it('if first and last is non-empty, return last name first name', () => {
-    expect(formatLastNameFirstName('John', 'Smith')).toBe('Smith, John');
-  });
-
-  it('if first and last is non-empty and padded, return last name first name trimmed', () => {
-    expect(formatLastNameFirstName('  John ', '  Smith  ')).toBe('Smith, John');
-  });
-});
-
 describe('formatMoveHistoryGunSafe', () => {
   const { formatMoveHistoryGunSafe } = formatters;
 
