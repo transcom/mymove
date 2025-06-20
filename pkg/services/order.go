@@ -49,31 +49,29 @@ type ExcessWeightRiskManager interface {
 
 // ListOrderParams is a public struct that's used to pass filter arguments to the ListOrders
 type ListOrderParams struct {
-	Branch                     *string
-	Locator                    *string
-	Edipi                      *string
-	Emplid                     *string
-	CustomerName               *string
-	DestinationDutyLocation    *string
-	OriginDutyLocation         []string
-	OriginGBLOC                *string
-	SubmittedAt                *time.Time
-	AppearedInTOOAt            *time.Time
-	RequestedMoveDate          *string
-	Status                     []string
-	Page                       *int64
-	PerPage                    *int64
-	Sort                       *string
-	Order                      *string
-	NeedsPPMCloseout           *bool
-	PPMType                    *string
-	CloseoutInitiated          *time.Time
-	CloseoutLocation           *string
-	OrderType                  *string
-	PPMStatus                  *string
-	ViewAsGBLOC                *string
-	CounselingOffice           *string
-	SCAssignedUser             *string
-	TOOAssignedUser            *string
-	TOODestinationAssignedUser *string
+	Branch                  *string
+	Locator                 *string
+	Edipi                   *string
+	Emplid                  *string
+	CustomerName            *string
+	DestinationDutyLocation *string
+	OriginDutyLocation      []string
+	OriginGBLOC             *string
+	SubmittedAt             *time.Time
+	AppearedInTOOAt         *time.Time
+	RequestedMoveDate       *string
+	Status                  []string
+	Page                    *int64
+	PerPage                 *int64
+	Sort                    *string
+	Order                   *string
+	NeedsPPMCloseout        *bool
+	PPMType                 *string
+	CloseoutInitiated       *time.Time
+	CloseoutLocation        *string
+	OrderType               *string
+	PPMStatus               *string
+	ViewAsGBLOC             *string
+	CounselingOffice        *string
+	AssignedTo              *string
 }
