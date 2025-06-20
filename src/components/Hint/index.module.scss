@@ -4,8 +4,8 @@
 @import 'shared/styles/colors';
 
 .Hint {
-  color: $base;
-  font-size: 13px;
+  color: $base-dark;
+  font-size: 14px;
   line-height: 18px;
   @include u-margin-top('105');
   @include u-margin-bottom(0);
