@@ -1,6 +1,6 @@
 import React from 'react';
 
-import MultiRoleSelectApplication, { ConnectedSelectApplication } from './MultiRoleSelectApplication';
+import MultiRoleSelectApplication, { ConnectedSelectApplication, roleLookupValues } from './MultiRoleSelectApplication';
 import style from './MultiRoleStoryDecorator.module.scss';
 
 import { configureStore } from 'shared/store';
@@ -41,7 +41,15 @@ export default {
 };
 
 export const MultiRoleUser = {
-  render: ({ activeRole, inactiveRoles }) => {
+  render: ({
+    activeRole = roleLookupValues.services_counselor,
+    inactiveRoles = [
+      roleLookupValues.services_counselor,
+      roleLookupValues.task_ordering_officer,
+      roleLookupValues.task_invoicing_officer,
+      roleLookupValues.qae,
+    ],
+  }) => {
     const roles = inactiveRoles?.filter(({ roleType }) => roleType !== activeRole);
     const mockState = {
       auth: {
