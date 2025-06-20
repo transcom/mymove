@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
-	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -537,12 +536,10 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	}
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-	ppmEstimator := &mocks.PPMEstimator{}
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 	mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 
 	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser, signedCert models.SignedCertification) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
-		reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(signedCert), setUpSignedCertificationUpdaterMock(signedCert), SSWPPMComputer)
+		reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(signedCert), setUpSignedCertificationUpdaterMock(signedCert))
 		endpoint := fmt.Sprintf(
 			"/ppm-shipments/%s/finish-document-review",
 			ppmShipment.ID.String(),

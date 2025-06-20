@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // ppmShipmentReviewDocuments implements the services.PPMShipmentReviewDocuments interface
@@ -22,7 +21,6 @@ type ppmShipmentReviewDocuments struct {
 	services.PPMShipmentRouter
 	services.SignedCertificationCreator
 	services.SignedCertificationUpdater
-	services.SSWPPMComputer
 }
 
 // NewPPMShipmentReviewDocuments creates a new ppmShipmentReviewDocuments
@@ -30,13 +28,11 @@ func NewPPMShipmentReviewDocuments(
 	ppmShipmentRouter services.PPMShipmentRouter,
 	signedCertificationCreator services.SignedCertificationCreator,
 	signedCertificationUpdater services.SignedCertificationUpdater,
-	sswPPMComputer services.SSWPPMComputer,
 ) services.PPMShipmentReviewDocuments {
 	return &ppmShipmentReviewDocuments{
 		PPMShipmentRouter:          ppmShipmentRouter,
 		SignedCertificationCreator: signedCertificationCreator,
 		SignedCertificationUpdater: signedCertificationUpdater,
-		SSWPPMComputer:             sswPPMComputer,
 	}
 }
 
@@ -88,25 +84,12 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 			return err
 		}
 
-		err = p.signCertificationPPMCloseout(appCtx, updatedPPMShipment.Shipment.MoveTaskOrderID, updatedPPMShipment.ID)
-
+		err = p.signCertificationPPMCloseout(txnAppCtx, updatedPPMShipment.Shipment.MoveTaskOrderID, updatedPPMShipment.ID)
 		if err != nil {
 			return err
 		}
 
-		// write the SSW calculated values out to the ppm_closeouts table
-		ppmCloseoutSummary, err := p.convertSSWValuesToPPMCloseoutSummary(appCtx, updatedPPMShipment.ID)
-
-		if err != nil {
-			return err
-		}
-
-		verrs, err = appCtx.DB().ValidateAndCreate(ppmCloseoutSummary)
-
-		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(ppmCloseoutSummary.ID, nil, verrs, "")
-		}
-
+		err = models.CalculatePPMCloseoutSummary(txnAppCtx.DB(), updatedPPMShipment.ID, false)
 		if err != nil {
 			return err
 		}
@@ -119,277 +102,6 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 	}
 
 	return &updatedPPMShipment, nil
-}
-
-// Fetch SSW Data and populate the data into the PPM Closeout table
-func (p *ppmShipmentReviewDocuments) convertSSWValuesToPPMCloseoutSummary(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseoutSummary, error) {
-	var ppmCloseoutSummary models.PPMCloseoutSummary
-	ssfd, err := p.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// we currently only need data from pages 1 and 2 and not page 3
-	page1Data, page2Data, _, err := p.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(appCtx, *ssfd, true)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// write the values to model then the ppm_closeouts table
-	ppmCloseoutSummary.ID = uuid.Must(uuid.NewV4())
-	ppmCloseoutSummary.PPMShipmentID = ppmShipmentID
-
-	// values are in dollar format with $ need to convert to cents without $
-	if page1Data.MaxObligationGCCMaxAdvance != "" && page1Data.MaxObligationGCCMaxAdvance != "Advance not available." {
-		maxAdvance, err := priceToCents(page1Data.MaxObligationGCCMaxAdvance)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MaxAdvance = (*unit.Cents)(&maxAdvance)
-	}
-
-	if page2Data.ContractedExpenseMemberPaid != "" {
-		memberExpense, err := priceToCents(page2Data.ContractedExpenseMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidContractedExpense = (*unit.Cents)(&memberExpense)
-	}
-
-	if page2Data.ContractedExpenseGTCCPaid != "" {
-		gtccExpense, err := priceToCents(page2Data.ContractedExpenseGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidContractedExpense = (*unit.Cents)(&gtccExpense)
-	}
-
-	if page2Data.PackingMaterialsMemberPaid != "" {
-		memberPackingMaterials, err := priceToCents(page2Data.PackingMaterialsMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidPackingMaterials = (*unit.Cents)(&memberPackingMaterials)
-	}
-
-	if page2Data.PackingMaterialsGTCCPaid != "" {
-		gtccPackingMaterials, err := priceToCents(page2Data.PackingMaterialsGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidPackingMaterials = (*unit.Cents)(&gtccPackingMaterials)
-	}
-
-	if page2Data.WeighingFeesMemberPaid != "" {
-		memberWeighingFee, err := priceToCents(page2Data.WeighingFeesMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidWeighingFee = (*unit.Cents)(&memberWeighingFee)
-	}
-
-	if page2Data.WeighingFeesGTCCPaid != "" {
-		gtccWeighingFee, err := priceToCents(page2Data.WeighingFeesGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidWeighingFee = (*unit.Cents)(&gtccWeighingFee)
-	}
-
-	if page2Data.RentalEquipmentMemberPaid != "" {
-		memberRental, err := priceToCents(page2Data.RentalEquipmentMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidRentalEquipment = (*unit.Cents)(&memberRental)
-	}
-
-	if page2Data.RentalEquipmentGTCCPaid != "" {
-		gtccRental, err := priceToCents(page2Data.RentalEquipmentGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidRentalEquipment = (*unit.Cents)(&gtccRental)
-	}
-
-	if page2Data.TollsMemberPaid != "" {
-		memberTolls, err := priceToCents(page2Data.TollsMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidTolls = (*unit.Cents)(&memberTolls)
-	}
-
-	if page2Data.TollsGTCCPaid != "" {
-		gtccTolls, err := priceToCents(page2Data.TollsGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidTolls = (*unit.Cents)(&gtccTolls)
-	}
-
-	if page2Data.OilMemberPaid != "" {
-		memberOil, err := priceToCents(page2Data.OilMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidOil = (*unit.Cents)(&memberOil)
-	}
-
-	if page2Data.OilGTCCPaid != "" {
-		gtccOil, err := priceToCents(page2Data.OilGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidOil = (*unit.Cents)(&gtccOil)
-	}
-
-	if page2Data.OtherMemberPaid != "" {
-		memberOther, err := priceToCents(page2Data.OtherMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidOther = (*unit.Cents)(&memberOther)
-	}
-
-	if page2Data.OtherGTCCPaid != "" {
-		gtccOther, err := priceToCents(page2Data.OtherGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidOther = (*unit.Cents)(&gtccOther)
-	}
-
-	if page2Data.TotalMemberPaid != "" {
-		totalMember, err := priceToCents(page2Data.TotalMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.TotalMemberPaidExpenses = (*unit.Cents)(&totalMember)
-	}
-
-	if page2Data.TotalGTCCPaid != "" {
-		totalGtcc, err := priceToCents(page2Data.TotalGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.TotalGTCCPaidExpenses = (*unit.Cents)(&totalGtcc)
-	}
-
-	if page2Data.TotalMemberPaidSIT != "" {
-		memberSIT, err := priceToCents(page2Data.TotalMemberPaidSIT)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidSIT = (*unit.Cents)(&memberSIT)
-	}
-
-	if page2Data.TotalGTCCPaidSIT != "" {
-		gtccSIT, err := priceToCents(page2Data.TotalGTCCPaidSIT)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidSIT = (*unit.Cents)(&gtccSIT)
-	}
-
-	if page2Data.SmallPackageExpenseGTCCPaid != "" {
-		gtccSmallPackage, err := priceToCents(page2Data.SmallPackageExpenseGTCCPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.GTCCPaidSmallPackage = (*unit.Cents)(&gtccSmallPackage)
-	}
-
-	if page2Data.SmallPackageExpenseMemberPaid != "" {
-		memberSmallPackage, err := priceToCents(page2Data.SmallPackageExpenseMemberPaid)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.MemberPaidSmallPackage = (*unit.Cents)(&memberSmallPackage)
-	}
-
-	if page2Data.PPMRemainingEntitlement != "" {
-		remainingIncentive, err := priceToCents(page2Data.PPMRemainingEntitlement)
-
-		if err != nil {
-			return nil, err
-		}
-
-		ppmCloseoutSummary.RemainingIncentive = (*unit.Cents)(&remainingIncentive)
-	}
-
-	if page2Data.Disbursement != "" {
-		if page2Data.Disbursement != "N/A" {
-			// GTCC and Member disbursement are displayed as one value on the SSW
-			// example: "GTCC: $1,000.00\nMember: $300.00"
-			// we need to parse each value out of the Disbursement string.
-			disbursement := strings.Split(page2Data.Disbursement, "\n")
-			gtccDisbursementStr := strings.Split(disbursement[0], "GTCC: ")
-			memberDisbursementStr := strings.Split(disbursement[1], "Member: ")
-
-			memberDisbursement, err := priceToCents(memberDisbursementStr[1])
-
-			if err != nil {
-				return nil, err
-			}
-
-			ppmCloseoutSummary.MemberDisbursement = (*unit.Cents)(&memberDisbursement)
-
-			gtccDisbursement, err := priceToCents(gtccDisbursementStr[1])
-
-			if err != nil {
-				return nil, err
-			}
-
-			ppmCloseoutSummary.GTCCDisbursement = (*unit.Cents)(&gtccDisbursement)
-		}
-	}
-
-	return &ppmCloseoutSummary, err
 }
 
 func getPriceParts(rawPrice string, expectedDecimalPlaces int) (int, int, error) {

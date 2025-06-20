@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
@@ -22,7 +21,6 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestReviewDocuments() {
-	mockSSWPPMComputer := mocks.SSWPPMComputer{}
 
 	setUpPPMShipperRouterMock := func(returnValue ...interface{}) services.PPMShipmentRouter {
 		mockRouter := &mocks.PPMShipmentRouter{}
@@ -64,7 +62,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 	suite.Run("Returns an error if PPM ID is invalid", func() {
 		submitter := NewPPMShipmentReviewDocuments(
 			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil),
-			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
+			setUpSignedCertificationUpdaterMock(nil, nil),
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -84,7 +82,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		nonexistentPPMShipmentID := uuid.Must(uuid.NewV4())
 		submitter := NewPPMShipmentReviewDocuments(
 			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil),
-			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
+			setUpSignedCertificationUpdaterMock(nil, nil),
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -117,7 +115,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 		submitter := NewPPMShipmentReviewDocuments(
 			setUpPPMShipperRouterMock(fakeErr), setUpSignedCertificationCreatorMock(nil, nil),
-			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
+			setUpSignedCertificationUpdaterMock(nil, nil),
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -189,17 +187,9 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			})
 
 		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-		ppmEstimator := &mocks.PPMEstimator{}
-		maxIncentive := 987654
-		ppmEstimator.On("MaxIncentive",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.PPMShipment"),
-			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(maxIncentive)), nil)
-		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 		submitter := NewPPMShipmentReviewDocuments(
-			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), SSWPPMComputer,
+			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(),
 		)
 
 		txErr := session.NewTransaction(func(txAppCtx appcontext.AppContext) error {
@@ -362,17 +352,9 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			})
 
 		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-		ppmEstimator := &mocks.PPMEstimator{}
-		maxIncentive := 987654
-		ppmEstimator.On("MaxIncentive",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.PPMShipment"),
-			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(maxIncentive)), nil)
-		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 		submitter := NewPPMShipmentReviewDocuments(
-			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), SSWPPMComputer,
+			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(),
 		)
 
 		txErr := session.NewTransaction(func(txAppCtx appcontext.AppContext) error {
