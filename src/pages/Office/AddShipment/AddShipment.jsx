@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -15,8 +16,9 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
+import CustomerHeader from 'components/CustomerHeader';
 
-const AddShipment = () => {
+const AddShipment = ({ isMultiRole }) => {
   const params = useParams();
   let { shipmentType } = params;
   const { moveCode } = params;
@@ -64,33 +66,44 @@ const AddShipment = () => {
   };
 
   return (
-    <div className={styles.tabContent}>
-      <div className={styles.container}>
-        <GridContainer className={styles.gridContainer}>
-          <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
-              <ShipmentForm
-                submitHandler={mutateMTOShipments}
-                isCreatePage
-                currentResidence={customer.current_address}
-                originDutyLocationAddress={order.originDutyLocation?.address}
-                newDutyLocationAddress={order.destinationDutyLocation?.address}
-                shipmentType={shipmentType}
-                serviceMember={{ weightAllotment, agency: customer.agency, grade }}
-                moveTaskOrderID={move.id}
-                mtoShipments={mtoShipments}
-                TACs={TACs}
-                SACs={SACs}
-                userRole={roleTypes.TOO}
-                displayDestinationType={isRetirementOrSeparation}
-                move={move}
-              />
+    <>
+      <CustomerHeader move={move} order={order} customer={customer} moveCode={moveCode} isMultiRole={isMultiRole} />
+      <div className={styles.tabContent}>
+        <div className={styles.container}>
+          <GridContainer className={styles.gridContainer}>
+            <Grid row>
+              <Grid col desktop={{ col: 8, offset: 2 }}>
+                <ShipmentForm
+                  submitHandler={mutateMTOShipments}
+                  isCreatePage
+                  currentResidence={customer.current_address}
+                  originDutyLocationAddress={order.originDutyLocation?.address}
+                  newDutyLocationAddress={order.destinationDutyLocation?.address}
+                  shipmentType={shipmentType}
+                  serviceMember={{ weightAllotment, agency: customer.agency, grade }}
+                  moveTaskOrderID={move.id}
+                  mtoShipments={mtoShipments}
+                  TACs={TACs}
+                  SACs={SACs}
+                  userRole={roleTypes.TOO}
+                  displayDestinationType={isRetirementOrSeparation}
+                  move={move}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-        </GridContainer>
+          </GridContainer>
+        </div>
       </div>
-    </div>
+    </>
   );
+};
+
+AddShipment.propTypes = {
+  isMultiRole: PropTypes.bool,
+};
+
+AddShipment.defaultProps = {
+  isMultiRole: false,
 };
 
 export default AddShipment;

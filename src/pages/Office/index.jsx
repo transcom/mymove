@@ -172,17 +172,44 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   if (props.underMaintenance) {
     return <MaintenancePage />;
   }
+
+  // routes that render <CustomerHeader /> component
+  const hasCustomerHeader =
+    matchPath(
+      {
+        path: `/moves/:moveCode/*`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`,
+      },
+      location.pathname,
+    );
+
   return (
     <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
       <SelectedGblocProvider>
         <div id="app-root">
           <div className={siteClasses}>
-            <BypassBlock />
-            <CUIHeader />
-            {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
-            <main id="main" role="main" className="site__content site-office__content">
+            <div className={styles.fixedHeader}>
+              <BypassBlock />
+              <CUIHeader />
+              {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
+              {displayChangeRole && <Link to="/select-application">Change user role</Link>}
+              {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
+            </div>
+            <main
+              id="main"
+              role="main"
+              className={classnames('site__content site-office__content', {
+                [styles.headerMargin]: hasCustomerHeader && displayChangeRole,
+                [styles.headerMarginSingle]: hasCustomerHeader && !displayChangeRole,
+                [styles.headerMarginNoRoleChange]: !hasCustomerHeader && !displayChangeRole,
+                [styles.prime]: props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR,
+              })}
+            >
               <ConnectedLogoutOnInactivity />
               {props.hasRecentError && location.pathname === '/' && (
                 <SystemError>
@@ -365,7 +392,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingMoveInfo />
+                          <ServicesCounselingMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -385,7 +412,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={tooRoutes.SHIPMENT_ADD_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <AddShipment />
+                          <AddShipment isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -395,7 +422,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={tooRoutes.BASE_SHIPMENT_EDIT_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <EditShipmentDetails />
+                          <EditShipmentDetails isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -404,7 +431,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <ServicesCounselingMoveInfo />
+                          <ServicesCounselingMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -578,7 +605,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             roleTypes.HQ,
                           ]}
                         >
-                          <TXOMoveInfo />
+                          <TXOMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />

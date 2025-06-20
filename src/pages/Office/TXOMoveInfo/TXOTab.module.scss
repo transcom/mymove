@@ -57,6 +57,7 @@
   .gridContainer {
     .shipmentCard {
       @include u-padding-left(4);
+      scroll-margin: 200px;
     }
   }
 
@@ -82,6 +83,11 @@
   max-width: calc(230px + 40px + 1024px); // sidebar + 5units margin + desktop container
   margin-left: auto;
   margin-right: auto;
+  scroll-margin: 200px;
+
+  .leftNav {
+    margin-top: 2rem;
+  }
 
   .gridContainer {
     flex-grow: 1;
@@ -136,6 +142,7 @@
   background: $bg-white;
   border-radius: 3px;
   border: 1px solid #dfe1e2;
+  scroll-margin: 200px;
 }
 
 .buttonDropdown {
