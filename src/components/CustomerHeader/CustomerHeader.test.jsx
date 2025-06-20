@@ -8,7 +8,7 @@ const props = {
   customer: { last_name: 'Kerry', first_name: 'Smith', edipi: '999999999', emplid: '7777777', agency: 'COAST_GUARD' },
   order: {
     agency: 'COAST_GUARD',
-    grade: 'E_6',
+    grade: 'E-6',
     originDutyLocation: {
       name: 'JBSA Lackland',
     },
@@ -28,7 +28,7 @@ const propsRetiree = {
   customer: { last_name: 'Kerry', first_name: 'Smith', edipi: '999999999' },
   order: {
     agency: 'NAVY',
-    grade: 'E_6',
+    grade: 'E-6',
     order_type: 'RETIREMENT',
     originDutyLocation: {
       name: 'JBSA Lackland',
@@ -48,7 +48,7 @@ const propsUSMC = {
   customer: { last_name: 'Kerry', first_name: 'Smith', edipi: '999999999' },
   order: {
     agency: 'MARINES',
-    grade: 'E_6',
+    grade: 'E-6',
     originDutyLocation: {
       name: 'JBSA Lackland',
     },

@@ -3,12 +3,14 @@ import { shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Provider } from 'react-redux';
 
 import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocumentWrapper';
 
 import { useOrdersDocumentQueries, useAmendedDocumentQueries } from 'hooks/queries';
 import createUpload from 'utils/test/factories/upload';
 import { MOVE_STATUSES } from 'shared/constants';
+import { configureStore } from 'shared/store';
 
 const mockOriginDutyLocation = {
   address: {
@@ -47,6 +49,33 @@ const mockDestinationDutyLocation = {
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
   useAmendedDocumentQueries: jest.fn(),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  getTacValid: ({ tac }) => {
+    return {
+      tac,
+      isValid: tac === '1111' || tac === '2222' || tac === '3333',
+    };
+  },
+  getPayGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          grade: 'E-1',
+          description: ' E-1',
+        },
+        {
+          grade: 'E-6',
+          description: ' E-6',
+        },
+        {
+          description: 'Civilian',
+          grade: 'CIVILIAN_EMPLOYEE',
+        },
+      ],
+    }),
+  ),
 }));
 
 const testMoveId = '10000';
@@ -181,12 +210,17 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
+      const mockStore = configureStore({});
+
       render(
-        <MemoryRouter>
-          <QueryClientProvider client={new QueryClient()}>
-            <ServicesCounselingMoveDocumentWrapper />
-          </QueryClientProvider>
-        </MemoryRouter>,
+        <Provider store={mockStore.store}>
+          <MemoryRouter>
+            <QueryClientProvider client={new QueryClient()}>
+              <ServicesCounselingMoveDocumentWrapper />
+            </QueryClientProvider>
+          </MemoryRouter>
+          ,
+        </Provider>,
       );
 
       const docViewerContainer = screen.getByTestId('sc-doc-viewer-container');
@@ -197,8 +231,19 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
       useLocation.mockReturnValue({ pathname: `/counseling/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
-      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
-      expect(wrapper.find('ServicesCounselingOrders').exists()).toBe(true);
+      const mockStore = configureStore({});
+
+      render(
+        <Provider store={mockStore.store}>
+          <MemoryRouter>
+            <QueryClientProvider client={new QueryClient()}>
+              <ServicesCounselingMoveDocumentWrapper allowDownload />
+            </QueryClientProvider>
+          </MemoryRouter>
+          ,
+        </Provider>,
+      );
+      expect(screen.getByText('Manage Orders')).toBeInTheDocument(true);
     });
 
     it('renders the sidebar ServicesCounselingMoveAllowances component', () => {
