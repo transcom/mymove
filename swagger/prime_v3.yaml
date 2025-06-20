@@ -2180,9 +2180,12 @@ definitions:
       originDutyLocationGBLOC:
         type: string
         example: KKFA
-      rank:
+      grade:
         type: string
         example: E_5
+      rank:
+        type: string
+        example: General
       reportByDate:
         type: string
         format: date

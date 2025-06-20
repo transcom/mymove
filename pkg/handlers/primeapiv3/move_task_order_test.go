@@ -617,7 +617,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(orders.ID.String(), ordersPayload.ID.String())
 		suite.Equal(orders.ServiceMemberID.String(), ordersPayload.CustomerID.String())
 		suite.Equal(*orders.OriginDutyLocationGBLOC, ordersPayload.OriginDutyLocationGBLOC)
-		suite.Equal(string(*orders.Grade), string(*ordersPayload.Rank))
+		suite.Equal(string(*orders.Grade), string(ordersPayload.Grade))
 		suite.Equal(orders.ReportByDate.Format(time.RFC3339), time.Time(ordersPayload.ReportByDate).Format(time.RFC3339))
 		suite.Equal(string(orders.OrdersType), string(ordersPayload.OrdersType))
 		suite.Equal(*orders.OrdersNumber, *ordersPayload.OrderNumber)

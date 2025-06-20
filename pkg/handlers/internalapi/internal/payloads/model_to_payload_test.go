@@ -343,6 +343,26 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 	})
 }
 
+func (suite *PayloadsSuite) TestPayGradesForInternalPayloadToModel() {
+	payGrades := models.PayGrades{
+		{Grade: string(models.ServiceMemberGradeE1), GradeDescription: models.StringPointer(string(models.ServiceMemberGradeE1))},
+		{Grade: string(models.ServiceMemberGradeO3), GradeDescription: models.StringPointer(string(models.ServiceMemberGradeO3))},
+		{Grade: string(models.ServiceMemberGradeW2), GradeDescription: models.StringPointer(string(models.ServiceMemberGradeW2))},
+	}
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
+
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
+}
+
 func (suite *PayloadsSuite) TestCountriesPayload() {
 	suite.Run("Correctly transform array of countries into payload", func() {
 		countries := make([]models.Country, 0)
