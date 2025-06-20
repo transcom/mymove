@@ -33,7 +33,7 @@ const GunsafeForm = ({
   const maxWeight = entitlements?.gunSafeWeight ?? 500;
 
   const validationSchema = Yup.object().shape({
-    document: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
+    gunSafeDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
     weight: Yup.number()
       .required('Required')
       .min(1, 'Enter a weight greater than 0 lbs.')
@@ -43,7 +43,7 @@ const GunsafeForm = ({
   });
 
   const initialValues = {
-    document: document?.uploads || [],
+    gunSafeDocument: document?.uploads || [],
     weight: weight ? `${weight}` : '',
     description: description ? `${description}` : '',
     missingWeightTicket: hasWeightTickets === false,
@@ -91,7 +91,7 @@ const GunsafeForm = ({
                       />
                       <div>
                         <WeightTicketUpload
-                          fieldName="document"
+                          fieldName="gunSafeDocument"
                           missingWeightTicket={values.missingWeightTicket}
                           onCreateUpload={onCreateUpload}
                           onUploadComplete={onUploadComplete}
