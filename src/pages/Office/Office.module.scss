@@ -14,23 +14,38 @@
   z-index: 1000;
 }
 
-.prime {
-  margin-top: 10rem;
+.headerMarginMulti {
+  margin-top: 6rem;
 }
 
-.headerMargin {
-  margin-top: 6.4rem;
-  width: 100%;
+.headerMarginMultiTXO {
+  margin-top: 13rem;
 }
 
 .headerMarginSingle {
+  margin-top: 5rem;
+}
+
+.headerMarginSingleTXO {
+  margin-top: 11rem;
+}
+
+.headerMarginMultiForm {
+  margin-top: 12rem;
+}
+
+.headerMarginSingleForm {
+  margin-top: 11rem;
+}
+
+.headerMarginQueue {
   margin-top: 4.7rem;
 }
 
-.headerMarginNoRoleChange {
-  margin-top: 4.6rem;
+.headerMarginMultiDoc {
+   margin-top: 12.7rem;
 }
 
-.formMargin {
-    margin-top: 13rem;
+.headerMarginSingleDoc {
+  margin-top: 11rem;
 }

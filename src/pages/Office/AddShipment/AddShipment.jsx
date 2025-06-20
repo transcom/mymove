@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -17,7 +18,7 @@ import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
 import CustomerHeader from 'components/CustomerHeader';
 
-const AddShipment = () => {
+const AddShipment = ({ isMultiRole }) => {
   const params = useParams();
   let { shipmentType } = params;
   const { moveCode } = params;
@@ -66,7 +67,7 @@ const AddShipment = () => {
 
   return (
     <>
-      <CustomerHeader move={move} order={order} customer={customer} moveCode={moveCode} />
+      <CustomerHeader move={move} order={order} customer={customer} moveCode={moveCode} isMultiRole={isMultiRole} />
       <div className={styles.tabContent}>
         <div className={styles.container}>
           <GridContainer className={styles.gridContainer}>
@@ -95,6 +96,14 @@ const AddShipment = () => {
       </div>
     </>
   );
+};
+
+AddShipment.propTypes = {
+  isMultiRole: PropTypes.bool,
+};
+
+AddShipment.defaultProps = {
+  isMultiRole: false,
 };
 
 export default AddShipment;

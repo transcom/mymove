@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import 'styles/office.scss';
+import PropTypes from 'prop-types';
 
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
@@ -32,7 +33,7 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
 const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
-const TXOMoveInfo = () => {
+const TXOMoveInfo = ({ isMultiRole }) => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [shipmentsWithDeliveryAddressUpdateRequestedCount, setShipmentsWithDeliveryAddressUpdateRequestedCount] =
@@ -131,7 +132,7 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} isMultiRole={isMultiRole} />
       {renderLockedBanner()}
       {hasRecentError && (
         <SystemError>
@@ -298,6 +299,14 @@ const TXOMoveInfo = () => {
       </Suspense>
     </>
   );
+};
+
+TXOMoveInfo.propTypes = {
+  isMultiRole: PropTypes.bool,
+};
+
+TXOMoveInfo.defaultProps = {
+  isMultiRole: false,
 };
 
 export default TXOMoveInfo;

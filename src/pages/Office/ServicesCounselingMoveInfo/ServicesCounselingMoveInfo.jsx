@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Routes, useParams, Route, Navigate, useLocation, matchPath } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import 'styles/office.scss';
+import PropTypes from 'prop-types';
 
 import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/ServicesCounselingTabNav';
 import CustomerHeader from 'components/CustomerHeader';
@@ -43,7 +44,7 @@ const ServicesCounselingReviewShipmentWeights = lazy(() =>
 );
 const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
-const ServicesCounselingMoveInfo = () => {
+const ServicesCounselingMoveInfo = ({ isMultiRole }) => {
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
@@ -224,8 +225,8 @@ const ServicesCounselingMoveInfo = () => {
         customer={customerData}
         moveCode={moveCode}
         userRole={roleTypes.SERVICES_COUNSELOR}
+        isMultiRole={isMultiRole}
       />
-
       {renderLockedBanner()}
 
       {hasRecentError && (
@@ -374,6 +375,14 @@ const ServicesCounselingMoveInfo = () => {
       </Suspense>
     </>
   );
+};
+
+ServicesCounselingMoveInfo.propTypes = {
+  isMultiRole: PropTypes.bool,
+};
+
+ServicesCounselingMoveInfo.defaultProps = {
+  isMultiRole: false,
 };
 
 export default ServicesCounselingMoveInfo;
