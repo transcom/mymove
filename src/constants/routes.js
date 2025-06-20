@@ -195,6 +195,7 @@ export const hqRoutes = {
 const BASE_PRIME_SIMULATOR_PATH = '/simulator/moves/:moveCodeOrID';
 
 export const primeSimulatorRoutes = {
+  BASE_PRIME_SIMULATOR_PATH,
   VIEW_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/details`,
   CREATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/new`,
   UPDATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId`,
