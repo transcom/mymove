@@ -1751,6 +1751,8 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 	}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
 
 	advanceAmountRequested := unit.Cents(10000)
+	hasGunSafe := true
+	gunSafeWeight := unit.Pound(500)
 	ppmShipment3 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    mto,
@@ -1759,6 +1761,8 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		{
 			Model: models.PPMShipment{
 				AdvanceAmountRequested: &advanceAmountRequested,
+				HasGunSafe:             &hasGunSafe,
+				GunSafeWeight:          &gunSafeWeight,
 			},
 		},
 	}, nil)
@@ -1825,6 +1829,18 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 					suite.Equal(expectedShipment.PPMShipment.EstimatedIncentive.Int64(), *returnedShipment.PpmShipment.EstimatedIncentive)
 				} else {
 					suite.Nil(returnedShipment.PpmShipment.EstimatedIncentive)
+				}
+
+				if expectedShipment.PPMShipment.HasGunSafe != nil {
+					suite.Equal(*expectedShipment.PPMShipment.HasGunSafe, *returnedShipment.PpmShipment.HasGunSafe)
+				} else {
+					suite.Nil(returnedShipment.PpmShipment.HasGunSafe)
+				}
+
+				if expectedShipment.PPMShipment.GunSafeWeight != nil {
+					suite.Equal(expectedShipment.PPMShipment.GunSafeWeight.Int64(), *returnedShipment.PpmShipment.GunSafeWeight)
+				} else {
+					suite.Nil(returnedShipment.PpmShipment.GunSafeWeight)
 				}
 
 				continue // PPM Shipments won't have the rest of the fields below.

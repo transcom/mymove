@@ -1,0 +1,5 @@
+description: All gunsafe weight tickets associated with a PPM shipment.
+type: array
+items:
+  $ref: 'GunSafeWeightTicket.yaml'
+x-omitempty: false
