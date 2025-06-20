@@ -635,7 +635,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGunSafe()
 <p>
   If you are doing a Personally Procured Move (PPM) shipment: The government authorizes the shipment of a gun safe up to 500 lbs.
   This is not charged against the authorized weight entitlement. The weight entitlement is charged for any weight over 500 lbs.
-  The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.
+  The additional 500 lbs gun safe weight entitlement cannot be applied if a customer's overall entitlement is already at the 18,000 lbs maximum.
 </p>
 
 <h4>Next Steps for your Government-arranged Shipment(s):</h4>
@@ -806,7 +806,7 @@ If you move more than 7,999 pounds or ship to/from an other than authorized loca
 
 If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
 
-If you are doing a Personally Procured Move (PPM) shipment: The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against the authorized weight entitlement. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.
+If you are doing a Personally Procured Move (PPM) shipment: The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against the authorized weight entitlement.  The weight entitlement is charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer's overall entitlement is already at the 18,000 lbs maximum.
 
 
 ** Next Steps for your Government-arranged Shipment(s):

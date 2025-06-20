@@ -147,3 +147,7 @@
   @include u-padding(2);
   padding-bottom: 0;
 }
+
+.SendToCustomer {
+  @include u-padding-bottom(2);
+}

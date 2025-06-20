@@ -20,12 +20,20 @@ import {
   useReviewShipmentWeightsQuery,
   useBulkAssignmentQueries,
   usePPMShipmentAndDocsOnlyQueries,
+  usePPMShipmentDocsQueries,
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const queryClient = new QueryClient();
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+const createQueryClient = () => new QueryClient();
 const wrapper = ({ children }) => {
+  const queryClient = createQueryClient();
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
@@ -296,11 +304,12 @@ jest.mock('services/ghcApi', () => ({
     }),
   getPPMDocuments: (key, shipmentID) => {
     if (shipmentID !== 'c3') {
-      return { MovingExpenses: [], ProGearWeightTickets: [], WeightTickets: [] };
+      return { MovingExpenses: [], ProGearWeightTickets: [], GunSafeWeightTickets: [], WeightTickets: [] };
     }
     return Promise.resolve({
       MovingExpenses: [],
       ProGearWeightTickets: [],
+      GunSafeWeightTickets: [],
       WeightTickets: [
         {
           emptyWeight: 14500,
@@ -1000,6 +1009,48 @@ describe('usePPMQueueQueries', () => {
         isSuccess: true,
         refetch: result.current.refetch,
       });
+    });
+  });
+});
+
+describe('usePPMShipmentAndDocsQueries', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('loads data with GunSafeWeightTickets filtered when feature flag is false', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    const { result } = renderHook(() => usePPMShipmentDocsQueries('1234'), {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.documents).toEqual({
+      WeightTickets: [],
+      ProGearWeightTickets: [],
+      MovingExpenses: [],
+    });
+  });
+
+  it('loadsvv data with GunSafeWeightTickets included when feature flag is true', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    const { result } = renderHook(() => usePPMShipmentDocsQueries('1234'), {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.documents).toEqual({
+      WeightTickets: [],
+      ProGearWeightTickets: [],
+      GunSafeWeightTickets: [],
+      MovingExpenses: [],
     });
   });
 });
