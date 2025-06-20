@@ -2397,6 +2397,9 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
 		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
 	}
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
 	for _, shipment := range move.MTOShipments {
 		if shipment.Status == models.MTOShipmentStatusSubmitted {
 			if shipment.Diversion {
