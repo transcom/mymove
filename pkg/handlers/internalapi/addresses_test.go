@@ -241,6 +241,7 @@ func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 	suite.Run("successful city name lookup", func() {
 		country := "GB"
 		city := "LONDON"
+		cityResult := "LONDON COLNEY"
 		var fetchedVIntlLocation models.VIntlLocation
 		err := suite.DB().Where("city_name = $1", city).First(&fetchedVIntlLocation)
 
@@ -266,6 +267,6 @@ func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 		suite.Assertions.IsType(&addressop.GetOconusLocationOK{}, response)
 		responsePayload := response.(*addressop.GetOconusLocationOK)
 		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
-		suite.Equal(city, responsePayload.Payload[0].City)
+		suite.Equal(cityResult, responsePayload.Payload[0].City)
 	})
 }
