@@ -13,7 +13,7 @@ import { Form } from 'components/form/Form';
 import { withContext } from 'shared/AppContext';
 import { officeAccountRequestSchema } from 'utils/validation';
 
-const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
+const RequestAccountForm = ({ initialValues, onSubmit, onCancel, rolesWithPrivs, privileges }) => {
   const sectionStyles = classnames(formStyles.formSection, requestAccountFormStyles.formSection);
 
   return (
@@ -38,7 +38,7 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
                 identifier.
               </p>
 
-              <OfficeAccountRequestFields />
+              <OfficeAccountRequestFields rolesWithPrivs={rolesWithPrivs} privileges={privileges} />
             </SectionWrapper>
 
             <div className={requestAccountFormStyles.buttonRow}>

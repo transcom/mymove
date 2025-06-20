@@ -14,7 +14,7 @@ import (
 
 // When deployed in production, we have multiple deployed servers
 // running, but we only need one of them doing the queries to the
-// database. As an optimizataion, maybe we can have only one of them
+// database. As an optimization, maybe we can have only one of them
 // running.
 //
 // We don't want to try to use locking as this telemetry code doesn't

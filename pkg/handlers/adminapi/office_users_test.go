@@ -1319,7 +1319,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			rolesservice.NewRolesFetcher(),
 		}
 
-		rolePrivs, err := handler.RoleAssociater.FetchRolesPrivileges(suite.AppContextForTest())
+		rolePrivs, err := handler.RoleFetcher.FetchRolesPrivileges(suite.AppContextForTest())
 
 		suite.NoError(err)
 
@@ -1416,7 +1416,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users/roles-privileges"),
 		}
 
-		mockFetcher := mocks.RoleAssociater{}
+		mockFetcher := mocks.RoleFetcher{}
 		mockFetcher.On("FetchRolesPrivileges", mock.AnythingOfType("*appcontext.appContext")).Return(nil, sql.ErrNoRows)
 
 		handler := GetRolesPrivilegesHandler{
@@ -1437,7 +1437,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users/roles-privileges"),
 		}
 
-		mockFetcher := mocks.RoleAssociater{}
+		mockFetcher := mocks.RoleFetcher{}
 		mockFetcher.On("FetchRolesPrivileges", mock.AnythingOfType("*appcontext.appContext")).Return(nil, apperror.InternalServerError{})
 
 		handler := GetRolesPrivilegesHandler{
