@@ -2,6 +2,8 @@ import Swagger from 'swagger-client';
 
 import { makeSwaggerRequest, requestInterceptor, responseInterceptor, makeSwaggerRequestRaw } from './swaggerRequest';
 
+import { UPLOAD_SCAN_STATUS } from 'shared/constants';
+
 let internalClient = null;
 
 // setting up the same config from Swagger/api.js
@@ -289,6 +291,75 @@ export async function createUploadForPPMDocument(ppmShipmentId, documentId, file
       normalize: false,
     },
   );
+}
+
+// Subscribes to the server sent event for the antivirus status
+// This is needed because files, while uploaded, will be inaccessible
+// until the AV scan has cleared it
+export function waitForAvScan(uploadId, { signal } = {}) {
+  return new Promise((resolve, reject) => {
+    // Catch if the server event aborted before starting the func
+    if (signal?.aborted) {
+      reject(new DOMException('aborted', 'AbortError'));
+      return;
+    }
+
+    // Init server sent event
+    const es = new EventSource(`/internal/uploads/${uploadId}/status`, {
+      withCredentials: true,
+    });
+
+    // Catch user cancellation helper
+    // this is to close the currently running sse
+    function abortListener() {
+      es.close();
+      signal?.removeEventListener('abort', abortListener);
+      reject(new DOMException('aborted', 'AbortError'));
+    }
+
+    // Cleanup helper for the sse
+    function cleanup() {
+      es.close();
+      signal?.removeEventListener('abort', abortListener);
+    }
+
+    // Add listener for if the user cancels the event
+    signal?.addEventListener('abort', abortListener);
+
+    // Handle incremental SSE messages
+    // these cases are all provided by the
+    // CustomGetUploadStatusResponse from the backend
+    // See pkg/handlers/internalapi/uploads.go
+    es.onmessage = ({ data }) => {
+      switch (data) {
+        case UPLOAD_SCAN_STATUS.PROCESSING:
+          break;
+        case UPLOAD_SCAN_STATUS.NO_THREATS_FOUND:
+        case UPLOAD_SCAN_STATUS.LEGACY_CLEAN:
+          cleanup();
+          resolve(UPLOAD_SCAN_STATUS.NO_THREATS_FOUND);
+          break;
+        case UPLOAD_SCAN_STATUS.INFECTED:
+        case UPLOAD_SCAN_STATUS.THREATS_FOUND:
+          cleanup();
+          reject(new Error(UPLOAD_SCAN_STATUS.THREATS_FOUND));
+          break;
+        case UPLOAD_SCAN_STATUS.CONNECTION_CLOSED:
+          cleanup();
+          reject(new Error(UPLOAD_SCAN_STATUS.CONNECTION_CLOSED));
+          break;
+        default:
+          cleanup();
+          reject(new Error('Unknown server response from antivirus scan'));
+      }
+    };
+
+    // Network SSE responded an error, close the sse
+    es.onerror = (err) => {
+      cleanup();
+      reject(err ?? new Error('Server sent event error when listening for antivirus status'));
+    };
+  });
 }
 
 export async function deleteUpload(uploadId, orderId, ppmId) {

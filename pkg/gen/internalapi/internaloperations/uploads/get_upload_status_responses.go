@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // GetUploadStatusOKCode is the HTTP code returned for type GetUploadStatusOK
@@ -69,7 +69,7 @@ type GetUploadStatusBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.InvalidRequestResponsePayload `json:"body,omitempty"`
+	Payload *internalmessages.InvalidRequestResponsePayload `json:"body,omitempty"`
 }
 
 // NewGetUploadStatusBadRequest creates GetUploadStatusBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewGetUploadStatusBadRequest() *GetUploadStatusBadRequest {
 }
 
 // WithPayload adds the payload to the get upload status bad request response
-func (o *GetUploadStatusBadRequest) WithPayload(payload *ghcmessages.InvalidRequestResponsePayload) *GetUploadStatusBadRequest {
+func (o *GetUploadStatusBadRequest) WithPayload(payload *internalmessages.InvalidRequestResponsePayload) *GetUploadStatusBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get upload status bad request response
-func (o *GetUploadStatusBadRequest) SetPayload(payload *ghcmessages.InvalidRequestResponsePayload) {
+func (o *GetUploadStatusBadRequest) SetPayload(payload *internalmessages.InvalidRequestResponsePayload) {
 	o.Payload = payload
 }
 

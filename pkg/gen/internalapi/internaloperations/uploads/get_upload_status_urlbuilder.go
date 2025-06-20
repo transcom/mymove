@@ -53,7 +53,7 @@ func (o *GetUploadStatusURL) Build() (*url.URL, error) {
 
 	_basePath := o._basePath
 	if _basePath == "" {
-		_basePath = "/ghc/v1"
+		_basePath = "/internal"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
