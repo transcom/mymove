@@ -1162,3 +1162,8 @@ export function getResponseError(errorOrResponse, defaultErrorMessage) {
 
   return detail;
 }
+
+export async function getRolesPrivilegesOfficeApp() {
+  const operationPath = 'rolePrivileges.getRolesPrivileges';
+  return makeGHCRequest(operationPath, {}, { normalize: false });
+}

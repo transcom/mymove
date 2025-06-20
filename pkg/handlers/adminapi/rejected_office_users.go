@@ -160,7 +160,7 @@ func (h IndexRejectedOfficeUsersHandler) Handle(params rejected_office_users.Ind
 type GetRejectedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RejectedOfficeUserFetcher
-	services.RoleAssociater
+	services.RoleFetcher
 	services.NewQueryFilter
 }
 
@@ -178,7 +178,7 @@ func (h GetRejectedOfficeUserHandler) Handle(params rejected_office_users.GetRej
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *rejectedOfficeUser.UserID)
+			roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *rejectedOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return rejected_office_users.NewGetRejectedOfficeUserBadRequest(), err
