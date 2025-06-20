@@ -21,7 +21,6 @@ import { usePPMShipmentAndDocsOnlyQueries, useReviewShipmentWeightsQuery } from 
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import appendTimestampToFilename from 'utils/fileUpload';
-import ErrorModal from 'shared/ErrorModal/ErrorModal';
 
 const ProGear = () => {
   const [errorMessage, setErrorMessage] = useState(null);
