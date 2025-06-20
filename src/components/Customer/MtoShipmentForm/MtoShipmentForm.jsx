@@ -56,6 +56,7 @@ import { isPreceedingAddressComplete } from 'shared/utils';
 import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -375,6 +376,7 @@ class MtoShipmentForm extends Component {
                               pickup/load date should be your latest preferred pickup/load date, or the date you need to
                               be out of your origin residence.
                             </Hint>
+                            {requiredAsteriskMessage}
                             {isPreferredPickupDateAlertVisible && !isPreferredPickupDateInvalid && (
                               <Alert
                                 type="warning"
@@ -388,8 +390,9 @@ class MtoShipmentForm extends Component {
                             <DatePickerInput
                               name="pickup.requestedDate"
                               label="Preferred pickup date"
+                              showRequiredAsterisk
+                              required
                               id="requestedPickupDate"
-                              hint="Required"
                               validate={validatePickupDate}
                               onChange={handlePickupDateChange}
                             />
@@ -397,7 +400,6 @@ class MtoShipmentForm extends Component {
                           <AddressFields
                             name="pickup.address"
                             legend="Pickup Address"
-                            labelHint="Required"
                             formikProps={formikProps}
                             render={(fields) => (
                               <>
@@ -411,7 +413,7 @@ class MtoShipmentForm extends Component {
                                 />
                                 {fields}
                                 <FormGroup>
-                                  <p>
+                                  <p aria-label="Do you want movers to pick up any belongings from a second address? (Must be near your pickup address. Subject to approval.">
                                     Do you want movers to pick up any belongings from a second address? (Must be near
                                     your pickup address. Subject to approval.)
                                   </p>
@@ -445,11 +447,7 @@ class MtoShipmentForm extends Component {
                                 {hasSecondaryPickup === 'true' && (
                                   <>
                                     <h4>Second Pickup Address</h4>
-                                    <AddressFields
-                                      name="secondaryPickup.address"
-                                      labelHint="Required"
-                                      formikProps={formikProps}
-                                    />
+                                    <AddressFields name="secondaryPickup.address" formikProps={formikProps} />
                                   </>
                                 )}
                                 {isTertiaryAddressEnabled && hasSecondaryPickup === 'true' && (
@@ -504,11 +502,7 @@ class MtoShipmentForm extends Component {
                                   hasSecondaryPickup === 'true' && (
                                     <>
                                       <h4>Third Pickup Address</h4>
-                                      <AddressFields
-                                        name="tertiaryPickup.address"
-                                        labelHint="Required"
-                                        formikProps={formikProps}
-                                      />
+                                      <AddressFields name="tertiaryPickup.address" formikProps={formikProps} />
                                     </>
                                   )}
                               </>
@@ -536,27 +530,29 @@ class MtoShipmentForm extends Component {
                               You will finalize an actual delivery date later by talking with your Customer Care
                               Representative once the shipment is underway.
                             </Hint>
+                            {requiredAsteriskMessage}
                             {isPreferredDeliveryDateAlertVisible && (
-                              <Alert type="warning" aria-live="polite" headingLevel="h4">
+                              <Alert type="warning" aria-live="polite" headingLevel="h4" required>
                                 {preferredDeliveryDateAlertMessage}
                               </Alert>
                             )}
                             <DatePickerInput
                               name="delivery.requestedDate"
                               label="Preferred delivery date"
+                              showRequiredAsterisk
+                              required
                               id="requestedDeliveryDate"
                               validate={validateDate}
-                              hint="Required"
                             />
                           </Fieldset>
 
                           <Fieldset legend="Delivery Address">
                             {!isNTSR && (
                               <FormGroup>
-                                <Label hint="Required" htmlFor="hasDeliveryAddress">
+                                <legend className="usa-label" htmlFor="hasDeliveryAddress">
                                   Do you know your delivery address yet?
-                                </Label>
-                                <div className={formStyles.radioGroup}>
+                                </legend>
+                                <div className={formStyles.radioGroup} required>
                                   <Field
                                     as={Radio}
                                     id="has-delivery-address"
@@ -585,7 +581,6 @@ class MtoShipmentForm extends Component {
                             {(hasDeliveryAddress === 'true' || isNTSR) && (
                               <AddressFields
                                 name="delivery.address"
-                                labelHint="Required"
                                 formikProps={formikProps}
                                 render={(fields) => (
                                   <>
@@ -629,11 +624,7 @@ class MtoShipmentForm extends Component {
                                     {hasSecondaryDelivery === 'true' && (
                                       <>
                                         <h4>Second Delivery Address</h4>
-                                        <AddressFields
-                                          name="secondaryDelivery.address"
-                                          labelHint="Required"
-                                          formikProps={formikProps}
-                                        />
+                                        <AddressFields name="secondaryDelivery.address" formikProps={formikProps} />
                                       </>
                                     )}
                                     {isTertiaryAddressEnabled && hasSecondaryDelivery === 'true' && (
@@ -688,11 +679,7 @@ class MtoShipmentForm extends Component {
                                       hasSecondaryDelivery === 'true' && (
                                         <>
                                           <h4>Third Delivery Address</h4>
-                                          <AddressFields
-                                            name="tertiaryDelivery.address"
-                                            labelHint="Required"
-                                            formikProps={formikProps}
-                                          />
+                                          <AddressFields name="tertiaryDelivery.address" formikProps={formikProps} />
                                         </>
                                       )}
                                   </>

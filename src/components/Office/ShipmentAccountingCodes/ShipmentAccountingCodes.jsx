@@ -20,7 +20,7 @@ const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
           Accounting codes
           {optional && (
             <span className="float-right">
-              <span className={formStyles.optional}>Optional</span>
+              <span className={formStyles.optional} />
             </span>
           )}
         </h2>
@@ -32,7 +32,7 @@ const AccountingCodes = ({ optional, TACs, SACs, onEditCodesClick }) => {
           shipmentTypes={TACs}
         />
         <AccountingCodeSection
-          label="SAC (optional)"
+          label="SAC"
           emptyMessage="No SAC code entered."
           fieldName="sacType"
           shipmentTypes={SACs}

@@ -5,20 +5,23 @@ import { Formik } from 'formik';
 import { CustomerAltContactInfoFields } from './index';
 
 describe('CustomerAltContactInfoFields component', () => {
-  it('renders a legend and all service member contact info inputs', () => {
+  it('renders a legend and all service member contact info inputs and asterisks for required fields', () => {
     render(
       <Formik>
         <CustomerAltContactInfoFields legend="Contact info" />
       </Formik>,
     );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(screen.getByText('Contact info')).toBeInstanceOf(HTMLLegendElement);
-    expect(screen.getByLabelText('First name')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('First name')).toBeRequired();
+    expect(screen.getByLabelText('First name *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('First name *')).toBeRequired();
 
     expect(screen.getByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
 
-    expect(screen.getByLabelText('Last name')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('Last name')).toBeRequired();
+    expect(screen.getByLabelText('Last name *')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Last name *')).toBeRequired();
 
     expect(screen.getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
 
@@ -45,9 +48,9 @@ describe('CustomerAltContactInfoFields component', () => {
           <CustomerAltContactInfoFields legend="Contact info" name="contact" />
         </Formik>,
       );
-      expect(await screen.findByLabelText('First name')).toHaveValue(initialValues.firstName);
+      expect(await screen.findByLabelText('First name *')).toHaveValue(initialValues.firstName);
       expect(screen.getByLabelText(/Middle name/)).toHaveValue(initialValues.middleName);
-      expect(screen.getByLabelText('Last name')).toHaveValue(initialValues.lastName);
+      expect(screen.getByLabelText('Last name *')).toHaveValue(initialValues.lastName);
       expect(screen.getByLabelText(/Suffix/)).toHaveValue(initialValues.suffix);
       expect(screen.getByDisplayValue(initialValues.customerTelephone)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByDisplayValue(initialValues.customerEmail)).toBeInstanceOf(HTMLInputElement);
