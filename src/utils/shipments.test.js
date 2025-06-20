@@ -7,6 +7,7 @@ import {
   isWeightTicketComplete,
   hasCompletedAllWeightTickets,
   isPPMOnly,
+  isGunSafeComplete,
 } from './shipments';
 
 import { ppmShipmentStatuses } from 'constants/shipments';
@@ -219,6 +220,58 @@ describe('shipments utils', () => {
     it('returns true when all shipments are PPM', () => {
       expect(isPPMOnly([ppmShipment])).toBe(true);
       expect(isPPMOnly([ppmShipment, secondPPMShipment])).toBe(true);
+    });
+  });
+
+  describe('isGunSafeComplete', () => {
+    const completeGunSafeTicket = {
+      description: 'Test Description',
+      weight: 500,
+      document: {
+        uploads: {
+          filename: 'test.pdf',
+        },
+      },
+    };
+
+    const gunSafeNoDescription = {
+      weight: 500,
+      document: {
+        uploads: {
+          filename: 'test.pdf',
+        },
+      },
+    };
+
+    const gunSafeNoWeight = {
+      description: 'test description',
+      document: {
+        uploads: {
+          filename: 'test.pdf',
+        },
+      },
+    };
+
+    const gunSafeNoUpload = {
+      description: 'test description',
+      weight: 500,
+      document: {},
+    };
+
+    it('returns true when a ticket has a weight, description, and document upload', () => {
+      expect(isGunSafeComplete(completeGunSafeTicket));
+    });
+
+    it('returns false when a ticket has a description and document upload, but no weight', () => {
+      expect(!isGunSafeComplete(gunSafeNoWeight));
+    });
+
+    it('returns false when a ticket has a weight and document upload, but no description', () => {
+      expect(!isGunSafeComplete(gunSafeNoDescription));
+    });
+
+    it('returns false when a ticket has a description and weight, but no document uploads', () => {
+      expect(!isGunSafeComplete(gunSafeNoUpload));
     });
   });
 });

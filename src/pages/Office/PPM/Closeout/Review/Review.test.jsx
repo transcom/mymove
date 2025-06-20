@@ -5,12 +5,14 @@ import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 
 import { MockProviders } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import Review from 'pages/Office/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { deleteWeightTicket, deleteMovingExpense } from 'services/ghcApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createBaseGunSafeWeightTicket } from 'utils/test/factories/gunSafeWeightTicket';
 import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 
@@ -144,6 +146,30 @@ const mockMTOShipmentWithProGear = {
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
 
+const gunSafeWeightOne = createBaseGunSafeWeightTicket();
+const mockMTOShipmentWithGunSafe = {
+  id: mockMTOShipmentId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasGunSafe: true,
+    gunSafeWeight: 100,
+    gunSafeWeightTickets: [gunSafeWeightOne],
+    pickupAddress,
+    destinationAddress,
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
 const expenseOne = createCompleteMovingExpense();
 const expenseTwo = createCompleteSITMovingExpense();
 const mockMTOShipmentWithExpenses = {
@@ -173,6 +199,7 @@ const mockMTOShipmentWithExpenses = {
 const mockDocumentsWithExpenses = {
   WeightTickets: [weightTicketOne, weightTicketTwo],
   ProGearWeightTickets: [],
+  GunSafeWeightTickets: [gunSafeWeightOne],
   MovingExpenses: [expenseOne, expenseTwo],
 };
 
@@ -190,6 +217,11 @@ jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   deleteWeightTicket: jest.fn(),
   deleteMovingExpense: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 beforeEach(() => {
@@ -217,6 +249,15 @@ const editProGearWeightTicket = generatePath(servicesCounselingRoutes.BASE_SHIPM
   moveCode: mockMoveId,
   shipmentId: mockMTOShipmentId,
   proGearId: mockMTOShipmentWithProGear.ppmShipment.proGearWeightTickets[0].id,
+});
+const newGunSafePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_PATH, {
+  moveCode: mockMoveId,
+  shipmentId: mockMTOShipmentId,
+});
+const editGunSafeWeightTicket = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_EDIT_PATH, {
+  moveCode: mockMoveId,
+  shipmentId: mockMTOShipmentId,
+  gunSafeId: mockMTOShipmentWithGunSafe.ppmShipment.gunSafeWeightTickets[0].id,
 });
 const newExpensePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_PATH, {
   moveCode: mockMoveId,
@@ -257,6 +298,14 @@ const mockRoutes = [
     element: <div>Edit Pro Gear Weight Ticket Page</div>,
   },
   {
+    path: newGunSafePath,
+    element: <div>New Gun Safe Page</div>,
+  },
+  {
+    path: editGunSafeWeightTicket,
+    element: <div>Edit Gun Safe Weight Ticket Page</div>,
+  },
+  {
     path: newExpensePath,
     element: <div>New Expense Page</div>,
   },
@@ -270,7 +319,7 @@ const mockRoutes = [
   },
 ];
 
-const renderReviewPage = (props) => {
+const renderReviewPage = async (props) => {
   return render(
     <MockProviders
       path={servicesCounselingRoutes.BASE_SHIPMENT_PPM_REVIEW_PATH}
@@ -286,14 +335,35 @@ const renderReviewPage = (props) => {
 };
 
 describe('Review page', () => {
-  it('renders the page headings', () => {
+  it('renders the page headings', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
       isLoading: false,
       mtoShipment: mockMTOShipment,
       error: null,
     });
 
-    renderReviewPage();
+    await renderReviewPage();
+
+    expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Review');
+    expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('About Your PPM');
+    expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Documents');
+    expect(screen.getAllByRole('heading', { level: 3 })[0]).toHaveTextContent('Weight moved');
+    expect(screen.getAllByRole('heading', { level: 3 })[1]).toHaveTextContent('Pro-gear');
+    expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Gun safe');
+    expect(screen.getAllByRole('heading', { level: 3 })[3]).toHaveTextContent('Expenses');
+  });
+
+  it('excludes gun safe if FF is toggled off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      error: null,
+    });
+
+    await renderReviewPage();
 
     expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Review');
@@ -304,13 +374,13 @@ describe('Review page', () => {
     expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Expenses');
   });
 
-  it('renders the empty message when there are no weight tickets', () => {
+  it('renders the empty message when there are no weight tickets', async () => {
     usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
       isLoading: false,
       mtoShipment: mockMTOShipmentWithIncompleteWeightTicket,
       error: null,
     });
-    renderReviewPage();
+    await renderReviewPage();
 
     expect(
       screen.getByText('No weight moved documented. At least one trip is required to continue.'),
@@ -323,11 +393,11 @@ describe('Review page', () => {
       mtoShipment: mockMTOShipment,
       error: null,
     });
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByText('Edit')[0]);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.getByText('Edit About Your PPM Page')).toBeInTheDocument();
     });
   });
@@ -338,11 +408,11 @@ describe('Review page', () => {
       mtoShipment: mockMTOShipment,
       error: null,
     });
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getByTestId('formBackButton'));
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(mockNavigate).toHaveBeenCalledWith(moveDetailsPath);
     });
   });
@@ -354,7 +424,7 @@ describe('Review page', () => {
       documents: mockDocumentsWithIncompleteWeightTicket,
       error: null,
     });
-    renderReviewPage();
+    await renderReviewPage();
 
     expect(screen.getByTestId('saveAndContinueButton')).toBeDisabled();
   });
@@ -366,7 +436,7 @@ describe('Review page', () => {
       documents: mockDocumentsWithIncompleteWeightTicket,
       error: null,
     });
-    renderReviewPage();
+    await renderReviewPage();
 
     expect(screen.getByTestId('saveAndContinueButton')).toBeDisabled();
   });
@@ -378,7 +448,7 @@ describe('Review page', () => {
       documents: mockDocumentsWithIncompleteWeightTicket,
       error: null,
     });
-    renderReviewPage();
+    await renderReviewPage();
 
     expect(
       screen.getByText(
@@ -396,11 +466,11 @@ describe('Review page', () => {
       documents: mockDocumentsWithWeightTickets,
       error: null,
     });
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
       expect(screen.getByText('You are about to delete Trip 2. This cannot be undone.')).toBeInTheDocument();
     });
@@ -414,26 +484,63 @@ describe('Review page', () => {
     const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});
     deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
 
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
     });
 
     await userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
 
     const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(mockDeleteWeightTicket).toHaveBeenCalledWith({
         ppmShipmentId: mockMTOShipmentWithWeightTicket.ppmShipment.id,
         weightTicketId: weightTicket.id,
       });
     });
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.getByText('Trip 1 successfully deleted.'));
     });
+  });
+
+  it('displays the delete confirmation modal when the delete button for Gun Safe is clicked', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipmentWithExpenses,
+      documents: mockDocumentsWithExpenses,
+      error: null,
+    });
+    await renderReviewPage();
+
+    expect(screen.queryAllByRole('button', { name: 'Delete' })).toHaveLength(5);
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[2]);
+
+    await waitFor(async () => {
+      screen.debug(null, 200000);
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+      expect(screen.getByText('You are about to delete Set 1. This cannot be undone.')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
+
+    expect(screen.queryByRole('heading', { level: 3, name: 'Delete this?' })).not.toBeInTheDocument();
+  });
+
+  it('does not display the delete button for Gun Safe if FF is toggled off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipmentWithExpenses,
+      documents: mockDocumentsWithExpenses,
+      error: null,
+    });
+    await renderReviewPage();
+
+    expect(screen.queryAllByRole('button', { name: 'Delete' })).toHaveLength(4);
   });
 
   it('displays the delete confirmation modal when the delete button for Weight Expenses is clicked', async () => {
@@ -443,11 +550,11 @@ describe('Review page', () => {
       documents: mockDocumentsWithExpenses,
       error: null,
     });
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[3]);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
       expect(screen.getByText('You are about to delete Receipt 2. This cannot be undone.')).toBeInTheDocument();
     });
@@ -461,7 +568,7 @@ describe('Review page', () => {
     const mockDeleteMovingExpense = jest.fn().mockResolvedValue({});
     deleteMovingExpense.mockImplementationOnce(mockDeleteMovingExpense);
 
-    renderReviewPage();
+    await renderReviewPage();
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[2]);
 

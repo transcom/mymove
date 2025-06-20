@@ -80,7 +80,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 <h2>PPM</h2>
                 <p>
                   Estimate the full weight of your PPM, including everything you plan to move. If you are moving
-                  pro-gear in this PPM, include that weight in this estimate.
+                  pro-gear {isGunSafeEnabled && 'and/or a gun safe'} in this PPM, include that weight in this estimate.
                 </p>
                 <p className={formStyles.pBeforeFormGroup}>
                   Do not count weight twice, though. Do not include weight in your estimate that will be moved in other
@@ -245,7 +245,8 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                       <Hint>
                         The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against
                         the authorized weight entitlement. The weight entitlement is charged for any weight over 500
-                        lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.
+                        lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer&apos;s
+                        overall entitlement is already at the 18,000 lbs maximum.
                       </Hint>
                     </div>
                   )}
