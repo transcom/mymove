@@ -400,6 +400,18 @@ describe('International', () => {
     testAB(result, expected);
   });
 
+  it('returns correct data for INPK', () => {
+    const result = makeCalculations('INPK', 99999, [...testParams.InternationalHHGPack, testParams.NTSPackingFactor]);
+    const expected = {
+      'Billable weight (cwt)': '85 cwt',
+      'International Pack price': '1.71',
+      'Price escalation factor': '1.033',
+      'NTS packing factor': '1.35',
+      'Total: ': '$999.99',
+    };
+    testAB(result, expected);
+  });
+
   it('returns correct data for IHUPK', () => {
     const result = makeCalculations(SERVICE_ITEM_CODES.IHUPK, 99999, testParams.InternationalHHGUnpack);
     const expected = {

@@ -293,8 +293,11 @@ var actionDispatcher = map[string]actionFunc{
 	"InternationalAlaskaBasicHHGMoveForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx)
 	},
+	"InternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx, true)
+	},
 	"InternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx)
+		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx, false)
 	},
 	"IntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(appCtx)
