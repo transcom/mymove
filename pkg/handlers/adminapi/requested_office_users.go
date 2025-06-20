@@ -152,6 +152,48 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params requested_off
 	return models.CreateOktaUser(appCtx, provider, apiKey, oktaPayload)
 }
 
+func updateUserOktaID(appCtx appcontext.AppContext, officeUserID uuid.UUID, oktaID string) {
+	if oktaID == "" {
+		appCtx.Logger().Warn("Received a blank ID from Okta for approved Office User.",
+			zap.String("OfficeUserID", officeUserID.String()))
+		return
+	}
+
+	// retrieve the data necessary for the user update
+	officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
+	if err != nil {
+		appCtx.Logger().Warn("Unable to retrieve approved Office User to set OktaID.",
+			zap.String("OfficeUserID", officeUserID.String()),
+			zap.Error(err))
+		return
+	}
+	user, err := models.GetUser(appCtx.DB(), *officeUser.UserID)
+	if err != nil {
+		appCtx.Logger().Warn("Unable to retrieve User to set OktaID.",
+			zap.String("OfficeUserID", officeUserID.String()),
+			zap.String("UserID", officeUser.UserID.String()),
+			zap.Error(err))
+		return
+	}
+
+	if user.OktaID != oktaID {
+		if user.OktaID != "" {
+			appCtx.Logger().Info("Replacing user's OktaID.",
+				zap.String("Old OktaID", user.OktaID),
+				zap.String("New OktaID", oktaID))
+		}
+
+		// perform the user update
+		err = models.UpdateUserOktaID(appCtx.DB(), user, oktaID)
+		if err != nil {
+			appCtx.Logger().Warn("Unable to update OktaID",
+				zap.String("UserID", officeUser.UserID.String()),
+				zap.String("OktaID", oktaID),
+				zap.Error(err))
+		}
+	}
+}
+
 // IndexRequestedOfficeUsersHandler returns a list of requested office users via GET /requested_office_users
 type IndexRequestedOfficeUsersHandler struct {
 	handlers.HandlerConfig
@@ -317,12 +359,13 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				// ignore this if we are in our dev environment
 				if params.Body.Status == "APPROVED" && appCtx.Session().IDToken != "devlocal" {
 					var err error
-					_, err = fetchOrCreateOktaProfile(txAppCtx, params)
+					oktaUser, err := fetchOrCreateOktaProfile(txAppCtx, params)
 					if err != nil {
 						txAppCtx.Logger().Error("error fetching/creating Okta profile", zap.Error(err))
 						return fmt.Errorf("failed to create Okta account: %w", err)
 					}
 					txAppCtx.Logger().Info("Okta account successfully fetched or created")
+					updateUserOktaID(txAppCtx, requestedOfficeUserID, oktaUser.ID)
 				}
 
 				var verrs *validate.Errors
