@@ -728,12 +728,14 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			},
 		}, nil)
 		reweighWeight := unit.Pound(2399)
-		testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		var errResponse error
+		_, errResponse = testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Reweigh: models.Reweigh{
 				Weight: &reweighWeight,
 			},
 			MTOShipment: reweighedShipment,
 		})
+		suite.NoError(errResponse)
 
 		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{

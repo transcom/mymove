@@ -56,9 +56,9 @@ fi
 # Check if the operating system is macOS before running command
 # this uses the classic linker when running make server_test aka go test
 # this addresses issues we were having with the default linker on macOS
-if [[ "$(uname)" == "Darwin" ]]; then
-    gotest_args+=("-ldflags=-extldflags=-Wl,-ld_classic")
-fi
+# if [[ "$(uname)" == "Darwin" ]]; then
+#     gotest_args+=("-ldflags=-extldflags=-Wl,-ld_classic")
+# fi
 
 # Try to compile tests, but don't run them.
 if [[ "${DRY_RUN:-}" == "1" ]]; then

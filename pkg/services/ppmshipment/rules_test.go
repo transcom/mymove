@@ -269,7 +269,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			StreetAddress1: "987 Other Avenue",
 			StreetAddress2: models.StringPointer("P.O. Box 12345"),
 			StreetAddress3: models.StringPointer("c/o Another Person"),
-			City:           "Fort Eisenhower",
+			City:           "GROVETOWN",
 			State:          "GA",
 			PostalCode:     "50309",
 			County:         models.StringPointer("COLUMBIA"),

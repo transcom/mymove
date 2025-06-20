@@ -29,14 +29,14 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
 			PickupAddress: &models.Address{
 				StreetAddress1: "987 New Street",
-				City:           "Des Moines",
+				City:           "DES MOINES",
 				State:          "IA",
 				PostalCode:     "50309",
 				County:         models.StringPointer("POLK"),
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "123 New Street",
-				City:           "Fort Eisenhower",
+				City:           "GROVETOWN",
 				State:          "GA",
 				PostalCode:     "30813",
 				County:         models.StringPointer("COLUMBIA"),

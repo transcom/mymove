@@ -216,13 +216,14 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
-		serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(suite.DB(), testdatagen.Assertions{
+		serviceItemDCRT, err := testdatagen.MakeMTOServiceItemDomesticCrating(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDCRT,
 			},
 			MTOShipment: shipment,
 			Move:        move,
 		})
+		suite.NoError(err)
 
 		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
 			{
@@ -262,9 +263,10 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
 		})
+		suite.NoError(err)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.MilApp,

@@ -27,11 +27,12 @@ func (suite *EdiErrorsSuite) TestFetchEdiErrors() {
 	suite.Run("returns list of edi errors", func() {
 		appCtx := suite.AppContextForTest()
 
-		paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		paymentRequest, err := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
 				Status: models.PaymentRequestStatusEDIError,
 			},
 		})
+		suite.NoError(err)
 
 		ediCode824 := "FailureForEDI824"
 		ediDescription824 := "DescriptionForEDI824"
@@ -45,11 +46,12 @@ func (suite *EdiErrorsSuite) TestFetchEdiErrors() {
 		})
 		suite.NotNil(ediError824)
 
-		paymentRequest2 := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		paymentRequest2, err := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
 				Status: models.PaymentRequestStatusEDIError,
 			},
 		})
+		suite.NoError(err)
 
 		ediCode858 := "FailureForEDI858"
 		ediDescription858 := "DescriptionForEDI858"
@@ -97,11 +99,12 @@ func (suite *EdiErrorsSuite) TestFetchEdiErrorByID() {
 		appCtx := suite.AppContextForTest()
 
 		// fetch a single edi error
-		paymentRequest := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		paymentRequest, err := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
 				Status: models.PaymentRequestStatusEDIError,
 			},
 		})
+		suite.NoError(err)
 
 		ediCode824 := "FailureForEDI824"
 		ediDescription824 := "DescriptionForEDI824"
@@ -128,11 +131,12 @@ func (suite *EdiErrorsSuite) TestFetchEdiErrorByID() {
 		suite.Equal(paymentRequest.PaymentRequestNumber, result.PaymentRequest.PaymentRequestNumber)
 
 		// fetch a second edi error
-		paymentRequest2 := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
+		paymentRequest2, err := testdatagen.MakePaymentRequest(appCtx.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
 				Status: models.PaymentRequestStatusEDIError,
 			},
 		})
+		suite.NoError(err)
 
 		ediCode858 := "FailureForEDI858"
 		ediDescription858 := "DescriptionForEDI858"

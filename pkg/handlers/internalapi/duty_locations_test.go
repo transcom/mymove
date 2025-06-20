@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 
 	newAKAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
+		City:           "SCHENECTADY",
 		State:          "AK",
 		PostalCode:     "12345",
 		County:         models.StringPointer("County"),
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 
 	newHIAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
+		City:           "SCHENECTADY",
 		State:          "HI",
 		PostalCode:     "12345",
 		County:         models.StringPointer("County"),

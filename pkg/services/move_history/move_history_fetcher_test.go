@@ -143,19 +143,25 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 				suite.MustSave(&approvedMove.Orders)
 
 				// update Pickup Address
+				usprcNorfolk, err := models.FindByZipCodeAndCity(suite.DB(), "23503", "Norfolk")
+				suite.NoError(err)
 				oldAddress := *approvedShipment.PickupAddress
 				updateAddress := approvedShipment.PickupAddress
 				updateAddress.City = "Norfolk"
 				updateAddress.State = "VA"
 				updateAddress.PostalCode = "23503"
+				updateAddress.UsPostRegionCityID = &usprcNorfolk.ID
 				suite.MustSave(updateAddress)
 
 				// update Secondary Pickup Address
+				usprcHampton, err := models.FindByZipCodeAndCity(suite.DB(), "23661", "Hampton")
+				suite.NoError(err)
 				oldSecondaryPickupAddress := *approvedShipment.SecondaryPickupAddress
 				updateSecondaryPickupAddress := approvedShipment.SecondaryPickupAddress
 				updateSecondaryPickupAddress.City = "Hampton"
 				updateSecondaryPickupAddress.State = "VA"
 				updateSecondaryPickupAddress.PostalCode = "23661"
+				updateSecondaryPickupAddress.UsPostRegionCityID = &usprcHampton.ID
 				suite.MustSave(updateSecondaryPickupAddress)
 
 				// update move
