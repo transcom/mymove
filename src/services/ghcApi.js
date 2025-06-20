@@ -1126,7 +1126,7 @@ export async function getAllReServiceItems() {
 }
 
 export async function getRankOptions(affiliation, grade) {
-  return makeGHCRequestRaw('orders.getRanks', { affiliation, grade }, { normalize: false });
+  return makeGHCRequestRaw('order.getRanks', { affiliation, grade }, { normalize: false });
 }
 
 export async function submitPPMShipmentSignedCertification(ppmShipmentId) {

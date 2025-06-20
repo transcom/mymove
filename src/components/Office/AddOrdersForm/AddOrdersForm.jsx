@@ -22,12 +22,13 @@ import Callout from 'components/Callout';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { showCounselingOffices, getRankOptions, getPayGradeOptions } from 'services/ghcApi';
+import { showCounselingOffices, getRankOptions } from 'services/ghcApi';
 import Hint from 'components/Hint';
 import { sortRankOptions } from 'shared/utils';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
+import { getPayGradeOptions } from 'services/internalApi';
 import { formatPayGradeOptions } from 'utils/formatters';
 // import { dropdownInputOptions } from 'utils/formatters';
 
