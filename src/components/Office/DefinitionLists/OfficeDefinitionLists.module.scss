@@ -1,5 +1,5 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'shared/styles/_basics' as *;
+@use 'shared/styles/colors';
 
 .OfficeDefinitionLists {
   // remove browser defaults
@@ -15,10 +15,11 @@
     width: 75%;
   }
 
-  .missingInfoError {
-    color: $error;
+  .missingInfoError.missingInfoError {
+    color: colors.$error;
     @include u-border-left(0.5); //4px
     @include u-border-left('error');
     @include u-font-weight(bold);
+    @include u-font-size('body', 'md');
   }
 }
