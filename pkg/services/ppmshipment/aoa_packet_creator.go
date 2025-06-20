@@ -91,7 +91,7 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 		}
 	}
-	page1Data, page2Data, page3Data, err := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, &closeoutSummary, isPaymentPacket)
+	page1Data, page2Data, page3Data, err := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(appCtx, *ssfd, &closeoutSummary, isPaymentPacket)
 	if err != nil {
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}

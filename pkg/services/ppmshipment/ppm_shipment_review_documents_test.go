@@ -187,6 +187,13 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			})
 
 		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+		ppmEstimator := &mocks.PPMEstimator{}
+		maxIncentive := 987654
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(maxIncentive)), nil)
 		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 		submitter := NewPPMShipmentReviewDocuments(
 			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(),
@@ -352,6 +359,13 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			})
 
 		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+		ppmEstimator := &mocks.PPMEstimator{}
+		maxIncentive := 987654
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(maxIncentive)), nil)
 		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 		submitter := NewPPMShipmentReviewDocuments(
 			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(),
