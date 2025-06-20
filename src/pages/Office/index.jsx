@@ -177,7 +177,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const hasCustomerHeader =
     matchPath(
       {
-        path: `${tooRoutes.BASE_MOVES_PATH}/*`,
+        path: `/moves/:moveCode/*`,
       },
       location.pathname,
     ) ||
@@ -186,69 +186,10 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
         path: `${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`,
       },
       location.pathname,
-    );
-
-  const isForm =
-    matchPath(
-      {
-        path: `${servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}`,
-      },
-      location.pathname,
     ) ||
     matchPath(
       {
-        path: `${servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH}`,
-      },
-      location.pathname,
-    ) ||
-    matchPath(
-      {
-        path: `${servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH}/*`,
-      },
-      location.pathname,
-    ) ||
-    matchPath(
-      {
-        path: `${tooRoutes.SHIPMENT_ADD_PATH}/*`,
-      },
-      location.pathname,
-    ) ||
-    matchPath(
-      {
-        path: `${tooRoutes.BASE_SHIPMENT_EDIT_PATH}/*`,
-      },
-      location.pathname,
-    );
-
-  const isTXOPage = matchPath(
-    {
-      path: `${tooRoutes.BASE_MOVES_PATH}/*`,
-    },
-    location.pathname,
-  );
-
-  const isDocViewer =
-    matchPath(
-      {
-        path: `${servicesCounselingRoutes.BASE_ORDERS_EDIT_PATH}/*`,
-      },
-      location.pathname,
-    ) ||
-    matchPath(
-      {
-        path: `${servicesCounselingRoutes.BASE_ALLOWANCES_EDIT_PATH}`,
-      },
-      location.pathname,
-    ) ||
-    matchPath(
-      {
-        path: `${tooRoutes.BASE_ORDERS_EDIT_PATH}`,
-      },
-      location.pathname,
-    ) ||
-    matchPath(
-      {
-        path: `${tooRoutes.BASE_ALLOWANCES_EDIT_PATH}`,
+        path: `${primeSimulatorRoutes.BASE_PRIME_SIMULATOR_PATH}/*`,
       },
       location.pathname,
     );
@@ -269,15 +210,9 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
               id="main"
               role="main"
               className={classnames('site__content site-office__content', {
-                [styles.headerMarginMulti]: hasCustomerHeader && displayChangeRole,
-                [styles.headerMarginMultiTXO]: hasCustomerHeader && displayChangeRole && isTXOPage,
+                [styles.headerMargin]: hasCustomerHeader && displayChangeRole,
                 [styles.headerMarginSingle]: hasCustomerHeader && !displayChangeRole,
-                [styles.headerMarginSingleTXO]: hasCustomerHeader && !displayChangeRole && isTXOPage,
-                [styles.headerMarginMultiForm]: hasCustomerHeader && displayChangeRole && isForm,
-                [styles.headerMarginSingleForm]: hasCustomerHeader && !displayChangeRole && isForm,
-                [styles.headerMarginQueue]: !hasCustomerHeader && !displayChangeRole,
-                [styles.headerMarginMultiDoc]: hasCustomerHeader && displayChangeRole && isDocViewer,
-                [styles.headerMarginSingleDoc]: hasCustomerHeader && !displayChangeRole && isDocViewer,
+                [styles.headerMarginNoRoleChange]: !hasCustomerHeader && !displayChangeRole,
               })}
             >
               <ConnectedLogoutOnInactivity />
