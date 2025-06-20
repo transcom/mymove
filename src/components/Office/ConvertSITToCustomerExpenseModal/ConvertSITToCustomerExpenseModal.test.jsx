@@ -25,7 +25,7 @@ describe('ConvertSITToCustomerExpenseModal', () => {
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
     await render(<ConvertSITToCustomerExpenseModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
-    const remarksInput = screen.getByLabelText('Remarks');
+    const remarksInput = screen.getByLabelText('Remarks *');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     await act(() => userEvent.type(remarksInput, 'Approved!'));
@@ -40,7 +40,7 @@ describe('ConvertSITToCustomerExpenseModal', () => {
   it('does not allow submission when office remarks is empty', async () => {
     const mockOnSubmit = jest.fn();
     await render(<ConvertSITToCustomerExpenseModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
-    const remarksInput = screen.getByLabelText('Remarks');
+    const remarksInput = screen.getByLabelText('Remarks *');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     await act(() => userEvent.clear(remarksInput));
@@ -67,5 +67,16 @@ describe('ConvertSITToCustomerExpenseModal', () => {
     await waitFor(() => {
       expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
     });
+  });
+
+  it('renders asterisks for required fields', async () => {
+    await render(<ConvertSITToCustomerExpenseModal onSubmit={jest.fn()} onClose={jest.fn()} {...defaultValues} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
+    });
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+    expect(screen.getByLabelText('Remarks *')).toBeInTheDocument();
   });
 });

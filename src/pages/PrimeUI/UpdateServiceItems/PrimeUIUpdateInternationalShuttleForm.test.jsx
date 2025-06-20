@@ -13,6 +13,7 @@ const serviceItem = {
   estimatedWeight: 500,
   actualWeight: 600,
   mtoServiceItemID: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
+  status: 'REJECTED',
 };
 
 // Mock the react-router-dom functions
@@ -61,5 +62,14 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
     await userEvent.click(cancelButton);
 
     expect(mockNavigate).toHaveBeenCalledWith(primeSimulatorRoutes.VIEW_MOVE_PATH);
+  });
+
+  it('renders asterisks for required fields', async () => {
+    renderWithProviders(
+      <PrimeUIUpdateInternationalShuttleForm serviceItem={serviceItem} onUpdateServiceItem={jest.fn()} />,
+    );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+    expect(await screen.findByLabelText('Update Reason *')).toBeInTheDocument();
   });
 });

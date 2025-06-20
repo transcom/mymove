@@ -8,6 +8,7 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEstimatedDepartureDate }) => {
   const [sitExpectedInput, , sitExpectedHelper] = useField('sitExpected');
@@ -121,6 +122,7 @@ const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEst
                   />
                 </FormGroup>
 
+                {requiredAsteriskMessage}
                 <MaskedTextField
                   name="sitEstimatedWeight"
                   label="Estimated SIT weight"
@@ -132,11 +134,23 @@ const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEst
                   lazy={false} // immediate masking evaluation
                   suffix="lbs"
                   onChange={handleSITEstimatedWeight}
+                  showRequiredAsterisk
+                  required
                 />
 
-                <DatePickerInput name="sitEstimatedEntryDate" label="Estimated storage start" />
+                <DatePickerInput
+                  name="sitEstimatedEntryDate"
+                  label="Estimated storage start"
+                  showRequiredAsterisk
+                  required
+                />
 
-                <DatePickerInput name="sitEstimatedDepartureDate" label="Estimated storage end" />
+                <DatePickerInput
+                  name="sitEstimatedDepartureDate"
+                  label="Estimated storage end"
+                  showRequiredAsterisk
+                  required
+                />
               </>
             )}
           </Grid>

@@ -576,7 +576,6 @@ const EditOrdersForm = ({
                       signed={false}
                       thousandsSeparator=","
                       lazy={false}
-                      labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                           If your orders specify a UB weight allowance, enter it here.

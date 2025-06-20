@@ -21,6 +21,7 @@ import { ResidentialAddressShape } from 'types/address';
 import { CustomerContactInfoFields } from 'components/form/CustomerContactInfoFields';
 import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
 import { BackupContactShape } from 'types/customerShapes';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 export const residentialAddressName = 'residential_address';
 export const backupAddressName = 'backup_mailing_address';
@@ -47,8 +48,8 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
 
             <SectionWrapper className={sectionStyles}>
               <h2>Your contact info</h2>
-
-              <CustomerContactInfoFields labelHint="Required" />
+              {requiredAsteriskMessage}
+              <CustomerContactInfoFields />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>

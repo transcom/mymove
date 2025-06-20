@@ -197,29 +197,34 @@ beforeEach(() => {
 describe('PrimeUIShipmentCreateForm', () => {
   it('renders the initial form', async () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
-    expect(await screen.findByLabelText('Shipment type')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Shipment type *')).toBeInTheDocument();
     expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
   });
 
-  it('renders the initial form, selecting PPM and checkboxes', async () => {
+  it('renders the initial form, selecting PPM and checkboxes and asterisks for required fields', async () => {
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     isBooleanFlagEnabled.mockResolvedValue(false);
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Make it a PPM.
     await userEvent.selectOptions(shipmentTypeInput, ['PPM']);
 
     // Make sure than an HHG-specific field is not visible.
-    expect(await screen.queryByLabelText('Requested pickup')).not.toBeInTheDocument();
+    expect(await screen.queryByLabelText('Requested pickup *')).not.toBeInTheDocument();
 
     expect(await screen.findByText('Dates')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Expected Departure Date')).toHaveValue(
+    expect(await screen.findByLabelText('Expected Departure Date *')).toHaveValue(
       initialValues.ppmShipment.expectedDepartureDate,
     );
 
@@ -246,7 +251,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(sitExpectedInput).not.toBeChecked();
 
     expect(await screen.findByText('Weights')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Estimated Weight (lbs)')).toHaveValue(
+    expect(await screen.findByLabelText('Estimated Weight (lbs) *')).toHaveValue(
       initialValues.ppmShipment.estimatedWeight,
     );
 
@@ -259,8 +264,8 @@ describe('PrimeUIShipmentCreateForm', () => {
     // Turn on SIT.
     await userEvent.click(sitExpectedInput);
 
-    expect(await screen.findByLabelText('SIT Location')).toHaveValue(initialValues.ppmShipment.sitLocation);
-    expect(await screen.findByLabelText('SIT Estimated Weight (lbs)')).toHaveValue(
+    expect(await screen.findByLabelText('SIT Location *')).toHaveValue(initialValues.ppmShipment.sitLocation);
+    expect(await screen.findByLabelText('SIT Estimated Weight (lbs) *')).toHaveValue(
       initialValues.ppmShipment.sitEstimatedWeight,
     );
     expect(await screen.findByLabelText('SIT Estimated Entry Date')).toHaveValue(
@@ -284,7 +289,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     'renders the initial form, selects a Boat or Mobile Home shipment type, and shows correct fields',
     async (shipmentType) => {
       isBooleanFlagEnabled.mockResolvedValue(true); // Allow for testing of boats and mobile homes
-      const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+      const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
       expect(shipmentTypeInput).toBeInTheDocument();
 
       // Select the boat or mobile home shipment type
@@ -306,7 +311,7 @@ describe('PrimeUIShipmentCreateForm', () => {
 
       // now the text input should be visible
       expect(await screen.findByTestId('divertedFromShipmentIdInput')).toBeInTheDocument();
-
+      expect(screen.getByLabelText('Diverted from Shipment ID *')).toBeInTheDocument();
       // Now check for a boat and mobile home shipment specific field
       expect(await screen.findByLabelText('Length (Feet)')).toBeVisible();
     },
@@ -317,7 +322,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     'correct identifies if a boat shipment qualifies as a separate shipment via its dimensions',
     async (shipmentType) => {
       isBooleanFlagEnabled.mockResolvedValue(true);
-      const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+      const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
       expect(shipmentTypeInput).toBeInTheDocument();
 
       // Select the boat shipment type
@@ -351,7 +356,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     async (shipmentType) => {
       isBooleanFlagEnabled.mockResolvedValue(true);
 
-      const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+      const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
       expect(shipmentTypeInput).toBeInTheDocument();
 
       // Select the boat shipment type
@@ -387,8 +392,10 @@ describe('PrimeUIShipmentCreateForm', () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
     expect(shipmentTypeInput).toBeInTheDocument();
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     // Select the shipment type
     await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
@@ -397,7 +404,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();
 
     expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Requested pickup')).toHaveValue(initialValues.requestedPickupDate);
+    expect(await screen.findByLabelText('Requested pickup *')).toHaveValue(initialValues.requestedPickupDate);
 
     expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
     expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
@@ -407,16 +414,16 @@ describe('PrimeUIShipmentCreateForm', () => {
 
     expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
     expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
 
     expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
   });
 
   it('renders secondary/tertiary address', async () => {
     renderShipmentCreateForm();
 
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Select the shipment type
@@ -426,7 +433,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();
 
     expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Requested pickup')).toHaveValue(initialValues.requestedPickupDate);
+    expect(await screen.findByLabelText('Requested pickup *')).toHaveValue(initialValues.requestedPickupDate);
 
     expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
     expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
@@ -436,26 +443,26 @@ describe('PrimeUIShipmentCreateForm', () => {
 
     expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
     expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
 
     const hasSecondaryPickup = await screen.findByTestId('has-secondary-pickup');
     await userEvent.click(hasSecondaryPickup);
-    expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
 
     const hasTertiaryPickup = await screen.findByTestId('has-tertiary-pickup');
     await userEvent.click(hasTertiaryPickup);
-    expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveValue('');
 
     expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[3]).toHaveValue('');
 
     const hasSecondaryDestination = await screen.findByTestId('has-secondary-destination');
     await userEvent.click(hasSecondaryDestination);
-    expect(screen.getAllByLabelText('Address 1')[4]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[4]).toHaveValue('');
 
     const hasTertiaryDestination = await screen.findByTestId('has-tertiary-destination');
     await userEvent.click(hasTertiaryDestination);
-    expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
+    expect(screen.getAllByLabelText(/Address 1/)[5]).toHaveValue('');
 
     expect(
       screen.getByText('Will the movers deliver any belongings to a third address?', {
@@ -467,7 +474,7 @@ describe('PrimeUIShipmentCreateForm', () => {
   it('does not render secondary pickup address question for HHG_OUTOF_NTS', async () => {
     renderShipmentCreateForm();
 
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Select the shipment type
@@ -480,7 +487,7 @@ describe('PrimeUIShipmentCreateForm', () => {
   it('renders secondary destination address question for HHG_OUTOF_NTS', async () => {
     renderShipmentCreateForm();
 
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Select the shipment type
@@ -493,7 +500,7 @@ describe('PrimeUIShipmentCreateForm', () => {
   it('does not render secondary destination address question for HHG_INTO_NTS', async () => {
     renderShipmentCreateForm();
 
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Select the shipment type
@@ -506,7 +513,7 @@ describe('PrimeUIShipmentCreateForm', () => {
   it('renders secondary pickup address question for HHG_INTO_NTS', async () => {
     renderShipmentCreateForm();
 
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Select the shipment type
@@ -520,7 +527,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
-    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type *');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Make it a HHG move

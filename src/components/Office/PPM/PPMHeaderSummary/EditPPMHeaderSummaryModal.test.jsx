@@ -55,7 +55,7 @@ describe('EditPPMHeaderSummaryModal', () => {
     },
   };
 
-  it('renders the component', async () => {
+  it('renders the component and asterisks for required fields', async () => {
     await act(async () => {
       render(
         <EditPPMHeaderSummaryModal
@@ -68,8 +68,10 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Actual move start date')).toBeInTheDocument();
+    expect(screen.getByLabelText('Actual move start date *')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
@@ -207,7 +209,7 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
   });
 
-  it('renders allowable weight', async () => {
+  it('renders allowable weight and asterisks for required fields', async () => {
     await act(async () => {
       render(
         <EditPPMHeaderSummaryModal
@@ -220,8 +222,10 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
-    expect(screen.getByText('Allowable Weight')).toBeInTheDocument();
+    expect(screen.getByLabelText('Allowable Weight *')).toBeInTheDocument();
     expect(screen.getByTestId('editAllowableWeightInput')).toHaveValue('1,750');
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
@@ -294,7 +298,7 @@ describe('EditPPMHeaderSummaryModal', () => {
     });
   });
 
-  it('displays required validation error when actual move date is empty', async () => {
+  it('displays required validation error when actual move date is empty and asterisks for required fields', async () => {
     await act(async () => {
       render(
         <EditPPMHeaderSummaryModal
@@ -307,8 +311,10 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     await act(async () => {
-      await userEvent.clear(await screen.getByLabelText('Actual move start date'));
+      await userEvent.clear(await screen.getByLabelText('Actual move start date *'));
       await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
 
@@ -316,7 +322,7 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
   });
 
-  it('displays required validation error when advance amount received is empty', async () => {
+  it('displays required validation error when advance amount received is empty and asterisks for required fields', async () => {
     await act(async () => {
       render(
         <EditPPMHeaderSummaryModal
@@ -329,8 +335,10 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     await act(async () => {
-      await userEvent.clear(await screen.getByLabelText('Advance received'));
+      await userEvent.clear(await screen.getByLabelText('Advance received *'));
       await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
 
@@ -338,7 +346,7 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
   });
 
-  it('displays required validation error when allowable weight is empty', async () => {
+  it('displays required validation error when allowable weight is empty and asterisks for required fields', async () => {
     await act(async () => {
       render(
         <EditPPMHeaderSummaryModal
@@ -351,8 +359,10 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     await act(async () => {
-      await userEvent.clear(await screen.getByLabelText('Allowable Weight'));
+      await userEvent.clear(await screen.getByLabelText('Allowable Weight *'));
     });
 
     expect(await screen.findByText('Required')).toBeInTheDocument();

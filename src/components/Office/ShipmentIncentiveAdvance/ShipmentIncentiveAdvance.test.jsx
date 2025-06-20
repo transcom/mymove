@@ -29,7 +29,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     expect(screen.queryByLabelText('Approve')).not.toBeInTheDocument();
   });
 
-  it('should respond to user radio button input', async () => {
+  it('should respond to user radio button input and render asterisks for required fields', async () => {
     render(
       <Formik initialValues={{ advanceRequested: 'true' }}>
         <ShipmentIncentiveAdvance />
@@ -39,7 +39,9 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     await userEvent.click(screen.getByLabelText('Yes'));
 
     await waitFor(() => {
-      expect(screen.queryByLabelText('Amount requested')).toBeInTheDocument();
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.queryByLabelText('Amount requested *')).toBeInTheDocument();
       expect(screen.queryByText('Advance request status:')).toBeInTheDocument();
       expect(screen.queryByText('Maximum advance: $0')).toBeInTheDocument();
       expect(screen.queryByText('Review the advance (AOA) request:')).toBeInTheDocument();
@@ -67,7 +69,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     );
 
     expect(screen.getByLabelText('Yes')).toBeChecked();
-    expect(await screen.findByLabelText('Amount requested')).toHaveValue('7,000');
+    expect(await screen.findByLabelText('Amount requested *')).toHaveValue('7,000');
     expect(
       screen.getByText(
         'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',

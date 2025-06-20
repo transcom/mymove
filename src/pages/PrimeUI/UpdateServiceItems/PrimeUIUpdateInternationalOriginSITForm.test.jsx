@@ -18,6 +18,7 @@ const originSitInitialValues = {
 const serviceItem = {
   reServiceCode: 'IOPSIT',
   reServiceName: 'International origin SIT pickup',
+  status: 'REJECTED',
 };
 
 // Mock the react-router-dom functions
@@ -80,5 +81,18 @@ describe('PrimeUIRequestInternationalSITDestAddressChangeForm', () => {
     await userEvent.click(cancelButton);
 
     expect(mockNavigate).toHaveBeenCalledWith(primeSimulatorRoutes.VIEW_MOVE_PATH);
+  });
+
+  it('renders asterisks for required fields', async () => {
+    renderWithProviders(
+      <PrimeUIUpdateOriginSITForm
+        initialValues={originSitInitialValues}
+        serviceItem={serviceItem}
+        onSubmit={jest.fn()}
+      />,
+    );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+    expect(await screen.findByLabelText('Update Reason *')).toBeInTheDocument();
   });
 });

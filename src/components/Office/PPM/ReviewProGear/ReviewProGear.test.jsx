@@ -54,7 +54,7 @@ const rejectedProps = {
 
 describe('ReviewProGear component', () => {
   describe('displays form', () => {
-    it('renders blank form on load with defaults', async () => {
+    it('renders blank form on load with defaults and asterisks for required fields', async () => {
       render(
         <MockProviders>
           <ReviewProGear {...defaultProps} />;
@@ -64,6 +64,7 @@ describe('ReviewProGear component', () => {
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 3, name: 'Pro-gear 1' })).toBeInTheDocument();
       });
+
       expect(screen.getByText('Belongs to')).toBeInTheDocument();
       expect(screen.getByLabelText('Customer')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Spouse')).toBeInstanceOf(HTMLInputElement);
@@ -74,7 +75,7 @@ describe('ReviewProGear component', () => {
       expect(screen.getByLabelText('Weight tickets')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Constructed weight')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByLabelText('Constructed pro-gear weight')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Constructed pro-gear weight *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByRole('heading', { level: 3, name: 'Review pro-gear 1' })).toBeInTheDocument();
       expect(screen.getByText('Add a review for this pro-gear')).toBeInTheDocument();
@@ -104,7 +105,7 @@ describe('ReviewProGear component', () => {
       );
       await waitFor(() => {
         expect(screen.getByLabelText('Constructed weight')).toBeChecked();
-        expect(screen.getByText('Constructed pro-gear weight')).toBeInTheDocument();
+        expect(screen.getByLabelText('Constructed pro-gear weight *')).toBeInTheDocument();
       });
     });
 
@@ -115,7 +116,7 @@ describe('ReviewProGear component', () => {
         </MockProviders>,
       );
       await waitFor(() => {
-        expect(screen.getByLabelText('Reason')).toHaveDisplayValue('Rejection reason');
+        expect(screen.getByLabelText('Reason *')).toHaveDisplayValue('Rejection reason');
       });
       expect(screen.getByText('484 characters')).toBeInTheDocument();
     });
@@ -130,9 +131,9 @@ describe('ReviewProGear component', () => {
         expect(screen.getByLabelText('Reject')).toBeInstanceOf(HTMLInputElement);
       });
       await fireEvent.click(screen.getByLabelText('Reject'));
-      expect(screen.getByLabelText('Reason')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByLabelText('Reason *')).toBeInstanceOf(HTMLTextAreaElement);
       await fireEvent.click(screen.getByLabelText('Accept'));
-      expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Reason *')).not.toBeInTheDocument();
     });
   });
 
@@ -157,7 +158,7 @@ describe('ReviewProGear component', () => {
       expect(screen.getByLabelText('Weight tickets')).toBeDisabled();
       expect(screen.getByLabelText('Constructed weight')).toBeDisabled();
 
-      expect(screen.getByLabelText('Constructed pro-gear weight')).toBeDisabled();
+      expect(screen.getByLabelText('Constructed pro-gear weight *')).toBeDisabled();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Review pro-gear 1' })).toBeInTheDocument();
       expect(screen.getByText('Add a review for this pro-gear')).toBeInTheDocument();
@@ -200,7 +201,7 @@ describe('ReviewProGear component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Reject')).toBeDisabled();
       });
-      expect(screen.getByLabelText('Reason')).toBeDisabled();
+      expect(screen.getByLabelText('Reason *')).toBeDisabled();
     });
   });
 });

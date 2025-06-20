@@ -214,8 +214,8 @@ describe('AddShipment component', () => {
       const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
       await act(async () => {
         await user.click(screen.getByLabelText('Use pickup address'));
-        await userEvent.type(screen.getByLabelText('Requested pickup date'), tomorrow);
-        await userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
+        await userEvent.type(screen.getByLabelText('Requested pickup date *'), tomorrow);
+        await userEvent.type(screen.getByLabelText('Requested delivery date *'), '08 Nov 2020');
       });
 
       await waitFor(() => {

@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { func } from 'prop-types';
-import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
+import { ErrorMessage, Fieldset } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
 
-import RequiredAsterisk from '../RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from '../RequiredAsterisk';
 
 import styles from './OfficeAccountRequestFields.module.scss';
 
@@ -94,6 +94,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
     <Fieldset>
       {render(
         <>
+          {requiredAsteriskMessage}
           <TextField
             label="First Name"
             name={firstNameFieldName}
@@ -107,7 +108,6 @@ export const OfficeAccountRequestFields = ({ render }) => {
             name={middleInitialFieldName}
             id="officeAccountRequestMiddleInitial"
             data-testid="officeAccountRequestMiddleInitial"
-            labelHint="optional"
           />
           <TextField
             label="Last Name"
@@ -149,6 +149,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             <div className={styles.inputContainer}>
               <TextField
                 label="DODID#"
+                aria-label="D O D I D # is required if not using other unique identifier"
                 labelHint="10 digit number"
                 name={edipiFieldName}
                 id="officeAccountRequestEdipi"
@@ -160,6 +161,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             <div className={styles.inputContainer}>
               <TextField
                 label="Confirm DODID#"
+                aria-label="Confirm D O D I D # is required if D O D I D # is being used"
                 name="edipiConfirmation"
                 id="edipiConfirmation"
                 data-testid="edipiConfirmation"
@@ -174,6 +176,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
               <TextField
                 label="Other Unique ID"
                 labelHint="If not using DODID#"
+                aria-label="Other Unique ID is required if not using D O D I D #"
                 name={otherUniqueIdName}
                 id="officeAccountRequestOtherUniqueId"
                 data-testid="officeAccountRequestOtherUniqueId"
@@ -183,6 +186,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
               <TextField
                 label="Confirm Other Unique ID"
                 name="otherUniqueIdConfirmation"
+                aria-label="Confirm Other Unique ID is required if using Other Unique ID"
                 id="otherUniqueIdConfirmation"
                 data-testid="otherUniqueIdConfirmation"
                 disablePaste
@@ -198,107 +202,113 @@ export const OfficeAccountRequestFields = ({ render }) => {
             showRequiredAsterisk
             required
           />
-          <Label data-testid="requestedRolesHeading">
-            Requested Role(s)
-            <RequiredAsterisk />
-          </Label>
-          {errors.requestedRolesGroup && touched.requestedRolesGroup && (
-            <ErrorMessage
-              id="requestedRolesGroupError"
-              className={styles.errorText}
-              data-testid="requestedRolesGroupError"
-            >
-              {errors.requestedRolesGroup}
-            </ErrorMessage>
-          )}
-          <CheckboxField
-            id="headquartersCheckBox"
-            data-testid="headquartersCheckBox"
-            name="headquartersCheckBox"
-            label="Headquarters"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          {errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict && (
-            <ErrorMessage
-              id="transportationOfficerRoleConflictError"
-              className={styles.errorText}
-              data-testid="transportationOfficerRoleConflictError"
-            >
-              {errors.transportationOfficerRoleConflict}
-            </ErrorMessage>
-          )}
-          <CheckboxField
-            id="taskOrderingOfficerCheckBox"
-            data-testid="taskOrderingOfficerCheckBox"
-            name="taskOrderingOfficerCheckBox"
-            label="Task Ordering Officer"
-            aria-describedby={[
-              errors.requestedRolesGroup && touched.requestedRolesGroup ? 'requestedRolesGroupError' : null,
-              errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict
-                ? 'transportationOfficerRoleConflictError'
-                : null,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            aria-invalid={!!errors.requestedRolesGroup || !!errors.transportationOfficerRoleConflict}
-          />
-          <CheckboxField
-            id="taskInvoicingOfficerCheckBox"
-            data-testid="taskInvoicingOfficerCheckBox"
-            name="taskInvoicingOfficerCheckBox"
-            label="Task Invoicing Officer"
-            aria-describedby={[
-              errors.requestedRolesGroup && touched.requestedRolesGroup ? 'requestedRolesGroupError' : null,
-              errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict
-                ? 'transportationOfficerRoleConflictError'
-                : null,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            aria-invalid={!!errors.requestedRolesGroup || !!errors.transportationOfficerRoleConflict}
-          />
+          <div className="margin-top-2">
+            <fieldset>
+              <legend className="usa-label" aria-label="At least one requested role is required.">
+                <span data-testid="requestedRolesHeadingSpan">
+                  Requested Role(s) <RequiredAsterisk />
+                </span>
+              </legend>
 
-          <CheckboxField
-            id="transportationContractingOfficerCheckBox"
-            data-testid="transportationContractingOfficerCheckBox"
-            name="transportationContractingOfficerCheckBox"
-            label="Contracting Officer"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          <CheckboxField
-            id="servicesCounselorCheckBox"
-            data-testid="servicesCounselorCheckBox"
-            name="servicesCounselorCheckBox"
-            label="Services Counselor"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          <CheckboxField
-            id="qualityAssuranceEvaluatorCheckBox"
-            data-testid="qualityAssuranceEvaluatorCheckBox"
-            name="qualityAssuranceEvaluatorCheckBox"
-            label="Quality Assurance Evaluator"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          <CheckboxField
-            id="customerSupportRepresentativeCheckBox"
-            data-testid="customerSupportRepresentativeCheckBox"
-            name="customerSupportRepresentativeCheckBox"
-            label="Customer Support Representative"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
-          <CheckboxField
-            id="governmentSurveillanceRepresentativeCheckbox"
-            data-testid="governmentSurveillanceRepresentativeCheckbox"
-            name="governmentSurveillanceRepresentativeCheckbox"
-            label="Government Surveillance Representative"
-            aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
-            aria-invalid={!!errors.requestedRolesGroup}
-          />
+              {errors.requestedRolesGroup && touched.requestedRolesGroup && (
+                <ErrorMessage
+                  id="requestedRolesGroupError"
+                  className={styles.errorText}
+                  data-testid="requestedRolesGroupError"
+                >
+                  {errors.requestedRolesGroup}
+                </ErrorMessage>
+              )}
+              <CheckboxField
+                id="headquartersCheckBox"
+                data-testid="headquartersCheckBox"
+                name="headquartersCheckBox"
+                label="Headquarters"
+                aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
+                aria-invalid={!!errors.requestedRolesGroup}
+              />
+              {errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict && (
+                <ErrorMessage
+                  id="transportationOfficerRoleConflictError"
+                  className={styles.errorText}
+                  data-testid="transportationOfficerRoleConflictError"
+                >
+                  {errors.transportationOfficerRoleConflict}
+                </ErrorMessage>
+              )}
+              <CheckboxField
+                id="taskOrderingOfficerCheckBox"
+                data-testid="taskOrderingOfficerCheckBox"
+                name="taskOrderingOfficerCheckBox"
+                label="Task Ordering Officer"
+                aria-describedby={[
+                  errors.requestedRolesGroup && touched.requestedRolesGroup ? 'requestedRolesGroupError' : null,
+                  errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict
+                    ? 'transportationOfficerRoleConflictError'
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                aria-invalid={!!errors.requestedRolesGroup || !!errors.transportationOfficerRoleConflict}
+              />
+              <CheckboxField
+                id="taskInvoicingOfficerCheckBox"
+                data-testid="taskInvoicingOfficerCheckBox"
+                name="taskInvoicingOfficerCheckBox"
+                label="Task Invoicing Officer"
+                aria-describedby={[
+                  errors.requestedRolesGroup && touched.requestedRolesGroup ? 'requestedRolesGroupError' : null,
+                  errors.transportationOfficerRoleConflict && touched.transportationOfficerRoleConflict
+                    ? 'transportationOfficerRoleConflictError'
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                aria-invalid={!!errors.requestedRolesGroup || !!errors.transportationOfficerRoleConflict}
+              />
+
+              <CheckboxField
+                id="transportationContractingOfficerCheckBox"
+                data-testid="transportationContractingOfficerCheckBox"
+                name="transportationContractingOfficerCheckBox"
+                label="Contracting Officer"
+                aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
+                aria-invalid={!!errors.requestedRolesGroup}
+              />
+              <CheckboxField
+                id="servicesCounselorCheckBox"
+                data-testid="servicesCounselorCheckBox"
+                name="servicesCounselorCheckBox"
+                label="Services Counselor"
+                aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
+                aria-invalid={!!errors.requestedRolesGroup}
+              />
+              <CheckboxField
+                id="qualityAssuranceEvaluatorCheckBox"
+                data-testid="qualityAssuranceEvaluatorCheckBox"
+                name="qualityAssuranceEvaluatorCheckBox"
+                label="Quality Assurance Evaluator"
+                aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
+                aria-invalid={!!errors.requestedRolesGroup}
+              />
+              <CheckboxField
+                id="customerSupportRepresentativeCheckBox"
+                data-testid="customerSupportRepresentativeCheckBox"
+                name="customerSupportRepresentativeCheckBox"
+                label="Customer Support Representative"
+                aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
+                aria-invalid={!!errors.requestedRolesGroup}
+              />
+              <CheckboxField
+                id="governmentSurveillanceRepresentativeCheckbox"
+                data-testid="governmentSurveillanceRepresentativeCheckbox"
+                name="governmentSurveillanceRepresentativeCheckbox"
+                label="Government Surveillance Representative"
+                aria-describedby={errors.requestedRolesGroup ? 'requestedRolesGroupError' : undefined}
+                aria-invalid={!!errors.requestedRolesGroup}
+              />
+            </fieldset>
+          </div>
         </>,
       )}
     </Fieldset>

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Label, Radio } from '@trussworks/react-uswds';
+import { Radio } from '@trussworks/react-uswds';
 import { Field, useFormikContext } from 'formik';
-
-import styles from './SmallPackageForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const SmallPackageForm = () => {
   const { values } = useFormikContext();
@@ -35,13 +34,17 @@ const SmallPackageForm = () => {
         thousandsSeparator=","
         lazy={false}
         prefix="$"
+        showRequiredAsterisk
+        required
       />
       <Hint>
         Note: Any carrier insurance purchased is not a reimbursable expense. Do not add carrier insurance to the total
         above.
       </Hint>
-      <TextField label="Tracking number" name="trackingNumber" id="trackingNumber" />
-      <Label className={styles.labelWithAsterisk}>Was this pro-gear?</Label>
+      <TextField label="Tracking number" name="trackingNumber" id="trackingNumber" showRequiredAsterisk required />
+      <legend className="usa-label" aria-label="Was this pro-gear?">
+        <span>Was this pro-gear?</span>
+      </legend>
       <div>
         <Field
           as={Radio}
@@ -50,6 +53,8 @@ const SmallPackageForm = () => {
           name="isProGear"
           value="true"
           checked={values.isProGear === 'true'}
+          showRequiredAsterisk
+          required
         />
         <Field
           as={Radio}
@@ -62,7 +67,11 @@ const SmallPackageForm = () => {
       </div>
       {showProGear ? (
         <>
-          <Label>Who does this pro-gear belong to?</Label>
+          <legend className="usa-label" aria-label="Required: Who does this pro-gear belong to?">
+            <span required>
+              Who does this pro-gear belong to? <RequiredAsterisk />
+            </span>
+          </legend>
           <div>
             <Field
               as={Radio}
@@ -81,7 +90,13 @@ const SmallPackageForm = () => {
               checked={values.proGearBelongsToSelf === 'false'}
             />
           </div>
-          <TextField label="Brief description of the pro-gear" name="proGearDescription" id="proGearDescription" />
+          <TextField
+            label="Brief description of the pro-gear"
+            name="proGearDescription"
+            id="proGearDescription"
+            showRequiredAsterisk
+            required
+          />
           <MaskedTextField
             name="weightShipped"
             label="Package weight"
@@ -92,6 +107,8 @@ const SmallPackageForm = () => {
             thousandsSeparator=","
             lazy={false}
             suffix="lbs"
+            showRequiredAsterisk
+            required
           />
         </>
       ) : (
@@ -105,6 +122,8 @@ const SmallPackageForm = () => {
           thousandsSeparator=","
           lazy={false}
           suffix="lbs"
+          showRequiredAsterisk
+          required
         />
       )}
     </>

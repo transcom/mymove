@@ -7,7 +7,6 @@ import { FormGroup, Label, TextInput, Textarea, ErrorMessage } from '@trussworks
 
 import styles from './TextField.module.scss';
 
-import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
 import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
@@ -129,7 +128,7 @@ const TextField = ({
             {label} {showRequiredAsterisk && <RequiredAsterisk />}
           </span>
         </Label>
-        {optional && <OptionalTag />}
+        {optional}
       </div>
 
       {showError && (

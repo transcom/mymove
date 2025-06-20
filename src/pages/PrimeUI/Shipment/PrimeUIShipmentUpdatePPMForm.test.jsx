@@ -173,17 +173,19 @@ function renderShipmentUpdatePPMForm(props) {
 }
 
 describe('PrimeUIShipmentUpdatePPMForm', () => {
-  it('renders the form', async () => {
+  it('renders the form and asterisks for required fields', async () => {
     renderShipmentUpdatePPMForm();
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(await screen.findByText('Dates')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Expected Departure Date')).toHaveValue(
+    expect(await screen.findByLabelText('Expected Departure Date *')).toHaveValue(
       formatCustomerDate(initialValues.ppmShipment.expectedDepartureDate),
     );
 
     expect(await screen.findByText('Origin Info')).toBeInTheDocument();
 
-    expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
       initialValues.ppmShipment.pickupAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
@@ -206,7 +208,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
       ),
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
       initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
@@ -229,7 +231,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
       ),
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
       initialValues.ppmShipment.tertiaryPickupAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -333,8 +335,8 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
 
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
     expect(await screen.findByLabelText('SIT Expected')).toBeChecked();
-    expect(await screen.findByLabelText('SIT Location')).toHaveValue(initialValues.ppmShipment.sitLocation);
-    expect(await screen.findByLabelText('SIT Estimated Weight (lbs)')).toHaveValue(
+    expect(await screen.findByLabelText('SIT Location *')).toHaveValue(initialValues.ppmShipment.sitLocation);
+    expect(await screen.findByLabelText('SIT Estimated Weight (lbs) *')).toHaveValue(
       initialValues.ppmShipment.sitEstimatedWeight,
     );
     expect(await screen.findByLabelText('SIT Estimated Entry Date')).toHaveValue(
@@ -345,7 +347,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     );
 
     expect(await screen.findByText('Weights')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Estimated Weight (lbs)')).toHaveValue(
+    expect(await screen.findByLabelText('Estimated Weight (lbs) *')).toHaveValue(
       initialValues.ppmShipment.estimatedWeight,
     );
     expect(await screen.findByLabelText('Has Pro Gear')).toBeChecked();

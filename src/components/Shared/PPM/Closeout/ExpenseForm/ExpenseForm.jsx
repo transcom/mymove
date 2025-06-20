@@ -27,6 +27,7 @@ import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZone
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { PPM_TYPES } from 'shared/constants';
 import { APP_NAME } from 'constants/apps';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
@@ -173,6 +174,7 @@ const ExpenseForm = ({
                       one package carrier receipt to get paid for your Small Package Reimbursement PPM.
                     </Hint>
                   )}
+                  {requiredAsteriskMessage}
                   <FormGroup className={styles.dropdown}>
                     <DropdownInput
                       label="Select type"
@@ -180,6 +182,8 @@ const ExpenseForm = ({
                       options={availableExpenseTypes}
                       id="expenseType"
                       isDisabled={ppmType === PPM_TYPES.SMALL_PACKAGE}
+                      showRequiredAsterisk
+                      required
                     />
                   </FormGroup>
                   {values.expenseType && (
@@ -188,13 +192,23 @@ const ExpenseForm = ({
                         {values.expenseType !== expenseTypes.SMALL_PACKAGE && (
                           <>
                             <h3>Description</h3>
-                            <TextField label="What did you buy or rent?" id="description" name="description" />
+                            <TextField
+                              label="What did you buy or rent?"
+                              id="description"
+                              name="description"
+                              showRequiredAsterisk
+                              required
+                            />
                             <Hint>Add a brief description of the expense.</Hint>
                           </>
                         )}
                         {values.expenseType === expenseTypes.STORAGE && (
                           <FormGroup>
-                            <legend className="usa-label">Where did you store your items?</legend>
+                            <legend className="usa-label" aria-label="Required: Where did you store your items?">
+                              <span required>
+                                Where did you store your items? <RequiredAsterisk />
+                              </span>
+                            </legend>
                             <Field
                               as={Radio}
                               id="sitLocationOrigin"
@@ -221,6 +235,8 @@ const ExpenseForm = ({
                               signed={false} // disallow negative
                               thousandsSeparator=","
                               lazy={false} // immediate masking evaluation
+                              showRequiredAsterisk
+                              required
                             >
                               {'  '} lbs
                             </MaskedTextField>
@@ -229,8 +245,11 @@ const ExpenseForm = ({
                         )}
 
                         <Fieldset>
-                          <legend className="usa-label">
-                            Did you pay with your GTCC (Government Travel Charge Card)?
+                          <legend
+                            className="usa-label"
+                            aria-label="Did you pay with your GTCC (Government Travel Charge Card)?"
+                          >
+                            <span>Did you pay with your GTCC (Government Travel Charge Card)?</span>
                           </legend>
                           <Field
                             as={Radio}
@@ -239,6 +258,8 @@ const ExpenseForm = ({
                             name="paidWithGTCC"
                             value="true"
                             checked={values.paidWithGTCC === 'true'}
+                            showRequiredAsterisk
+                            required
                           />
                           <Field
                             as={Radio}
@@ -268,6 +289,8 @@ const ExpenseForm = ({
                               lazy={false} // immediate masking evaluation
                               prefix="$"
                               hintClassName={ppmStyles.innerHint}
+                              showRequiredAsterisk
+                              required
                             />
                             <Hint>
                               Enter the total unit price for all items on the receipt that you&apos;re claiming as part
@@ -297,7 +320,9 @@ const ExpenseForm = ({
                             error={formikProps.touched?.document && formikProps.errors?.document}
                             htmlFor="document"
                           >
-                            Upload receipt
+                            <span>
+                              Upload receipt <RequiredAsterisk />
+                            </span>
                           </Label>
                         </div>
                         {formikProps.touched?.document && formikProps.errors?.document && (
@@ -331,8 +356,8 @@ const ExpenseForm = ({
                   {values.expenseType === 'STORAGE' && (
                     <FormGroup>
                       <h3>Dates</h3>
-                      <DatePickerInput name="sitStartDate" label="Start date" />
-                      <DatePickerInput name="sitEndDate" label="End date" />
+                      <DatePickerInput name="sitStartDate" label="Start date" showRequiredAsterisk required />
+                      <DatePickerInput name="sitEndDate" label="End date" showRequiredAsterisk required />
                       <h3 className={styles.storageTotal}>
                         Days in storage:{' '}
                         {values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate

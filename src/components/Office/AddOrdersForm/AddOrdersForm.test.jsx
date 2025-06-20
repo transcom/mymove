@@ -144,7 +144,7 @@ const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
 const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
 
 describe('CreateMoveCustomerInfo Component', () => {
-  it('renders the form inputs', async () => {
+  it('renders the form inputs and asterisks for required fields', async () => {
     render(
       <Provider store={mockStore.store}>
         <AddOrdersForm {...testProps} />
@@ -166,6 +166,8 @@ describe('CreateMoveCustomerInfo Component', () => {
       expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
 
       // check for asterisks on required fields
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       const formGroups = screen.getAllByTestId('formGroup');
 
       formGroups.forEach((group) => {

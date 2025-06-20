@@ -185,7 +185,6 @@ export default function ReviewDocumentsSidePanel({
                           </span>
                           <span>
                             <dt>Pro-gear Weight:</dt>
-                            {/* TODO: proGearWeight shows empty for some reason? */}
                             <dl>{gear.weight} lbs</dl>
                           </span>
                         </dl>

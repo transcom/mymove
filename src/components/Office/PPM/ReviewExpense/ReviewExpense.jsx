@@ -36,6 +36,7 @@ import { LOCATION_TYPES } from 'types/sitStatusShape';
 import SitCost from 'components/Office/PPM/SitCost/SitCost';
 import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
 import SmallPackageForm from 'components/Shared/PPM/Closeout/SmallPackageForm/SmallPackageForm';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -393,6 +394,7 @@ export default function ReviewExpense({
               <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
                 <hr />
                 <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
+                {requiredAsteriskMessage}
                 <div className="labelWrapper">
                   <Label htmlFor="movingExpenseType">Expense Type</Label>
                 </div>
@@ -420,6 +422,8 @@ export default function ReviewExpense({
                     name="description"
                     label="Description"
                     id="description"
+                    showRequiredAsterisk
+                    required
                     className={styles.displayValue}
                     disabled={readOnly}
                     onBlur={(e) => {
@@ -477,6 +481,8 @@ export default function ReviewExpense({
                     name="amount"
                     label="Amount Requested"
                     id="amount"
+                    showRequiredAsterisk
+                    required
                     mask={Number}
                     scale={2} // digits after point, 0 for integers
                     radix="." // fractional delimiter
@@ -507,6 +513,8 @@ export default function ReviewExpense({
                       name="weightStored"
                       label="Weight Stored"
                       id="weightStored"
+                      showRequiredAsterisk
+                      required
                       mask={Number}
                       scale={0} // digits after point, 0 for integers
                       signed={false} // disallow negative
@@ -525,6 +533,7 @@ export default function ReviewExpense({
                     <DatePickerInput
                       name="sitStartDate"
                       label="Start date"
+                      showRequiredAsterisk
                       required
                       disabled={readOnly}
                       onChange={(value) => {
@@ -534,6 +543,7 @@ export default function ReviewExpense({
                     <DatePickerInput
                       name="sitEndDate"
                       label="End date"
+                      showRequiredAsterisk
                       required
                       disabled={readOnly}
                       onChange={(value) => {
@@ -549,7 +559,9 @@ export default function ReviewExpense({
                 <h3 className={styles.reviewHeader}>{`Review ${allCase(
                   selectedExpenseType,
                 )} #${currentCategoryIndex}`}</h3>
-                <p>Add a review for this {allCase(selectedExpenseType)}</p>
+                <p>
+                  <RequiredAsterisk /> Add a review for this {allCase(selectedExpenseType)}
+                </p>
                 <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
                 <Fieldset className={styles.statusOptions}>
                   <div
@@ -585,7 +597,11 @@ export default function ReviewExpense({
                     />
                     {values.status === ppmDocumentStatus.EXCLUDED && (
                       <FormGroup className={styles.reason}>
-                        <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>
+                        <Label htmlFor={`excludeReason-${expense?.id}`}>
+                          <span required>
+                            Reason <RequiredAsterisk />
+                          </span>
+                        </Label>
                         <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
                         <Textarea
                           id={`excludeReason-${expense?.id}`}
@@ -594,6 +610,7 @@ export default function ReviewExpense({
                           value={values.reason}
                           placeholder="Type something"
                           disabled={readOnly}
+                          required
                         />
                         <div className={styles.hint}>{500 - values.reason.length} characters</div>
                       </FormGroup>
@@ -617,7 +634,11 @@ export default function ReviewExpense({
 
                     {values.status === ppmDocumentStatus.REJECTED && (
                       <FormGroup className={styles.reason}>
-                        <Label htmlFor={`rejectReason-${expense?.id}`}>Reason</Label>
+                        <Label htmlFor={`rejectReason-${expense?.id}`}>
+                          <span required>
+                            Reason <RequiredAsterisk />
+                          </span>
+                        </Label>
                         <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
                         <Textarea
                           id={`rejectReason-${expense?.id}`}
@@ -626,6 +647,7 @@ export default function ReviewExpense({
                           value={values.reason}
                           placeholder="Type something"
                           disabled={readOnly}
+                          required
                         />
                         <div className={styles.hint}>{500 - values.reason.length} characters</div>
                       </FormGroup>

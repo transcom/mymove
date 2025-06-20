@@ -10,9 +10,13 @@ describe('components/Office/ServiceOrderNumberModal', () => {
     expect(screen.queryByRole('heading', { name: 'Edit service order number' })).not.toBeInTheDocument();
   });
 
-  it('defaults values from props', () => {
+  it('defaults values from props and asterisks for required fields', () => {
     render(<ServiceOrderNumberModal isOpen serviceOrderNumber="ABC123" />);
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(screen.getByRole('heading', { name: 'Edit service order number' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Service order number *')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveValue('ABC123');
   });
 

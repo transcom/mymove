@@ -65,6 +65,20 @@ const approvedMoveTaskOrder = {
 };
 
 describe('CreateSITExtensionRequestForm component', () => {
+  it('renders asterisks for required fields', () => {
+    const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
+    render(
+      <MockProviders>
+        <CreateSITExtensionRequestForm shipment={shipment} submission={jest.fn()} />
+      </MockProviders>,
+    );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+    expect(screen.getByText('Request Reason')).toHaveTextContent('*');
+    expect(screen.getByText('Requested Days')).toHaveTextContent('*');
+    expect(screen.getByText('Contractor Remarks')).toHaveTextContent('*');
+  });
   it('renders service item type dropdown', () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
     render(

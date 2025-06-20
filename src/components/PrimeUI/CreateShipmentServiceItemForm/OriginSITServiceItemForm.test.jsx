@@ -84,7 +84,7 @@ describe('OriginSITServiceItemForm component', () => {
     expect(field).toBeInTheDocument();
   });
 
-  it('renders the Create Service Item button', async () => {
+  it('renders the Create Service Item button and asterisks for required fields', async () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
     renderWithProviders(<OriginSITServiceItemForm shipment={shipment} submission={jest.fn()} />);
@@ -92,5 +92,9 @@ describe('OriginSITServiceItemForm component', () => {
     // Check if the button renders
     const createBtn = screen.getByRole('button', { name: 'Create service item' });
     expect(createBtn).toBeInTheDocument();
+
+    expect(screen.getByLabelText('Reason *')).toBeInTheDocument();
+    expect(screen.getByLabelText('SIT postal code *')).toBeInTheDocument();
+    expect(screen.getByLabelText('SIT entry Date *')).toBeInTheDocument();
   });
 });

@@ -254,9 +254,9 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 1');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    await userEvent.type(screen.getByLabelText('Vehicle description *'), 'DMC Delorean');
+    await userEvent.type(screen.getByLabelText('Empty weight *'), '4999');
+    await userEvent.type(screen.getByLabelText('Full weight *'), '6999');
     await userEvent.click(screen.getByLabelText('Yes'));
     await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
@@ -297,9 +297,9 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 5');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    await userEvent.type(screen.getByLabelText('Vehicle description *'), 'DMC Delorean');
+    await userEvent.type(screen.getByLabelText('Empty weight *'), '4999');
+    await userEvent.type(screen.getByLabelText('Full weight *'), '6999');
     await userEvent.click(screen.getByLabelText('Yes'));
     await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 

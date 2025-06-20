@@ -86,8 +86,11 @@ describe('ProGearForm component', () => {
     it('renders blank form on load with defaults - Customer page', () => {
       render(<ProGearForm {...defaultProps} appName={APP_NAME.MYMOVE} />, { wrapper: MockProviders });
 
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
-      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInTheDocument();
+
       expect(screen.getByLabelText('Me')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
 
@@ -95,11 +98,14 @@ describe('ProGearForm component', () => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
-    it('renders blank form on load with defaults - Office page', () => {
+    it('renders blank form on load with defaults and asterisks for required fields - Office page', () => {
       render(<ProGearForm {...defaultProps} appName={APP_NAME.OFFICE} />, { wrapper: MockProviders });
 
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
-      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInTheDocument();
+      expect(screen.getByText('Who does this pro-gear belong to?')).toHaveTextContent('*');
       expect(screen.getByLabelText('Me')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
 
@@ -206,13 +212,16 @@ describe('ProGearForm component', () => {
       expect(container).toHaveTextContent('Your maximum allowance is 987 lbs.');
     });
 
-    it("displays spouse's pro-gear maximum. - Office page", () => {
+    it("displays spouse's pro-gear maximum and asterisks for required fields - Office page", () => {
       const { container } = render(
         <ProGearForm {...defaultProps} {...spouseProGearProps} appName={APP_NAME.OFFICE} />,
         {
           wrapper: MockProviders,
         },
       );
+
+      expect(screen.getByLabelText('Brief description of the pro-gear *')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Shipment's pro-gear weight \*/)).toBeInTheDocument();
       expect(container).toHaveTextContent('Your maximum allowance is 8,000 lbs.');
     });
 

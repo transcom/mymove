@@ -24,6 +24,7 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { getWeightTicketNetWeight } from 'utils/shipmentWeights';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   emptyWeight: Yup.number().required('Enter the empty weight'),
@@ -252,6 +253,7 @@ function ReviewWeightTicket({
                 <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
                 <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
                 <div className={styles.displayValue}>{vehicleDescription}</div>
+                {requiredAsteriskMessage}
 
                 <MaskedTextField
                   defaultValue="0"
@@ -269,6 +271,8 @@ function ReviewWeightTicket({
                   suffix="lbs"
                   onBlur={handleWeightFieldsChange}
                   disabled={readOnly}
+                  showRequiredAsterisk
+                  required
                 />
 
                 <MaskedTextField
@@ -287,6 +291,8 @@ function ReviewWeightTicket({
                   suffix="lbs"
                   onBlur={handleWeightFieldsChange}
                   disabled={readOnly}
+                  showRequiredAsterisk
+                  required
                 />
 
                 <EditPPMNetWeight
@@ -324,7 +330,11 @@ function ReviewWeightTicket({
                 {values.ownsTrailer === 'true' && (
                   <FormGroup>
                     <Fieldset>
-                      <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
+                      <legend className="usa-label">
+                        <span required>
+                          {`Is the trailer's weight claimable?`} <RequiredAsterisk />
+                        </span>
+                      </legend>
                       <ErrorMessage display={!!errors?.trailerMeetsCriteria && !!touched?.trailerMeetsCriteria}>
                         {errors.trailerMeetsCriteria}
                       </ErrorMessage>
@@ -337,6 +347,7 @@ function ReviewWeightTicket({
                         checked={values.trailerMeetsCriteria === 'true'}
                         onChange={handleTrailerClaimableChange}
                         disabled={readOnly}
+                        required
                       />
                       <Field
                         as={Radio}
@@ -347,6 +358,7 @@ function ReviewWeightTicket({
                         checked={values.trailerMeetsCriteria === 'false'}
                         onChange={handleTrailerClaimableChange}
                         disabled={readOnly}
+                        required
                       />
                       {values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument && (
                         <Alert type="info">Proof of ownership is needed to accept this item.</Alert>
@@ -355,7 +367,9 @@ function ReviewWeightTicket({
                   </FormGroup>
                 )}
                 <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
-                <p>Add a review for this Weight Ticket</p>
+                <p>
+                  <RequiredAsterisk /> Add a review for this Weight Ticket
+                </p>
                 <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
                 <Fieldset className={styles.statusOptions}>
                   <div
@@ -374,6 +388,7 @@ function ReviewWeightTicket({
                       disabled={
                         (values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument) || readOnly
                       }
+                      required
                     />
                   </div>
                   <div
@@ -390,11 +405,16 @@ function ReviewWeightTicket({
                       onChange={handleApprovalChange}
                       data-testid="rejectRadio"
                       disabled={readOnly}
+                      required
                     />
 
                     {values.status === ppmDocumentStatus.REJECTED && (
                       <FormGroup className={styles.reason}>
-                        <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason</Label>
+                        <Label htmlFor={`rejectReason-${weightTicket?.id}`}>
+                          <span required>
+                            Reason <RequiredAsterisk />
+                          </span>
+                        </Label>
                         {!canEditRejection && (
                           <p data-testid="rejectionReasonReadOnly">{weightTicket?.reason || values.rejectionReason}</p>
                         )}
@@ -413,6 +433,7 @@ function ReviewWeightTicket({
                               value={values.rejectionReason}
                               placeholder="Type something"
                               disabled={readOnly}
+                              required={canEditRejection}
                             />
                             <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                           </>
