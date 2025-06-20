@@ -117,9 +117,10 @@ func BackupContact(backupContact *models.BackupContact) *primev2messages.BackupC
 		return nil
 	}
 	payload := primev2messages.BackupContact{
-		Name:  backupContact.Name,
-		Email: backupContact.Email,
-		Phone: backupContact.Phone,
+		FirstName: backupContact.FirstName,
+		LastName:  backupContact.LastName,
+		Email:     backupContact.Email,
+		Phone:     backupContact.Phone,
 	}
 
 	return &payload
