@@ -1,6 +1,7 @@
 package ppmshipment
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"strconv"
@@ -8,16 +9,19 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/entitlements"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -183,6 +187,25 @@ func shouldSkipMaxIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *
 }
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
+	// check if GCC multipliers have changed or do not match
+	if newPPMShipment.GCCMultiplierID != nil && oldPPMShipment.GCCMultiplierID != nil && *newPPMShipment.GCCMultiplierID != *oldPPMShipment.GCCMultiplierID {
+		return false
+	}
+
+	// handle mismatches including nil and uuid.Nil
+	newMultiplier := uuid.Nil
+	if newPPMShipment.GCCMultiplierID != nil {
+		newMultiplier = *newPPMShipment.GCCMultiplierID
+	}
+
+	oldMultiplier := uuid.Nil
+	if oldPPMShipment.GCCMultiplierID != nil {
+		oldMultiplier = *oldPPMShipment.GCCMultiplierID
+	}
+
+	if newMultiplier != oldMultiplier {
+		return false
+	}
 	// If oldPPMShipment field value is nil we know that the value has been updated and we should return false - the adjusted net weight is accounted for in the
 	// SumWeights function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
 	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
@@ -357,6 +380,40 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		return nil, apperror.NewNotFoundError(newPPMShipment.ID, " DB authorized weight cannot be nil")
 	}
 
+	// max incentive should use the total of all of these weights
+	dbAuthorizedWeight := 0
+	proGearWeight := 0
+	proGearWeightSpouse := 0
+	gunSafe := 0
+
+	// this has already been nil checked above
+	dbAuthorizedWeight = *orders.Entitlement.DBAuthorizedWeight
+	proGearWeight = orders.Entitlement.ProGearWeight
+	// if dependents are authorized we can add the spouse pro gear
+	if orders.Entitlement.DependentsAuthorized != nil || *orders.Entitlement.DependentsAuthorized {
+		proGearWeightSpouse = orders.Entitlement.ProGearWeightSpouse
+	}
+	isGunSafeFeatureOn := false
+	featureFlagName := "gun_safe"
+	config := cli.GetFliptFetcherConfig(viper.GetViper())
+	flagFetcher, err := featureflag.NewFeatureFlagFetcher(config)
+	if err != nil {
+		appCtx.Logger().Error("Error initializing FeatureFlagFetcher", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+	}
+
+	flag, err := flagFetcher.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagName, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+	} else {
+		isGunSafeFeatureOn = flag.Match
+	}
+	// if the gun safe FF is on, we add the gun safe weight to the calculation here
+	if isGunSafeFeatureOn {
+		gunSafe = orders.Entitlement.GunSafeWeight
+	}
+
+	totalWeight := dbAuthorizedWeight + proGearWeight + proGearWeightSpouse + gunSafe
+
 	contractDate := newPPMShipment.ExpectedDepartureDate
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
 	if err != nil {
@@ -372,7 +429,7 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		if !skipCalculatingMaxIncentive {
 			// since the max incentive is based off of the authorized weight entitlement and that value CAN change
 			// we will calculate the max incentive each time it is called
-			maxIncentive, err = f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
+			maxIncentive, err = f.calculatePrice(appCtx, newPPMShipment, unit.Pound(totalWeight), contract, true)
 			if err != nil {
 				return nil, err
 			}
@@ -383,7 +440,7 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		pickupAddress := orders.OriginDutyLocation.Address
 		destinationAddress := orders.NewDutyLocation.Address
 
-		maxIncentive, err := f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, pickupAddress, destinationAddress, contractDate, *orders.Entitlement.DBAuthorizedWeight, false, false, true)
+		maxIncentive, err := f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, pickupAddress, destinationAddress, contractDate, totalWeight, false, false, true)
 		if err != nil {
 			return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 		}
