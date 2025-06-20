@@ -24,8 +24,6 @@ const ppmInfo = {
     hasProGear: true,
     id: 'b6ec215c-2cef-45fe-8d4a-35f445cd4768',
     proGearWeight: 1987,
-    hasGunSafe: true,
-    gunSafeWeight: 499,
     reviewedAt: null,
     shipmentId: 'b5c2d9a1-d1e6-485d-9678-8b62deb0d801',
     spouseProGearWeight: 498,

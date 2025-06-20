@@ -11,7 +11,7 @@ describe('When a TOO updates shipping allowances', () => {
     eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'AIR_FORCE',
-      grade: 'E-2',
+      grade: 'E_2',
     },
   };
   it('correctly matches the update allowance event results in a change in service branch', () => {

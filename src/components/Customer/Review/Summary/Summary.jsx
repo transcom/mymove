@@ -21,7 +21,7 @@ import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipment
 import BoatShipmentCard from 'components/Customer/Review/ShipmentCard/BoatShipmentCard/BoatShipmentCard';
 import MobileHomeShipmentCard from 'components/Customer/Review/ShipmentCard/MobileHomeShipmentCard/MobileHomeShipmentCard';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
-import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
 import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -495,7 +495,7 @@ export class Summary extends Component {
             orderType={currentOrders.orders_type}
             reportByDate={currentOrders.report_by_date}
             uploads={currentOrders.uploaded_orders.uploads}
-            payGrade={currentOrders?.grade || ''}
+            payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
             rank={currentOrders?.rank}
             originDutyLocationName={currentOrders.origin_duty_location.name}
             orderId={currentOrders.id}

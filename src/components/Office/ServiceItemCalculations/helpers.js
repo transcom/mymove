@@ -61,20 +61,6 @@ const serviceAreaDest = (params) => {
   )}`;
 };
 
-const sitRateAreaOrigin = (params) => {
-  return `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITRateAreaOrigin]}: ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.SITRateAreaOrigin,
-    params,
-  )}`;
-};
-
-const sitRateAreaDest = (params) => {
-  return `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITRateAreaDest]}: ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.SITRateAreaDest,
-    params,
-  )}`;
-};
-
 const requestedPickupDateLabel = (shipmentType) => {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.NTSR:
@@ -268,7 +254,6 @@ const mileageZipSIT = (params, itemCode) => {
 
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DOSFSC:
-    case SERVICE_ITEM_CODES.IOSFSC:
       label = SERVICE_ITEM_CALCULATION_LABELS.MileageIntoSIT;
       distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
       detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
@@ -281,7 +266,6 @@ const mileageZipSIT = (params, itemCode) => {
       break;
 
     case SERVICE_ITEM_CODES.DDSFSC:
-    case SERVICE_ITEM_CODES.IDSFSC:
       label = SERVICE_ITEM_CALCULATION_LABELS.MileageOutOfSIT;
       distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest;
       detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
@@ -380,18 +364,6 @@ const ubPrice = (params, shipmentType) => {
   return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
 };
 
-const originInternationalPrice = (params, shipmentType) => {
-  const value = getPriceRateOrFactor(params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
-  return calculation(
-    value,
-    label,
-    formatDetail(sitRateAreaOrigin(params)),
-    formatDetail(referenceDate(params, shipmentType)),
-    formatDetail(peak(params)),
-  );
-};
-
 const shuttleOriginPriceDomestic = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
@@ -439,19 +411,6 @@ const destinationPrice = (params, shipmentType) => {
     value,
     label,
     formatDetail(serviceAreaDest(params)),
-    formatDetail(referenceDate(params, shipmentType)),
-    formatDetail(peak(params)),
-  );
-};
-
-const destinationInternationalPrice = (params, shipmentType) => {
-  const value = getPriceRateOrFactor(params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
-
-  return calculation(
-    value,
-    label,
-    formatDetail(sitRateAreaDest(params)),
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
   );
@@ -522,11 +481,9 @@ const mileageFactor = (params, itemCode) => {
   let distanceZip;
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DDSFSC:
-    case SERVICE_ITEM_CODES.IDSFSC:
       distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest;
       break;
     case SERVICE_ITEM_CODES.DOSFSC:
-    case SERVICE_ITEM_CODES.IOSFSC:
       distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
       break;
     default:
@@ -539,10 +496,7 @@ const mileageFactor = (params, itemCode) => {
     ),
   ).toFixed(3);
   const label =
-    itemCode === SERVICE_ITEM_CODES.DOSFSC ||
-    itemCode === SERVICE_ITEM_CODES.DDSFSC ||
-    itemCode === SERVICE_ITEM_CODES.IOSFSC ||
-    itemCode === SERVICE_ITEM_CODES.IDSFSC
+    itemCode === SERVICE_ITEM_CODES.DOSFSC || itemCode === SERVICE_ITEM_CODES.DDSFSC
       ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
       : SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
 
@@ -644,19 +598,6 @@ const additionalDayOriginSITPrice = (params, shipmentType) => {
   );
 };
 
-const additionalDayOriginInternationalSITPrice = (params, shipmentType) => {
-  const value = getPriceRateOrFactor(params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
-
-  return calculation(
-    value,
-    label,
-    formatDetail(sitRateAreaOrigin(params)),
-    formatDetail(referenceDate(params, shipmentType)),
-    formatDetail(peak(params)),
-  );
-};
-
 const additionalDayDestinationSITPrice = (params, shipmentType) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
@@ -665,19 +606,6 @@ const additionalDayDestinationSITPrice = (params, shipmentType) => {
     value,
     label,
     formatDetail(serviceAreaDest(params)),
-    formatDetail(referenceDate(params, shipmentType)),
-    formatDetail(peak(params)),
-  );
-};
-
-const additionalDayDestinationInternationalSITPrice = (params, shipmentType) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
-
-  return calculation(
-    value,
-    label,
-    formatDetail(sitRateAreaDest(params)),
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
   );
@@ -700,13 +628,6 @@ const sitDeliveryPrice = (params, shipmentType) => {
   );
 };
 
-const sitInternationalDeliveryPrice = (params, shipmentType) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
-
-  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
-};
-
 const sitDeliveryPriceShorthaulDifferentZIP3 = (params, shipmentType) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
@@ -719,19 +640,6 @@ const sitDeliveryPriceShorthaulDifferentZIP3 = (params, shipmentType) => {
     value,
     label,
     formatDetail(sitScheduleDestination),
-    formatDetail(referenceDate(params, shipmentType)),
-    formatDetail(peak(params)),
-    formatDetail('<=50 miles'),
-  );
-};
-
-const sitInternationalDeliveryPriceShorthaulDifferentZIP3 = (params, shipmentType) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
-
-  return calculation(
-    value,
-    label,
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
     formatDetail('<=50 miles'),
@@ -760,13 +668,6 @@ const pickupSITPrice = (params, shipmentType) => {
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
   );
-};
-
-const pickupInternationalSITPrice = (params, shipmentType) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.PickupSITPrice;
-
-  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
 };
 
 const cratingPrice = (params) => {
@@ -937,28 +838,6 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       }
       break;
     }
-    case SERVICE_ITEM_CODES.IDDSIT: {
-      const mileage = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
-      const startZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress, params)?.slice(0, 3);
-      const endZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress, params)?.slice(0, 3);
-      if (mileage <= LONGHAUL_MIN_DISTANCE && startZip !== endZip) {
-        result = [
-          billableWeight(params),
-          sitInternationalDeliveryPriceShorthaulDifferentZIP3(params, shipmentType),
-          priceEscalationFactor(params),
-          totalAmountRequested(totalAmount),
-        ];
-      } else {
-        result = [
-          billableWeight(params),
-          dddSITmileageZip5(params),
-          sitInternationalDeliveryPrice(params, shipmentType),
-          priceEscalationFactor(params),
-          totalAmountRequested(totalAmount),
-        ];
-      }
-      break;
-    }
     // Domestic longhaul
     case SERVICE_ITEM_CODES.DLH:
       result = [
@@ -987,26 +866,8 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
-    // International origin SIT fuel surcharge
-    case SERVICE_ITEM_CODES.IOSFSC:
-      result = [
-        billableWeight(params),
-        mileageZipSIT(params, itemCode),
-        mileageFactor(params, itemCode),
-        totalAmountRequested(totalAmount),
-      ];
-      break;
     // Domestic destination SIT fuel surcharge
     case SERVICE_ITEM_CODES.DDSFSC:
-      result = [
-        billableWeight(params),
-        mileageZipSIT(params, itemCode),
-        mileageFactor(params, itemCode),
-        totalAmountRequested(totalAmount),
-      ];
-      break;
-    // International destination SIT fuel surcharge
-    case SERVICE_ITEM_CODES.IDSFSC:
       result = [
         billableWeight(params),
         mileageZipSIT(params, itemCode),
@@ -1032,29 +893,11 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
-    // International origin 1st day SIT
-    case SERVICE_ITEM_CODES.IOFSIT:
-      result = [
-        billableWeight(params),
-        originInternationalPrice(params, shipmentType),
-        priceEscalationFactor(params),
-        totalAmountRequested(totalAmount),
-      ];
-      break;
     // Domestic destination 1st day SIT
     case SERVICE_ITEM_CODES.DDFSIT:
       result = [
         billableWeight(params),
         destinationPrice(params, shipmentType),
-        priceEscalationFactor(params),
-        totalAmountRequested(totalAmount),
-      ];
-      break;
-    // International destination 1st day SIT
-    case SERVICE_ITEM_CODES.IDFSIT:
-      result = [
-        billableWeight(params),
-        destinationInternationalPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -1107,32 +950,12 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
-    // International origin additional SIT
-    case SERVICE_ITEM_CODES.IOASIT:
-      result = [
-        billableWeight(params),
-        daysInSIT(params),
-        additionalDayOriginInternationalSITPrice(params, shipmentType),
-        priceEscalationFactor(params),
-        totalAmountRequested(totalAmount),
-      ];
-      break;
     // Domestic Origin SIT Pickup
     case SERVICE_ITEM_CODES.DOPSIT:
       result = [
         billableWeight(params),
         mileageZipSIT(params, itemCode),
         pickupSITPrice(params, shipmentType),
-        priceEscalationFactor(params),
-        totalAmountRequested(totalAmount),
-      ];
-      break;
-    // International Origin SIT Pickup
-    case SERVICE_ITEM_CODES.IOPSIT:
-      result = [
-        billableWeight(params),
-        mileageZipSIT(params, itemCode),
-        pickupInternationalSITPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -1161,16 +984,6 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         billableWeight(params),
         daysInSIT(params),
         additionalDayDestinationSITPrice(params, shipmentType),
-        priceEscalationFactor(params),
-        totalAmountRequested(totalAmount),
-      ];
-      break;
-    // International Destination Additional Days SIT
-    case SERVICE_ITEM_CODES.IDASIT:
-      result = [
-        billableWeight(params),
-        daysInSIT(params),
-        additionalDayDestinationInternationalSITPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];

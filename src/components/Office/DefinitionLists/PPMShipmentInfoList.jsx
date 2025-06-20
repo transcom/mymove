@@ -18,7 +18,7 @@ import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { getPPMTypeLabel, PPM_TYPES, FEATURE_FLAG_KEYS } from 'shared/constants';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
 
 const PPMShipmentInfoList = ({
   className,
@@ -50,7 +50,6 @@ const PPMShipmentInfoList = ({
     tertiaryPickupAddress,
     sitExpected,
     spouseProGearWeight,
-    gunSafeWeight,
   } = shipment.ppmShipment || {};
 
   const { closeoutOffice, agency } = shipment;
@@ -79,12 +78,9 @@ const PPMShipmentInfoList = ({
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, ppmShipmentInfo);
 
   const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
-  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
-
   useEffect(() => {
     const fetchData = async () => {
       setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
-      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
     };
     if (!isForEvaluationReport) fetchData();
   }, [isForEvaluationReport]);
@@ -213,14 +209,6 @@ const PPMShipmentInfoList = ({
     </div>
   );
 
-  const gunSafeWeightElementFlags = getDisplayFlags('gunSafeWeight');
-  const gunSafeWeightElement = (
-    <div className={gunSafeWeightElementFlags.classes}>
-      <dt>Gun safe</dt>
-      <dd data-testid="gunSafeWeight">{gunSafeWeight ? `Yes, ${formatWeight(gunSafeWeight)}` : 'No'}</dd>
-    </div>
-  );
-
   const estimatedIncentiveElementFlags = getDisplayFlags('estimatedIncentive');
   const estimatedIncentiveElement = (
     <div className={estimatedIncentiveElementFlags.classes}>
@@ -321,7 +309,6 @@ const PPMShipmentInfoList = ({
       {estimatedWeightElement}
       {showElement(proGearWeightElementFlags) && proGearWeightElement}
       {showElement(spouseProGearElementFlags) && spouseProGearElement}
-      {isGunSafeEnabled ? showElement(gunSafeWeightElementFlags) && gunSafeWeightElement : null}
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
       {showElement(maxIncentiveElementFlags) && maxIncentiveElement}
       {hasRequestedAdvanceElement}

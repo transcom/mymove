@@ -119,6 +119,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   // Local state for feature flags and Okta booleans
   const [oktaLoggedOut, setOktaLoggedOut] = useState(false);
   const [oktaNeedsLoggedOut, setOktaNeedsLoggedOut] = useState(false);
+  const [hqRoleFlag, setHqRoleFlag] = useState(!!props.hqRoleFlag);
   const [gsrRoleFlag, setGsrRoleFlag] = useState(false);
   const [queueManagementFlag, setQueueManagementFlag] = useState(false);
   const [bulkAssignmentFlag, setBulkAssignmentFlag] = useState(false);
@@ -149,6 +150,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     loadPublicSchema();
     loadUser();
 
+    isBooleanFlagEnabled('headquarters_role').then(setHqRoleFlag);
     isBooleanFlagEnabled('gsr_role').then(setGsrRoleFlag);
     isBooleanFlagEnabled('queue_management').then(setQueueManagementFlag);
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BULK_ASSIGNMENT).then(setBulkAssignmentFlag);
@@ -246,7 +248,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path="/hq/queues"
                       end
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.HQ]}>
+                        <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
                           <HeadquartersQueues
                             isQueueManagementFFEnabled={queueManagementFlag}
                             activeRole={props.activeRole}
@@ -335,7 +337,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                         path="/:queueType/*"
                         end
                         element={
-                          <PrivateRoute requiredRoles={[roleTypes.HQ]}>
+                          <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
                             <HeadquartersQueues
                               isQueueManagementFFEnabled={queueManagementFlag}
                               activeRole={props.activeRole}
@@ -566,7 +568,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             roleTypes.CONTRACTING_OFFICER,
                             roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
                             roleTypes.GSR,
-                            roleTypes.HQ,
+                            hqRoleFlag ? roleTypes.HQ : undefined,
                           ]}
                         >
                           <TXOMoveInfo />
@@ -585,6 +587,9 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       />
                     )}
                     {props.activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
+                    {props.activeRole === roleTypes.HQ && !hqRoleFlag && (
+                      <Route end path="/*" element={<InvalidPermissions />} />
+                    )}
                     {props.activeRole === roleTypes.HQ && <Route end path="/*" element={<HeadquartersQueues />} />}
                     {props.activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />

@@ -212,11 +212,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		})
 	}
-	if api.OrdersGetPayGradesHandler == nil {
-		api.OrdersGetPayGradesHandler = orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
-			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
-		})
-	}
 	if api.OrdersGetRanksHandler == nil {
 		api.OrdersGetRanksHandler = orders.GetRanksHandlerFunc(func(params orders.GetRanksParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.GetRanks has not yet been implemented")

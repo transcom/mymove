@@ -5115,7 +5115,7 @@ paths:
       description: Get ranks for specified affiliation
       operationId: getRanks
       tags:
-        - orders
+        - order
       parameters:
         - $ref: 'definitions/AffiliationParam.yaml'
         - $ref: 'definitions/OrderPayGradeParam.yaml'
@@ -5132,28 +5132,6 @@ paths:
           description: request requires user authentication
         '404':
           description: ranks not found
-  '/paygrade/{affiliation}':
-    get:
-      summary: Get pay grades for specified affiliation
-      description: Get pay grades for specified affiliation
-      operationId: getPayGrades
-      tags:
-        - orders
-      parameters:
-        - $ref: 'definitions/AffiliationParam.yaml'
-      responses:
-        '200':
-          description: list all pay grades for specified affiliation
-          schema:
-            type: array
-            items:
-              $ref: 'definitions/OrderPayGrades.yaml'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '404':
-          description: pay grades not found
 definitions:
   ApplicationParameters:
     type: object
@@ -5775,10 +5753,6 @@ definitions:
         example: 500
         type: integer
         x-formatting: weight
-      gunSafeWeight:
-        example: 500
-        type: integer
-        x-formatting: weight
       storageInTransit:
         example: 90
         type: integer
@@ -5827,6 +5801,72 @@ definitions:
     required:
       - message
     type: object
+  Grade:
+    type: string
+    x-nullable: true
+    title: grade
+    enum:
+      - E_1
+      - E_2
+      - E_3
+      - E_4
+      - E_5
+      - E_6
+      - E_7
+      - E_8
+      - E_9
+      - E_9_SPECIAL_SENIOR_ENLISTED
+      - O_1_ACADEMY_GRADUATE
+      - O_1
+      - O_2
+      - O_3
+      - O_4
+      - O_5
+      - O_6
+      - O_7
+      - O_8
+      - O_9
+      - O_10
+      - W_1
+      - W_2
+      - W_3
+      - W_4
+      - W_5
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET
+      - MIDSHIPMAN
+    x-display-value:
+      E_1: E-1
+      E_2: E-2
+      E_3: E-3
+      E_4: E-4
+      E_5: E-5
+      E_6: E-6
+      E_7: E-7
+      E_8: E-8
+      E_9: E-9
+      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
+      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
+      O_1: O-1
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
+      O_6: O-6
+      O_7: O-7
+      O_8: O-8
+      O_9: O-9
+      O_10: O-10
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman
   Move:
     properties:
       id:
@@ -6194,7 +6234,7 @@ definitions:
         example: Doe
         readOnly: true
       grade:
-        $ref: 'definitions/OrderPayGrade.yaml'
+        $ref: '#/definitions/Grade'
       rank:
         $ref: 'definitions/Rank.yaml'
       agency:
@@ -6363,7 +6403,7 @@ definitions:
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       grade:
-        $ref: 'definitions/OrderPayGrade.yaml'
+        $ref: '#/definitions/Grade'
       rank:
         type: string
         format: uuid
@@ -6457,7 +6497,7 @@ definitions:
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       grade:
-        $ref: 'definitions/OrderPayGrade.yaml'
+        $ref: '#/definitions/Grade'
       rank:
         type: string
         format: uuid
@@ -6542,7 +6582,7 @@ definitions:
         type: boolean
         x-nullable: true
       grade:
-        $ref: 'definitions/OrderPayGrade.yaml'
+        $ref: '#/definitions/Grade'
       rank:
         type: string
         format: uuid
@@ -6566,7 +6606,7 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: 'definitions/OrderPayGrade.yaml'
+        $ref: '#/definitions/Grade'
       agency:
         $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
@@ -6578,14 +6618,6 @@ definitions:
         x-formatting: weight
         x-nullable: true
       proGearWeightSpouse:
-        description: unit is in lbs
-        example: 500
-        type: integer
-        minimum: 0
-        maximum: 500
-        x-formatting: weight
-        x-nullable: true
-      gunSafeWeight:
         description: unit is in lbs
         example: 500
         type: integer
@@ -6673,7 +6705,7 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: 'definitions/OrderPayGrade.yaml'
+        $ref: '#/definitions/Grade'
       agency:
         $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
@@ -6685,14 +6717,6 @@ definitions:
         x-formatting: weight
         x-nullable: true
       proGearWeightSpouse:
-        minimum: 0
-        maximum: 500
-        description: unit is in lbs
-        example: 2000
-        type: integer
-        x-formatting: weight
-        x-nullable: true
-      gunSafeWeight:
         minimum: 0
         maximum: 500
         description: unit is in lbs
@@ -7198,15 +7222,6 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
-      hasGunSafe:
-        description: >
-          Indicates whether PPM shipment has gun safe.
-        type: boolean
-        x-nullable: true
-      gunSafeWeight:
-        description: The estimated weight of the gun safe being moved belonging to the service member.
-        type: integer
-        x-nullable: true
       hasRequestedAdvance:
         description: >
           Indicates whether an advance has been requested for the PPM shipment.
@@ -7669,13 +7684,6 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
-      hasGunSafe:
-        description: >
-          Indicates whether PPM shipment has gun safe.
-        type: boolean
-      gunSafeWeight:
-        type: integer
-        x-nullable: true
       isActualExpenseReimbursement:
         description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
         type: boolean
@@ -7693,7 +7701,6 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
-      - hasGunSafe
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:

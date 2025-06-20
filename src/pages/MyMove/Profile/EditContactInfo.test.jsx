@@ -20,10 +20,6 @@ jest.mock('services/internalApi', () => ({
   patchServiceMember: jest.fn(),
 }));
 
-jest.mock('services/ghcApi', () => ({
-  getPayGradeOptions: jest.fn(),
-}));
-
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),

@@ -44,7 +44,7 @@ type CreateOrders struct {
 	DependentsUnderTwelve *int64 `json:"dependentsUnderTwelve,omitempty"`
 
 	// grade
-	Grade *OrderPayGrade `json:"grade,omitempty"`
+	Grade *Grade `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
 	// Required: true

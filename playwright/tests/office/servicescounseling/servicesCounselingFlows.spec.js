@@ -10,6 +10,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 import { test, expect } from './servicesCounselingTestFixture';
 
 const completePPMCloseoutForCustomerEnabled = process.env.FEATURE_FLAG_COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER;
+const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
 test.describe('Services counselor user', () => {
@@ -234,6 +235,7 @@ test.describe('Services counselor user', () => {
 
     test('is able to add and delete supporting documents', async ({ page, officePage }) => {
       test.slow();
+      test.skip(supportingDocsEnabled === 'false', 'Skip if Supporting Documents is not enabled.');
       await page.getByRole('link', { name: 'Supporting Documents' }).click();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
 

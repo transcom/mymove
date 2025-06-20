@@ -459,10 +459,6 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
 	}
 
-	if payload.GunSafeWeight != nil {
-		order.Entitlement.GunSafeWeight = int(*payload.GunSafeWeight)
-	}
-
 	if payload.RequiredMedicalEquipmentWeight != nil {
 		order.Entitlement.RequiredMedicalEquipmentWeight = int(*payload.RequiredMedicalEquipmentWeight)
 	}
@@ -581,10 +577,6 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	if payload.ProGearWeightSpouse != nil {
 		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
-	}
-
-	if payload.GunSafeWeight != nil {
-		order.Entitlement.GunSafeWeight = int(*payload.GunSafeWeight)
 	}
 
 	if payload.RequiredMedicalEquipmentWeight != nil {

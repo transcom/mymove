@@ -4,7 +4,6 @@ import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-uswds';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { civilianTDYUBAllowanceWeightWarningOfficeUser, FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -24,13 +23,11 @@ import formStyles from 'styles/form.module.scss';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { showCounselingOffices, getRankOptions } from 'services/ghcApi';
 import Hint from 'components/Hint';
-import { sortRankOptions } from 'shared/utils';
-import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import { sortRankPayGradeOptions } from 'shared/utils';
+import { setShowLoadingSpinner } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
-import { getPayGradeOptions } from 'services/internalApi';
-import { formatPayGradeOptions } from 'utils/formatters';
-// import { dropdownInputOptions } from 'utils/formatters';
+import { dropdownInputOptions } from 'utils/formatters';
 
 let originMeta;
 let newDutyMeta = '';
@@ -42,8 +39,8 @@ const AddOrdersForm = ({
   isSafetyMoveSelected,
   isBluebarkMoveSelected,
   affiliation,
-  setShowLoadingSpinner,
 }) => {
+  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -148,7 +145,7 @@ const AddOrdersForm = ({
       try {
         const fetchedRanks = await getRankOptions(affiliation, grade);
         if (fetchedRanks) {
-          const formattedOptions = sortRankOptions(fetchedRanks.body);
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks.body);
           setRankOptions(formattedOptions);
         }
       } catch (error) {
@@ -160,7 +157,7 @@ const AddOrdersForm = ({
     };
 
     if (grade !== '') fetchRankGradeOptions();
-  }, [affiliation, grade, setShowLoadingSpinner]);
+  }, [affiliation, grade]);
   useEffect(() => {
     if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
       if (
@@ -198,26 +195,6 @@ const AddOrdersForm = ({
     };
     fetchData();
   }, [ordersTypeOptions]);
-
-  const [payGradeOptions, setPayGradeOptions] = useState([]);
-  useEffect(() => {
-    const fetchGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Pay Grade options');
-      try {
-        const fetchedRanks = await getPayGradeOptions(affiliation);
-        if (fetchedRanks) {
-          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
-        }
-      } catch (error) {
-        const { message } = error;
-        milmoveLogger.error({ message, info: null });
-        retryPageLoading(error);
-      }
-      setShowLoadingSpinner(false, null);
-    };
-
-    fetchGradeOptions();
-  }, [affiliation, setShowLoadingSpinner]);
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -621,8 +598,4 @@ const AddOrdersForm = ({
   );
 };
 
-const mapDispatchToProps = {
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
-};
-
-export default connect(() => {}, mapDispatchToProps)(AddOrdersForm);
+export default AddOrdersForm;

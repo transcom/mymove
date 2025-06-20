@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { func, string, bool } from 'prop-types';
-import { useLocation } from 'react-router';
 
 import styles from './OrdersDetailForm.module.scss';
 
@@ -12,7 +11,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { DropdownArrayOf } from 'types/form';
 import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { getRankOptions } from 'services/ghcApi';
-import { sortRankOptions } from 'shared/utils';
+import { sortRankPayGradeOptions } from 'shared/utils';
 
 const OrdersDetailForm = ({
   deptIndicatorOptions,
@@ -46,8 +45,6 @@ const OrdersDetailForm = ({
   handleChange,
   currentGrade,
 }) => {
-  const location = useLocation();
-
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
   const [grade, setGrade] = useState(currentGrade);
@@ -59,7 +56,7 @@ const OrdersDetailForm = ({
       try {
         const fetchedRanks = await getRankOptions(affiliation, grade);
         if (fetchedRanks) {
-          const formattedOptions = sortRankOptions(fetchedRanks.body);
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks.body);
           setRankOptions(formattedOptions);
         }
       } catch (error) {
@@ -97,7 +94,7 @@ const OrdersDetailForm = ({
         name="grade"
         label="Pay grade"
         id="payGradeInput"
-        options={payGradeOptions || location.state.payGradeOptions}
+        options={payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
@@ -290,6 +287,7 @@ OrdersDetailForm.propTypes = {
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
   setFieldValue: func.isRequired,
+  payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
   hhgLongLineOfAccounting: string,
   ntsLongLineOfAccounting: string,
@@ -316,6 +314,7 @@ OrdersDetailForm.defaultProps = {
   showNTSLoa: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
+  payGradeOptions: null,
   formIsDisabled: false,
   hhgLongLineOfAccounting: '',
   ntsLongLineOfAccounting: '',

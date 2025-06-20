@@ -73,16 +73,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 	}
 
 	switch p.ServiceItem.ReService.Code {
-	case models.ReServiceCodeIHPK, models.ReServiceCodeINPK:
-		if p.ServiceItem.ReService.Code == models.ReServiceCodeINPK {
-			// If this is an iNTS iHHG packing scenario, we need to make sure to
-			// use the IHPK packing for reIntlOtherPrice fetching because INPK pricing doesn't exist
-			ihpkService, err := models.FetchReServiceByCode(appCtx.DB(), models.ReServiceCodeIHPK)
-			if err != nil {
-				return "", fmt.Errorf("error fetching rate area id for shipment ID: %s and service ID %s: %s", shipmentID, serviceID, err)
-			}
-			serviceID = ihpkService.ID
-		}
+	case models.ReServiceCodeIHPK:
 		// IHPK: Need rate area ID for the pickup address
 		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), pickupAddressID, &serviceID, contractID)
 		if err != nil {

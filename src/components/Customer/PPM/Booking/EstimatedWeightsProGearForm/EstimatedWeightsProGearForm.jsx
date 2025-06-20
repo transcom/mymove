@@ -143,8 +143,8 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 <Fieldset>
                   <legend className="usa-label">
                     Do you or your spouse have pro-gear that you&apos;ll move in this PPM?
-                    <RequiredTag />
                   </legend>
+                  <RequiredTag />
                   <Field
                     as={Radio}
                     id="hasProGearYes"
@@ -205,10 +205,8 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                   <h2>Gun safe</h2>
                   <Fieldset>
-                    <legend className="usa-label">
-                      Do you have a gun safe that you&apos;ll move in this PPM?
-                      <RequiredTag />
-                    </legend>
+                    <legend className="usa-label">Do you have a gun safe that you&apos;ll move in this PPM?</legend>
+                    <RequiredTag />
                     <Field
                       as={Radio}
                       id="hasGunSafeYes"

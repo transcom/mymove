@@ -294,11 +294,6 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
 
-			maxGunSafeWeightAllowance, err := models.GetMaxGunSafeAllowance(appCtx)
-			if err == nil {
-				weightAllotment.GunSafeWeight = maxGunSafeWeightAllowance
-			}
-
 			var weightRestriction *int
 			var ubWeightRestriction *int
 
@@ -314,7 +309,6 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
 				WeightRestriction:       weightRestriction,
 				UBWeightRestriction:     ubWeightRestriction,
-				GunSafeWeight:           weightAllotment.GunSafeWeight,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
@@ -440,28 +434,11 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 				}
 			}
 
-			payload := params.Body
-
-			/** Feature Flag - GUN_SAFE **/
-			const featureFlagNameGunSafe = "gun_safe"
-			isGunSafeFeatureOn := false
-			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
-
-			if ffErr != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
-			} else {
-				isGunSafeFeatureOn = flag.Match
-			}
-			// set payloads for gun safe to nil if FF is turned OFF
-			if !isGunSafeFeatureOn && payload.GunSafeWeight != nil {
-				payload.GunSafeWeight = nil
-			}
-
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
 			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(
 				appCtx,
 				orderID,
-				*payload,
+				*params.Body,
 				params.IfMatch,
 			)
 			if err != nil {
@@ -513,28 +490,11 @@ func (h CounselingUpdateAllowanceHandler) Handle(
 				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 			}
 
-			payload := params.Body
-
-			/** Feature Flag - GUN_SAFE **/
-			const featureFlagNameGunSafe = "gun_safe"
-			isGunSafeFeatureOn := false
-			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
-
-			if ffErr != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
-			} else {
-				isGunSafeFeatureOn = flag.Match
-			}
-			// set payloads for gun safe to nil if FF is turned OFF
-			if !isGunSafeFeatureOn && payload.GunSafeWeight != nil {
-				payload.GunSafeWeight = nil
-			}
-
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
 			updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsCounselor(
 				appCtx,
 				orderID,
-				*payload,
+				*params.Body,
 				params.IfMatch,
 			)
 			if err != nil {
@@ -1014,23 +974,23 @@ func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upl
 	return uploadPayload, nil
 }
 
-// type GetRanksHandler struct {
-// 	handlers.HandlerConfig
-// }
+type GetRanksHandler struct {
+	handlers.HandlerConfig
+}
 
-// Handle retrieves orders in the system belonging to the logged in user given order ID OO
-// func (h GetRanksHandler) Handle(params orderop.GetRanksParams) middleware.Responder {
-// 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-// 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-// 			ranks, err := payloads.GetRankDropdownOptions(appCtx, params.Affiliation, params.Grade)
-// 			if err != nil {
-// 				return handlers.ResponseForError(appCtx.Logger(), err), err
-// 			}
+// Handle retrieves orders in the system belonging to the logged in user given order ID
+func (h GetRanksHandler) Handle(params orderop.GetRanksParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			ranks, err := payloads.GetRankDropdownOptions(appCtx, params.Affiliation, params.Grade)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-// 			if len(ranks) < 1 {
-// 				return orderop.NewGetRanksNotFound(), nil
-// 			}
+			if len(ranks) < 1 {
+				return orderop.NewGetRanksNotFound(), nil
+			}
 
-// 			return orderop.NewGetRanksOK().WithPayload(ranks), nil
-// 		})
-// }
+			return orderop.NewGetRanksOK().WithPayload(ranks), nil
+		})
+}

@@ -39,7 +39,7 @@ describe('ShipmentQAEReports', () => {
           reports={[]}
           moveCode="Test123"
           customerInfo={customerInfo}
-          grade="E-4"
+          grade="E_4"
         />
       </MockProviders>,
     );

@@ -35,7 +35,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/orders"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -262,9 +261,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ApplicationParametersGetParamHandler: application_parameters.GetParamHandlerFunc(func(params application_parameters.GetParamParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.GetParam has not yet been implemented")
 		}),
-		OrdersGetPayGradesHandler: orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
-			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
-		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
 		}),
@@ -274,8 +270,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetPaymentRequestsQueueHandler: queues.GetPaymentRequestsQueueHandlerFunc(func(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetPaymentRequestsQueue has not yet been implemented")
 		}),
-		OrdersGetRanksHandler: orders.GetRanksHandlerFunc(func(params orders.GetRanksParams) middleware.Responder {
-			return middleware.NotImplemented("operation orders.GetRanks has not yet been implemented")
+		OrderGetRanksHandler: order.GetRanksHandlerFunc(func(params order.GetRanksParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.GetRanks has not yet been implemented")
 		}),
 		ReportViolationsGetReportViolationsByReportIDHandler: report_violations.GetReportViolationsByReportIDHandlerFunc(func(params report_violations.GetReportViolationsByReportIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
@@ -627,16 +623,14 @@ type MymoveAPI struct {
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// ApplicationParametersGetParamHandler sets the operation handler for the get param operation
 	ApplicationParametersGetParamHandler application_parameters.GetParamHandler
-	// OrdersGetPayGradesHandler sets the operation handler for the get pay grades operation
-	OrdersGetPayGradesHandler orders.GetPayGradesHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
 	PaymentRequestsGetPaymentRequestsForMoveHandler payment_requests.GetPaymentRequestsForMoveHandler
 	// QueuesGetPaymentRequestsQueueHandler sets the operation handler for the get payment requests queue operation
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
-	// OrdersGetRanksHandler sets the operation handler for the get ranks operation
-	OrdersGetRanksHandler orders.GetRanksHandler
+	// OrderGetRanksHandler sets the operation handler for the get ranks operation
+	OrderGetRanksHandler order.GetRanksHandler
 	// ReportViolationsGetReportViolationsByReportIDHandler sets the operation handler for the get report violations by report ID operation
 	ReportViolationsGetReportViolationsByReportIDHandler report_violations.GetReportViolationsByReportIDHandler
 	// QueuesGetServicesCounselingOriginListHandler sets the operation handler for the get services counseling origin list operation
@@ -1027,9 +1021,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.ApplicationParametersGetParamHandler == nil {
 		unregistered = append(unregistered, "application_parameters.GetParamHandler")
 	}
-	if o.OrdersGetPayGradesHandler == nil {
-		unregistered = append(unregistered, "orders.GetPayGradesHandler")
-	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
 	}
@@ -1039,8 +1030,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.QueuesGetPaymentRequestsQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetPaymentRequestsQueueHandler")
 	}
-	if o.OrdersGetRanksHandler == nil {
-		unregistered = append(unregistered, "orders.GetRanksHandler")
+	if o.OrderGetRanksHandler == nil {
+		unregistered = append(unregistered, "order.GetRanksHandler")
 	}
 	if o.ReportViolationsGetReportViolationsByReportIDHandler == nil {
 		unregistered = append(unregistered, "report_violations.GetReportViolationsByReportIDHandler")
@@ -1564,10 +1555,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/paygrade/{affiliation}"] = orders.NewGetPayGrades(o.context, o.OrdersGetPayGradesHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}"] = payment_requests.NewGetPaymentRequest(o.context, o.PaymentRequestsGetPaymentRequestHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1580,7 +1567,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/ranks/{affiliation}&{grade}"] = orders.NewGetRanks(o.context, o.OrdersGetRanksHandler)
+	o.handlers["GET"]["/ranks/{affiliation}&{grade}"] = order.NewGetRanks(o.context, o.OrderGetRanksHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

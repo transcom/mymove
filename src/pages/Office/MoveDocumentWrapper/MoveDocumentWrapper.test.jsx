@@ -3,7 +3,6 @@ import { shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { Provider } from 'react-redux';
 
 import samplePDF from '../../../components/DocumentViewer/sample.pdf';
 import sampleJPG from '../../../components/DocumentViewer/sample.jpg';
@@ -13,7 +12,6 @@ import sampleGIF from '../../../components/DocumentViewer/sample3.gif';
 import MoveDocumentWrapper from './MoveDocumentWrapper';
 
 import { useOrdersDocumentQueries, useAmendedDocumentQueries } from 'hooks/queries';
-import { configureStore } from 'shared/store';
 
 const mockFiles = [
   {
@@ -85,11 +83,6 @@ const mockDestinationDutyLocation = {
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
   useAmendedDocumentQueries: jest.fn(),
-}));
-
-jest.mock('services/ghcApi', () => ({
-  ...jest.requireActual('services/ghcApi'),
-  getPayGradeOptions: jest.fn(),
 }));
 
 jest.mock('components/DocumentViewer/DocumentViewer', () => ({
@@ -204,8 +197,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
-const mockStore = configureStore({});
-
 describe('MoveDocumentWrapper', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -238,14 +229,11 @@ describe('MoveDocumentWrapper', () => {
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
       render(
-        <Provider store={mockStore.store}>
-          <MemoryRouter>
-            <QueryClientProvider client={new QueryClient()}>
-              <MoveDocumentWrapper allowDownload />
-            </QueryClientProvider>
-          </MemoryRouter>
-          ,
-        </Provider>,
+        <MemoryRouter>
+          <QueryClientProvider client={new QueryClient()}>
+            <MoveDocumentWrapper allowDownload />
+          </QueryClientProvider>
+        </MemoryRouter>,
       );
       expect(screen.getByTestId('doc-wrapper')).toBeInTheDocument();
     });
@@ -254,17 +242,8 @@ describe('MoveDocumentWrapper', () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
-      render(
-        <Provider store={mockStore.store}>
-          <MemoryRouter>
-            <QueryClientProvider client={new QueryClient()}>
-              <MoveDocumentWrapper allowDownload />
-            </QueryClientProvider>
-          </MemoryRouter>
-          ,
-        </Provider>,
-      );
-      expect(screen.getByText('View Orders')).toBeInTheDocument(true);
+      const wrapper = shallow(<MoveDocumentWrapper />);
+      expect(wrapper.find('Orders').exists()).toBe(true);
     });
 
     it('renders the sidebar MoveAllowances component', () => {
@@ -281,14 +260,11 @@ describe('MoveDocumentWrapper', () => {
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
       render(
-        <Provider store={mockStore.store}>
-          <MemoryRouter>
-            <QueryClientProvider client={new QueryClient()}>
-              <MoveDocumentWrapper files={mockFiles} />
-            </QueryClientProvider>
-          </MemoryRouter>
-          ,
-        </Provider>,
+        <MemoryRouter>
+          <QueryClientProvider client={new QueryClient()}>
+            <MoveDocumentWrapper files={mockFiles} />
+          </QueryClientProvider>
+        </MemoryRouter>,
       );
 
       expect(screen.getByTestId('listOfFilesForViewer').textContent).toContain('Test File 3.png');

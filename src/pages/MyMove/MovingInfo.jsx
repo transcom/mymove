@@ -11,7 +11,7 @@ import { FEATURE_FLAG_KEYS } from '../../shared/constants';
 
 import styles from './MovingInfo.module.scss';
 
-import { customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
@@ -42,6 +42,11 @@ export class MovingInfo extends Component {
   componentDidMount() {
     const { serviceMemberId, fetchLatestOrders } = this.props;
     fetchLatestOrders(serviceMemberId);
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      this.setState({
+        multiMoveFeatureFlag: enabled,
+      });
+    });
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         ppmFeatureFlag: enabled,
@@ -59,9 +64,11 @@ export class MovingInfo extends Component {
       },
     } = this.props;
 
+    let multiMove = false;
     let enablePPM = true;
     if (this.state) {
-      const { ppmFeatureFlag } = this.state;
+      const { multiMoveFeatureFlag, ppmFeatureFlag } = this.state;
+      multiMove = multiMoveFeatureFlag;
       enablePPM = ppmFeatureFlag;
     }
 
@@ -151,7 +158,11 @@ export class MovingInfo extends Component {
                 navigate(nextPath);
               }}
               onCancelClick={() => {
-                navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+                if (multiMove) {
+                  navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+                } else {
+                  navigate(generalRoutes.HOME_PATH);
+                }
               }}
             />
           </Grid>

@@ -31,7 +31,7 @@ type UpdateOrderPayload struct {
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// grade
-	Grade *OrderPayGrade `json:"grade,omitempty"`
+	Grade *Grade `json:"grade,omitempty"`
 
 	// Orders date
 	//

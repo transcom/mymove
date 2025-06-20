@@ -2,39 +2,22 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 // import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
-import { act } from 'react-dom/test-utils';
 
 import ShipmentWeight from './ShipmentWeight';
 
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
-
-jest.mock('../../../utils/featureFlags', () => ({
-  ...jest.requireActual('../../../utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
-
 describe('components/Office/ShipmentWeight', () => {
-  it('defaults to customer not using Pro-gear or gun safe', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    await act(async () => {
-      render(
-        <Formik initialValues={{}}>
-          <ShipmentWeight />
-        </Formik>,
-      );
-    });
+  it('defaults to customer not using Pro-gear', () => {
+    render(
+      <Formik initialValues={{}}>
+        <ShipmentWeight />
+      </Formik>,
+    );
 
-    expect(screen.getByTestId('hasProGearYes')).not.toBeChecked();
-    expect(screen.getByTestId('hasProGearNo')).toBeChecked();
+    expect(screen.getByLabelText('Yes')).not.toBeChecked();
+    expect(screen.getByLabelText('No')).toBeChecked();
 
     expect(screen.queryByLabelText('Estimated pro-gear weight')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Estimated spouse pro-gear weight')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Estimated gun safe weight')).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        'The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.',
-      ),
-    ).not.toBeInTheDocument();
   });
 
   it('displays estimated weight and pro-gear data', async () => {
@@ -51,39 +34,11 @@ describe('components/Office/ShipmentWeight', () => {
       </Formik>,
     );
     await waitFor(() => {
-      expect(screen.getByTestId('hasProGearYes')).toBeChecked();
-      expect(screen.getByTestId('hasProGearNo')).not.toBeChecked();
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.getByLabelText('No')).not.toBeChecked();
 
       expect(screen.queryByLabelText('Estimated pro-gear weight')).toBeInTheDocument();
       expect(screen.queryByLabelText('Estimated spouse pro-gear weight')).toBeInTheDocument();
-    });
-  });
-
-  it('displays gun safe data', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    await act(async () => {
-      render(
-        <Formik
-          initialValues={{
-            hasGunSafe: true,
-            estimatedWeight: '4000',
-            gunSafeWeight: '455',
-          }}
-        >
-          <ShipmentWeight />
-        </Formik>,
-      );
-    });
-    await waitFor(() => {
-      expect(screen.getByTestId('hasGunSafeYes')).toBeInTheDocument();
-      expect(screen.getByTestId('hasGunSafeYes')).toBeChecked();
-
-      expect(screen.queryByLabelText('Estimated gun safe weight')).toBeInTheDocument();
-      expect(
-        screen.queryByText(
-          'The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.',
-        ),
-      ).toBeInTheDocument();
     });
   });
 });

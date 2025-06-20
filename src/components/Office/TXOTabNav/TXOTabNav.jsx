@@ -9,6 +9,7 @@ import styles from './TXOTabNav.module.scss';
 import 'styles/office.scss';
 import TabNav from 'components/TabNav';
 import { OrdersShape } from 'types/customerShapes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const TXOTabNav = ({
   unapprovedShipmentCount,
@@ -22,6 +23,14 @@ const TXOTabNav = ({
   order,
   moveCode,
 }) => {
+  const [supportingDocsFF, setSupportingDocsFF] = React.useState(false);
+  React.useEffect(() => {
+    const fetchData = async () => {
+      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
+    };
+    fetchData();
+  }, []);
+
   let moveDetailsTagCount = 0;
   if (unapprovedShipmentCount > 0) {
     moveDetailsTagCount += unapprovedShipmentCount;
@@ -90,19 +99,27 @@ const TXOTabNav = ({
     <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={`/moves/${moveCode}/history`}>
       <span className="tab-title">Move History</span>
     </NavLink>,
-    <NavLink
-      end
-      className={({ isActive }) => (isActive ? 'usa-current' : '')}
-      to="supporting-documents"
-      data-testid="SupportingDocuments-Tab"
-    >
-      <span className="tab-title">Supporting Documents</span>
-    </NavLink>,
   ];
+
+  if (supportingDocsFF)
+    items.push(
+      <NavLink
+        end
+        className={({ isActive }) => (isActive ? 'usa-current' : '')}
+        to="supporting-documents"
+        data-testid="SupportingDocuments-Tab"
+      >
+        <span className="tab-title">Supporting Documents</span>
+      </NavLink>,
+    );
 
   return (
     <header className="nav-header">
-      <div className={classnames('grid-container-desktop-lg', styles.TabNav)}>
+      <div
+        className={
+          supportingDocsFF ? classnames('grid-container-desktop-lg', styles.TabNav) : 'grid-container-desktop-lg'
+        }
+      >
         <TabNav items={items} />
       </div>
     </header>

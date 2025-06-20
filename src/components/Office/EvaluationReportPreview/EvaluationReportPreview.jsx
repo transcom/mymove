@@ -12,7 +12,7 @@ import DataTable from 'components/DataTable';
 import DataTableWrapper from 'components/DataTableWrapper';
 import EvaluationReportList from 'components/Office/DefinitionLists/EvaluationReportList';
 import EvaluationReportViolationsList from 'components/Office/DefinitionLists/EvaluationReportViolationsList';
-import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 import { formatDateFromIso, formatQAReportID } from 'utils/formatters';
 import { formatDate } from 'shared/dates';
@@ -42,7 +42,7 @@ const EvaluationReportPreview = ({
       <br />
       {customerInfo.phone}
       <br />
-      {grade}
+      {ORDERS_PAY_GRADE_OPTIONS[grade]}
       <br />
       {ORDERS_BRANCH_OPTIONS[customerInfo.agency] ? ORDERS_BRANCH_OPTIONS[customerInfo.agency] : customerInfo.agency}
     </>

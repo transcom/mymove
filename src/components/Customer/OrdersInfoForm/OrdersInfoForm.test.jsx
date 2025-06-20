@@ -41,24 +41,6 @@ jest.mock('services/internalApi', () => ({
       },
     ]);
   }),
-  getPayGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
-      body: [
-        {
-          grade: 'E-5',
-          description: ' E-5',
-        },
-        {
-          grade: 'E-6',
-          description: ' E-6',
-        },
-        {
-          description: 'Civilian',
-          grade: 'CIVILIAN_EMPLOYEE',
-        },
-      ],
-    }),
-  ),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -387,7 +369,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByTestId('errorMessage').length).toBe(3);
+      expect(getAllByTestId('errorMessage').length).toBe(4);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
@@ -423,6 +405,7 @@ describe('OrdersInfoForm component', () => {
         <OrdersInfoForm {...testPropsWithCounselingOffice} />
       </Provider>,
     );
+
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');

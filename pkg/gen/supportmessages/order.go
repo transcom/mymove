@@ -94,7 +94,7 @@ type Order struct {
 
 	// rank
 	// Required: true
-	Rank *OrderPayGrade `json:"rank"`
+	Rank *Rank `json:"rank"`
 
 	// Date that the service member must report to the new DutyLocation by.
 	// Required: true

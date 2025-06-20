@@ -1,4 +1,4 @@
-@use 'shared/styles/colors.scss';
+@import 'shared/styles/colors.scss';
 
 // This file is for exporting SASS color variables into JS files (such as colors.stories.jsx)
 // It has to be named like a CSS module because of this bug introduced in CRA 4:
@@ -6,49 +6,44 @@
 
 :export {
   brand: {
-    mm-blue: colors.$mm-blue;
-    mm-gold: colors.$mm-gold;
-    mm-periwinkle: colors.$mm-periwinkle;
+    mmblue: $mm-blue;
+    mmgold: $mm-gold;
+    mmperiwinkle: $mm-periwinkle;
   }
   background: {
-    bg-white: colors.$bg-white;
-    bg-gray: colors.$bg-gray;
+    bgwhite: $bg-white;
+    bggray: $bg-gray;
   }
   base: {
-    base-lightest: colors.$base-lightest;
-    base-lighter: colors.$base-lighter;
-    base-light: colors.$base-light;
-    base: colors.$base;
-    base-dark: colors.$base-dark;
-    base-darker: colors.$base-darker;
-    base-darkest: colors.$base-darkest;
+    baselightest: $base-lightest;
+    baselighter: $base-lighter;
+    baselight: $base-light;
+    base: $base;
+    basedark: $base-dark;
+    basedarker: $base-darker;
+    basedarkest: $base-darkest;
   }
   alert: {
-    error: colors.$error;
-    error-light: colors.$error-light;
-    warning: colors.$warning;
-    warning-light: colors.$warning-light;
-    success: colors.$success;
-    success-light: colors.$success-light;
+    error: $error;
+    errorlight: $error-light;
+    warning: $warning;
+    warninglight: $warning-light;
+    success: $success;
+    successlight: $success-light;
   }
   primary: {
-    primary: colors.$primary;
-    primary-dark: colors.$primary-dark;
-    primary-darker: colors.$primary-darker;
-  }
-  destructive: {
-    secondary: colors.$secondary;
-    secondary-dark: colors.$secondary-dark;
-    secondary-darker: colors.$secondary-darker;
+    primary: $primary;
+    primarydark: $primary-dark;
+    primarydarker: $primary-darker;
   }
   accent: {
-    link: colors.$link;
-    link-light: colors.$link-light;
-    accent-teal: colors.$accent-teal;
-    accent-hhg: colors.$accent-hhg;
-    accent-ppm: colors.$accent-ppm;
-    accent-ub: colors.$accent-ub;
-    accent-nts: colors.$accent-nts;
-    accent-ntsr: colors.$accent-ntsr;
+    link: $link;
+    linklight: $link-light;
+    accenteal: $accent-teal;
+    accenthhg: $accent-hhg;
+    accentppm: $accent-ppm;
+    accentub: $accent-ub;
+    accentnts: $accent-nts;
+    accentntsr: $accent-ntsr;
   }
 }

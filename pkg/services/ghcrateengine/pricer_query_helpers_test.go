@@ -125,9 +125,18 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
 
 func (suite *GHCRateEngineServiceSuite) Test_fetchShipmentTypePrice() {
 	suite.Run("golden path", func() {
+		suite.setupShipmentTypePrice(models.ReServiceCodeDNPK, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		shipmentTypePrice, err := fetchShipmentTypePrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDNPK, models.MarketConus)
 
 		suite.NoError(err)
 		suite.Equal(dnpkTestFactor, shipmentTypePrice.Factor)
+	})
+
+	suite.Run("no records found", func() {
+		suite.setupShipmentTypePrice(models.ReServiceCodeDNPK, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
+
+		// Look for service code INPK that we haven't added
+		_, err := fetchShipmentTypePrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeINPK, models.MarketOconus)
+		suite.Error(err)
 	})
 }

@@ -1,6 +1,0 @@
-type: object
-properties:
-  grade:
-    type: string
-  description:
-    type: string

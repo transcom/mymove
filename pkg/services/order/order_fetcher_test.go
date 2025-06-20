@@ -244,53 +244,6 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Contains(moveIDs, expectedMove.ID)
 	})
 
-	suite.Run("returns moves filtered by ppm_type", func() {
-		// Set up:       Make 2 moves, one with ppm_type 'PARTIAL' and another with 'FULL'
-		//               The 'FULL' type should be filtered out if the origin_duty_location provides services counseling
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		session := auth.Session{
-			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
-			OfficeUserID:    officeUser.ID,
-			IDToken:         "fake_token",
-			AccessToken:     "fakeAccessToken",
-		}
-
-		// move with ppm_type 'PARTIAL'
-		partial := models.MovePPMTypePARTIAL
-		movePartial := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					PPMType: &partial,
-				},
-			},
-		}, nil)
-
-		// move with ppm_type 'FULL' and origin_duty_location that provides services counseling
-		full := models.MovePPMTypeFULL
-		moveFull := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					PPMType: &full,
-				},
-			},
-			{
-				Model: models.DutyLocation{
-					ProvidesServicesCounseling: true,
-				},
-				Type: &factory.DutyLocations.OriginDutyLocation,
-			},
-		}, nil)
-
-		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
-		suite.FatalNoError(err)
-
-		// the returned moves should not include the 'FULL' type because the origin duty location provides services counseling
-		suite.Equal(1, len(moves)) // only the 'PARTIAL' move should be returned
-		suite.Equal(movePartial.Locator, moves[0].Locator)
-		suite.NotEqual(moveFull.Locator, moves[0].Locator)
-	})
-
 	suite.Run("returns moves filtered by service member affiliation", func() {
 		// Under test: ListOriginRequestsOrders
 		// Set up:           Make 2 moves, one default move setup in setupTestData (show = True)

@@ -263,21 +263,10 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			/** Feature Flag - GUN_SAFE **/
-			const featureFlagNameGunSafe = "gun_safe"
-			isGunSafeFeatureOn := false
-			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
-
-			if ffErr != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
-			} else {
-				isGunSafeFeatureOn = flag.Match
-			}
-
 			/* Don't send Move Creation email if orders type is BLUEBARK/SAFETY */
 			if move.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
-					notifications.NewMoveSubmitted(moveID, isGunSafeFeatureOn),
+					notifications.NewMoveSubmitted(moveID),
 				)
 				if err != nil {
 					logger.Error("problem sending email to user", zap.Error(err))

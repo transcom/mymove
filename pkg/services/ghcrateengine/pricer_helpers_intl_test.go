@@ -2,79 +2,13 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-func (suite *GHCRateEngineServiceSuite) Test_fetchContractFromParams() {
-	suite.Run("can fetch contract for the move in the params", func() {
-		// Setup contract
-		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Contract:             reContract,
-				ContractID:           reContract.ID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 12),
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
-			},
-		})
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		contract, err := models.FetchContractForMove(suite.AppContextForTest(), move.ID)
-		suite.NoError(err)
-		suite.Equal(contract.ID, reContract.ID)
-
-		// Setup INPK params
-		availableToPrimeAt := time.Now().Add(time.Hour * 6)
-		paymentServiceItems := factory.BuildPaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeINPK,
-			[]factory.CreatePaymentServiceItemParams{
-				{
-					Key:     models.ServiceItemParamNameContractCode,
-					KeyType: models.ServiceItemParamTypeString,
-					Value:   contract.Code,
-				},
-				{
-					Key:     models.ServiceItemParamNameReferenceDate,
-					KeyType: models.ServiceItemParamTypeDate,
-					Value:   ihpkTestRequestedPickupDate.Format(DateParamFormat),
-				},
-				{
-					Key:     models.ServiceItemParamNamePerUnitCents,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   fmt.Sprintf("%d", int(ihpkTestPerUnitCents)),
-				},
-				{
-					Key:     models.ServiceItemParamNameWeightBilled,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   strconv.Itoa(ihpkTestWeight.Int()),
-				},
-			}, []factory.Customization{{
-				// Available to prime is used to fetch market factors for moves
-				// The market factor can only be fetched if it's available to the Prime
-				// And if it isn't available to the Prime, then we shouldn't be processing the creation
-				// of this payment request
-				Model: models.Move{
-					AvailableToPrimeAt: &availableToPrimeAt,
-				},
-			},
-			}, nil,
-		)
-		suite.FatalTrue(suite.NotEmpty(paymentServiceItems))
-
-		fetchedContract, err := fetchContractFromParams(suite.AppContextForTest(), paymentServiceItems.PaymentServiceItemParams)
-		suite.FatalNoError(err)
-		suite.Equal(fetchedContract.ID, contract.ID)
-	})
-}
 
 func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 	suite.Run("origin golden path", func() {
@@ -132,7 +66,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 
 func (suite *GHCRateEngineServiceSuite) TestPriceIntlPackUnpack() {
 	suite.Run("success with IHPK", func() {
-		suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
+		suite.setupIntlPackServiceItem()
 		totalCost, displayParams, err := priceIntlPackUnpack(suite.AppContextForTest(), models.ReServiceCodeIHPK, testdatagen.DefaultContractCode, ihpkTestRequestedPickupDate, ihpkTestWeight, ihpkTestPerUnitCents.Int())
 		suite.NoError(err)
 		suite.Equal(ihpkTestTotalCost, totalCost)
@@ -147,7 +81,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlPackUnpack() {
 	})
 
 	suite.Run("Invalid parameters to Price", func() {
-		suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
+		suite.setupIntlPackServiceItem()
 		_, _, err := priceIntlPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, ihpkTestRequestedPickupDate, ihpkTestWeight, ihpkTestPerUnitCents.Int())
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported pack/unpack code")

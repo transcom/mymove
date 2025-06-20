@@ -3,13 +3,7 @@ import PropTypes from 'prop-types';
 
 import colors from 'styles/colors.module.scss';
 
-const filterGroup = (group) =>
-  Object.keys(colors)
-    .filter((key) => key.startsWith(`${group}-`))
-    .map((fullKey) => ({
-      rawKey: fullKey.replace(`${group}-`, ''),
-      fullKey,
-    }));
+const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
 
 // Colors
 
@@ -47,12 +41,6 @@ export const PrimaryColors = () => (
     <ColorGroup group={filterGroup('primary')} />
   </div>
 );
-export const DestructiveColors = () => (
-  <div style={{ padding: '20px' }}>
-    <h3>Destructive Colors</h3>
-    <ColorGroup group={filterGroup('destructive')} />
-  </div>
-);
 export const AccentColors = () => (
   <div style={{ padding: '20px' }}>
     <h3>Accent Colors</h3>
@@ -61,14 +49,16 @@ export const AccentColors = () => (
 );
 
 // Convert the color key to the color variable name.
-const colorVariable = (color) => `$${color}`;
+const colorVariable = (color) => {
+  const array = color.split('-')[1].split(/(?=[A-Z])/);
+  return `$${array.join('-').toLowerCase()}`;
+};
 
 // Convert the color key to the color proper name.
-const colorName = (color) =>
-  color
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+const colorName = (color) => {
+  const array = color.split('-')[1].split(/(?=[A-Z])/);
+  return `${array.join(' ').toLowerCase()}`;
+};
 
 const colorsHelper = (color) => {
   if (Object.keys(colors).includes(color)) {
@@ -91,7 +81,7 @@ const Color = ({ color }) => (
   >
     <span
       style={{
-        backgroundColor: colorsHelper(color.fullKey),
+        backgroundColor: colorsHelper(color),
         display: 'block',
         height: '4em',
         marginBottom: '0.3em',
@@ -105,12 +95,12 @@ const Color = ({ color }) => (
       }}
     >
       <span style={{ 'text-transform': 'capitalize' }}>
-        <b>{colorName(color.rawKey)}</b>
+        <b>{colorName(color)}</b>
       </span>
       <br />
-      <code>{colorVariable(color.rawKey)}</code>
+      <code>{colorVariable(color)}</code>
       <br />
-      <code>{colorsHelper(color.fullKey)}</code>
+      <code>{colorsHelper(color)}</code>
       <br />
     </p>
   </li>

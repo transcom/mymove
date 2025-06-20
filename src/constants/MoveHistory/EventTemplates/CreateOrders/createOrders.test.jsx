@@ -18,7 +18,7 @@ describe('When given a created orders event for the orders table', () => {
       origin_duty_location_name: 'Los Angeles AFB',
       new_duty_location_name: 'Fairchild AFB',
       has_dependents: true,
-      grade: 'E-1',
+      grade: 'E_1',
     },
     context: [
       {

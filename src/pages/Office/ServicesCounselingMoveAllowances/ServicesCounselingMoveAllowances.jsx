@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -14,13 +14,12 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { MOVE_STATUSES, FEATURE_FLAG_KEYS } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { counselingUpdateAllowance } from 'services/ghcApi';
 import { dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
@@ -32,11 +31,6 @@ const validationSchema = Yup.object({
     .notRequired(),
   proGearWeightSpouse: Yup.number()
     .min(0, 'Spouse pro-gear weight must be greater than or equal to 0')
-    .max(500, "Enter a weight that does not go over the customer's maximum allowance")
-    .transform((value) => (Number.isNaN(value) ? 0 : value))
-    .notRequired(),
-  gunSafeWeight: Yup.number()
-    .min(0, 'Gun safe weight must be greater than or equal to 0')
     .max(500, "Enter a weight that does not go over the customer's maximum allowance")
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
@@ -82,15 +76,7 @@ const ServicesCounselingMoveAllowances = () => {
   const navigate = useNavigate();
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
   const orderId = move?.ordersId;
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
-    };
-    fetchData();
-  }, []);
 
   const handleClose = () => {
     navigate(`../${servicesCounselingRoutes.MOVE_VIEW_PATH}`);
@@ -127,7 +113,6 @@ const ServicesCounselingMoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit,
       gunSafe,
-      gunSafeWeight,
       adminRestrictedWeightLocation,
       weightRestriction,
       adminRestrictedUBWeightLocation,
@@ -158,8 +143,6 @@ const ServicesCounselingMoveAllowances = () => {
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
       ubAllowance: Number(values.ubAllowance),
     };
-    if (isGunSafeEnabled) body.gunSafeWeight = Number(gunSafeWeight);
-
     return mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
@@ -175,7 +158,6 @@ const ServicesCounselingMoveAllowances = () => {
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
-    gunSafeWeight,
     weightRestriction,
     ubWeightRestriction,
     storageInTransit,
@@ -192,7 +174,6 @@ const ServicesCounselingMoveAllowances = () => {
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     storageInTransit: `${storageInTransit}`,
     gunSafe,
-    gunSafeWeight: `${gunSafeWeight}`,
     adminRestrictedWeightLocation: weightRestriction > 0,
     weightRestriction: weightRestriction ? `${weightRestriction}` : '0',
     adminRestrictedUBWeightLocation: ubWeightRestriction > 0,

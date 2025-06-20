@@ -238,7 +238,7 @@ export function isPreceedingAddressPPMPrimaryDestinationComplete(addressValues) 
   return false;
 }
 
-export const sortRankOptions = (ranks) => {
+export const sortRankPayGradeOptions = (ranks) => {
   const options = [];
 
   if (ranks.length > 0) {

@@ -28,19 +28,16 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
   const [isAdminUBWeightLocationChecked, setIsAdminUBWeightLocationChecked] = useState(
     entitlements?.ubWeightRestriction > 0,
   );
-  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
-
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
-    const checkFeatureFlags = async () => {
+    const checkUBFeatureFlag = async () => {
       const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
       if (enabled) {
         setEnableUB(true);
       }
-      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
     };
-    checkFeatureFlags();
+    checkUBFeatureFlag();
   }, []);
 
   useEffect(() => {
@@ -178,25 +175,6 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           <p>Max. 500 lbs</p>
         </Hint>
       </MaskedTextField>
-
-      {isGunSafeEnabled && (
-        <MaskedTextField
-          data-testid="gunSafeWeightInput"
-          defaultValue="0"
-          name="gunSafeWeight"
-          label="Gun safe (lbs)"
-          id="gunSafeWeightInput"
-          mask={Number}
-          scale={0} // digits after point, 0 for integers
-          thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
-          isDisabled={formIsDisabled}
-        >
-          <Hint data-testid="gunSafeWeightHint">
-            <p>Max. 500 lbs</p>
-          </Hint>
-        </MaskedTextField>
-      )}
 
       <MaskedTextField
         data-testid="rmeInput"

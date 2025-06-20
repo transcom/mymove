@@ -4,8 +4,6 @@ export default {
   authorized_weight: 'authorized_weight',
   pro_gear_weight: 'pro_gear_weight',
   pro_gear_weight_spouse: 'pro_gear_weight_spouse',
-  gun_safe_weight: 'gun_safe_weight',
-  gun_safe_weight_allowance: 'gun_safe_allowance',
   spouse_pro_gear_weight: 'spouse_pro_gear_weight',
   prime_actual_weight: 'prime_actual_weight',
   required_medical_equipment_weight: 'required_medical_equipment_weight',

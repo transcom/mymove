@@ -89,6 +89,7 @@ const AdditionalDocuments = lazy(() => import('pages/MyMove/AdditionalDocuments/
 const PPMFeedback = lazy(() => import('pages/MyMove/PPM/Closeout/Feedback/Feedback'));
 
 const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props }) => {
+  const [multiMoveFeatureFlag, setMultiMoveFeatureFlag] = useState(false);
   const [cacValidatedFeatureFlag, setCacValidatedFeatureFlag] = useState(false);
   const [oktaErrorBanner, setOktaErrorBanner] = useState(false);
 
@@ -97,6 +98,7 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
     loadUser();
     initOnboarding();
 
+    isBooleanFlagEnabled('multi_move').then(setMultiMoveFeatureFlag);
     isBooleanFlagEnabled('cac_validated_login').then(setCacValidatedFeatureFlag);
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -194,8 +196,12 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
                   {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
 
                   {/* ROOT */}
-                  {/* Home page will route to dashboard element. */}
-                  <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                  {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
+                  {multiMoveFeatureFlag ? (
+                    <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                  ) : (
+                    <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                  )}
 
                   {getWorkflowRoutes(props)}
 
@@ -276,8 +282,12 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
                   {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
 
                   {/* ROOT */}
-                  {/* Home page will route to dashboard element. */}
-                  <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                  {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
+                  {multiMoveFeatureFlag ? (
+                    <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                  ) : (
+                    <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                  )}
 
                   {getWorkflowRoutes(props)}
 

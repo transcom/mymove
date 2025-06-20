@@ -39,7 +39,6 @@ const entitlement = {
   privatelyOwnedVehicle: false,
   proGearWeight: 2000,
   proGearWeightSpouse: 500,
-  gunSafeWeight: 500,
   requiredMedicalEquipmentWeight: 1000,
   storageInTransit: 90,
   organizationalClothingAndIndividualEquipment: true,

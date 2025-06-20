@@ -45,24 +45,6 @@ jest.mock('services/internalApi', () => ({
       },
     ]);
   }),
-  getPayGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
-      body: [
-        {
-          grade: 'E-5',
-          description: ' E-5',
-        },
-        {
-          grade: 'E-6',
-          description: ' E-6',
-        },
-        {
-          description: 'Civilian',
-          grade: 'CIVILIAN_EMPLOYEE',
-        },
-      ],
-    }),
-  ),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -443,7 +425,7 @@ describe('Add Orders page', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E-1',
+      grade: 'E_1',
     };
 
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);

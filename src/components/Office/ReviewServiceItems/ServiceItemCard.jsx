@@ -24,12 +24,7 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import { ErrorMessage } from 'components/form';
 
 const isAdditionalDaySIT = (mtoServiceItemCode) => {
-  return (
-    mtoServiceItemCode === SERVICE_ITEM_CODES.DOASIT ||
-    mtoServiceItemCode === SERVICE_ITEM_CODES.DDASIT ||
-    mtoServiceItemCode === SERVICE_ITEM_CODES.IOASIT ||
-    mtoServiceItemCode === SERVICE_ITEM_CODES.IDASIT
-  );
+  return mtoServiceItemCode === SERVICE_ITEM_CODES.DOASIT || mtoServiceItemCode === SERVICE_ITEM_CODES.DDASIT;
 };
 
 /** This component represents a Payment Request Service Item */

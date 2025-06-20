@@ -5,7 +5,7 @@ import { generatePath } from 'react-router';
 import selectEvent from 'react-select-event';
 
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
-import { customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment, patchMove, searchTransportationOffices } from 'services/internalApi';
 import { updateMTOShipment, updateMove } from 'store/entities/actions';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -706,7 +706,7 @@ describe('DateAndLocation component', () => {
         isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
         renderDateAndLocation(fullShipmentProps);
 
-        const selectShipmentType = generatePath(customerRoutes.MOVE_HOME_PATH, { moveId: mockMoveId });
+        const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
 
         await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 

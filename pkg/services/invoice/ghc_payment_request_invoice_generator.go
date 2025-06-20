@@ -746,9 +746,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		grade := *orders.Grade
 
 		hhgCode := ""
-		if grade[:2] == "E-" {
+		if grade[:2] == "E_" {
 			hhgCode = "HE"
-		} else if grade[:2] == "O-" || grade[:2] == "W-" || grade == models.ServiceMemberGradeACADEMYCADET || grade == models.ServiceMemberGradeAVIATIONCADET || grade == models.ServiceMemberGradeMIDSHIPMAN {
+		} else if grade[:2] == "O_" || grade[:2] == "W_" {
 			hhgCode = "HO"
 		} else if grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
 			hhgCode = "HC"

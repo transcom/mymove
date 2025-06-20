@@ -8,7 +8,6 @@ import (
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func BuildRank(db *pop.Connection, customs []Customization, traits []Trait) models.Rank {
@@ -37,8 +36,6 @@ func BuildRank(db *pop.Connection, customs []Customization, traits []Trait) mode
 		rank.Affiliation = string(models.AffiliationAIRFORCE)
 		rank.RankAbbv = "SrA"
 		rank.RankName = "Senior Airman"
-
-		testdatagen.MergeModels(&rank, cRank)
 
 		mustCreate(db, &rank)
 	}

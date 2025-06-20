@@ -74,6 +74,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 			paymentRequest.PaymentServiceItems, verrs, err = h.buildPaymentServiceItems(appCtx, payload)
 
 			if err != nil || verrs.HasAny() {
+
 				appCtx.Logger().Error("could not build service items", zap.Error(err))
 				// TODO: do not bail out before creating the payment request, we need the failed record
 				//       we should create the failed record and store it as failed with a rejection

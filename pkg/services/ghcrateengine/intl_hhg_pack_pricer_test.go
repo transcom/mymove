@@ -28,7 +28,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlHHGPackPricer() {
 	pricer := NewIntlHHGPackPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		paymentServiceItem, _ := suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
+		paymentServiceItem := suite.setupIntlPackServiceItem()
 
 		totalCost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
@@ -44,7 +44,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlHHGPackPricer() {
 	})
 
 	suite.Run("invalid parameters to PriceUsingParams", func() {
-		paymentServiceItem, _ := suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
+		paymentServiceItem := suite.setupIntlPackServiceItem()
 
 		// WeightBilled
 		paymentServiceItem.PaymentServiceItemParams[3].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
@@ -72,7 +72,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlHHGPackPricer() {
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem(code models.ReServiceCode) (models.PaymentServiceItem, models.ReContract) {
+func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem() models.PaymentServiceItem {
 	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 	startDate := time.Date(2018, time.January, 1, 12, 0, 0, 0, time.UTC)
 	endDate := time.Date(2018, time.December, 31, 12, 0, 0, 0, time.UTC)
@@ -82,14 +82,13 @@ func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem(code models.ReS
 			ContractID:           contract.ID,
 			StartDate:            startDate,
 			EndDate:              endDate,
-			Escalation:           1.11,
-			EscalationCompounded: 1.11,
+			Escalation:           1.0,
+			EscalationCompounded: 1.0,
 		},
 	})
-	availableToPrimeAt := time.Date(2018, time.September, 14, 0, 0, 0, 0, time.UTC)
 	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
-		code,
+		models.ReServiceCodeIHPK,
 		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
@@ -111,24 +110,6 @@ func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem(code models.ReS
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(ihpkTestWeight.Int()),
 			},
-			{
-				Key:     models.ServiceItemParamNameNTSPackingFactor,
-				KeyType: models.ServiceItemParamTypeDecimal,
-				// Note for a future dev
-				// If you are looking at line, the packing factor is probably breaking something
-				// If that is the case, this is supposed to match the non-truncated db value
-				// It shouldn't really ever change, but if it did just update it here to match
-				Value: strconv.FormatFloat(1.45, 'f', -1, 64),
-			},
-		}, []factory.Customization{{
-			// Available to prime is used to fetch market factors for moves
-			// The market factor can only be fetched if it's available to the Prime
-			// And if it isn't available to the Prime, then we shouldn't be processing the creation
-			// of this payment request
-			Model: models.Move{
-				AvailableToPrimeAt: &availableToPrimeAt,
-			},
-		},
-		}, nil,
-	), contract
+		}, nil, nil,
+	)
 }

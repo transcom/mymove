@@ -258,7 +258,7 @@ describe('Evaluation Report Container', () => {
     render(
       <EvaluationReportPreview
         evaluationReport={evaluationReport}
-        grade="E-4"
+        grade="E_4"
         moveCode="TEST123"
         customerInfo={customerInfo}
         mtoShipments={mtoShipments}

@@ -747,58 +747,6 @@ describe('formatFullName', () => {
   });
 });
 
-describe('formatMoveHistoryGunSafe', () => {
-  const { formatMoveHistoryGunSafe } = formatters;
-
-  it('should convert gun_safe and gun_safe_weight to their corresponding authorized fields', () => {
-    const input = {
-      changedValues: {
-        gun_safe: true,
-        gun_safe_weight: 300,
-        some_other_field: 'value',
-      },
-    };
-
-    const result = formatMoveHistoryGunSafe(input);
-
-    expect(result.changedValues).toEqual({
-      gun_safe_authorized: true,
-      gun_safe_weight_allowance: 300,
-      some_other_field: 'value',
-    });
-
-    expect(result.changedValues.gun_safe).toBeUndefined();
-    expect(result.changedValues.gun_safe_weight).toBeUndefined();
-  });
-
-  it('should leave fields unchanged if gun_safe and gun_safe_weight are not present', () => {
-    const input = {
-      changedValues: {
-        some_field: 'test',
-      },
-    };
-
-    const result = formatMoveHistoryGunSafe(input);
-
-    expect(result.changedValues).toEqual({
-      some_field: 'test',
-    });
-  });
-
-  it('should not mutate the original input object', () => {
-    const input = {
-      changedValues: {
-        gun_safe: false,
-        gun_safe_weight: 150,
-      },
-    };
-
-    const cloned = JSON.parse(JSON.stringify(input));
-    formatMoveHistoryGunSafe(input);
-    expect(input).toEqual(cloned);
-  });
-});
-
 describe('calculateTotal', () => {
   it('should calculate total with all available prices', () => {
     const sectionInfo = {

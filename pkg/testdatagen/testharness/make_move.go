@@ -9332,8 +9332,7 @@ func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) mod
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusServiceCounselingCompleted,
-				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Status: models.MoveStatusServiceCounselingCompleted,
 			},
 		},
 	}, nil)

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import styles from './OfficeDefinitionLists.module.scss';
 
+import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OrdersInfoShape } from 'types/order';
 import { formatDate } from 'shared/dates';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
@@ -13,7 +14,6 @@ import {
   ordersTypeReadable,
   ordersTypeDetailReadable,
 } from 'utils/formatters';
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 
 const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
   const { ordersType } = ordersInfo;

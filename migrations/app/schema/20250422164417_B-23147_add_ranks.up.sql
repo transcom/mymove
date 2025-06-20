@@ -206,17 +206,21 @@ declare
 	i record;
 	v_count int;
 begin
+
 	for i in (
 		select pg.id pay_grade_id, pg.grade, o.id orders_id, sm.affiliation
 			from pay_grades pg, orders o, service_members sm
 			where pg.grade = o.grade
 			  and o.service_member_id = sm.id)
 	loop
+
 		select count(*) into v_count
 		  from ranks
 		 where pay_grade_id = i.pay_grade_id
 		   and affiliation = i.affiliation;
+
 		if v_count = 1 then	--if 1 rank for pay grade then assign rank_id
+
 			update orders o
 			   set rank_id = p.id
 			  from ranks p
@@ -224,8 +228,11 @@ begin
 			   and p.pay_grade_id = i.pay_grade_id
 			   and p.affiliation = i.affiliation
 			   and o.rank_id is null;
+
 		end if;
+
 	end loop;
+
 end ';
 
 --update grade and rank on orders

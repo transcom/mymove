@@ -1,8 +1,6 @@
 -- B-22911 Beth introduced a move history sql refactor for us to swapnout with the pop query to be more efficient
 -- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
--- B 22696 Jon Spight added too destination assignments to history / Audit log
 -- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
--- B-23581 Paul Stonebraker updated assigned office user counselor columns
 -- B 22696 Jon Spight added too destination assignments to history / Audit log
 -- B-23623  Beth Grohmann  fetch_move_history - update final query to pull from all user tables
 
@@ -83,9 +81,9 @@ BEGIN
                 ''counseling_office_name'',
                 (SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.counseling_transportation_office_id)),
                 ''assigned_office_user_first_name'',
-                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.sc_closeout_assigned_id), uuid(c.too_task_order_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
+                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
                 ''assigned_office_user_last_name'',
-                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.sc_closeout_assigned_id), uuid(c.too_task_order_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
+                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
             ))
         )::TEXT AS context,
         NULL AS context_id,
@@ -96,11 +94,10 @@ BEGIN
     JOIN jsonb_to_record(audit_history.changed_data) AS c(
         closeout_office_id TEXT,
         counseling_transportation_office_id TEXT,
-        sc_counseling_assigned_id TEXT,
-        sc_closeout_assigned_id TEXT,
-        too_task_order_assigned_id TEXT,
-        too_destination_assigned_id TEXT,
-        tio_assigned_id TEXT
+        sc_assigned_id TEXT,
+        too_assigned_id TEXT,
+        tio_assigned_id TEXT,
+        too_destination_assigned_id TEXT
     ) ON TRUE
     WHERE audit_history.table_name = ''moves''
         AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE ''%shipment_seq_num%'' AND LENGTH(audit_history.changed_data::TEXT) < 25)
@@ -175,9 +172,7 @@ BEGIN
                         'origin_duty_location_name',
                         (SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.origin_duty_location_id)),
                         'new_duty_location_name',
-                        (SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.new_duty_location_id)),
-						            'rank',
-						            (SELECT ranks.rank_abbv from ranks where ranks.id = uuid(c.rank_id))
+                        (SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.new_duty_location_id))
                     )
                 ))::TEXT, '[{}]'::TEXT
             ) AS context,
@@ -190,8 +185,7 @@ BEGIN
         JOIN moves ON orders.id = moves.orders_id
         JOIN jsonb_to_record(audit_history.changed_data) AS c(
             origin_duty_location_id TEXT,
-            new_duty_location_id TEXT,
-			      rank_id TEXT
+            new_duty_location_id TEXT
         ) ON TRUE
         WHERE audit_history.table_name = 'orders'
             AND moves.id = v_move_id

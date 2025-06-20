@@ -4,6 +4,8 @@ import { MemoryRouter } from 'react-router-dom';
 
 import ServicesCounselingTabNav from './ServicesCounselingTabNav';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
 const basicNavProps = {
   unapprovedShipmentCount: 0,
   missingOrdersInfoCount: 0,
@@ -58,12 +60,22 @@ describe('MTO tag rendering', () => {
 });
 
 describe('Supporting Documents tag rendering', () => {
-  it('should render the Supporting Documents tab container', async () => {
+  it('should render the Supporting Documents tab container without a tag IF the feature flag is turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
 
     await waitFor(() => {
       const supportingDocumentsTab = screen.getByTestId('SupportingDocuments-Tab');
       expect(within(supportingDocumentsTab).queryByTestId('tag')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should not render the Supporting Documents tab if the feature flag is turned off', async () => {
+    render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('SupportingDocuments-Tab')).not.toBeInTheDocument();
     });
   });
 });

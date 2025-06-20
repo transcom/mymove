@@ -108,12 +108,10 @@ const OrdersTable = ({
             </td>
           </tr>
           <tr>
-            <th scope="row">Pay grade</th>
-            <td>{payGrade}</td>
-          </tr>
-          <tr>
-            <th scope="row">Rank</th>
-            <td>{rank?.rankAbbv}</td>
+            <th scope="row">Rank / Pay grade</th>
+            <td>
+              {rank?.rankAbbv} / {payGrade}
+            </td>
           </tr>
         </tbody>
       </table>

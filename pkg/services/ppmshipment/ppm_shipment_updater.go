@@ -1,7 +1,6 @@
 package ppmshipment
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -354,15 +353,20 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				}
 
 				entitlement := move.Orders.Entitlement
-				if entitlement == nil {
-					return apperror.NewQueryError("Entitlement", fmt.Errorf("entitlement is nil after fetching move with ID %s", move.ID), "Move is missing an associated entitlement.")
-				}
-
 				entitlement.GunSafe = *updatedPPMShipment.HasGunSafe
+
+				maxGunSafeWeight := 0
+				if updatedPPMShipment.HasGunSafe != nil && *updatedPPMShipment.HasGunSafe {
+					maxGunSafeWeight, err = models.GetMaxGunSafeAllowance(appCtx)
+					if err != nil {
+						return err
+					}
+				}
+				entitlement.GunSafeWeight = maxGunSafeWeight
 
 				verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
 				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the gun safe entitlement.")
+					return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the Entitlement.")
 				}
 				if err != nil {
 					return apperror.NewQueryError("Entitlement", err, "")

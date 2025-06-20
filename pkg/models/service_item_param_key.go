@@ -127,14 +127,10 @@ const (
 	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
 	// ServiceItemParamNameSITServiceAreaDest is the param key name SITServiceAreaDest
 	ServiceItemParamNameSITServiceAreaDest ServiceItemParamName = "SITServiceAreaDest"
-	// ServiceItemParamNameSITRateAreaDest is the param key name SITRateAreaDest
-	ServiceItemParamNameSITRateAreaDest ServiceItemParamName = "SITRateAreaDest"
 	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 	// ServiceItemParamNameSITServiceAreaOrigin is the param key name ServiceAreaOriginSIT
 	ServiceItemParamNameSITServiceAreaOrigin ServiceItemParamName = "SITServiceAreaOrigin"
-	// ServiceItemParamNameSITRateAreaOrigin is the param key name RateAreaOriginSIT
-	ServiceItemParamNameSITRateAreaOrigin ServiceItemParamName = "SITRateAreaOrigin"
 	// ServiceItemParamNameWeightAdjusted is the param key name WeightAdjusted
 	ServiceItemParamNameWeightAdjusted ServiceItemParamName = "WeightAdjusted"
 	// ServiceItemParamNameWeightBilled is the param key name WeightBilled

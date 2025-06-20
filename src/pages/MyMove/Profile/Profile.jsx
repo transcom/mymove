@@ -4,6 +4,8 @@ import { arrayOf, bool } from 'prop-types';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { Link, useLocation, useNavigate, generatePath } from 'react-router-dom';
 
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+
 import styles from './Profile.module.scss';
 
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
@@ -21,11 +23,12 @@ import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/Se
 import OktaInfoDisplay from 'components/Customer/Profile/OktaInfoDisplay/OktaInfoDisplay';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
-import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OktaUserInfoShape } from 'types/user';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft, oktaUser }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
+  const payGrade = currentOrders.grade;
   const originDutyLocation = currentOrders.origin_duty_location;
   const transportationOfficePhoneLines = originDutyLocation?.transportation_office?.phone_lines;
   const transportationOfficePhone = transportationOfficePhoneLines ? transportationOfficePhoneLines[0] : '';
@@ -36,6 +39,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   };
   const [needsToVerifyProfile, setNeedsToVerifyProfile] = useState(false);
   const [profileValidated, setProfileValidated] = useState(false);
+  const [multiMove, setMultiMove] = useState(false);
 
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -48,6 +52,8 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       } else {
         setNeedsToVerifyProfile(false);
       }
+
+      setMultiMove(await isBooleanFlagEnabled('multi_move'));
     };
     fetchData();
   }, [state]);
@@ -60,7 +66,8 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     setProfileValidated(true);
   };
 
-  const returnToMovePath = moveId ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }) : generalRoutes.HOME_PATH;
+  const returnToMovePath =
+    multiMove && moveId ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }) : generalRoutes.HOME_PATH;
 
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
@@ -114,6 +121,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               originTransportationOfficeName={originDutyLocation?.transportation_office?.name || ''}
               originTransportationOfficePhone={transportationOfficePhone}
               affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
+              payGrade={ORDERS_PAY_GRADE_OPTIONS[payGrade] || ''}
               edipi={serviceMember?.edipi || ''}
               emplid={serviceMember?.emplid || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}

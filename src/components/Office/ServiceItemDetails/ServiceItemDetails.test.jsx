@@ -3,15 +3,10 @@ import { render, screen } from '@testing-library/react';
 
 import ServiceItemDetails from './ServiceItemDetails';
 
-import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
-
 const sitStatus = {
   currentSIT: {
     sitAuthorizedEndDate: '2024-03-17',
   },
-  totalSITDaysUsed: 15,
-  totalDaysRemaining: 15,
-  calculatedTotalDaysInSIT: 15,
 };
 
 const shipment = {
@@ -68,7 +63,6 @@ const details = {
     streetAddress1: 'MacDill',
   },
   estimatedPrice: 2800,
-  status: 'APPROVED',
 };
 
 const submittedServiceItemDetails = {
@@ -83,7 +77,6 @@ const submittedServiceItemDetails = {
     { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15', dateOfContact: '2020-09-15' },
     { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21', dateOfContact: '2020-09-21' },
   ],
-  estimatedPrice: 243550,
   estimatedWeight: 2500,
   sitCustomerContacted: '2024-03-14T00:00:00.000Z',
   sitRequestedDelivery: '2024-03-15T00:00:00.000Z',
@@ -779,7 +772,7 @@ describe('ServiceItemDetails Crating Rejected', () => {
   });
 });
 
-describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK, ISLH, IHPK, IHUPK, IUBPK, INPK, IUBUPK, POEFSC, PODFSC, UBP', () => {
+describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK, ISLH, IHPK, IHUPK, IUBPK, IUBUPK, POEFSC, PODFSC, UBP', () => {
   it.each([
     ['DLH'],
     ['DSH'],
@@ -792,13 +785,10 @@ describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, D
     ['IHPK'],
     ['IHUPK'],
     ['IUBPK'],
-    ['INPK'],
     ['IUBUPK'],
     ['POEFSC'],
     ['PODFSC'],
     ['UBP'],
-    ['ICRT'],
-    ['IUCRT'],
   ])('renders the formatted estimated price field for the service item: %s', (code) => {
     render(
       <ServiceItemDetails
@@ -827,7 +817,6 @@ describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, D
     ['ISLH'],
     ['IHPK'],
     ['IHUPK'],
-    ['INPK'],
     ['IUBPK'],
     ['IUBUPK'],
     ['POEFSC'],
@@ -872,31 +861,5 @@ describe('ServiceItemDetails rejection reason ', () => {
 
       expect(screen.getByText('some rejection reason')).toBeInTheDocument();
     });
-  });
-});
-
-describe('ServiceItemDetails Estimated Price for IDSFSC, IOSFSC IOASIT, IDASIT, IOPSIT, IDDSIT, IOFSIT, IDFSIT', () => {
-  it.each([
-    [SERVICE_ITEM_CODES.IDSFSC],
-    [SERVICE_ITEM_CODES.IOSFSC],
-    [SERVICE_ITEM_CODES.IOASIT],
-    [SERVICE_ITEM_CODES.IDASIT],
-    [SERVICE_ITEM_CODES.IOPSIT],
-    [SERVICE_ITEM_CODES.IDDSIT],
-    [SERVICE_ITEM_CODES.IOFSIT],
-    [SERVICE_ITEM_CODES.IDFSIT],
-  ])('renders the formatted estimated price field for service item: %s', (code) => {
-    render(
-      <ServiceItemDetails
-        id="1"
-        code={code}
-        details={details}
-        shipment={shipment}
-        serviceRequestDocs={serviceRequestDocs}
-      />,
-    );
-
-    expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
-    expect(screen.getByText('$28.00')).toBeInTheDocument();
   });
 });

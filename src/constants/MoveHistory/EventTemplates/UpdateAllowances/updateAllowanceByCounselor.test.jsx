@@ -14,8 +14,6 @@ describe('When a service counselor updates shipping allowances', () => {
       dependents_authorized: true,
       pro_gear_weight: '100',
       pro_gear_weight_spouse: '85',
-      gun_safe_weight: '200',
-      gun_safe: false,
       required_medical_equipment_weight: '10',
       storage_in_transit: '80',
     },
@@ -31,8 +29,6 @@ describe('When a service counselor updates shipping allowances', () => {
       ['Dependents', ': Yes'],
       ['Pro-gear weight', ': 100 lbs'],
       ['Spouse pro-gear weight', ': 85 lbs'],
-      ['Gun safe weight allowance', ': 200 lbs'],
-      ['Gun safe authorized', ': No'],
       ['Required medical equipment', ': 10 lbs'],
       ['Storage in transit (SIT)', ': 80 days'],
     ])('displays the correct details value for %s', async (label, value) => {

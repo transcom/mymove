@@ -102,24 +102,6 @@ jest.mock('services/ghcApi', () => ({
     // Default to no LOA
     return Promise.resolve(undefined);
   },
-  getPayGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
-      body: [
-        {
-          grade: 'E-1',
-          description: ' E-1',
-        },
-        {
-          grade: 'E-6',
-          description: ' E-6',
-        },
-        {
-          description: 'Civilian',
-          grade: 'CIVILIAN_EMPLOYEE',
-        },
-      ],
-    }),
-  ),
 }));
 
 const useOrdersDocumentQueriesReturnValue = {
@@ -145,7 +127,7 @@ const useOrdersDocumentQueriesReturnValue = {
         totalWeight: 5000,
       },
       first_name: 'Leo',
-      grade: 'E-1',
+      grade: 'E_1',
       id: '1',
       last_name: 'Spacemen',
       order_number: 'ORDER3',
@@ -208,7 +190,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      const errorMessage = screen.getByText(/Something went wrong./);
+      const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -226,7 +208,7 @@ describe('Orders page', () => {
       expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('2222');
-      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue(' E-1');
+      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue('E-1');
       expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
     });
   });

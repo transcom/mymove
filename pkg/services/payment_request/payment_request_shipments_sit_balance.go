@@ -63,7 +63,7 @@ func lookupDaysInSIT(params models.PaymentServiceItemParams) (int, error) {
 }
 
 func isAdditionalDaySIT(code models.ReServiceCode) bool {
-	return code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT || code == models.ReServiceCodeIOASIT || code == models.ReServiceCodeIDASIT
+	return code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT
 }
 
 func hasSITServiceItem(paymentServiceItems models.PaymentServiceItems) bool {

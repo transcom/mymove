@@ -116,7 +116,7 @@ func (o *GetRanksParams) bindGrade(rawData []string, hasKey bool, formats strfmt
 // validateGrade carries on validations for parameter Grade
 func (o *GetRanksParams) validateGrade(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("grade", "path", o.Grade, []interface{}{"E-1", "E-2", "E-3", "E-4", "E-5", "E-6", "E-7", "E-8", "E-9", "E-9-SPECIAL-SENIOR-ENLISTED", "O-1", "O-2", "O-3", "O-4", "O-5", "O-6", "O-7", "O-8", "O-9", "O-10", "W-1", "W-2", "W-3", "W-4", "W-5", "AVIATION_CADET", "CIVILIAN_EMPLOYEE", "ACADEMY_CADET", "MIDSHIPMAN"}, true); err != nil {
+	if err := validate.EnumCase("grade", "path", o.Grade, []interface{}{"E_1", "E_2", "E_3", "E_4", "E_5", "E_6", "E_7", "E_8", "E_9", "E_9_SPECIAL_SENIOR_ENLISTED", "O_1_ACADEMY_GRADUATE", "O_2", "O_3", "O_4", "O_5", "O_6", "O_7", "O_8", "O_9", "O_10", "W_1", "W_2", "W_3", "W_4", "W_5", "AVIATION_CADET", "CIVILIAN_EMPLOYEE", "ACADEMY_CADET", "MIDSHIPMAN"}, true); err != nil {
 		return err
 	}
 

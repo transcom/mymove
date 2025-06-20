@@ -12,8 +12,6 @@ export default {
   missing_receipt: 'missing_receipt',
   organizational_clothing_and_individual_equipment: 'organizational_clothing_and_individual_equipment',
   gun_safe: 'gun_safe',
-  gun_safe_authorized: 'gun_safe_authorized',
-  has_gun_safe: 'has_gun_safe',
   admin_restricted_weight_location: 'admin_restricted_weight_location',
   admin_restricted_ub_weight_location: 'admin_restricted_ub_weight_location',
   email_is_preferred: 'email_is_preferred',

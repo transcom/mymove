@@ -30,7 +30,7 @@ const ordersInfo = {
   ],
   tacMDC: '9999',
   sacSDN: '999 999999 999',
-  payGrade: 'E-7',
+  payGrade: 'E_7',
 };
 
 const moveInfo = {
