@@ -57,6 +57,7 @@ var HHGAllowance CustomType = "HHGAllowance"
 var PayGrade CustomType = "PayGrade"
 var UBAllowance CustomType = "UBAllowances"
 var EvaluationReport CustomType = "EvaluationReport"
+var GunSafeWeightTicket CustomType = "GunSafeWeightTicket"
 var LineOfAccounting CustomType = "LineOfAccounting"
 var MobileHome CustomType = "MobileHome"
 var Move CustomType = "Move"
@@ -129,6 +130,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.HHGAllowance":                             HHGAllowance,
 	"models.UBAllowances":                             UBAllowance,
 	"models.EvaluationReport":                         EvaluationReport,
+	"models.GunSafeWeightTicket":                      GunSafeWeightTicket,
 	"models.LineOfAccounting":                         LineOfAccounting,
 	"models.MobileHome":                               MobileHome,
 	"models.Move":                                     Move,
