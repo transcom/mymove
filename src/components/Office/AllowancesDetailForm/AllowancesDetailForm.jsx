@@ -234,7 +234,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       />
       <dl>
         <dt>Standard weight allowance</dt>
-        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
+        <dd data-testid="weightAllowance">{formatWeight(entitlements.authorizedWeight)}</dd>
       </dl>
       {enableUB && civilianTDYUBMove && (
         <MaskedTextField
