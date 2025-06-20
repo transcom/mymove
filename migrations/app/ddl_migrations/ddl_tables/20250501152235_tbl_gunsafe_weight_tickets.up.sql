@@ -1,4 +1,5 @@
 --B-23342 Tae Jung create gunsafe_weight_tickets table for gun safe feature E-06078
+-- B-23368 Brooklyn Welsh - added "submitted" columns to stay consistent with other PPM documents
 CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	id uuid PRIMARY KEY,
 	ppm_shipment_id uuid NOT NULL
@@ -17,9 +18,8 @@ CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	deleted_at timestamptz
 );
 
--- B-23368 need these "submitted" columns to stay consistent with other PPM documents
 ALTER TABLE gunsafe_weight_tickets
-ADD COLUMN IF NOT EXISTS submitted_has_weight_tickets bool DEFAULT false;
+ADD COLUMN IF NOT EXISTS submitted_has_weight_tickets bool;
 
 ALTER TABLE gunsafe_weight_tickets
 ADD COLUMN IF NOT EXISTS submitted_weight int CHECK (weight >= 0);

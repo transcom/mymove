@@ -75,7 +75,7 @@ describe('GunSafeForm component', () => {
     it('renders blank form on load with defaults - Customer page', () => {
       render(<GunSafeForm {...defaultProps} appName={APP_NAME.MYMOVE} />, { wrapper: MockProviders });
 
-      expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Gun Safe 1' })).toBeInTheDocument();
 
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
@@ -84,7 +84,7 @@ describe('GunSafeForm component', () => {
     it('renders blank form on load with defaults - Office page', () => {
       render(<GunSafeForm {...defaultProps} appName={APP_NAME.OFFICE} />, { wrapper: MockProviders });
 
-      expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Gun Safe 1' })).toBeInTheDocument();
 
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();

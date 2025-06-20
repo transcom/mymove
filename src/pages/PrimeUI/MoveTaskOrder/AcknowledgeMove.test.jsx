@@ -36,7 +36,7 @@ const unacknowledgedMoveReturnValue = {
   isError: false,
 };
 
-const primeAcknowledgedAtText = 'Prime Acknowledged At';
+const primeAcknowledgedAtText = 'Prime Acknowledged At *';
 
 describe('PrimeUI AcknowledgeMove Page', () => {
   beforeEach(() => {
@@ -47,9 +47,11 @@ describe('PrimeUI AcknowledgeMove Page', () => {
     jest.resetAllMocks();
   });
 
-  it('renders the form with the data from an acknowledged move', async () => {
+  it('renders the form with the data from an acknowledged move and asterisks for required fields', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(acknowledgedMoveReturnValue);
     renderWithProviders(<AcknowledgeMove />);
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     // Verify fields are present and populated
     const moveCodeElement = screen.getByText('Move Code:');
@@ -60,7 +62,7 @@ describe('PrimeUI AcknowledgeMove Page', () => {
     expect(moveIdElement).toBeInTheDocument();
     expect(moveIdElement.nextSibling).toHaveTextContent('1');
 
-    const primeAcknowledgedAtLabel = screen.getByText(primeAcknowledgedAtText);
+    const primeAcknowledgedAtLabel = screen.getByLabelText(primeAcknowledgedAtText);
     expect(primeAcknowledgedAtLabel).toBeInTheDocument();
 
     const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
@@ -71,7 +73,7 @@ describe('PrimeUI AcknowledgeMove Page', () => {
     expect(dateInput).toBeDisabled();
   });
 
-  it('renders the form with the data from an unacknowledged move', async () => {
+  it('renders the form with the data from an unacknowledged move ', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(unacknowledgedMoveReturnValue);
     renderWithProviders(<AcknowledgeMove />);
 
@@ -83,7 +85,7 @@ describe('PrimeUI AcknowledgeMove Page', () => {
     expect(moveIdElement).toBeInTheDocument();
     expect(moveIdElement.nextSibling).toHaveTextContent('2');
 
-    const primeAcknowledgedAtLabel = screen.getByText(primeAcknowledgedAtText);
+    const primeAcknowledgedAtLabel = screen.getByLabelText(primeAcknowledgedAtText);
     expect(primeAcknowledgedAtLabel).toBeInTheDocument();
 
     // Verify prime acknowledged date is empty

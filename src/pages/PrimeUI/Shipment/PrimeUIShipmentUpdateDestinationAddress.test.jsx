@@ -152,7 +152,7 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
   });
 
   describe('displaying shipment address information', () => {
-    it('displays the delivery address form', async () => {
+    it('displays the delivery address form and asterisks for required fields', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(testShipmentReturnValue);
 
       renderComponent();
@@ -170,6 +170,8 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
         (mtoShipment) => mtoShipment.id === routingParams.shipmentId,
       );
       const shipment = testShipmentReturnValue.moveTaskOrder.mtoShipments[shipmentIndex];
+
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
       await waitFor(() => {
         expect(screen.getAllByLabelText(/Address 1/).length).toBe(1);
@@ -190,7 +192,8 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
           ),
         );
 
-        expect(screen.getAllByLabelText('Contractor Remarks')[0]).toHaveValue('');
+        expect(screen.getAllByLabelText('Contractor Remarks *')[0]).toHaveValue('');
+        expect(screen.getByText('Contractor Remarks')).toHaveTextContent('*');
       });
     });
     it('displays validation error when contractor remarks are blank', async () => {
@@ -224,7 +227,7 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
 
       renderComponent();
 
-      await userEvent.type(screen.getByLabelText('Contractor Remarks'), 'Test remarks');
+      await userEvent.type(screen.getByLabelText('Contractor Remarks *'), 'Test remarks');
 
       await act(async () => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(1);

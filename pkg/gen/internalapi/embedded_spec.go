@@ -4974,7 +4974,8 @@ func init() {
     "CreateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -4987,11 +4988,17 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@exmaple.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
-          "title": "Name",
+          "title": "First Name",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -8332,7 +8339,8 @@ func init() {
         "id",
         "created_at",
         "updated_at",
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -8349,16 +8357,22 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "Susan"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "name": {
+        "lastName": {
           "type": "string",
-          "title": "Name",
+          "title": "Last Name",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -9167,7 +9181,8 @@ func init() {
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -9180,10 +9195,15 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -15537,7 +15557,8 @@ func init() {
     "CreateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -15550,11 +15571,17 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@exmaple.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
-          "title": "Name",
+          "title": "First Name",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -18904,7 +18931,8 @@ func init() {
         "id",
         "created_at",
         "updated_at",
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -18921,16 +18949,22 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "Susan"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "name": {
+        "lastName": {
           "type": "string",
-          "title": "Name",
+          "title": "Last Name",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -19741,7 +19775,8 @@ func init() {
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -19754,10 +19789,15 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"

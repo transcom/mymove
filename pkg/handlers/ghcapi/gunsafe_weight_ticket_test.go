@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestCreateGunSafeWeightTicketHandler() {
 		suite.IsType(&gunsafeops.CreateGunSafeWeightTicketForbidden{}, response)
 	})
 
-	suite.Run("DELETE failure - 404- Create not found", func() {
+	suite.Run("POST failure - 404- Create not found", func() {
 		subtestData := makeCreateSubtestData(true)
 		params := subtestData.params
 
@@ -301,7 +301,7 @@ func (suite *HandlerSuite) TestUpdateGunSafeWeightTicketHandler() {
 		}
 
 		// Overwrite handler config in order to return false for FF
-		handlerConfig := suite.createS3HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		gunSafeFF := services.FeatureFlag{
 			Key:   "gun_safe",
 			Match: false,
@@ -444,7 +444,7 @@ func (suite *HandlerSuite) TestDeleteGunSafeWeightTicketHandler() {
 		params := subtestData.params
 
 		// Overwrite handler config in order to return false for FF
-		handlerConfig := suite.createS3HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		gunSafeFF := services.FeatureFlag{
 			Key:   "gun_safe",
 			Match: false,
