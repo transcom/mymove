@@ -8,8 +8,13 @@ import CustomerInfoList from '../DefinitionLists/CustomerInfoList';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 const shipments = [
   {
     approvedDate: '0001-01-01',
@@ -440,5 +445,45 @@ describe('Shipment preview modal', () => {
 
     expect(counselorRemarks.at(0).text()).toEqual('all good');
     expect(counselorRemarks.at(1).text()).toEqual('all good');
+  });
+
+  it('disables the "Approve and send" button when the feature flag is enabled', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.DISABLE_MOVE_APPROVAL);
+
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        counselingFee
+        shipmentManagementFee
+        isSubmitting
+      />,
+    );
+
+    // Wait for the feature flag to be checked and the button to be updated
+    expect(wrapper.find("button[type='submit']").prop('disabled')).toBe(true);
+  });
+  it('enables the "Approve and send" button when the feature flag is disabled', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.DISABLE_MOVE_APPROVAL);
+
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        counselingFee
+        shipmentManagementFee
+      />,
+    );
+    expect(wrapper.find("button[type='submit']").prop('disabled')).toBe(false);
   });
 });
