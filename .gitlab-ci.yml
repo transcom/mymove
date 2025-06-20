@@ -1116,6 +1116,10 @@ integration_test_mtls:
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
   variables:
+    KUBERNETES_SERVICE_CPU_REQUEST: "2"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
+    KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "1Gi"
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
@@ -1270,12 +1274,11 @@ integration_test_admin:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
-      resources:
-        requests:
-          memory: 4Gi # Minimum memory request
-        limits:
-          memory: 4Gi # Maximum memory limit
   variables:
+    KUBERNETES_SERVICE_CPU_REQUEST: "2"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
+    KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "1Gi"
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
@@ -1360,12 +1363,11 @@ integration_test_my:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
-      resources:
-        requests:
-          memory: 4Gi # Minimum memory request
-        limits:
-          memory: 4Gi # Maximum memory limit
   variables:
+    KUBERNETES_SERVICE_CPU_REQUEST: "2"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
+    KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "1Gi"
     CI_DEBUG_SERVICES: "true"
     FF_NETWORK_PER_BUILD: "true"
     KUBERNETES_CPU_REQUEST: "2"
@@ -1456,12 +1458,11 @@ integration_test_office:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
-      resources:
-        requests:
-          memory: 4Gi # Minimum memory request
-        limits:
-          memory: 4Gi # Maximum memory limit
   variables:
+    KUBERNETES_SERVICE_CPU_REQUEST: "2"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
+    KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "1Gi"
     CI_DEBUG_SERVICES: "true"
     FF_NETWORK_PER_BUILD: "true"
     KUBERNETES_CPU_REQUEST: "2"
@@ -1551,12 +1552,11 @@ integration_test_e2e_generic:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
-      resources:
-        requests:
-          memory: 4Gi # Minimum memory request
-        limits:
-          memory: 4Gi # Maximum memory limit
   variables:
+    KUBERNETES_SERVICE_CPU_REQUEST: "2"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
+    KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "1Gi"
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
