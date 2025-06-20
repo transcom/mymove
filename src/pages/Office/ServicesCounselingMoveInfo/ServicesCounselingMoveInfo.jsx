@@ -15,6 +15,7 @@ import Inaccessible from 'shared/Inaccessible';
 import { roleTypes } from 'constants/userRoles';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -38,6 +39,7 @@ const PPMReview = lazy(() => import('pages/Office/PPM/Closeout/Review/Review'));
 const PPMExpenses = lazy(() => import('pages/Office/PPM/Closeout/Expenses/Expenses'));
 const WeightTickets = lazy(() => import('pages/Office/PPM/Closeout/WeightTickets/WeightTickets'));
 const ProGear = lazy(() => import('pages/Office/PPM/Closeout/ProGear/ProGear'));
+const GunSafe = lazy(() => import('pages/Office/PPM/Closeout/GunSafe/GunSafe'));
 const PPMFinalCloseout = lazy(() => import('pages/Office/PPM/Closeout/FinalCloseout/FinalCloseout'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
@@ -55,6 +57,7 @@ const ServicesCounselingMoveInfo = ({ isMultiRole }) => {
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
+  const [gunSafeEnabled, setGunSafeEnabled] = useState(false);
   const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
       setInfoSavedAlert({
@@ -100,6 +103,13 @@ const ServicesCounselingMoveInfo = ({ isMultiRole }) => {
 
     fetchData();
   }, [infoSavedAlert, location, move, officeUserID, moveLockFlag]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const { pathname } = useLocation();
   const hideNav =
@@ -183,6 +193,13 @@ const ServicesCounselingMoveInfo = ({ isMultiRole }) => {
     matchPath(
       {
         path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_PRO_GEAR_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_EDIT_PATH,
         end: true,
       },
       pathname,
@@ -273,6 +290,12 @@ const ServicesCounselingMoveInfo = ({ isMultiRole }) => {
           />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} end element={<ProGear />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} end element={<ProGear />} />
+          {gunSafeEnabled && (
+            <>
+              <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} end element={<GunSafe />} />
+              <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} end element={<GunSafe />} />
+            </>
+          )}
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end
