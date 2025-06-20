@@ -1,5 +1,5 @@
 import React from 'react';
-import { string } from 'prop-types';
+import { string, PropTypes } from 'prop-types';
 
 import styles from './index.module.scss';
 
@@ -16,7 +16,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { roleTypes } from 'constants/userRoles';
 import departmentIndicators from 'constants/departmentIndicators';
 
-const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
+const CustomerHeader = ({ customer, order, moveCode, move, userRole, isMultiRole }) => {
   const isCoastGuard = customer.agency === departmentIndicators.COAST_GUARD;
   // eslint-disable-next-line camelcase
   const { order_type: orderType } = order;
@@ -41,7 +41,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
   const originGBLOCDisplay = order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${originGBLOC} / USMC` : originGBLOC;
 
   return (
-    <div className={styles.custHeader}>
+    <div className={styles.custHeader} style={{ top: isMultiRole ? '6.4rem' : '4.7rem' }}>
       <div>
         <div data-testid="nameBlock" className={styles.nameBlock}>
           <h2>
@@ -55,9 +55,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
               {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {ORDERS_PAY_GRADE_OPTIONS[`${order.grade}`]}
             </span>
             <span className={styles.verticalBar}>|</span>
-            <span data-testid="edipi" className={styles.details}>
-              DoD ID {customer.edipi}
-            </span>
+            <span data-testid="emplid">EMPLID {customer.emplid}</span>
             {isCoastGuard && (
               <>
                 <span className={styles.verticalBar}>|</span>
@@ -102,6 +100,11 @@ CustomerHeader.propTypes = {
   customer: CustomerShape.isRequired,
   order: OrderShape.isRequired,
   moveCode: string.isRequired,
+  isMultiRole: PropTypes.bool,
+};
+
+CustomerHeader.defaultProps = {
+  isMultiRole: false,
 };
 
 export default CustomerHeader;

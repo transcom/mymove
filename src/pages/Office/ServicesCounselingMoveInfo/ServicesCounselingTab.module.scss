@@ -80,6 +80,10 @@
   scroll-margin: 200px;
 }
 
+.leftNav {
+  margin-top: 2rem;
+}
+
 .section + .section,
 .shipmentCard + .shipmentCard {
   @include u-margin-top(4);

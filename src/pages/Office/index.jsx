@@ -174,17 +174,81 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   }
 
   // routes that render <CustomerHeader /> component
-  // TODO: add more routes as needed
   const hasCustomerHeader =
     matchPath(
       {
-        path: `/moves/:moveCode/*`,
+        path: `${tooRoutes.BASE_MOVES_PATH}/*`,
       },
       location.pathname,
     ) ||
     matchPath(
       {
         path: `${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`,
+      },
+      location.pathname,
+    );
+
+  const isForm =
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH}`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH}/*`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${tooRoutes.SHIPMENT_ADD_PATH}/*`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${tooRoutes.BASE_SHIPMENT_EDIT_PATH}/*`,
+      },
+      location.pathname,
+    );
+
+  const isTXOPage = matchPath(
+    {
+      path: `${tooRoutes.BASE_MOVES_PATH}/*`,
+    },
+    location.pathname,
+  );
+
+  const isDocViewer =
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_ORDERS_EDIT_PATH}/*`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${servicesCounselingRoutes.BASE_ALLOWANCES_EDIT_PATH}`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${tooRoutes.BASE_ORDERS_EDIT_PATH}`,
+      },
+      location.pathname,
+    ) ||
+    matchPath(
+      {
+        path: `${tooRoutes.BASE_ALLOWANCES_EDIT_PATH}`,
       },
       location.pathname,
     );
@@ -205,7 +269,15 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
               id="main"
               role="main"
               className={classnames('site__content site-office__content', {
-                [styles.headerMargin]: hasCustomerHeader,
+                [styles.headerMarginMulti]: hasCustomerHeader && displayChangeRole,
+                [styles.headerMarginMultiTXO]: hasCustomerHeader && displayChangeRole && isTXOPage,
+                [styles.headerMarginSingle]: hasCustomerHeader && !displayChangeRole,
+                [styles.headerMarginSingleTXO]: hasCustomerHeader && !displayChangeRole && isTXOPage,
+                [styles.headerMarginMultiForm]: hasCustomerHeader && displayChangeRole && isForm,
+                [styles.headerMarginSingleForm]: hasCustomerHeader && !displayChangeRole && isForm,
+                [styles.headerMarginQueue]: !hasCustomerHeader && !displayChangeRole,
+                [styles.headerMarginMultiDoc]: hasCustomerHeader && displayChangeRole && isDocViewer,
+                [styles.headerMarginSingleDoc]: hasCustomerHeader && !displayChangeRole && isDocViewer,
               })}
             >
               <ConnectedLogoutOnInactivity />
@@ -383,7 +455,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingMoveInfo />
+                          <ServicesCounselingMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -403,7 +475,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={tooRoutes.SHIPMENT_ADD_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <AddShipment />
+                          <AddShipment isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -413,7 +485,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={tooRoutes.BASE_SHIPMENT_EDIT_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <EditShipmentDetails />
+                          <EditShipmentDetails isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -422,7 +494,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <ServicesCounselingMoveInfo />
+                          <ServicesCounselingMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
@@ -595,7 +667,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             hqRoleFlag ? roleTypes.HQ : undefined,
                           ]}
                         >
-                          <TXOMoveInfo />
+                          <TXOMoveInfo isMultiRole={displayChangeRole} />
                         </PrivateRoute>
                       }
                     />
