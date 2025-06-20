@@ -1125,6 +1125,10 @@ export async function getAllReServiceItems() {
   return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }
 
+export async function getRankOptions(affiliation, grade) {
+  return makeGHCRequestRaw('order.getRanks', { affiliation, grade }, { normalize: false });
+}
+
 export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
   return makeGHCRequest(
     'ppm.submitPPMShipmentDocumentation',

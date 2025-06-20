@@ -53,14 +53,9 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
+	customAffiliation := models.AffiliationARMY
 
-	parameterName := "maxGunSafeAllowance"
-	parameterValue := "500"
-	param := models.ApplicationParameters{
-		ParameterName:  &parameterName,
-		ParameterValue: &parameterValue,
-	}
-	suite.MustSave(&param)
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
 
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -86,6 +81,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
 		Grade:                ghcmessages.GradeE1.Pointer(),
 		CounselingOfficeID:   handlers.FmtUUID(*dutyLocation.TransportationOfficeID),
+		Rank:                 strfmt.UUID(rank.ID.String()),
 	}
 
 	params := orderop.CreateOrderParams{
@@ -104,11 +100,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	okResponse := response.(*orderop.CreateOrderOK)
 	orderID := okResponse.Payload.ID.String()
 	createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
-	var createdEntitlement models.Entitlement
-	err := suite.DB().Find(&createdEntitlement, createdOrder.EntitlementID)
 
-	suite.NoError(err)
-	suite.NotEmpty(createdEntitlement)
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.CustomerID.String())
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrderType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrderNumber)
@@ -120,13 +112,14 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
 	suite.NotEmpty(createdOrder.MethodOfPayment)
 	suite.NotEmpty(createdOrder.NAICS)
-	suite.Equal(createdEntitlement.GunSafeWeight, 500)
 }
 
 func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 
 	customAffiliation := models.AffiliationARMY
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
+
 	sm := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -219,6 +212,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 		AccompaniedTour:         &accompaniedTour,
 		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
 		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
+		Rank:                    strfmt.UUID(rank.ID.String()),
 	}
 
 	params := orderop.CreateOrderParams{
@@ -281,6 +275,9 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 			},
 		},
 	}, nil)
+	// customAffiliation := models.AffiliationARMY
+
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
 
 	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
@@ -353,6 +350,7 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
 		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
 		CivilianTdyUbAllowance:  models.Int64Pointer(350),
+		Rank:                    strfmt.UUID(rank.ID.String()),
 	}
 
 	params := orderop.CreateOrderParams{
@@ -1387,7 +1385,6 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	ocie := false
 	proGearWeight := models.Int64Pointer(100)
 	proGearWeightSpouse := models.Int64Pointer(10)
-	gunSafeWeight := models.Int64Pointer(400)
 	rmeWeight := models.Int64Pointer(10000)
 
 	subtestData.body = &ghcmessages.UpdateAllowancePayload{
@@ -1396,7 +1393,6 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
-		GunSafeWeight:                  gunSafeWeight,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(60),
 	}
@@ -1464,20 +1460,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		gunSafeFF := services.FeatureFlag{
-			Key:   "gun_safe",
-			Match: true,
-		}
-
-		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
-		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-			mock.Anything,
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("string"),
-			mock.Anything,
-		).Return(gunSafeFF, nil)
-		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
-
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateAllowanceHandler{
 			handlerConfig,
@@ -1505,63 +1487,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
 		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
-		suite.Equal(*body.GunSafeWeight, ordersPayload.Entitlement.GunSafeWeight)
-		suite.NotEqual(order.Entitlement.GunSafeWeight, int(ordersPayload.Entitlement.GunSafeWeight))
-	})
-
-	suite.Run("Returns 200 when all validations pass - gun safe FF off", func() {
-		handlerConfig := suite.HandlerConfig()
-		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
-		order := subtestData.order
-		body := subtestData.body
-		gunSafeWeight := models.Int64Pointer(100)
-		body.GunSafeWeight = gunSafeWeight
-
-		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.UpdateAllowanceParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-			Body:        body,
-		}
-
-		gunSafeFF := services.FeatureFlag{
-			Key:   "gun_safe",
-			Match: false,
-		}
-
-		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
-		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-			mock.Anything,
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("string"),
-			mock.Anything,
-		).Return(gunSafeFF, nil)
-		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
-
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		handler := UpdateAllowanceHandler{
-			handlerConfig,
-			orderservice.NewOrderUpdater(moveRouter),
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-
-		suite.IsNotErrResponse(response)
-		suite.IsType(&orderop.UpdateAllowanceOK{}, response)
-		orderOK := response.(*orderop.UpdateAllowanceOK)
-		ordersPayload := orderOK.Payload
-
-		// Validate outgoing payload
-		suite.NoError(ordersPayload.Validate(strfmt.Default))
-
-		suite.Equal(order.Entitlement.GunSafeWeight, int(ordersPayload.Entitlement.GunSafeWeight))
-		suite.NotEqual(*gunSafeWeight, ordersPayload.Entitlement.GunSafeWeight)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -1733,7 +1658,6 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	proGearWeight := models.Int64Pointer(100)
 	proGearWeightSpouse := models.Int64Pointer(10)
 	rmeWeight := models.Int64Pointer(10000)
-	gunSafeWeight := models.Int64Pointer(200)
 
 	body := &ghcmessages.CounselingUpdateAllowancePayload{
 		Agency: &affiliation,
@@ -1741,7 +1665,6 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
-		GunSafeWeight:                  gunSafeWeight,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(80),
 		WeightRestriction:              models.Int64Pointer(0),
@@ -1763,20 +1686,6 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
 			Body:        body,
 		}
-
-		gunSafeFF := services.FeatureFlag{
-			Key:   "gun_safe",
-			Match: true,
-		}
-
-		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
-		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-			mock.Anything,
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("string"),
-			mock.Anything,
-		).Return(gunSafeFF, nil)
-		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := CounselingUpdateAllowanceHandler{
@@ -1803,64 +1712,8 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(*body.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
-		suite.Equal(*gunSafeWeight, ordersPayload.Entitlement.GunSafeWeight)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
 		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
-	})
-
-	suite.Run("Returns 200 when all validations pass - gun safe FF off, SC only", func() {
-		handlerConfig := suite.HandlerConfig()
-		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
-		order := move.Orders
-		gunSafeWeight := models.Int64Pointer(500)
-		payload := body
-		payload.GunSafeWeight = gunSafeWeight
-
-		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.CounselingUpdateAllowanceParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-			Body:        payload,
-		}
-
-		gunSafeFF := services.FeatureFlag{
-			Key:   "gun_safe",
-			Match: false,
-		}
-
-		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
-		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-			mock.Anything,
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("string"),
-			mock.Anything,
-		).Return(gunSafeFF, nil)
-		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
-
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		handler := CounselingUpdateAllowanceHandler{
-			handlerConfig,
-			orderservice.NewOrderUpdater(moveRouter),
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-
-		suite.IsNotErrResponse(response)
-		suite.IsType(&orderop.CounselingUpdateAllowanceOK{}, response)
-		orderOK := response.(*orderop.CounselingUpdateAllowanceOK)
-		ordersPayload := orderOK.Payload
-
-		// Validate outgoing payload
-		suite.NoError(ordersPayload.Validate(strfmt.Default))
-
-		suite.Equal(order.Entitlement.GunSafeWeight, int(ordersPayload.Entitlement.GunSafeWeight))
-		suite.NotEqual(*gunSafeWeight, ordersPayload.Entitlement.GunSafeWeight)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -2954,6 +2807,9 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 	orderUpdater := orderservice.NewOrderUpdater(moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()))
+	// customAffiliation := models.AffiliationARMY
+
+	// rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
 
 	setUpRequestAndParams := func(orders models.Order) *orderop.UploadAmendedOrdersParams {
 		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())
@@ -3046,5 +2902,51 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 			suite.Equal(uploader.FileTypePDF, payload.ContentType)
 			suite.NotEqual("", string(payload.URL))
 		}
+	})
+}
+
+func (suite *HandlerSuite) TestGetRanksHandler() {
+	suite.Run("happy path", func() {
+		order := factory.BuildOrder(suite.DB(), nil, nil)
+		affiliation := ghcmessages.AffiliationAIRFORCE
+		grade := models.ServiceMemberGradeE2
+		path := fmt.Sprintf("/ranks/%v&%v", affiliation, grade)
+		req := httptest.NewRequest("GET", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := orderop.GetRanksParams{
+			HTTPRequest: req,
+			Affiliation: string(affiliation),
+			Grade:       string(grade),
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		showHandler := GetRanksHandler{handlerConfig}
+		response := showHandler.Handle(params)
+		suite.Assertions.IsType(&orderop.GetRanksOK{}, response)
+		okResponse := response.(*orderop.GetRanksOK)
+
+		suite.Assertions.Equal(1, len(okResponse.Payload))
+	})
+
+	suite.Run("test a bad affiliation", func() {
+		order := factory.BuildOrder(suite.DB(), nil, nil)
+		grade := models.ServiceMemberGradeE2
+		path := fmt.Sprintf("/ranks/%v&%v", "FAKE", grade)
+		req := httptest.NewRequest("GET", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := orderop.GetRanksParams{
+			HTTPRequest: req,
+			Affiliation: "FAKE",
+		}
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		showHandler := GetRanksHandler{handlerConfig}
+		response := showHandler.Handle(params)
+		suite.Assertions.IsType(&orderop.GetRanksNotFound{}, response)
 	})
 }

@@ -18,6 +18,7 @@ const OrdersTable = ({
   uploads,
   originDutyLocationName,
   payGrade,
+  rank,
   orderId,
   counselingOfficeName,
   accompaniedTour,
@@ -107,8 +108,10 @@ const OrdersTable = ({
             </td>
           </tr>
           <tr>
-            <th scope="row">Pay grade</th>
-            <td>{payGrade}</td>
+            <th scope="row">Rank / Pay grade</th>
+            <td>
+              {rank?.rankAbbv} / {payGrade}
+            </td>
           </tr>
         </tbody>
       </table>

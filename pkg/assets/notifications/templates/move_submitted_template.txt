@@ -11,9 +11,7 @@ Your standard weight allowance: {{.WeightAllowance}} pounds. That is how much co
 If you move more than {{.WeightAllowance}} pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
 
 If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
-{{ if .IsGunSafeFeatureOn }}
-If you are doing a Personally Procured Move (PPM) shipment: The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against the authorized weight entitlement. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.
-{{ end }}
+
 
 ** Next Steps for your Government-arranged Shipment(s):
 ------------------------------------------------------------

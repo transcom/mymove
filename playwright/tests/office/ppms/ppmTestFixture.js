@@ -19,8 +19,6 @@ export class PpmPage extends ServiceCounselorPage {
    * @param {boolean} [options.hasProGear=false]
    * @param {string} [options.proGearWeight=1000]
    * @param {string} [options.spouseProGearWeight=500]
-   * @param {boolean} [options.hasGunSafe=false]
-   * @param {string} [options.gunSafeWeight=400]
    *
    * @returns Promise<void>
    */
@@ -30,8 +28,6 @@ export class PpmPage extends ServiceCounselorPage {
       hasProGear = false,
       proGearWeight = '1000',
       spouseProGearWeight = '500',
-      hasGunSafe = false,
-      gunSafeWeight = '400',
     } = options;
 
     await this.page.locator('input[name="estimatedWeight"]').clear();
@@ -43,11 +39,6 @@ export class PpmPage extends ServiceCounselorPage {
       await this.page.locator('input[name="spouseProGearWeight"]').fill(spouseProGearWeight);
     } else {
       await this.page.locator('label[for="hasProGearNo"]').click();
-    }
-
-    if (hasGunSafe) {
-      await this.page.locator('label[for="hasGunSafeYes"]').click();
-      await this.page.locator('input[name="gunSafeWeight"]').fill(gunSafeWeight);
     }
   }
 
@@ -86,7 +77,7 @@ export class PpmPage extends ServiceCounselorPage {
 
   /**
    * @param {Object} options
-   * @param {string} [options.expectedDepartureDate='09 Jun 2025']
+   * @param {string} [options.expectedDepartureDate='09 Jun 2022']
    * @param {string} [options.pickupPostalCode=90210]
    * @param {string} [options.secondPickupPostalCode='07003']
    *
@@ -95,7 +86,7 @@ export class PpmPage extends ServiceCounselorPage {
   async fillOutOriginInfo() {
     const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
-    await this.page.locator('input[name="expectedDepartureDate"]').fill('09 Jun 2025');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill('09 Jun 2022');
 
     await this.page.locator('input[name="pickup.address.streetAddress1"]').fill('123 Street');
     await this.page.locator('input[id="pickup.address-input"]').fill('90210');

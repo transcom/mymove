@@ -78,7 +78,6 @@ const entitlements = {
   privatelyOwnedVehicle: false,
   proGearWeight: 2000,
   proGearWeightSpouse: 500,
-  gunSafeWeight: 500,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
   storageInTransit: 90,
@@ -206,20 +205,6 @@ describe('AllowancesDetailForm additional tests', () => {
     );
 
     expect(await screen.findByTestId('gunSafeInput')).toBeInTheDocument();
-  });
-
-  it('renders gun safe weight field', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    await act(async () => {
-      render(
-        <Formik initialValues={initialValues}>
-          <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
-        </Formik>,
-      );
-    });
-
-    expect(await screen.findByTestId('gunSafeWeightInput')).toBeInTheDocument();
-    expect(screen.getByTestId('gunSafeWeightHint')).toHaveTextContent('Max. 500 lbs');
   });
 
   it('renders admin weight location section with conditional weight restriction field', async () => {

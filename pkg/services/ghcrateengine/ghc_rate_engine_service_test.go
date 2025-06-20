@@ -193,6 +193,29 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 		})
 }
 
+func (suite *GHCRateEngineServiceSuite) setupShipmentTypePrice(code models.ReServiceCode, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Name:                 contractYearName,
+				EscalationCompounded: escalationCompounded,
+				StartDate:            testdatagen.ContractStartDate,
+				EndDate:              testdatagen.ContractEndDate,
+			},
+		})
+
+	service := factory.FetchReServiceByCode(suite.DB(), code)
+
+	shipmentTypePrice := models.ReShipmentTypePrice{
+		ContractID: contractYear.Contract.ID,
+		ServiceID:  service.ID,
+		Market:     market,
+		Factor:     factor,
+	}
+
+	suite.MustSave(&shipmentTypePrice)
+}
+
 func (suite *GHCRateEngineServiceSuite) hasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, expectedValue string) bool {
 	for _, displayParam := range displayParams {
 		if displayParam.Key == key {

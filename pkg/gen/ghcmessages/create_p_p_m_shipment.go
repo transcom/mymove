@@ -41,14 +41,6 @@ type CreatePPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate"`
 
-	// gun safe weight
-	GunSafeWeight *int64 `json:"gunSafeWeight,omitempty"`
-
-	// Indicates whether PPM shipment has gun safe.
-	//
-	// Required: true
-	HasGunSafe *bool `json:"hasGunSafe"`
-
 	// Indicates whether PPM shipment has pro-gear.
 	//
 	// Required: true
@@ -145,10 +137,6 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateHasGunSafe(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateHasProGear(formats); err != nil {
 		res = append(res, err)
 	}
@@ -232,15 +220,6 @@ func (m *CreatePPMShipment) validateExpectedDepartureDate(formats strfmt.Registr
 	}
 
 	if err := validate.FormatOf("expectedDepartureDate", "body", "date", m.ExpectedDepartureDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreatePPMShipment) validateHasGunSafe(formats strfmt.Registry) error {
-
-	if err := validate.Required("hasGunSafe", "body", m.HasGunSafe); err != nil {
 		return err
 	}
 

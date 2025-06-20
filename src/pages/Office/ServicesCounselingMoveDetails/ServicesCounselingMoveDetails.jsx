@@ -418,7 +418,6 @@ const ServicesCounselingMoveDetails = ({
     totalWeight: allowances.totalWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
-    gunSafeWeight: allowances.gunSafeWeight,
     storageInTransit: allowances.storageInTransit,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
@@ -430,7 +429,6 @@ const ServicesCounselingMoveDetails = ({
     accompaniedTour: allowances.accompaniedTour,
     ubAllowance: allowances.unaccompaniedBaggageAllowance,
   };
-
   const ordersInfo = {
     currentDutyLocation: order.originDutyLocation,
     newDutyLocation: order.destinationDutyLocation,
@@ -447,6 +445,7 @@ const ServicesCounselingMoveDetails = ({
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
     payGrade: order.grade,
+    rank: order.rank.rankAbbv,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
   };

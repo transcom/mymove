@@ -30,13 +30,15 @@ import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/fo
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
+import { dropdownInputOptions, formatLabelReportByDate, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
-import { showCounselingOffices } from 'services/internalApi';
+import { getRankOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
+import { sortRankPayGradeOptions } from 'shared/utils';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 
 const EditOrdersForm = ({
   createUpload,
@@ -48,6 +50,7 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  affiliation,
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
@@ -68,6 +71,7 @@ const EditOrdersForm = ({
   const [grade, setGrade] = useState(initialValues.grade);
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
+  const [rankOptions, setRankOptions] = useState([]);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -135,6 +139,27 @@ const EditOrdersForm = ({
     };
     checkUBFeatureFlag();
   }, []);
+
+  useEffect(() => {
+    setRankOptions([]);
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getRankOptions(affiliation, grade);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchRankGradeOptions();
+  }, [affiliation, setShowLoadingSpinner, grade]);
 
   useEffect(() => {
     const fetchCounselingOffices = async () => {
@@ -545,6 +570,20 @@ const EditOrdersForm = ({
                 }}
               />
 
+              {grade !== '' ? (
+                <DropdownInput
+                  label="Rank"
+                  name="rank"
+                  id="rank"
+                  required
+                  options={rankOptions}
+                  showRequiredAsterisk
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                />
+              ) : null}
+
               <p>Uploads:</p>
               <UploadsTable
                 uploads={initialValues.uploaded_orders}
@@ -650,8 +689,14 @@ EditOrdersForm.defaultProps = {
   filePondEl: null,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(EditOrdersForm);
+export default connect(mapStateToProps, mapDispatchToProps)(EditOrdersForm);

@@ -1,3 +1,8 @@
+--insert missing pay_grades
+INSERT INTO public.pay_grades
+(id, grade, grade_description, created_at, updated_at)
+VALUES('9a892c59-48d5-4eba-b5f9-193716da8827', 'O_1', 'Officer Grade O_1', now(), now());
+
 -- Army
 INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
     ('c45746c6-0711-4ef1-ab76-c4b91f7d708f','7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'ARMY','GEN','General',1,now(),now()),
@@ -9,9 +14,9 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
     ('ecb4ec4d-6ee6-4e15-a4d7-f344b171eb4e','e83d8f8d-f70b-4db1-99cc-dd983d2fd250'::uuid,'ARMY','MAJ','Major',7,now(),now()),
     ('b34c33a2-0d62-4d9a-a6f8-7fce746443e9','5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'ARMY','CPT','Captain',8,now(),now()),
     ('8d653759-0a10-4703-9b52-bf305c48c470','d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'ARMY','1LT','First Lieutenant',9,now(),now()),
-    ('2c2e9f55-17cc-42a5-aa9a-d4efd7f2529b','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'ARMY','2LT','Second Lieutenant',10,now(),now()),
-    ('461aa3f5-8390-4fc4-b6ae-1611a4d188ce','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'ARMY','OC','Officer Candidate',10,now(),now()),
-    ('d447b93a-d0ae-4943-af1c-39830f5e7278','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'ARMY','CDT','Cadet',10,now(),now()),
+    ('2c2e9f55-17cc-42a5-aa9a-d4efd7f2529b','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'ARMY','2LT','Second Lieutenant',10,now(),now()),
+    ('461aa3f5-8390-4fc4-b6ae-1611a4d188ce','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'ARMY','OC','Officer Candidate',10,now(),now()),
+    ('d447b93a-d0ae-4943-af1c-39830f5e7278','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'ARMY','CDT','Cadet',10,now(),now()),
     ('36f84d0b-12cd-4355-af02-1bfb05e28b2a','ea8cb0e9-15ff-43b4-9e41-7168d01e7553'::uuid,'ARMY','CW5','Chief Warrant Officer 5',11,now(),now()),
     ('1b6a17fc-3659-4b02-b7ed-85bd5ac4a9a3','74db5649-cf66-4af8-939b-d3d7f1f6b7c6'::uuid,'ARMY','CW4','Chief Warrant Officer 4',12,now(),now()),
     ('07b939ea-ee1a-489e-a6ff-b8a05a5fc258','5a65fb1f-4245-4178-b6a7-cc504c9cbb37'::uuid,'ARMY','CW3','Chief Warrant Officer 3',13,now(),now()),
@@ -43,9 +48,9 @@ INSERT INTO ranks (id,pay_grade_id,affiliation,rank_abbv,rank_name,rank_order,cr
     ('299eb095-0dc9-4789-9549-3aaa147a2b81','e83d8f8d-f70b-4db1-99cc-dd983d2fd250'::uuid,'AIR_FORCE','Maj','Major',7,now(),now()),
     ('8850863d-c5e1-49dd-9c47-58a3289b122c','5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'AIR_FORCE','Capt','Captain',8,now(),now()),
     ('c98ba41b-3fcd-474f-98ac-51764cc1f0e5','d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'AIR_FORCE','1st Lt','First Lieutenant',9,now(),now()),
-    ('43b69e7b-99a3-488f-8cea-3abe63d6f20a','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'AIR_FORCE','AVC','Aviation Cadet',10,now(),now()),
-    ('914db640-0de5-494d-b917-b4a44e022f4b','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'AIR_FORCE','2d Lt','Second Lieutenant',10,now(),now()),
-    ('2cf8e36a-20fb-41fe-9268-d3d1f0219d1a','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'AIR_FORCE','AFC','Air Force Academy Cadet',10,now(),now()),
+    ('43b69e7b-99a3-488f-8cea-3abe63d6f20a','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','AVC','Aviation Cadet',10,now(),now()),
+    ('914db640-0de5-494d-b917-b4a44e022f4b','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','2d Lt','Second Lieutenant',10,now(),now()),
+    ('2cf8e36a-20fb-41fe-9268-d3d1f0219d1a','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','AFC','Air Force Academy Cadet',10,now(),now()),
     ('6317aedf-73b6-4926-b763-44ff1ba0c00a','ea8cb0e9-15ff-43b4-9e41-7168d01e7553'::uuid,'AIR_FORCE','CWO5','Chief Warrant Officer 5',11,now(),now()),
     ('3b55fae1-bd2e-4e70-b154-d0df35cd706a','74db5649-cf66-4af8-939b-d3d7f1f6b7c6'::uuid,'AIR_FORCE','CWO4','Chief Warrant Officer 4',12,now(),now()),
     ('13cf90df-c8a9-47ae-bd78-e0854db429aa','5a65fb1f-4245-4178-b6a7-cc504c9cbb37'::uuid,'AIR_FORCE','CWO3','Chief Warrant Officer 3',13,now(),now()),
@@ -71,7 +76,7 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
     ('66c6f1e8-4d82-48ff-ae4a-622ec54a2b75','e83d8f8d-f70b-4db1-99cc-dd983d2fd250'::uuid,'MARINES','Maj','Major',7,now(),now()),
     ('53c41df9-dd4b-4821-83ce-3927e39cf9d4','5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'MARINES','Capt','Captain',8,now(),now()),
     ('5a21a044-207c-4c4d-bfe2-7a73c717fed6','d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'MARINES','1stLt','First Lieutenant',9,now(),now()),
-    ('d01f62c6-14d6-4f5d-8b42-f2319df6730d','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'MARINES','2ndLt','Second Lieutenant',10,now(),now()),
+    ('d01f62c6-14d6-4f5d-8b42-f2319df6730d','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'MARINES','2ndLt','Second Lieutenant',10,now(),now()),
     ('deedacab-55f6-4a0a-8042-9a6b45d4f819','ea8cb0e9-15ff-43b4-9e41-7168d01e7553'::uuid,'MARINES','CWO5','Chief Warrant Officer 5',11,now(),now()),
     ('fd522412-7b6d-410b-9629-1acba8b63108','74db5649-cf66-4af8-939b-d3d7f1f6b7c6'::uuid,'MARINES','CWO4','Chief Warrant Officer 4',12,now(),now()),
     ('3821df00-1b7a-449d-b529-ac789e72f52c','5a65fb1f-4245-4178-b6a7-cc504c9cbb37'::uuid,'MARINES','CWO3','Chief Warrant Officer 3',13,now(),now()),
@@ -100,8 +105,8 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
     ('4616c1c9-6794-4009-a8ff-e7d5b4a5f9e4','e83d8f8d-f70b-4db1-99cc-dd983d2fd250'::uuid,'NAVY','LCDR','Lieutenant Commander',7,now(),now()),
     ('6d1c27bc-245b-452a-9cd3-6da5540cf6db','5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'NAVY','LT','Lieutenant',8,now(),now()),
     ('7ff96b44-c9b2-4db8-91a0-94671f987faf','d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'NAVY','LTJG','Lieutenant JG',9,now(),now()),
-    ('ffc413c3-59df-4c5c-848f-b530a1bee691','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'NAVY','ENS','Ensign',10,now(),now()),
-    ('0dc31054-0939-44ff-80c4-114b80f40895','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'NAVY','MID','Midshipman',10,now(),now()),
+    ('ffc413c3-59df-4c5c-848f-b530a1bee691','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'NAVY','ENS','Ensign',10,now(),now()),
+    ('0dc31054-0939-44ff-80c4-114b80f40895','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'NAVY','MID','Midshipman',10,now(),now()),
     ('d5a88410-076d-42aa-9889-5e90b87f4821','ea8cb0e9-15ff-43b4-9e41-7168d01e7553'::uuid,'NAVY','CWO5','Chief Warrant Officer 5',11,now(),now()),
     ('9d40f511-123a-4e22-8fb9-f5107c3dc63e','74db5649-cf66-4af8-939b-d3d7f1f6b7c6'::uuid,'NAVY','CWO4','Chief Warrant Officer 4',12,now(),now()),
     ('0739d2e0-267c-4b11-abd9-0baec2b44cc7','5a65fb1f-4245-4178-b6a7-cc504c9cbb37'::uuid,'NAVY','CWO3','Chief Warrant Officer 3',13,now(),now()),
@@ -128,8 +133,8 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
     ('685cfe77-a633-4a9a-8a17-adb9fa71e5f0','e83d8f8d-f70b-4db1-99cc-dd983d2fd250'::uuid,'COAST_GUARD','LCDR','Lieutenant Commander',7,now(),now()),
     ('4f0dafd9-038c-4eb7-afd4-866abf3bd056','5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'COAST_GUARD','LT','Lieutenant',8,now(),now()),
     ('03e42915-41e9-4246-9aec-26662148e6c6','d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'COAST_GUARD','LTJG','Lieutenant JG',9,now(),now()),
-    ('9f86e4ba-29f3-47db-b9a2-da5de1d585a4','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'COAST_GUARD','MID','Midshipman',10,now(),now()),
-    ('9d2342de-b299-45d1-b521-96e0d1435ac5','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'COAST_GUARD','ENS','Ensign',10,now(),now()),
+    ('9f86e4ba-29f3-47db-b9a2-da5de1d585a4','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'COAST_GUARD','MID','Midshipman',10,now(),now()),
+    ('9d2342de-b299-45d1-b521-96e0d1435ac5','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'COAST_GUARD','ENS','Ensign',10,now(),now()),
     ('446c41b6-04bd-4847-80ca-95a6dc5430fd','74db5649-cf66-4af8-939b-d3d7f1f6b7c6'::uuid,'COAST_GUARD','CWO4','Chief Warrant Officer 4',11,now(),now()),
     ('ee2fe271-e68f-4958-bc18-f7e03b05b4b0','5a65fb1f-4245-4178-b6a7-cc504c9cbb37'::uuid,'COAST_GUARD','CWO3','Chief Warrant Officer 3',12,now(),now()),
     ('d12ac35b-07e8-485a-968c-2a1a912e14d4','a687a2e1-488c-4943-b9d9-3d645a2712f4'::uuid,'COAST_GUARD','CWO2','Chief Warrant Officer 2',13,now(),now()),
@@ -154,7 +159,7 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
     ('12a68180-8299-4ea0-b8a6-50b79ac6f74e','e83d8f8d-f70b-4db1-99cc-dd983d2fd250'::uuid,'SPACE_FORCE','Maj','Major',7,now(),now()),
     ('dc82cc34-8fd1-49ff-8bf7-31793fe93316','5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'SPACE_FORCE','Capt','Captain',8,now(),now()),
     ('103d519d-1b5d-4226-8c71-d34f366a0583','d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'SPACE_FORCE','1st Lt','First Lieutenant',9,now(),now()),
-    ('aa604956-fc8b-4f97-a66f-16d6d875c564','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'SPACE_FORCE','2d Lt','Second Lieutenant',10,now(),now()),
+    ('aa604956-fc8b-4f97-a66f-16d6d875c564','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'SPACE_FORCE','2d Lt','Second Lieutenant',10,now(),now()),
     ('903c8212-19b7-40e4-9f4b-150f6f76b8aa','a5fc8fd2-6f91-492b-abe2-2157d03ec990'::uuid,'SPACE_FORCE','CMSgt','Chief Master Sergeant',12,now(),now()),
     ('0cb0fe2c-7d45-4167-bce7-2ae85b6debd8','1d909db0-602f-4724-bd43-8f90a6660460'::uuid,'SPACE_FORCE','SMSgt','Senior Master Sergeant',13,now(),now()),
     ('0d35702e-5cd1-4051-a049-45e32a9116f0','523d57a1-529c-4dfd-8c33-9cb169fd29a0'::uuid,'SPACE_FORCE','MSgt','Master Sergeant',14,now(),now()),
@@ -166,13 +171,13 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
     ('61c647fa-5325-45b9-8d6f-30a2aaa06308','6cb785d0-cabf-479a-a36d-a6aec294a4d0'::uuid,'SPACE_FORCE','Spc1','Specialist 1',20,now(),now());
 
 INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
-    ('d3aa6931-7858-4123-be0b-f3242a49e9f7', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'AIR_FORCE','CIV','Civilian',26,now(),now()),
-    ('0be75ca3-5226-447b-ad5f-d73205946bcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'ARMY','CIV','Civilian',31,now(),now()),
-    ('4af7df34-a5a3-448e-93eb-7bed05704cd0', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civilian',26,now(),now()),
-    ('676ae8f9-0ca6-4919-b502-ef46c1cfaa48', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civilian',29,now(),now()),
-    ('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civilian',27,now(),now()),
-    ('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civilian',21,now(),now()),
-    ('6557dfe3-35b7-44c5-adee-43a29dfcf289', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'OTHER','CIV','Civilian',0,now(),now());
+    ('d3aa6931-7858-4123-be0b-f3242a49e9f7', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'AIR_FORCE','CIV','Civilian',null,now(),now()),
+    ('0be75ca3-5226-447b-ad5f-d73205946bcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'ARMY','CIV','Civilian',null,now(),now()),
+    ('4af7df34-a5a3-448e-93eb-7bed05704cd0', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civilian',null,now(),now()),
+    ('676ae8f9-0ca6-4919-b502-ef46c1cfaa48', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civilian',null,now(),now()),
+    ('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civilian',null,now(),now()),
+    ('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civilian',null,now(),now()),
+    ('6557dfe3-35b7-44c5-adee-43a29dfcf289', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'OTHER','CIV','Civilian',null,now(),now());
 
 INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
     ('4e75f79c-2a2a-442e-a7c9-bd3bcf57e3c4','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'AIR_FORCE','CMSAF','Chief Master Sergeant of the Air Force',16,now(),now()),
@@ -185,7 +190,8 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
 INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
     ('5324bc17-9c46-486e-9d7f-1ed9f1f76dcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'CIVILIAN', 'CIV', 'Civilian', 1, now(), now());
 
---add rank_id to orders table
+
+--add pay_grade_rank_id to orders table
 alter table orders drop if exists rank_id;
 alter table ranks drop constraint if exists rank_id;
 
@@ -228,3 +234,50 @@ begin
 	end loop;
 
 end ';
+
+--update grade and rank on orders
+update orders
+   set grade = 'O_1',
+       rank_id = '2cf8e36a-20fb-41fe-9268-d3d1f0219d1a' --O_1/AFC
+ where grade in ('ACADEMY_CADET','O_1_ACADEMY_GRADUATE')
+   and service_member_id in (select id from service_members where affiliation = 'AIR_FORCE');
+
+update orders
+   set grade = 'O_1',
+       rank_id = 'd447b93a-d0ae-4943-af1c-39830f5e7278' --O_1/CDT
+ where grade in ('ACADEMY_CADET','O_1_ACADEMY_GRADUATE')
+   and service_member_id in (select id from service_members where affiliation = 'ARMY');
+
+update orders
+   set grade = 'O_1',
+       rank_id = '0dc31054-0939-44ff-80c4-114b80f40895' --O_1/MID
+ where grade = 'MIDSHIPMAN'
+   and service_member_id in (select id from service_members where affiliation = 'NAVY');
+
+--remove unused pay grades
+delete from pay_grades where grade in
+('O_1_ACADEMY_GRADUATE',
+'ACADEMY_CADET',
+'MIDSHIPMAN',
+'AVIATION_CADET');
+
+INSERT INTO hhg_allowances (
+        id,
+        pay_grade_id,
+        total_weight_self,
+        total_weight_self_plus_dependents,
+        pro_gear_weight,
+        pro_gear_weight_spouse
+    )
+VALUES (
+        '9a892c59-48d5-4eba-b5f9-193716da8827',
+        (
+            SELECT id
+            FROM pay_grades
+            WHERE grade = 'O_1'
+        ),
+        10000,
+        12000,
+        2000,
+        500
+    );

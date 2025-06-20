@@ -53,13 +53,6 @@ type UpdatePPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate,omitempty"`
 
-	// The estimated weight of the gun safe being moved belonging to the service member.
-	GunSafeWeight *int64 `json:"gunSafeWeight,omitempty"`
-
-	// Indicates whether PPM shipment has gun safe.
-	//
-	HasGunSafe *bool `json:"hasGunSafe,omitempty"`
-
 	// Indicates whether PPM shipment has pro-gear.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`

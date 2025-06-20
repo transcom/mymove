@@ -427,6 +427,17 @@ func orderFromCounselingPayload(appCtx appcontext.AppContext, existingOrder mode
 			weight = weightAllotment.TotalWeightSelfPlusDependents
 		}
 		order.Entitlement.DBAuthorizedWeight = &weight
+
+		var rank models.Rank
+		if payload.Rank != nil {
+			err = appCtx.DB().Find(&rank, payload.Rank)
+			if err != nil {
+				return models.Order{}, err
+			}
+
+			order.RankID = models.UUIDPointer(rank.ID)
+			order.Rank = &rank
+		}
 	}
 
 	if payload.HasDependents != nil {
@@ -446,10 +457,6 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 
 	if payload.ProGearWeightSpouse != nil {
 		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
-	}
-
-	if payload.GunSafeWeight != nil {
-		order.Entitlement.GunSafeWeight = int(*payload.GunSafeWeight)
 	}
 
 	if payload.RequiredMedicalEquipmentWeight != nil {
@@ -570,10 +577,6 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	if payload.ProGearWeightSpouse != nil {
 		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
-	}
-
-	if payload.GunSafeWeight != nil {
-		order.Entitlement.GunSafeWeight = int(*payload.GunSafeWeight)
 	}
 
 	if payload.RequiredMedicalEquipmentWeight != nil {

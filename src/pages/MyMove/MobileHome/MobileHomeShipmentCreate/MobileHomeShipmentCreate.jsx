@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
+import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
+
 import MobileHomeShipmentForm from 'components/Customer/MobileHomeShipment/MobileHomeShipmentForm/MobileHomeShipmentForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import pageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
@@ -25,6 +27,7 @@ const MobileHomeShipmentCreate = ({
   serviceMemberMoves,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [multiMove, setMultiMove] = useState(false);
 
   const navigate = useNavigate();
   const { moveId } = useParams();
@@ -36,11 +39,19 @@ const MobileHomeShipmentCreate = ({
 
   const isNewShipment = !mtoShipment?.id;
 
+  useEffect(() => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
+  }, []);
+
   const handleBack = () => {
     if (isNewShipment) {
       navigate(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
-    } else {
+    } else if (multiMove) {
       navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(generalRoutes.HOME_PATH);
     }
   };
 

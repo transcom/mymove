@@ -14,7 +14,6 @@ const info = {
   totalWeight: 12000,
   progear: 2000,
   spouseProgear: 500,
-  gunSafeWeight: 300,
   storageInTransit: 90,
   dependents: true,
   requiredMedicalEquipmentWeight: 1000,
@@ -119,15 +118,6 @@ describe('AllowancesList', () => {
     expect(screen.getByText('500 lbs')).toBeInTheDocument();
   });
 
-  it('renders formatted gun safe', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    await act(async () => {
-      render(<AllowancesList info={info} />);
-    });
-    expect(screen.getByText('Gun safe weight')).toBeInTheDocument();
-    expect(screen.getByText('300 lbs')).toBeInTheDocument();
-  });
-
   it('renders formatted Required medical equipment', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByText('1,000 lbs')).toBeInTheDocument();
@@ -144,14 +134,10 @@ describe('AllowancesList', () => {
     expect(screen.getByTestId('ocie').textContent).toEqual('Unauthorized');
   });
 
-  it('renders visual cues classname', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    await act(async () => {
-      render(<AllowancesList info={info} showVisualCues />);
-    });
+  it('renders visual cues classname', () => {
+    render(<AllowancesList info={info} showVisualCues />);
     expect(screen.getByText('Pro-gear').parentElement.className).toContain('rowWithVisualCue');
     expect(screen.getByText('Spouse pro-gear').parentElement.className).toContain('rowWithVisualCue');
-    expect(screen.getByText('Gun safe weight').parentElement.className).toContain('rowWithVisualCue');
     expect(screen.getByText('Required medical equipment').parentElement.className).toContain('rowWithVisualCue');
     expect(screen.getByText('OCIE').parentElement.className).toContain('rowWithVisualCue');
   });

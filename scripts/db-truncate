@@ -49,7 +49,6 @@ BEGIN
                                     're_contracts',
                                     're_contract_years',
                                     'service_params',
-                                    're_shipment_type_prices',
                                     'service_item_param_keys',
                                     'ub_allowances',
                                     'us_post_region_cities',

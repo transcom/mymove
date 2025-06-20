@@ -15,6 +15,8 @@ import {
   CustomerPage,
 } from '../../../utils/my/customerTest';
 
+const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
+
 /**
  * CustomerPpmPage test fixture
  *
@@ -469,7 +471,9 @@ export class CustomerPpmPage extends CustomerPage {
    */
 
   async navigateFromHomePageToExistingPPMDateAndLocationPage() {
-    await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    if (multiMoveEnabled) {
+      await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    }
     await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
 
     await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
@@ -479,7 +483,9 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   async navigateToAboutPageAndFillOutAboutFormDate() {
-    await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    if (multiMoveEnabled) {
+      await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    }
     await this.clickOnUploadPPMDocumentsButton();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/about/);

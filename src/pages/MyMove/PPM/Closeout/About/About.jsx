@@ -3,6 +3,8 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -28,6 +30,7 @@ const About = () => {
   const dispatch = useDispatch();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const [multiMove, setMultiMove] = useState(false);
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
   const { ppmType } = ppmShipment;
@@ -44,6 +47,10 @@ const About = () => {
       .finally(() => {
         setIsLoading(false);
       });
+
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
   }, [moveId, mtoShipmentId, dispatch]);
 
   if (!mtoShipment || isLoading) {
@@ -51,7 +58,11 @@ const About = () => {
   }
 
   const handleBack = () => {
-    navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {

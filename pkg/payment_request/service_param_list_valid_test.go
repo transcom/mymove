@@ -206,10 +206,10 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 		}
 
 		paymentHelper := RequestPaymentHelper{}
-		validParamList1, validateMessage1 := paymentHelper.ValidServiceParamList(suite.AppContextForTest(), subtestData.mtoServiceItem1, subtestData.mtoService1ServiceParams, paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams)
+		validParamList1, validateMessage1 := paymentHelper.ValidServiceParamList(subtestData.mtoServiceItem1, subtestData.mtoService1ServiceParams, paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams)
 		suite.Equal(true, validParamList1, "All params for service item should be present")
 		suite.Empty(validateMessage1, "No error message returned")
-		validParamList2, validateMessage2 := paymentHelper.ValidServiceParamList(suite.AppContextForTest(), subtestData.mtoServiceItem2, subtestData.mtoService2ServiceParams, paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams)
+		validParamList2, validateMessage2 := paymentHelper.ValidServiceParamList(subtestData.mtoServiceItem2, subtestData.mtoService2ServiceParams, paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams)
 		suite.Equal(true, validParamList2, "All params for service item should be present")
 		suite.Empty(validateMessage2, "No error message returned")
 	})
@@ -248,7 +248,6 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 
 		paymentHelper := RequestPaymentHelper{}
 		validParamList1, validateMessage1 := paymentHelper.ValidServiceParamList(
-			suite.AppContextForTest(),
 			subtestData.mtoServiceItem1,
 			subtestData.mtoService1ServiceParams,
 			paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams,
@@ -257,7 +256,6 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 		suite.NotEmpty(validateMessage1, "Expected error message listing missing param keys")
 
 		validParamList2, validateMessage2 := paymentHelper.ValidServiceParamList(
-			suite.AppContextForTest(),
 			subtestData.mtoServiceItem2,
 			subtestData.mtoService2ServiceParams,
 			paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams,

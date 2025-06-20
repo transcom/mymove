@@ -737,7 +737,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	if models.DepartmentIndicator(*orders.DepartmentIndicator) != models.DepartmentIndicatorCOASTGUARD {
 
 		//"HE" - E-1 through E-9 and Special Enlisted
-		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
+		//"HO" - O-1 Academy graduate through O-10, W1 - W5
 		//"HC" - Civilian employee
 
 		if orders.Grade == nil {
@@ -748,7 +748,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		hhgCode := ""
 		if grade[:2] == "E_" {
 			hhgCode = "HE"
-		} else if grade[:2] == "O_" || grade[:2] == "W_" || grade == models.ServiceMemberGradeACADEMYCADET || grade == models.ServiceMemberGradeAVIATIONCADET || grade == models.ServiceMemberGradeMIDSHIPMAN {
+		} else if grade[:2] == "O_" || grade[:2] == "W_" {
 			hhgCode = "HO"
 		} else if grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
 			hhgCode = "HC"

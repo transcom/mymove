@@ -1,14 +1,4 @@
 // Defining color variables.
-//USWDS Colors
-$primary: #0050d8;
-$primary-dark: #1a4480;
-$primary-darker: #162e51;
-$disabled: #c9c9c9;
-$secondary-light: #f2938c;
-$secondary: #d83933;
-$secondary-dark: #b50909;
-$secondary-darker: #8b0a03;
-
 //Group 1: Brand Colors
 $mm-blue: #252f3e;
 $mm-gold: #ffbe2e;
@@ -29,9 +19,9 @@ $base-darker: #3d4551;
 $base-darkest: #171717;
 
 //Group 4: Form State colors
-$error: $secondary;
-$error-dark: $secondary-dark;
-$error-light: $secondary-light;
+$error: #e34b11;
+$error-dark: #a03003;
+$error-light: #f4e3db;
 $warning: #ffbe2e;
 $warning-light: #faf3d1;
 $success: #008a00;
@@ -55,6 +45,12 @@ $accent-default: $base-light;
 // Group 6 Info colors
 $info: #5994f6;
 $info-light: #ecf1f7;
+
+//USWDS Colorrs
+$primary: #0050d8;
+$primary-dark: #1a4480;
+$primary-darker: #162e51;
+$disabled: #c9c9c9;
 
 //Last Group: these were here when I got here.
 $color-gold: #fdb81e;

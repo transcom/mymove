@@ -50,29 +50,3 @@ func (suite *ModelSuite) TestFetchRateAreaID() {
 		suite.Error(err)
 	})
 }
-
-func (suite *ModelSuite) TestFetchRateArea() {
-	suite.Run("Successful", func() {
-		service := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIOPSIT)
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		address := factory.BuildAddress(suite.DB(), nil, nil)
-		ra, err := models.FetchRateArea(suite.DB(), address.ID, service.ID, contract.ID)
-		suite.FatalNoError(err)
-		suite.True(len(ra.Code) > 0)
-	})
-
-	suite.Run("failure - not found, invalid address", func() {
-		service := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIOPSIT)
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		invalidAddressID := uuid.Must(uuid.NewV4())
-		_, err := models.FetchRateArea(suite.DB(), invalidAddressID, service.ID, contract.ID)
-		suite.NotNil(err)
-		suite.Contains(err.Error(), "Rate area not found for address")
-	})
-
-	suite.Run("failure - required parameters", func() {
-		_, err := models.FetchRateArea(suite.DB(), uuid.Must(uuid.NewV4()), uuid.Nil, uuid.Nil)
-		suite.NotNil(err)
-		suite.Contains(err.Error(), "error fetching rate area - required parameters not provided")
-	})
-}

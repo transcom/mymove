@@ -506,7 +506,6 @@ func CreateInternationalAccessorialServiceItemsForShipment(db *pop.Connection, s
 // a db stored proc that will handle updating the pricing_estimate columns of basic service items for shipment types:
 // iHHG
 // iUB
-// iNTS
 func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, shipment *MTOShipment, mileage *int) error {
 	err := db.RawQuery("CALL update_service_item_pricing($1, $2)", shipment.ID, mileage).Exec()
 	if err != nil {

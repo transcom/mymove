@@ -121,6 +121,9 @@ type Order struct {
 	// packing and shipping instructions
 	PackingAndShippingInstructions string `json:"packingAndShippingInstructions,omitempty"`
 
+	// rank
+	Rank *Rank `json:"rank,omitempty"`
+
 	// report by date
 	// Example: 2020-01-01
 	// Format: date
@@ -221,6 +224,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginDutyLocationGBLOC(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -522,6 +529,25 @@ func (m *Order) validateOriginDutyLocationGBLOC(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Order) validateRank(formats strfmt.Registry) error {
+	if swag.IsZero(m.Rank) { // not required
+		return nil
+	}
+
+	if m.Rank != nil {
+		if err := m.Rank.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Order) validateReportByDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ReportByDate) { // not required
 		return nil
@@ -615,6 +641,10 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateOriginDutyLocationGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRank(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -877,6 +907,27 @@ func (m *Order) contextValidateOriginDutyLocationGBLOC(ctx context.Context, form
 			return ce.ValidateName("originDutyLocationGBLOC")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Rank != nil {
+
+		if swag.IsZero(m.Rank) { // not required
+			return nil
+		}
+
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -16,14 +16,18 @@ import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/Requi
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
-import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { showCounselingOffices } from 'services/ghcApi';
+import { showCounselingOffices, getRankOptions } from 'services/ghcApi';
 import Hint from 'components/Hint';
+import { sortRankPayGradeOptions } from 'shared/utils';
+import { setShowLoadingSpinner } from 'store/general/actions';
+import { milmoveLogger } from 'utils/milmoveLog';
+import retryPageLoading from 'utils/retryPageLoading';
+import { dropdownInputOptions } from 'utils/formatters';
 
 let originMeta;
 let newDutyMeta = '';
@@ -34,6 +38,7 @@ const AddOrdersForm = ({
   onBack,
   isSafetyMoveSelected,
   isBluebarkMoveSelected,
+  affiliation,
 }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
@@ -51,6 +56,8 @@ const AddOrdersForm = ({
   const [grade, setGrade] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
+  const [rankOptions, setRankOptions] = useState([]);
+
   const { customerId: serviceMemberId } = useParams();
 
   const validationSchema = Yup.object().shape({
@@ -70,6 +77,9 @@ const AddOrdersForm = ({
       : Yup.string().notRequired(),
     newDutyLocation: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    rank: Yup.string()
+      .matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+      .required('Required'),
     accompaniedTour: showAccompaniedTourField
       ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
       : Yup.string().notRequired(),
@@ -128,6 +138,26 @@ const AddOrdersForm = ({
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, serviceMemberId]);
 
+  useEffect(() => {
+    setRankOptions([]);
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getRankOptions(affiliation, grade);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks.body);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    if (grade !== '') fetchRankGradeOptions();
+  }, [affiliation, grade]);
   useEffect(() => {
     if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
       if (
@@ -240,7 +270,7 @@ const AddOrdersForm = ({
             <SectionWrapper className={formStyles.formSection}>
               {requiredAsteriskMessage}
               <DropdownInput
-                label="Orders type"
+                label="Orders types"
                 name="ordersType"
                 options={filteredOrderTypeOptions}
                 required
@@ -457,6 +487,7 @@ const AddOrdersForm = ({
                 label="Pay grade"
                 name="grade"
                 id="grade"
+                data-testid="paygradeDropDown"
                 required
                 options={payGradeOptions}
                 showRequiredAsterisk
@@ -465,6 +496,21 @@ const AddOrdersForm = ({
                   handleChange(e);
                 }}
               />
+
+              {grade !== '' ? (
+                <DropdownInput
+                  label="Rank"
+                  name="rank"
+                  id="rank"
+                  data-testid="rankDropDown"
+                  required
+                  options={rankOptions}
+                  showRequiredAsterisk
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                />
+              ) : null}
 
               {isCivilianTDYMove && showcivilianTDYUBAllowanceWarning ? (
                 <FormGroup className={styles.civilianUBAllowanceWarning}>
