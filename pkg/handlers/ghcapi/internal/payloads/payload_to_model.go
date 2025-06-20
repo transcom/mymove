@@ -842,6 +842,26 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateP
 	return model
 }
 
+// GunSafeWeightTicketModelFromUpdate model
+func GunSafeWeightTicketModelFromUpdate(gunSafeWeightTicket *ghcmessages.UpdateGunSafeWeightTicket) *models.GunSafeWeightTicket {
+	if gunSafeWeightTicket == nil {
+		return nil
+	}
+
+	model := &models.GunSafeWeightTicket{
+		Weight:           handlers.PoundPtrFromInt64Ptr(gunSafeWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(gunSafeWeightTicket.HasWeightTickets),
+		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(gunSafeWeightTicket.Status))),
+		Reason:           handlers.FmtString(gunSafeWeightTicket.Reason),
+	}
+
+	if gunSafeWeightTicket.Description != "" {
+		model.Description = handlers.FmtString(gunSafeWeightTicket.Description)
+	}
+
+	return model
+}
+
 // WeightTicketModelFromUpdate
 func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *models.WeightTicket {
 	if weightTicket == nil {

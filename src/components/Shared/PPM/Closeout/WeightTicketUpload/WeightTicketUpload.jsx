@@ -90,6 +90,10 @@ const WeightTicketUpload = ({
       return "Upload your pro-gear's weight tickets";
     }
 
+    if (name === 'gunSafe') {
+      return "Upload your gun safe's weight tickets";
+    }
+
     return 'Upload full weight ticket';
   };
 

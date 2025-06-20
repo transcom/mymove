@@ -46,6 +46,34 @@ func (_m *WeightAllotmentFetcher) GetAllWeightAllotments(appCtx appcontext.AppCo
 	return r0, r1
 }
 
+// GetTotalWeightAllotment provides a mock function with given fields: appCtx, order, entitlement
+func (_m *WeightAllotmentFetcher) GetTotalWeightAllotment(appCtx appcontext.AppContext, order models.Order, entitlement models.Entitlement) (int, error) {
+	ret := _m.Called(appCtx, order, entitlement)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTotalWeightAllotment")
+	}
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.Order, models.Entitlement) (int, error)); ok {
+		return rf(appCtx, order, entitlement)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.Order, models.Entitlement) int); ok {
+		r0 = rf(appCtx, order, entitlement)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.Order, models.Entitlement) error); ok {
+		r1 = rf(appCtx, order, entitlement)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetWeightAllotment provides a mock function with given fields: appCtx, grade, ordersType
 func (_m *WeightAllotmentFetcher) GetWeightAllotment(appCtx appcontext.AppContext, grade string, ordersType internalmessages.OrdersType) (models.WeightAllotment, error) {
 	ret := _m.Called(appCtx, grade, ordersType)
