@@ -49,7 +49,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
     : shipment.destinationAddress;
 
   return (
-    <div>
+    <div key={`${id}-${code}-sit-detail`}>
       <dl>
         {code === SERVICE_ITEM_CODES.DDFSIT || code === SERVICE_ITEM_CODES.IDFSIT
           ? generateDetailText({
@@ -77,8 +77,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -106,8 +106,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -135,7 +135,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
           </>
         )}
         {code === SERVICE_ITEM_CODES.DDDSIT && (
-          <>
+          <React.Fragment key={`${id}-${code}-DDDSIT`}>
             {generateDetailText(
               {
                 'Original Delivery Address': originalDeliveryAddress
@@ -159,10 +159,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               id,
             )}
             {!isEmpty(serviceRequestDocUploads) ? (
-              <div className={styles.uploads}>
+              <div className={styles.uploads} key={`${id}-${code}-uploads-container`}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -170,7 +170,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 ))}
               </div>
             ) : null}
-          </>
+          </React.Fragment>
         )}
         {code === SERVICE_ITEM_CODES.IDDSIT && (
           <>
@@ -199,8 +199,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -235,8 +235,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -284,8 +284,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -338,8 +338,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -378,8 +378,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -434,8 +434,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -469,8 +469,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -496,8 +496,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -527,8 +527,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -557,7 +557,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     case SERVICE_ITEM_CODES.PODFSC:
     case SERVICE_ITEM_CODES.UBP: {
       detailSectionElements.push(
-        <div>
+        <div key={`${id}-${code}-detail-section-element`}>
           <dl>
             {generateDetailText({
               'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
@@ -571,7 +571,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     case SERVICE_ITEM_CODES.CS: {
       const { estimatedPrice } = details;
       detailSectionElements.push(
-        <div>
+        <div key={`${id}-${code}-detail-section-element`}>
           <dl>{estimatedPrice && generateDetailText({ Price: `$${formatCents(estimatedPrice)}` }, id)}</dl>
         </div>,
       );
@@ -604,8 +604,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -631,7 +631,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
         crateDimensions?.height,
       )}"`;
       detailSectionElements.push(
-        <div className={styles.detailCrating}>
+        <div key={`${id}-${code}-detail-section-element`} className={styles.detailCrating}>
           <dl>
             {generateDetailText({
               'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
@@ -644,8 +644,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -658,16 +658,28 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
+    case SERVICE_ITEM_CODES.INPK: {
+      detailSectionElements.push(
+        <div key={`${id}-${code}-detail-section-element`}>
+          <dl>
+            {generateDetailText({
+              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
+          </dl>
+        </div>,
+      );
+      break;
+    }
     default:
       detailSectionElements.push(
-        <div>
+        <div key={`${id}-${code}-detail-section-element`}>
           <div>—</div>
           <dl>
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
+                {serviceRequestDocUploads.map((file, index) => (
+                  <div key={file.id ?? `${id}-${code}-upload-${index}`} className={styles.uploads}>
                     <a href={file.url} download>
                       {trimFileName(file.filename)}
                     </a>
@@ -680,14 +692,14 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
   }
   detailSectionElements.push(
-    <div>
+    <div key={`${id}-${code}-detail-section`}>
       {details.rejectionReason &&
         generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
     </div>,
   );
 
   return (
-    <div>
+    <div key={`${id}-${code}-detail-container`}>
       <dl>{detailSectionElements}</dl>
     </div>
   );
