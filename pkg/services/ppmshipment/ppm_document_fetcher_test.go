@@ -126,12 +126,53 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 			}, nil),
 		)
 
+		ppmShipment.GunSafeWeightTickets = append(
+			ppmShipment.GunSafeWeightTickets,
+			factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+
+		// Add an extra upload to the gun safe weight ticket document to verify we get all non-deleted uploads later
+		ppmShipment.GunSafeWeightTickets[0].Document.UserUploads = append(
+			ppmShipment.GunSafeWeightTickets[0].Document.UserUploads,
+			factory.BuildUserUpload(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.GunSafeWeightTickets[0].Document,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+
 		suite.FatalTrue(len(ppmShipment.WeightTickets) > 0)
 		suite.FatalTrue(len(ppmShipment.WeightTickets[0].EmptyDocument.UserUploads) > 1)
 		suite.FatalTrue(len(ppmShipment.MovingExpenses) > 0)
 		suite.FatalTrue(len(ppmShipment.MovingExpenses[0].Document.UserUploads) > 1)
 		suite.FatalTrue(len(ppmShipment.ProgearWeightTickets) > 0)
 		suite.FatalTrue(len(ppmShipment.ProgearWeightTickets[0].Document.UserUploads) > 1)
+		suite.FatalTrue(len(ppmShipment.GunSafeWeightTickets) > 0)
+		suite.FatalTrue(len(ppmShipment.GunSafeWeightTickets[0].Document.UserUploads) > 1)
 
 		return &ppmShipment
 	}
@@ -174,6 +215,17 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 
 				for j := range ppmShipment.ProgearWeightTickets[i].Document.UserUploads {
 					suite.Equal(ppmShipment.ProgearWeightTickets[i].Document.UserUploads[j].ID, fetchedDocument.ProgearWeightTickets[i].Document.UserUploads[j].ID)
+				}
+			}
+
+			suite.Equal(len(ppmShipment.GunSafeWeightTickets), len(fetchedDocument.GunSafeWeightTickets))
+
+			for i := range ppmShipment.GunSafeWeightTickets {
+				suite.Equal(ppmShipment.GunSafeWeightTickets[i].ID, fetchedDocument.GunSafeWeightTickets[i].ID)
+				suite.Equal(len(ppmShipment.GunSafeWeightTickets[i].Document.UserUploads), len(fetchedDocument.GunSafeWeightTickets[i].Document.UserUploads))
+
+				for j := range ppmShipment.GunSafeWeightTickets[i].Document.UserUploads {
+					suite.Equal(ppmShipment.GunSafeWeightTickets[i].Document.UserUploads[j].ID, fetchedDocument.GunSafeWeightTickets[i].Document.UserUploads[j].ID)
 				}
 			}
 		}
@@ -266,6 +318,32 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		suite.FatalNotNil(deletedProgearWeightTicketUpload.Upload.DeletedAt)
 		suite.FatalNotNil(deletedProgearWeightTicketUpload.DeletedAt)
 
+		// Create an upload for a gun safe weight ticket that we then delete
+		originalGunSafeWeightTicket := ppmShipment.GunSafeWeightTickets[0]
+		numValidGunSafeWeightTicketUploads := len(originalWeightTicket.EmptyDocument.UserUploads)
+		suite.FatalTrue(numValidGunSafeWeightTicketUploads > 0)
+
+		deletedGunSafeWeightTicketUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    originalGunSafeWeightTicket.Document,
+				LinkOnly: true,
+			},
+			{
+				Model: models.UserUpload{},
+				ExtendedParams: &factory.UserUploadExtendedParams{
+					UserUploader: userUploader,
+					AppContext:   suite.AppContextForTest(),
+				},
+			},
+		}, nil)
+
+		err = userUploader.DeleteUserUpload(appCtx, &deletedGunSafeWeightTicketUpload)
+
+		suite.FatalNoError(err)
+
+		suite.FatalNotNil(deletedGunSafeWeightTicketUpload.Upload.DeletedAt)
+		suite.FatalNotNil(deletedGunSafeWeightTicketUpload.DeletedAt)
+
 		// Create an upload for a moving expense that we then delete
 		originalMovingExpense := ppmShipment.MovingExpenses[0]
 		numValidMovingExpenseUploads := len(originalWeightTicket.EmptyDocument.UserUploads)
@@ -328,6 +406,18 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 			if suite.Equal(numValidProgearWeightTicketUploads, len(retrievedProgearWeightTicket.Document.UserUploads)) {
 				for _, upload := range retrievedProgearWeightTicket.Document.UserUploads {
 					suite.NotEqual(deletedProgearWeightTicketUpload.ID, upload.ID)
+					suite.Nil(upload.DeletedAt)
+				}
+			}
+
+			suite.Equal(len(ppmShipment.GunSafeWeightTickets), len(fetchedDocument.GunSafeWeightTickets))
+
+			suite.Equal(originalGunSafeWeightTicket.ID, fetchedDocument.GunSafeWeightTickets[0].ID)
+			retrievedGunSafeWeightTicket := fetchedDocument.GunSafeWeightTickets[0]
+
+			if suite.Equal(numValidGunSafeWeightTicketUploads, len(retrievedGunSafeWeightTicket.Document.UserUploads)) {
+				for _, upload := range retrievedGunSafeWeightTicket.Document.UserUploads {
+					suite.NotEqual(deletedGunSafeWeightTicketUpload.ID, upload.ID)
 					suite.Nil(upload.DeletedAt)
 				}
 			}

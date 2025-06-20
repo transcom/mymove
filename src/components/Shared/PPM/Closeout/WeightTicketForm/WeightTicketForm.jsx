@@ -26,6 +26,7 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import { uploadShape } from 'types/uploads';
 import { APP_NAME } from 'constants/apps';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),
@@ -111,7 +112,14 @@ const WeightTicketForm = ({
                 <SectionWrapper className={classnames(formStyles.formSection, styles.weightTicketSectionWrapper)}>
                   <h2>{`Trip ${tripNumber}`}</h2>
                   <h3>Vehicle</h3>
-                  <TextField label="Vehicle description" name="vehicleDescription" id="vehicleDescription" />
+                  {requiredAsteriskMessage}
+                  <TextField
+                    label="Vehicle description"
+                    name="vehicleDescription"
+                    id="vehicleDescription"
+                    showRequiredAsterisk
+                    required
+                  />
                   <Hint className={ppmStyles.hint}>Car make and model, type of truck or van, etc.</Hint>
                   <h3>Empty weight</h3>
                   <MaskedTextField
@@ -125,6 +133,8 @@ const WeightTicketForm = ({
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     suffix="lbs"
+                    showRequiredAsterisk
+                    required
                   />
                   <CheckboxField
                     id="missingEmptyWeightTicket"
@@ -156,6 +166,8 @@ const WeightTicketForm = ({
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     suffix="lbs"
+                    showRequiredAsterisk
+                    required
                   />
                   <CheckboxField
                     id="missingFullWeightTicket"
@@ -184,7 +196,9 @@ const WeightTicketForm = ({
                   <h3>Trailer</h3>
                   <FormGroup>
                     <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">On this trip, were you using a trailer that you own?</legend>
+                      <legend className="usa-label" aria-label="On this trip, were you using a trailer that you own?">
+                        <span>On this trip, were you using a trailer that you own?</span>
+                      </legend>
                       <Field
                         as={Radio}
                         id="yesOwnsTrailer"
@@ -204,7 +218,9 @@ const WeightTicketForm = ({
                     </Fieldset>
                     {values.ownsTrailer === 'true' && (
                       <Fieldset className={styles.trailerClaimedFieldset}>
-                        <legend className="usa-label">Does your trailer meet all of these criteria?</legend>
+                        <legend className="usa-label" aria-label="Does your trailer meet all of these criteria?">
+                          <span>Does your trailer meet all of these criteria?</span>
+                        </legend>
                         <ul>
                           <li>Single axle</li>
                           <li>No more than 12 feet long from rear to trailer hitch</li>
@@ -261,7 +277,9 @@ const WeightTicketForm = ({
                                     }
                                     htmlFor="proofOfTrailerOwnershipDocument"
                                   >
-                                    Upload proof of ownership
+                                    <span>
+                                      Upload proof of ownership <RequiredAsterisk />
+                                    </span>
                                   </Label>
                                 </div>
                                 {formikProps.touched?.proofOfTrailerOwnershipDocument &&

@@ -1,7 +1,8 @@
 -- B-23540 - Daniel Jordan - initial function creation for TOO origin queue refactor into db func
+-- B-23582 - Paul Stonebraker - update to handle new task order queue specific assignment column
+-- B-22712 -- Paul Stonebraker - add move data for excess weight, amended orders; attach diversions and SIT extensions to mto shipments
 -- B-23739 - Daniel Jordan - updating returns to consider lock_expires_at
 -- B-23767  Daniel Jordan - updating query to exclude FULL PPM types that provide SC and null PPM types
--- B-22712 -- Paul Stonebraker - add move data for excess weight, amended orders; attach diversions and SIT extensions to mto shipments
 
 DROP FUNCTION IF EXISTS get_origin_queue;
 CREATE OR REPLACE FUNCTION get_origin_queue(
@@ -32,13 +33,13 @@ RETURNS TABLE (
     status TEXT,
     locked_by UUID,
     lock_expires_at TIMESTAMP WITH TIME ZONE,
-    too_assigned_id UUID,
+    too_task_order_assigned_id UUID,
     counseling_transportation_office_id UUID,
     orders JSONB,
     mto_shipments JSONB,
     mto_service_items JSONB,
     counseling_transportation_office JSONB,
-    too_assigned JSONB,
+    too_task_order_assigned JSONB,
     excess_weight_qualified_at TIMESTAMP WITH TIME ZONE,
     excess_weight_acknowledged_at TIMESTAMP WITH TIME ZONE,
     excess_unaccompanied_baggage_weight_qualified_at TIMESTAMP WITH TIME ZONE,
@@ -114,7 +115,7 @@ BEGIN
             moves.status,
             moves.locked_by,
             moves.lock_expires_at,
-            moves.too_assigned_id,
+            moves.too_task_order_assigned_id,
             moves.counseling_transportation_office_id,
             moves.service_counseling_completed_at,
             moves.approvals_requested_at,
@@ -155,7 +156,7 @@ BEGIN
         JOIN service_members ON orders.service_member_id = service_members.id
         JOIN duty_locations AS origin_duty_locations ON orders.origin_duty_location_id = origin_duty_locations.id
         LEFT JOIN addresses AS addr ON origin_duty_locations.address_id = addr.id
-        LEFT JOIN office_users AS too_user ON moves.too_assigned_id = too_user.id
+        LEFT JOIN office_users AS too_user ON moves.too_task_order_assigned_id = too_user.id
         LEFT JOIN transportation_offices AS counseling_offices ON moves.counseling_transportation_office_id = counseling_offices.id
         JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
         LEFT JOIN LATERAL (
@@ -396,7 +397,7 @@ BEGIN
         status::TEXT,
         locked_by::UUID AS locked_by,
         lock_expires_at::TIMESTAMP WITH TIME ZONE AS lock_expires_at,
-        too_assigned_id::UUID AS too_assigned_id,
+        too_task_order_assigned_id::UUID AS too_task_order_assigned_id,
         counseling_transportation_office_id::UUID AS counseling_transportation_office_id,
         json_build_object(
             ''id'', orders_id_inner,
@@ -428,7 +429,7 @@ BEGIN
         COALESCE(mto_shipments, ''[]''::JSONB) AS mto_shipments,
         COALESCE(mto_service_items, ''[]''::JSONB) AS mto_service_items,
         json_build_object(''name'', counseling_office_name)::JSONB AS counseling_transportation_office,
-        json_build_object(''first_name'', too_user_first_name, ''last_name'', too_user_last_name, ''id'', too_user_id)::JSONB AS too_assigned,
+        json_build_object(''first_name'', too_user_first_name, ''last_name'', too_user_last_name, ''id'', too_user_id)::JSONB AS too_task_order_assigned,
         excess_weight_qualified_at::TIMESTAMP WITH TIME ZONE,
         excess_weight_acknowledged_at::TIMESTAMP WITH TIME ZONE,
         excess_unaccompanied_baggage_weight_qualified_at::TIMESTAMP WITH TIME ZONE,

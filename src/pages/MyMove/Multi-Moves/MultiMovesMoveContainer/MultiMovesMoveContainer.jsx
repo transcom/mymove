@@ -20,7 +20,7 @@ import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/interna
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
-import { MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
+import { checkIfMoveIsLocked, MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
 
 const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -149,17 +149,23 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
             </>
           )}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            <Button
-              data-testid="goToMoveBtn"
-              className={styles.goToMoveBtn}
-              secondary
-              outline
-              onClick={() => {
-                handleGoToMoveClick(m.id);
-              }}
-            >
-              Go to Move
-            </Button>
+            {checkIfMoveIsLocked(m) ? (
+              <Button data-testid="moveLockedBtn" className={styles.moveLockedBtn} secondary disabled>
+                Move Locked
+              </Button>
+            ) : (
+              <Button
+                data-testid="goToMoveBtn"
+                className={styles.goToMoveBtn}
+                secondary
+                outline
+                onClick={() => {
+                  handleGoToMoveClick(m.id);
+                }}
+              >
+                Go to Move
+              </Button>
+            )}
           </div>
           <FontAwesomeIcon
             className={styles.icon}

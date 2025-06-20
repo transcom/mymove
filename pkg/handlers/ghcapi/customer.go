@@ -323,7 +323,8 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				// default permission of EDIT since we want them to be able to change this info
 				defaultPermission := models.BackupContactPermissionEDIT
 				backupContact, verrs, err = newServiceMember.CreateBackupContact(appCtx.DB(),
-					*payload.BackupContact.Name,
+					*payload.BackupContact.FirstName,
+					*payload.BackupContact.LastName,
 					*payload.BackupContact.Email,
 					*payload.BackupContact.Phone,
 					models.BackupContactPermission(defaultPermission))

@@ -8,7 +8,7 @@ import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Mo
 const RequestReweighModal = ({ onClose, onSubmit, shipmentInfo }) => (
   <div>
     <Overlay />
-    <ModalContainer>
+    <ModalContainer onClose={() => onClose()}>
       <Modal>
         <ModalClose handleClick={() => onClose()} />
         <ModalTitle>
@@ -19,7 +19,7 @@ const RequestReweighModal = ({ onClose, onSubmit, shipmentInfo }) => (
         </p>
         <ModalActions>
           <Button
-            className="usa-button--tertiary"
+            className="usa-button--secondary"
             type="button"
             onClick={() => onClose()}
             data-testid="modalBackButton"

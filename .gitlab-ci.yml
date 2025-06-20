@@ -8,7 +8,7 @@
 variables:
   #Docker config
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
-  #hard code sha as newer version of debian is needed for pre-test
+
   DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
   DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
   DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
@@ -30,16 +30,16 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env placeholder_env
+  DP3_ENV: &dp3_env loadtest
 
-  # Specify the branch to deploy
-  DP3_BRANCH: &dp3_branch placeholder_branch_name
+  # Specify the branch to deploy TODO: this might be not needed. So far useless
+  DP3_BRANCH: &dp3_branch integrationTesting
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch integrationTesting
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch integrationTesting
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch integrationTesting
+  SERVER_IGNORE_BRANCH: &server_ignore_branch integrationTesting
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
@@ -1494,8 +1494,8 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     # - echo "Deploy post to GEX service"
     # - ./scripts/ecs-deploy-task-container post-file-to-gex "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-    # - echo "Deploy process EDIs service"
-    # - ./scripts/ecs-deploy-task-container process-edis "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploy process EDIs service"
+    - ./scripts/ecs-deploy-task-container process-edis "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:

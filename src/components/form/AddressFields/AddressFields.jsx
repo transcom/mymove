@@ -3,6 +3,8 @@ import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
+import { requiredAsteriskMessage } from '../RequiredAsterisk';
+
 import Hint from 'components/Hint/index';
 import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
@@ -16,8 +18,8 @@ import LocationInput from 'components/form/fields/LocationInput';
  * @param render
  * @param validators
  * @param zipCity
- * @param address1LabelHint string to override display labelHint if street 1 is Optional/Required per context.
- * This is specifically designed to handle unique display between customer and office/prime sim for address 1.
+ * @param optionalAddress1
+ * @param optionalLocationLookup
  * @return {JSX.Element}
  * @constructor
  */
@@ -29,24 +31,13 @@ export const AddressFields = ({
   validators,
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
-  address1LabelHint,
+  optionalAddress1,
+  optionalLocationLookup,
+  includePOBoxes,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
-
-  const getAddress1LabelHintText = (labelHint, address1Label) => {
-    if (address1Label === null) {
-      return labelHint;
-    }
-
-    // Override default and use what is passed in.
-    if (address1Label && address1Label.trim().length > 0) {
-      return address1Label;
-    }
-
-    return null;
-  };
 
   const handleOnLocationChange = (value) => {
     const city = value ? value.city : null;
@@ -72,21 +63,29 @@ export const AddressFields = ({
     });
   };
 
+  // E-05732: for PPMs, the destination address street 1 is now optional except for closeout
+  // this field is usually always required other than PPMs
+  const showRequiredAsteriskForAddress1 = !optionalAddress1 || labelHintProp === 'Required';
+
+  // For some cases (such as some pages of the  prime UI) the location lookup field is also optional
+  const showRequiredAsteriskForLocationLookup = !optionalLocationLookup;
+
   return (
     <Fieldset legend={legend} className={className}>
+      {(showRequiredAsteriskForAddress1 || showRequiredAsteriskForLocationLookup) && requiredAsteriskMessage}
       {render(
         <>
           <TextField
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
-            labelHint={getAddress1LabelHintText(labelHintProp, address1LabelHint)}
+            required={showRequiredAsteriskForAddress1}
+            showRequiredAsterisk={showRequiredAsteriskForAddress1}
             data-testid={`${name}.streetAddress1`}
             validate={validators?.streetAddress1}
           />
           <TextField
             label="Address 2"
-            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress2`}
             data-testid={`${name}.streetAddress2`}
@@ -94,7 +93,6 @@ export const AddressFields = ({
           />
           <TextField
             label="Address 3"
-            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress3_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress3`}
             data-testid={`${name}.streetAddress3`}
@@ -105,6 +103,8 @@ export const AddressFields = ({
             placeholder="Start typing a Zip or City, State Zip"
             label="Location Lookup"
             handleLocationChange={handleOnLocationChange}
+            includePOBoxes={includePOBoxes}
+            showRequiredAsteriskForLocationLookup={showRequiredAsteriskForLocationLookup}
           />
 
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
@@ -120,7 +120,6 @@ export const AddressFields = ({
                 label="City"
                 id={`city_${addressFieldsUUID.current}`}
                 name={`${name}.city`}
-                labelHint={labelHintProp}
                 data-testid={`${name}.city`}
                 display="readonly"
                 validate={validators?.city}
@@ -130,7 +129,6 @@ export const AddressFields = ({
                 id={`state_${addressFieldsUUID.current}`}
                 name={`${name}.state`}
                 data-testid={`${name}.state`}
-                labelHint={labelHintProp}
                 display="readonly"
                 validate={validators?.state}
                 styles="margin-top: 1.5em"
@@ -143,7 +141,6 @@ export const AddressFields = ({
                 name={`${name}.postalCode`}
                 data-testid={`${name}.postalCode`}
                 maxLength={10}
-                labelHint={labelHintProp}
                 display="readonly"
                 validate={validators?.postalCode}
               />
@@ -151,7 +148,6 @@ export const AddressFields = ({
                 label="County"
                 id={`county_${addressFieldsUUID.current}`}
                 name={`${name}.county`}
-                labelHint={labelHintProp}
                 data-testid={`${name}.county`}
                 display="readonly"
                 validate={validators?.county}
@@ -178,13 +174,15 @@ AddressFields.propTypes = {
     county: PropTypes.func,
     usPostRegionCitiesID: PropTypes.func,
   }),
-  address1LabelHint: PropTypes.string,
+  optionalAddress1: PropTypes.bool,
   formikProps: shape({
     touched: shape({}),
     errors: shape({}),
     setFieldTouched: PropTypes.func,
     setFieldValue: PropTypes.func,
   }),
+  includePOBoxes: PropTypes.bool,
+  optionalLocationLookup: PropTypes.bool,
 };
 
 AddressFields.defaultProps = {
@@ -192,8 +190,10 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   validators: {},
-  address1LabelHint: null,
+  optionalAddress1: null,
   formikProps: {},
+  includePOBoxes: false,
+  optionalLocationLookup: null,
 };
 
 export default AddressFields;

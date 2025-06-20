@@ -3,8 +3,8 @@
 -- B-21902 - Samay Sofo added has_safety_privilege parameter to filter out safety orders and also retrieved orders_type
 -- B-22760 - Paul Stonebraker retrieve mto_service_items for the moves and delivery address update requests for the shipments
 -- B-23545 - Daniel Jordan updating returns to use destination, filtering adjustments, removing gbloc return
--- B-23739 - Daniel Jordan updating returns to consider lock_expires_at
 -- B-22759 - Paul Stonebraker add SIT extensions as part of the mto_shipments
+-- B-23739 - Daniel Jordan updating returns to consider lock_expires_at
 
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle

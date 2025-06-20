@@ -7,9 +7,11 @@ import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createCompleteGunSafeWeightTicket } from 'utils/test/factories/gunSafeWeightTicket';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { APP_NAME } from 'constants/apps';
 import { formatCents, formatWeight } from 'utils/formatters';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import {
   calculateTotalMovingExpensesAmount,
   getNonProGearWeightSPR,
@@ -48,15 +50,21 @@ const defaultPropsCustomer = {
   appName: APP_NAME.MYMOVE,
 };
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 describe('FinalCloseoutForm component', () => {
   const prepListSearchForItem = (listOfItems) => (text) => listOfItems.find((item) => item.textContent === text);
 
-  it('displays final incentive and shipment totals', () => {
+  it('displays final incentive and shipment totals', async () => {
     const serviceMemberId = v4();
 
     const weightTicket = createCompleteWeightTicket({ serviceMemberId }, { emptyWeight: 14000, fullWeight: 18000 });
     const movingExpense = createCompleteMovingExpense({ serviceMemberId }, { amount: 30000 });
     const proGearWeightTicket = createCompleteProGearWeightTicket({ serviceMemberId }, { weight: 1500 });
+    const gunSafeWeightTicket = createCompleteGunSafeWeightTicket({ serviceMemberId }, { weight: 455 });
 
     const mtoShipment = createPPMShipmentWithFinalIncentive({
       ppmShipment: {
@@ -65,10 +73,13 @@ describe('FinalCloseoutForm component', () => {
         weightTickets: [weightTicket],
         movingExpenses: [movingExpense],
         proGearWeightTickets: [proGearWeightTicket],
+        gunSafeWeightTickets: [gunSafeWeightTicket],
       },
     });
 
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsOffice} />);
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    await render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsOffice} />);
 
     expect(
       screen.getByRole('heading', { level: 2, name: 'Your final estimated incentive: $2,000,000.00' }),
@@ -80,6 +91,7 @@ describe('FinalCloseoutForm component', () => {
 
     expect(findListItemWithText('4,000 lbs total net weight')).toBeInTheDocument();
     expect(findListItemWithText('1,500 lbs of pro-gear')).toBeInTheDocument();
+    expect(findListItemWithText('455 lbs of gun safe weight')).toBeInTheDocument();
     expect(findListItemWithText('$300.00 in expenses claimed')).toBeInTheDocument();
 
     expect(
@@ -89,6 +101,31 @@ describe('FinalCloseoutForm component', () => {
     expect(findListItemWithText('minus any advances you were given (you received $900,000.00)')).toBeInTheDocument();
 
     expect(screen.getByText('Altus AFB', { exact: false })).toBeInTheDocument();
+  });
+
+  it('does not display gun safe information if the FF is toggled off', async () => {
+    const serviceMemberId = v4();
+
+    const weightTicket = createCompleteWeightTicket({ serviceMemberId }, { emptyWeight: 14000, fullWeight: 18000 });
+    const movingExpense = createCompleteMovingExpense({ serviceMemberId }, { amount: 30000 });
+    const proGearWeightTicket = createCompleteProGearWeightTicket({ serviceMemberId }, { weight: 1500 });
+    const gunSafeWeightTicket = createCompleteGunSafeWeightTicket({ serviceMemberId }, { weight: 455 });
+
+    const mtoShipment = createPPMShipmentWithFinalIncentive({
+      ppmShipment: {
+        advanceAmountReceived: 90000000,
+        finalIncentive: 200000000,
+        weightTickets: [weightTicket],
+        movingExpenses: [movingExpense],
+        proGearWeightTickets: [proGearWeightTicket],
+        gunSafeWeightTickets: [gunSafeWeightTicket],
+      },
+    });
+
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+    await render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsOffice} />);
+    expect(screen.queryByText('455 lbs of gun safe weight', { exact: false })).toBeNull();
   });
 
   it('does not display final incentive info for small package PPMs', () => {

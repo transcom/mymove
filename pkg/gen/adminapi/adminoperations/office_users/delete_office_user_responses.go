@@ -86,6 +86,31 @@ func (o *DeleteOfficeUserNotFound) WriteResponse(rw http.ResponseWriter, produce
 	rw.WriteHeader(404)
 }
 
+// DeleteOfficeUserConflictCode is the HTTP code returned for type DeleteOfficeUserConflict
+const DeleteOfficeUserConflictCode int = 409
+
+/*
+DeleteOfficeUserConflict User cannot be deleted due to associated data
+
+swagger:response deleteOfficeUserConflict
+*/
+type DeleteOfficeUserConflict struct {
+}
+
+// NewDeleteOfficeUserConflict creates DeleteOfficeUserConflict with default headers values
+func NewDeleteOfficeUserConflict() *DeleteOfficeUserConflict {
+
+	return &DeleteOfficeUserConflict{}
+}
+
+// WriteResponse to the client
+func (o *DeleteOfficeUserConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(409)
+}
+
 // DeleteOfficeUserInternalServerErrorCode is the HTTP code returned for type DeleteOfficeUserInternalServerError
 const DeleteOfficeUserInternalServerErrorCode int = 500
 

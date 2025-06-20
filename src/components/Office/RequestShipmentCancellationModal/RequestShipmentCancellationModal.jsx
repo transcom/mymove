@@ -9,7 +9,7 @@ const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) =
   <div>
     <Overlay />
     <ModalContainer>
-      <Modal>
+      <Modal onClose={() => onClose()}>
         <ModalClose handleClick={() => onClose()} />
         <ModalTitle>
           <h3>Request shipment cancellation</h3>
@@ -20,7 +20,7 @@ const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) =
         </p>
         <ModalActions>
           <Button
-            className="usa-button--tertiary"
+            className="usa-button--secondary"
             type="button"
             onClick={() => onClose()}
             data-testid="modalBackButton"

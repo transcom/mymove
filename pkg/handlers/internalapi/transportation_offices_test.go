@@ -11,6 +11,7 @@ import (
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/address"
 	transportationofficeservice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
@@ -25,7 +26,7 @@ func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandler() {
 		HTTPRequest:    req,
 		DutyLocationID: *handlers.FmtUUID(location.ID),
 	}
-	showHandler := ShowDutyLocationTransportationOfficeHandler{suite.HandlerConfig()}
+	showHandler := ShowDutyLocationTransportationOfficeHandler{suite.NewHandlerConfig()}
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&transportationofficeop.ShowDutyLocationTransportationOfficeOK{}, response)
@@ -49,7 +50,7 @@ func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandlerNoOffi
 		HTTPRequest:    req,
 		DutyLocationID: *handlers.FmtUUID(location.ID),
 	}
-	showHandler := ShowDutyLocationTransportationOfficeHandler{suite.HandlerConfig()}
+	showHandler := ShowDutyLocationTransportationOfficeHandler{suite.NewHandlerConfig()}
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -72,7 +73,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandler() {
 	}
 
 	handler := GetTransportationOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)
@@ -93,7 +94,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerUnauthorized() {
 	}
 
 	handler := GetTransportationOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	// Request without authentication
@@ -102,7 +103,15 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerUnauthorized() {
 }
 
 func (suite *HandlerSuite) TestGetTransportationOfficesHandlerForbidden() {
-	officeUser := factory.BuildOfficeUser(nil, nil, nil)
+	officeUser := factory.BuildOfficeUser(nil, []factory.Customization{{
+		Model: models.User{
+			Roles: roles.Roles{
+				{
+					RoleType: roles.RoleTypeTOO,
+				},
+			},
+		},
+	}}, nil)
 	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
 
 	req := httptest.NewRequest("GET", "/transportation_offices", nil)
@@ -115,7 +124,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerForbidden() {
 	}
 
 	handler := GetTransportationOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)
@@ -129,8 +138,8 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 
 	newAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
-		State:          "CA",
+		City:           "MISSOULA",
+		State:          "MT",
 		PostalCode:     "59801",
 		County:         models.StringPointer("County"),
 	}
@@ -163,7 +172,7 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 	}
 
 	handler := ShowCounselingOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)

@@ -7,6 +7,7 @@ import ConnectedProfile from './Profile';
 
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -74,7 +75,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -108,9 +109,9 @@ describe('Profile component', () => {
 
     expect(serviceInfoHeader).toBeInTheDocument();
 
-    const editLinks = screen.getAllByText('Edit');
+    const editLinks = screen.getAllByRole('link', { name: 'Edit' });
 
-    expect(editLinks.length).toBe(4);
+    expect(editLinks.length).toBe(3);
 
     const homeLink = screen.getByText('Return to Move');
 
@@ -165,7 +166,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -198,9 +199,9 @@ describe('Profile component', () => {
 
     expect(serviceInfoHeader).toBeInTheDocument();
 
-    const editLinks = screen.getAllByText('Edit');
+    const editLinks = screen.getAllByRole('link', { name: 'Edit' });
 
-    expect(editLinks.length).toBe(3);
+    expect(editLinks.length).toBe(2);
 
     const homeLink = screen.getByText('Return to Move');
 
@@ -270,7 +271,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {
@@ -302,9 +303,9 @@ describe('Profile component', () => {
 
     expect(whoToContact).toBeInTheDocument();
 
-    const editLinks = screen.getAllByText('Edit');
+    const editLinks = screen.getAllByRole('link', { name: 'Edit' });
 
-    expect(editLinks.length).toBe(3);
+    expect(editLinks.length).toBe(2);
 
     const homeLink = screen.getByText('Return to Move');
 
@@ -370,7 +371,7 @@ describe('Profile component', () => {
               origin_duty_location: {
                 name: 'Current Station',
               },
-              grade: 'E-5',
+              grade: ORDERS_PAY_GRADE_TYPE.E_5,
             },
             backup_contacts: [
               {

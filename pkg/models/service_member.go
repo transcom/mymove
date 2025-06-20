@@ -277,6 +277,29 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				boolFalseVal := false
 				serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
 			}
+
+			if serviceMember.ResidentialAddress != nil && strings.TrimSpace(serviceMember.ResidentialAddress.PostalCode) != "" && strings.TrimSpace(serviceMember.ResidentialAddress.City) != "" {
+				usprc, err := FindByZipCodeAndCity(appCtx.DB(), serviceMember.ResidentialAddress.PostalCode, strings.ToUpper(serviceMember.ResidentialAddress.City))
+				if err != nil {
+					responseError = err
+					return err
+				}
+
+				serviceMember.ResidentialAddress.UsPostRegionCity = usprc
+				serviceMember.ResidentialAddress.UsPostRegionCityID = &usprc.ID
+			}
+
+			if serviceMember.BackupMailingAddress != nil && strings.TrimSpace(serviceMember.BackupMailingAddress.PostalCode) != "" && strings.TrimSpace(serviceMember.BackupMailingAddress.City) != "" {
+				usprc, err := FindByZipCodeAndCity(appCtx.DB(), serviceMember.BackupMailingAddress.PostalCode, strings.ToUpper(serviceMember.BackupMailingAddress.City))
+				if err != nil {
+					responseError = err
+					return err
+				}
+
+				serviceMember.BackupMailingAddress.UsPostRegionCity = usprc
+				serviceMember.BackupMailingAddress.UsPostRegionCityID = &usprc.ID
+			}
+
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -343,12 +366,13 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 }
 
 // CreateBackupContact creates a backup contact model tied to the service member
-func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
+func (s ServiceMember) CreateBackupContact(db *pop.Connection, firstName string, lastName string, email string, phone string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
 	newContact := BackupContact{
 		ServiceMemberID: s.ID,
 		ServiceMember:   s,
-		Name:            name,
 		Email:           email,
+		FirstName:       firstName,
+		LastName:        lastName,
 		Phone:           phone,
 		Permission:      permission,
 	}

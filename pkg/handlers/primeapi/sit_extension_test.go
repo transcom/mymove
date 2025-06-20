@@ -47,7 +47,7 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 
 		// Create handler
 		handler := CreateSITExtensionHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			sitextensionservice.NewSitExtensionCreator(moveRouter),
 		}
 		return handler, shipment

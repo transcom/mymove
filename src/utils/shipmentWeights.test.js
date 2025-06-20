@@ -9,7 +9,9 @@ import {
   getShipmentEstimatedWeight,
   shipmentIsOverweight,
   getWeightTicketNetWeight,
+  calculateTotalNetWeightForGunSafeWeightTickets,
 } from './shipmentWeights';
+import { createCompleteGunSafeWeightTicket } from './test/factories/gunSafeWeightTicket';
 import {
   createCompleteProGearWeightTicket,
   createRejectedProGearWeightTicket,
@@ -233,6 +235,28 @@ describe('calculateTotalNetWeightForProGearWeightTickets', () => {
     });
 
     expect(calculateTotalNetWeightForProGearWeightTickets(proGearWeightTickets)).toEqual(expectedNetWeight);
+  });
+});
+
+describe('calculateTotalNetWeightForGunSafeWeightTickets', () => {
+  it.each([
+    [[{ weight: 0 }], 0],
+    [[{ weight: 0 }, { weight: 15000 }], 15000],
+    [[{ weight: null }], 0],
+    [[{ weight: null }, { weight: 15000 }], 15000],
+    [[{ weight: undefined }], 0],
+    [[{ weight: undefined }, { weight: 15000 }], 15000],
+    [[{ weight: 'not a number' }], 0],
+    [[{ weight: 'not a number' }, { weight: 15000 }], 15000],
+    [[], 0],
+  ])(`calculates total net weight properly`, (gunSafeWeightTicketsFields, expectedNetWeight) => {
+    const gunSafeWeightTickets = [];
+
+    gunSafeWeightTicketsFields.forEach((fieldOverrides) => {
+      gunSafeWeightTickets.push(createCompleteGunSafeWeightTicket({}, fieldOverrides));
+    });
+
+    expect(calculateTotalNetWeightForGunSafeWeightTickets(gunSafeWeightTickets)).toEqual(expectedNetWeight);
   });
 });
 

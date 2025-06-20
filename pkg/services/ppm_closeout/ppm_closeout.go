@@ -220,6 +220,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			"WeightTickets",
 			"MovingExpenses",
 			"ProgearWeightTickets",
+			"GunSafeWeightTickets",
 			"FinalIncentive",
 			"AdvanceAmountReceived",
 			"Shipment.Distance",
@@ -260,6 +261,10 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 	// We do not need to consider deleted progear weight tickets
 	if len(ppmShipment.ProgearWeightTickets) > 0 {
 		ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
+	}
+	// We do not need to consider deleted gunsafe weight tickets
+	if len(ppmShipment.GunSafeWeightTickets) > 0 {
+		ppmShipment.GunSafeWeightTickets = ppmShipment.GunSafeWeightTickets.FilterDeleted()
 	}
 
 	var weightTicket models.WeightTicket

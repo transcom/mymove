@@ -4,7 +4,6 @@ import * as formatters from './formatters';
 import { formatQAReportID } from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
-import { MOVE_STATUSES } from 'shared/constants';
 import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 describe('formatters', () => {
@@ -355,11 +354,10 @@ describe('formatAssignedOfficeUserFromContext', () => {
   it(`properly formats a Services Counselor's name for assignment`, () => {
     const values = {
       changedValues: {
-        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        sc_counseling_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        sc_assigned_id: null,
-        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+        sc_counseling_assigned_id: null,
       },
       context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
     };
@@ -367,17 +365,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      assigned_sc: 'Daniels, Jayden',
+      assigned_sc_counseling: 'Daniels, Jayden',
     });
   });
   it(`properly formats a Services Counselor's name for reassignment`, () => {
     const values = {
       changedValues: {
-        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        sc_counseling_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        sc_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
-        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+        sc_counseling_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
     };
@@ -385,17 +382,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      re_assigned_sc: 'Daniels, Jayden',
+      re_assigned_sc_counseling: 'Daniels, Jayden',
     });
   });
   it(`properly formats a Closeout Counselor's name for assignment`, () => {
     const values = {
       changedValues: {
-        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        sc_closeout_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        sc_assigned_id: null,
-        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+        sc_closeout_assigned_id: null,
       },
       context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
     };
@@ -403,17 +399,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      assigned_sc_ppm: 'Daniels, Jayden',
+      assigned_sc_closeout: 'Daniels, Jayden',
     });
   });
   it(`properly formats a Closeout Counselor's name for reassignment`, () => {
     const values = {
       changedValues: {
-        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        sc_closeout_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        sc_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
-        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+        sc_closeout_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
     };
@@ -421,16 +416,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      re_assigned_sc_ppm: 'Daniels, Jayden',
+      re_assigned_sc_closeout: 'Daniels, Jayden',
     });
   });
   it('properly formats a TOOs name for assignment', () => {
     const values = {
       changedValues: {
-        too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        too_task_order_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        too_assigned_id: null,
+        too_task_order_assigned_id: null,
       },
       context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
     };
@@ -438,16 +433,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      assigned_too: 'McLaurin, Terry',
+      assigned_too_task_order: 'McLaurin, Terry',
     });
   });
   it('properly formats a TOOs name for reassignment', () => {
     const values = {
       changedValues: {
-        too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        too_task_order_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        too_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+        too_task_order_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
     };
@@ -455,10 +450,10 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      re_assigned_too: 'McLaurin, Terry',
+      re_assigned_too_task_order: 'McLaurin, Terry',
     });
   });
-  it('properly formats a TOOs name for assignment', () => {
+  it('properly formats a destination TOOs name for assignment', () => {
     const values = {
       changedValues: {
         too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
@@ -472,7 +467,7 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      assigned_too: 'McLaurin, Terry',
+      assigned_too_destination: 'McLaurin, Terry',
     });
   });
   it('properly formats a TOOs name for reassignment', () => {
@@ -489,16 +484,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      re_assigned_too: 'McLaurin, Terry',
+      re_assigned_too_destination: 'McLaurin, Terry',
     });
   });
   it('properly formats a TIOs name for assignment', () => {
     const values = {
       changedValues: {
-        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        tio_payment_request_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        tio_assigned_id: null,
+        tio_payment_request_assigned_id: null,
       },
       context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
     };
@@ -512,10 +507,10 @@ describe('formatAssignedOfficeUserFromContext', () => {
   it('properly formats a TIOs name for reassignment', () => {
     const values = {
       changedValues: {
-        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        tio_payment_request_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        tio_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+        tio_payment_request_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
     };
@@ -540,13 +535,13 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      assigned_too: 'McLaurin, Terry',
+      assigned_too_destination: 'McLaurin, Terry',
     });
   });
   it('properly formats a TOOs name for reassignment when H&A accessed from destination request queue', () => {
     const values = {
       changedValues: {
-        too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
         too_destination_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
@@ -557,7 +552,7 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      re_assigned_too: 'McLaurin, Terry',
+      re_assigned_too_destination: 'McLaurin, Terry',
     });
   });
 });
@@ -838,5 +833,45 @@ describe('calculateTotal', () => {
     const sectionInfo = {};
     const result = formatters.calculateTotal(sectionInfo);
     expect(result).toEqual('0.00');
+  });
+});
+
+describe('formatLastNameFirstName', () => {
+  const { formatLastNameFirstName } = formatters;
+
+  it('if first and last are empty, return empty string', () => {
+    expect(formatLastNameFirstName('', '')).toBe('');
+  });
+
+  it('if first has spaces and last are empty, return empty string', () => {
+    expect(formatLastNameFirstName('  ', '')).toBe('');
+  });
+
+  it('if first is empty and last has spaces, return empty string', () => {
+    expect(formatLastNameFirstName('', '  ')).toBe('');
+  });
+
+  it('if first is non-empty and last is empty, return first', () => {
+    expect(formatLastNameFirstName('John', '')).toBe('John');
+  });
+
+  it('if first is non-empty and padded and last is empty, return first trimmed', () => {
+    expect(formatLastNameFirstName(' John ', '')).toBe('John');
+  });
+
+  it('if first is empty and last is non-empty, return last with a comma', () => {
+    expect(formatLastNameFirstName('', 'Smith')).toBe('Smith,');
+  });
+
+  it('if first is empty and last is non-empty and padded, return last trimmed with a comma', () => {
+    expect(formatLastNameFirstName('', ' Smith ')).toBe('Smith,');
+  });
+
+  it('if first and last is non-empty, return last name first name', () => {
+    expect(formatLastNameFirstName('John', 'Smith')).toBe('Smith, John');
+  });
+
+  it('if first and last is non-empty and padded, return last name first name trimmed', () => {
+    expect(formatLastNameFirstName('  John ', '  Smith  ')).toBe('Smith, John');
   });
 });

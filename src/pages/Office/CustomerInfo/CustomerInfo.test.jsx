@@ -20,7 +20,8 @@ jest.mock('react-router-dom', () => ({
 const mockCustomer = {
   backup_contact: {
     email: 'backup@mail.com',
-    name: 'Jane Backup',
+    firstName: 'Jane',
+    lastName: 'Backup',
     phone: '555-555-1234',
   },
   backupAddress: {
@@ -106,10 +107,13 @@ describe('CustomerInfo', () => {
         />
       </MockProviders>,
     );
+
     await waitFor(() => {
-      expect(screen.getByLabelText('First name').value).toEqual(mockCustomer.first_name);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('First name *').value).toEqual(mockCustomer.first_name);
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(mockCustomer.middle_name);
-      expect(screen.getByLabelText('Last name').value).toEqual(mockCustomer.last_name);
+      expect(screen.getByLabelText('Last name *').value).toEqual(mockCustomer.last_name);
       expect(screen.getByLabelText(/Suffix/i).value).toEqual(mockCustomer.suffix);
       // to get around the two inputs labeled "Phone" on the screen
       expect(screen.getByDisplayValue(mockCustomer.phone).value).toEqual(mockCustomer.phone);
@@ -131,7 +135,8 @@ describe('CustomerInfo', () => {
           `${mockCustomer.current_address.city}, ${mockCustomer.current_address.state} ${mockCustomer.current_address.postalCode} ()`,
         ),
       );
-      expect(screen.getByDisplayValue('Jane Backup').value).toEqual(mockCustomer.backup_contact.name);
+      expect(screen.getByDisplayValue('Jane').value).toEqual(mockCustomer.backup_contact.firstName);
+      expect(screen.getByDisplayValue('Backup').value).toEqual(mockCustomer.backup_contact.lastName);
     });
   });
 

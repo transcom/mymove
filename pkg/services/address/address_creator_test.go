@@ -33,6 +33,8 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.False(*address.IsOconus)
 		suite.Nil(address.StreetAddress2)
 		suite.NotNil(address.Country)
+		suite.NotNil(address.UsPostRegionCity)
+		suite.NotNil(address.UsPostRegionCityID)
 	})
 
 	suite.Run("Successfully creates an OCONUS address with AK state", func() {
@@ -55,6 +57,8 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.True(*address.IsOconus)
 		suite.Nil(address.StreetAddress2)
 		suite.NotNil(address.Country)
+		suite.NotNil(address.UsPostRegionCity)
+		suite.NotNil(address.UsPostRegionCityID)
 	})
 
 	suite.Run("Receives an error when trying to create an international address", func() {
@@ -108,6 +112,8 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Nil(address.StreetAddress2)
 		suite.Nil(address.StreetAddress3)
 		suite.NotNil(address.Country)
+		suite.NotNil(address.UsPostRegionCity)
+		suite.NotNil(address.UsPostRegionCityID)
 	})
 
 	suite.Run("Fails to add an address because an ID is passed (fails to pass rules check)", func() {
@@ -130,8 +136,13 @@ func (suite *AddressSuite) TestAddressCreator() {
 	})
 
 	suite.Run("Fails because of missing field", func() {
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "35007", "ALABASTER")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		addressCreator := NewAddressCreator()
-		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{})
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{UsPostRegionCityID: &usprc.ID})
 
 		suite.Nil(address)
 		suite.NotNil(err)
@@ -175,5 +186,85 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.NotNil(address.ID)
 		suite.Nil(err)
 		suite.NotNil(address.Country)
+	})
+
+	suite.Run("Successfully creates a CONUS address", func() {
+		country := &models.Country{}
+		country.Country = "US"
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: "7645 Ballinshire N",
+			City:           "Indianapolis",
+			State:          "IN",
+			PostalCode:     "46254",
+			Country:        country,
+		})
+
+		suite.False(*address.IsOconus)
+		suite.NotNil(address.ID)
+		suite.Nil(err)
+		suite.NotNil(address.Country)
+	})
+	suite.Run("Fails when us_post_region_city is not found", func() {
+		country := &models.Country{}
+		country.Country = "US"
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: "7645 Ballinshire N",
+			City:           "Charlotte",
+			State:          "IN",
+			PostalCode:     "46254",
+			Country:        country,
+		})
+
+		suite.NotNil(err)
+		suite.Nil(address)
+		suite.Equal("No UsPostRegionCity found for provided zip code 46254 and city Charlotte.", err.Error())
+	})
+
+	suite.Run("returns error when address has an invalid USPRC assignment", func() {
+		country := &models.Country{}
+		country.Country = "US"
+		addressCreator := NewAddressCreator()
+
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "29229", "Columbia")
+		suite.NoError(err)
+
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1:     "7645 Ballinshire N",
+			City:               "Indianapolis",
+			State:              "IN",
+			PostalCode:         "46254",
+			Country:            country,
+			UsPostRegionCityID: &usprc.ID,
+			UsPostRegionCity:   usprc,
+		})
+
+		suite.Nil(address)
+		suite.Error(err, "error creating an address")
+		errors := err.(apperror.InvalidInputError)
+		suite.Contains(errors.ValidationErrors.Keys(), "us_post_region_city_id")
+	})
+
+	suite.Run("returns error when USPRC validation fails", func() {
+		country := &models.Country{}
+		country.Country = "US"
+		addressCreator := NewAddressCreator()
+
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "29229", "Columbia")
+		suite.NoError(err)
+
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1:     "7645 Ballinshire N",
+			City:               "Indianapolis",
+			State:              "IN",
+			PostalCode:         "29229",
+			Country:            country,
+			UsPostRegionCityID: &usprc.ID,
+			UsPostRegionCity:   usprc,
+		})
+
+		suite.Nil(address)
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city Indianapolis.")
 	})
 }

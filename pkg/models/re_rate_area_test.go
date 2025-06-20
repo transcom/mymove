@@ -46,6 +46,7 @@ func (suite *ModelSuite) TestFetchRateAreaID() {
 		nonNilUuid := uuid.Must(uuid.NewV4())
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		rateAreaId, err := models.FetchRateAreaID(suite.DB(), nilUuid, &nonNilUuid, contract.ID)
+
 		suite.Equal(uuid.Nil, rateAreaId)
 		suite.Error(err)
 	})

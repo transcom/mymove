@@ -18,6 +18,9 @@ import (
 // swagger:model PPMDocuments
 type PPMDocuments struct {
 
+	// gun safe weight tickets
+	GunSafeWeightTickets GunSafeWeightTickets `json:"GunSafeWeightTickets"`
+
 	// moving expenses
 	MovingExpenses MovingExpenses `json:"MovingExpenses"`
 
@@ -31,6 +34,10 @@ type PPMDocuments struct {
 // Validate validates this p p m documents
 func (m *PPMDocuments) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateGunSafeWeightTickets(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateMovingExpenses(formats); err != nil {
 		res = append(res, err)
@@ -47,6 +54,23 @@ func (m *PPMDocuments) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PPMDocuments) validateGunSafeWeightTickets(formats strfmt.Registry) error {
+	if swag.IsZero(m.GunSafeWeightTickets) { // not required
+		return nil
+	}
+
+	if err := m.GunSafeWeightTickets.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("GunSafeWeightTickets")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("GunSafeWeightTickets")
+		}
+		return err
+	}
+
 	return nil
 }
 
@@ -105,6 +129,10 @@ func (m *PPMDocuments) validateWeightTickets(formats strfmt.Registry) error {
 func (m *PPMDocuments) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateGunSafeWeightTickets(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMovingExpenses(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -120,6 +148,20 @@ func (m *PPMDocuments) ContextValidate(ctx context.Context, formats strfmt.Regis
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PPMDocuments) contextValidateGunSafeWeightTickets(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.GunSafeWeightTickets.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("GunSafeWeightTickets")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("GunSafeWeightTickets")
+		}
+		return err
+	}
+
 	return nil
 }
 

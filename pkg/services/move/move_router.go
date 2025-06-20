@@ -354,7 +354,7 @@ func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move
 		move.ApprovedAt = &now
 		appCtx.Logger().Info("SUCCESS: Move approved")
 		// if a move is approvable, we can clear any assigned office users, if any
-		move.TOOAssignedID = nil
+		move.TOOTaskOrderAssignedID = nil
 		move.TOODestinationAssignedID = nil
 		return nil
 	}
@@ -377,7 +377,7 @@ func (router moveRouter) alreadyApproved(move *models.Move) bool {
 }
 
 func (router moveRouter) noAssignedTOOs(move *models.Move) bool {
-	return move.TOOAssignedID == nil && move.TOODestinationAssignedID == nil
+	return move.TOOTaskOrderAssignedID == nil && move.TOODestinationAssignedID == nil
 }
 
 func currentStatusApprovable(move models.Move) bool {
@@ -597,7 +597,7 @@ func (router moveRouter) CompleteServiceCounseling(_ appcontext.AppContext, move
 	}
 
 	// Verify the shipment's existing status.
-	if move.Status != models.MoveStatusNeedsServiceCounseling {
+	if move.Status != models.MoveStatusNeedsServiceCounseling && move.Status != models.MoveStatusDRAFT {
 		return apperror.NewConflictError(move.ID, fmt.Sprintf("The status for the Move with ID %s can only be set to 'Service Counseling Completed' from the 'Needs Service Counseling' status, but its current status is %s.", move.ID, move.Status))
 	}
 
@@ -651,7 +651,7 @@ func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, 
 	// if a TOO is assigned to the move, check if we should clear it
 	// this returns the same move with the TOO fields updated (or not)
 	// !IMPORTANT - if any TOO actions are added, please also update this function
-	if move.TOOAssignedID != nil || move.TOODestinationAssignedID != nil {
+	if move.TOOTaskOrderAssignedID != nil || move.TOODestinationAssignedID != nil {
 		updatedMove, err := models.ClearTOOAssignments(&move)
 		if err != nil {
 			return nil, err

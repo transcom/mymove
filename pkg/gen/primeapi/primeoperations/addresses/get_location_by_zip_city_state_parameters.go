@@ -9,8 +9,10 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewGetLocationByZipCityStateParams creates a new GetLocationByZipCityStateParams object
@@ -30,6 +32,10 @@ type GetLocationByZipCityStateParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.
+	  In: query
+	*/
+	IncludePOBoxes *bool
 	/*
 	  Required: true
 	  In: path
@@ -46,6 +52,13 @@ func (o *GetLocationByZipCityStateParams) BindRequest(r *http.Request, route *mi
 
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
+	qIncludePOBoxes, qhkIncludePOBoxes, _ := qs.GetOK("includePOBoxes")
+	if err := o.bindIncludePOBoxes(qIncludePOBoxes, qhkIncludePOBoxes, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	rSearch, rhkSearch, _ := route.Params.GetOK("search")
 	if err := o.bindSearch(rSearch, rhkSearch, route.Formats); err != nil {
 		res = append(res, err)
@@ -53,6 +66,29 @@ func (o *GetLocationByZipCityStateParams) BindRequest(r *http.Request, route *mi
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindIncludePOBoxes binds and validates parameter IncludePOBoxes from query.
+func (o *GetLocationByZipCityStateParams) bindIncludePOBoxes(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("includePOBoxes", "query", "bool", raw)
+	}
+	o.IncludePOBoxes = &value
+
 	return nil
 }
 

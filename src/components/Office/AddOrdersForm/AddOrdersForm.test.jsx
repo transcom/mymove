@@ -7,7 +7,7 @@ import AddOrdersForm from './AddOrdersForm';
 
 import { MockProviders } from 'testUtils';
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -113,6 +113,26 @@ jest.mock('services/ghcApi', () => ({
       ],
     }),
   ),
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const MOCKED__ORDERS_PAY_GRADE_TYPE = {
+      E_5: 'E-5',
+      E_6: 'E-6',
+      CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
+    };
+
+    return Promise.resolve({
+      body: [
+        {
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+        },
+        {
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+        },
+      ],
+    });
+  }),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -211,6 +231,12 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
 
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
+
     // Saftey option should not be available for non safety moves
     const options = ordersTypeDropdown.querySelectorAll('option');
     const isSafetyOptionPresent = Array.from(options).some((option) => option.value === ORDERS_TYPE.SAFETY);
@@ -246,7 +272,8 @@ describe('CreateMoveCustomerInfo Component', () => {
 
 describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
   it('submits the form with OCONUS values and accompanied tour selection', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
     render(
       <Provider params={mockParams} store={mockStore.store}>
         <AddOrdersForm {...testProps} />
@@ -257,30 +284,23 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Elmendorf/);
-    await userEvent.click(selectedOptionCurrent);
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB');
+    await userEvent.click(await screen.findByText(/Elmendorf/));
 
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeFalsy();
 
-    // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
-    const selectedOptionNew = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOptionNew);
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB');
+    await userEvent.click(await screen.findByText(/Luke/));
 
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
-
-    // should now see the OCONUS inputs
     await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
     await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '2');
     await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '1');
 
     const nextBtn = screen.getByRole('button', { name: 'Next' });
-    expect(nextBtn).not.toBeDisabled();
     await userEvent.click(nextBtn);
 
     await waitFor(() => {
@@ -460,7 +480,7 @@ describe('AddOrdersForm - With Counseling Office', () => {
     await userEvent.paste(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.paste(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -506,7 +526,7 @@ describe('AddOrdersForm - With Counseling Office', () => {
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeTruthy(); // If the field is visible then it it required
 
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
     await userEvent.click(screen.getByLabelText('No'));
 
     const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });

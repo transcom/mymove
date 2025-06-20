@@ -84,8 +84,8 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,
-    isActualExpenseReimbursement: ppmShipmentInfo.isActualExpenseReimbursement,
     allowableWeight: ppmShipmentInfo.allowableWeight,
+    isActualExpenseReimbursement: ppmShipmentInfo.isActualExpenseReimbursement,
     movingExpenses: ppmShipmentInfo.movingExpenses,
   };
 
@@ -112,8 +112,8 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
             updatedItemName={updatedItemName}
             setUpdatedItemName={setUpdatedItemName}
             readOnly={readOnly}
-            grade={order?.grade}
             expanded
+            grade={order?.grade}
           />
         </section>
         {showAllFields && (

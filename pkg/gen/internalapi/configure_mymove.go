@@ -107,6 +107,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_docs.CreateGenericMoveDocument has not yet been implemented")
 		})
 	}
+	if api.PpmCreateGunSafeWeightTicketHandler == nil {
+		api.PpmCreateGunSafeWeightTicketHandler = ppm.CreateGunSafeWeightTicketHandlerFunc(func(params ppm.CreateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateGunSafeWeightTicket has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {
 		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
@@ -167,6 +172,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation registration.CustomerRegistration has not yet been implemented")
 		})
 	}
+	if api.PpmDeleteGunSafeWeightTicketHandler == nil {
+		api.PpmDeleteGunSafeWeightTicketHandler = ppm.DeleteGunSafeWeightTicketHandlerFunc(func(params ppm.DeleteGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteGunSafeWeightTicket has not yet been implemented")
+		})
+	}
 	if api.MoveDocsDeleteMoveDocumentHandler == nil {
 		api.MoveDocsDeleteMoveDocumentHandler = move_docs.DeleteMoveDocumentHandlerFunc(func(params move_docs.DeleteMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
@@ -210,6 +220,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.AddressesGetLocationByZipCityStateHandler == nil {
 		api.AddressesGetLocationByZipCityStateHandler = addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
+		})
+	}
+	if api.OrdersGetPayGradesHandler == nil {
+		api.OrdersGetPayGradesHandler = orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
 		})
 	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
@@ -265,6 +280,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmResubmitPPMShipmentDocumentationHandler == nil {
 		api.PpmResubmitPPMShipmentDocumentationHandler = ppm.ResubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.ResubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ResubmitPPMShipmentDocumentation has not yet been implemented")
+		})
+	}
+	if api.AddressesSearchCountriesHandler == nil {
+		api.AddressesSearchCountriesHandler = addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
 		})
 	}
 	if api.DutyLocationsSearchDutyLocationsHandler == nil {
@@ -365,6 +385,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmSubmitPPMShipmentDocumentationHandler == nil {
 		api.PpmSubmitPPMShipmentDocumentationHandler = ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
+		})
+	}
+	if api.PpmUpdateGunSafeWeightTicketHandler == nil {
+		api.PpmUpdateGunSafeWeightTicketHandler = ppm.UpdateGunSafeWeightTicketHandlerFunc(func(params ppm.UpdateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateGunSafeWeightTicket has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentUpdateMTOShipmentHandler == nil {

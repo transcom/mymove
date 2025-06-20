@@ -184,7 +184,6 @@ const OrdersDetailForm = ({
           warning={ntsTacWarning}
           validate={validateNTSTac}
           isDisabled={formIsDisabled}
-          optional
         />
       )}
       {showNTSSac && (
@@ -198,7 +197,6 @@ const OrdersDetailForm = ({
           data-testid="ntsSacInput"
           maxLength="80"
           validate={noStarOrQuote}
-          optional
         />
       )}
       {showNTSTac && showNTSLoa && (
@@ -254,7 +252,6 @@ OrdersDetailForm.propTypes = {
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
   setFieldValue: func.isRequired,
-  payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
   hhgLongLineOfAccounting: string,
   ntsLongLineOfAccounting: string,
@@ -281,7 +278,6 @@ OrdersDetailForm.defaultProps = {
   showNTSLoa: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
-  payGradeOptions: null,
   formIsDisabled: false,
   hhgLongLineOfAccounting: '',
   ntsLongLineOfAccounting: '',

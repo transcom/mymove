@@ -169,7 +169,7 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
 
 // In order for the patchMTOShipment to be called we have to update something within the shipment
 const updateForPatchShipment = async (form) => {
-  within(form).getByLabelText('When did you leave your origin?').focus();
+  within(form).getByLabelText('When did you leave your origin? *').focus();
   await userEvent.paste('2022-05-31');
 
   within(form)
@@ -181,7 +181,7 @@ const updateForPatchShipment = async (form) => {
 const fillOutAdvanceSections = async (form) => {
   await userEvent.click(within(form).getAllByLabelText('Yes')[2]);
 
-  within(form).getByLabelText('How much did you receive?').focus();
+  within(form).getByLabelText('How much did you receive? *').focus();
   await userEvent.paste('7500');
 };
 

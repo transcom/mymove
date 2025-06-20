@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 describe('EditMaxBillableWeightModal', () => {
-  it('renders the component', async () => {
+  it('renders the component and asterisks for required fields', async () => {
     render(
       <EditMaxBillableWeightModal
         onSubmit={onSubmit}
@@ -26,10 +26,12 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(await screen.findByRole('heading', { level: 4, name: 'Edit max billable weight' })).toBeInTheDocument();
     expect(screen.getByText('Default:').parentElement).toBeInstanceOf(HTMLDListElement);
     expect(screen.getByText('7,500 lbs').parentElement).toBeInstanceOf(HTMLDListElement);
-    expect(screen.getByLabelText('New max billable weight')).toBeInTheDocument();
+    expect(screen.getByLabelText('New max billable weight *')).toBeInTheDocument();
     expect(screen.getByDisplayValue('8,000 lbs')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();

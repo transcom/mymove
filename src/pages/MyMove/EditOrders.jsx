@@ -26,24 +26,17 @@ import {
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { formatWeight, formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { checkIfMoveIsLocked, FEATURE_FLAG_KEYS, MOVE_LOCKED_WARNING } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
-const EditOrders = ({
-  serviceMemberId,
-  serviceMemberMoves,
-  updateOrders,
-  setFlashMessage,
-  context,
-  orders,
-  updateAllMoves,
-}) => {
+const EditOrders = ({ serviceMemberId, serviceMemberMoves, updateOrders, setFlashMessage, orders, updateAllMoves }) => {
   const filePondEl = createRef();
   const navigate = useNavigate();
   const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState('');
-  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
   const { entitlement: allowances } = currentOrder;
@@ -62,17 +55,37 @@ const EditOrders = ({
   }
 
   useEffect(() => {
-    const checkAlaskaFeatureFlag = async () => {
+    if (checkIfMoveIsLocked(move)) {
+      setIsMoveLocked(true);
+    }
+  }, [move]);
+
+  useEffect(() => {
+    const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
-      if (!isAlaskaEnabled) {
-        const options = orderTypes;
-        delete orderTypes.EARLY_RETURN_OF_DEPENDENTS;
-        delete orderTypes.STUDENT_TRAVEL;
-        setOrderTypes(options);
-      }
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+
+        if (!isAlaskaEnabled) {
+          delete options.EARLY_RETURN_OF_DEPENDENTS;
+          delete options.STUDENT_TRAVEL;
+        }
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+        if (!isBluebarkEnabled) {
+          delete options.BLUEBARK;
+        }
+
+        return options;
+      });
     };
-    checkAlaskaFeatureFlag();
-  }, [orderTypes]);
+
+    checkFeatureFlags();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,11 +118,7 @@ const EditOrders = ({
     civilian_tdy_ub_allowance: allowances.ub_allowance !== undefined ? `${allowances.ub_allowance}` : '',
   };
 
-  const showAllOrdersTypes = context.flags?.allOrdersTypes;
-  const allowedOrdersTypes = showAllOrdersTypes
-    ? orderTypes
-    : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
-  const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
+  const ordersTypeOptions = dropdownInputOptions(orderTypesOptions);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;
@@ -241,52 +250,55 @@ const EditOrders = ({
   }
 
   return (
-    <div className="grid-container usa-prose">
-      <div className="grid-row">
-        <div className="grid-col-12">
-          {serverError && (
-            <div className="usa-width-one-whole error-message">
-              <Alert type="error" heading="An error occurred">
-                {serverError}
-              </Alert>
-            </div>
-          )}
-          {isMoveApproved && (
-            <div className="usa-width-one-whole error-message">
-              <Alert type="warning" heading="Your move is approved">
-                To make a change to your orders, you will need to contact your local PPPO office.
-              </Alert>
-            </div>
-          )}
-          {!isMoveApproved && (
-            <div className="usa-width-one-whole" data-testid="edit-orders-form-container">
-              <EditOrdersForm
-                initialValues={initialValues}
-                onSubmit={submitOrders}
-                filePondEl={filePondEl}
-                createUpload={handleUploadFile}
-                onUploadComplete={handleUploadComplete}
-                onDelete={handleDeleteFile}
-                ordersTypeOptions={ordersTypeOptions}
-                currentDutyLocation={currentOrder?.origin_duty_location}
-                onCancel={handleCancel}
-              />
-            </div>
-          )}
+    <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {MOVE_LOCKED_WARNING}
+        </Alert>
+      )}
+      <div className="grid-container usa-prose">
+        <div className="grid-row">
+          <div className="grid-col-12">
+            {serverError && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="error" heading="An error occurred">
+                  {serverError}
+                </Alert>
+              </div>
+            )}
+            {isMoveApproved && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="warning" heading="Your move is approved">
+                  To make a change to your orders, you will need to contact your local PPPO office.
+                </Alert>
+              </div>
+            )}
+            {!isMoveApproved && (
+              <div className="usa-width-one-whole" data-testid="edit-orders-form-container">
+                <EditOrdersForm
+                  initialValues={initialValues}
+                  onSubmit={submitOrders}
+                  filePondEl={filePondEl}
+                  createUpload={handleUploadFile}
+                  onUploadComplete={handleUploadComplete}
+                  onDelete={handleDeleteFile}
+                  ordersTypeOptions={ordersTypeOptions}
+                  currentDutyLocation={currentOrder?.origin_duty_location}
+                  onCancel={handleCancel}
+                  isMoveLocked={isMoveLocked}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
 EditOrders.propTypes = {
   setFlashMessage: PropTypes.func.isRequired,
   updateOrders: PropTypes.func.isRequired,
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      allOrdersTypes: PropTypes.bool,
-    }).isRequired,
-  }).isRequired,
 };
 
 function mapStateToProps(state) {

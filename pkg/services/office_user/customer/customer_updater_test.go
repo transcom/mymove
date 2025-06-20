@@ -31,9 +31,10 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 
 		var backupContacts []models.BackupContact
 		backupContact := models.BackupContact{
-			Email: "newbackup@mail.com",
-			Name:  "New Backup Contact",
-			Phone: "445-345-1212",
+			Email:     "newbackup@mail.com",
+			FirstName: "New",
+			LastName:  "Backup Contact",
+			Phone:     "445-345-1212",
 		}
 		backupContacts = append(backupContacts, backupContact)
 
@@ -44,9 +45,9 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 			Telephone: models.StringPointer("123-455-3399"),
 			ResidentialAddress: &models.Address{
 				StreetAddress1: "123 New Street",
-				City:           "Newcity",
+				City:           "BARRE",
 				State:          "MA",
-				PostalCode:     "12345",
+				PostalCode:     "01005",
 			},
 			BackupContacts: backupContacts,
 			CacValidated:   true,
@@ -64,16 +65,80 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		suite.Equal(updatedCustomer.ResidentialAddress.City, actualCustomer.ResidentialAddress.City)
 		suite.Equal(updatedCustomer.ResidentialAddress.PostalCode, actualCustomer.ResidentialAddress.PostalCode)
 		suite.Equal(updatedCustomer.ResidentialAddress.State, actualCustomer.ResidentialAddress.State)
-		suite.Equal(updatedCustomer.BackupContacts[0].Name, actualCustomer.BackupContacts[0].Name)
+		suite.Equal(updatedCustomer.BackupContacts[0].FirstName, actualCustomer.BackupContacts[0].FirstName)
+		suite.Equal(updatedCustomer.BackupContacts[0].LastName, actualCustomer.BackupContacts[0].LastName)
 		suite.Equal(updatedCustomer.BackupContacts[0].Phone, actualCustomer.BackupContacts[0].Phone)
 		suite.Equal(updatedCustomer.BackupContacts[0].Email, actualCustomer.BackupContacts[0].Email)
 		suite.Equal(updatedCustomer.CacValidated, actualCustomer.CacValidated)
 
-		updatedCustomer.BackupContacts[0].Name = "Updated Backup Contact"
+		updatedCustomer.BackupContacts[0].FirstName = "Updated"
+		updatedCustomer.BackupContacts[0].LastName = "Backup Contact"
 		expectedETag = etag.GenerateEtag(actualCustomer.UpdatedAt)
 		actualCustomer, err = customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
 		suite.NoError(err)
-		suite.Equal(actualCustomer.BackupContacts[0].Name, "Updated Backup Contact")
+		suite.Equal(actualCustomer.BackupContacts[0].FirstName, "Updated")
+		suite.Equal(actualCustomer.BackupContacts[0].LastName, "Backup Contact")
+	})
+
+	suite.Run("Customer fields are update returns error when USPRC lookup fails", func() {
+		defaultCustomer := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		var backupContacts []models.BackupContact
+		backupContact := models.BackupContact{
+			Email:     "newbackup@mail.com",
+			FirstName: "New",
+			LastName:  "Backup Contact",
+			Phone:     "445-345-1212",
+		}
+		backupContacts = append(backupContacts, backupContact)
+
+		updatedCustomer := models.ServiceMember{
+			ID:        defaultCustomer.ID,
+			LastName:  models.StringPointer("Newlastname"),
+			FirstName: models.StringPointer("Newfirstname"),
+			Telephone: models.StringPointer("123-455-3399"),
+			ResidentialAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "29229",
+			},
+			BackupContacts: backupContacts,
+			CacValidated:   true,
+		}
+
+		expectedETag := etag.GenerateEtag(defaultCustomer.UpdatedAt)
+		actualCustomer, err := customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
+
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BARRE.")
+		suite.Nil(actualCustomer)
+
+		updatedCustomer = models.ServiceMember{
+			ID:        defaultCustomer.ID,
+			LastName:  models.StringPointer("Newlastname"),
+			FirstName: models.StringPointer("Newfirstname"),
+			Telephone: models.StringPointer("123-455-3399"),
+			ResidentialAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "01005",
+			},
+			BackupMailingAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "29229",
+			},
+			BackupContacts: backupContacts,
+			CacValidated:   true,
+		}
+
+		expectedETag = etag.GenerateEtag(defaultCustomer.UpdatedAt)
+		actualCustomer, err = customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
+
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BARRE.")
+		suite.Nil(actualCustomer)
 	})
 
 	suite.Run("Empty customer is updated", func() {
@@ -92,9 +157,10 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 
 		var backupContacts []models.BackupContact
 		backupContact := models.BackupContact{
-			Email: "newbackup@mail.com",
-			Name:  "New Backup Contact",
-			Phone: "445-345-1212",
+			Email:     "newbackup@mail.com",
+			FirstName: "New",
+			LastName:  "Backup Contact",
+			Phone:     "445-345-1212",
 		}
 		backupContacts = append(backupContacts, backupContact)
 
@@ -105,14 +171,14 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 			Telephone: models.StringPointer("123-455-3399"),
 			ResidentialAddress: &models.Address{
 				StreetAddress1: "123 New Street",
-				City:           "Newcity",
-				State:          "MA",
-				PostalCode:     "12345",
+				City:           "EDISON",
+				State:          "OH",
+				PostalCode:     "43320",
 			},
 			BackupMailingAddress: &models.Address{
 				StreetAddress1: "456 Extra Street",
-				City:           "Metropolis",
-				State:          "TX",
+				City:           "EDISON",
+				State:          "OH",
 				PostalCode:     "43320",
 			},
 			BackupContacts: backupContacts,
@@ -130,7 +196,8 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		suite.Equal(updatedCustomer.ResidentialAddress.City, actualCustomer.ResidentialAddress.City)
 		suite.Equal(updatedCustomer.ResidentialAddress.PostalCode, actualCustomer.ResidentialAddress.PostalCode)
 		suite.Equal(updatedCustomer.ResidentialAddress.State, actualCustomer.ResidentialAddress.State)
-		suite.Equal(updatedCustomer.BackupContacts[0].Name, actualCustomer.BackupContacts[0].Name)
+		suite.Equal(updatedCustomer.BackupContacts[0].FirstName, actualCustomer.BackupContacts[0].FirstName)
+		suite.Equal(updatedCustomer.BackupContacts[0].LastName, actualCustomer.BackupContacts[0].LastName)
 		suite.Equal(updatedCustomer.BackupContacts[0].Phone, actualCustomer.BackupContacts[0].Phone)
 		suite.Equal(updatedCustomer.BackupContacts[0].Email, actualCustomer.BackupContacts[0].Email)
 	})

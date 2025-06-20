@@ -3,6 +3,8 @@ import React from 'react';
 
 import EvaluationReportPreview from './EvaluationReportPreview';
 
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
+
 const mtoShipments = [
   {
     actualPickupDate: '2020-03-16',
@@ -258,7 +260,7 @@ describe('Evaluation Report Container', () => {
     render(
       <EvaluationReportPreview
         evaluationReport={evaluationReport}
-        grade="E_4"
+        grade={ORDERS_PAY_GRADE_TYPE.E_4}
         moveCode="TEST123"
         customerInfo={customerInfo}
         mtoShipments={mtoShipments}

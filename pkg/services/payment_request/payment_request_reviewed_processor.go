@@ -88,7 +88,6 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 			return nil, err
 		}
 	}
-
 	return NewPaymentRequestReviewedProcessor(
 		reviewedPaymentRequestFetcher,
 		generator,
@@ -98,7 +97,6 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 		notificationSender,
 	), nil
 }
-
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var lockedPR models.PaymentRequest
@@ -172,6 +170,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		return nil
 	})
 	paymentRequestNotifier := notifications.NewPaymentRequestFailed(pr)
+
 	if transactionError != nil {
 		errDescription := transactionError.Error()
 
@@ -231,8 +230,8 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		return transactionError
 	}
 	return nil
-}
 
+}
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx appcontext.AppContext) {
 	// Store/log metrics about EDI processing upon exiting this method.
 	numProcessed := 0

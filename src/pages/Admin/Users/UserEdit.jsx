@@ -56,7 +56,7 @@ const UserEdit = () => {
   const deleteUserHandler = async () => {
     try {
       await deleteUser(userData.id);
-      redirect('/');
+      redirect('./..');
     } catch (err) {
       if (err?.statusCode === 409) {
         setInactivateOpen(true);

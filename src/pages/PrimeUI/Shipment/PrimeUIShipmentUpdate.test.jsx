@@ -888,7 +888,7 @@ describe('successful submission of form', () => {
 
     render(mockedComponent);
 
-    const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
+    const actualPickupDateInput = await screen.findByLabelText('Actual pickup *');
     await userEvent.clear(actualPickupDateInput);
     await userEvent.type(actualPickupDateInput, '20 Oct 2021');
 
@@ -919,7 +919,7 @@ describe('successful submission of form', () => {
 
     render(mockedComponent);
 
-    const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
+    const actualPickupDateInput = await screen.findByLabelText('Actual pickup *');
     await userEvent.clear(actualPickupDateInput);
     await userEvent.type(actualPickupDateInput, '20 Oct 2021');
 
@@ -944,7 +944,7 @@ describe('successful submission of form', () => {
 
     render(mockedComponent);
 
-    const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
+    const actualPickupDateInput = await screen.findByLabelText('Actual pickup *');
     await userEvent.clear(actualPickupDateInput);
     await userEvent.type(actualPickupDateInput, '20 Oct 2021');
 
@@ -966,8 +966,8 @@ describe('successful submission of form', () => {
 
 describe('Date input validation', () => {
   const testCases = [
-    { label: 'Scheduled pickup', validInput: '03 Jan 2025', invalidInput: 'X' },
-    { label: 'Actual pickup', validInput: '24 Dec 2025', invalidInput: 'Invalid' },
+    { label: 'Scheduled pickup *', validInput: '03 Jan 2025', invalidInput: 'X' },
+    { label: 'Actual pickup *', validInput: '24 Dec 2025', invalidInput: 'Invalid' },
     { label: 'Scheduled delivery', validInput: '15 Jun 2025', invalidInput: '2025-02-29' },
     { label: 'Actual delivery', validInput: '25 Dec 2025', invalidInput: '0' },
   ];

@@ -73,6 +73,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		dBAuthorizedWeight = models.Int64Pointer(int64(*order.Entitlement.AuthorizedWeight()))
 		entitlement.ProGear = models.Int64Pointer(int64(order.Entitlement.ProGearWeight))
 		entitlement.ProGearSpouse = models.Int64Pointer(int64(order.Entitlement.ProGearWeightSpouse))
+		entitlement.GunSafeWeight = models.Int64Pointer(int64(order.Entitlement.GunSafeWeight))
 		if order.Entitlement.AccompaniedTour != nil {
 			entitlement.AccompaniedTour = models.BoolPointer(*order.Entitlement.AccompaniedTour)
 		}
@@ -468,7 +469,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocationGBLOC = originDutyLocationGBLOC
 
 				if payload.MoveID != "" {
-
 					moveID, err := uuid.FromString(payload.MoveID.String())
 					if err != nil {
 						return handlers.ResponseForError(appCtx.Logger(), err), err

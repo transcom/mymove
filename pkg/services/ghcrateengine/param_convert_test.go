@@ -10,13 +10,13 @@ import (
 func (suite *GHCRateEngineServiceSuite) Test_getPaymentServiceItemParam() {
 	params := models.PaymentServiceItemParams{
 		setupParamConvertParam(models.ServiceItemParamNameContractCode, models.ServiceItemParamTypeString, testdatagen.DefaultContractCode),
-		setupParamConvertParam(models.ServiceItemParamNameMTOAvailableToPrimeAt, models.ServiceItemParamTypeTimestamp, time.Now().Format(TimestampParamFormat)),
+		setupParamConvertParam(models.ServiceItemParamNameMTOEarliestRequestedPickup, models.ServiceItemParamTypeTimestamp, time.Now().Format(TimestampParamFormat)),
 	}
 
 	suite.Run("finding expected param", func() {
-		param := getPaymentServiceItemParam(params, models.ServiceItemParamNameMTOAvailableToPrimeAt)
+		param := getPaymentServiceItemParam(params, models.ServiceItemParamNameMTOEarliestRequestedPickup)
 		suite.NotNil(param)
-		suite.Equal(models.ServiceItemParamNameMTOAvailableToPrimeAt, param.ServiceItemParamKey.Key)
+		suite.Equal(models.ServiceItemParamNameMTOEarliestRequestedPickup, param.ServiceItemParamKey.Key)
 	})
 
 	suite.Run("param not found", func() {
@@ -110,12 +110,12 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamTime() {
 	testDate := time.Date(testdatagen.TestYear, time.June, 11, 5, 2, 10, 123, time.UTC)
 
 	params := models.PaymentServiceItemParams{
-		setupParamConvertParam(models.ServiceItemParamNameMTOAvailableToPrimeAt, models.ServiceItemParamTypeTimestamp, testDate.Format(TimestampParamFormat)),
+		setupParamConvertParam(models.ServiceItemParamNameMTOEarliestRequestedPickup, models.ServiceItemParamTypeTimestamp, testDate.Format(TimestampParamFormat)),
 		setupParamConvertParam(models.ServiceItemParamNameReferenceDate, models.ServiceItemParamTypeDate, testDate.Format(DateParamFormat)),
 	}
 
 	suite.Run("finding expected timestamp param value", func() {
-		value, err := getParamTime(params, models.ServiceItemParamNameMTOAvailableToPrimeAt)
+		value, err := getParamTime(params, models.ServiceItemParamNameMTOEarliestRequestedPickup)
 		suite.NoError(err)
 		suite.Equal(testDate.Unix(), value.Unix())
 		// Note: The current format of time.RFC3339 does not preserve fractions of a second
@@ -137,11 +137,11 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamTime() {
 
 	suite.Run("unexpected type", func() {
 		badParams := models.PaymentServiceItemParams{
-			setupParamConvertParam(models.ServiceItemParamNameMTOAvailableToPrimeAt, models.ServiceItemParamTypeString, testDate.Format(TimestampParamFormat)),
+			setupParamConvertParam(models.ServiceItemParamNameMTOEarliestRequestedPickup, models.ServiceItemParamTypeString, testDate.Format(TimestampParamFormat)),
 		}
-		_, err := getParamTime(badParams, models.ServiceItemParamNameMTOAvailableToPrimeAt)
+		_, err := getParamTime(badParams, models.ServiceItemParamNameMTOEarliestRequestedPickup)
 		suite.Error(err)
-		suite.Equal("trying to convert MTOAvailableToPrimeAt to a time, but param is of type STRING", err.Error())
+		suite.Equal("trying to convert MTOEarliestRequestedPickup to a time, but param is of type STRING", err.Error())
 	})
 }
 

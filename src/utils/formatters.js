@@ -8,7 +8,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
-import { DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
+import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -321,6 +321,12 @@ export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };
 
+export const formatPayGradeOptions = (payGrades) => {
+  return payGrades.map((grade) => {
+    return { key: grade.grade, value: grade.description };
+  });
+};
+
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
 export const formatAgeToDays = (age) => {
   if (age < 1) {
@@ -625,6 +631,22 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
+export const userName = (user) => {
+  let formattedUser = '';
+  if (user.firstName && user.lastName) {
+    formattedUser += `${user.lastName}, `;
+    formattedUser += ` ${user.firstName}`;
+  } else {
+    if (user.firstName) {
+      formattedUser += ` ${user.firstName}`;
+    }
+    if (user.lastName) {
+      formattedUser += ` ${user.lastName}`;
+    }
+  }
+  return formattedUser;
+};
+
 export const formatServiceMemberNameToString = (serviceMember) => {
   let formattedUser = '';
   if (serviceMember.first_name && serviceMember.last_name) {
@@ -647,7 +669,6 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
 
   const name = `${context[0].assigned_office_user_last_name}, ${context[0].assigned_office_user_first_name}`;
   const newValues = {};
-  const isServiceCounseling = oldValues.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
   const assignOfficeUser = (key, assignedKey, reassignedKey) => {
     if (changedValues?.[key]) {
@@ -656,12 +677,16 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   };
 
   assignOfficeUser(
-    ASSIGNMENT_IDS.SERVICE_COUNSELOR,
-    isServiceCounseling ? ASSIGNMENT_NAMES.SERVICE_COUNSELOR.ASSIGNED : ASSIGNMENT_NAMES.SERVICE_COUNSELOR_PPM.ASSIGNED,
-    isServiceCounseling
-      ? ASSIGNMENT_NAMES.SERVICE_COUNSELOR.RE_ASSIGNED
-      : ASSIGNMENT_NAMES.SERVICE_COUNSELOR_PPM.RE_ASSIGNED,
-  ); // counseling/ppm queues
+    ASSIGNMENT_IDS.SERVICES_COUNSELOR,
+    ASSIGNMENT_NAMES.SERVICES_COUNSELOR.ASSIGNED,
+    ASSIGNMENT_NAMES.SERVICES_COUNSELOR.RE_ASSIGNED,
+  ); // counseling queue
+
+  assignOfficeUser(
+    ASSIGNMENT_IDS.CLOSEOUT_COUNSELOR,
+    ASSIGNMENT_NAMES.CLOSEOUT_COUNSELOR.ASSIGNED,
+    ASSIGNMENT_NAMES.CLOSEOUT_COUNSELOR.RE_ASSIGNED,
+  ); // closeout queue
 
   assignOfficeUser(
     ASSIGNMENT_IDS.TASK_ORDERING_OFFICER,
@@ -677,28 +702,11 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
 
   assignOfficeUser(
     ASSIGNMENT_IDS.TASK_ORDERING_OFFICER_DESTINATION,
-    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.ASSIGNED,
-    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.RE_ASSIGNED,
+    ASSIGNMENT_NAMES.DESTINATION_TASK_ORDERING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.DESTINATION_TASK_ORDERING_OFFICER.RE_ASSIGNED,
   ); // destination request queue
   return newValues;
 };
-
-export const userName = (user) => {
-  let formattedUser = '';
-  if (user.firstName && user.lastName) {
-    formattedUser += `${user.lastName}, `;
-    formattedUser += ` ${user.firstName}`;
-  } else {
-    if (user.firstName) {
-      formattedUser += ` ${user.firstName}`;
-    }
-    if (user.lastName) {
-      formattedUser += ` ${user.lastName}`;
-    }
-  }
-  return formattedUser;
-};
-
 /**
  * @description Converts a string to title case (capitalizes the first letter of each word)
  * @param {string} str - The input string to format.
@@ -747,3 +755,14 @@ export const calculateTotal = (sectionInfo) => {
 
   return formatCents(total);
 };
+
+export function formatLastNameFirstName(firstName, lastName) {
+  const trimmedFirstName = (firstName || '').trim();
+  const trimmedLastName = (lastName || '').trim();
+
+  return (
+    trimmedFirstName.length > 0 || trimmedLastName.length > 0
+      ? trimmedLastName + (trimmedLastName.length > 0 ? ', ' : '') + trimmedFirstName
+      : ''
+  ).trim();
+}

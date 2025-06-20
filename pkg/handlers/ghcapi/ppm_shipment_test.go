@@ -740,7 +740,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 
 	setUpHandler := func(submitter services.PPMShipmentNewSubmitter) SubmitPPMShipmentDocumentationHandler {
 		return SubmitPPMShipmentDocumentationHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			submitter,
 		}
 	}

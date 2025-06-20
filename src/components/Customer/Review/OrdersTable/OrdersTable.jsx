@@ -23,6 +23,7 @@ const OrdersTable = ({
   accompaniedTour,
   dependentsUnderTwelve,
   dependentsTwelveAndOver,
+  isMoveLocked,
 }) => {
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(orderType);
   const editPath = `/move/${moveId}/review/edit-orders/${orderId}`;
@@ -36,6 +37,7 @@ const OrdersTable = ({
           className={reviewStyles['edit-btn']}
           data-testid="edit-orders-table"
           onClick={() => onEditClick(editPath)}
+          disabled={isMoveLocked}
         >
           Edit
         </Button>

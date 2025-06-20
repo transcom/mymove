@@ -86,8 +86,10 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
         shipmentLocator={shipmentInfo.shipmentLocator}
       />
       <div className={styles.shipmentHeadingType}>
-        <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
-        <h2>{shipmentInfo.shipmentType}</h2>
+        <h2>
+          <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
+          {shipmentInfo.shipmentType}
+        </h2>
         <div>
           {shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE && (
             <Tag className="usa-tag--cancellation">terminated for cause</Tag>

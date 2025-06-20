@@ -120,6 +120,7 @@ export const LocationSearchBoxComponent = ({
   isDisabled,
   handleLocationOnChange,
   showRequiredAsterisk,
+  includePOBoxes,
 }) => {
   const { value, onChange, locationState, name: inputName } = input;
 
@@ -159,7 +160,7 @@ export const LocationSearchBoxComponent = ({
       return undefined;
     }
 
-    searchLocations(query)
+    searchLocations(query, includePOBoxes)
       .then((locations) => {
         callback(locations);
       })
@@ -233,7 +234,7 @@ export const LocationSearchBoxComponent = ({
     <FormGroup>
       <div className="labelWrapper">
         <Label hint={hint} htmlFor={inputId} className={labelClasses} data-testid={`${name}-label`}>
-          <span>
+          <span aria-label="Required">
             {title} {showRequiredAsterisk && <RequiredAsterisk />}
           </span>
         </Label>
@@ -322,6 +323,7 @@ LocationSearchBoxComponent.propTypes = {
   showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
   showRequiredAsterisk: PropTypes.bool,
+  includePOBoxes: PropTypes.bool,
 };
 
 LocationSearchBoxComponent.defaultProps = {
@@ -329,6 +331,7 @@ LocationSearchBoxComponent.defaultProps = {
   searchLocations: SearchDutyLocations,
   isDisabled: false,
   showRequiredAsterisk: false,
+  includePOBoxes: false,
 };
 
 export default LocationSearchBoxContainer;

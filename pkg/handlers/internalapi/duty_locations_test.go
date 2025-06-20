@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 
 	newAKAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
+		City:           "SCHENECTADY",
 		State:          "AK",
 		PostalCode:     "12345",
 		County:         models.StringPointer("County"),
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 
 	newHIAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
+		City:           "SCHENECTADY",
 		State:          "HI",
 		PostalCode:     "12345",
 		County:         models.StringPointer("County"),
@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	suite.MustSave(&dutylocationHI)
 
 	setupTestHandler := func(isAlaskaEnabled bool, isSimulateFeatureFlagError bool) SearchDutyLocationsHandler {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 
 		mockGetFlagFunc := func(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string) (services.FeatureFlag, error) {

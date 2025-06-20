@@ -6,10 +6,18 @@ import styles from './OfficeDefinitionLists.module.scss';
 import { BackupContactShape } from 'types/backupContact';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { AddressShape } from 'types/address';
-import { formatCustomerContactFullAddress } from 'utils/formatters';
+import { formatCustomerContactFullAddress, formatLastNameFirstName } from 'utils/formatters';
 import departmentIndicators from 'constants/departmentIndicators';
 
 const CustomerInfoList = ({ customerInfo }) => {
+  const emDash = '\u2014';
+
+  const lastNameFirstName = formatLastNameFirstName(
+    customerInfo.backupContact?.firstName,
+    customerInfo.backupContact?.lastName,
+  );
+  const backupContactName = lastNameFirstName.length > 0 ? lastNameFirstName : emDash;
+
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
@@ -57,9 +65,7 @@ const CustomerInfoList = ({ customerInfo }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact name</dt>
-          <dd data-testid="backupContactName">
-            {customerInfo.backupContact?.name ? customerInfo.backupContact.name : '—'}
-          </dd>
+          <dd data-testid="backupContactName">{backupContactName}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact email</dt>

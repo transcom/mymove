@@ -1,4 +1,6 @@
 // @ts-check
+import { getFutureDate } from '../../utils/playwrightUtility';
+
 import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
@@ -6,7 +8,7 @@ test.describe('Services counselor user', () => {
     const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     await scPage.navigateToMove(move.locator);
 
-    const deliveryDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const pickupDate = getFutureDate();
     await page.getByTestId('dropdown').selectOption({ label: 'Boat' });
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
@@ -22,7 +24,7 @@ test.describe('Services counselor user', () => {
     await page.locator('label[for="isRoadworthyYes"]').click();
     await page.locator('label[for="typeTowAway"]').click();
 
-    await page.locator('#requestedPickupDate').fill(deliveryDate);
+    await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
     await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
@@ -56,7 +58,7 @@ test.describe('Services counselor user', () => {
     const move = await scPage.testHarness.buildBoatHaulAwayMoveNeedsSC();
     await scPage.navigateToMove(move.locator);
 
-    const deliveryDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const pickupDate = getFutureDate();
 
     await expect(page.getByText('Shipment method')).toBeVisible();
     await expect(page.getByTestId('shipmentType')).not.toHaveText('BTA');
@@ -88,7 +90,7 @@ test.describe('Services counselor user', () => {
     await page.locator('label[for="isRoadworthyYes"]').click();
     await page.locator('label[for="typeTowAway"]').click();
 
-    await page.locator('#requestedPickupDate').fill(deliveryDate);
+    await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
     await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');

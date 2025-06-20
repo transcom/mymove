@@ -68,7 +68,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -199,7 +199,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -397,7 +397,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -527,7 +527,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -578,7 +578,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           officeUser.User.Roles,
+		ActiveRole:      officeUser.User.Roles[0],
 		OfficeUserID:    officeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -639,7 +639,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1106,7 +1106,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1343,7 +1343,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListByAllFilters
 		tioNameLocator = fmt.Sprintf("%s %s", officeUser.FirstName, officeUser.LastName)
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1496,13 +1496,13 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListByAllFilters
 
 		// --- TIO ASSIGNED ---
 		good = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{Model: models.Move{Locator: "TIO123", TIOAssignedID: &officeUser.ID}},
+			{Model: models.Move{Locator: "TIO123", TIOPaymentRequestAssignedID: &officeUser.ID}},
 		}, nil)
 		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{Model: good, LinkOnly: true},
 		}, nil)
 		bad = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{Model: models.Move{Locator: "TIO999", TIOAssignedID: nil}},
+			{Model: models.Move{Locator: "TIO999", TIOPaymentRequestAssignedID: nil}},
 		}, nil)
 		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{Model: bad, LinkOnly: true},
@@ -1573,7 +1573,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListByAllFilters
 		{"locator", services.FetchPaymentRequestListParams{Locator: swag.String("LO1234")}, locatorLocator},
 		{"submittedAt", services.FetchPaymentRequestListParams{SubmittedAt: &exactTime}, submittedAtLocator},
 		{"status", services.FetchPaymentRequestListParams{Status: []string{string(models.PaymentRequestStatusReviewed)}}, statusLocator},
-		{"tioAssigned", services.FetchPaymentRequestListParams{TIOAssignedUser: &tioNameLocator}, tioAssignedLocator},
+		{"assignedTo", services.FetchPaymentRequestListParams{AssignedTo: &tioNameLocator}, tioAssignedLocator},
 		{"counselingOffice", services.FetchPaymentRequestListParams{CounselingOffice: swag.String(testCounselingOffice.Name)}, counselingOfficeLocator},
 		{"originDutyLocation", services.FetchPaymentRequestListParams{OriginDutyLocation: swag.String(originDutyLocationName)}, originDutyLocationLocator},
 	}

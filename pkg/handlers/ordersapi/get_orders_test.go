@@ -29,7 +29,7 @@ func (suite *HandlerSuite) TestGetOrdersSuccess() {
 		UUID:        strfmt.UUID(order.ID.String()),
 	}
 
-	handler := GetOrdersHandler{suite.HandlerConfig()}
+	handler := GetOrdersHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.IsType(&ordersoperations.GetOrdersOK{}, response)
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestGetOrdersNoApiPerm() {
 		UUID:        strfmt.UUID(uuid.String()),
 	}
 
-	handler := GetOrdersHandler{suite.HandlerConfig()}
+	handler := GetOrdersHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, response)
@@ -126,7 +126,7 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 				UUID:        strfmt.UUID(order.ID.String()),
 			}
 
-			handler := GetOrdersHandler{suite.HandlerConfig()}
+			handler := GetOrdersHandler{suite.NewHandlerConfig()}
 			response := handler.Handle(params)
 
 			suite.IsType(&handlers.ErrResponse{}, response)
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestGetOrdersMissingUUID() {
 		UUID:        strfmt.UUID(uuid.String()),
 	}
 
-	handler := GetOrdersHandler{suite.HandlerConfig()}
+	handler := GetOrdersHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, response)

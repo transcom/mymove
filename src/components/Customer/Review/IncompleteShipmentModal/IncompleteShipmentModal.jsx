@@ -6,7 +6,7 @@ import styles from 'components/Customer/Review/IncompleteShipmentModal/Incomplet
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const IncompleteShipmentModal = ({ closeModal, shipmentLabel, shipmentMoveCode, shipmentType }) => (
-  <Modal className={styles.Modal}>
+  <Modal className={styles.Modal} onClose={closeModal}>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3>INCOMPLETE SHIPMENT</h3>

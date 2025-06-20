@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewGetLocationByZipCityStateParams creates a new GetLocationByZipCityStateParams object,
@@ -60,6 +61,12 @@ GetLocationByZipCityStateParams contains all the parameters to send to the API e
 	Typically these are written to a http.Request.
 */
 type GetLocationByZipCityStateParams struct {
+
+	/* IncludePOBoxes.
+
+	   Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.
+	*/
+	IncludePOBoxes *bool
 
 	// Search.
 	Search string
@@ -117,6 +124,17 @@ func (o *GetLocationByZipCityStateParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithIncludePOBoxes adds the includePOBoxes to the get location by zip city state params
+func (o *GetLocationByZipCityStateParams) WithIncludePOBoxes(includePOBoxes *bool) *GetLocationByZipCityStateParams {
+	o.SetIncludePOBoxes(includePOBoxes)
+	return o
+}
+
+// SetIncludePOBoxes adds the includePOBoxes to the get location by zip city state params
+func (o *GetLocationByZipCityStateParams) SetIncludePOBoxes(includePOBoxes *bool) {
+	o.IncludePOBoxes = includePOBoxes
+}
+
 // WithSearch adds the search to the get location by zip city state params
 func (o *GetLocationByZipCityStateParams) WithSearch(search string) *GetLocationByZipCityStateParams {
 	o.SetSearch(search)
@@ -135,6 +153,23 @@ func (o *GetLocationByZipCityStateParams) WriteToRequest(r runtime.ClientRequest
 		return err
 	}
 	var res []error
+
+	if o.IncludePOBoxes != nil {
+
+		// query param includePOBoxes
+		var qrIncludePOBoxes bool
+
+		if o.IncludePOBoxes != nil {
+			qrIncludePOBoxes = *o.IncludePOBoxes
+		}
+		qIncludePOBoxes := swag.FormatBool(qrIncludePOBoxes)
+		if qIncludePOBoxes != "" {
+
+			if err := r.SetQueryParam("includePOBoxes", qIncludePOBoxes); err != nil {
+				return err
+			}
+		}
+	}
 
 	// path param search
 	if err := r.SetPathParam("search", o.Search); err != nil {

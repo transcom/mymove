@@ -23,6 +23,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import scrollToTop from 'shared/scrollToTop';
 import Hint from 'components/Hint/index';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const AcknowledgeShipment = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -120,11 +121,14 @@ const AcknowledgeShipment = ({ setFlashMessage }) => {
                         <dt>Shipment ID:</dt>
                         <dd>{shipment.id}</dd>
                       </div>
+                      {requiredAsteriskMessage}
                       <DatePickerInput
                         data-testid="primeAcknowledgedAt"
                         name="primeAcknowledgedAt"
                         label="Prime Acknowledged At"
                         disabled={shipment.primeAcknowledgedAt}
+                        showRequiredAsterisk
+                        required
                       />
                       <Hint id="primeAcknowledgedAtHint" data-testid="primeAcknowledgedAtHint">
                         Prime Acknowledged At date can only be saved one time.

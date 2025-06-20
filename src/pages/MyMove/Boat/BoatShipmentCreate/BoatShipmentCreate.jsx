@@ -11,7 +11,7 @@ import { customerRoutes } from 'constants/routes';
 import { boatShipmentTypes } from 'constants/shipments';
 import pageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMTOShipment, deleteMTOShipment, getAllMoves } from 'services/internalApi';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
@@ -20,7 +20,14 @@ import { validatePostalCode } from 'utils/validation';
 import { toTotalInches } from 'utils/formatMtoShipment';
 import BoatShipmentConfirmationModal from 'components/Customer/BoatShipment/BoatShipmentConfirmationModal/BoatShipmentConfirmationModal';
 
-const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocation, move, serviceMemberMoves }) => {
+const BoatShipmentCreate = ({
+  mtoShipment,
+  serviceMember,
+  destinationDutyLocation,
+  move,
+  serviceMemberMoves,
+  isMoveLocked,
+}) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [showBoatConfirmationModal, setShowBoatConfirmationModal] = useState(false);
   const [isDimensionsMeetReq, setIsDimensionsMeetReq] = useState(false);
@@ -213,6 +220,11 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
 
   return (
     <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {MOVE_LOCKED_WARNING}
+        </Alert>
+      )}
       <div className={pageStyles.ppmPageStyle}>
         <NotificationScrollToTop dependency={errorMessage} />
         <GridContainer>
@@ -233,6 +245,7 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
                 onSubmit={handleSubmit}
                 onBack={handleBack}
                 postalCodeValidator={validatePostalCode}
+                isMoveLocked={isMoveLocked}
               />
             </Grid>
           </Grid>

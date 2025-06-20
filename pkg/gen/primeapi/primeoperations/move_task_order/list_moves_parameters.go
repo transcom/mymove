@@ -45,6 +45,10 @@ type ListMovesParams struct {
 	  In: query
 	*/
 	AcknowledgedBefore *strfmt.DateTime
+	/*Only return moves updated before this time. Formatted like "2021-07-23T18:30:47.116Z"
+	  In: query
+	*/
+	Before *strfmt.DateTime
 	/*Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
 	  In: query
 	*/
@@ -74,6 +78,11 @@ func (o *ListMovesParams) BindRequest(r *http.Request, route *middleware.Matched
 
 	qAcknowledgedBefore, qhkAcknowledgedBefore, _ := qs.GetOK("acknowledgedBefore")
 	if err := o.bindAcknowledgedBefore(qAcknowledgedBefore, qhkAcknowledgedBefore, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qBefore, qhkBefore, _ := qs.GetOK("before")
+	if err := o.bindBefore(qBefore, qhkBefore, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -179,6 +188,43 @@ func (o *ListMovesParams) bindAcknowledgedBefore(rawData []string, hasKey bool, 
 func (o *ListMovesParams) validateAcknowledgedBefore(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("acknowledgedBefore", "query", "date-time", o.AcknowledgedBefore.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindBefore binds and validates parameter Before from query.
+func (o *ListMovesParams) bindBefore(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: date-time
+	value, err := formats.Parse("date-time", raw)
+	if err != nil {
+		return errors.InvalidType("before", "query", "strfmt.DateTime", raw)
+	}
+	o.Before = (value.(*strfmt.DateTime))
+
+	if err := o.validateBefore(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateBefore carries on validations for parameter Before
+func (o *ListMovesParams) validateBefore(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("before", "query", "date-time", o.Before.String(), formats); err != nil {
 		return err
 	}
 	return nil

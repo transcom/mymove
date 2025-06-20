@@ -50,6 +50,11 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		return nil, err
 	}
 
+	var lockExpiresAt strfmt.DateTime
+	if move.LockExpiresAt != nil {
+		lockExpiresAt = *handlers.FmtDateTime(*move.LockExpiresAt)
+	}
+
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:           handlers.FmtDateTime(move.CreatedAt),
 		SubmittedAt:         handlers.FmtDateTime(SubmittedAt),
@@ -62,6 +67,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		Status:              internalmessages.MoveStatus(move.Status),
 		ETag:                &eTag,
 		AdditionalDocuments: additionalDocumentsPayload,
+		LockExpiresAt:       lockExpiresAt,
 	}
 
 	if move.CloseoutOffice != nil {
@@ -105,6 +111,11 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			closeOutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
 		}
 
+		var lockExpiresAt strfmt.DateTime
+		if move.LockExpiresAt != nil {
+			lockExpiresAt = *handlers.FmtDateTime(*move.LockExpiresAt)
+		}
+
 		currentMove := &internalmessages.InternalMove{
 			CreatedAt:      *handlers.FmtDateTime(move.CreatedAt),
 			ETag:           eTag,
@@ -115,6 +126,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			Orders:         orders,
 			CloseoutOffice: &closeOutOffice,
 			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
+			LockExpiresAt:  lockExpiresAt,
 		}
 
 		if move.PrimeCounselingCompletedAt != nil {
@@ -356,6 +368,17 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			gunSafeFlag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = gunSafeFlag.Match
+			}
+
 			var movesList models.Moves
 			var latestMove models.Move
 			var previousMovesList models.Moves
@@ -474,6 +497,11 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				}
 				/** End of Feature Flag Block **/
 
+				/** Feature Flag - Gun Safe **/
+				if !isGunSafeFeatureOn {
+					nilOutGunSafeItems(&move)
+				}
+
 				if latestMove.CreatedAt == nilTime {
 					latestMove = move
 					break
@@ -521,6 +549,12 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 							filteredShipments = append(filteredShipments, move.MTOShipments[i])
 						}
 						move.MTOShipments = filteredShipments
+					}
+					/** End of Feature Flag Block **/
+
+					/** Feature Flag - Gun Safe **/
+					if !isGunSafeFeatureOn {
+						nilOutGunSafeItems(&move)
 					}
 					/** End of Feature Flag Block **/
 
@@ -605,4 +639,18 @@ func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStore
 		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload, nil
+}
+
+func nilOutGunSafeItems(move *models.Move) {
+	if len(move.MTOShipments) > 0 {
+		for _, shipment := range move.MTOShipments {
+			shipment.PPMShipment.GunSafeWeight = nil
+			shipment.PPMShipment.GunSafeWeightTickets = nil
+			shipment.PPMShipment.HasGunSafe = nil
+		}
+	}
+	move.Orders.Entitlement.GunSafeWeight = 0
+	if move.Orders.Entitlement.WeightAllotted != nil {
+		move.Orders.Entitlement.WeightAllotted.GunSafeWeight = 0
+	}
 }

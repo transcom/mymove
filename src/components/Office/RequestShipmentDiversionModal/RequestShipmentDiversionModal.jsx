@@ -25,7 +25,7 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal>
+        <Modal onClose={() => onClose()}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h3>Request Shipment Diversion for #{shipmentInfo.shipmentLocator}</h3>

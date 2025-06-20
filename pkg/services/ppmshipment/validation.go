@@ -230,5 +230,9 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.WeightTickets = newPPMShipment.WeightTickets
 	}
 
+	if len(newPPMShipment.GunSafeWeightTickets) >= 1 {
+		ppmShipment.GunSafeWeightTickets = newPPMShipment.GunSafeWeightTickets
+	}
+
 	return &ppmShipment, err
 }

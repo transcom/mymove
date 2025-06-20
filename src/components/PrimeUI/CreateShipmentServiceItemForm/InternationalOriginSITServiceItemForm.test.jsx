@@ -74,7 +74,7 @@ describe('InternationalOriginSITServiceItemForm component', () => {
     ['SIT postal code', 'sitPostalCode'],
     ['SIT entry Date', 'sitEntryDate'],
     ['SIT departure Date', 'sitDepartureDate'],
-    ['SIT HHG actual origin', 'sitHHGActualOrigin'],
+    ['SIT HHG actual origin address', 'sitHHGActualOrigin'],
   ])('renders field %s in form', (labelName) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
@@ -92,5 +92,9 @@ describe('InternationalOriginSITServiceItemForm component', () => {
     // Check if the button renders
     const createBtn = screen.getByRole('button', { name: 'Create service item' });
     expect(createBtn).toBeInTheDocument();
+
+    expect(screen.getByLabelText('Reason *')).toBeInTheDocument();
+    expect(screen.getByLabelText('SIT postal code *')).toBeInTheDocument();
+    expect(screen.getByLabelText('SIT entry Date *')).toBeInTheDocument();
   });
 });

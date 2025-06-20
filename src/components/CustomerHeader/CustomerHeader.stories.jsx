@@ -10,7 +10,7 @@ const props = {
   customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
   order: {
     agency: 'MARINES',
-    grade: 'E_6',
+    grade: 'E-6',
     originDutyLocation: {
       name: 'JBSA Lackland',
     },

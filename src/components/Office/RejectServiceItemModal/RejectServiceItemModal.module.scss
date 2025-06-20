@@ -25,7 +25,9 @@
 
 .modalActions {
   @include u-display(flex);
+  @include u-justify-content(justify-end);
   @include u-margin-top(3);
+
 
   button[type='submit'],
   button[type='reset'] {

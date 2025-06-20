@@ -288,7 +288,7 @@ const MovePaymentRequests = ({
               maxBillableWeight={maxBillableWeight}
               actualBillableWeight={actualBillableWeight}
               weightRequested={weightRequested}
-              weightAllowance={order?.entitlement?.totalWeight}
+              weightAllowance={order?.entitlement?.authorizedWeight}
               onReviewWeights={handleReviewWeightsClick}
               shipments={filteredShipments}
               secondaryReviewWeightsBtn={noBillableWeightIssues}
@@ -306,6 +306,7 @@ const MovePaymentRequests = ({
                   key={paymentRequest.id}
                   onEditAccountingCodes={handleEditAccountingCodes}
                   isMoveLocked={isMoveLocked}
+                  affiliation={order.agency}
                 />
               ))
             ) : (

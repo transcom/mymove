@@ -34,7 +34,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		return models.ServiceMemberSearchResults{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
-	if !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+	if !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor) && !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) {
 		return models.ServiceMemberSearchResults{}, 0, apperror.NewForbiddenError("not authorized to preform this search")
 	}
 

@@ -102,9 +102,9 @@ func checkUpdateAllowed() validator {
 		err := apperror.NewForbiddenError(msg)
 
 		if appCtx.Session().IsOfficeApp() && appCtx.Session().IsOfficeUser() {
-			isServiceCounselor := appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor)
-			isTOO := appCtx.Session().Roles.HasRole(roles.RoleTypeTOO)
-			isTIO := appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)
+			isServiceCounselor := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor
+			isTOO := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO
+			isTIO := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTIO
 			switch older.Status {
 			case models.MTOShipmentStatusSubmitted:
 				if isServiceCounselor || isTOO {
@@ -130,6 +130,10 @@ func checkUpdateAllowed() validator {
 				if isTOO {
 					return nil
 				}
+			case models.MTOShipmentStatusDraft:
+				if isServiceCounselor {
+					return nil
+				}
 			default:
 				return err
 			}
@@ -146,13 +150,13 @@ func checkDeleteAllowed() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
 		move := older.MoveTaskOrder
 
-		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor {
 			if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
 				return apperror.NewForbiddenError("Service Counselor: A shipment can only be deleted if the move is in 'Draft' or 'NeedsServiceCounseling' status")
 			}
 		}
 
-		if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+		if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO {
 			if older.Status == models.MTOShipmentStatusApproved || older.Status == models.MTOShipmentStatusApprovalsRequested {
 				return apperror.NewForbiddenError("TOO: A shipment cannot be deleted if it's in Approved or Approvals Requested status")
 			}
@@ -407,18 +411,28 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 			verrs.Add("tertiaryDeliveryAddress", "the tertiary delivery address already exists and cannot be updated with this endpoint")
 		}
 
-		// If we have all the data, calculate RDD
-		if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
-			older.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil && older.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
-			weight := latestEstimatedWeight
+		pickupIsAlaska, _ := latestPickupAddress.IsAddressAlaska()
+		destinationIsAlaska, _ := latestDestinationAddress.IsAddressAlaska()
+		// If we have all the necessary data for the shipment type and locations, calculate RDD
+		if latestSchedPickupDate != nil && latestPickupAddress != nil && latestDestinationAddress != nil &&
+			((pickupIsAlaska && destinationIsAlaska) ||
+				latestEstimatedWeight != nil ||
+				(older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && older.NTSRecordedWeight != nil)) &&
+			older.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
+
+			var weight *int
 			if older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && older.NTSRecordedWeight != nil {
-				weight = older.NTSRecordedWeight
+				weight = models.IntPointer(older.NTSRecordedWeight.Int())
+			} else if latestEstimatedWeight != nil {
+				weight = models.IntPointer(latestEstimatedWeight.Int())
 			}
+
 			requiredDeliveryDate, err := CalculateRequiredDeliveryDate(appCtx, planner, *latestPickupAddress,
-				*latestDestinationAddress, *latestSchedPickupDate, weight.Int(), older.MarketCode, older.MoveTaskOrderID, older.ShipmentType)
+				*latestDestinationAddress, *latestSchedPickupDate, weight, older.MoveTaskOrderID, older.ShipmentType)
 			if err != nil {
 				verrs.Add("requiredDeliveryDate", err.Error())
 			}
+
 			newer.RequiredDeliveryDate = requiredDeliveryDate
 		}
 		return verrs
@@ -576,7 +590,6 @@ func checkAddressUpdateAllowed() addressUpdateValidator {
 		return nil
 	})
 }
-
 func GetAorAnByShipmentType(shipmentType models.MTOShipmentType) string {
 	switch shipmentType {
 	case models.MTOShipmentTypeHHG,

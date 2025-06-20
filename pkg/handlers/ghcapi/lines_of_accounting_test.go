@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 
 			loaFetcher := createLoaFetcher()
 			handler := LinesOfAccountingRequestLineOfAccountingHandler{
-				HandlerConfig:           suite.HandlerConfig(),
+				HandlerConfig:           suite.NewHandlerConfig(),
 				LineOfAccountingFetcher: loaFetcher,
 			}
 
@@ -160,7 +160,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 	suite.Run("Returns 200 on LOA fetcher giving sql err rows not found", func() {
 		mockLoaFetcher := &mocks.LineOfAccountingFetcher{}
 		handler := LinesOfAccountingRequestLineOfAccountingHandler{
-			HandlerConfig:           suite.HandlerConfig(),
+			HandlerConfig:           suite.NewHandlerConfig(),
 			LineOfAccountingFetcher: mockLoaFetcher,
 		}
 		req := httptest.NewRequest("POST", "/lines-of-accounting", nil)
@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 	suite.Run("Returns 500 on LOA fetcher erroring without sql no rows", func() {
 		mockLoaFetcher := &mocks.LineOfAccountingFetcher{}
 		handler := LinesOfAccountingRequestLineOfAccountingHandler{
-			HandlerConfig:           suite.HandlerConfig(),
+			HandlerConfig:           suite.NewHandlerConfig(),
 			LineOfAccountingFetcher: mockLoaFetcher,
 		}
 		req := httptest.NewRequest("POST", "/lines-of-accounting", nil)

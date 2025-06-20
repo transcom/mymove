@@ -28,6 +28,7 @@
 
 .statusAction {
   @include u-display(flex);
+  justify-content: flex-end;
 
   button {
     @include u-margin-top(0);

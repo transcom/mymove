@@ -158,6 +158,62 @@ func MakeOfficeUserWithTOOAndTIO(appCtx appcontext.AppContext) models.User {
 	return user
 }
 
+func MakeOfficeUserWithMultirole(appCtx appcontext.AppContext) models.User {
+	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO,
+		roles.RoleTypeTIO,
+		roles.RoleTypeServicesCounselor,
+		roles.RoleTypePrimeSimulator,
+		roles.RoleTypeQae,
+		roles.RoleTypeCustomerServiceRepresentative,
+		roles.RoleTypeHQ,
+		roles.RoleTypeGSR,
+		roles.RoleTypeContractingOfficer,
+	}
+
+	var allRoles []roles.Role
+	err := appCtx.DB().Where("role_type IN (?)", officeUserRoleTypes).All(&allRoles)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch roles for office user during multirole testharness creation: %w", err))
+	}
+
+	email := strings.ToLower(fmt.Sprintf("fred_office_%s@example.com",
+		testdatagen.MakeRandomString(5)))
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: email,
+				Active:    true,
+				Roles:     allRoles,
+			},
+		},
+	}, nil)
+	approvedStatus := models.OfficeUserStatusAPPROVED
+	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email:  email,
+				Active: true,
+				UserID: &user.ID,
+				Status: &approvedStatus,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
+
+	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	return user
+}
+
 func MakeOfficeUserWithCustomer(appCtx appcontext.AppContext) models.User {
 	customerRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeCustomer).First(&customerRole)

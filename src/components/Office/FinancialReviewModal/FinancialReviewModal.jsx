@@ -25,7 +25,7 @@ function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelect
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.FinancialReviewModal}>
+        <Modal className={styles.FinancialReviewModal} onClose={onClose}>
           <ModalClose handleClick={onClose} />
           <ModalTitle>
             <h2>Does this move need financial review?</h2>
@@ -89,11 +89,11 @@ function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelect
                       className={styles.RemarksField}
                     />
                     <ModalActions>
+                      <Button type="button" onClick={onClose} secondary>
+                        Cancel
+                      </Button>
                       <Button type="submit" disabled={!isValid}>
                         Save
-                      </Button>
-                      <Button type="button" onClick={onClose} outline className="usa-button--tertiary">
-                        Cancel
                       </Button>
                     </ModalActions>
                   </Form>

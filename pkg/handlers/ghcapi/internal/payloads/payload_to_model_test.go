@@ -640,6 +640,33 @@ func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
 	})
 }
 
+func (suite *PayloadsSuite) TestGunSafeWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		description := "test description"
+		hasWeightTickets := true
+
+		input := &ghcmessages.UpdateGunSafeWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			Status:           status,
+			Reason:           reason,
+			Description:      description,
+		}
+
+		result := GunSafeWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.GunSafeWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
+		suite.Equal(reason, *result.Reason)
+		suite.Equal(description, *result.Description)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+	})
+}
+
 func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	suite.Run("Success - Complete input", func() {
 		time := time.Now()
@@ -769,5 +796,44 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		suite.Equal(model.PPMType, models.PPMTypeActualExpense)
 		suite.True(*model.HasGunSafe)
 		suite.Equal(unit.Pound(gunSafeWeight), *model.GunSafeWeight)
+	})
+}
+
+func (suite *PayloadsSuite) TestCustomerToServiceMember() {
+	suite.Run("Success - Customer with backup contact", func() {
+		payload := ghcmessages.UpdateCustomerPayload{
+			LastName:  "Newlastname",
+			FirstName: "Newfirstname",
+			Phone:     handlers.FmtString("223-455-3399"),
+			BackupContact: &ghcmessages.BackupContact{
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
+			},
+		}
+		currentAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 New Street"),
+			City:           handlers.FmtString("Newcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("12345"),
+		}
+		payload.CurrentAddress.Address = currentAddress
+
+		result := CustomerToServiceMember(payload)
+
+		suite.IsType(models.ServiceMember{}, result)
+
+		suite.Equal(*result.FirstName, payload.FirstName)
+		suite.Equal(*result.LastName, payload.LastName)
+		suite.Equal(result.Telephone, payload.Phone)
+		suite.Equal(result.ResidentialAddress.StreetAddress1, *payload.CurrentAddress.StreetAddress1)
+		suite.Equal(result.ResidentialAddress.City, *payload.CurrentAddress.City)
+		suite.Equal(result.ResidentialAddress.PostalCode, *payload.CurrentAddress.PostalCode)
+		suite.Equal(result.ResidentialAddress.State, *payload.CurrentAddress.State)
+		suite.Equal(result.BackupContacts[0].FirstName, *payload.BackupContact.FirstName)
+		suite.Equal(result.BackupContacts[0].LastName, *payload.BackupContact.LastName)
+		suite.Equal(result.BackupContacts[0].Phone, *payload.BackupContact.Phone)
+		suite.Equal(result.BackupContacts[0].Email, *payload.BackupContact.Email)
 	})
 }

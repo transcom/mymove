@@ -192,9 +192,10 @@ func BackupContact(backupContact *models.BackupContact) *primemessages.BackupCon
 		return nil
 	}
 	payload := primemessages.BackupContact{
-		Name:  backupContact.Name,
-		Email: backupContact.Email,
-		Phone: backupContact.Phone,
+		FirstName: backupContact.FirstName,
+		LastName:  backupContact.LastName,
+		Email:     backupContact.Email,
+		Phone:     backupContact.Phone,
 	}
 
 	return &payload
@@ -625,9 +626,9 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
+		PrimeAcknowledgedAt:              handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt),
 		TerminationComments:              handlers.FmtStringPtr(mtoShipment.TerminationComments),
 		TerminatedAt:                     handlers.FmtDateTimePtr(mtoShipment.TerminatedAt),
-		PrimeAcknowledgedAt:              handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt),
 	}
 
 	// Set up address payloads
@@ -1050,15 +1051,17 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 	}
 
 	tags, err := storer.Tags(upload.StorageKey)
+	var status string
 	if err != nil || tags == nil {
-		payload.Status = "PROCESSING"
+		status = "PROCESSING"
+	} else if v, ok := tags["av-status"]; ok {
+		status = v
+	} else if v, ok := tags["GuardDutyMalwareScanStatus"]; ok {
+		status = v
 	} else {
-		status, ok := tags["av-status"]
-		if !ok {
-			status = "PROCESSING"
-		}
-		payload.Status = status
+		status = "PROCESSING"
 	}
+	payload.Status = status
 
 	return payload
 }
@@ -1240,6 +1243,26 @@ func VLocations(vLocations models.VLocations) primemessages.VLocations {
 	for i, vLocation := range vLocations {
 		copyOfVLocation := vLocation
 		payload[i] = VLocation(&copyOfVLocation)
+	}
+	return payload
+}
+
+func CountryCodeName(country *models.Country) *primemessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &primemessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+}
+
+func Countries(countries models.Countries) primemessages.Countries {
+	payload := make(primemessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
 }

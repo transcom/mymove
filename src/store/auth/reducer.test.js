@@ -1,5 +1,5 @@
 import authReducer, { initialState } from './reducer';
-import { setActiveRole, logOut } from './actions';
+import { setActiveRole, logOut, setActiveRoleSuccess, setActiveRoleFailure } from './actions';
 import { selectIsLoggedIn, selectUnderMaintenance } from './selectors';
 
 import { roleTypes } from 'constants/userRoles';
@@ -21,7 +21,22 @@ describe('authReducer', () => {
   it('handles the setActiveRole action', () => {
     expect(authReducer(initialState, setActiveRole('myRole'))).toEqual({
       ...initialState,
+      isSettingActiveRole: true,
+    });
+  });
+
+  it('handles the setActiveRoleSucces action', () => {
+    expect(authReducer(initialState, setActiveRoleSuccess('myRole'))).toEqual({
+      ...initialState,
       activeRole: 'myRole',
+      isSettingActiveRole: false,
+    });
+  });
+
+  it('handles the setActiveRoleFailure action', () => {
+    expect(authReducer(initialState, setActiveRoleFailure())).toEqual({
+      ...initialState,
+      isSettingActiveRole: false,
     });
   });
 
@@ -38,14 +53,9 @@ describe('authReducer', () => {
     const action = {
       type: 'GET_LOGGED_IN_USER_SUCCESS',
       payload: {
-        roles: [
-          {
-            roleType: roleTypes.CUSTOMER,
-          },
-          {
-            roleType: roleTypes.TOO,
-          },
-        ],
+        activeRole: {
+          roleType: roleTypes.TOO,
+        },
       },
     };
 
@@ -72,14 +82,9 @@ describe('authReducer', () => {
     const action = {
       type: 'GET_LOGGED_IN_USER_SUCCESS',
       payload: {
-        roles: [
-          {
-            roleType: roleTypes.CUSTOMER,
-          },
-          {
-            roleType: roleTypes.TOO,
-          },
-        ],
+        activeRole: {
+          roleType: roleTypes.TOO,
+        },
       },
     };
 

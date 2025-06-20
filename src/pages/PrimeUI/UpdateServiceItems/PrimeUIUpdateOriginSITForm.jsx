@@ -15,6 +15,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { DatePickerInput } from 'components/form/fields';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const PrimeUIUpdateOriginSITForm = ({ initialValues, onSubmit, serviceItem }) => {
   const { moveCodeOrID } = useParams();
@@ -77,26 +78,32 @@ const PrimeUIUpdateOriginSITForm = ({ initialValues, onSubmit, serviceItem }) =>
                   <DatePickerInput name="sitCustomerContacted" label="SIT Customer Contacted" />
                 </div>
                 {serviceItem.status === SERVICE_ITEM_STATUSES.REJECTED && (
-                  <TextField
-                    display="textarea"
-                    label="Update Reason"
-                    data-testid="updateReason"
-                    name="updateReason"
-                    className={`${formStyles.remarks}`}
-                    placeholder=""
-                    id="updateReason"
-                    maxLength={500}
-                  />
+                  <>
+                    {requiredAsteriskMessage}
+                    <TextField
+                      display="textarea"
+                      label="Update Reason"
+                      data-testid="updateReason"
+                      name="updateReason"
+                      className={`${formStyles.remarks}`}
+                      placeholder=""
+                      id="updateReason"
+                      maxLength={500}
+                      showRequiredAsterisk
+                      required
+                    />
+                  </>
                 )}
               </SectionWrapper>
-              <WizardNavigation
-                editMode
-                className={formStyles.formActions}
-                aria-label="Update SIT Service Item"
-                type="submit"
-                onCancelClick={handleClose}
-                onNextClick={handleSubmit}
-              />
+              <div className={formStyles.formActions}>
+                <WizardNavigation
+                  editMode
+                  aria-label="Update SIT Service Item"
+                  type="submit"
+                  onCancelClick={handleClose}
+                  onNextClick={handleSubmit}
+                />
+              </div>
             </div>
           </FormGroup>
         </Form>

@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestIsDateSelectionWeekendHolidayHandler() {
 		mock.AnythingOfType("time.Time"),
 	).Return(&info, nil)
 
-	showHandler := IsDateWeekendHolidayHandler{suite.HandlerConfig(), &mockDateSelectionChecker}
+	showHandler := IsDateWeekendHolidayHandler{suite.NewHandlerConfig(), &mockDateSelectionChecker}
 	response := showHandler.Handle(params)
 
 	suite.IsType(&calendarop.IsDateWeekendHolidayOK{}, response)

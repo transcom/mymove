@@ -6,12 +6,12 @@
 
 // @ts-check
 import { test, expect } from '../../utils/office/officeTest';
+import { getFutureDate, formatDate } from '../../utils/playwrightUtility';
 
 import { TooFlowPage } from './tooTestFixture';
 
+const pickupDateString = getFutureDate();
 const today = new Date();
-const pickupDate = today;
-const pickupDateString = pickupDate.toLocaleDateString('en-US');
 const deliveryDate = new Date(new Date().setDate(today.getDate() + 14));
 const deliveryDateString = deliveryDate.toLocaleDateString('en-US');
 
@@ -81,18 +81,6 @@ const agentToString = (agent) => {
   return `${agent.firstName} ${agent.lastName}${formatPhone(agent.phone)}${agent.email}`;
 };
 
-const formatDate = (date) => {
-  const formattedDay = date.toLocaleDateString(undefined, { day: '2-digit' });
-  const formattedMonth = date.toLocaleDateString(undefined, {
-    month: 'short',
-  });
-  const formattedYear = date.toLocaleDateString(undefined, {
-    year: 'numeric',
-  });
-
-  return `${formattedDay} ${formattedMonth} ${formattedYear}`;
-};
-
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
@@ -106,7 +94,7 @@ test.describe('TOO user', () => {
   });
 
   test('TOO can create a mobile home shipment and view shipment card info', async ({ page }) => {
-    const deliveryDate = new Date().toLocaleDateString('en-US');
+    const pickupDate = getFutureDate();
     await page.getByTestId('dropdown').selectOption({ label: 'Mobile Home' });
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
@@ -119,7 +107,7 @@ test.describe('TOO user', () => {
     await page.getByTestId('widthFeet').fill('22');
     await page.getByTestId('heightFeet').fill('22');
 
-    await page.locator('#requestedPickupDate').fill(deliveryDate);
+    await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
     await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
@@ -246,7 +234,7 @@ test.describe('TOO user', () => {
 
     // Check that the data in the shipment card now matches what we just submitted
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.getByTestId('requestedPickupDate')).toHaveText(formatDate(pickupDate));
+    await expect(shipmentContainer.getByTestId('requestedPickupDate')).toHaveText(pickupDateString);
     await expect(shipmentContainer.getByTestId('pickupAddress')).toHaveText(addressToString(pickupAddress));
     await expect(shipmentContainer.getByTestId('secondaryPickupAddress')).toHaveText(
       addressToString(secondaryPickupAddress),

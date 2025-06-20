@@ -1,9 +1,10 @@
 // @ts-check
+import { getFutureDate } from '../../utils/playwrightUtility';
+
 import { test, expect } from './servicesCounselingTestFixture';
 
+const pickupDateString = getFutureDate();
 const today = new Date();
-const pickupDate = today;
-const pickupDateString = pickupDate.toLocaleDateString('en-US');
 const deliveryDate = new Date(new Date().setDate(today.getDate() + 14));
 const deliveryDateString = deliveryDate.toLocaleDateString('en-US');
 
@@ -237,7 +238,7 @@ test.describe('Services counselor user', () => {
 
     // Check that the data in the shipment card now matches what we just submitted
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.getByTestId('requestedPickupDate')).toHaveText(formatDate(pickupDate));
+    await expect(shipmentContainer.getByTestId('requestedPickupDate')).toHaveText(formatDate(getFutureDate()));
     await expect(shipmentContainer.getByTestId('pickupAddress')).toHaveText(addressToString(pickupAddress));
     await expect(shipmentContainer.getByTestId('secondaryPickupAddress')).toHaveText(
       addressToString(secondaryPickupAddress),

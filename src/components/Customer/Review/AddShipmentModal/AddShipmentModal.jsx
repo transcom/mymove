@@ -6,7 +6,7 @@ import styles from 'components/Customer/Review/AddShipmentModal/AddShipmentModal
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const AddShipmentModal = ({ closeModal, enablePPM, enableNTS, enableNTSR }) => (
-  <Modal className={styles.Modal}>
+  <Modal className={styles.Modal} onClose={closeModal}>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3>Reasons you might need another shipment</h3>

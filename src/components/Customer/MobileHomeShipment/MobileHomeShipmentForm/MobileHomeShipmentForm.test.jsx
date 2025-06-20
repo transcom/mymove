@@ -31,6 +31,13 @@ const defaultProps = {
   mtoShipment,
 };
 
+const defaultPropsWithLock = {
+  onSubmit: jest.fn(),
+  onBack: jest.fn(),
+  mtoShipment,
+  isMoveLocked: true,
+};
+
 const emptyInfoProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
@@ -43,15 +50,19 @@ beforeEach(() => {
 
 describe('MobileHomeShipmentForm component', () => {
   describe('displays form', () => {
-    it('renders filled form on load', async () => {
+    it('renders filled form on load and asterisks for required fields', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
       expect(screen.getByTestId('year')).toHaveValue(mtoShipment.mobileHomeShipment.year);
       expect(screen.getByTestId('make')).toHaveValue(mtoShipment.mobileHomeShipment.make);
       expect(screen.getByTestId('model')).toHaveValue(mtoShipment.mobileHomeShipment.model);
+      expect(screen.getByTestId('mobileHomeLength')).toHaveTextContent('*');
       expect(screen.getByTestId('lengthFeet')).toHaveValue('24');
       expect(screen.getByTestId('lengthInches')).toHaveValue('0');
+      expect(screen.getByTestId('mobileHomeWidth')).toHaveTextContent('*');
       expect(screen.getByTestId('widthFeet')).toHaveValue('8');
       expect(screen.getByTestId('widthInches')).toHaveValue('6');
+      expect(screen.getByTestId('mobileHomeHeight')).toHaveTextContent('*');
       expect(screen.getByTestId('heightFeet')).toHaveValue('7');
       expect(screen.getByTestId('heightInches')).toHaveValue('0');
       expect(
@@ -59,6 +70,12 @@ describe('MobileHomeShipmentForm component', () => {
           'Are there things about this mobile home shipment that your counselor or movers should know or discuss with you?',
         ),
       ).toBeVisible();
+    });
+
+    it('disables submit button if move is locked by office user', async () => {
+      render(<MobileHomeShipmentForm {...defaultPropsWithLock} />);
+      const submitBtn = screen.getByRole('button', { name: 'Continue' });
+      expect(submitBtn).toBeDisabled();
     });
   });
 

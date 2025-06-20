@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerConfig:                   suite.HandlerConfig(),
+			HandlerConfig:                   suite.NewHandlerConfig(),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 
@@ -79,7 +79,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerConfig:                   suite.HandlerConfig(),
+			HandlerConfig:                   suite.NewHandlerConfig(),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.PaymentServiceItemID = uuid.Nil.String()
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerConfig:                   suite.HandlerConfig(),
+			HandlerConfig:                   suite.NewHandlerConfig(),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 
@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerConfig:                   suite.HandlerConfig(),
+			HandlerConfig:                   suite.NewHandlerConfig(),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.IfMatch = etag.GenerateEtag(paymentServiceItem.UpdatedAt)
@@ -156,7 +156,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		}, nil)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerConfig:                   suite.HandlerConfig(),
+			HandlerConfig:                   suite.NewHandlerConfig(),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 		subtestData.params.IfMatch = etag.GenerateEtag(deniedPaymentServiceItem.UpdatedAt)
@@ -207,7 +207,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		}
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerConfig:                   suite.HandlerConfig(),
+			HandlerConfig:                   suite.NewHandlerConfig(),
 			PaymentServiceItemStatusUpdater: paymentServiceItemService.NewPaymentServiceItemStatusUpdater(),
 		}
 

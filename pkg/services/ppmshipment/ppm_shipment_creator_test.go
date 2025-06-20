@@ -87,7 +87,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -109,7 +109,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Eisenhower",
+				City:           "WALESKA",
 				State:          "GA",
 				PostalCode:     "30183",
 				County:         models.StringPointer("COLUMBIA"),
@@ -150,7 +150,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -173,7 +173,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Eisenhower",
+				City:           "WALESKA",
 				State:          "GA",
 				PostalCode:     "30183",
 				County:         models.StringPointer("COLUMBIA"),
@@ -220,7 +220,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -241,7 +241,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Honolulu",
+				City:           "HONOLULU",
 				State:          "HI",
 				PostalCode:     "96821",
 			},
@@ -332,7 +332,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          user.ID,
 				IDToken:         "fake token",
-				Roles:           roles.Roles{},
+				ActiveRole:      roles.Role{},
 			}
 
 			appCtx := suite.AppContextWithSessionForTest(session)
@@ -361,7 +361,9 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			UserID:          *scOfficeUser.UserID,
 			IDToken:         "fake token",
 		}
-		session.Roles = append(session.Roles, identity.Roles...)
+		defaultRole, err := identity.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 
 		appCtx := suite.AppContextWithSessionForTest(session)
 
@@ -375,41 +377,41 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		pickupAddress := models.Address{
 			StreetAddress1: "123 Any Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		secondaryPickupAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		tertiaryPickupAddress := models.Address{
 			StreetAddress1: "123 Any Tertiary Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		destinationAddress := models.Address{
 			StreetAddress1: "123 Any Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		secondaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 		tertiaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Tertiary Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
@@ -484,14 +486,15 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	suite.Run("Can successfully create an international PPM with incentives when existing iHHG shipment is on move", func() {
 		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		identity, err := models.FetchUserIdentity(suite.DB(), scOfficeUser.User.OktaID)
+		suite.NotEmpty(identity.Roles)
 		suite.NoError(err)
 
 		session := &auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *scOfficeUser.UserID,
 			IDToken:         "fake token",
+			ActiveRole:      identity.Roles[0],
 		}
-		session.Roles = append(session.Roles, identity.Roles...)
 
 		appCtx := suite.AppContextWithSessionForTest(session)
 
@@ -691,8 +694,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator_StatusMapping() {
 		ApplicationName: auth.OfficeApp,
 		UserID:          *sc.UserID,
 		IDToken:         "fake token",
+		ActiveRole:      sc.User.Roles[0],
 	}
-	session.Roles = append(session.Roles, sc.User.Roles...)
 	appCtx := suite.AppContextWithSessionForTest(session)
 
 	makePPM := func(ms models.MoveStatus) *models.PPMShipment {

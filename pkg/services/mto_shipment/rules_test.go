@@ -240,24 +240,24 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *servicesCounselor.UserID,
 			OfficeUserID:    servicesCounselor.ID,
+			ActiveRole:      servicesCounselor.User.Roles[0],
 		}
-		servicesCounselorSession.Roles = append(servicesCounselorSession.Roles, servicesCounselor.User.Roles...)
 
 		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		tooSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
-		tooSession.Roles = append(tooSession.Roles, too.User.Roles...)
 
 		tio := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 		tioSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *tio.UserID,
 			OfficeUserID:    tio.ID,
+			ActiveRole:      tio.User.Roles[0],
 		}
-		tioSession.Roles = append(tioSession.Roles, tio.User.Roles...)
 
 		testCases := map[string]struct {
 			session auth.Session
@@ -271,6 +271,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 					models.MTOShipmentStatusCancellationRequested: false,
 					models.MTOShipmentStatusCanceled:              false,
 					models.MTOShipmentStatusDiversionRequested:    false,
+					models.MTOShipmentStatusDraft:                 true,
 				},
 			},
 			"TOO": {
@@ -282,6 +283,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 					models.MTOShipmentStatusCancellationRequested: true,
 					models.MTOShipmentStatusCanceled:              true,
 					models.MTOShipmentStatusDiversionRequested:    true,
+					models.MTOShipmentStatusDraft:                 false,
 				},
 			},
 			"TIO": {
@@ -292,6 +294,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 					models.MTOShipmentStatusCancellationRequested: false,
 					models.MTOShipmentStatusCanceled:              false,
 					models.MTOShipmentStatusDiversionRequested:    false,
+					models.MTOShipmentStatusDraft:                 false,
 				},
 			},
 			"Non-office user": {
@@ -482,7 +485,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 				officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 				appContext := suite.AppContextWithSessionForTest(&auth.Session{
-					Roles:           officeUser.User.Roles,
+					ActiveRole:      officeUser.User.Roles[0],
 					ApplicationName: auth.OfficeApp,
 				})
 
@@ -513,7 +516,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		appContext := suite.AppContextWithSessionForTest(&auth.Session{
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			ApplicationName: auth.OfficeApp,
 		})
 
@@ -554,7 +557,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 				officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 				appContext := suite.AppContextWithSessionForTest(&auth.Session{
-					Roles:           officeUser.User.Roles,
+					ActiveRole:      officeUser.User.Roles[0],
 					ApplicationName: auth.OfficeApp,
 				})
 

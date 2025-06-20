@@ -7,7 +7,7 @@ import (
 )
 
 func (suite *NotificationSuite) TestPaymentRequestFailedEmails() {
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+	paymentRequest, _ := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusReviewed,
 		},
@@ -37,7 +37,7 @@ func (suite *NotificationSuite) TestPaymentRequestFailedEmails() {
 }
 
 func (suite *NotificationSuite) TestPaymentRequestFailedEmailsNoEmails() {
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+	paymentRequest, _ := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusReviewed,
 		},
@@ -57,7 +57,7 @@ func (suite *NotificationSuite) TestPaymentRequestFailedEmailsNoEmails() {
 }
 
 func (suite *NotificationSuite) TestPaymentRequestFailedEmailsNoEDIError() {
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+	paymentRequest, _ := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusReviewed,
 		},

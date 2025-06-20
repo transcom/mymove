@@ -178,30 +178,32 @@ const ReviewServiceItems = ({
         )}
       </div>
       <div className={styles.bottom}>
-        <Button
-          data-testid="prevServiceItem"
-          aria-label="Previous Service Item"
-          type="button"
-          onClick={() => setCardIndex(curCardIndex - 1)}
-          secondary
-          disabled={curCardIndex === 0}
-        >
-          Previous
-        </Button>
-        <Button
-          data-testid="nextServiceItem"
-          aria-label="Next Service Item"
-          type="button"
-          onClick={handleNext}
-          disabled={curCardIndex === totalCards}
-        >
-          Next
-        </Button>
         <div className={styles.totalApproved}>
           <div className={styles.totalLabel}>Total approved</div>
           <div className={styles.totalAmount} data-testid="approvedAmount">
             {toDollarString(approvedSum)}
           </div>
+        </div>
+        <div className={styles.navBtns}>
+          <Button
+            data-testid="prevServiceItem"
+            aria-label="Previous Service Item"
+            type="button"
+            onClick={() => setCardIndex(curCardIndex - 1)}
+            secondary
+            disabled={curCardIndex === 0}
+          >
+            Previous
+          </Button>
+          <Button
+            data-testid="nextServiceItem"
+            aria-label="Next Service Item"
+            type="button"
+            onClick={handleNext}
+            disabled={curCardIndex === totalCards}
+          >
+            Next
+          </Button>
         </div>
       </div>
     </div>

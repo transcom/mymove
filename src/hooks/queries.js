@@ -27,7 +27,7 @@ import {
   getPWSViolations,
   getReportViolationsByReportID,
   getMTOShipmentByID,
-  getServicesCounselingPPMQueue,
+  getPPMCloseoutQueue,
   getPrimeSimulatorAvailableMoves,
   getPPMCloseout,
   getPPMSITEstimatedCost,
@@ -653,7 +653,7 @@ export const useDestinationRequestsQueueQueries = ({
   };
 };
 
-export const useServicesCounselingQueuePPMQueries = ({
+export const usePPMQueueQueries = ({
   sort,
   order,
   filters = [],
@@ -671,7 +671,7 @@ export const useServicesCounselingQueuePPMQueries = ({
       SERVICES_COUNSELING_QUEUE,
       { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC, activeRole },
     ],
-    ({ queryKey }) => getServicesCounselingPPMQueue(...queryKey),
+    ({ queryKey }) => getPPMCloseoutQueue(...queryKey),
   );
 
   const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;

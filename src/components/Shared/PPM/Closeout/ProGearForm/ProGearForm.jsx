@@ -20,6 +20,7 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { uploadShape } from 'types/uploads';
 import { APP_NAME } from 'constants/apps';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ProGearForm = ({
   entitlements,
@@ -97,11 +98,18 @@ const ProGearForm = ({
               <Form className={classnames(ppmStyles.form, styles.form)}>
                 <SectionWrapper className={formStyles.formSection}>
                   <h2>Set {setNumber}</h2>
+                  {requiredAsteriskMessage}
                   <FormGroup error={formikProps.touched?.belongsToSelf && formikProps.errors?.belongsToSelf}>
                     <Fieldset>
-                      <label htmlFor="belongsToSelf" className={classnames('usa-label', styles.descriptionTextField)}>
-                        Who does this pro-gear belong to?
-                      </label>
+                      <legend
+                        htmlFor="belongsToSelf"
+                        className={classnames('usa-label', styles.descriptionTextField)}
+                        aria-label="Required: Who does this pro-gear belong to?"
+                      >
+                        <span required>
+                          Who does this pro-gear belong to? <RequiredAsterisk />
+                        </span>
+                      </legend>
                       <Hint className={styles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
                       {formikProps.touched?.belongsToSelf && formikProps.errors?.belongsToSelf && (
                         <ErrorMessage>{formikProps.errors?.belongsToSelf}</ErrorMessage>
@@ -133,6 +141,8 @@ const ProGearForm = ({
                           label="Brief description of the pro-gear"
                           id="description"
                           name="description"
+                          showRequiredAsterisk
+                          required
                         />
                         <Hint className={styles.hint}>
                           Examples of pro-gear include specialized apparel and government&ndash;issued equipment.
@@ -157,6 +167,8 @@ const ProGearForm = ({
                           thousandsSeparator=","
                           lazy={false} // immediate masking evaluation
                           suffix="lbs"
+                          showRequiredAsterisk
+                          required
                         />
                         <CheckboxField
                           id="missingWeightTicket"

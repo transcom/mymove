@@ -11,6 +11,7 @@ package mtoserviceitem
 import (
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -55,10 +56,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateUploadSuccess() {
 		setupTestData()
 		uploadCreator := NewServiceRequestDocumentUploadCreator(fakeS3)
 		upload, err := uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, mtoServiceItem.ID, contractor.ID, "unit-test-file.pdf")
-
-		expectedFilename := fmt.Sprintf("/mto-service-item/%s", mtoServiceItem.ID)
 		suite.NoError(err)
-		suite.Contains(upload.Filename, expectedFilename)
+
+		found := regexp.MustCompile(fmt.Sprintf(`/mto-service-item/%s/unit-test-file-\d{14}.pdf`, mtoServiceItem.ID)).FindString(upload.Filename)
+		suite.NotEmpty(found, "Regex must match filename: %s", upload.Filename)
+
 		suite.Equal(int64(10596), upload.Bytes)
 		suite.Equal(uploader.FileTypePDF, upload.ContentType)
 
