@@ -2557,21 +2557,25 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 		suite.MustCreate(&parameter)
 
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					StartDate: testdatagen.ContractStartDate,
+					EndDate:   testdatagen.ContractEndDate,
+				},
+			})
 
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "450 Street Dr",
-					City:           "Charleston",
-					State:          "SC",
-					PostalCode:     "29404",
-					IsOconus:       models.BoolPointer(false),
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					State:              usprc.State,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -2677,7 +2681,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		var serviceItems []models.MTOServiceItem
 		// verify pre-update mto service items for both origin/destination First Day SITs have not been set
-		err := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err)
 		// expecting only IOFSIT and IDFSIT created for tests
 		suite.Equal(2, len(serviceItems))
