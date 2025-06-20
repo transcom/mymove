@@ -67,7 +67,6 @@ export const servicesCounselingRoutes = {
   CUSTOMER_SEARCH_PATH: 'customer-search',
   BASE_CUSTOMER_SEARCH_PATH: '/customer-search',
   BASE_COUNSELING_MOVE_PATH,
-  BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   ALLOWANCES_EDIT_PATH: 'allowances',
   BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/customer`,
   CUSTOMER_INFO_EDIT_PATH: 'customer',
