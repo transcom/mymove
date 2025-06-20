@@ -11917,6 +11917,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "actualGunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
@@ -31944,6 +31949,11 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "actualGunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "actualPickupDate": {
           "type": "string",

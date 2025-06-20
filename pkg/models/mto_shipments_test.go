@@ -17,6 +17,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		tacType := models.LOATypeHHG
 		sacType := models.LOATypeHHG
 		marketCode := models.MarketCodeDomestic
+		actualGunSafeWeight := unit.Pound(400)
 		validMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:      uuid.Must(uuid.NewV4()),
 			Status:               models.MTOShipmentStatusApproved,
@@ -26,6 +27,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			TACType:              &tacType,
 			SACType:              &sacType,
 			MarketCode:           marketCode,
+			ActualGunSafeWeight:  &actualGunSafeWeight,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOShipment, expErrors, nil)

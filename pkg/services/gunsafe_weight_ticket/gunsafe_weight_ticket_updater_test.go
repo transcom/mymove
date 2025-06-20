@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *GunSafeWeightTicketSuite) TestUpdateGunSafeWeightTicket() {
@@ -147,6 +148,58 @@ func (suite *GunSafeWeightTicketSuite) TestUpdateGunSafeWeightTicket() {
 		suite.Equal(*desiredGunSafeWeightTicket.HasWeightTickets, *updatedGunSafeWeightTicket.HasWeightTickets)
 		suite.Equal(*desiredGunSafeWeightTicket.Weight, *updatedGunSafeWeightTicket.SubmittedWeight)
 		suite.Equal(*desiredGunSafeWeightTicket.HasWeightTickets, *updatedGunSafeWeightTicket.SubmittedHasWeightTickets)
+	})
+
+	suite.Run("Successfully totals sum of tickets and updates mto_shipments actual_gunsafe_weight column", func() {
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{Model: serviceMember, LinkOnly: true},
+		}, nil)
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
+		})
+
+		factoryTickets := []struct {
+			weight unit.Pound
+		}{
+			{weight: 100},
+			{weight: 200},
+			{weight: 50},
+			{weight: 25},
+		}
+
+		var tickets []models.GunSafeWeightTicket
+		for _, ft := range factoryTickets {
+			t := factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+				{Model: serviceMember, LinkOnly: true},
+				{Model: ppmShipment, LinkOnly: true},
+				{Model: document, LinkOnly: true},
+				{
+					Model: models.GunSafeWeightTicket{
+						Weight: models.PoundPointer(ft.weight),
+					},
+				},
+			}, nil)
+			tickets = append(tickets, t)
+		}
+
+		updater := NewCustomerGunSafeWeightTicketUpdater()
+
+		for _, t := range tickets {
+			et := etag.GenerateEtag(t.UpdatedAt)
+			updated, err := updater.UpdateGunSafeWeightTicket(appCtx, t, et)
+			suite.NoError(err, "updating ticket %s", t.ID)
+			suite.NotNil(updated)
+		}
+
+		var shipment models.MTOShipment
+		suite.NoError(suite.DB().
+			Q().
+			Find(&shipment, ppmShipment.ShipmentID))
+
+		suite.Equal(375, shipment.ActualGunSafeWeight.Int())
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {

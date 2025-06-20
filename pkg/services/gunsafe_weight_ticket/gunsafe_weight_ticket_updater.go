@@ -70,6 +70,12 @@ func (f *gunSafeWeightTicketUpdater) UpdateGunSafeWeightTicket(appCtx appcontext
 			return apperror.NewQueryError("GunSafeWeightTicket update", err, "")
 		}
 
+		if err := txnCtx.DB().
+			RawQuery("SELECT update_actual_gun_safe_weight_totals($1)", mergedGunSafeWeightTicket.PPMShipmentID).
+			Exec(); err != nil {
+			return apperror.NewQueryError("update_actual_gunsafe_weight_totals", err, "")
+		}
+
 		return nil
 	})
 
