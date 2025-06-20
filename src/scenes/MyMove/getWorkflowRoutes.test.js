@@ -41,7 +41,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
-          '/orders/info/:orderId',
           '/orders/upload/:orderId',
           '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
@@ -59,7 +58,6 @@ describe('when getting the routes for the current workflow', () => {
       it('getPagesInFlow returns profile review, the order and move pages', () => {
         expect(pages).toEqual([
           '/profile-review',
-          '/orders/info/:orderId',
           '/orders/upload/:orderId',
           '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
@@ -82,7 +80,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
-          '/orders/info/:orderId',
           '/orders/upload/:orderId',
           '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
@@ -105,7 +102,6 @@ describe('when getting the routes for the current workflow', () => {
             '/service-member/backup-address',
             '/service-member/backup-contact',
             '/',
-            '/orders/info/:orderId',
             '/orders/upload/:orderId',
             '/moves/:moveId/shipment-type',
             '/moves/:moveId/review',
@@ -128,7 +124,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
-          '/orders/info/:orderId',
           '/orders/upload/:orderId',
           '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
@@ -149,7 +144,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
-          '/orders/info/:orderId',
           '/orders/upload/:orderId',
           '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
@@ -170,7 +164,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
-          '/orders/info/:orderId',
           '/orders/upload/:orderId',
           '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
@@ -191,7 +184,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
-          '/orders/info/:orderId',
           '/orders/upload/:orderId',
           '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
@@ -376,7 +368,7 @@ describe('when getting the next incomplete page', () => {
           backupContacts,
           context: ppmContext,
         });
-        expect(result).toEqual('/orders/info/testId');
+        expect(result).toEqual('/orders/upload/testId');
       });
     });
   });
@@ -391,7 +383,7 @@ describe('when getting the next incomplete page', () => {
         orders,
         context: ppmContext,
       });
-      expect(result).toEqual('/orders/info/testId');
+      expect(result).toEqual('/orders/upload/testId');
     });
     describe('when orders info is complete', () => {
       it('returns the next page', () => {

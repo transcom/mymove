@@ -27,30 +27,6 @@ jest.mock('utils/featureFlags', () => ({
   detectFlags: jest.fn(() => ({ multiMove: true })),
 }));
 
-jest.mock('store/auth/actions', () => ({
-  loadUser: jest.fn(),
-}));
-
-jest.mock('store/entities/actions', () => ({
-  updateAllMoves: jest.fn(),
-}));
-
-jest.mock('store/general/actions', () => ({
-  setCanAddOrders: jest.fn(),
-}));
-
-jest.mock('services/internalApi', () => ({
-  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
-
-jest.mock('store/onboarding/actions', () => ({
-  initOnboarding: jest.fn(),
-}));
-
-jest.mock('shared/Swagger/ducks', () => ({
-  loadInternalSchema: jest.fn(),
-}));
-
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectAllMoves: jest.fn(),

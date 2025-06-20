@@ -91,7 +91,7 @@ type PPTASReport struct {
 	OriginGbloc *string `json:"originGbloc,omitempty"`
 
 	// grade
-	// Enum: [E_1 E_2 E_3 E_4 E_5 E_6 E_7 E_8 E_9 E_9_SPECIAL_SENIOR_ENLISTED O_1_ACADEMY_GRADUATE O_2 O_3 O_4 O_5 O_6 O_7 O_8 O_9 O_10 W_1 W_2 W_3 W_4 W_5 AVIATION_CADET CIVILIAN_EMPLOYEE ACADEMY_CADET MIDSHIPMAN]
+	// Enum: [E-1 E-2 E-3 E-4 E-5 E-6 E-7 E-8 E-9 E-9-SPECIAL-SENIOR-ENLISTED O-1 O-2 O-3 O-4 O-5 O-6 O-7 O-8 O-9 O-10 W-1 W-2 W-3 W-4 W-5 AVIATION_CADET CIVILIAN_EMPLOYEE ACADEMY_CADET MIDSHIPMAN]
 	PayGrade *string `json:"payGrade,omitempty"`
 
 	// phone primary
@@ -260,7 +260,7 @@ var pPTASReportTypePayGradePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["E_1","E_2","E_3","E_4","E_5","E_6","E_7","E_8","E_9","E_9_SPECIAL_SENIOR_ENLISTED","O_1_ACADEMY_GRADUATE","O_2","O_3","O_4","O_5","O_6","O_7","O_8","O_9","O_10","W_1","W_2","W_3","W_4","W_5","AVIATION_CADET","CIVILIAN_EMPLOYEE","ACADEMY_CADET","MIDSHIPMAN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["E-1","E-2","E-3","E-4","E-5","E-6","E-7","E-8","E-9","E-9-SPECIAL-SENIOR-ENLISTED","O-1","O-2","O-3","O-4","O-5","O-6","O-7","O-8","O-9","O-10","W-1","W-2","W-3","W-4","W-5","AVIATION_CADET","CIVILIAN_EMPLOYEE","ACADEMY_CADET","MIDSHIPMAN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -270,80 +270,80 @@ func init() {
 
 const (
 
-	// PPTASReportPayGradeE1 captures enum value "E_1"
-	PPTASReportPayGradeE1 string = "E_1"
+	// PPTASReportPayGradeEDash1 captures enum value "E-1"
+	PPTASReportPayGradeEDash1 string = "E-1"
 
-	// PPTASReportPayGradeE2 captures enum value "E_2"
-	PPTASReportPayGradeE2 string = "E_2"
+	// PPTASReportPayGradeEDash2 captures enum value "E-2"
+	PPTASReportPayGradeEDash2 string = "E-2"
 
-	// PPTASReportPayGradeE3 captures enum value "E_3"
-	PPTASReportPayGradeE3 string = "E_3"
+	// PPTASReportPayGradeEDash3 captures enum value "E-3"
+	PPTASReportPayGradeEDash3 string = "E-3"
 
-	// PPTASReportPayGradeE4 captures enum value "E_4"
-	PPTASReportPayGradeE4 string = "E_4"
+	// PPTASReportPayGradeEDash4 captures enum value "E-4"
+	PPTASReportPayGradeEDash4 string = "E-4"
 
-	// PPTASReportPayGradeE5 captures enum value "E_5"
-	PPTASReportPayGradeE5 string = "E_5"
+	// PPTASReportPayGradeEDash5 captures enum value "E-5"
+	PPTASReportPayGradeEDash5 string = "E-5"
 
-	// PPTASReportPayGradeE6 captures enum value "E_6"
-	PPTASReportPayGradeE6 string = "E_6"
+	// PPTASReportPayGradeEDash6 captures enum value "E-6"
+	PPTASReportPayGradeEDash6 string = "E-6"
 
-	// PPTASReportPayGradeE7 captures enum value "E_7"
-	PPTASReportPayGradeE7 string = "E_7"
+	// PPTASReportPayGradeEDash7 captures enum value "E-7"
+	PPTASReportPayGradeEDash7 string = "E-7"
 
-	// PPTASReportPayGradeE8 captures enum value "E_8"
-	PPTASReportPayGradeE8 string = "E_8"
+	// PPTASReportPayGradeEDash8 captures enum value "E-8"
+	PPTASReportPayGradeEDash8 string = "E-8"
 
-	// PPTASReportPayGradeE9 captures enum value "E_9"
-	PPTASReportPayGradeE9 string = "E_9"
+	// PPTASReportPayGradeEDash9 captures enum value "E-9"
+	PPTASReportPayGradeEDash9 string = "E-9"
 
-	// PPTASReportPayGradeE9SPECIALSENIORENLISTED captures enum value "E_9_SPECIAL_SENIOR_ENLISTED"
-	PPTASReportPayGradeE9SPECIALSENIORENLISTED string = "E_9_SPECIAL_SENIOR_ENLISTED"
+	// PPTASReportPayGradeEDash9DashSPECIALDashSENIORDashENLISTED captures enum value "E-9-SPECIAL-SENIOR-ENLISTED"
+	PPTASReportPayGradeEDash9DashSPECIALDashSENIORDashENLISTED string = "E-9-SPECIAL-SENIOR-ENLISTED"
 
-	// PPTASReportPayGradeO1ACADEMYGRADUATE captures enum value "O_1_ACADEMY_GRADUATE"
-	PPTASReportPayGradeO1ACADEMYGRADUATE string = "O_1_ACADEMY_GRADUATE"
+	// PPTASReportPayGradeODash1 captures enum value "O-1"
+	PPTASReportPayGradeODash1 string = "O-1"
 
-	// PPTASReportPayGradeO2 captures enum value "O_2"
-	PPTASReportPayGradeO2 string = "O_2"
+	// PPTASReportPayGradeODash2 captures enum value "O-2"
+	PPTASReportPayGradeODash2 string = "O-2"
 
-	// PPTASReportPayGradeO3 captures enum value "O_3"
-	PPTASReportPayGradeO3 string = "O_3"
+	// PPTASReportPayGradeODash3 captures enum value "O-3"
+	PPTASReportPayGradeODash3 string = "O-3"
 
-	// PPTASReportPayGradeO4 captures enum value "O_4"
-	PPTASReportPayGradeO4 string = "O_4"
+	// PPTASReportPayGradeODash4 captures enum value "O-4"
+	PPTASReportPayGradeODash4 string = "O-4"
 
-	// PPTASReportPayGradeO5 captures enum value "O_5"
-	PPTASReportPayGradeO5 string = "O_5"
+	// PPTASReportPayGradeODash5 captures enum value "O-5"
+	PPTASReportPayGradeODash5 string = "O-5"
 
-	// PPTASReportPayGradeO6 captures enum value "O_6"
-	PPTASReportPayGradeO6 string = "O_6"
+	// PPTASReportPayGradeODash6 captures enum value "O-6"
+	PPTASReportPayGradeODash6 string = "O-6"
 
-	// PPTASReportPayGradeO7 captures enum value "O_7"
-	PPTASReportPayGradeO7 string = "O_7"
+	// PPTASReportPayGradeODash7 captures enum value "O-7"
+	PPTASReportPayGradeODash7 string = "O-7"
 
-	// PPTASReportPayGradeO8 captures enum value "O_8"
-	PPTASReportPayGradeO8 string = "O_8"
+	// PPTASReportPayGradeODash8 captures enum value "O-8"
+	PPTASReportPayGradeODash8 string = "O-8"
 
-	// PPTASReportPayGradeO9 captures enum value "O_9"
-	PPTASReportPayGradeO9 string = "O_9"
+	// PPTASReportPayGradeODash9 captures enum value "O-9"
+	PPTASReportPayGradeODash9 string = "O-9"
 
-	// PPTASReportPayGradeO10 captures enum value "O_10"
-	PPTASReportPayGradeO10 string = "O_10"
+	// PPTASReportPayGradeODash10 captures enum value "O-10"
+	PPTASReportPayGradeODash10 string = "O-10"
 
-	// PPTASReportPayGradeW1 captures enum value "W_1"
-	PPTASReportPayGradeW1 string = "W_1"
+	// PPTASReportPayGradeWDash1 captures enum value "W-1"
+	PPTASReportPayGradeWDash1 string = "W-1"
 
-	// PPTASReportPayGradeW2 captures enum value "W_2"
-	PPTASReportPayGradeW2 string = "W_2"
+	// PPTASReportPayGradeWDash2 captures enum value "W-2"
+	PPTASReportPayGradeWDash2 string = "W-2"
 
-	// PPTASReportPayGradeW3 captures enum value "W_3"
-	PPTASReportPayGradeW3 string = "W_3"
+	// PPTASReportPayGradeWDash3 captures enum value "W-3"
+	PPTASReportPayGradeWDash3 string = "W-3"
 
-	// PPTASReportPayGradeW4 captures enum value "W_4"
-	PPTASReportPayGradeW4 string = "W_4"
+	// PPTASReportPayGradeWDash4 captures enum value "W-4"
+	PPTASReportPayGradeWDash4 string = "W-4"
 
-	// PPTASReportPayGradeW5 captures enum value "W_5"
-	PPTASReportPayGradeW5 string = "W_5"
+	// PPTASReportPayGradeWDash5 captures enum value "W-5"
+	PPTASReportPayGradeWDash5 string = "W-5"
 
 	// PPTASReportPayGradeAVIATIONCADET captures enum value "AVIATION_CADET"
 	PPTASReportPayGradeAVIATIONCADET string = "AVIATION_CADET"
