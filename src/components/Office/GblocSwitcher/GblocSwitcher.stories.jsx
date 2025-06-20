@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 
+import style from './GblocSwitcherStoryDecorator.module.scss';
 import GblocSwitcher from './GblocSwitcher';
 import SelectedGblocProvider from './SelectedGblocProvider';
 import SelectedGblocContext from './SelectedGblocContext';
@@ -82,7 +83,7 @@ const SelectedGblocDisplayer = () => {
 export const defaultGblocSwitcher = () => {
   return (
     <>
-      <div style={{ width: '110px' }}>
+      <div className={style.wrapper}>
         <GblocSwitcher />
       </div>
       <SelectedGblocDisplayer />

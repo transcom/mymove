@@ -1,0 +1,17 @@
+.wrapper{
+    --bg-color: #252f3e;
+    --top-color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    background-color: #252f3e;
+    color: #fff;
+    width: fit-content;
+    padding: 0.5rem 1rem;
+}
+
+:root{
+    --top-color: #252f3e;
+    --bg-color: #fff;
+}

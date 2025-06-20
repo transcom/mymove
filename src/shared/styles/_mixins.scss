@@ -1,4 +1,6 @@
 //Mixins & Variables
+@use 'sass:map';
+@import 'shared/styles/basics';
 
 $z-index-front: 100;
 $z-index-back: -100;
@@ -54,3 +56,55 @@ $z-index-back: -100;
     }
   }
 }
+
+@mixin mix-mm-header-font-properties{
+  font-weight: 600;
+  font-size: 1.06rem;
+}
+
+@mixin mix-mm-dropdown ($top-color: black, $background-color: $mm-blue, $chevron-offset: 0.5rem) {
+  --background-url: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'><path d='M0 0h24v24H0z' fill='none' /><path stroke='#{$top-color}' fill='#{$top-color}' d='M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z'/></svg>") no-repeat right #{$chevron-offset} center / 1.25rem;
+  @scope (&) {
+      color: #{$top-color};
+      background-color: $background-color;
+      background: var(--background-url);
+
+      border: 0;
+      margin: 0;
+      text-align: left;
+      line-height: inherit;
+
+      option {
+        background-color: $bg-white;
+        color: black;
+
+        @include u-font-weight('normal');
+
+        &:hover {
+          background-color: white;
+        }
+      }
+      &:hover {
+        background-color: $background-color;
+      }
+
+      @content;
+    }
+}
+
+$background-highlight: linear-gradient(to bottom, transparent calc(100% - 0.25rem), var(--top-color) calc(100% - 0.25rem), var(--top-color) 100%) center / 1.3333333333rem;
+
+@mixin mix-mm-dropdown-select-presence($top-color: black, $background-color: $mm-blue) {
+  @scope (&) {
+    &:focus,
+    &:hover{
+      --top-color: #{$top-color};
+      --background-highlight: #{$background-highlight};
+      background: var(--background-url, none), var(--background-highlight, none);
+      color: $top-color;
+    }
+  }
+}
+
+
+
