@@ -1001,6 +1001,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 				Model:    move,
 				LinkOnly: true,
 			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+				},
+			},
 		}, nil)
 		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 

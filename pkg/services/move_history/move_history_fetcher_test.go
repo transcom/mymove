@@ -743,6 +743,11 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 						Model:    move,
 						LinkOnly: true,
 					},
+					{
+						Model: models.MTOShipment{
+							PrimeEstimatedWeight: models.PoundPointer(1000),
+						},
+					},
 				}, nil)
 
 				dimension := models.MTOServiceItemDimension{
