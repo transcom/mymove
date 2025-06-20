@@ -19,6 +19,7 @@ import {
   selectMoveId,
   selectUbAllowance,
   selectProGearWeightTicketAndIndexById,
+  selectGunSafeWeightTicketAndIndexById,
 } from './selectors';
 
 import { profileStates } from 'constants/customerStates';
@@ -1923,6 +1924,125 @@ describe('selectProGearWeightTicketAndIndexById', () => {
     expect(selectProGearWeightTicketAndIndexById(testState, mtoShipmentID, proGearWeightId)).toEqual({
       proGearWeightTicket: null,
       index: -1,
+    });
+  });
+});
+
+describe('selectGunSafeWeightTicketAndIndexById', () => {
+  const gunSafeWeightId = '71422b71-a40b-41a7-b2ff-4da922a9c7f2';
+  const testState = {
+    entities: {
+      mtoShipments: {
+        '2ed2998e-ae36-46cd-af83-c3ecee55fe3e': {
+          createdAt: '2022-07-01T01:10:51.224Z',
+          eTag: 'MjAyMi0wNy0xMVQxODoyMDoxOC43MjQ1NzRa',
+          id: '2ed2998e-ae36-46cd-af83-c3ecee55fe3e',
+          moveTaskOrderID: '26b960d8-a96d-4450-a441-673ccd7cc3c7',
+          ppmShipment: {
+            actualMoveDate: '2022-07-31',
+            advanceAmountReceived: null,
+            advanceAmountRequested: 598700,
+            approvedAt: '2022-04-15T12:30:00.000Z',
+            createdAt: '2022-07-01T01:10:51.231Z',
+            eTag: 'MjAyMi0wNy0xMVQxODoyMDoxOC43NTIwMDNa',
+            estimatedIncentive: 1000000,
+            estimatedWeight: 4000,
+            expectedDepartureDate: '2020-03-15',
+            hasGunSafe: true,
+            hasReceivedAdvance: false,
+            hasRequestedAdvance: true,
+            id: 'b9ae4c25-1376-4b9b-8781-106b5ae7ecab',
+            gunSafeWeight: 1987,
+            reviewedAt: null,
+            shipmentId: '2ed2998e-ae36-46cd-af83-c3ecee55fe3e',
+            sitEstimatedCost: null,
+            sitEstimatedDepartureDate: null,
+            sitEstimatedEntryDate: null,
+            sitEstimatedWeight: null,
+            sitExpected: false,
+            status: 'WAITING_ON_CUSTOMER',
+            submittedAt: null,
+            updatedAt: '2022-07-11T18:20:18.752Z',
+            gunSafeWeightTickets: [],
+          },
+          shipmentType: 'PPM',
+          status: 'APPROVED',
+          updatedAt: '2022-07-11T18:20:18.724Z',
+        },
+      },
+    },
+  };
+  const mtoShipmentID = Object.keys(testState.entities.mtoShipments)[0];
+
+  it('returns null if no gun safe weight tickets exist', () => {
+    expect(selectGunSafeWeightTicketAndIndexById(testState, mtoShipmentID, gunSafeWeightId)).toEqual({
+      gunSafeWeightTicket: null,
+      index: -1,
+    });
+  });
+});
+
+describe('selectGunSafeWeightTicketAndIndexById', () => {
+  const gunSafeWeightId = '71422b71-a40b-41a7-b2ff-4da922a9c7f2';
+  const testState = {
+    entities: {
+      mtoShipments: {
+        '2ed2998e-ae36-46cd-af83-c3ecee55fe3e': {
+          createdAt: '2022-07-01T01:10:51.224Z',
+          eTag: 'MjAyMi0wNy0xMVQxODoyMDoxOC43MjQ1NzRa',
+          id: '2ed2998e-ae36-46cd-af83-c3ecee55fe3e',
+          moveTaskOrderID: '26b960d8-a96d-4450-a441-673ccd7cc3c7',
+          ppmShipment: {
+            actualMoveDate: '2022-07-31',
+            advanceAmountReceived: null,
+            advanceAmountRequested: 598700,
+            approvedAt: '2022-04-15T12:30:00.000Z',
+            createdAt: '2022-07-01T01:10:51.231Z',
+            eTag: 'MjAyMi0wNy0xMVQxODoyMDoxOC43NTIwMDNa',
+            estimatedIncentive: 1000000,
+            estimatedWeight: 4000,
+            expectedDepartureDate: '2020-03-15',
+            hasGunSafe: true,
+            hasReceivedAdvance: false,
+            hasRequestedAdvance: true,
+            id: 'b9ae4c25-1376-4b9b-8781-106b5ae7ecab',
+            gunSafeWeight: 1987,
+            reviewedAt: null,
+            shipmentId: '2ed2998e-ae36-46cd-af83-c3ecee55fe3e',
+            sitEstimatedCost: null,
+            sitEstimatedDepartureDate: null,
+            sitEstimatedEntryDate: null,
+            sitEstimatedWeight: null,
+            sitExpected: false,
+            status: 'WAITING_ON_CUSTOMER',
+            submittedAt: null,
+            updatedAt: '2022-07-11T18:20:18.752Z',
+            gunSafeWeightTickets: [
+              {
+                id: 'd35d835f-8258-4266-87aa-54d61c917780',
+                emptyWeightDocumentId: '000676ac-c5ff-4630-8768-ef238f04e706',
+                fullWeightDocumentId: '7eeb270b-dc97-4f95-94c3-709c082cbf94',
+              },
+              {
+                id: gunSafeWeightId,
+                emptyWeightDocumentId: '15fdd562-82a9-4892-85d7-81cc3a85e68e',
+                fullWeightDocumentId: '4a7f7fd9-15d1-468f-9184-53d7c0c1ccdc',
+              },
+            ],
+          },
+          shipmentType: 'PPM',
+          status: 'APPROVED',
+          updatedAt: '2022-07-11T18:20:18.724Z',
+        },
+      },
+    },
+  };
+  const mtoShipmentID = Object.keys(testState.entities.mtoShipments)[0];
+
+  it('returns pro gear weight tickets if exists', () => {
+    expect(selectGunSafeWeightTicketAndIndexById(testState, mtoShipmentID, gunSafeWeightId)).toEqual({
+      gunSafeWeightTicket: testState.entities.mtoShipments[mtoShipmentID].ppmShipment.gunSafeWeightTickets[1],
+      index: 1,
     });
   });
 });
