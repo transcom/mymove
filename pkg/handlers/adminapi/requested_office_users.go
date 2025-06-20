@@ -159,6 +159,7 @@ func updateUserOktaID(appCtx appcontext.AppContext, officeUserID uuid.UUID, okta
 		return
 	}
 
+	// retrieve the data necessary for the user update
 	officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
 	if err != nil {
 		appCtx.Logger().Warn("Unable to retrieve approved Office User to set OktaID.",
@@ -166,7 +167,6 @@ func updateUserOktaID(appCtx appcontext.AppContext, officeUserID uuid.UUID, okta
 			zap.Error(err))
 		return
 	}
-
 	user, err := models.GetUser(appCtx.DB(), *officeUser.UserID)
 	if err != nil {
 		appCtx.Logger().Warn("Unable to retrieve User to set OktaID.",
@@ -176,13 +176,21 @@ func updateUserOktaID(appCtx appcontext.AppContext, officeUserID uuid.UUID, okta
 		return
 	}
 
-	// TODO: check if oktaID is blank or doesn't match
-	err = models.UpdateUserOktaID(appCtx.DB(), user, oktaID)
-	if err != nil {
-		appCtx.Logger().Warn("Unable to update OktaID",
-			zap.String("UserID", officeUser.UserID.String()),
-			zap.String("OktaID", oktaID),
-			zap.Error(err))
+	if user.OktaID != oktaID {
+		if user.OktaID != "" {
+			appCtx.Logger().Info("Replacing user's OktaID.",
+				zap.String("Old OktaID", user.OktaID),
+				zap.String("New OktaID", oktaID))
+		}
+
+		// perform the user update
+		err = models.UpdateUserOktaID(appCtx.DB(), user, oktaID)
+		if err != nil {
+			appCtx.Logger().Warn("Unable to update OktaID",
+				zap.String("UserID", officeUser.UserID.String()),
+				zap.String("OktaID", oktaID),
+				zap.Error(err))
+		}
 	}
 }
 

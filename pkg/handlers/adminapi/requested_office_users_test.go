@@ -25,6 +25,8 @@ import (
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 )
 
+const idFromOkta = "fakeSub"
+
 func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 	suite.Run("requested users result in ok response", func() {
 		requestedOfficeUsers := models.OfficeUsers{
@@ -645,7 +647,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 
 func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccountCreation() {
 	suite.Run("Successful update", func() {
-		user := factory.BuildDefaultUser(suite.DB())
+		user := factory.BuildNonOktaUser(suite.DB(), nil, nil)
 		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 		tioRoleName := "Task Invoicing Officer"
@@ -729,6 +731,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 
 		response := handler.Handle(params)
 		suite.IsType(&requestedofficeuserop.UpdateRequestedOfficeUserOK{}, response)
+
+		updatedUser, err := models.GetUser(suite.DB(), user.ID)
+		suite.NoError(err)
+		suite.Empty(updatedUser.OktaID)
 	})
 }
 
@@ -745,11 +751,11 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		defer os.Setenv("OKTA_OFFICE_GROUP_ID", originalGroupID)
 
 		mockAndActivateOktaGETEndpointNoUserNoError(provider)
-		mockAndActivateOktaEndpoints(provider, 200)
+		mockAndActivateOktaEndpoints(provider, 200, idFromOkta)
 		mockAndActivateOktaGroupGETEndpointNoError(provider)
 		mockAndActivateOktaGroupAddEndpointNoError(provider)
 
-		user := factory.BuildDefaultUser(suite.DB())
+		user := factory.BuildNonOktaUser(suite.DB(), nil, nil)
 		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 		tioRoleName := "Task Invoicing Officer"
@@ -844,6 +850,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 
 		response := handler.Handle(params)
 		suite.IsType(&requestedofficeuserop.UpdateRequestedOfficeUserOK{}, response)
+
+		updatedUser, err := models.GetUser(suite.DB(), user.ID)
+		suite.NoError(err)
+		suite.Equal(idFromOkta, updatedUser.OktaID)
 	})
 }
 
@@ -855,9 +865,9 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		suite.NoError(err)
 
 		mockAndActivateOktaGETEndpointNoUserNoError(provider)
-		mockAndActivateOktaEndpoints(provider, 500)
+		mockAndActivateOktaEndpoints(provider, 500, "")
 
-		user := factory.BuildDefaultUser(suite.DB())
+		user := factory.BuildNonOktaUser(suite.DB(), nil, nil)
 		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 		tioRoleName := "Task Invoicing Officer"
@@ -952,15 +962,453 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 
 		response := handler.Handle(params)
 		suite.IsType(requestedofficeuserop.NewUpdateRequestedOfficeUserInternalServerError(), response)
+
+		updatedUser, err := models.GetUser(suite.DB(), user.ID)
+		suite.NoError(err)
+		suite.Empty(updatedUser.OktaID)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaIdUpdateOddities() {
+	provider, err := factory.BuildOktaProvider("adminProvider")
+	suite.NoError(err)
+
+	// mocking the okta customer group id env variable
+	originalGroupID := os.Getenv("OKTA_OFFICE_GROUP_ID")
+	os.Setenv("OKTA_OFFICE_GROUP_ID", "notrealofficegroupId")
+	defer os.Setenv("OKTA_OFFICE_GROUP_ID", originalGroupID)
+
+	mockAndActivateOktaGETEndpointNoUserNoError(provider)
+	mockAndActivateOktaGroupGETEndpointNoError(provider)
+	mockAndActivateOktaGroupAddEndpointNoError(provider)
+
+	suite.Run("Expect error if Okta doesn't return a created account.", func() {
+		activate := "true"
+		createAccountEndpoint := provider.GetCreateAccountURL(activate)
+		httpmock.RegisterResponder("POST", createAccountEndpoint,
+			httpmock.NewStringResponder(200, ""))
+		httpmock.Activate()
+
+		user := factory.BuildNonOktaUser(suite.DB(), nil, nil)
+		tooRoleName := "Task Ordering Officer"
+		tooRoleType := string(roles.RoleTypeTOO)
+		tioRoleName := "Task Invoicing Officer"
+		tioRoleType := string(roles.RoleTypeTIO)
+		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					UserID: &user.ID,
+				},
+			},
+			{
+				Model: models.User{
+					Roles: roles.Roles{
+						{RoleName: roles.RoleName(tioRoleName),
+							RoleType: roles.RoleType(tioRoleType)},
+					},
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		officeUserID := requestedOfficeUser.ID
+		officeUser := models.OfficeUser{ID: officeUserID, FirstName: "Billy", LastName: "Bob", UserID: requestedOfficeUser.UserID, CreatedAt: time.Now(),
+			UpdatedAt: time.Now()}
+
+		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
+		mockRoleAssociator := &mocks.RoleAssociater{}
+		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
+
+		status := "APPROVED"
+		email := "example@example.com"
+		telephone := "000-000-0000"
+		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", officeUserID)),
+			Body: &adminmessages.RequestedOfficeUserUpdate{
+				FirstName: &officeUser.FirstName,
+				LastName:  &officeUser.LastName,
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &tooRoleName,
+						RoleType: &tooRoleType,
+					},
+				},
+				Status:        status,
+				Email:         &email,
+				Telephone:     &telephone,
+				OtherUniqueID: "0000000000",
+				Edipi:         "0000000000",
+			},
+			OfficeUserID: strfmt.UUID(officeUserID.String()),
+		}
+
+		defer goth.ClearProviders()
+		goth.UseProviders(provider)
+
+		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(&officeUser, nil, nil).Once()
+
+		mockRoles := roles.Roles{
+			roles.Role{
+				ID:        uuid.Must(uuid.NewV4()),
+				RoleType:  roles.RoleTypeTOO,
+				RoleName:  "Task Ordering Officer",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+
+		// Mock roles
+		mockUserRoleAssociator.On(
+			"UpdateUserRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, nil, nil).Once()
+
+		mockRoleAssociator.On(
+			"FetchRolesForUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockRoles, nil)
+
+		handler := UpdateRequestedOfficeUserHandler{
+			suite.NewHandlerConfig(),
+			requestedOfficeUserUpdater,
+			mockUserRoleAssociator,
+			mockRoleAssociator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(requestedofficeuserop.NewUpdateRequestedOfficeUserInternalServerError(), response)
+
+		updatedUser, err := models.GetUser(suite.DB(), user.ID)
+		suite.NoError(err)
+		suite.Empty(updatedUser.OktaID)
+	})
+
+	suite.Run("Expect no change if Okta returns a blank OktaID.", func() {
+		mockAndActivateOktaEndpoints(provider, 200, "")
+		user := factory.BuildDefaultUser(suite.DB())
+		tooRoleName := "Task Ordering Officer"
+		tooRoleType := string(roles.RoleTypeTOO)
+		tioRoleName := "Task Invoicing Officer"
+		tioRoleType := string(roles.RoleTypeTIO)
+		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					UserID: &user.ID,
+				},
+			},
+			{
+				Model: models.User{
+					Roles: roles.Roles{
+						{RoleName: roles.RoleName(tioRoleName),
+							RoleType: roles.RoleType(tioRoleType)},
+					},
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		officeUserID := requestedOfficeUser.ID
+		officeUser := models.OfficeUser{ID: officeUserID, FirstName: "Billy", LastName: "Bob", UserID: requestedOfficeUser.UserID, CreatedAt: time.Now(),
+			UpdatedAt: time.Now()}
+
+		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
+		mockRoleAssociator := &mocks.RoleAssociater{}
+		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
+
+		status := "APPROVED"
+		email := "example@example.com"
+		telephone := "000-000-0000"
+		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", officeUserID)),
+			Body: &adminmessages.RequestedOfficeUserUpdate{
+				FirstName: &officeUser.FirstName,
+				LastName:  &officeUser.LastName,
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &tooRoleName,
+						RoleType: &tooRoleType,
+					},
+				},
+				Status:        status,
+				Email:         &email,
+				Telephone:     &telephone,
+				OtherUniqueID: "0000000000",
+				Edipi:         "0000000000",
+			},
+			OfficeUserID: strfmt.UUID(officeUserID.String()),
+		}
+
+		defer goth.ClearProviders()
+		goth.UseProviders(provider)
+
+		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(&officeUser, nil, nil).Once()
+
+		mockRoles := roles.Roles{
+			roles.Role{
+				ID:        uuid.Must(uuid.NewV4()),
+				RoleType:  roles.RoleTypeTOO,
+				RoleName:  "Task Ordering Officer",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+
+		// Mock roles
+		mockUserRoleAssociator.On(
+			"UpdateUserRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, nil, nil).Once()
+
+		mockRoleAssociator.On(
+			"FetchRolesForUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockRoles, nil)
+
+		handler := UpdateRequestedOfficeUserHandler{
+			suite.NewHandlerConfig(),
+			requestedOfficeUserUpdater,
+			mockUserRoleAssociator,
+			mockRoleAssociator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(requestedofficeuserop.NewUpdateRequestedOfficeUserOK(), response)
+
+		updatedUser, err := models.GetUser(suite.DB(), user.ID)
+		suite.NoError(err)
+		suite.NotEmpty(updatedUser.OktaID)
+	})
+
+	suite.Run("Expect no change if unable to retrieve OfficeUser.", func() {
+		mockAndActivateOktaEndpoints(provider, 200, idFromOkta)
+		user := factory.BuildDefaultUser(suite.DB())
+		originalOktaID := user.OktaID
+		tooRoleName := "Task Ordering Officer"
+		tooRoleType := string(roles.RoleTypeTOO)
+		tioRoleName := "Task Invoicing Officer"
+		tioRoleType := string(roles.RoleTypeTIO)
+		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					UserID: &user.ID,
+				},
+			},
+			{
+				Model: models.User{
+					Roles: roles.Roles{
+						{RoleName: roles.RoleName(tioRoleName),
+							RoleType: roles.RoleType(tioRoleType)},
+					},
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		officeUserID := requestedOfficeUser.ID
+		officeUser := models.OfficeUser{ID: officeUserID, FirstName: "Billy", LastName: "Bob", UserID: requestedOfficeUser.UserID, CreatedAt: time.Now(),
+			UpdatedAt: time.Now()}
+
+		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
+		mockRoleAssociator := &mocks.RoleAssociater{}
+		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
+
+		status := "APPROVED"
+		email := "example@example.com"
+		telephone := "000-000-0000"
+		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", officeUserID)),
+			Body: &adminmessages.RequestedOfficeUserUpdate{
+				FirstName: &officeUser.FirstName,
+				LastName:  &officeUser.LastName,
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &tooRoleName,
+						RoleType: &tooRoleType,
+					},
+				},
+				Status:        status,
+				Email:         &email,
+				Telephone:     &telephone,
+				OtherUniqueID: "0000000000",
+				Edipi:         "0000000000",
+			},
+			// create a new OfficeUserID to sabbotage the OfficeUser lookup
+			OfficeUserID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+		}
+
+		defer goth.ClearProviders()
+		goth.UseProviders(provider)
+
+		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(&officeUser, nil, nil).Once()
+
+		mockRoles := roles.Roles{
+			roles.Role{
+				ID:        uuid.Must(uuid.NewV4()),
+				RoleType:  roles.RoleTypeTOO,
+				RoleName:  "Task Ordering Officer",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+
+		// Mock roles
+		mockUserRoleAssociator.On(
+			"UpdateUserRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, nil, nil).Once()
+
+		mockRoleAssociator.On(
+			"FetchRolesForUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockRoles, nil)
+
+		handler := UpdateRequestedOfficeUserHandler{
+			suite.NewHandlerConfig(),
+			requestedOfficeUserUpdater,
+			mockUserRoleAssociator,
+			mockRoleAssociator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(requestedofficeuserop.NewUpdateRequestedOfficeUserOK(), response)
+
+		updatedUser, err := models.GetUser(suite.DB(), user.ID)
+		suite.NoError(err)
+		suite.Equal(originalOktaID, updatedUser.OktaID)
+	})
+
+	suite.Run("Overwrite an existing OktaID", func() {
+		mockAndActivateOktaEndpoints(provider, 200, idFromOkta)
+		user := factory.BuildDefaultUser(suite.DB())
+		suite.NotEmpty(user.OktaID)
+		suite.NotEqual(idFromOkta, user.OktaID)
+		tooRoleName := "Task Ordering Officer"
+		tooRoleType := string(roles.RoleTypeTOO)
+		tioRoleName := "Task Invoicing Officer"
+		tioRoleType := string(roles.RoleTypeTIO)
+		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					UserID: &user.ID,
+				},
+			},
+			{
+				Model: models.User{
+					Roles: roles.Roles{
+						{RoleName: roles.RoleName(tioRoleName),
+							RoleType: roles.RoleType(tioRoleType)},
+					},
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		officeUserID := requestedOfficeUser.ID
+		officeUser := models.OfficeUser{ID: officeUserID, FirstName: "Billy", LastName: "Bob", UserID: requestedOfficeUser.UserID, CreatedAt: time.Now(),
+			UpdatedAt: time.Now()}
+
+		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
+		mockRoleAssociator := &mocks.RoleAssociater{}
+		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
+
+		status := "APPROVED"
+		email := "example@example.com"
+		telephone := "000-000-0000"
+		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", officeUserID)),
+			Body: &adminmessages.RequestedOfficeUserUpdate{
+				FirstName: &officeUser.FirstName,
+				LastName:  &officeUser.LastName,
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &tooRoleName,
+						RoleType: &tooRoleType,
+					},
+				},
+				Status:        status,
+				Email:         &email,
+				Telephone:     &telephone,
+				OtherUniqueID: "0000000000",
+				Edipi:         "0000000000",
+			},
+			OfficeUserID: strfmt.UUID(officeUserID.String()),
+		}
+
+		defer goth.ClearProviders()
+		goth.UseProviders(provider)
+
+		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(&officeUser, nil, nil).Once()
+
+		mockRoles := roles.Roles{
+			roles.Role{
+				ID:        uuid.Must(uuid.NewV4()),
+				RoleType:  roles.RoleTypeTOO,
+				RoleName:  "Task Ordering Officer",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+
+		// Mock roles
+		mockUserRoleAssociator.On(
+			"UpdateUserRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, nil, nil).Once()
+
+		mockRoleAssociator.On(
+			"FetchRolesForUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockRoles, nil)
+
+		handler := UpdateRequestedOfficeUserHandler{
+			suite.NewHandlerConfig(),
+			requestedOfficeUserUpdater,
+			mockUserRoleAssociator,
+			mockRoleAssociator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(requestedofficeuserop.NewUpdateRequestedOfficeUserOK(), response)
+
+		updatedUser, err := models.GetUser(suite.DB(), user.ID)
+		suite.NoError(err)
+		suite.Equal(idFromOkta, updatedUser.OktaID)
 	})
 }
 
 // Generate and activate Okta endpoints that will be using during the handler
-func mockAndActivateOktaEndpoints(provider *okta.Provider, responseCode int) {
+func mockAndActivateOktaEndpoints(provider *okta.Provider, responseCode int, oktaID string) {
 	activate := "true"
 
 	createAccountEndpoint := provider.GetCreateAccountURL(activate)
-	oktaID := "fakeSub"
 
 	if responseCode == 200 {
 		httpmock.RegisterResponder("POST", createAccountEndpoint,
@@ -992,7 +1440,7 @@ func mockAndActivateOktaGETEndpointNoUserNoError(provider *okta.Provider) {
 
 func mockAndActivateOktaGroupGETEndpointNoError(provider *okta.Provider) {
 
-	oktaID := "fakeSub"
+	oktaID := idFromOkta
 	getGroupsEndpoint := provider.GetUserGroupsURL(oktaID)
 
 	httpmock.RegisterResponder("GET", getGroupsEndpoint,
@@ -1003,7 +1451,7 @@ func mockAndActivateOktaGroupGETEndpointNoError(provider *okta.Provider) {
 
 func mockAndActivateOktaGroupAddEndpointNoError(provider *okta.Provider) {
 
-	oktaID := "fakeSub"
+	oktaID := idFromOkta
 	groupID := "notrealofficegroupId"
 	addGroupEndpoint := provider.AddUserToGroupURL(groupID, oktaID)
 
