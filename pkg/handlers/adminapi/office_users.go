@@ -326,6 +326,26 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
+			verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
+
+			if err != nil {
+				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			if verrs.HasAny() {
+				validationError := &adminmessages.ValidationError{
+					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
+						Title:    handlers.FmtString(handlers.ValidationErrMessage),
+						Detail:   handlers.FmtString("Selected office user role is not authorized for supplied privilege"),
+						Instance: handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest)),
+					},
+				}
+
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+			}
+
 			// if the user is being manually created, then we know they will already be approved
 			officeUserStatus := models.OfficeUserStatusAPPROVED
 
@@ -393,6 +413,15 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
 
+			privileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
+
+			createdOfficeUser.User.Privileges = privileges
+
 			updatedTransportationOfficeAssignments, err := transportationOfficeAssignmentsPayloadToModel(payload.TransportationOfficeAssignments)
 			if err != nil {
 				appCtx.Logger().Error("UUID parsing error for transportation office assignments", zap.Error(err))
@@ -427,6 +456,7 @@ type UpdateOfficeUserHandler struct {
 	services.UserPrivilegeAssociator
 	services.UserSessionRevocation
 	services.TransportationOfficeAssignmentUpdater
+	services.RoleFetcher
 }
 
 // Handle updates an office user
@@ -449,6 +479,25 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
+			verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
+
+			if err != nil {
+				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			if verrs.HasAny() {
+				validationError := &adminmessages.ValidationError{
+					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
+						Title:    handlers.FmtString(handlers.ValidationErrMessage),
+						Detail:   handlers.FmtString("Selected office user role is not authorized for supplied privilege"),
+						Instance: handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest)),
+					},
+				}
+
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+			}
 			officeUserDB, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
 
 			if err != nil {
@@ -507,6 +556,15 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
 					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
+
+				roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *updatedOfficeUser.UserID)
+
+				if err != nil {
+					appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+				}
+
+				updatedOfficeUser.User.Roles = roles
 			}
 
 			if updatedOfficeUser.UserID != nil && payload.Privileges != nil {
@@ -540,6 +598,15 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
 					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
+
+				privileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *updatedOfficeUser.UserID)
+
+				if err != nil {
+					appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
+					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+				}
+
+				updatedOfficeUser.User.Privileges = privileges
 			}
 
 			if len(payload.TransportationOfficeAssignments) > 0 {
