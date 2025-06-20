@@ -1099,8 +1099,6 @@ integration_tests:
    - *check_integration_ignore_branch
 
 
-
-
 integration_test_mtls:
   stage: test
   interruptible: true
@@ -1218,8 +1216,10 @@ integration_test_mtls:
 
     DB_DEBUG: false
 
+    NO_TLS_ENABLED: true
+    SERVE_ADMIN: 1
     IWS_RBS_HOST: 'pkict.dmdc.osd.mil'
-    DTOD_USE_MOCK: 'true'
+    DTOD_USE_MOCK: true
   needs:
     - prep_integration_docker_microservice
   before_script:
@@ -1270,6 +1270,11 @@ integration_test_admin:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
+      resources:
+        requests:
+          memory: 4Gi # Minimum memory request
+        limits:
+          memory: 4Gi # Maximum memory limit
   variables:
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "2"
@@ -1355,6 +1360,11 @@ integration_test_my:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
+      resources:
+        requests:
+          memory: 4Gi # Minimum memory request
+        limits:
+          memory: 4Gi # Maximum memory limit
   variables:
     CI_DEBUG_SERVICES: "true"
     FF_NETWORK_PER_BUILD: "true"
@@ -1446,6 +1456,11 @@ integration_test_office:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
+      resources:
+        requests:
+          memory: 4Gi # Minimum memory request
+        limits:
+          memory: 4Gi # Maximum memory limit
   variables:
     CI_DEBUG_SERVICES: "true"
     FF_NETWORK_PER_BUILD: "true"
@@ -1536,6 +1551,11 @@ integration_test_e2e_generic:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
+      resources:
+        requests:
+          memory: 4Gi # Minimum memory request
+        limits:
+          memory: 4Gi # Maximum memory limit
   variables:
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "2"
