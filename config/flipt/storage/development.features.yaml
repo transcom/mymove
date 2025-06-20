@@ -41,14 +41,6 @@ flags:
       - segment:
           key: mil-app
           value: true
-  - key: move_lock
-    name: Move lock feature flag
-    type: BOOLEAN_FLAG_TYPE
-    enabled: true
-    rollouts:
-      - segment:
-          key: mil-app
-          value: true
   - key: enable_alaska
     name: Enable Alaska feature flag
     type: BOOLEAN_FLAG_TYPE
