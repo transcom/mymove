@@ -227,7 +227,6 @@ const ServicesCounselingMoveInfo = ({ isMultiRole }) => {
         userRole={roleTypes.SERVICES_COUNSELOR}
         isMultiRole={isMultiRole}
       />
-
       {renderLockedBanner()}
 
       {hasRecentError && (

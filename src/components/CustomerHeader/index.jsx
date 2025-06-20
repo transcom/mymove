@@ -39,7 +39,6 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole, isMultiRole
       ? order.originDutyLocationGBLOC
       : move.shipmentGBLOC;
   const originGBLOCDisplay = order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${originGBLOC} / USMC` : originGBLOC;
-
   return (
     <div className={styles.custHeader} style={{ top: isMultiRole ? '6.4rem' : '4.7rem' }}>
       <div>
@@ -55,7 +54,9 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole, isMultiRole
               {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {ORDERS_PAY_GRADE_OPTIONS[`${order.grade}`]}
             </span>
             <span className={styles.verticalBar}>|</span>
-            <span data-testid="emplid">EMPLID {customer.emplid}</span>
+            <span data-testid="edipi" className={styles.details}>
+              DoD ID {customer.edipi}
+            </span>
             {isCoastGuard && (
               <>
                 <span className={styles.verticalBar}>|</span>
@@ -73,7 +74,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole, isMultiRole
       <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
-          {order.originDutyLocation.name}
+          <h4>{order.originDutyLocation.name}</h4>
         </div>
         {order.destinationDutyLocation.name && (
           <div>
