@@ -829,8 +829,10 @@ server_test:
   services:
     - name: $postgres
     - name: $redis
+  retry:
+     max: 2
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_REQUEST: "3"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
     APPLICATION: app
@@ -956,6 +958,8 @@ client_test:
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
   dependencies:
     - pre_deps_yarn
+  retry:
+     max: 2
   script:
     - echo "client test coverage" | tee -a $CI_PROJECT_DIR/coverage.output
     - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output 2>&1

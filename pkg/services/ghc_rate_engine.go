@@ -213,11 +213,27 @@ type DomesticOriginSITPickupPricer interface {
 	ParamsPricer
 }
 
+// InternationalOriginSITPickupPricer prices international origin SIT pickup for a GHC move
+//
+//go:generate mockery --name InternationalOriginSITPickupPricer
+type InternationalOriginSITPickupPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int, distance int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
 // DomesticDestinationSITDeliveryPricer prices domestic destination SIT delivery for a GHC move
 //
 //go:generate mockery --name DomesticDestinationSITDeliveryPricer
 type DomesticDestinationSITDeliveryPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// InternationalDestinationSITDeliveryPricer prices international destination SIT delivery for a GHC move
+//
+//go:generate mockery --name InternationalDestinationSITDeliveryPricer
+type InternationalDestinationSITDeliveryPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int, distance int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -281,6 +297,18 @@ type InternationalOriginSITFuelSurchargePricer interface {
 //go:generate mockery --name IntlShippingAndLinehaulPricer
 type IntlShippingAndLinehaulPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlNTSHHGPackPricer prices international packing for an iHHG -> iNTS shipment within a move
+//
+//go:generate mockery --name IntlNTSHHGPackPricer
+type IntlNTSHHGPackPricer interface {
+	Price(appCtx appcontext.AppContext,
+		contractCode string,
+		referenceDate time.Time,
+		weight unit.Pound,
+		perUnitCents int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
