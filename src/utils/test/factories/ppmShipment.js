@@ -6,6 +6,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createCompleteGunSafeWeightTicket } from 'utils/test/factories/gunSafeWeightTicket';
 
 const mergePPMFieldOverrides = (defaultOverrides = {}, inputOverrides = {}) => {
   return {
@@ -50,6 +51,7 @@ const createBasePPMShipment = (fieldOverrides = {}) => {
       weightTickets: [],
       movingExpenses: [],
       proGearWeightTickets: [],
+      gunSafeWeightTickets: [],
       createdAt: ppmShipmentCreatedDate,
       updatedAt: ppmShipmentCreatedDate,
       eTag: window.btoa(ppmShipmentCreatedDate),
@@ -191,6 +193,12 @@ const createPPMShipmentWithDocuments = (fieldOverrides = {}) => {
   if (shipment.ppmShipment.proGearWeightTickets.length === 0) {
     shipment.ppmShipment.proGearWeightTickets.push(
       createCompleteProGearWeightTicket({ serviceMemberId }, { ppmShipmentId }),
+    );
+  }
+
+  if (shipment.ppmShipment.gunSafeWeightTickets.length === 0) {
+    shipment.ppmShipment.gunSafeWeightTickets.push(
+      createCompleteGunSafeWeightTicket({ serviceMemberId }, { ppmShipmentId }),
     );
   }
 

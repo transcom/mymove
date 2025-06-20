@@ -7,5 +7,7 @@ properties:
     $ref: 'WeightTickets.yaml'
   ProGearWeightTickets:
     $ref: 'ProGearWeightTickets.yaml'
+  GunSafeWeightTickets:
+    $ref: 'GunSafeWeightTickets.yaml'
   MovingExpenses:
     $ref: 'MovingExpenses.yaml'

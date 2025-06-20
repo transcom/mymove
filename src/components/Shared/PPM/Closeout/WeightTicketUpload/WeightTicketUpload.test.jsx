@@ -21,6 +21,12 @@ const emptyWeightTicketUploadMissingWeightTicket = {
   fieldName: 'emptyDocument',
 };
 
+const emptyWeightTicketUploadGunSafeWeightTicket = {
+  ...fullWeightTicketUploadMissingWeightTicket,
+  missingWeightTicket: false,
+  fieldName: 'gunSafeDocument',
+};
+
 describe('WeightTicketUpload', () => {
   it('populates form when the full weight ticket is missing', async () => {
     render(<WeightTicketUpload {...fullWeightTicketUploadMissingWeightTicket} />, { wrapper: MockProviders });
@@ -42,5 +48,10 @@ describe('WeightTicketUpload', () => {
         'Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used during the PPM',
       ),
     ).toBeInTheDocument();
+  });
+
+  it('displays correct label for gun safe upload', async () => {
+    render(<WeightTicketUpload {...emptyWeightTicketUploadGunSafeWeightTicket} />, { wrapper: MockProviders });
+    expect(screen.getByText("Upload your gun safe's weight tickets")).toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import styles from './FinalCloseoutForm.module.scss';
 
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
+import formStyles from 'styles/form.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -18,15 +19,24 @@ import {
 } from 'utils/ppmCloseout';
 import {
   calculateTotalNetWeightForProGearWeightTickets,
+  calculateTotalNetWeightForGunSafeWeightTickets,
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 import affiliations from 'content/serviceMemberAgencies';
 import { APP_NAME } from 'constants/apps';
-import { PPM_TYPES } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, PPM_TYPES } from 'shared/constants';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, move, appName }) => {
+  const [gunSafeEnabled, setGunSafeEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
   const isCustomerPage = appName === APP_NAME.MYMOVE;
   const closeoutOfficeName = move?.closeoutOffice?.name || move?.closeout_office?.name || '';
 
@@ -37,6 +47,9 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
   const totalNetWeight = getTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
+  );
+  const totalGunSafeWeight = calculateTotalNetWeightForGunSafeWeightTickets(
+    mtoShipment?.ppmShipment?.gunSafeWeightTickets,
   );
 
   const canChoosePPMLocation =
@@ -100,6 +113,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
                 <>
                   <li>{formatWeight(totalNetWeight)} total net weight</li>
                   <li>{formatWeight(totalProGearWeight)} of pro-gear</li>
+                  {gunSafeEnabled && <li>{formatWeight(totalGunSafeWeight)} of gun safe weight</li>}
                   <li>${formatCents(totalExpensesClaimed)} in expenses claimed</li>
                 </>
               )}
@@ -154,7 +168,11 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             </SectionWrapper>
           )}
 
-          <div className={ppmStyles.buttonContainer}>
+          <div
+            className={`${
+              isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
+            }`}
+          >
             <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
               {appName === APP_NAME.OFFICE ? 'Back' : 'Return To Homepage'}
             </Button>

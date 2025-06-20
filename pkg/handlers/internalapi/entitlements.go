@@ -17,12 +17,14 @@ func payloadForEntitlementModel(e models.WeightAllotment) internalmessages.Weigh
 	TotalWeightSelfPlusDependents := int64(e.TotalWeightSelfPlusDependents)
 	ProGearWeight := int64(e.ProGearWeight)
 	ProGearWeightSpouse := int64(e.ProGearWeightSpouse)
+	GunSafeWeight := int64(e.GunSafeWeight)
 
 	return internalmessages.WeightAllotment{
 		TotalWeightSelf:               &TotalWeightSelf,
 		TotalWeightSelfPlusDependents: &TotalWeightSelfPlusDependents,
 		ProGearWeight:                 &ProGearWeight,
 		ProGearWeightSpouse:           &ProGearWeightSpouse,
+		GunSafeWeight:                 &GunSafeWeight,
 	}
 }
 

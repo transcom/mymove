@@ -286,6 +286,17 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			gunSafeFlag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = gunSafeFlag.Match
+			}
+
 			if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
 				noSessionErr := apperror.NewSessionError("No session or service member ID")
 				return mtoshipmentops.NewListMTOShipmentsUnauthorized(), noSessionErr
@@ -301,6 +312,16 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 			// Search for shipments
 			shipments, err := h.MTOShipmentFetcher.ListMTOShipments(appCtx, moveID)
+
+			/** Feature Flag - Gun Safe **/
+			if !isGunSafeFeatureOn {
+				for i := range shipments {
+					shipments[i].PPMShipment.GunSafeWeightTickets = nil
+					shipments[i].PPMShipment.HasGunSafe = nil
+					shipments[i].PPMShipment.GunSafeWeight = nil
+				}
+			}
+
 			if err != nil {
 				appCtx.Logger().Error("internalapi.ListMTOShipmentsHandler", zap.Error(err))
 
