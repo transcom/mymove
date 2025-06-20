@@ -5,6 +5,9 @@ import { useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 import { connect } from 'react-redux';
 
+import styles from './UploadServiceRequestDocuments.module.scss';
+
+import formStyles from 'styles/form.module.scss';
 import { createServiceRequestDocumentUpload } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
@@ -91,19 +94,23 @@ const UploadServiceRequest = ({ setFlashMessage }) => {
         </Grid>
       )}
 
-      <SectionWrapper>
-        <div>
-          <h2>Upload Service Request Document</h2>
-          <FileUpload
-            ref={filePondEl}
-            createUpload={handleUpload}
-            onChange={onChange}
-            labelIdle='Drag & drop or <span class="filepond--label-action">click to upload a service request document</span>'
-          />
-        </div>
-        <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />
-        <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
-      </SectionWrapper>
+      <div>
+        <SectionWrapper className={styles.container}>
+          <div>
+            <h2>Upload Service Request Document</h2>
+            <FileUpload
+              ref={filePondEl}
+              createUpload={handleUpload}
+              onChange={onChange}
+              labelIdle='Drag & drop or <span class="filepond--label-action">click to upload a service request document</span>'
+            />
+          </div>
+          <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />
+          <div className={formStyles.formActions}>
+            <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
+          </div>
+        </SectionWrapper>
+      </div>
     </>
   );
 };

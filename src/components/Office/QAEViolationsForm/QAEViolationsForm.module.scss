@@ -14,21 +14,17 @@
 
 .buttonContainer {
   @include u-padding(0);
-  @include u-margin-bottom(115px);
 }
 
 .buttonRow {
-  @include u-display('flex');
-
-  :global {
-    .usa-button--unstyled {
-      @include u-font-weight(700);
-    }
-  }
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
-.backToEvalButton {
-  @include u-padding(0);
+.buttonRowSplit {
+  display: flex;
+  justify-content: space-between;
 }
 
 .grow {
@@ -109,8 +105,8 @@
 }
 
 .modalActions {
-  @include u-display('flex');
-  @include u-justify-content('justify');
+  display: flex;
+  justify-content: flex-end;
   @include u-margin-top(4 !important);
   @include u-margin-x(0 !important);
 }
@@ -123,4 +119,8 @@
   h3 {
     @include u-margin-bottom(1.5);
   }
+}
+
+.cancelBtn {
+  margin-bottom: 8px !important;
 }

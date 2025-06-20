@@ -5,6 +5,9 @@ import { useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 import { connect } from 'react-redux';
 
+import styles from './UploadPaymentRequestDocuments.module.scss';
+
+import formStyles from 'styles/form.module.scss';
 import { createUpload } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
@@ -106,30 +109,34 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
         </Grid>
       )}
 
-      <SectionWrapper>
-        <div>
-          <h2>Upload Payment Request Document</h2>
-          <FileUpload
-            ref={filePondEl}
-            createUpload={handleUpload}
-            onChange={onChange}
-            labelIdle='Drag & drop or <span class="filepond--label-action">click to upload a payment request document</span>'
-          />
-        </div>
-        <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />
-        <div style={{ marginBottom: '30px' }}>
-          <Checkbox
-            label="Is this a weight ticket?"
-            id="isWeightTicketCheckbox"
-            name="isWeightTicketCheckbox"
-            onChange={handleCheckboxChange}
-            value={isWeightTicketValue}
-            checked={isWeightTicketValue}
-            data-testid="isWeightTicketCheckbox"
-          />
-        </div>
-        <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
-      </SectionWrapper>
+      <div>
+        <SectionWrapper className={styles.container}>
+          <div>
+            <h2>Upload Payment Request Document</h2>
+            <FileUpload
+              ref={filePondEl}
+              createUpload={handleUpload}
+              onChange={onChange}
+              labelIdle='Drag & drop or <span class="filepond--label-action">click to upload a payment request document</span>'
+            />
+          </div>
+          <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />
+          <div style={{ marginBottom: '30px' }}>
+            <Checkbox
+              label="Is this a weight ticket?"
+              id="isWeightTicketCheckbox"
+              name="isWeightTicketCheckbox"
+              onChange={handleCheckboxChange}
+              value={isWeightTicketValue}
+              checked={isWeightTicketValue}
+              data-testid="isWeightTicketCheckbox"
+            />
+          </div>
+          <div className={formStyles.formActions}>
+            <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
+          </div>
+        </SectionWrapper>
+      </div>
     </>
   );
 };

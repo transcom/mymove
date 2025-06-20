@@ -232,11 +232,13 @@ const MoveDetails = ({ setFlashMessage }) => {
                         : 'no'}
                     </dd>
                   </div>
-                  <div className={descriptionListStyles.row}>
-                    <Button onClick={handleDownloadOrders}>Download Move Orders</Button>
+                  <div className={styles.row}>
+                    <Button onClick={handleDownloadOrders} className={styles.downloadMoveOrdersBtn}>
+                      Download Move Orders
+                    </Button>
                     <select
                       onChange={handleDocumentTypeChange}
-                      className="usa-select"
+                      className={`usa-select ${styles.selectDownload}`}
                       name="moveOrderDocumentType"
                       id="moveOrderDocumentType"
                       title="moveOrderDocumentType"
@@ -265,55 +267,66 @@ const MoveDetails = ({ setFlashMessage }) => {
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>
-                        <Shipment
-                          shipment={mtoShipment}
-                          moveId={moveTaskOrder.id}
-                          onDelete={handleDeleteShipment}
-                          mtoServiceItems={mtoServiceItems}
-                        />
-                        <div className={styles.serviceItemHeader}>
-                          {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
-                        </div>
-                        {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
-                          if (serviceItem.mtoShipmentID === mtoShipment.id) {
-                            return (
-                              <div className={styles.paymentRequestRows} key={serviceItem.id}>
-                                <h3 className={styles.serviceItemHeading}>
-                                  {serviceItem.reServiceCode} - {serviceItem.reServiceName}
-                                </h3>
-                                <div className={descriptionListStyles.row}>
-                                  <dt>Status:</dt>
-                                  <dd>{serviceItem.status}</dd>
-                                </div>
-                                {serviceItem.market && (
-                                  <div className={descriptionListStyles.row}>
-                                    <dt>Market</dt>
-                                    <dd>{serviceItem.market}</dd>
+                        <SectionWrapper>
+                          <Shipment
+                            shipment={mtoShipment}
+                            moveId={moveTaskOrder.id}
+                            onDelete={handleDeleteShipment}
+                            mtoServiceItems={mtoServiceItems}
+                          />
+                          <div className={styles.serviceItemHeader}>
+                            <h2>Service Items</h2>
+                            <Link
+                              to={`../shipments/${mtoShipment.id}/service-items/new`}
+                              relative="path"
+                              className="usa-button usa-button-secondary"
+                            >
+                              Add Service Item
+                            </Link>
+                          </div>
+                          {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
+                            if (serviceItem.mtoShipmentID === mtoShipment.id) {
+                              return (
+                                <div className={styles.paymentRequestRows} key={serviceItem.id}>
+                                  <div className={styles.serviceItemHeaderContainer}>
+                                    <h3 className={styles.serviceItemHeading}>
+                                      {serviceItem.reServiceCode} - {serviceItem.reServiceName}
+                                    </h3>
+                                    <div className={styles.row}>
+                                      {SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
+                                        <Link
+                                          className={classnames(styles.editButton, 'usa-button usa-button--outline')}
+                                          to={`../mto-service-items/${serviceItem.id}/update`}
+                                          relative="path"
+                                        >
+                                          Edit
+                                        </Link>
+                                      ) : null}
+                                      <Link
+                                        to={`../mto-service-items/${serviceItem.id}/upload`}
+                                        relative="path"
+                                        className="usa-button usa-button-secondary"
+                                      >
+                                        Upload Document
+                                      </Link>
+                                    </div>
                                   </div>
-                                )}
-                                <div className={styles.uploadBtn}>
-                                  {SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
-                                    <Link
-                                      className={classnames(styles.editButton, 'usa-button usa-button--outline')}
-                                      to={`../mto-service-items/${serviceItem.id}/update`}
-                                      relative="path"
-                                    >
-                                      Edit
-                                    </Link>
-                                  ) : null}
-                                  <Link
-                                    to={`../mto-service-items/${serviceItem.id}/upload`}
-                                    relative="path"
-                                    className="usa-button usa-button-secondary"
-                                  >
-                                    Upload Document for {serviceItem.reServiceName}
-                                  </Link>
+                                  <div className={descriptionListStyles.row}>
+                                    <dt>Status:</dt>
+                                    <dd>{serviceItem.status}</dd>
+                                  </div>
+                                  {serviceItem.market && (
+                                    <div className={descriptionListStyles.row}>
+                                      <dt>Market</dt>
+                                      <dd>{serviceItem.market}</dd>
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
-                            );
-                          }
-                          return <div />;
-                        })}
+                              );
+                            }
+                            return <div />;
+                          })}
+                        </SectionWrapper>
                       </div>
                     );
                   })}

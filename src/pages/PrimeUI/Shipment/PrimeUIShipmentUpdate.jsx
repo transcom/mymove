@@ -401,9 +401,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                   </Alert>
                 </div>
               )}
-              <Button type="button" onClick={onCancelShipmentClick} className="usa-button usa-button-secondary">
-                Cancel Shipment
-              </Button>
               <Formik
                 initialValues={initialValues}
                 onSubmit={onSubmit}
@@ -413,6 +410,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                 {({ isValid, isSubmitting, handleSubmit, setFieldValue, setFieldTouched }) => {
                   return (
                     <Form className={formStyles.form}>
+                      <div className={primeStyles.cancelShipmentBtn}>
+                        <Button type="button" onClick={onCancelShipmentClick}>
+                          Cancel Shipment
+                        </Button>
+                      </div>
                       {isPPM ? (
                         <PrimeUIShipmentUpdatePPMForm />
                       ) : (

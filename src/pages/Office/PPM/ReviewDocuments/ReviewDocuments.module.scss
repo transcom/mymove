@@ -40,3 +40,9 @@
   font-size: 15px;
   white-space: pre-line;
 }
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  width: 95%;
+}
