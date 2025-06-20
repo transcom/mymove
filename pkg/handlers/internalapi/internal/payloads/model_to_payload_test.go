@@ -343,7 +343,7 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 	})
 }
 
-func (suite *PayloadsSuite) TestPayGrades() {
+func (suite *PayloadsSuite) TestPayGradesForInternalPayloadToModel() {
 	payGrades := models.PayGrades{
 		{Grade: string(models.ServiceMemberGradeE1), GradeDescription: models.StringPointer(string(models.ServiceMemberGradeE1))},
 		{Grade: string(models.ServiceMemberGradeO3), GradeDescription: models.StringPointer(string(models.ServiceMemberGradeO3))},
