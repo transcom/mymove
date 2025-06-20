@@ -112,11 +112,11 @@ const GunSafe = ({ appName }) => {
   };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
-    const documentId = currentGunSafeWeightTicket[`${fieldName}Id`];
+    const { documentId } = currentGunSafeWeightTicket;
 
     createUploadForPPMDocument(ppmShipment?.id, documentId, appendTimestampToFilename(file), true)
       .then((upload) => {
-        documents?.GunSafeWeightTickets[currentIndex][fieldName]?.uploads.push(upload);
+        documents?.GunSafeWeightTickets[currentIndex].document?.uploads.push(upload);
         setFieldTouched(fieldName, true);
         return upload;
       })
@@ -134,10 +134,10 @@ const GunSafe = ({ appName }) => {
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
     deleteUploadForDocument(uploadId, null, ppmShipment?.id)
       .then(() => {
-        const filteredUploads = documents?.GunSafeWeightTickets[currentIndex][fieldName].uploads.filter(
+        const filteredUploads = documents?.GunSafeWeightTickets[currentIndex].document?.uploads.filter(
           (upload) => upload.id !== uploadId,
         );
-        documents.GunSafeWeightTickets[currentIndex][fieldName].uploads = filteredUploads;
+        documents.GunSafeWeightTickets[currentIndex].document.uploads = filteredUploads;
         setFieldValue(fieldName, filteredUploads, true);
         setFieldTouched(fieldName, true, true);
       })
