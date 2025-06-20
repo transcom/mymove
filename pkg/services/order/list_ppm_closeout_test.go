@@ -165,7 +165,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		}
 	})
 
-	suite.Run("locked by information comes back with the move", func() {
+	suite.Run("locked by and updated_at information comes back with the move", func() {
 		macDillTransportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -206,6 +206,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		suite.Equal(1, count)
 		suite.NotNil(defaultMoves[0].LockExpiresAt)
 		suite.NotNil(defaultMoves[0].LockedByOfficeUserID)
+		suite.NotEmpty(defaultMoves[0].UpdatedAt)
 	})
 
 	suite.Run("can sort descending showing newest first and oldest last", func() {
