@@ -60,7 +60,9 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole, isMultiRole
             {isCoastGuard && (
               <>
                 <span className={styles.verticalBar}>|</span>
-                <span data-testid="emplid">EMPLID {customer.emplid}</span>
+                <span data-testid="emplid" className={styles.details}>
+                  EMPLID {customer.emplid}
+                </span>
               </>
             )}
           </p>
