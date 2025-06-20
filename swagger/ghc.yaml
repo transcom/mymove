@@ -5411,7 +5411,9 @@ definitions:
   BackupContact:
     type: object
     properties:
-      name:
+      firstName:
+        type: string
+      lastName:
         type: string
       email:
         type: string
@@ -5422,7 +5424,8 @@ definitions:
         format: telephone
         pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
     required:
-      - name
+      - firstName
+      - lastName
       - email
       - phone
   Contractor:

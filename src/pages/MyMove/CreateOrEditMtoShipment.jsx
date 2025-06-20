@@ -18,6 +18,7 @@ import {
   selectCurrentShipmentFromMove,
   selectAllMoves,
   selectCurrentMoveFromAllMoves,
+  selectBackupContacts,
 } from 'store/entities/selectors';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { AddressShape } from 'types/address';
@@ -25,6 +26,7 @@ import { ServiceMemberShape } from 'types/customerShapes';
 import { RouterShape } from 'types/index';
 import withRouter from 'utils/routing';
 import { getAllMoves } from 'services/internalApi';
+import { BackupContactShape } from 'types/backupContact';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -42,6 +44,7 @@ export class CreateOrEditMtoShipment extends Component {
       updateMTOShipment,
       serviceMember,
       serviceMemberMoves,
+      backupContact,
       moveId,
       mtoShipmentId,
     } = this.props;
@@ -138,6 +141,7 @@ export class CreateOrEditMtoShipment extends Component {
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
           orders={orders}
+          backupContact={backupContact}
         />
       );
     }
@@ -152,6 +156,7 @@ CreateOrEditMtoShipment.propTypes = {
   currentResidence: AddressShape.isRequired,
   updateMTOShipment: func.isRequired,
   serviceMember: ServiceMemberShape,
+  backupContact: BackupContactShape.isRequired,
 };
 
 CreateOrEditMtoShipment.defaultProps = {
@@ -162,6 +167,9 @@ CreateOrEditMtoShipment.defaultProps = {
 function mapStateToProps(state, ownProps) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberMoves = selectAllMoves(state);
+  const { firstName, lastName, email, telephone } = selectBackupContacts(state)[0] || {};
+  const backupContact = { firstName, lastName, email, telephone };
+
   const {
     router: {
       params: { mtoShipmentId, moveId },
@@ -170,6 +178,7 @@ function mapStateToProps(state, ownProps) {
   const props = {
     serviceMember,
     serviceMemberMoves,
+    backupContact,
     moveId,
     mtoShipmentId,
     currentResidence: serviceMember?.residential_address || {},

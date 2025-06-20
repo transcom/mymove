@@ -47,7 +47,8 @@ test.describe('Onboarding', () => {
 
     // Backup contact info section
     await customerPage.waitForPage.onboardingBackupContact();
-    await page.getByLabel('Name').fill('Grace Griffin');
+    await page.getByLabel('First Name').fill('Grace');
+    await page.getByLabel('Last Name').fill('Griffin');
     await page.getByLabel('Email').fill('grace.griffin@example.com');
     await page.getByLabel('Phone').fill('2025553456');
     await customerPage.navigateForward();

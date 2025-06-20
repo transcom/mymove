@@ -80,7 +80,7 @@ import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
-import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import { handleAddressToggleChange, blankAddress, blankContact } from 'utils/shipments';
 import { getResponseError } from 'services/internalApi';
 
 const ShipmentForm = (props) => {
@@ -102,6 +102,7 @@ const ShipmentForm = (props) => {
     displayDestinationType,
     isAdvancePage,
     move,
+    backupContact,
   } = props;
 
   const [estimatedWeightValue, setEstimatedWeightValue] = useState(mtoShipment?.ppmShipment?.estimatedWeight || 0);
@@ -720,6 +721,78 @@ const ShipmentForm = (props) => {
           }
         };
 
+        const handleUseBackupContactForReleaseAgentChange = (e) => {
+          const { checked } = e.target;
+          if (checked) {
+            // use backup contact
+            setValues(
+              {
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  agent: {
+                    ...values.pickup.agent,
+                    ...backupContact,
+                  },
+                },
+              },
+              { shouldValidate: true },
+            );
+          } else {
+            // Revert address
+            setValues(
+              {
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  agent: {
+                    ...values.pickup.agent,
+                    ...blankContact.contact,
+                    phone: blankContact.contact.telephone,
+                  },
+                },
+              },
+              { shouldValidate: true },
+            );
+          }
+        };
+
+        const handleUseBackupContactForReceivingAgentChange = (e) => {
+          const { checked } = e.target;
+          if (checked) {
+            // use backup contact
+            setValues(
+              {
+                ...values,
+                delivery: {
+                  ...values.delivery,
+                  agent: {
+                    ...values.delivery.agent,
+                    ...backupContact,
+                  },
+                },
+              },
+              { shouldValidate: true },
+            );
+          } else {
+            // Revert address
+            setValues(
+              {
+                ...values,
+                delivery: {
+                  ...values.delivery,
+                  agent: {
+                    ...values.delivery.agent,
+                    ...blankContact.contact,
+                    phone: blankContact.contact.telephone,
+                  },
+                },
+              },
+              { shouldValidate: true },
+            );
+          }
+        };
+
         const validatePickupDate = (e) => {
           let error = validateDate(e);
           // requestedPickupDate must be in the future for non-PPM shipments
@@ -1081,7 +1154,18 @@ const ShipmentForm = (props) => {
                           name="pickup.agent"
                           legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
                           render={(fields) => {
-                            return fields;
+                            return (
+                              <>
+                                <Checkbox
+                                  data-testid="useBackupContactForReleaseAgent"
+                                  label="Use backup contact"
+                                  name="useBackupContactForReleaseAgent"
+                                  onChange={handleUseBackupContactForReleaseAgentChange}
+                                  id="useBackupContactForReleaseAgent"
+                                />
+                                {fields}
+                              </>
+                            );
                           }}
                         />
                       </>
@@ -1249,7 +1333,18 @@ const ShipmentForm = (props) => {
                           name="delivery.agent"
                           legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
                           render={(fields) => {
-                            return fields;
+                            return (
+                              <>
+                                <Checkbox
+                                  data-testid="useBackupContactForReceivingAgent"
+                                  label="Use backup contact"
+                                  name="useBackupContactForReceivingAgent"
+                                  onChange={handleUseBackupContactForReceivingAgentChange}
+                                  id="useBackupContactForReceivingAgent"
+                                />
+                                {fields}
+                              </>
+                            );
                           }}
                         />
                       </>
@@ -1443,7 +1538,18 @@ const ShipmentForm = (props) => {
                           name="delivery.agent"
                           legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
                           render={(fields) => {
-                            return fields;
+                            return (
+                              <>
+                                <Checkbox
+                                  data-testid="useBackupContactForReceivingAgent"
+                                  label="Use backup contact"
+                                  name="useBackupContactForReceivingAgent"
+                                  onChange={handleUseBackupContactForReceivingAgentChange}
+                                  id="useBackupContactForReceivingAgent"
+                                />
+                                {fields}
+                              </>
+                            );
                           }}
                         />
                       </>

@@ -36,6 +36,12 @@ const EditShipmentDetails = () => {
 
   const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
+  const backupContact = {
+    firstName: customer.backup_contact.firstName,
+    lastName: customer.backup_contact.lastName,
+    email: customer.backup_contact.email,
+    phone: customer.backup_contact.phone,
+  };
 
   const TACs = {
     HHG: order.tac,
@@ -73,6 +79,7 @@ const EditShipmentDetails = () => {
                   SACs={SACs}
                   userRole={roleTypes.TOO}
                   displayDestinationType={isRetirementOrSeparation}
+                  backupContact={backupContact}
                 />
               </Grid>
             </Grid>

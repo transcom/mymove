@@ -13,7 +13,8 @@ export default {
 export const Basic = () => (
   <Formik
     initialValues={{
-      name: '',
+      firstName: '',
+      lastName: '',
       telephone: '',
       email: '',
     }}
@@ -29,7 +30,8 @@ export const Basic = () => (
 export const WithInitialValues = () => (
   <Formik
     initialValues={{
-      name: 'Peyton Wing',
+      firstName: 'Peyton',
+      lastName: 'Wing',
       email: 'pw@example.com',
       telephone: '915-555-8761',
     }}
@@ -45,7 +47,8 @@ export const WithInitialValues = () => (
 export const WithAdditionalText = () => (
   <Formik
     initialValues={{
-      name: '',
+      firstName: '',
+      lastName: '',
       telephone: '',
       email: '',
     }}
@@ -76,7 +79,8 @@ export const WithNamespacedFields = () => {
     <Formik
       initialValues={{
         [namespace]: {
-          name: '',
+          firstName: '',
+          lastName: '',
           telephone: '',
           email: '',
         },

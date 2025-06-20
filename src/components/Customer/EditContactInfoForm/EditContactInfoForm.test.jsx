@@ -30,7 +30,8 @@ describe('EditContactInfoForm component', () => {
         postalCode: '79936',
       },
       backup_contact: {
-        name: 'Peyton Wing',
+        firstName: 'Peyton',
+        lastName: 'Wing',
         email: 'pw@example.com',
         telephone: '915-555-8761',
       },
@@ -66,11 +67,13 @@ describe('EditContactInfoForm component', () => {
 
     expect(personalEmailInput).toHaveValue(testProps.initialValues.personal_email);
 
-    const nameInput = await screen.findByLabelText(/Name/);
+    const firstNameInput = await screen.findByLabelText(/First Name/);
+    expect(firstNameInput).toBeInstanceOf(HTMLInputElement);
+    expect(firstNameInput).toHaveValue(testProps.initialValues.backup_contact.firstName);
 
-    expect(nameInput).toBeInstanceOf(HTMLInputElement);
-
-    expect(nameInput).toHaveValue(testProps.initialValues.backup_contact.name);
+    const lastNameInput = await screen.findByLabelText(/Last Name/);
+    expect(lastNameInput).toBeInstanceOf(HTMLInputElement);
+    expect(lastNameInput).toHaveValue(testProps.initialValues.backup_contact.lastName);
 
     // We have two sets of addresses and the labels are the same across both
     const address1Inputs = await screen.findAllByLabelText(/Address 1/);

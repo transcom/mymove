@@ -7,6 +7,7 @@ import {
   isWeightTicketComplete,
   hasCompletedAllWeightTickets,
   isPPMOnly,
+  blankContact,
 } from './shipments';
 
 import { ppmShipmentStatuses } from 'constants/shipments';
@@ -219,6 +220,16 @@ describe('shipments utils', () => {
     it('returns true when all shipments are PPM', () => {
       expect(isPPMOnly([ppmShipment])).toBe(true);
       expect(isPPMOnly([ppmShipment, secondPPMShipment])).toBe(true);
+    });
+  });
+
+  describe('blankContact', () => {
+    it('returns blank contact', () => {
+      const contact = blankContact;
+      expect(contact.contact.firstName).toBe('');
+      expect(contact.contact.lastName).toBe('');
+      expect(contact.contact.email).toBe('');
+      expect(contact.contact.telephone).toBe('');
     });
   });
 });

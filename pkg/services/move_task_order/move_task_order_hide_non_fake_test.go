@@ -320,7 +320,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 	phone := "999-999-9999"
 
 	invalidFakeData := []models.BackupContact{
-		{Name: "Britney"},
+		{FirstName: "Britney"},
+		{LastName: "Blonde"},
 		{Email: "Spears"},
 		{Phone: "415-275-9467"},
 	}
@@ -334,9 +335,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 		validBackupContact := factory.BuildBackupContact(suite.DB(), []factory.Customization{
 			{
 				Model: models.BackupContact{
-					Name:  "Robin Fenstermacher",
-					Email: "robin@example.com",
-					Phone: phone,
+					FirstName: "Robin",
+					LastName:  "Fenstermacher",
+					Email:     "robin@example.com",
+					Phone:     phone,
 				},
 			},
 		}, nil)

@@ -8,6 +8,7 @@ import {
   selectCurrentOrders,
   selectMTOShipmentById,
   selectServiceMemberFromLoggedInUser,
+  selectBackupContacts,
 } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
@@ -24,6 +25,8 @@ const MobileHomeInfo = () => {
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const orders = useSelector((state) => selectCurrentOrders(state));
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const { firstName, lastName, email, telephone } = useSelector((state) => selectBackupContacts(state)[0] || {});
+  const backupContact = { firstName, lastName, email, telephone };
 
   // Loading placeholder while data loads
   if (!serviceMember || !orders || !mtoShipment) {
@@ -39,6 +42,7 @@ const MobileHomeInfo = () => {
       updateMTOShipment={(shipment) => dispatch(updateMTOShipment(shipment))}
       serviceMember={serviceMember}
       orders={orders}
+      backupContact={backupContact}
       handleBack={handleBack}
     />
   );
