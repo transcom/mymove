@@ -70,7 +70,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 			params.OriginDutyLocation,
 			pq.Array(params.Status),
 			params.SubmittedAt,
-			params.TIOAssignedUser,
+			params.AssignedTo,
 			params.CounselingOffice,
 			hasSafetyPrivilege,
 			params.Page,
@@ -100,7 +100,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		if err := json.Unmarshal(r.OriginToOffice, &pr.MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice); err != nil {
 			return nil, 0, fmt.Errorf("error unmarshaling origin duty location transportation office JSON: %w", err)
 		}
-		if err := json.Unmarshal(r.TIOUser, &pr.MoveTaskOrder.TIOAssignedUser); err != nil {
+		if err := json.Unmarshal(r.TIOUser, &pr.MoveTaskOrder.TIOPaymentRequestAssignedUser); err != nil {
 			return nil, 0, fmt.Errorf("error unmarshaling assigned TIO user JSON: %w", err)
 		}
 		if err := json.Unmarshal(r.CounselingOffice, &pr.MoveTaskOrder.CounselingOffice); err != nil {

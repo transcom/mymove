@@ -153,7 +153,7 @@ BEGIN
     LEFT JOIN move_to_gbloc mtg
          ON mtg.move_id = m.id
     LEFT JOIN office_users tio
-         ON m.tio_assigned_id = tio.id
+         ON m.tio_payment_request_assigned_id = tio.id
     LEFT JOIN transportation_offices co
          ON m.counseling_transportation_office_id = co.id
     LEFT JOIN addresses addr

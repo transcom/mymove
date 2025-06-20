@@ -66,7 +66,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 		}
 
 		//When submiting a move for approval - remove the SC assigned user
-		move.SCAssignedID = nil
+		move.SCCounselingAssignedID = nil
 
 		// Save the move.
 		var verrs *validate.Errors
