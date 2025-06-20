@@ -11,6 +11,7 @@ import { getRankOptions, showCounselingOffices } from 'services/internalApi';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { MockProviders } from 'testUtils';
+// import { getRankGradeOptions } from 'services/ghcApi';
 
 jest.setTimeout(60000);
 
@@ -204,6 +205,7 @@ jest.mock('../../../utils/featureFlags', () => ({
 }));
 
 const testProps = {
+  // affiliation: 'AIR_FORCE',
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   initialValues: {
     orders_type: '',
@@ -332,6 +334,13 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
+    // getRankGradeOptions.mockResolvedValue({
+    //   id: '3aca9ba8-3b84-42bf-8f2f-5ef02587ba89',
+    //   paygradeId: '862eb395-86d1-44af-ad47-dec44fbeda30',
+    //   rankGradeName: 'SSgt / E-5',
+    //   rankOrder: 23,
+    // });
+
     render(
       <Provider store={mockStore.store}>
         <OrdersInfoForm {...testProps} />
@@ -690,7 +699,8 @@ describe('OrdersInfoForm component', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E-5',
+      grade: ORDERS_PAY_GRADE_TYPE.E_5,
+      rank: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
       origin_duty_location: {
         address: {
           city: '',
@@ -861,7 +871,7 @@ describe('OrdersInfoForm component', () => {
       expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'CIV / CIVILIAN_EMPLOYEE');
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),

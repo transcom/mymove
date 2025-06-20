@@ -23,11 +23,12 @@ import Callout from 'components/Callout';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { getPayGradeOptions, showCounselingOffices } from 'services/ghcApi';
+import { getPayGradeOptions, showCounselingOffices, getRankOptions } from 'services/ghcApi';
 import Hint from 'components/Hint';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
-import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
+import retryPageLoading from 'utils/retryPageLoading';
+import { sortRankOptions } from 'shared/utils';
 
 let originMeta;
 let newDutyMeta = '';
@@ -75,6 +76,9 @@ const AddOrdersForm = ({
       : Yup.string().notRequired(),
     newDutyLocation: Yup.object().nullable().required('Required'),
     grade: Yup.string().required('Required'),
+    rank: Yup.string()
+      .matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+      .required('Required'),
     accompaniedTour: showAccompaniedTourField
       ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
       : Yup.string().notRequired(),
@@ -132,7 +136,26 @@ const AddOrdersForm = ({
       }
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, serviceMemberId]);
+  const [rankOptions, setRankOptions] = useState([]);
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getRankOptions(affiliation, grade);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankOptions(fetchedRanks.body);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
 
+    if (grade !== '') fetchRankGradeOptions();
+  }, [affiliation, grade, setShowLoadingSpinner]);
   useEffect(() => {
     if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
       if (
@@ -265,7 +288,7 @@ const AddOrdersForm = ({
             <SectionWrapper className={formStyles.formSection}>
               {requiredAsteriskMessage}
               <DropdownInput
-                label="Orders type"
+                label="Orders types"
                 name="ordersType"
                 options={filteredOrderTypeOptions}
                 required
@@ -490,6 +513,20 @@ const AddOrdersForm = ({
                   handleChange(e);
                 }}
               />
+
+              {grade !== '' ? (
+                <DropdownInput
+                  label="Rank"
+                  name="rank"
+                  id="rank"
+                  required
+                  options={rankOptions}
+                  showRequiredAsterisk
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                />
+              ) : null}
 
               {isCivilianTDYMove && showcivilianTDYUBAllowanceWarning ? (
                 <FormGroup className={styles.civilianUBAllowanceWarning}>
