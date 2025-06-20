@@ -24,7 +24,7 @@ const emptyWeightTicketUploadMissingWeightTicket = {
 const emptyWeightTicketUploadGunSafeWeightTicket = {
   ...fullWeightTicketUploadMissingWeightTicket,
   missingWeightTicket: false,
-  fieldName: 'gunSafe',
+  fieldName: 'gunSafeDocument',
 };
 
 describe('WeightTicketUpload', () => {
