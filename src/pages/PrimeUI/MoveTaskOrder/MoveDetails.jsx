@@ -213,6 +213,14 @@ const MoveDetails = ({ setFlashMessage }) => {
                     <dd>{moveTaskOrder.id}</dd>
                   </div>
                   <div className={descriptionListStyles.row}>
+                    <dt>Rank:</dt>
+                    <dd>{`${moveTaskOrder?.order?.rank}`}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Pay Grade:</dt>
+                    <dd>{`${moveTaskOrder?.order?.grade}`}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
                     <dt>Gun Safe:</dt>
                     <dd>{moveTaskOrder.order.entitlement.gunSafe ? 'yes' : 'no'}</dd>
                   </div>
