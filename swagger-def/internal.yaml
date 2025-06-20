@@ -3508,6 +3508,7 @@ paths:
               - INFECTED
               - CLEAN
               - NO_THREATS_FOUND
+              - THREATS_FOUND
               - PROCESSING
             readOnly: true
         '400':

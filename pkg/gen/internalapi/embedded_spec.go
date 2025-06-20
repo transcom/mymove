@@ -3378,6 +3378,7 @@ func init() {
                 "INFECTED",
                 "CLEAN",
                 "NO_THREATS_FOUND",
+                "THREATS_FOUND",
                 "PROCESSING"
               ],
               "readOnly": true
@@ -12872,6 +12873,7 @@ func init() {
                 "INFECTED",
                 "CLEAN",
                 "NO_THREATS_FOUND",
+                "THREATS_FOUND",
                 "PROCESSING"
               ],
               "readOnly": true
