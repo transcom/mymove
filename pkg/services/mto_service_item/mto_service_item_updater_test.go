@@ -42,6 +42,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	sitStatusService := sitstatus.NewShipmentSITStatus()
@@ -53,7 +54,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -383,7 +384,13 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		departureDate := contactDatePlusGracePeriod.Add(time.Hour * 24)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 		shipmentSITAllowance := int(90)
 		estimatedWeight := unit.Pound(1400)
 
@@ -511,6 +518,13 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(1, len(sitExtensions))
 		suite.Equal(models.SITExtensionStatusPending, sitExtensions[0].Status)
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, shipment.MoveTaskOrder.Status)
+
+		// Confirm move status is APPROVALS REQUESTED before sit extension removal
+		var moves []models.Move
+		suite.DB().Q().All(&moves)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moves[0].Status)
 
 		// Update MTO service item
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipmentWithCalculatedStatus, eTag)
@@ -525,6 +539,11 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		// Confirm decision date is set to today
 		suite.Equal(time.Now().Truncate(time.Hour*24), sitExtensions[0].DecisionDate.Truncate(time.Hour*24).Local())
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
+
+		// Confirm move status is APPROVED after sit extension removal
+		suite.DB().Q().All(&moves)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.MoveStatusAPPROVED, moves[0].Status)
 
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date
@@ -2310,6 +2329,7 @@ func (suite *MTOServiceItemServiceSuite) setupAssignmentTestData() (models.MTOSe
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -2319,7 +2339,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	rejectionReason := models.StringPointer("")
 
@@ -3385,6 +3405,7 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -3394,7 +3415,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())

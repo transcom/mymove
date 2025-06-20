@@ -128,11 +128,11 @@ func checkDepartureDate() sitExtensionValidator {
 			for _, serviceItem := range shipment.MTOServiceItems {
 				if serviceItem.SITDepartureDate != nil {
 					// Check if valid service SIT service item to get correct authorized end date.
-					if slices.Contains(models.ValidOriginSITReServiceCodes, serviceItem.ReService.Code) &&
+					if slices.Contains(models.ValidOriginAdditionalDaySITReServiceCodes, serviceItem.ReService.Code) &&
 						shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate == nil {
 						si = &serviceItem
 						endDate = shipment.OriginSITAuthEndDate
-					} else if (slices.Contains(models.ValidDestinationSITReServiceCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
+					} else if (slices.Contains(models.ValidDestinationAdditionalDaySITReServiceCodes, serviceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
 						si = &serviceItem
 						endDate = shipment.DestinationSITAuthEndDate
 					}
@@ -143,7 +143,7 @@ func checkDepartureDate() sitExtensionValidator {
 		format := "2006-01-02"
 		if endDate != nil && si != nil {
 			if si.SITDepartureDate.Before(*endDate) || si.SITDepartureDate.Equal(*endDate) {
-				sitErr := fmt.Sprintf("\nSIT departure date (%s) cannot be prior or equal to the SIT end date (%s)", si.SITDepartureDate.Format(format), endDate.Format(format))
+				sitErr := fmt.Sprintf("\nSIT extension cannot be created: SIT departure date (%s) cannot be prior or equal to the SIT end date (%s)", si.SITDepartureDate.Format(format), endDate.Format(format))
 				return apperror.NewConflictError(shipment.ID, sitErr)
 			}
 		}

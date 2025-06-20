@@ -1,38 +1,37 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import removeSITExtensionServiceItem from 'constants/MoveHistory/EventTemplates/RemoveSITExtension/removeSITExtensionServiceItem';
+import approveMoveAfterSitExtRemoval from 'constants/MoveHistory/EventTemplates/ApproveMoveAfterSitExtRemoval/approveMoveAfterSitExtRemoval';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
-import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import MOVE_STATUSES from 'constants/moves';
 
-describe('when given a removeSITExtensionServiceItem history record', () => {
+describe('when given a approveMoveAfterSitExtRemoval history record', () => {
   const historyRecord = {
     action: a.UPDATE,
     changedValues: {
-      decision_date: '2025-06-06T19:09:23.752008',
-      status: SIT_EXTENSION_STATUS.REMOVED,
+      approved_at: '2025-06-06T19',
+      status: MOVE_STATUSES.APPROVED,
     },
     context: [
       {
-        name: "Domestic origin add'l SIT",
-        shipment_id_abbr: '3118a',
-        shipment_locator: 'PHD33D-01',
-        shipment_type: 'HHG',
+        eventName: 'updateMTOServiceItem',
+        id: '16732a20-1e0e-470b-9f1f-7fd292a33059',
+        objectId: '309bddbf-990c-4b92-9e18-698211d48c54"',
       },
     ],
     eventName: o.updateMTOServiceItem,
-    tableName: t.sit_extensions,
+    tableName: t.moves,
   };
 
   it('matches the template from getTemplate', () => {
     const template = getTemplate(historyRecord);
-    expect(template).toMatchObject(removeSITExtensionServiceItem);
+    expect(template).toMatchObject(approveMoveAfterSitExtRemoval);
   });
 
   it('returns the correct event display name', () => {
-    expect(removeSITExtensionServiceItem.getEventNameDisplay()).toEqual('SIT extension removed');
+    expect(approveMoveAfterSitExtRemoval.getEventNameDisplay()).toEqual('Updated move');
   });
 
   it('renders the details via LabeledDetails with merged changed values', () => {
@@ -43,8 +42,6 @@ describe('when given a removeSITExtensionServiceItem history record', () => {
     // The actual keys and values displayed depend on your LabeledDetails implementation.
     // Here we expect the values from changedValues to be rendered.
     expect(screen.getByText(/Status/i)).toBeInTheDocument();
-    expect(screen.getByText(/REMOVED/i)).toBeInTheDocument();
-    expect(screen.getByText(/Decision date/i)).toBeInTheDocument();
-    expect(screen.getByText('HHG shipment #PHD33D-01')).toBeInTheDocument();
+    expect(screen.getByText(/Approved at/i)).toBeInTheDocument();
   });
 });

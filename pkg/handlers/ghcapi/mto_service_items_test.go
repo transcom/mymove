@@ -405,6 +405,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	mockSender := suite.TestNotificationSender()
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -663,7 +664,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.NewHandlerConfig(),
@@ -724,7 +725,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.NewHandlerConfig(),
