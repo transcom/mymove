@@ -71,6 +71,8 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ppmShipment.HasProGear = models.BoolPointer(true)
 		ppmShipment.ProGearWeight = models.PoundPointer(unit.Pound(1987))
 		ppmShipment.SpouseProGearWeight = models.PoundPointer(unit.Pound(498))
+		ppmShipment.HasGunSafe = models.BoolPointer(true)
+		ppmShipment.GunSafeWeight = models.PoundPointer(unit.Pound(450))
 		ppmShipment.EstimatedIncentive = models.CentPointer(unit.Cents(1000000))
 		ppmShipment.MaxIncentive = models.CentPointer(unit.Cents(2000000))
 		ppmShipment.HasRequestedAdvance = models.BoolPointer(true)
@@ -415,6 +417,48 @@ func AddProgearWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models
 		progearWeightTicket)
 }
 
+// AddGunSafeWeightTicketToPPMShipment adds a gun safe weight ticket to
+// an existing PPMShipment
+func AddGunSafeWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader, gunSafeWeightTicketTemplate *models.GunSafeWeightTicket) {
+	if ppmShipment == nil {
+		log.Panic("ppmShipment is required")
+	}
+	if db == nil && ppmShipment.ID.IsNil() {
+		// need to create an ID so we can use the ppmShipment as
+		// LinkOnly
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+	}
+	customs := []Customization{
+		{
+			Model:    *ppmShipment,
+			LinkOnly: true,
+		},
+	}
+	if gunSafeWeightTicketTemplate != nil {
+		customs = append(customs, Customization{
+			Model: *gunSafeWeightTicketTemplate,
+		})
+	}
+	if db != nil && userUploader != nil {
+		customs = append(customs, Customization{
+			Model: models.UserUpload{},
+			ExtendedParams: &UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   uploaderAppContext(db),
+			},
+		})
+	}
+	gunSafeWeightTicket := BuildGunSafeWeightTicket(db, customs, nil)
+	if db == nil {
+		// tests expect a stubbed weight ticket built with this
+		// factory method to have CreatedAt/UpdatedAt
+		gunSafeWeightTicket.CreatedAt = ppmShipment.CreatedAt
+		gunSafeWeightTicket.UpdatedAt = ppmShipment.UpdatedAt
+	}
+	ppmShipment.GunSafeWeightTickets = append(ppmShipment.GunSafeWeightTickets,
+		gunSafeWeightTicket)
+}
+
 // AddMovingExpenseToPPMShipment adds a moving expense to
 // an existing PPMShipment
 func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader, movingExpenseTemplate *models.MovingExpense) {
@@ -558,6 +602,7 @@ func BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connec
 	ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(db, userUploader, nil)
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
+	AddGunSafeWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
 	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader, nil)
 
 	// Because of the way we're working with the PPMShipment, the
@@ -642,6 +687,7 @@ func BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes(db *pop.Connection, userUp
 	ppmShipment := BuildPPMShipmentThatNeedsCloseout(db, userUploader, nil)
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
+	AddGunSafeWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
 	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader, nil)
 
 	// Because of the way we're working with the PPMShipment, the
@@ -684,6 +730,16 @@ func BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db *pop.Connectio
 
 		if db != nil {
 			mustSave(db, &ppmShipment.ProgearWeightTickets[i])
+		}
+	}
+
+	// the ppmShipment would only have GunSafeWeightTickets if
+	// customization creates them
+	for i := range ppmShipment.GunSafeWeightTickets {
+		ppmShipment.GunSafeWeightTickets[i].Status = &approvedStatus
+
+		if db != nil {
+			mustSave(db, &ppmShipment.GunSafeWeightTickets[i])
 		}
 	}
 
@@ -809,6 +865,11 @@ func BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(db *pop.Connect
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, userUploader,
 		&models.ProgearWeightTicket{
+			Status: &approvedStatus,
+		},
+	)
+	AddGunSafeWeightTicketToPPMShipment(db, &ppmShipment, userUploader,
+		&models.GunSafeWeightTicket{
 			Status: &approvedStatus,
 		},
 	)

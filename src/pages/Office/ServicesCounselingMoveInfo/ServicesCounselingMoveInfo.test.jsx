@@ -36,6 +36,8 @@ const mockMTOShipment = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+    hasGunSafe: false,
+    gunSafeWeight: null,
     weightTickets: [],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',

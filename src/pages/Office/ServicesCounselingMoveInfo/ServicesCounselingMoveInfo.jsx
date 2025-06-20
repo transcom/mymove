@@ -37,6 +37,7 @@ const PPMReview = lazy(() => import('pages/Office/PPM/Closeout/Review/Review'));
 const PPMExpenses = lazy(() => import('pages/Office/PPM/Closeout/Expenses/Expenses'));
 const WeightTickets = lazy(() => import('pages/Office/PPM/Closeout/WeightTickets/WeightTickets'));
 const ProGear = lazy(() => import('pages/Office/PPM/Closeout/ProGear/ProGear'));
+const GunSafe = lazy(() => import('pages/Office/PPM/Closeout/GunSafe/GunSafe'));
 const PPMFinalCloseout = lazy(() => import('pages/Office/PPM/Closeout/FinalCloseout/FinalCloseout'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
@@ -53,6 +54,7 @@ const ServicesCounselingMoveInfo = () => {
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
+  const [gunSafeEnabled, setGunSafeEnabled] = useState(false);
   const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
       setInfoSavedAlert({
@@ -96,6 +98,13 @@ const ServicesCounselingMoveInfo = () => {
 
     fetchData();
   }, [infoSavedAlert, location, move, officeUserID]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const { pathname } = useLocation();
   const hideNav =
@@ -185,6 +194,13 @@ const ServicesCounselingMoveInfo = () => {
     ) ||
     matchPath(
       {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_EDIT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
         path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
         end: true,
       },
@@ -268,6 +284,12 @@ const ServicesCounselingMoveInfo = () => {
           />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} end element={<ProGear />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} end element={<ProGear />} />
+          {gunSafeEnabled && (
+            <>
+              <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} end element={<GunSafe />} />
+              <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} end element={<GunSafe />} />
+            </>
+          )}
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end
