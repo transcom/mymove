@@ -79,11 +79,11 @@ func (suite *AddressSuite) TestAddressLookup() {
 
 func (suite *AddressSuite) TestOconusAddressLookup() {
 	country := "GB"
-	city := "LONDON"
+	city := "SANDRIDGE"
 
 	suite.Run("Successfully search for location by principal division", func() {
-		principalDivision := "CARDIFF"
-		principalDivisionForSearch := "LONDON, CARDIFF"
+		principalDivision := "HERTFORDSHIRE"
+		principalDivisionForSearch := ", HERTFORDSHIRE"
 
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		addressLookup := NewVIntlLocation()
@@ -98,7 +98,7 @@ func (suite *AddressSuite) TestOconusAddressLookup() {
 	})
 
 	suite.Run("Successfully search for location by city name", func() {
-		principalDivision := "ABERDEEN CITY"
+		principalDivision := "HERTFORDSHIRE"
 
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		addressLookup := NewVIntlLocation()
