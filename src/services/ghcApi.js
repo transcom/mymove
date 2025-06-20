@@ -761,7 +761,7 @@ export function terminateShipment({ shipmentID, normalize = false, schemaKey = '
 
 export async function getMovesQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole, activeOfficeID },
 ) {
   const operationPath = 'queues.getMovesQueue';
   const paramFilters = {};
@@ -770,14 +770,23 @@ export async function getMovesQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      viewAsGBLOC,
+      activeRole,
+      activeOfficeID,
+      ...paramFilters,
+    },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
 
 export async function getDestinationRequestsQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole, activeOfficeID },
 ) {
   const operationPath = 'queues.getDestinationRequestsQueue';
   const paramFilters = {};
@@ -786,7 +795,16 @@ export async function getDestinationRequestsQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      viewAsGBLOC,
+      activeRole,
+      activeOfficeID,
+      ...paramFilters,
+    },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
@@ -802,6 +820,7 @@ export async function getServicesCounselingQueue(
     needsPPMCloseout = false,
     viewAsGBLOC,
     activeRole,
+    activeOfficeID,
   },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
@@ -820,6 +839,7 @@ export async function getServicesCounselingQueue(
       needsPPMCloseout,
       viewAsGBLOC,
       activeRole,
+      activeOfficeID,
       ...paramFilters,
     },
 
