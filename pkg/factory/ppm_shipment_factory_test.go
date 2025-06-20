@@ -66,6 +66,8 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		suite.Equal(defaultPPM.MaxIncentive, ppmShipment.MaxIncentive)
 		suite.Equal(defaultPPM.HasRequestedAdvance, ppmShipment.HasRequestedAdvance)
 		suite.Equal(defaultPPM.AdvanceAmountRequested, ppmShipment.AdvanceAmountRequested)
+		suite.True(*ppmShipment.HasGunSafe)
+		suite.Equal(unit.Pound(450), *ppmShipment.GunSafeWeight)
 	})
 
 	suite.Run("Successful creation of minimal PPMShipment", func() {
