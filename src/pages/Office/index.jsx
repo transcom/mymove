@@ -186,12 +186,6 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
         path: `${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`,
       },
       location.pathname,
-    ) ||
-    matchPath(
-      {
-        path: `${primeSimulatorRoutes.BASE_PRIME_SIMULATOR_PATH}/*`,
-      },
-      location.pathname,
     );
 
   return (
@@ -213,6 +207,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                 [styles.headerMargin]: hasCustomerHeader && displayChangeRole,
                 [styles.headerMarginSingle]: hasCustomerHeader && !displayChangeRole,
                 [styles.headerMarginNoRoleChange]: !hasCustomerHeader && !displayChangeRole,
+                [styles.prime]: props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR,
               })}
             >
               <ConnectedLogoutOnInactivity />
