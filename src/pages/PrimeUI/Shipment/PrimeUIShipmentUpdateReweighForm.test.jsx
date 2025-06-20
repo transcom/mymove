@@ -8,16 +8,18 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
   const testProps = {
     initialValues: {
       reweighWeight: '0',
-      reweighRemarks: '',
+      reweighRemarks: 'test',
     },
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
     handleClose: jest.fn(),
   };
 
-  it('renders the form', async () => {
+  it('renders the form and asterisks for required fields', async () => {
     render(<PrimeUIShipmentUpdateReweighForm {...testProps} />);
 
-    expect(await screen.findByLabelText('Reweigh Weight (lbs)')).toBeInstanceOf(HTMLInputElement);
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+    expect(await screen.findByLabelText('Reweigh Weight (lbs) *')).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByTestId('remarks')).toBeInstanceOf(HTMLTextAreaElement);
   });
 
@@ -27,9 +29,12 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
 
     expect(submitBtn).toBeDisabled();
 
-    const reweighInput = screen.getByLabelText('Reweigh Weight (lbs)');
+    const reweighInput = screen.getByLabelText('Reweigh Weight (lbs) *');
     await userEvent.clear(reweighInput);
     await userEvent.type(reweighInput, '123');
+
+    const textarea = await screen.getByLabelText(/Remarks */);
+    expect(textarea).toBeInTheDocument();
     await userEvent.type(screen.getByTestId('remarks'), 'test');
 
     await waitFor(() => {

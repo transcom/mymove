@@ -70,7 +70,7 @@ describe('DomesticCratingForm component', () => {
     ['Reason', 'reason'],
     ['Estimated weight (lbs)', 'estimatedWeight'],
     ['Actual weight (lbs)', 'actualWeight'],
-  ])('renders field %s in form', (labelName, inputName) => {
+  ])('renders field %s in form and asterisks for required fields', (labelName, inputName) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
     render(<ShuttleSITServiceItemForm shipment={shipment} moveId={moveId} submission={jest.fn()} />);
@@ -79,5 +79,8 @@ describe('DomesticCratingForm component', () => {
     const field = screen.getByText(labelName);
     expect(field).toBeInTheDocument();
     expect(field.closest('div').nextElementSibling.name).toBe(inputName);
+
+    expect(screen.getByLabelText('Reason *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Service item code *')).toBeInTheDocument();
   });
 });

@@ -102,7 +102,7 @@ describe('successful submission of form', () => {
     await userEvent.selectOptions(serviceItemCode, SERVICE_ITEM_CODES.DOSHUT);
     expect(serviceItemCode).toHaveValue(SERVICE_ITEM_CODES.DOSHUT);
 
-    await userEvent.type(screen.getByLabelText('Reason'), 'Testing reason');
+    await userEvent.type(screen.getByLabelText('Reason *'), 'Testing reason');
 
     const saveButton = screen.getByRole('button', { name: 'Create service item' });
     expect(saveButton).toBeEnabled();

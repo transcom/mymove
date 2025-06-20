@@ -140,11 +140,11 @@ describe('CreateSITExtensionRequest page', () => {
 
       const requestReason = await screen.findByRole('combobox');
       await userEvent.selectOptions(requestReason, 'Other reason');
-      const requestedDays = await screen.findByLabelText('Requested Days');
+      const requestedDays = await screen.findByLabelText('Requested Days *');
       await userEvent.clear(requestedDays);
       await userEvent.type(requestedDays, '13');
 
-      const contractorRemarks = screen.getByLabelText('Contractor Remarks');
+      const contractorRemarks = screen.getByLabelText('Contractor Remarks *');
       await userEvent.type(contractorRemarks, 'testing contractor remarks');
 
       const submitBtn = await screen.getByRole('button', { name: 'Request SIT Extension' });

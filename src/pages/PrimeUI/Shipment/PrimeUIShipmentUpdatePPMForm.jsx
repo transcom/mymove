@@ -10,6 +10,7 @@ import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/f
 import { dropdownInputOptions } from 'utils/formatters';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -27,10 +28,13 @@ const PrimeUIShipmentUpdatePPMForm = () => {
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Dates</h2>
+      {requiredAsteriskMessage}
       <DatePickerInput
         label="Expected Departure Date"
         id="ppmShipment.expectedDepartureDateInput"
         name="ppmShipment.expectedDepartureDate"
+        showRequiredAsterisk
+        required
       />
       <h2 className={styles.sectionHeader}>Origin Info</h2>
       <AddressFields
@@ -129,7 +133,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <AddressFields
         name="ppmShipment.destinationAddress"
         legend="Delivery Address"
-        address1LabelHint="Optional"
+        optionalAddress1
         formikProps={{
           setFieldTouched,
           setFieldValue,
@@ -227,6 +231,8 @@ const PrimeUIShipmentUpdatePPMForm = () => {
             id="ppmShipment.sitLocationInput"
             name="ppmShipment.sitLocation"
             options={sitLocationOptions}
+            showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="SIT Estimated Weight (lbs)"
@@ -237,6 +243,8 @@ const PrimeUIShipmentUpdatePPMForm = () => {
             signed={false} // disallow negative
             thousandsSeparator=","
             lazy={false} // immediate masking evaluation
+            showRequiredAsterisk
+            required
           />
           <DatePickerInput
             label="SIT Estimated Entry Date"
@@ -260,6 +268,8 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         signed={false} // disallow negative
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
+        showRequiredAsterisk
+        required
       />
       <CheckboxField label="Has Pro Gear" id="ppmShipment.hasProGearInput" name="ppmShipment.hasProGear" />
       {hasProGear && (

@@ -20,6 +20,7 @@ const shipmentAddress = {
 const serviceItem = {
   reServiceCode: 'IDDSIT',
   reServiceName: 'International destination SIT delivery',
+  status: 'REJECTED',
 };
 
 const reformatPrimeApiSITDestinationAddress = fromPrimeAPIAddressFormat(shipmentAddress);
@@ -95,5 +96,19 @@ describe('PrimeUIRequestInternationalSITDestAddressChangeForm', () => {
     await userEvent.click(cancelButton);
 
     expect(mockNavigate).toHaveBeenCalledWith(primeSimulatorRoutes.VIEW_MOVE_PATH);
+  });
+
+  it('renders asterisks for required fields', async () => {
+    renderWithProviders(
+      <PrimeUIUpdateDestSITForm
+        name="sitDestinationFinalAddress"
+        initialValues={destSitInitialValues}
+        serviceItem={serviceItem}
+        onSubmit={jest.fn()}
+      />,
+    );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+    expect(await screen.findByLabelText('Update Reason *')).toBeInTheDocument();
   });
 });

@@ -15,6 +15,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { DatePickerInput } from 'components/form/fields';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const PrimeUIUpdateDestSITForm = ({ initialValues, onSubmit, serviceItem }) => {
   const { moveCodeOrID } = useParams();
@@ -77,16 +78,21 @@ const PrimeUIUpdateDestSITForm = ({ initialValues, onSubmit, serviceItem }) => {
                   <DatePickerInput name="sitCustomerContacted" label="SIT Customer Contacted" />
                 </div>
                 {serviceItem.status === SERVICE_ITEM_STATUSES.REJECTED && (
-                  <TextField
-                    display="textarea"
-                    label="Update Reason"
-                    data-testid="updateReason"
-                    name="updateReason"
-                    className={`${formStyles.remarks}`}
-                    placeholder=""
-                    id="updateReason"
-                    maxLength={500}
-                  />
+                  <>
+                    {requiredAsteriskMessage}
+                    <TextField
+                      display="textarea"
+                      label="Update Reason"
+                      data-testid="updateReason"
+                      name="updateReason"
+                      className={`${formStyles.remarks}`}
+                      placeholder=""
+                      id="updateReason"
+                      maxLength={500}
+                      showRequiredAsterisk
+                      required
+                    />
+                  </>
                 )}
               </SectionWrapper>
               <WizardNavigation

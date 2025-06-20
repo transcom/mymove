@@ -58,7 +58,7 @@ describe('EditOktaInfo page', () => {
       </MemoryRouter>,
     );
 
-    await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
+    await userEvent.type(screen.getByLabelText('First Name *'), 'Bob');
     const saveBtn = screen.getByRole('button', { name: 'Save' });
     await userEvent.click(saveBtn);
 

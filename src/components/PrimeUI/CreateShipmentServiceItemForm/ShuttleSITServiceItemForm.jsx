@@ -45,13 +45,13 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
           id="reServiceCode"
           required
           options={domesticShuttleServiceItemCodeOptions}
+          showRequiredAsterisk
         />
-        <TextField name="reason" id="reason" label="Reason" />
+        <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk required />
         <MaskedTextField
           data-testid="estimatedWeightInput"
           name="estimatedWeight"
           label="Estimated weight (lbs)"
-          labelHint="Optional"
           id="estimatedWeightInput"
           mask={Number}
           scale={0}
@@ -62,7 +62,6 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
           data-testid="actualWeightInput"
           name="actualWeight"
           label="Actual weight (lbs)"
-          labelHint="Optional"
           id="actualWeightInput"
           mask={Number}
           scale={0}

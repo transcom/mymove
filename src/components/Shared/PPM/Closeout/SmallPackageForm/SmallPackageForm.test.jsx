@@ -25,7 +25,7 @@ const initialValuesProGearFalse = {
 };
 
 describe('SmallPackageForm', () => {
-  test('displays pro gear fields when isProGear is true', () => {
+  test('displays pro gear fields when isProGear is true and asterisks for required fields', () => {
     render(
       <Formik initialValues={initialValuesProGearTrue} onSubmit={() => {}}>
         <SmallPackageForm />

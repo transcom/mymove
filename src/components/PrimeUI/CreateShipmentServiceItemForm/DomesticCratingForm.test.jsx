@@ -75,7 +75,7 @@ describe('DomesticCratingForm component', () => {
     ['Crate height (thousandths of an inch)', 'crateHeight'],
     ['Description', 'description'],
     ['Reason', 'reason'],
-  ])('renders field %s in form', (labelName, inputName) => {
+  ])('renders field %s in form and asterisks for required fields', (labelName, inputName) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
     render(<DomesticCratingForm shipment={shipment} moveId={moveId} submission={jest.fn()} />);
@@ -83,6 +83,7 @@ describe('DomesticCratingForm component', () => {
     // shipment text values
     const field = screen.getByText(labelName);
     expect(field).toBeInTheDocument();
+    expect(field).toHaveTextContent('*');
     expect(field.closest('div').nextElementSibling.name).toBe(inputName);
   });
 });

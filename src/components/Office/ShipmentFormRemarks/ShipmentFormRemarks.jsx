@@ -19,7 +19,7 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
           Remarks{' '}
           {userRole === roleTypes.SERVICES_COUNSELOR && shipmentType !== SHIPMENT_OPTIONS.PPM && (
             <span className="float-right">
-              <span className={formStyles.optional}>Optional</span>
+              <span className={formStyles.optional} />
             </span>
           )}
         </h2>

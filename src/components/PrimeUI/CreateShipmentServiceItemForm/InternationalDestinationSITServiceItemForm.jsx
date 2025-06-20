@@ -80,7 +80,7 @@ const InternationalDestinationSITServiceItemForm = ({ shipment, submission }) =>
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />
         <input type="hidden" name="reServiceCode" />
-        <TextField label="Reason" name="reason" id="reason" />
+        <TextField label="Reason" name="reason" id="reason" showRequiredAsterisk required />
         <DatePickerInput
           label="First available delivery date"
           name="firstAvailableDeliveryDate1"
@@ -107,7 +107,7 @@ const InternationalDestinationSITServiceItemForm = ({ shipment, submission }) =>
           mask="0000{Z}"
           placeholder="1400Z"
         />
-        <DatePickerInput label="SIT entry date" name="sitEntryDate" id="sitEntryDate" />
+        <DatePickerInput label="SIT entry date" name="sitEntryDate" id="sitEntryDate" showRequiredAsterisk required />
         <DatePickerInput label="SIT departure date" name="sitDepartureDate" id="sitDepartureDate" />
         <Hint data-testid="destinationSitInfo">
           The following service items will be created: <br />

@@ -30,23 +30,23 @@ describe('EditOktaInfoForm component', () => {
 
     renderWithRouter(<EditOktaInfoForm {...testProps} />);
 
-    const oktaUsername = await screen.findByLabelText('Okta Username');
+    const oktaUsername = await screen.findByLabelText('Okta Username *');
     expect(oktaUsername).toBeInstanceOf(HTMLInputElement);
     expect(oktaUsername).toHaveValue(testProps.initialValues.oktaUsername);
 
-    const oktaEmail = await screen.findByLabelText('Okta Email');
+    const oktaEmail = await screen.findByLabelText('Okta Email *');
     expect(oktaEmail).toBeInstanceOf(HTMLInputElement);
     expect(oktaEmail).toHaveValue(testProps.initialValues.oktaEmail);
 
-    const oktaFirstName = await screen.findByLabelText('First Name');
+    const oktaFirstName = await screen.findByLabelText('First Name *');
     expect(oktaFirstName).toBeInstanceOf(HTMLInputElement);
     expect(oktaFirstName).toHaveValue(testProps.initialValues.oktaFirstName);
 
-    const oktaLastName = await screen.findByLabelText('Last Name');
+    const oktaLastName = await screen.findByLabelText('Last Name *');
     expect(oktaLastName).toBeInstanceOf(HTMLInputElement);
     expect(oktaLastName).toHaveValue(testProps.initialValues.oktaLastName);
 
-    const oktaEdipi = await screen.findByLabelText('DoD ID number');
+    const oktaEdipi = await screen.findByLabelText('DoD ID number *');
     expect(oktaEdipi).toHaveValue(testProps.initialValues.oktaEdipi);
     expect(oktaEdipi).toBeDisabled();
   });
@@ -54,7 +54,7 @@ describe('EditOktaInfoForm component', () => {
   it('shows an error message if Okta Email is not in email format', async () => {
     renderWithRouter(<EditOktaInfoForm {...testProps} />);
 
-    const emailInput = await screen.findByLabelText('Okta Email');
+    const emailInput = await screen.findByLabelText('Okta Email *');
     await userEvent.clear(emailInput);
     await userEvent.type(emailInput, 'oktaUserWithoutEmail');
     await userEvent.tab();
@@ -70,7 +70,7 @@ describe('EditOktaInfoForm component', () => {
     const saveButton = await screen.findByRole('button', { name: 'Save' });
     expect(saveButton).toBeEnabled();
 
-    const emailInput = await screen.findByLabelText('Okta Email');
+    const emailInput = await screen.findByLabelText('Okta Email *');
     await userEvent.clear(emailInput);
     await userEvent.tab();
 

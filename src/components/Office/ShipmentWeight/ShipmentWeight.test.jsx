@@ -24,6 +24,8 @@ describe('components/Office/ShipmentWeight', () => {
       );
     });
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(screen.getByTestId('hasProGearYes')).not.toBeChecked();
     expect(screen.getByTestId('hasProGearNo')).toBeChecked();
 

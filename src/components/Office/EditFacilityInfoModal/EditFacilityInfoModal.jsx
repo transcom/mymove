@@ -15,6 +15,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { StorageFacilityAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 export const EditFacilityInfoModal = ({
   onClose,
@@ -53,9 +54,16 @@ export const EditFacilityInfoModal = ({
             <Form className={formStyles.form}>
               <Fieldset>
                 <h3 className={styles.ModalSubTitle}>Facility info</h3>
+                {requiredAsteriskMessage}
                 <Grid row>
                   <Grid col={12}>
-                    <TextField label="Facility name" id="facilityName" name="storageFacility.facilityName" />
+                    <TextField
+                      label="Facility name"
+                      id="facilityName"
+                      name="storageFacility.facilityName"
+                      showRequiredAsterisk
+                      required
+                    />
                   </Grid>
                 </Grid>
 
@@ -68,14 +76,13 @@ export const EditFacilityInfoModal = ({
                       type="tel"
                       minimum="12"
                       mask="000{-}000{-}0000"
-                      optional
                     />
                   </Grid>
                 </Grid>
 
                 <Grid row>
                   <Grid col={12}>
-                    <TextField label="Email" id="facilityEmail" name="storageFacility.email" optional />
+                    <TextField label="Email" id="facilityEmail" name="storageFacility.email" />
                   </Grid>
                 </Grid>
 
@@ -86,6 +93,8 @@ export const EditFacilityInfoModal = ({
                         label="Service order number"
                         id="facilityServiceOrderNumber"
                         name="serviceOrderNumber"
+                        showRequiredAsterisk
+                        required
                       />
                     </FormGroup>
                   </Grid>
@@ -105,7 +114,7 @@ export const EditFacilityInfoModal = ({
                           <FormGroup>
                             <Label htmlFor="facilityLotNumber">
                               Lot number
-                              <span className="float-right usa-hint">Optional</span>
+                              <span className="float-right usa-hint" />
                             </Label>
                             <Field as={TextInput} id="facilityLotNumber" name="storageFacility.lotNumber" />
                           </FormGroup>

@@ -17,6 +17,7 @@ import { LOCATION_TYPES } from 'types/sitStatusShape';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 import { formatDate } from 'utils/formatters';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { daysInSIT } = sitStatus.currentSIT;
@@ -113,7 +114,12 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
                   <DataTableWrapper className={classnames('maxw-tablet', styles.sitDisplayForm)} testID="sitExtensions">
                     <SitStatusTables sitStatus={sitStatus} shipment={shipment} />
                   </DataTableWrapper>
-                  <Label htmlFor="remarks">Remarks</Label>
+                  {requiredAsteriskMessage}
+                  <Label htmlFor="remarks" required>
+                    <span required>
+                      Remarks <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <Field as={Textarea} data-testid="remarks" label="No" name="remarks" id="remarks" required />
                   <ModalActions>
                     <Button type="submit" disabled={!isValid}>
