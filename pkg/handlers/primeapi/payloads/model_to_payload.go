@@ -1050,15 +1050,17 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 	}
 
 	tags, err := storer.Tags(upload.StorageKey)
+	var status string
 	if err != nil || tags == nil {
-		payload.Status = "PROCESSING"
+		status = "PROCESSING"
+	} else if v, ok := tags["av-status"]; ok {
+		status = v
+	} else if v, ok := tags["GuardDutyMalwareScanStatus"]; ok {
+		status = v
 	} else {
-		status, ok := tags["av-status"]
-		if !ok {
-			status = "PROCESSING"
-		}
-		payload.Status = status
+		status = "PROCESSING"
 	}
+	payload.Status = status
 
 	return payload
 }

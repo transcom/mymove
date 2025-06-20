@@ -49,8 +49,8 @@ func TestFakeS3ReturnsSuccessful(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not fetch from fakeS3: %s", err)
 	}
-	if len(tags) != 1 {
-		t.Fatal("return tags must have av-status key assigned for fakeS3")
+	if len(tags) != 2 {
+		t.Fatal("return tags must have GuardDutyMalwareScanStatus key assigned for fakeS3")
 	}
 
 	presignedUrl, err := fakeS3.PresignedURL("anyKey", "anyContentType", "anyFileName")

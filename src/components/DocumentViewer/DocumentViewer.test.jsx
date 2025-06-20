@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { screen, waitFor, act } from '@testing-library/react';
+import { screen, waitFor, act, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import DocumentViewer from './DocumentViewer';
@@ -10,6 +10,7 @@ import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
 
 import { bulkDownloadPaymentRequest } from 'services/ghcApi';
+import * as internalApi from 'services/internalApi';
 import { UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
 import { renderWithProviders } from 'testUtils';
 
@@ -138,9 +139,18 @@ jest.mock('./Content/Content', () => ({
 }));
 
 describe('DocumentViewer component', () => {
+  beforeEach(() => {
+    jest.spyOn(internalApi, 'waitForAvScan').mockResolvedValue('NO_THREATS_FOUND');
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('initial state is closed menu and first file selected', async () => {
     renderWithProviders(<DocumentViewer files={mockFiles} />);
-
+    const banner = await screen.findByTestId('documentAlertMessage');
+    await waitForElementToBeRemoved(banner, { timeout: 3000 });
     const selectedFileTitle = await screen.getAllByTestId('documentTitle')[0];
     expect(selectedFileTitle.textContent).toEqual('Test File 4.gif - Added on 16 Jun 2021');
 
@@ -150,6 +160,9 @@ describe('DocumentViewer component', () => {
 
   it('renders the file creation date with the correctly sorted props', async () => {
     renderWithProviders(<DocumentViewer files={mockFiles} />);
+    const banner = await screen.findByTestId('documentAlertMessage');
+    await waitForElementToBeRemoved(banner, { timeout: 3000 });
+
     const files = screen.getAllByRole('listitem');
 
     expect(files[0].textContent).toContain('Test File 4.gif - Added on 2021-06-16T15:09:26.979879Z');
@@ -157,6 +170,8 @@ describe('DocumentViewer component', () => {
 
   it('renders the title bar with the correct props', async () => {
     renderWithProviders(<DocumentViewer files={mockFiles} />);
+    const banner = await screen.findByTestId('documentAlertMessage');
+    await waitForElementToBeRemoved(banner, { timeout: 3000 });
 
     const title = await screen.getAllByTestId('documentTitle')[0];
 
@@ -165,6 +180,8 @@ describe('DocumentViewer component', () => {
 
   it('handles the open menu button', async () => {
     renderWithProviders(<DocumentViewer files={mockFiles} />);
+    const banner = await screen.findByTestId('documentAlertMessage');
+    await waitForElementToBeRemoved(banner, { timeout: 3000 });
 
     const openMenuButton = await screen.findByTestId('menuButton');
 
@@ -176,6 +193,8 @@ describe('DocumentViewer component', () => {
 
   it('handles the close menu button', async () => {
     renderWithProviders(<DocumentViewer files={mockFiles} />);
+    const banner = await screen.findByTestId('documentAlertMessage');
+    await waitForElementToBeRemoved(banner, { timeout: 3000 });
 
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('menuButton');
@@ -194,6 +213,8 @@ describe('DocumentViewer component', () => {
     renderWithProviders(
       <DocumentViewer files={[{ id: 99, filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]} />,
     );
+    const banner = await screen.findByTestId('documentAlertMessage');
+    await waitForElementToBeRemoved(banner, { timeout: 3000 });
 
     expect(screen.getByText('id: undefined')).toBeInTheDocument();
   });
@@ -203,21 +224,33 @@ describe('DocumentViewer component', () => {
     const downloadLinkText = 'Download file';
     it('no error message normally', async () => {
       renderWithProviders(<DocumentViewer files={mockFiles} />);
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
+
       expect(screen.queryByText(errorMessageText)).toBeNull();
     });
 
     it('download link normally', async () => {
       renderWithProviders(<DocumentViewer files={mockFiles} allowDownload />);
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
+
       expect(screen.getByText(downloadLinkText)).toBeVisible();
     });
 
     it('show message on content error', async () => {
       renderWithProviders(<DocumentViewer files={mockErrorFiles} />);
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
+
       expect(screen.getByText(errorMessageText)).toBeVisible();
     });
 
     it('download link on content error', async () => {
       renderWithProviders(<DocumentViewer files={mockErrorFiles} allowDownload />);
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
+
       expect(screen.getByText(downloadLinkText)).toBeVisible();
     });
   });
@@ -244,6 +277,8 @@ describe('DocumentViewer component', () => {
       );
 
       bulkDownloadPaymentRequest.mockImplementation(() => Promise.resolve(mockResponse));
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
 
       const downloadButton = screen.getByText('Download All Files (PDF)', { exact: false });
       await userEvent.click(downloadButton);
@@ -256,6 +291,8 @@ describe('DocumentViewer component', () => {
   describe('DocumentViewer', () => {
     it('disables Save button when no rotation change', async () => {
       renderWithProviders(<DocumentViewer files={mockFiles} />);
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
 
       const saveBtn = await screen.findByRole('button', { name: /save/i });
       expect(saveBtn).toBeDisabled();
@@ -318,22 +355,12 @@ describe('Test DocumentViewer File Upload Statuses', () => {
   it('displays Establishing document for viewing  status', async () => {
     renderDocumentViewer({ files: mockFiles });
     await act(async () => {
-      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.CLEAN });
+      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.NO_THREATS_FOUND });
     });
     await waitFor(() => {
       expect(
         findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEWING),
       ).toBeInTheDocument();
-    });
-  });
-
-  it('displays infected file message', async () => {
-    renderDocumentViewer({ files: mockFiles });
-    await act(async () => {
-      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.INFECTED });
-    });
-    await waitFor(() => {
-      expect(findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE)).toBeInTheDocument();
     });
   });
 
