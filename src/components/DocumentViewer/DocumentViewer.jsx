@@ -143,6 +143,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
       setTimeout(() => {
         setFileStatus(UPLOAD_DOC_STATUS.LOADED);
+        setShowContentError(false);
       }, 2000);
     }
   }, [fileStatus]);
@@ -254,7 +255,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         )}
         {paymentRequestId !== undefined ? paymentPacketDownload : null}
       </div>
-      {showContentError ? (
+      {showContentError && (
         <div className={styles.errorMessage}>
           <Alert type="error" className="usa-width-one-whole" heading={alertHeading} data-testid="documentAlertHeading">
             <span data-testid="documentAlertMessage">
@@ -263,17 +264,17 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
             </span>
           </Alert>
         </div>
-      ) : (
-        <Content
-          fileType={fileType.current}
-          filePath={selectedFile?.url}
-          rotationValue={rotationValue}
-          disableSaveButton={disableSaveButton}
-          setRotationValue={setRotationValue}
-          saveRotation={saveRotation}
-          onError={onContentError}
-        />
       )}
+      <Content
+        fileType={fileType.current}
+        filePath={selectedFile?.url}
+        rotationValue={rotationValue}
+        disableSaveButton={disableSaveButton}
+        setRotationValue={setRotationValue}
+        saveRotation={saveRotation}
+        onError={onContentError}
+      />
+
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}

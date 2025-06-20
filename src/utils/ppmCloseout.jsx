@@ -6,7 +6,7 @@ import { formatAddress } from './shipmentDisplay';
 
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
-import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
+import { isExpenseComplete, isWeightTicketComplete, isProGearComplete, isGunSafeComplete } from 'utils/shipments';
 import PPMDocumentsStatus from 'constants/ppms';
 
 export const getW2Address = (address) => {
@@ -139,6 +139,36 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
     };
 
     if (proGear.description) {
+      contents.rows.splice(1, 0, description);
+    }
+    return contents;
+  });
+};
+
+export const formatGunSafeItems = (gunSafes, editPath, editParams, handleDelete) => {
+  return gunSafes?.map((gunSafe, i) => {
+    const weightValues =
+      gunSafe.hasWeightTickets !== false
+        ? { id: 'weight', label: 'Weight:', value: formatWeight(gunSafe.weight) }
+        : { id: 'constructedWeight', label: 'Constructed weight:', value: formatWeight(gunSafe.weight) };
+
+    const description = {
+      id: 'description',
+      label: 'Description:',
+      value: gunSafe.description ? gunSafe.description : null,
+    };
+
+    const contents = {
+      id: gunSafe.id,
+      isComplete: isGunSafeComplete(gunSafe),
+      draftMessage: 'This set is missing required information.',
+      subheading: <h4 className="text-bold">Gun Safe {i + 1}</h4>,
+      rows: [weightValues],
+      renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, gunSafeId: gunSafe.id })}>Edit</Link>,
+      onDelete: () => handleDelete('gunSafe', gunSafe.id, gunSafe.eTag, `Set ${i + 1}`),
+    };
+
+    if (gunSafe.description) {
       contents.rows.splice(1, 0, description);
     }
     return contents;
