@@ -63,14 +63,14 @@ func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGener
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(appCtx appcontext.AppContext, shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(appCtx appcontext.AppContext, shipmentSummaryFormData models.ShipmentSummaryFormData, closeoutSummary *models.PPMCloseoutSummary, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
 	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(appCtx, shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
 		return page1, services.Page2Values{}, services.Page3Values{}, errors.WithStack(err)
 	}
 
 	expensesMap := SubTotalExpenses(shipmentSummaryFormData.MovingExpenses)
-	page2, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket, expensesMap)
+	page2, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket, expensesMap, closeoutSummary)
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
@@ -397,7 +397,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(appCtx app
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
-func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool, expensesMap map[string]float64) (services.Page2Values, error) {
+func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool, expensesMap map[string]float64, closeoutSummary *models.PPMCloseoutSummary) (services.Page2Values, error) {
 	var err error
 
 	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID, isPaymentPacket)
@@ -439,30 +439,37 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 			page2.PPMRemainingEntitlement = "N/A"
 		}
 	}
-	page2.ContractedExpenseMemberPaid = FormatDollars(expensesMap["ContractedExpenseMemberPaid"])
-	page2.ContractedExpenseGTCCPaid = FormatDollars(expensesMap["ContractedExpenseGTCCPaid"])
-	page2.PackingMaterialsMemberPaid = FormatDollars(expensesMap["PackingMaterialsMemberPaid"])
-	page2.PackingMaterialsGTCCPaid = FormatDollars(expensesMap["PackingMaterialsGTCCPaid"])
-	page2.WeighingFeesMemberPaid = FormatDollars(expensesMap["WeighingFeeMemberPaid"])
-	page2.WeighingFeesGTCCPaid = FormatDollars(expensesMap["WeighingFeeGTCCPaid"])
-	page2.RentalEquipmentMemberPaid = FormatDollars(expensesMap["RentalEquipmentMemberPaid"])
-	page2.RentalEquipmentGTCCPaid = FormatDollars(expensesMap["RentalEquipmentGTCCPaid"])
-	page2.SmallPackageExpenseMemberPaid = FormatDollars(expensesMap["SmallPackageMemberPaid"])
-	page2.SmallPackageExpenseGTCCPaid = FormatDollars(expensesMap["SmallPackageGTCCPaid"])
-	page2.TollsMemberPaid = FormatDollars(expensesMap["TollsMemberPaid"])
-	page2.TollsGTCCPaid = FormatDollars(expensesMap["TollsGTCCPaid"])
-	page2.OilMemberPaid = FormatDollars(expensesMap["OilMemberPaid"])
-	page2.OilGTCCPaid = FormatDollars(expensesMap["OilGTCCPaid"])
-	page2.OtherMemberPaid = FormatDollars(expensesMap["OtherMemberPaid"])
-	page2.OtherGTCCPaid = FormatDollars(expensesMap["OtherGTCCPaid"])
-	page2.TotalMemberPaid = FormatDollars(expensesMap["TotalMemberPaid"])
-	page2.TotalGTCCPaid = FormatDollars(expensesMap["TotalGTCCPaid"])
-	page2.TotalMemberPaidRepeated = FormatDollars(expensesMap["TotalMemberPaid"])
-	page2.TotalGTCCPaidRepeated = FormatDollars(expensesMap["TotalGTCCPaid"])
-	page2.TotalMemberPaidSIT = FormatDollars(expensesMap["StorageMemberPaid"])
-	page2.TotalGTCCPaidSIT = FormatDollars(expensesMap["StorageGTCCPaid"])
+
+	page2.ContractedExpenseMemberPaid = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidContractedExpense)
+	page2.ContractedExpenseGTCCPaid = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidContractedExpense)
+	page2.PackingMaterialsMemberPaid = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidPackingMaterials)
+	page2.PackingMaterialsGTCCPaid = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidPackingMaterials)
+	page2.WeighingFeesMemberPaid = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidWeighingFee)
+	page2.WeighingFeesGTCCPaid = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidWeighingFee)
+	page2.RentalEquipmentMemberPaid = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidRentalEquipment)
+	page2.RentalEquipmentGTCCPaid = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidRentalEquipment)
+	page2.SmallPackageExpenseMemberPaid = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidSmallPackage)
+	page2.SmallPackageExpenseGTCCPaid = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidSmallPackage)
+	page2.TollsMemberPaid = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidTolls)
+	page2.TollsGTCCPaid = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidTolls)
+	page2.OilMemberPaid = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidOil)
+	page2.OilGTCCPaid = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidOil)
+	page2.OtherMemberPaid = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidOther)
+	page2.OtherGTCCPaid = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidOther)
+
+	page2.TotalMemberPaidSIT = FormatDollarFromCentsPointer(closeoutSummary.MemberPaidSIT)
+	page2.TotalGTCCPaidSIT = FormatDollarFromCentsPointer(closeoutSummary.GTCCPaidSIT)
+
+	// Totals exclude SIT/Storage
+	page2.TotalMemberPaid = SumCentsPointersToDollars(closeoutSummary.MemberPaidContractedExpense, closeoutSummary.MemberPaidPackingMaterials,
+		closeoutSummary.MemberPaidWeighingFee, closeoutSummary.MemberPaidRentalEquipment, closeoutSummary.MemberPaidSmallPackage,
+		closeoutSummary.MemberPaidTolls, closeoutSummary.MemberPaidOil, closeoutSummary.MemberPaidOther)
+	page2.TotalGTCCPaid = SumCentsPointersToDollars(closeoutSummary.GTCCPaidContractedExpense, closeoutSummary.GTCCPaidPackingMaterials,
+		closeoutSummary.GTCCPaidWeighingFee, closeoutSummary.GTCCPaidRentalEquipment, closeoutSummary.GTCCPaidSmallPackage,
+		closeoutSummary.GTCCPaidTolls, closeoutSummary.GTCCPaidOil, closeoutSummary.GTCCPaidOther)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
+
 	page2.ShipmentPickupDates = formattedShipments.PickUpDates
 	page2.TrustedAgentName = trustedAgentText
 	page2.ServiceMemberSignature = certificationInfo.CustomerField
@@ -979,6 +986,16 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 	return totals
 }
 
+func SumCentsPointersToDollars(expense ...*unit.Cents) string {
+	var total unit.Cents
+	for _, e := range expense {
+		if e != nil {
+			total += *e
+		}
+	}
+	return FormatDollarFromCents(total)
+}
+
 func getExpenseType(expense models.MovingExpense) (string, bool) {
 	expenseType := FormatEnum(string(*expense.MovingExpenseType), "")
 	addToTotal := expenseType != "Storage"
@@ -1065,6 +1082,33 @@ func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement 
 	return disbursementString
 }
 
+// func formatDisbursementWithCloseoutSummary(closeoutSummary models.PPMCloseoutSummary, ppmRemainingEntitlement float64) string {
+// 	disbursementGTCC := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
+// 	disbursementGTCCB := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"]
+// 	var disbursementMember float64
+// 	// Disbursement GTCC is the lowest value of the above 2 calculations
+// 	if disbursementGTCCB < disbursementGTCC {
+// 		disbursementGTCC = disbursementGTCCB
+// 	}
+// 	if disbursementGTCC < 0 {
+// 		// The only way this can happen is if the member overdrafted on their advance, resulting in negative GTCCB. In this case, the
+// 		// disbursement member value will be liable for the negative difference, meaning they owe this money to the govt.
+// 		disbursementMember = disbursementGTCC
+// 		disbursementGTCC = 0
+// 	} else {
+// 		// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
+// 		totalGTCCPaid := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
+// 		disbursementMember = ppmRemainingEntitlement - totalGTCCPaid + expensesMap["StorageMemberPaid"]
+// 		if disbursementMember < 0 {
+// 			disbursementMember = 0
+// 		}
+// 	}
+
+// 	// Return formatted values in string
+// 	disbursementString := "GTCC: " + FormatDollars(disbursementGTCC) + "\nMember: " + FormatDollars(disbursementMember)
+// 	return disbursementString
+// }
+
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
 func FormatOrdersTypeAndOrdersNumber(order models.Order) string {
 	orderType := FormatOrdersType(order)
@@ -1115,9 +1159,19 @@ func FormatDollars(dollars float64) string {
 	return p.Sprintf("$%.2f", dollars)
 }
 
-// FormatDollars formats cents using 000s separator
+// FormatDollarFromCents formats cents using 000s separator
 func FormatDollarFromCents(cents unit.Cents) string {
 	d := float64(cents) / 100.0
+	p := message.NewPrinter(language.English)
+	return p.Sprintf("$%.2f", d)
+}
+
+// FormatDollarFromCentsPointer formats cents pointer using 000s separator
+func FormatDollarFromCentsPointer(cents *unit.Cents) string {
+	if cents == nil {
+		return "$0.00"
+	}
+	d := float64(*cents) / 100.0
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("$%.2f", d)
 }
