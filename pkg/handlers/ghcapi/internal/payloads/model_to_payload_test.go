@@ -1450,6 +1450,7 @@ func (suite *PayloadsSuite) TestMTOShipment() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mtoShipment.PrimeEstimatedWeight = models.PoundPointer(1000)
 		mtoShipment.PrimeActualWeight = models.PoundPointer(1100)
+		mtoShipment.ActualGunSafeWeight = models.PoundPointer(355)
 		miles := unit.Miles(1234)
 		mtoShipment.Distance = &miles
 		now := time.Now()
@@ -1466,6 +1467,7 @@ func (suite *PayloadsSuite) TestMTOShipment() {
 		suite.Nil(payload.SitStatus)
 		suite.NotNil(payload.TerminatedAt)
 		suite.Equal(*payload.TerminationComments, *mtoShipment.TerminationComments)
+		suite.Equal(handlers.FmtPoundPtr(mtoShipment.ActualGunSafeWeight), payload.ActualGunSafeWeight)
 	})
 
 	suite.Run("SIT overrides total SIT days with SITStatus payload", func() {
