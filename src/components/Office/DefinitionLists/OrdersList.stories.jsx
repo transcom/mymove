@@ -42,7 +42,7 @@ export const Basic = () => (
         sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
         NTSsac: text('ordersInfo.NTSsac', '999 999999 999'),
         NTStac: text('ordersInfo.NTStac', '9999'),
-        payGrade: text('ordersInfo.payGrade', 'E_5'),
+        payGrade: text('ordersInfo.payGrade', 'E-5'),
       }}
       moveInfo={{
         name: 'PPPO Los Angeles SFB - USAF',
@@ -84,7 +84,7 @@ export const AsServiceCounselor = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
-        payGrade: text('ordersInfo.payGrade', 'E_5'),
+        payGrade: text('ordersInfo.payGrade', 'E-5'),
       }}
       moveInfo={{
         name: 'PPPO Los Angeles SFB - USAF',
@@ -112,7 +112,7 @@ export const AsServiceCounselorProcessingRetirement = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
-        payGrade: text('ordersInfo.payGrade', 'E_5'),
+        payGrade: text('ordersInfo.payGrade', 'E-5'),
       }}
       moveInfo={{
         name: 'PPPO Los Angeles SFB - USAF',
@@ -140,7 +140,7 @@ export const AsServiceCounselorProcessingSeparation = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
-        payGrade: text('ordersInfo.payGrade', 'E_5'),
+        payGrade: text('ordersInfo.payGrade', 'E-5'),
       }}
       moveInfo={{
         name: 'PPPO Los Angeles SFB - USAF',
@@ -181,7 +181,7 @@ export const AsTOO = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
-        payGrade: text('ordersInfo.payGrade', 'E_5'),
+        payGrade: text('ordersInfo.payGrade', 'E-5'),
       }}
       moveInfo={{
         name: 'PPPO Los Angeles SFB - USAF',
@@ -208,7 +208,7 @@ export const AsTOOProcessingRetirement = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
-        payGrade: text('ordersInfo.payGrade', 'E_5'),
+        payGrade: text('ordersInfo.payGrade', 'E-5'),
       }}
     />
   </div>
@@ -232,7 +232,7 @@ export const AsTOOProcessingSeparation = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
-        payGrade: text('ordersInfo.payGrade', 'E_5'),
+        payGrade: text('ordersInfo.payGrade', 'E-5'),
       }}
       moveInfo={{
         name: 'PPPO Los Angeles SFB - USAF',

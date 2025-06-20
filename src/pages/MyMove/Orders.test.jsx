@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
-import { getOrders, patchOrders, showCounselingOffices } from 'services/internalApi';
+import { getOrders, getPayGradeOptions, patchOrders, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import {
@@ -12,7 +12,7 @@ import {
   selectOrdersForLoggedInUser,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -32,6 +32,28 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const E_5 = 'E-5';
+    const E_8 = 'E-8';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
+
+    return Promise.resolve({
+      body: [
+        {
+          grade: E_5,
+          description: E_5,
+        },
+        {
+          grade: E_8,
+          description: E_8,
+        },
+        {
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
+        },
+      ],
+    });
+  }),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -179,7 +201,7 @@ const testPropsWithUploads = {
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: false,
-  grade: 'E_8',
+  grade: ORDERS_PAY_GRADE_TYPE.E_8,
   new_duty_location: {
     address: {
       city: 'Des Moines',
@@ -305,7 +327,7 @@ describe('Orders page', () => {
               proGear: 2000,
               proGearSpouse: 500,
             },
-            grade: 'E_7',
+            grade: ORDERS_PAY_GRADE_TYPE.E_8,
             has_dependents: false,
             id: 'testOrders1',
             issue_date: '2024-02-29',
@@ -431,6 +453,16 @@ describe('Orders page', () => {
 
   it('renders appropriate order data on load', async () => {
     showCounselingOffices.mockImplementation(() => Promise.resolve({}));
+    getPayGradeOptions.mockImplementation(() =>
+      Promise.resolve({
+        body: [
+          {
+            grade: ORDERS_PAY_GRADE_TYPE.E_8,
+            description: ORDERS_PAY_GRADE_TYPE.E_8,
+          },
+        ],
+      }),
+    );
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
@@ -446,7 +478,7 @@ describe('Orders page', () => {
     expect(screen.getByLabelText('Yes')).not.toBeChecked();
     expect(screen.getByLabelText('No')).toBeChecked();
     expect(screen.queryByText('Yuma AFB')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('E_8');
+    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('E-8');
     expect(screen.queryByText('Altus AFB')).toBeInTheDocument();
   });
 
@@ -479,7 +511,7 @@ describe('Orders page', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E_1',
+      grade: ORDERS_PAY_GRADE_TYPE.E_1,
     };
     patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
     getOrders.mockImplementation(() => Promise.resolve());
