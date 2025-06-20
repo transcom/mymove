@@ -933,7 +933,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		ppmEstimator := &mocks.PPMEstimator{}
 		sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 		expensesMap := SubTotalExpenses(ssd.MovingExpenses)
-		sswPage2, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false, expensesMap)
+		sswPage2, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false, expensesMap, nil)
 		suite.NoError(err)
 		suite.Equal("$200.00", sswPage2.TollsGTCCPaid)
 		suite.Equal("$200.00", sswPage2.TollsMemberPaid)
@@ -1031,7 +1031,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		ppmEstimator := &mocks.PPMEstimator{}
 		sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 		expensesMap := SubTotalExpenses(ssd.MovingExpenses)
-		sswPage2, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false, expensesMap)
+		sswPage2, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false, expensesMap, nil)
 		suite.NoError(err)
 		suite.Equal("$200.00", sswPage2.TollsGTCCPaid)
 		suite.Equal("$200.00", sswPage2.TollsMemberPaid)
@@ -1133,7 +1133,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	ppmEstimator := &mocks.PPMEstimator{}
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 	expensesMap := SubTotalExpenses(ssd.MovingExpenses)
-	sswPage2, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false, expensesMap)
+	sswPage2, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false, expensesMap, nil)
 	suite.NoError(err)
 	suite.Equal("$0.00", sswPage2.TollsGTCCPaid)
 	suite.Equal("$100.00", sswPage2.TollsMemberPaid)
@@ -1251,7 +1251,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEnt
 	ppmEstimator := &mocks.PPMEstimator{}
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 	expensesMap := SubTotalExpenses(ssd.MovingExpenses)
-	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true, expensesMap)
+	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true, expensesMap, nil)
 	suite.Equal("$3.00", sswPage2.PPMRemainingEntitlement)
 	suite.Equal(expectedDisbursementString(0, 400), sswPage2.Disbursement)
 }
@@ -1291,7 +1291,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFo
 	ppmEstimator := &mocks.PPMEstimator{}
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 	expensesMap := SubTotalExpenses(ssd.MovingExpenses)
-	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false, expensesMap)
+	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false, expensesMap, nil)
 	suite.Equal("N/A", sswPage2.PPMRemainingEntitlement)
 }
 
@@ -1342,7 +1342,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiv
 	ppmEstimator := &mocks.PPMEstimator{}
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 	expensesMap := SubTotalExpenses(ssd.MovingExpenses)
-	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true, expensesMap)
+	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true, expensesMap, nil)
 	suite.Equal("$0.00", sswPage2.PPMRemainingEntitlement)
 	suite.Equal(expectedDisbursementString(0, 100), sswPage2.Disbursement)
 }
@@ -1396,7 +1396,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntit
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
 	ppmEstimator := &mocks.PPMEstimator{}
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
-	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true, expensesMap)
+	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true, expensesMap, nil)
 	suite.Equal("$500.00", sswPage2.PPMRemainingEntitlement)
 	suite.Equal(expectedDisbursementString(10000, 40000), sswPage2.Disbursement)
 }
@@ -1897,7 +1897,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 
 	ssd, err := sswPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 	suite.NoError(err)
-	page1Data, page2Data, Page3Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), *ssd, false)
+	page1Data, page2Data, Page3Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), *ssd, nil, false)
 	suite.NoError(err)
 	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
@@ -2021,7 +2021,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	movingExpenses[MemberSITExpenses].SITReimburseableAmount = models.CentPointer(50000)
 	movingExpenses[GTCCSITExpenses].Amount = models.CentPointer(50000)
 
-	page1Data, page2Data, Page3Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, true)
+	page1Data, page2Data, Page3Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, nil, true)
 	suite.NoError(err)
 	suite.Equal(expectedDisbursementString(20000, 0), page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement) // Check that pre-tax remaining incentive has been set to 0
@@ -2033,7 +2033,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
 
 	// Also test for AOA instead of payment packet
-	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, false)
+	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, nil, false)
 	suite.NoError(err)
 	suite.Equal("N/A", page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
@@ -2056,7 +2056,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	movingExpenses[MemberSITExpenses].SITReimburseableAmount = models.CentPointer(5000)
 	movingExpenses[GTCCSITExpenses].Amount = models.CentPointer(1500)
 
-	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, true)
+	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, nil, true)
 	suite.NoError(err)
 	suite.Equal(expectedDisbursementString(11500, 8500), page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
@@ -2066,7 +2066,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
 
-	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, false)
+	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, nil, false)
 	suite.NoError(err)
 	suite.Equal("N/A", page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
@@ -2088,7 +2088,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	movingExpenses[MemberSITExpenses].SITReimburseableAmount = models.CentPointer(2000)
 	movingExpenses[GTCCSITExpenses].Amount = models.CentPointer(1500)
 
-	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, true)
+	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, nil, true)
 	suite.NoError(err)
 	suite.Equal(expectedDisbursementString(11500, 3000), page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
@@ -2098,7 +2098,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
 
-	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, false)
+	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, nil, false)
 	suite.NoError(err)
 	suite.Equal("N/A", page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
@@ -2642,7 +2642,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPaymentPacketWithNilFi
 		SignedCertifications:         certs,
 		IsActualExpenseReimbursement: true,
 	}
-	_, _, _, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, true)
+	_, _, _, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), ssd, nil, true)
 	suite.Error(err)
 	suite.Contains(err.Error(), "missing FinalIncentive: required for actual expense reimbursement")
 }
