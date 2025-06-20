@@ -561,7 +561,7 @@ describe('Review page', () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     await renderReviewPage();
 
-    await userEvent.click(screen.getByText('Add Gun safe Weight'));
+    await userEvent.click(screen.getByText('Add Gun Safe Weight'));
 
     await waitFor(() => {
       expect(screen.getByText('New Gun Safe Page')).toBeInTheDocument();

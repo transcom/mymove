@@ -1,4 +1,4 @@
--- B-23372 Brooklyn Welsh - Update
+-- B-23372 Brooklyn Welsh - Create function to update actual_gun_safe_weight column in mto_shipments table, used whenever a gun safe weight ticket is added or deleted. Accounts for all tickets linked to the shipment
 DROP FUNCTION IF EXISTS update_actual_gun_safe_weight_totals(uuid);
 
 CREATE OR REPLACE FUNCTION update_actual_gun_safe_weight_totals(ppm UUID)
