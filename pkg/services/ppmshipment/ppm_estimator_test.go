@@ -2982,7 +2982,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "30813")
-			suite.Equal(unit.Cents(1031383), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(1033863), *ppmMaxIncentive)
 		})
 	})
 

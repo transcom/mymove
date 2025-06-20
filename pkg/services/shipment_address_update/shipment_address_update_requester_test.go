@@ -114,7 +114,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		// New destination address with same postal code should not change pricing
 		newAddress := models.Address{
 			StreetAddress1: "987 Any Avenue",
-			City:           "Fairfield",
+			City:           "FAIRFIELD",
 			State:          "CA",
 			PostalCode:     "94535",
 		}

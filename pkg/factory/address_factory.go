@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -56,6 +58,21 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
+	if db != nil {
+		var usprcLookup *models.UsPostRegionCity
+		var err error
+		usprcLookup, err = models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+			usprcLookup, err = models.FindByZipCode(db, address.PostalCode)
+			if err != nil {
+				log.Panicf("Invalid postal code and city combination used for address. PostalCode %s, City: %s", cAddress.PostalCode, cAddress.City)
+			}
+		}
+		address.City = usprcLookup.USPostRegionCityNm
+		cAddress.City = usprcLookup.USPostRegionCityNm
+		address.UsPostRegionCityID = &usprcLookup.ID
+	}
+
 	// This helps assign counties & us_post_region_cities_id values when the factory is called for seed data or tests
 	// Additionally, also only run if not 90210. 90210's county is by default populated
 	if db != nil && address.PostalCode != "90210" {
@@ -71,21 +88,6 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		// If no db supplied, mark that
 		address.County = models.StringPointer("db nil when created")
 	}
-
-	usprc := models.UsPostRegionCity{
-		USPostRegionCityNm: address.City,
-		UsprZipID:          address.PostalCode,
-		UsprcCountyNm:      *address.County,
-		State:              address.State,
-	}
-
-	usPostRegionCity := FetchOrBuildUsPostRegionCity(db, []Customization{
-		{
-			Model: usprc,
-		},
-	}, traits)
-	address.UsPostRegionCityID = &usPostRegionCity.ID
-	address.UsPostRegionCity = &usPostRegionCity
 
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
@@ -138,20 +140,20 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
-	usprc := models.UsPostRegionCity{
-		USPostRegionCityNm: address.City,
-		UsprZipID:          address.PostalCode,
-		UsprcCountyNm:      *address.County,
-		State:              address.State,
+	if db != nil {
+		var usprcLookup *models.UsPostRegionCity
+		var err error
+		usprcLookup, err = models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+			usprcLookup, err = models.FindByZipCode(db, address.PostalCode)
+			if err != nil {
+				log.Panicf("Invalid postal code and city combination used for address. PostalCode %s, City: %s", cAddress.PostalCode, cAddress.City)
+			}
+		}
+		address.City = usprcLookup.USPostRegionCityNm
+		cAddress.City = usprcLookup.USPostRegionCityNm
+		address.UsPostRegionCityID = &usprcLookup.ID
 	}
-
-	usPostRegionCity := FetchOrBuildUsPostRegionCity(db, []Customization{
-		{
-			Model: usprc,
-		},
-	}, traits)
-	address.UsPostRegionCityID = &usPostRegionCity.ID
-	address.UsPostRegionCity = &usPostRegionCity
 
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
@@ -174,7 +176,7 @@ func GetTraitAddress2() []Customization {
 				StreetAddress1: "987 Any Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 9876"),
 				StreetAddress3: models.StringPointer("c/o Some Person"),
-				City:           "Fairfield",
+				City:           "FAIRFIELD",
 				State:          "CA",
 				PostalCode:     "94535",
 			},
@@ -196,7 +198,7 @@ func GetTraitAddress3() []Customization {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Des Moines",
+				City:           "DES MOINES",
 				State:          "IA",
 				PostalCode:     "50309",
 			},
