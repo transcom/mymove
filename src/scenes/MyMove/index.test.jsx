@@ -113,7 +113,7 @@ describe('CustomerApp', () => {
       },
     };
 
-    renderWithState(updatedState, '/');
+    renderWithState(updatedState, '/moves/');
     await waitFor(
       () => expect(screen.getByTestId('loading-spinner')).toBeInTheDocument(),
       expect(screen.getByText(/test message/i)).toBeInTheDocument(),
@@ -144,7 +144,7 @@ describe('CustomerApp', () => {
   });
 
   it('renders Footer component', async () => {
-    renderWithState(loggedInState, '/');
+    renderWithState(loggedInState, '/moves/');
     await waitFor(() => expect(screen.getByText(/Military OneSource/i)).toBeInTheDocument());
   });
 });

@@ -284,6 +284,7 @@ const ShipmentDetailsMain = ({
           shipmentType: shipment.shipmentType,
           shipmentActualProGearWeight: shipment.actualProGearWeight,
           shipmentActualSpouseProGearWeight: shipment.actualSpouseProGearWeight,
+          status: shipment.status,
         }}
         handleRequestReweighModal={handleRequestReweighModal}
         isMoveLocked={isMoveLocked}

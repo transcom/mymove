@@ -204,6 +204,7 @@ properties:
       - CANCELED
       - DIVERSION_REQUESTED
       - TERMINATION_FOR_CAUSE
+      - APPROVALS_REQUESTED
   ppmShipment:
     $ref: 'PPMShipment.yaml'
   deliveryAddressUpdate:

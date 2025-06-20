@@ -430,6 +430,112 @@ describe('Orders page', () => {
         expect(screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
       });
     });
+
+    it('validates TAC', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      const hhgTacInput = screen.getByTestId('hhgTacInput');
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '****');
+      await waitFor(() => {
+        // no *
+        expect(screen.getByText('TAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '""""');
+      await waitFor(() => {
+        // no "
+        expect(screen.getByText('TAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      // NTS TAC
+      const ntsTacInput = screen.getByTestId('ntsTacInput');
+      await userEvent.clear(ntsTacInput);
+      await userEvent.type(ntsTacInput, '****');
+      await waitFor(() => {
+        expect(screen.getByText('TAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(ntsTacInput);
+      await userEvent.type(ntsTacInput, '""""');
+      await waitFor(() => {
+        expect(screen.getByText('TAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+    });
+
+    it('validates SAC', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // SAC
+      const hhgSacInput = screen.getByTestId('hhgSacInput');
+      await userEvent.clear(hhgSacInput);
+      await userEvent.type(hhgSacInput, '****');
+      await userEvent.tab();
+      await waitFor(() => {
+        // no *
+        expect(screen.getByText('SAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(hhgSacInput);
+      await userEvent.type(hhgSacInput, '""""');
+      await waitFor(() => {
+        // no "
+        expect(screen.getByText('SAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      // NTS SAC
+      const ntsSacInput = screen.getByTestId('ntsSacInput');
+      await userEvent.clear(ntsSacInput);
+      await userEvent.type(ntsSacInput, '****');
+      ntsSacInput.blur();
+      await waitFor(() => {
+        expect(screen.getByText('NTS SAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(ntsSacInput);
+      await userEvent.type(ntsSacInput, '""""');
+      await waitFor(() => {
+        expect(screen.getByText('NTS SAC cannot contain * or " characters')).toBeInTheDocument();
+      });
+    });
+
+    it('SAC fields can be more than 4 digits', async () => {
+      const props = {
+        ...ordersMockProps,
+        sac: '',
+        ntsSac: '',
+      };
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...props} />
+        </MockProviders>,
+      );
+
+      // SAC
+      const hhgSacInput = screen.getByTestId('hhgSacInput');
+      await userEvent.type(hhgSacInput, 'MoreThan4Digits');
+      expect(hhgSacInput).toHaveValue('E2P3MoreThan4Digits');
+
+      // NTS SAC
+      const ntsSacInput = screen.getByTestId('ntsSacInput');
+      await userEvent.type(ntsSacInput, '4DigitsOrMore');
+      expect(ntsSacInput).toHaveValue('R6X14DigitsOrMore');
+    });
   });
 
   describe('LOA validation', () => {
