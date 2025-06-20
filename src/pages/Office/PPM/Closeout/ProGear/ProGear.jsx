@@ -19,6 +19,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { usePPMShipmentAndDocsOnlyQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 
 const ProGear = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -26,6 +27,16 @@ const ProGear = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode, shipmentId, proGearId } = useParams();
+
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
+  };
+
+  const displayHelpDeskLink = false;
+
+  const errorModalMessage =
+    'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.';
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const { orders } = useReviewShipmentWeightsQuery(moveCode);
@@ -86,8 +97,15 @@ const ProGear = () => {
         setFieldTouched(fieldName, true);
         return upload;
       })
-      .catch(() => {
-        setErrorMessage('Failed to save the file upload');
+      .catch((err) => {
+        if (
+          err.response.obj.message ===
+          'The uploaded .xlsx file does not match the expected weight estimator file format.'
+        ) {
+          setIsErrorModalVisible(true);
+        } else {
+          setErrorMessage('Failed to save the file upload');
+        }
       });
   };
 
@@ -198,6 +216,12 @@ const ProGear = () => {
                   onSubmit={handleSubmit}
                   isSubmitted={isSubmitted}
                   appName={appName}
+                />
+                <ErrorModal
+                  isOpen={isErrorModalVisible}
+                  closeModal={toggleErrorModal}
+                  errorMessage={errorModalMessage}
+                  displayHelpDeskLink={displayHelpDeskLink}
                 />
               </div>
             </Grid>
