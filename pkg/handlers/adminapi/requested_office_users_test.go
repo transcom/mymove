@@ -1144,6 +1144,12 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 						RoleType: &tooRoleType,
 					},
 				},
+				Privileges: []*adminmessages.OfficeUserPrivilege{
+					{
+						Name:          models.StringPointer("Supervisor"),
+						PrivilegeType: models.StringPointer(string(roles.PrivilegeTypeSupervisor)),
+					},
+				},
 			},
 			OfficeUserID: strfmt.UUID(officeUserID.String()),
 		}
