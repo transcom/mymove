@@ -43,6 +43,7 @@ type mtoServiceItemUpdater struct {
 	builder             mtoServiceItemQueryBuilder
 	createNewBuilder    func() mtoServiceItemQueryBuilder
 	moveRouter          services.MoveRouter
+	shipmentRouter      services.ShipmentRouter
 	shipmentFetcher     services.MTOShipmentFetcher
 	addressCreator      services.AddressCreator
 	unpackPricer        services.DomesticUnpackPricer
@@ -53,13 +54,13 @@ type mtoServiceItemUpdater struct {
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, portLocationFetcher services.PortLocationFetcher, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentRouter services.ShipmentRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, portLocationFetcher services.PortLocationFetcher, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, portLocationFetcher}
+	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, portLocationFetcher}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -511,6 +512,41 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		return nil, err
 	}
 
+	// Check if valid service SIT service item to get correct authorized end date.
+	var endDate *time.Time
+
+	if slices.Contains(models.ValidOriginSITReServiceCodes, updatedServiceItem.ReService.Code) &&
+		shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate == nil {
+		endDate = shipment.OriginSITAuthEndDate
+	} else if (slices.Contains(models.ValidDestinationSITReServiceCodes, updatedServiceItem.ReService.Code)) && shipment.DestinationSITAuthEndDate != nil {
+		endDate = shipment.DestinationSITAuthEndDate
+	}
+
+	// if the SIT departure date is on or before the authorized end date
+	// then REMOVE any pending sit extensions and update move status
+	if len(shipment.SITDurationUpdates) > 0 {
+		if mtoServiceItem.SITDepartureDate != nil && endDate != nil {
+			today := time.Now()
+			if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
+				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = ?, decision_date = ? WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusRemoved, today, models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
+				if err != nil {
+					return nil, err
+				}
+
+				// Update sihpment status from APPROVALS REQUESTED back to APPROVED
+				if shipment.Status == models.MTOShipmentStatusApprovalsRequested {
+					err := p.shipmentRouter.Approve(appCtx, &shipment)
+					if err != nil {
+						return nil, err
+					}
+				}
+
+				// Update move status
+				checkMoveStatus = true
+			}
+		}
+	}
+
 	if updatedServiceItem != nil {
 		code := updatedServiceItem.ReService.Code
 
@@ -552,7 +588,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 
 	if updatedServiceItem != nil {
 		// If the service item was updated, then it will exist and be passed to this function
-		// We want to chick if the DepartureDate exists, and if it does and it is before
+		// We want to check if the DepartureDate exists, and if it does and it is before
 		// the authorized end date, we need to update the shipment authorized end date
 		// to be equal to the departure date
 		err = setShipmentAuthorizedEndDateToDepartureDate(appCtx, *updatedServiceItem, shipment)
@@ -604,13 +640,15 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	}
 
 	var requiredDeliveryDate time.Time
-	customerContactDatePlusFive := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
+	if sitCustomerContacted != nil {
+		customerContactDatePlusGracePeriod := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
 
-	// we calculate required delivery date here using customer contact date and transit time
-	if sitDepartureDate.Before(customerContactDatePlusFive) {
-		requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
-	} else if sitDepartureDate.After(customerContactDatePlusFive) || sitDepartureDate.Equal(customerContactDatePlusFive) {
-		requiredDeliveryDate = customerContactDatePlusFive.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+		// we calculate required delivery date here using customer contact date and transit time
+		if sitDepartureDate.Before(customerContactDatePlusGracePeriod) {
+			requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+		} else if sitDepartureDate.After(customerContactDatePlusGracePeriod) || sitDepartureDate.Equal(customerContactDatePlusGracePeriod) {
+			requiredDeliveryDate = customerContactDatePlusGracePeriod.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+		}
 	}
 
 	// Weekends and holidays are not allowable dates, find the next available workday

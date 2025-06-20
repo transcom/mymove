@@ -21,6 +21,7 @@ export default {
   orders_type: 'Orders type',
   orders_type_detail: 'Orders type detail',
   origin_duty_location_name: 'Origin duty location name',
+  origin_sit_auth_end_date: 'Origin SIT authorized end date',
   new_duty_location_name: 'New duty location name',
   orders_number: 'Orders number',
   tac: 'HHG TAC',

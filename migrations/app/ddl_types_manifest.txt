@@ -4,3 +4,4 @@
 20250224202726_ty_ppm_shipment_type.up.sql
 20250224202738_ty_moving_expenses_type.up.sql
 20250324195553_ty_mto_shipment_status.up.sql
+20250522221731_ty_sit_extension_status.up.sql
