@@ -653,6 +653,19 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *internalmessages.Up
 	return model
 }
 
+// GunSafeWeightTicketModelFromUpdate
+func GunSafeWeightTicketModelFromUpdate(gunSafeWeightTicket *internalmessages.UpdateGunSafeWeightTicket) *models.GunSafeWeightTicket {
+	if gunSafeWeightTicket == nil {
+		return nil
+	}
+	model := &models.GunSafeWeightTicket{
+		Description:      &gunSafeWeightTicket.Description,
+		Weight:           handlers.PoundPtrFromInt64Ptr(gunSafeWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(gunSafeWeightTicket.HasWeightTickets),
+	}
+	return model
+}
+
 // SavePPMShipmentSignedCertification converts from the SavePPMShipmentSignedCertification payload and the
 // SignedCertification model
 func SavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertification internalmessages.SavePPMShipmentSignedCertification) models.SignedCertification {

@@ -107,6 +107,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_docs.CreateGenericMoveDocument has not yet been implemented")
 		})
 	}
+	if api.PpmCreateGunSafeWeightTicketHandler == nil {
+		api.PpmCreateGunSafeWeightTicketHandler = ppm.CreateGunSafeWeightTicketHandlerFunc(func(params ppm.CreateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateGunSafeWeightTicket has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {
 		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
@@ -165,6 +170,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.RegistrationCustomerRegistrationHandler == nil {
 		api.RegistrationCustomerRegistrationHandler = registration.CustomerRegistrationHandlerFunc(func(params registration.CustomerRegistrationParams) middleware.Responder {
 			return middleware.NotImplemented("operation registration.CustomerRegistration has not yet been implemented")
+		})
+	}
+	if api.PpmDeleteGunSafeWeightTicketHandler == nil {
+		api.PpmDeleteGunSafeWeightTicketHandler = ppm.DeleteGunSafeWeightTicketHandlerFunc(func(params ppm.DeleteGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteGunSafeWeightTicket has not yet been implemented")
 		})
 	}
 	if api.MoveDocsDeleteMoveDocumentHandler == nil {
@@ -375,6 +385,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmSubmitPPMShipmentDocumentationHandler == nil {
 		api.PpmSubmitPPMShipmentDocumentationHandler = ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
+		})
+	}
+	if api.PpmUpdateGunSafeWeightTicketHandler == nil {
+		api.PpmUpdateGunSafeWeightTicketHandler = ppm.UpdateGunSafeWeightTicketHandlerFunc(func(params ppm.UpdateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateGunSafeWeightTicket has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentUpdateMTOShipmentHandler == nil {
