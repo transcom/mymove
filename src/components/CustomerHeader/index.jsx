@@ -1,5 +1,6 @@
 import React from 'react';
 import { string, PropTypes } from 'prop-types';
+import classnames from 'classnames';
 
 import styles from './index.module.scss';
 
@@ -35,7 +36,11 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole, isMultiRole
       : move.shipmentGBLOC;
   const originGBLOCDisplay = order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${originGBLOC} / USMC` : originGBLOC;
   return (
-    <div className={styles.custHeader} style={{ top: isMultiRole ? '6.4rem' : '4.7rem' }}>
+    <div
+      className={classnames(styles.custHeader, {
+        [styles.custHeaderNoMultiRole]: !isMultiRole,
+      })}
+    >
       <div>
         <div data-testid="nameBlock" className={styles.nameBlock}>
           <h2>
