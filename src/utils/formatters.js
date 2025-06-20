@@ -731,6 +731,17 @@ export function formatFullName(firstName, middleName, lastName) {
   return [firstName, middleName, lastName].filter(Boolean).join(' ');
 }
 
+export function formatLastNameFirstName(firstName, lastName) {
+  const trimmedFirstName = (firstName || '').trim();
+  const trimmedLastName = (lastName || '').trim();
+
+  return (
+    trimmedFirstName.length > 0 || trimmedLastName.length > 0
+      ? trimmedLastName + (trimmedLastName.length > 0 ? ', ' : '') + trimmedFirstName
+      : ''
+  ).trim();
+}
+
 export const calculateTotal = (sectionInfo) => {
   let total = 0;
 

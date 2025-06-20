@@ -31,7 +31,8 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   const transportationOfficePhoneLines = originDutyLocation?.transportation_office?.phone_lines;
   const transportationOfficePhone = transportationOfficePhoneLines ? transportationOfficePhoneLines[0] : '';
   const backupContact = {
-    name: currentBackupContacts[0]?.name || '',
+    firstName: currentBackupContacts[0]?.firstName || '',
+    lastName: currentBackupContacts[0]?.lastName || '',
     telephone: currentBackupContacts[0]?.telephone || '',
     email: currentBackupContacts[0]?.email || '',
   };

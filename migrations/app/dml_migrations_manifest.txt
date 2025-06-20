@@ -41,6 +41,7 @@
 20250513195206_B-23575_add_data_to_country_holidays_and_country_weekends.up.sql
 20250522135232_B-22466_v2_add_distance_lookup_service_params.up.sql
 20250528155401_B-23736_add_multipliers.up.sql
+20250528212207_B-23301_add_data_to_backup_contacts.up.sql
 20250605155517_B-23748_fix_re_intl_cities00.up.sql
 20250605155518_B-23748_fix_re_intl_cities01.up.sql
 20250605155519_B-23748_fix_re_intl_cities02.up.sql
@@ -50,3 +51,4 @@
 20250605212550_B-23748_fix_intl_city_countries03.up.sql
 20250605212551_B-23748_fix_intl_city_countries04.up.sql
 20250605212552_B-23748_fix_intl_city_countries05.up.sql
+20250620150003_B-23819_alter_backup_contacts.up.sql
