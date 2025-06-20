@@ -722,7 +722,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidCreateInputError{}, err)
-		suite.Equal("Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
+		suite.Equal("Invalid Create Input Error: Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
 	})
 
 	type generateInvalidMove func() models.Move
