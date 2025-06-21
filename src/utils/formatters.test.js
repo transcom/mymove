@@ -490,10 +490,10 @@ describe('formatAssignedOfficeUserFromContext', () => {
   it('properly formats a TIOs name for assignment', () => {
     const values = {
       changedValues: {
-        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        tio_payment_request_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        tio_assigned_id: null,
+        tio_payment_request_assigned_id: null,
       },
       context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
     };
@@ -507,10 +507,10 @@ describe('formatAssignedOfficeUserFromContext', () => {
   it('properly formats a TIOs name for reassignment', () => {
     const values = {
       changedValues: {
-        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        tio_payment_request_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        tio_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+        tio_payment_request_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
     };
@@ -833,5 +833,45 @@ describe('calculateTotal', () => {
     const sectionInfo = {};
     const result = formatters.calculateTotal(sectionInfo);
     expect(result).toEqual('0.00');
+  });
+});
+
+describe('formatLastNameFirstName', () => {
+  const { formatLastNameFirstName } = formatters;
+
+  it('if first and last are empty, return empty string', () => {
+    expect(formatLastNameFirstName('', '')).toBe('');
+  });
+
+  it('if first has spaces and last are empty, return empty string', () => {
+    expect(formatLastNameFirstName('  ', '')).toBe('');
+  });
+
+  it('if first is empty and last has spaces, return empty string', () => {
+    expect(formatLastNameFirstName('', '  ')).toBe('');
+  });
+
+  it('if first is non-empty and last is empty, return first', () => {
+    expect(formatLastNameFirstName('John', '')).toBe('John');
+  });
+
+  it('if first is non-empty and padded and last is empty, return first trimmed', () => {
+    expect(formatLastNameFirstName(' John ', '')).toBe('John');
+  });
+
+  it('if first is empty and last is non-empty, return last with a comma', () => {
+    expect(formatLastNameFirstName('', 'Smith')).toBe('Smith,');
+  });
+
+  it('if first is empty and last is non-empty and padded, return last trimmed with a comma', () => {
+    expect(formatLastNameFirstName('', ' Smith ')).toBe('Smith,');
+  });
+
+  it('if first and last is non-empty, return last name first name', () => {
+    expect(formatLastNameFirstName('John', 'Smith')).toBe('Smith, John');
+  });
+
+  it('if first and last is non-empty and padded, return last name first name trimmed', () => {
+    expect(formatLastNameFirstName('  John ', '  Smith  ')).toBe('Smith, John');
   });
 });

@@ -3955,9 +3955,12 @@ definitions:
   BackupContact:
     type: object
     properties:
-      name:
+      firstName:
         type: string
-        example: Bob Smith
+        example: Bob
+      lastName:
+        type: string
+        example: Smith
       phone:
         type: string
         format: telephone

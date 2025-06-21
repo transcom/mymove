@@ -31,9 +31,10 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 
 		var backupContacts []models.BackupContact
 		backupContact := models.BackupContact{
-			Email: "newbackup@mail.com",
-			Name:  "New Backup Contact",
-			Phone: "445-345-1212",
+			Email:     "newbackup@mail.com",
+			FirstName: "New",
+			LastName:  "Backup Contact",
+			Phone:     "445-345-1212",
 		}
 		backupContacts = append(backupContacts, backupContact)
 
@@ -64,16 +65,19 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		suite.Equal(updatedCustomer.ResidentialAddress.City, actualCustomer.ResidentialAddress.City)
 		suite.Equal(updatedCustomer.ResidentialAddress.PostalCode, actualCustomer.ResidentialAddress.PostalCode)
 		suite.Equal(updatedCustomer.ResidentialAddress.State, actualCustomer.ResidentialAddress.State)
-		suite.Equal(updatedCustomer.BackupContacts[0].Name, actualCustomer.BackupContacts[0].Name)
+		suite.Equal(updatedCustomer.BackupContacts[0].FirstName, actualCustomer.BackupContacts[0].FirstName)
+		suite.Equal(updatedCustomer.BackupContacts[0].LastName, actualCustomer.BackupContacts[0].LastName)
 		suite.Equal(updatedCustomer.BackupContacts[0].Phone, actualCustomer.BackupContacts[0].Phone)
 		suite.Equal(updatedCustomer.BackupContacts[0].Email, actualCustomer.BackupContacts[0].Email)
 		suite.Equal(updatedCustomer.CacValidated, actualCustomer.CacValidated)
 
-		updatedCustomer.BackupContacts[0].Name = "Updated Backup Contact"
+		updatedCustomer.BackupContacts[0].FirstName = "Updated"
+		updatedCustomer.BackupContacts[0].LastName = "Backup Contact"
 		expectedETag = etag.GenerateEtag(actualCustomer.UpdatedAt)
 		actualCustomer, err = customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
 		suite.NoError(err)
-		suite.Equal(actualCustomer.BackupContacts[0].Name, "Updated Backup Contact")
+		suite.Equal(actualCustomer.BackupContacts[0].FirstName, "Updated")
+		suite.Equal(actualCustomer.BackupContacts[0].LastName, "Backup Contact")
 	})
 
 	suite.Run("Customer fields are update returns error when USPRC lookup fails", func() {
@@ -81,9 +85,10 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 
 		var backupContacts []models.BackupContact
 		backupContact := models.BackupContact{
-			Email: "newbackup@mail.com",
-			Name:  "New Backup Contact",
-			Phone: "445-345-1212",
+			Email:     "newbackup@mail.com",
+			FirstName: "New",
+			LastName:  "Backup Contact",
+			Phone:     "445-345-1212",
 		}
 		backupContacts = append(backupContacts, backupContact)
 
@@ -152,9 +157,10 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 
 		var backupContacts []models.BackupContact
 		backupContact := models.BackupContact{
-			Email: "newbackup@mail.com",
-			Name:  "New Backup Contact",
-			Phone: "445-345-1212",
+			Email:     "newbackup@mail.com",
+			FirstName: "New",
+			LastName:  "Backup Contact",
+			Phone:     "445-345-1212",
 		}
 		backupContacts = append(backupContacts, backupContact)
 
@@ -190,7 +196,8 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		suite.Equal(updatedCustomer.ResidentialAddress.City, actualCustomer.ResidentialAddress.City)
 		suite.Equal(updatedCustomer.ResidentialAddress.PostalCode, actualCustomer.ResidentialAddress.PostalCode)
 		suite.Equal(updatedCustomer.ResidentialAddress.State, actualCustomer.ResidentialAddress.State)
-		suite.Equal(updatedCustomer.BackupContacts[0].Name, actualCustomer.BackupContacts[0].Name)
+		suite.Equal(updatedCustomer.BackupContacts[0].FirstName, actualCustomer.BackupContacts[0].FirstName)
+		suite.Equal(updatedCustomer.BackupContacts[0].LastName, actualCustomer.BackupContacts[0].LastName)
 		suite.Equal(updatedCustomer.BackupContacts[0].Phone, actualCustomer.BackupContacts[0].Phone)
 		suite.Equal(updatedCustomer.BackupContacts[0].Email, actualCustomer.BackupContacts[0].Email)
 	})

@@ -553,3 +553,23 @@ func (suite *PayloadsSuite) TestVIntlLocationModel() {
 	suite.Equal(city, *payload.CityName, "Expected City to match")
 	suite.Equal(principalDivision, *payload.CountryPrnDivName, "Expected Principal Division to match")
 }
+
+func (suite *PayloadsSuite) TestGunSafeWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		description := "test description"
+		hasWeightTickets := true
+
+		input := &internalmessages.UpdateGunSafeWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			Description:      description,
+		}
+
+		result := GunSafeWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.GunSafeWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
+	})
+}

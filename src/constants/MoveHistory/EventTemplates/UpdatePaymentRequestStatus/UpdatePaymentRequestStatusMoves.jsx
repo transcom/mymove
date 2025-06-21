@@ -12,7 +12,9 @@ export default {
   getDetails: ({ changedValues }) => (
     <>
       <div>Payment Requests Addressed</div>
-      {changedValues?.tio_assigned_id !== undefined ? <div>Task Invoicing Officer Unassigned</div> : null}
+      {changedValues?.tio_payment_request_assigned_id !== undefined ? (
+        <div>Task invoicing officer unassigned</div>
+      ) : null}
     </>
   ),
 };

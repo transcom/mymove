@@ -59,9 +59,10 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 	var backupContacts []models.BackupContact
 	if payload.BackupContact != nil {
 		backupContacts = []models.BackupContact{{
-			Email: *payload.BackupContact.Email,
-			Name:  *payload.BackupContact.Name,
-			Phone: *payload.BackupContact.Phone,
+			Email:     *payload.BackupContact.Email,
+			FirstName: *payload.BackupContact.FirstName,
+			LastName:  *payload.BackupContact.LastName,
+			Phone:     *payload.BackupContact.Phone,
 		}}
 	}
 
@@ -836,6 +837,26 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateP
 
 	if progearWeightTicket.Description != "" {
 		model.Description = handlers.FmtString(progearWeightTicket.Description)
+	}
+
+	return model
+}
+
+// GunSafeWeightTicketModelFromUpdate model
+func GunSafeWeightTicketModelFromUpdate(gunSafeWeightTicket *ghcmessages.UpdateGunSafeWeightTicket) *models.GunSafeWeightTicket {
+	if gunSafeWeightTicket == nil {
+		return nil
+	}
+
+	model := &models.GunSafeWeightTicket{
+		Weight:           handlers.PoundPtrFromInt64Ptr(gunSafeWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(gunSafeWeightTicket.HasWeightTickets),
+		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(gunSafeWeightTicket.Status))),
+		Reason:           handlers.FmtString(gunSafeWeightTicket.Reason),
+	}
+
+	if gunSafeWeightTicket.Description != "" {
+		model.Description = handlers.FmtString(gunSafeWeightTicket.Description)
 	}
 
 	return model

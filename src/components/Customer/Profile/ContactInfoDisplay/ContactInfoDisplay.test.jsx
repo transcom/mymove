@@ -33,7 +33,8 @@ describe('ContactInfoDisplay component', () => {
       postalCode: '79936',
     },
     backupContact: {
-      name: 'Gabriela Sáenz Perez',
+      firstName: 'Gabriela',
+      lastName: 'Sáenz Perez',
       telephone: '206-555-8989',
       email: 'gsp@example.com',
     },
@@ -83,7 +84,9 @@ describe('ContactInfoDisplay component', () => {
 
     expect(backupNameTerm).toBeInTheDocument();
 
-    expect(backupNameTerm.nextElementSibling.textContent).toBe(testProps.backupContact.name);
+    expect(backupNameTerm.nextElementSibling.textContent).toBe(
+      `${testProps.backupContact.firstName} ${testProps.backupContact.lastName}`,
+    );
 
     const backupEmailTerm = screen.getAllByText('Email')[1];
 
