@@ -1645,6 +1645,40 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /addresses/oconus-lookup/{country}/{search}:
+    get:
+      summary: >-
+        Returns Oconus cities and principal divisions associated with the
+        specified full/partial city and principal division search string
+      description: >-
+        Find by API using full/partial city name, principal division that
+        returns an VIntlLocations object containing city name and principal
+        division.
+      operationId: getOconusLocation
+      tags:
+        - addresses
+      parameters:
+        - in: path
+          name: country
+          type: string
+          required: true
+        - in: path
+          name: search
+          type: string
+          required: true
+      responses:
+        '200':
+          description: the requested list of Oconus city and principal division match
+          schema:
+            $ref: '#/definitions/VIntlLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /addresses/countries:
     get:
       summary: Returns the countries matching the search query
@@ -2502,6 +2536,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/VLocation.yaml'
+  VIntlLocations:
+    type: array
+    items:
+      $ref: 'definitions/VIntlLocation.yaml'
   Countries:
     type: array
     items:

@@ -1,0 +1,15 @@
+description: An Oconus city and principal division lookup
+type: object
+properties:
+  city:
+    type: string
+    example: London
+    title: City
+  principalDivision:
+    type: string
+    example: 'Cardiff'
+    title: Principal Division
+  intlCityCountriesID:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538

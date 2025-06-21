@@ -1048,3 +1048,17 @@ func OfficeUserModelFromUpdate(payload *ghcmessages.OfficeUserUpdate, officeUser
 	}
 	return officeUser
 }
+
+func VIntlLocationModel(vIntlLocation *ghcmessages.VIntlLocation) *models.VIntlLocation {
+	if vIntlLocation == nil {
+		return nil
+	}
+
+	intlCityCountriesID := uuid.FromStringOrNil(vIntlLocation.IntlCityCountriesID.String())
+
+	return &models.VIntlLocation{
+		CityName:            &vIntlLocation.City,
+		CountryPrnDivName:   &vIntlLocation.PrincipalDivision,
+		IntlCityCountriesID: &intlCityCountriesID,
+	}
+}

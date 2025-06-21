@@ -654,6 +654,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/VLocation'
+  VIntlLocations:
+    type: array
+    items:
+      $ref: '#/definitions/VIntlLocation'
   Countries:
     type: array
     items:
@@ -4488,6 +4492,22 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  VIntlLocation:
+    description: An Oconus city and principal division lookup
+    type: object
+    properties:
+      city:
+        type: string
+        example: London
+        title: City
+      principalDivision:
+        type: string
+        example: Cardiff
+        title: Principal Division
+      intlCityCountriesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
   Country:
     description: Country code and name
     type: object
@@ -7490,6 +7510,41 @@ paths:
           description: the requested list of city, state, county, and postal code matches
           schema:
             $ref: '#/definitions/VLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /addresses/oconus-lookup/{country}/{search}:
+    get:
+      summary: >-
+        Returns Oconus cities and principal divisions associated with the
+        specified full/partial city and principal division search string for the
+        specified country.
+      description: >-
+        Find by API using full/partial city name, principal division that
+        returns an VIntlLocations object containing city name and principal
+        division for a specific country.
+      operationId: getOconusLocation
+      tags:
+        - addresses
+      parameters:
+        - in: path
+          name: country
+          type: string
+          required: true
+        - in: path
+          name: search
+          type: string
+          required: true
+      responses:
+        '200':
+          description: the requested list of Oconus city and principal division match
+          schema:
+            $ref: '#/definitions/VIntlLocations'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':

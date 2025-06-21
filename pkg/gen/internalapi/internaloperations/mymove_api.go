@@ -159,6 +159,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AddressesGetLocationByZipCityStateHandler: addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		}),
+		AddressesGetOconusLocationHandler: addresses.GetOconusLocationHandlerFunc(func(params addresses.GetOconusLocationParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetOconusLocation has not yet been implemented")
+		}),
 		OrdersGetPayGradesHandler: orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
 		}),
@@ -410,6 +413,8 @@ type MymoveAPI struct {
 	MovesGetAllMovesHandler moves.GetAllMovesHandler
 	// AddressesGetLocationByZipCityStateHandler sets the operation handler for the get location by zip city state operation
 	AddressesGetLocationByZipCityStateHandler addresses.GetLocationByZipCityStateHandler
+	// AddressesGetOconusLocationHandler sets the operation handler for the get oconus location operation
+	AddressesGetOconusLocationHandler addresses.GetOconusLocationHandler
 	// OrdersGetPayGradesHandler sets the operation handler for the get pay grades operation
 	OrdersGetPayGradesHandler orders.GetPayGradesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
@@ -678,6 +683,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AddressesGetLocationByZipCityStateHandler == nil {
 		unregistered = append(unregistered, "addresses.GetLocationByZipCityStateHandler")
+	}
+	if o.AddressesGetOconusLocationHandler == nil {
+		unregistered = append(unregistered, "addresses.GetOconusLocationHandler")
 	}
 	if o.OrdersGetPayGradesHandler == nil {
 		unregistered = append(unregistered, "orders.GetPayGradesHandler")
@@ -1035,6 +1043,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/addresses/zip-city-lookup/{search}"] = addresses.NewGetLocationByZipCityState(o.context, o.AddressesGetLocationByZipCityStateHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/oconus-lookup/{country}/{search}"] = addresses.NewGetOconusLocation(o.context, o.AddressesGetOconusLocationHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

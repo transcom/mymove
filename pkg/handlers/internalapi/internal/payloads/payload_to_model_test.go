@@ -535,6 +535,25 @@ func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
 	})
 }
 
+func (suite *PayloadsSuite) TestVIntlLocationModel() {
+	city := "LONDON"
+	principalDivision := "CARDIFF"
+	intlCityCountriesId := uuid.Must(uuid.NewV4())
+
+	vIntlLocation := &internalmessages.VIntlLocation{
+		City:                city,
+		PrincipalDivision:   principalDivision,
+		IntlCityCountriesID: strfmt.UUID(intlCityCountriesId.String()),
+	}
+
+	payload := VIntlLocationModel(vIntlLocation)
+
+	suite.IsType(payload, &models.VIntlLocation{})
+	suite.Equal(intlCityCountriesId.String(), payload.IntlCityCountriesID.String(), "Expected IntlCityCountriesID to match")
+	suite.Equal(city, *payload.CityName, "Expected City to match")
+	suite.Equal(principalDivision, *payload.CountryPrnDivName, "Expected Principal Division to match")
+}
+
 func (suite *PayloadsSuite) TestGunSafeWeightTicketModelFromUpdate() {
 	suite.Run("Success - Complete input", func() {
 		weight := int64(100)
