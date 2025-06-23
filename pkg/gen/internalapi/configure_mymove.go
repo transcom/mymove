@@ -4,6 +4,7 @@ package internalapi
 
 import (
 	"crypto/tls"
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -62,6 +63,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
+	api.TextEventStreamProducer = runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+		return errors.NotImplemented("textEventStream producer has not yet been implemented")
+	})
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// ppm.CreatePPMUploadMaxParseMemory = 32 << 20
@@ -230,6 +234,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
 		api.TransportationOfficesGetTransportationOfficesHandler = transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
+		})
+	}
+	if api.UploadsGetUploadStatusHandler == nil {
+		api.UploadsGetUploadStatusHandler = uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
 		})
 	}
 	if api.EntitlementsIndexEntitlementsHandler == nil {
