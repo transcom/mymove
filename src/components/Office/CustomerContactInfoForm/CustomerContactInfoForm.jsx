@@ -24,6 +24,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     lastName: Yup.string().required('Required'),
     middleName: Yup.string(),
     suffix: Yup.string(),
+    preferredName: Yup.string(),
     customerEmail: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),

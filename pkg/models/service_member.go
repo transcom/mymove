@@ -53,6 +53,7 @@ type ServiceMember struct {
 	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
 	LastName               *string                   `json:"last_name" db:"last_name"`
 	Suffix                 *string                   `json:"suffix" db:"suffix"`
+	PreferredName          *string                   `json:"preferred_name" db:"preferred_name"`
 	Telephone              *string                   `json:"telephone" db:"telephone"`
 	SecondaryTelephone     *string                   `json:"secondary_telephone" db:"secondary_telephone"`
 	PersonalEmail          *string                   `json:"personal_email" db:"personal_email"`
@@ -82,6 +83,7 @@ type ServiceMemberSearchResult struct {
 	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
 	LastName               *string                   `json:"last_name" db:"last_name"`
 	Suffix                 *string                   `json:"suffix" db:"suffix"`
+	PreferredName          *string                   `json:"preferred_name" db:"preferred_name"`
 	Telephone              *string                   `json:"telephone" db:"telephone"`
 	SecondaryTelephone     *string                   `json:"secondary_telephone" db:"secondary_telephone"`
 	PersonalEmail          *string                   `json:"personal_email" db:"personal_email"`
@@ -116,6 +118,7 @@ func (s ServiceMember) ToSearchResult() ServiceMemberSearchResult {
 		FirstName:              s.FirstName,
 		LastName:               s.LastName,
 		Suffix:                 s.Suffix,
+		PreferredName:          s.PreferredName,
 		Telephone:              s.Telephone,
 		SecondaryTelephone:     s.SecondaryTelephone,
 		PersonalEmail:          s.PersonalEmail,

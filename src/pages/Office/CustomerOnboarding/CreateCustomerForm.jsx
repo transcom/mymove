@@ -75,6 +75,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     middle_name: '',
     last_name: '',
     suffix: '',
+    preferred_name: '',
     telephone: '',
     secondary_telephone: null,
     personal_email: '',
@@ -129,6 +130,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
       middleName: values.middle_name,
       lastName: values.last_name,
       suffix: values.suffix,
+      preferedName: values.prefered_name,
       telephone: values.telephone,
       secondaryTelephone: values.secondary_telephone,
       personalEmail: values.personal_email,
@@ -199,6 +201,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
     suffix: Yup.string(),
+    preferred_name: Yup.string(),
     telephone: Yup.string()
       .min(12, 'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.')
       .required('Required'),
@@ -429,6 +432,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
                     <TextField label="Last name" name="last_name" id="lastName" required />
                     <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+                    <TextField label="Preferred Name" name="preferred_name" id="preferredName" labelHint="Optional" />
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Contact Info</h3>
