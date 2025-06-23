@@ -282,19 +282,19 @@ var TransportationOffices = transportationOfficeGroup{
 }
 
 type officeUserGroup struct {
-	SCCounselingAssignedUser   CustomType
-	SCCloseoutAssignedUser     CustomType
-	TIOAssignedUser            CustomType
-	TOOTaskOrderAssignedUser   CustomType
-	TOODestinationAssignedUser CustomType
+	SCCounselingAssignedUser      CustomType
+	SCCloseoutAssignedUser        CustomType
+	TIOPaymentRequestAssignedUser CustomType
+	TOOTaskOrderAssignedUser      CustomType
+	TOODestinationAssignedUser    CustomType
 }
 
 var OfficeUsers = officeUserGroup{
-	SCCounselingAssignedUser:   "SCCounselingAssignedUser",
-	SCCloseoutAssignedUser:     "SCCloseoutAssignedUser",
-	TIOAssignedUser:            "TIOAssignedUser",
-	TOOTaskOrderAssignedUser:   "TOOTaskOrderAssignedUser",
-	TOODestinationAssignedUser: "TOODestinationAssignedUser",
+	SCCounselingAssignedUser:      "SCCounselingAssignedUser",
+	SCCloseoutAssignedUser:        "SCCloseoutAssignedUser",
+	TIOPaymentRequestAssignedUser: "TIOPaymentRequestAssignedUser",
+	TOOTaskOrderAssignedUser:      "TOOTaskOrderAssignedUser",
+	TOODestinationAssignedUser:    "TOODestinationAssignedUser",
 }
 
 // uploadGroup is a grouping of all the upload related fields
