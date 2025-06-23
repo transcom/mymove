@@ -656,7 +656,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 	if order.Rank != nil {
 		rank.ID = strfmt.UUID(order.Rank.ID.String())
 		rank.RankAbbv = order.Rank.RankAbbv
-		rank.PaygradeID = strfmt.UUID(order.Rank.ID.String())
+		rank.PaygradeID = strfmt.UUID(order.Rank.PayGradeID.String())
 	}
 
 	var affiliation ghcmessages.Affiliation
