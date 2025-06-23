@@ -103,8 +103,10 @@ type Move struct {
 	SCCloseoutAssignedUser                         *OfficeUser           `belongs_to:"office_users" fk_id:"sc_closeout_assigned_id"`
 	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`                           // old column
 	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"` // old column
-	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
-	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`                           // old column
+	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`                     // old column
+	TIOPaymentRequestAssignedID                    *uuid.UUID            `json:"tio_payment_request_assigned_id" db:"tio_payment_request_assigned_id"`
+	TIOPaymentRequestAssignedUser                  *OfficeUser           `belongs_to:"office_users" fk_id:"tio_payment_request_assigned_id"`
 	TOOTaskOrderAssignedID                         *uuid.UUID            `json:"too_task_order_assigned_id" db:"too_task_order_assigned_id"`
 	TOOTaskOrderAssignedUser                       *OfficeUser           `belongs_to:"office_users" fk_id:"too_task_order_assigned_id"`
 	TOODestinationAssignedID                       *uuid.UUID            `json:"too_destination_assigned_id" db:"too_destination_assigned_id"`
@@ -559,6 +561,8 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.MovingExpenses.Document.UserUploads.Upload",
 		"MTOShipments.PPMShipment.ProgearWeightTickets",
 		"MTOShipments.PPMShipment.ProgearWeightTickets.Document.UserUploads.Upload",
+		"MTOShipments.PPMShipment.GunSafeWeightTickets",
+		"MTOShipments.PPMShipment.GunSafeWeightTickets.Document.UserUploads.Upload",
 		"MTOShipments.DestinationAddress.Country",
 		"MTOShipments.SecondaryDeliveryAddress.Country",
 		"MTOShipments.TertiaryDeliveryAddress.Country",
@@ -658,6 +662,11 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 			if len(moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets) > 0 {
 				nonDeletedProgearTickets := moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets.FilterDeleted()
 				moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets = nonDeletedProgearTickets
+			}
+			// We do not need to consider deleted gun safe weight tickets
+			if len(moves[0].MTOShipments[0].PPMShipment.GunSafeWeightTickets) > 0 {
+				nonDeletedGunSafeTickets := moves[0].MTOShipments[0].PPMShipment.GunSafeWeightTickets.FilterDeleted()
+				moves[0].MTOShipments[0].PPMShipment.GunSafeWeightTickets = nonDeletedGunSafeTickets
 			}
 		}
 	}

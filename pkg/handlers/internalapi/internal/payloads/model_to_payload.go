@@ -144,6 +144,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
 		HasGunSafe:                     ppmShipment.HasGunSafe,
 		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
+		GunSafeWeightTickets:           GunSafeWeightTickets(storer, ppmShipment.GunSafeWeightTickets),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
@@ -682,6 +683,54 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 
 	if progear.Reason != nil {
 		reason := internalmessages.PPMDocumentStatusReason(*progear.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
+// GunsafeWeightTickets sets up a GunSafeWeightTicket slice for the api using model data.
+func GunSafeWeightTickets(storer storage.FileStorer, gunSafeWeightTickets models.GunSafeWeightTickets) []*internalmessages.GunSafeWeightTicket {
+	payload := make([]*internalmessages.GunSafeWeightTicket, len(gunSafeWeightTickets))
+	for i, gunSafeWeightTicket := range gunSafeWeightTickets {
+		copyOfGunSafeWeightTicket := gunSafeWeightTicket
+		gunSafeWeightTicketPayload := GunSafeWeightTicket(storer, &copyOfGunSafeWeightTicket)
+		payload[i] = gunSafeWeightTicketPayload
+	}
+	return payload
+}
+
+// GunSafeWeightTicket payload
+func GunSafeWeightTicket(storer storage.FileStorer, gunSafe *models.GunSafeWeightTicket) *internalmessages.GunSafeWeightTicket {
+	ppmShipmentID := strfmt.UUID(gunSafe.PPMShipmentID.String())
+
+	document, err := PayloadForDocumentModel(storer, gunSafe.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &internalmessages.GunSafeWeightTicket{
+		ID:                        strfmt.UUID(gunSafe.ID.String()),
+		PpmShipmentID:             ppmShipmentID,
+		CreatedAt:                 *handlers.FmtDateTime(gunSafe.CreatedAt),
+		UpdatedAt:                 *handlers.FmtDateTime(gunSafe.UpdatedAt),
+		DocumentID:                *handlers.FmtUUID(gunSafe.DocumentID),
+		Document:                  document,
+		Weight:                    handlers.FmtPoundPtr(gunSafe.Weight),
+		SubmittedWeight:           handlers.FmtPoundPtr(gunSafe.SubmittedWeight),
+		HasWeightTickets:          gunSafe.HasWeightTickets,
+		SubmittedHasWeightTickets: gunSafe.SubmittedHasWeightTickets,
+		Description:               gunSafe.Description,
+		ETag:                      etag.GenerateEtag(gunSafe.UpdatedAt),
+	}
+
+	if gunSafe.Status != nil {
+		status := internalmessages.OmittablePPMDocumentStatus(*gunSafe.Status)
+		payload.Status = &status
+	}
+
+	if gunSafe.Reason != nil {
+		reason := internalmessages.PPMDocumentStatusReason(*gunSafe.Reason)
 		payload.Reason = &reason
 	}
 
