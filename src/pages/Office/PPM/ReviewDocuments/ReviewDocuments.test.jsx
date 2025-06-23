@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, within, waitFor } from '@testing-library/react';
+import { screen, within, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ReviewDocuments } from './ReviewDocuments';
@@ -35,6 +35,10 @@ const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('services/internalApi', () => ({
+  waitForAvScan: jest.fn().mockResolvedValue('NO_THREATS_FOUND'),
 }));
 
 global.EventSource = jest.fn().mockImplementation(() => ({
@@ -386,6 +390,9 @@ describe('ReviewDocuments', () => {
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
 
       const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
       expect(docMenuButton).toBeInTheDocument();
@@ -810,6 +817,9 @@ describe('ReviewDocuments', () => {
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
+
       const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
       expect(docMenuButton).toBeInTheDocument();
 
@@ -853,6 +863,9 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+
+      const banner = await screen.findByTestId('documentAlertMessage');
+      await waitForElementToBeRemoved(banner, { timeout: 3000 });
 
       const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
       expect(docMenuButton).toBeInTheDocument();
