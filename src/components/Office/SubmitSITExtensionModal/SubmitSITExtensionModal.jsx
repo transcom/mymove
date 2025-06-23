@@ -31,6 +31,7 @@ import {
   SitDaysAllowanceForm,
   SitEndDateForm,
 } from 'utils/sitFormatters';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { totalSITDaysUsed } = sitStatus;
@@ -70,7 +71,13 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
       <div className={styles.tableContainer} data-testid="sitStatusTable">
         <DataTable
           custClass={styles.totalDaysTable}
-          columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
+          columnHeaders={[
+            <span key="approved" style={{ whiteSpace: 'nowrap' }} required>
+              Total days of SIT approved <RequiredAsterisk />
+            </span>,
+            'Total days used',
+            'Total days remaining',
+          ]}
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
@@ -81,7 +88,13 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
       <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
         <p className={styles.sitHeader}>Current location: {currentLocation}</p>
         <DataTable
-          columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
+          columnHeaders={[
+            `SIT start date`,
+            <span key="approved" style={{ whiteSpace: 'nowrap' }} required>
+              SIT authorized end date <RequiredAsterisk />
+            </span>,
+            'Calculated total SIT days',
+          ]}
           dataRow={[
             currentDateEnteredSit,
             <SitEndDateForm
@@ -154,6 +167,7 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
               return (
                 <Form>
                   <DataTableWrapper className={classnames('maxw-tablet', styles.sitDisplayForm)} testID="sitExtensions">
+                    {requiredAsteriskMessage}
                     <SitStatusTables sitStatus={sitStatus} shipment={shipment} />
                   </DataTableWrapper>
                   <div className={styles.reasonDropdown}>
@@ -162,6 +176,8 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
                       name="requestReason"
                       data-testid="reasonDropdown"
                       options={dropdownInputOptions(sitExtensionReasons)}
+                      showRequiredAsterisk
+                      required
                     />
                   </div>
                   <Label htmlFor="officeRemarks">Office remarks</Label>
