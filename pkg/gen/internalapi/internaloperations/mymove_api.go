@@ -7,6 +7,7 @@ package internaloperations
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -68,6 +69,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
+		TextEventStreamProducer: runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+			return errors.NotImplemented("textEventStream producer has not yet been implemented")
+		}),
 
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
@@ -167,6 +171,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
+		}),
+		UploadsGetUploadStatusHandler: uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
 		}),
 		EntitlementsIndexEntitlementsHandler: entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")
@@ -352,6 +359,9 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
+	// TextEventStreamProducer registers a producer for the following mime types:
+	//   - text/event-stream
+	TextEventStreamProducer runtime.Producer
 
 	// OfficeApproveMoveHandler sets the operation handler for the approve move operation
 	OfficeApproveMoveHandler office.ApproveMoveHandler
@@ -419,6 +429,8 @@ type MymoveAPI struct {
 	OrdersGetPayGradesHandler orders.GetPayGradesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
+	// UploadsGetUploadStatusHandler sets the operation handler for the get upload status operation
+	UploadsGetUploadStatusHandler uploads.GetUploadStatusHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
 	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
@@ -593,6 +605,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
+	if o.TextEventStreamProducer == nil {
+		unregistered = append(unregistered, "TextEventStreamProducer")
+	}
 
 	if o.OfficeApproveMoveHandler == nil {
 		unregistered = append(unregistered, "office.ApproveMoveHandler")
@@ -692,6 +707,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
+	}
+	if o.UploadsGetUploadStatusHandler == nil {
+		unregistered = append(unregistered, "uploads.GetUploadStatusHandler")
 	}
 	if o.EntitlementsIndexEntitlementsHandler == nil {
 		unregistered = append(unregistered, "entitlements.IndexEntitlementsHandler")
@@ -883,6 +901,8 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 			result["application/pdf"] = o.BinProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
+		case "text/event-stream":
+			result["text/event-stream"] = o.TextEventStreamProducer
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -1055,6 +1075,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/transportation-offices"] = transportation_offices.NewGetTransportationOffices(o.context, o.TransportationOfficesGetTransportationOfficesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/uploads/{uploadID}/status"] = uploads.NewGetUploadStatus(o.context, o.UploadsGetUploadStatusHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
