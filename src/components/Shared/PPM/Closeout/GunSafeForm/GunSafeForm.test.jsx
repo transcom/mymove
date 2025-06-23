@@ -103,7 +103,7 @@ describe('GunSafeForm component', () => {
   describe('attaches button handler callbacks', () => {
     it('calls the onSubmit callback with required fields', async () => {
       const expectedPayload = {
-        document: gunSafeWithDocumentProps.gunSafe.document.uploads,
+        gunSafeDocument: gunSafeWithDocumentProps.gunSafe.document.uploads,
         weight: '1',
         description: 'Description',
         missingWeightTicket: false,
