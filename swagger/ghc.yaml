@@ -6583,8 +6583,6 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOTaskOrderAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TOOTaskOrderAssignedUser:
-        $ref: '#/definitions/AssignedOfficeUser'
       TIOPaymentRequestAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOODestinationAssignedUser:
