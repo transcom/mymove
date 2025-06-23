@@ -243,6 +243,8 @@ describe('CreateCustomerForm', () => {
       </MockProviders>,
     );
 
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     // checking that all headers exist
     expect(screen.getByText('Create Customer Profile')).toBeInTheDocument();
     expect(screen.getByText('Customer Affiliation')).toBeInTheDocument();
@@ -270,7 +272,7 @@ describe('CreateCustomerForm', () => {
 
     const user = userEvent.setup();
 
-    await user.selectOptions(getByLabelText('Branch of service'), [departmentIndicators.COAST_GUARD]);
+    await user.selectOptions(getByLabelText('Branch of service *'), [departmentIndicators.COAST_GUARD]);
     expect(screen.getByText('EMPLID')).toBeInTheDocument();
   });
 
@@ -289,13 +291,13 @@ describe('CreateCustomerForm', () => {
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
-    await user.selectOptions(getByLabelText('Branch of service'), [fakePayload.affiliation]);
+    await user.selectOptions(getByLabelText('Branch of service *'), [fakePayload.affiliation]);
 
-    await user.type(getByLabelText('First name'), fakePayload.first_name);
-    await user.type(getByLabelText('Last name'), fakePayload.last_name);
+    await user.type(getByLabelText('First name *'), fakePayload.first_name);
+    await user.type(getByLabelText('Last name *'), fakePayload.last_name);
 
-    await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
-    await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+    await user.type(getByLabelText('Best contact phone *'), fakePayload.telephone);
+    await user.type(getByLabelText('Personal email *'), fakePayload.personal_email);
     await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
     await user.type(getByTestId('residential_address.streetAddress1'), fakePayload.residential_address.streetAddress1);
@@ -326,8 +328,8 @@ describe('CreateCustomerForm', () => {
       .split(/ (.+)/)
       .filter(Boolean);
 
-    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
-    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
+    await user.type(within(backupContactSection).getByLabelText('First Name *'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name *'), backupContactLastName);
     await user.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await user.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
@@ -384,13 +386,13 @@ describe('CreateCustomerForm', () => {
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
-    await user.selectOptions(getByLabelText('Branch of service'), [fakePayload.affiliation]);
+    await user.selectOptions(getByLabelText('Branch of service *'), [fakePayload.affiliation]);
 
-    await user.type(getByLabelText('First name'), fakePayload.first_name);
-    await user.type(getByLabelText('Last name'), fakePayload.last_name);
+    await user.type(getByLabelText('First name *'), fakePayload.first_name);
+    await user.type(getByLabelText('Last name *'), fakePayload.last_name);
 
-    await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
-    await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+    await user.type(getByLabelText('Best contact phone *'), fakePayload.telephone);
+    await user.type(getByLabelText('Personal email *'), fakePayload.personal_email);
 
     await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
@@ -426,8 +428,8 @@ describe('CreateCustomerForm', () => {
       .split(/ (.+)/)
       .filter(Boolean);
 
-    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
-    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
+    await user.type(within(backupContactSection).getByLabelText('First Name *'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name *'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
@@ -472,13 +474,13 @@ describe('CreateCustomerForm', () => {
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
-    await user.selectOptions(getByLabelText('Branch of service'), 'COAST_GUARD');
+    await user.selectOptions(getByLabelText('Branch of service *'), 'COAST_GUARD');
 
-    await user.type(getByLabelText('First name'), fakePayload.first_name);
-    await user.type(getByLabelText('Last name'), fakePayload.last_name);
+    await user.type(getByLabelText('First name *'), fakePayload.first_name);
+    await user.type(getByLabelText('Last name *'), fakePayload.last_name);
 
-    await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
-    await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+    await user.type(getByLabelText('Best contact phone *'), fakePayload.telephone);
+    await user.type(getByLabelText('Personal email *'), fakePayload.personal_email);
 
     await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
@@ -514,8 +516,8 @@ describe('CreateCustomerForm', () => {
       .split(/ (.+)/)
       .filter(Boolean);
 
-    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
-    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
+    await user.type(within(backupContactSection).getByLabelText('First Name *'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name *'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
@@ -559,13 +561,13 @@ describe('CreateCustomerForm', () => {
 
     await userEvent.type(getByTestId('is-safety-move-yes'), safetyPayload.is_safety_move);
     await userEvent.type(getByTestId('is-bluebark-no'), safetyPayload.is_bluebark);
-    await user.selectOptions(getByLabelText('Branch of service'), [safetyPayload.affiliation]);
+    await user.selectOptions(getByLabelText('Branch of service *'), [safetyPayload.affiliation]);
 
-    await user.type(getByLabelText('First name'), safetyPayload.first_name);
-    await user.type(getByLabelText('Last name'), safetyPayload.last_name);
+    await user.type(getByLabelText('First name *'), safetyPayload.first_name);
+    await user.type(getByLabelText('Last name *'), safetyPayload.last_name);
 
-    await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
-    await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
+    await user.type(getByLabelText('Best contact phone *'), safetyPayload.telephone);
+    await user.type(getByLabelText('Personal email *'), safetyPayload.personal_email);
 
     await userEvent.type(
       getByTestId('residential_address.streetAddress1'),
@@ -599,8 +601,8 @@ describe('CreateCustomerForm', () => {
       .split(/ (.+)/)
       .filter(Boolean);
 
-    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
-    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
+    await user.type(within(backupContactSection).getByLabelText('First Name *'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name *'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
@@ -642,18 +644,18 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByTestId('is-bluebark-no'), safetyPayload.is_bluebark);
     expect(await screen.findByTestId('safetyMoveHint')).toBeInTheDocument();
 
-    await user.selectOptions(getByLabelText('Branch of service'), ['COAST_GUARD']);
+    await user.selectOptions(getByLabelText('Branch of service *'), ['COAST_GUARD']);
 
     // the input boxes should now be disabled
     expect(await screen.findByTestId('edipiInput')).toBeDisabled();
     expect(await screen.findByTestId('emplidInput')).toBeDisabled();
 
     // should be able to submit the form
-    await user.type(getByLabelText('First name'), safetyPayload.first_name);
-    await user.type(getByLabelText('Last name'), safetyPayload.last_name);
+    await user.type(getByLabelText('First name *'), safetyPayload.first_name);
+    await user.type(getByLabelText('Last name *'), safetyPayload.last_name);
 
-    await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
-    await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
+    await user.type(getByLabelText('Best contact phone *'), safetyPayload.telephone);
+    await user.type(getByLabelText('Personal email *'), safetyPayload.personal_email);
 
     await userEvent.type(
       getByTestId('residential_address.streetAddress1'),
@@ -687,8 +689,8 @@ describe('CreateCustomerForm', () => {
       .split(/ (.+)/)
       .filter(Boolean);
 
-    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
-    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
+    await user.type(within(backupContactSection).getByLabelText('First Name *'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name *'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
@@ -732,14 +734,15 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
     await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
 
-    await userEvent.selectOptions(getByLabelText('Branch of service'), ['ARMY']);
+    await userEvent.selectOptions(getByLabelText('Branch of service *'), ['ARMY']);
     await user.type(getByTestId('edipiInput'), safetyPayload.edipi);
 
-    await user.type(getByLabelText('First name'), safetyPayload.first_name);
-    await user.type(getByLabelText('Last name'), safetyPayload.last_name);
+    await user.type(getByLabelText('First name *'), safetyPayload.first_name);
+    await user.type(getByLabelText('Last name *'), safetyPayload.last_name);
 
-    await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
-    await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
+    // await user.type(getByLabelText('Best contact phone *'), safetyPayload.telephone);
+    await user.type(getByLabelText('Best contact phone *'), safetyPayload.telephone);
+    await user.type(getByLabelText('Personal email *'), safetyPayload.personal_email);
 
     await userEvent.type(
       getByTestId('residential_address.streetAddress1'),
@@ -773,8 +776,8 @@ describe('CreateCustomerForm', () => {
       .split(/ (.+)/)
       .filter(Boolean);
 
-    await user.type(within(backupContactSection).getByLabelText('First Name'), backupContactFirstName);
-    await user.type(within(backupContactSection).getByLabelText('Last Name'), backupContactLastName);
+    await user.type(within(backupContactSection).getByLabelText('First Name *'), backupContactFirstName);
+    await user.type(within(backupContactSection).getByLabelText('Last Name *'), backupContactLastName);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 

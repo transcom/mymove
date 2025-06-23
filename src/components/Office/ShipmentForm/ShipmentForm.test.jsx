@@ -1764,7 +1764,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
       expect(screen.findByText('Estimated incentive: $12,345').toBeInTheDocument);
-      expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
+      expect(screen.getByLabelText('Amount requested *')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Approve')).toBeChecked();
 
@@ -1950,7 +1950,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
       expect(screen.findByText('Estimated incentive: $12,345').toBeInTheDocument);
-      expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
+      expect(screen.getByLabelText('Amount requested *')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Approve')).toBeChecked();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
@@ -2008,7 +2008,7 @@ describe('ShipmentForm component', () => {
       const requiredAlerts = screen.getAllByRole('alert');
       expect(requiredAlerts[0]).toHaveTextContent('Required');
 
-      expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Amount requested *')).not.toBeInTheDocument();
 
       await act(async () => {
         screen.getByLabelText('Counselor remarks').focus();
@@ -2056,7 +2056,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
-      const advanceAmountInput = screen.getByLabelText('Amount requested');
+      const advanceAmountInput = screen.getByLabelText('Amount requested *');
 
       expect(advanceAmountInput).toHaveValue('4,875');
       // Edit a requested advance amount
@@ -2084,7 +2084,7 @@ describe('ShipmentForm component', () => {
       await act(async () => {
         await userEvent.click(inputHasRequestedAdvance);
       });
-      const advanceAmountRequested = screen.getByLabelText('Amount requested');
+      const advanceAmountRequested = screen.getByLabelText('Amount requested *');
       await act(async () => {
         advanceAmountRequested.focus();
         await userEvent.paste('0');
@@ -2097,7 +2097,7 @@ describe('ShipmentForm component', () => {
       });
     });
 
-    it('sets `Counselor Remarks` as required when an advance request is rejected', async () => {
+    it('sets `Counselor Remarks` as required when an advance request is rejected and shows a required asterisk', async () => {
       const ppmShipmentWithoutRemarks = {
         ...mockPPMShipment,
         counselorRemarks: '',
@@ -2118,7 +2118,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Approve')).toBeChecked();
       expect(screen.getByLabelText('Reject')).not.toBeChecked();
 
-      const advanceAmountInput = screen.getByLabelText('Amount requested');
+      const advanceAmountInput = screen.getByLabelText('Amount requested *');
       expect(advanceAmountInput).toHaveValue('4,875');
 
       await act(async () => {
@@ -2134,16 +2134,18 @@ describe('ShipmentForm component', () => {
         expect(screen.getByLabelText('Approve')).not.toBeChecked();
         expect(screen.getByLabelText('Reject')).toBeChecked();
 
+        expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
         // Verify original value was reset back 2000 to 4875. This only
         // happens when REJECT is selected.
-        const advanceAmountInput2 = screen.getByLabelText('Amount requested');
+        const advanceAmountInput2 = screen.getByLabelText('Amount requested *');
         expect(advanceAmountInput2).toHaveValue('4,875');
       });
       const requiredAlert = screen.getAllByRole('alert');
       expect(requiredAlert[0]).toHaveTextContent('Required');
 
       await act(async () => {
-        screen.getByLabelText('Counselor remarks').focus();
+        screen.getByLabelText('Counselor remarks *').focus();
         await userEvent.paste('I, a service counselor, have rejected your advance request');
         await userEvent.tab();
       });
@@ -2192,7 +2194,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Reject')).toBeChecked();
       expect(screen.getByLabelText('Approve')).not.toBeChecked();
 
-      const advanceAmountInput = screen.getByLabelText('Amount requested');
+      const advanceAmountInput = screen.getByLabelText('Amount requested *');
       expect(advanceAmountInput).toHaveValue('4,875');
 
       await act(async () => {

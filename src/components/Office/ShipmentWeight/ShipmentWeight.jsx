@@ -158,6 +158,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                      showRequiredAsterisk
                       required
                     />
                     <Hint>

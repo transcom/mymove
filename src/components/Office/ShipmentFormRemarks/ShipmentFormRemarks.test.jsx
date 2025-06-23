@@ -37,10 +37,40 @@ describe('components/Office/ShipmentFormRemarks', () => {
       </Formik>,
     );
 
-    expect(screen.queryByText(/Optional/)).not.toBeInTheDocument();
     expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(screen.queryByText('Customer remarks from props')).not.toBeInTheDocument();
     expect(screen.getByText('Counselor remarks from initial values')).toBeInTheDocument();
+  });
+
+  it('renders required asterisk for Counselor remarks as SC rejecting advance on PPM', () => {
+    render(
+      <Formik initialValues={{}}>
+        <ShipmentFormRemarks
+          userRole={roleTypes.SERVICES_COUNSELOR}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          counselorRemarks="Counselor remarks from props"
+          advanceStatus="REJECTED"
+        />
+      </Formik>,
+    );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+    expect(screen.getByLabelText('Counselor remarks *')).toBeInTheDocument();
+  });
+
+  it('does not render required asterisk for Counselor remarks as SC approving advance on PPM', () => {
+    render(
+      <Formik initialValues={{}}>
+        <ShipmentFormRemarks
+          userRole={roleTypes.SERVICES_COUNSELOR}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          counselorRemarks="Counselor remarks from props"
+          advanceStatus="APPROVED"
+        />
+      </Formik>,
+    );
+
+    expect(screen.getByLabelText('Counselor remarks')).toBeInTheDocument();
   });
 
   it('renders correctly as a TOO', () => {
@@ -54,7 +84,6 @@ describe('components/Office/ShipmentFormRemarks', () => {
       </Formik>,
     );
 
-    expect(screen.queryByText(/Optional/)).not.toBeInTheDocument();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(screen.getByText('—')).toBeInTheDocument();
     expect(screen.getByText('Counselor remarks from props')).toBeInTheDocument();
