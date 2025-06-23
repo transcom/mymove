@@ -35,7 +35,7 @@ import NotFound from 'components/NotFound/NotFound';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
+const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalRequestTypeFFEnabled }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -203,7 +203,13 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tooQueueColumns(isQueueManagementFFEnabled, queueType, null, showBranchFilter)}
+          columns={tooQueueColumns(
+            isQueueManagementFFEnabled,
+            queueType,
+            null,
+            isApprovalRequestTypeFFEnabled,
+            showBranchFilter,
+          )}
           title="All moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useMovesQueueQueries}
