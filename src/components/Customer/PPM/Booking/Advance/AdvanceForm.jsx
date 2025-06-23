@@ -101,15 +101,9 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                     </p>
                   </>
                 )}
-                {requiredAsteriskMessage}
                 <Fieldset>
-                  <legend
-                    className="usa-label"
-                    aria-label="Required: Would you like to request an advance on your incentive?"
-                  >
-                    <span required>
-                      Would you like to request an advance on your incentive? <RequiredAsterisk />
-                    </span>
+                  <legend className="usa-label" aria-label="Would you like to request an advance on your incentive?">
+                    <span>Would you like to request an advance on your incentive?</span>
                   </legend>
                   <Field
                     as={Radio}
@@ -130,6 +124,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                 </Fieldset>
                 {values.hasRequestedAdvance === 'true' && (
                   <>
+                    {requiredAsteriskMessage}
                     {estimatedIncentive !== 0 && (
                       <MaskedTextField
                         isDisabled={estimatedIncentive === 0}

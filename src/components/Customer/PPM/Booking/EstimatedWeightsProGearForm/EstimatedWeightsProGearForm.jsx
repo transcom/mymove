@@ -19,7 +19,7 @@ import { formatWeight } from 'utils/formatters';
 import LoadingButton from 'components/LoadingButton/LoadingButton';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
-import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
@@ -80,7 +80,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 <h2>PPM</h2>
                 <p>
                   Estimate the full weight of your PPM, including everything you plan to move. If you are moving
-                  pro-gear in this PPM, include that weight in this estimate.
+                  pro-gear {isGunSafeEnabled && 'and/or a gun safe'} in this PPM, include that weight in this estimate.
                 </p>
                 <p className={formStyles.pBeforeFormGroup}>
                   Do not count weight twice, though. Do not include weight in your estimate that will be moved in other
@@ -142,15 +142,12 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 </p>
 
                 <p>You get paid for moving pro-gear, but it does not count against your total weight allowance.</p>
-                {requiredAsteriskMessage}
                 <Fieldset>
                   <legend
                     className="usa-label"
-                    aria-label="Required: Do you or your spouse have pro-gear that you'll move in this PPM?"
+                    aria-label="Do you or your spouse have pro-gear that you'll move in this PPM?"
                   >
-                    <span required>
-                      Do you or your spouse have pro-gear that you&apos;ll move in this PPM? <RequiredAsterisk />
-                    </span>
+                    <span>Do you or your spouse have pro-gear that you&apos;ll move in this PPM?</span>
                   </legend>
                   <Field
                     as={Radio}
@@ -211,15 +208,9 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
               {isGunSafeEnabled && (
                 <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                   <h2>Gun safe</h2>
-                  {requiredAsteriskMessage}
                   <Fieldset>
-                    <legend
-                      className="usa-label"
-                      aria-label="Required: Do you have a gun safe that you'll move in this PPM?"
-                    >
-                      <span required>
-                        Do you have a gun safe that you&apos;ll move in this PPM? <RequiredAsterisk />
-                      </span>
+                    <legend className="usa-label" aria-label="Do you have a gun safe that you'll move in this PPM?">
+                      <span>Do you have a gun safe that you&apos;ll move in this PPM?</span>
                     </legend>
                     <Field
                       as={Radio}

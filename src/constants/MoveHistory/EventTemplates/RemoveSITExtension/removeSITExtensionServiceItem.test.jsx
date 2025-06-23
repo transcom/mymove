@@ -11,6 +11,7 @@ describe('when given a removeSITExtensionServiceItem history record', () => {
   const historyRecord = {
     action: a.UPDATE,
     changedValues: {
+      decision_date: '2025-06-06T19:09:23.752008',
       status: SIT_EXTENSION_STATUS.REMOVED,
     },
     context: [
@@ -43,6 +44,7 @@ describe('when given a removeSITExtensionServiceItem history record', () => {
     // Here we expect the values from changedValues to be rendered.
     expect(screen.getByText(/Status/i)).toBeInTheDocument();
     expect(screen.getByText(/REMOVED/i)).toBeInTheDocument();
+    expect(screen.getByText(/Decision date/i)).toBeInTheDocument();
     expect(screen.getByText('HHG shipment #PHD33D-01')).toBeInTheDocument();
   });
 });
