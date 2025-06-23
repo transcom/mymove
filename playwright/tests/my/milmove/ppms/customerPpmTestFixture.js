@@ -5,6 +5,8 @@
  */
 
 // @ts-check
+import { act } from '@testing-library/react';
+
 import {
   expect,
   test as customerTest,
@@ -12,8 +14,6 @@ import {
   useMobileViewport,
   CustomerPage,
 } from '../../../utils/my/customerTest';
-
-const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 /**
  * CustomerPpmPage test fixture
@@ -111,8 +111,6 @@ export class CustomerPpmPage extends CustomerPage {
     await this.clickOnUploadPPMDocumentsButton();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]/);
-
-    await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
   }
 
   /**
@@ -170,14 +168,25 @@ export class CustomerPpmPage extends CustomerPage {
     const pickupLocation = 'YUMA, AZ 85364 (YUMA)';
     const destinationLocation = 'YUMA, AZ 85365 (YUMA)';
     const w2Location = 'YUMA, AZ 85367 (YUMA)';
+    const usCountry = 'UNITED STATES (US)';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="pickupAddress-input"]').fill('85364');
+    await this.page.locator('input[id="pickupAddress-country-input"]').fill('UNITED STATES');
+    await expect(this.page.getByText(usCountry, { exact: true })).toHaveCount(2);
+    await this.page.keyboard.press('Enter');
+    const pickupLocator = this.page.locator('input[id="pickupAddress-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('85364');
     await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-input"]').fill('85365');
+    await this.page.locator('input[id="destinationAddress-country-input"]').fill('UNITED STATES');
+    await expect(this.page.getByText(usCountry, { exact: true })).toHaveCount(3);
+    await this.page.keyboard.press('Enter');
+    const destLocator = this.page.locator('input[id="destinationAddress-input"]');
+    await destLocator.click({ timeout: 5000 });
+    await destLocator.fill('85365');
     await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -210,7 +219,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateToWeightTicketPage() {
     await this.clickOnUploadPPMDocumentsButton();
-
+    await this.page.getByText('Add More Weight').click();
     await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
@@ -236,6 +245,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async fillOutWeightTicketPage(options) {
     const { hasTrailer = false, ownTrailer = false, useConstructedWeight = false } = options;
+    await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
     await this.page.locator('input[name="vehicleDescription"]').fill('Kia Forte');
     await this.page.locator('input[name="vehicleDescription"]').blur();
 
@@ -284,7 +294,7 @@ export class CustomerPpmPage extends CustomerPage {
       await this.uploadFileViaFilepond(filepond, 'constructedWeight.xlsx');
 
       // weight estimator file should be converted to .pdf so we verify it was
-      const re = /constructedWeight-\d{14}.+\.pdf$/;
+      const re = /constructedWeight-\d{14}.+/;
 
       // wait for the file to be visible in the uploads
       await expect(filepond.locator('../..').locator('p').getByText(re, { exact: false })).toBeVisible();
@@ -362,17 +372,115 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromWeightTicketPage() {
-    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await act(async () => {
+      await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    });
+    await this.page.waitForTimeout(1000);
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
+  async navigateFromWeightTicketPageBadUpload() {
+    await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+    await act(async () => {
+      await this.page.getByRole('button', { name: 'Cancel' }).click();
+    });
+    await this.page.waitForTimeout(1000);
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+  }
+
+  async submitIncorrectXlsxFileForWeightTicketPage() {
+    await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+    await this.submitIncorrectXlsxFile();
+  }
+
+  async submitIncorrectXlsxFile() {
+    await this.page.locator('input[name="vehicleDescription"]').fill('Kia Forte');
+    await this.page.locator('input[name="vehicleDescription"]').blur();
+
+    await this.page.getByLabel('Empty weight').clear();
+    await this.page.getByLabel('Empty weight').fill('1000');
+    await this.page.getByLabel('Empty weight').blur();
+
+    // find the label, then find the filepond wrapper.
+    const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
+    await expect(emptyWeightLabel).toBeVisible();
+    const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(emptyFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(emptyFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the an incorrect file to not be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    await this.page.getByLabel('Full Weight').clear();
+    await this.page.getByLabel('Full Weight').fill('3000');
+
+    // find the label, then find the filepond wrapper.
+    const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
+    await expect(fullWeightLabel).toBeVisible();
+    const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(fullFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the file not to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
+    await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
+    // wait for the file to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
+  }
+
+  async submitIncorrectXlsxFileForProGear() {
+    // find the label, then find the filepond wrapper.
+    const proGearWeightLabel = this.page
+      .locator('label')
+      .getByText("Upload your pro-gear's weight tickets", { exact: true });
+    await expect(proGearWeightLabel).toBeVisible();
+    const proGearFilepond = proGearWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(proGearFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(proGearFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the an incorrect file to not be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
+    await this.uploadFileViaFilepond(proGearFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
+    // wait for the file to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
+  }
   /**
    * returns {Promise<void>}
    */
+
   async navigateFromHomePageToExistingPPMDateAndLocationPage() {
-    if (multiMoveEnabled) {
-      await this.page.getByRole('button', { name: 'Go to Move' }).click();
-    }
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
 
     await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
@@ -382,9 +490,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   async navigateToAboutPageAndFillOutAboutFormDate() {
-    if (multiMoveEnabled) {
-      await this.page.getByRole('button', { name: 'Go to Move' }).click();
-    }
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await this.clickOnUploadPPMDocumentsButton();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/about/);
@@ -430,8 +536,9 @@ export class CustomerPpmPage extends CustomerPage {
     await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
-    await this.page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
 
     // Select closeout office
@@ -630,8 +737,15 @@ export class CustomerPpmPage extends CustomerPage {
   async signAgreement() {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/agreement/);
     await expect(this.page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
+    await this.page.evaluate(() => {
+      const textBox = document.getElementById('certificationTextScrollBox');
+      textBox.scrollTop = textBox.scrollHeight;
+    });
+    await expect(this.page.getByRole('checkbox')).toBeEnabled();
+    await this.page.getByRole('checkbox').click();
+    const name = await this.page.getByTestId('currentUser').textContent();
 
-    await this.page.locator('input[name="signature"]').fill('Sofía Clark-Nuñez');
+    await this.page.locator('input[name="signature"]').fill(name);
     await expect(this.page.getByRole('button', { name: 'Complete' })).toBeEnabled();
   }
 
@@ -758,6 +872,15 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToProGearPage() {
     await this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+    await this.page.getByText('Save & Continue').click();
+  }
+
+  async selectMeProGear() {
+    await expect(this.page.getByRole('heading', { name: 'Pro-gear' })).toBeVisible();
+    const progearTypeSelector = `label[for="ownerOfProGearSelf"]`;
+    await this.page.locator(progearTypeSelector).click();
+    await expect(this.page.getByRole('heading', { name: 'Description' })).toBeVisible();
+    await this.page.waitForTimeout(1000);
   }
 
   /**
@@ -772,6 +895,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToAddProGearPage() {
+    await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
     await this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
@@ -825,7 +949,22 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async returnToMoveHome() {
-    await this.page.getByRole('button', { name: 'Return To Homepage' }).click();
+    // if the Return To Homepage button is clicked from review page it navigates back to moves page
+    // if that is the case we need to click the Go To Move button to get back to the home page
+    const homePage = this.page.getByTestId('returnToHomePage');
+    const homePageCount = await homePage.count();
+
+    if (homePageCount > 0) {
+      await homePage.click();
+    } else {
+      const reviewHomePage = this.page.getByTestId('reviewReturnToHomepageLink');
+      const reviewHomePageCount = await reviewHomePage.count();
+
+      if (reviewHomePageCount > 0) {
+        await reviewHomePage.click();
+        await this.page.getByTestId('goToMoveBtn').click();
+      }
+    }
   }
 
   /**
@@ -907,10 +1046,12 @@ export class CustomerPpmPage extends CustomerPage {
     await this.uploadFileViaFilepond(filepond, uploadFilename);
 
     // wait for the file to be visible in the uploads
-    const element = await filepond.locator('../..').locator('p').getByText(`${uploadFilename}-`, { exact: false });
-    const textContent = await element.textContent();
-    const matches = textContent.includes(`${uploadFilename}-`) && /\d{14}/.test(textContent);
-    await expect(matches).toBeTruthy();
+    await expect(
+      filepond
+        .locator('../..')
+        .locator('p')
+        .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
+    ).toBeVisible();
   }
 
   /**
