@@ -43,7 +43,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
   const [ordersType, setOrdersType] = useState('');
-  const [grade, setGrade] = useState('');
+  const [grade, setGrade] = useState(initialValues.grade);
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
 

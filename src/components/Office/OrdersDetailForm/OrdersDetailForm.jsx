@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { func, string, bool } from 'prop-types';
-import { useLocation } from 'react-router';
 
 import styles from './OrdersDetailForm.module.scss';
 
@@ -44,20 +43,19 @@ const OrdersDetailForm = ({
   ntsLongLineOfAccounting,
   affiliation,
   handleChange,
+  currentGrade,
 }) => {
-  const location = useLocation();
-
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
   const noStarOrQuote = (value) => (/^[^*"]*$/.test(value) ? undefined : 'SAC cannot contain * or " characters');
-  const [grade, setGrade] = useState('');
+  const [grade, setGrade] = useState(currentGrade);
 
   const [rankOptions, setRankOptions] = useState([]);
   useEffect(() => {
     const fetchRankGradeOptions = async () => {
       // setShowLoadingSpinner(true, 'Loading Rank/Grade options');
       try {
-        const fetchedRanks = await getRankOptions(affiliation, grade);
+        const fetchedRanks = await getRankOptions(affiliation, grade || currentGrade);
         if (fetchedRanks) {
           const formattedOptions = sortRankOptions(fetchedRanks.body);
           setRankOptions(formattedOptions);
@@ -71,7 +69,7 @@ const OrdersDetailForm = ({
     };
 
     fetchRankGradeOptions();
-  }, [affiliation, grade]);
+  }, [affiliation, grade, currentGrade]);
   // The text/placeholder are different if the customer is retiring or separating.
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
   return (
@@ -94,10 +92,10 @@ const OrdersDetailForm = ({
       />
       <DropdownInput
         data-testid="payGradeInput"
-        name="grade"
         label="Pay grade"
+        name="grade"
         id="payGradeInput"
-        options={payGradeOptions || location.state.payGradeOptions}
+        options={payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
@@ -107,7 +105,7 @@ const OrdersDetailForm = ({
         }}
       />
       {grade !== '' ? (
-        <DropdownInput label="Rank" name="rank" id="rank" required options={rankOptions} showRequiredAsterisk />
+        <DropdownInput label="Rank" name="rank" id="rankInput" required options={rankOptions} showRequiredAsterisk />
       ) : null}
       <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk disabled={formIsDisabled} />
       <DatePickerInput name="reportByDate" label={reportDateRowLabel} showRequiredAsterisk disabled={formIsDisabled} />
