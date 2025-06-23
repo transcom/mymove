@@ -448,7 +448,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
 
     getRankOptions.mockImplementation(() =>
       Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
@@ -518,7 +518,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
 
     getRankOptions.mockImplementation(() =>
       Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
@@ -567,7 +567,7 @@ describe('EditOrdersForm component', () => {
           provides_services_counseling: true,
         },
         origin_duty_location: expect.any(Object),
-        grade: 'E_2',
+        grade: 'E-5',
         rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
         counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
         uploaded_orders: expect.arrayContaining([
@@ -672,7 +672,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Pay grade/)).toHaveTextContent('E-2');
+      expect(screen.getByLabelText(/Pay grade/)).toHaveTextContent('E-5');
       expect(screen.getByLabelText(/Rank/)).toHaveTextContent('Amn');
       expect(screen.getByText('Altus AFB')).toBeInTheDocument();
     });
@@ -809,7 +809,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
     getRankOptions.mockImplementation(() =>
       Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
@@ -1028,7 +1028,7 @@ describe('EditOrdersForm component', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E-2');
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E-5');
     getRankOptions.mockImplementation(() =>
       Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );

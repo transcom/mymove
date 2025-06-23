@@ -113,6 +113,18 @@ jest.mock('services/ghcApi', () => ({
       ],
     }),
   ),
+  getRankOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+          paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+          rankAbbv: 'Amn',
+          rankOrder: 24,
+        },
+      ],
+    }),
+  ),
   getPayGradeOptions: jest.fn().mockImplementation(() =>
     Promise.resolve({
       body: [
@@ -123,47 +135,6 @@ jest.mock('services/ghcApi', () => ({
         {
           grade: 'E-6',
           description: ' E-6',
-        },
-      ],
-    }),
-  ),
-  getRankGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
-      body: [
-        {
-          id: 'd3aa6931-7858-4123-be0b-f3242a49e9f7',
-          paygradeId: '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9',
-          rankGradeName: 'CIV / CIVILIAN_EMPLOYEE',
-        },
-        {
-          id: 'f6dbd496-8f71-487b-a432-55b60967f474',
-          paygradeId: '6cb785d0-cabf-479a-a36d-a6aec294a4d0',
-          rankGradeName: 'AB / E-1',
-          rankOrder: 25,
-        },
-        {
-          id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
-          paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
-          rankGradeName: 'Amn / E-2',
-          rankOrder: 24,
-        },
-        {
-          id: '3aca9ba8-3b84-42bf-8f2f-5ef02587ba89',
-          paygradeId: '862eb395-86d1-44af-ad47-dec44fbeda30',
-          rankGradeName: 'A1C / E-3',
-          rankOrder: 23,
-        },
-        {
-          id: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
-          paygradeId: 'bb55f37c-3165-46ba-ad3f-9a477f699990',
-          rankGradeName: 'SrA / E-4',
-          rankOrder: 22,
-        },
-        {
-          id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
-          paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
-          rankGradeName: 'SSgt / E-5',
-          rankOrder: 21,
         },
       ],
     }),
@@ -188,6 +159,7 @@ const initialValues = {
   dependentsUnderTwelve: '',
   dependentsTwelveAndOver: '',
   counselingOfficeId: '',
+  rank: '',
 };
 const testProps = {
   initialValues,
@@ -313,6 +285,7 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
