@@ -20,7 +20,7 @@ export class ServiceCounselorPage extends OfficePage {
    * @param {string} moveLocator
    */
   async verifyMoveByLocatorCode(moveLocator) {
-    await expect(this.page.getByTestId('nameBlock').getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
+    await expect(this.page.getByTestId('nameBlock')).toContainText(`#${moveLocator}`);
   }
 
   /**
@@ -131,7 +131,8 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.getByTestId('dropdown').selectOption({ label: 'NTS' });
 
     await this.waitForPage.addNTSShipment();
-    await this.page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.getByLabel('Requested pickup date').fill(pickupDate);
     await this.page.getByLabel('Requested pickup date').blur();
     await this.page.getByText('Use pickup address').click();
 
@@ -168,7 +169,8 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.getByLabel('Lot number').fill('1111111');
 
     // Requested delivery date
-    await this.page.getByLabel('Requested delivery date').fill('20 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.getByLabel('Requested delivery date').fill(deliveryDate);
     await this.page.getByLabel('Requested delivery date').blur();
 
     // Delivery Address

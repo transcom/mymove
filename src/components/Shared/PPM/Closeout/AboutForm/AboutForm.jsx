@@ -297,7 +297,14 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
                   }`}
                 >
-                  <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                  <Button
+                    data-testid="returnToHomePage"
+                    className={ppmStyles.backButton}
+                    type="button"
+                    onClick={onBack}
+                    secondary
+                    outline
+                  >
                     {`${isCustomerPage ? 'Return To Homepage' : 'Cancel'}`}
                   </Button>
                   <Button

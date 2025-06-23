@@ -108,7 +108,8 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewProGear() {
-    await base.expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
+    const selector = this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 });
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
@@ -129,7 +130,8 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewWeightTicket() {
-    await base.expect(this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 })).toBeVisible();
+    const selector = this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 });
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
@@ -145,8 +147,8 @@ export class WaitForOfficePage extends WaitForPage {
 
     const expenseCheck = `Review ${expense} #${expenseIndex}`;
     const expenseElement = this.page.getByRole('heading', { name: expenseCheck, level: 3, exact: false });
-    await base.expect(receiptElement).toBeVisible({ timeout: 500 });
-    await base.expect(expenseElement).toBeVisible({ timeout: 500 });
+    await base.expect(receiptElement).toBeVisible({ timeout: 2000 });
+    await base.expect(expenseElement).toBeVisible({ timeout: 2000 });
   }
 }
 

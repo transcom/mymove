@@ -34,9 +34,9 @@ test.describe('TIO user', () => {
 
     const fieldset = page.locator('fieldset');
     await fieldset.locator('input#billableWeight').clear();
-    await fieldset.locator('input#billableWeight').type('2200');
-    await fieldset.locator('textarea#billableWeightJustification').type('Some basic remarks.');
-
+    await fieldset.locator('input#billableWeight').fill('2200');
+    await fieldset.locator('textarea#billableWeightJustification').fill('Some basic remarks.');
+    await page.waitForTimeout(500);
     await page.getByRole('button', { name: 'Save changes' }).click();
     await officePage.waitForLoading();
 

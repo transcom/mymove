@@ -105,7 +105,7 @@ test.describe('Services counselor user', () => {
     await page.locator('#requestedPickupDate').fill(pickupDateString);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDateString);
     await page.locator('#requestedDeliveryDate').blur();
 
     await page.getByLabel('Counselor remarks').fill('Sample counselor remarks');
@@ -234,7 +234,7 @@ test.describe('Services counselor user', () => {
     // Submit edits
     await page.getByTestId('submitForm').click();
     await scPage.waitForLoading();
-    await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+    await page.waitForSelector('text=Your changes were saved.');
 
     // Check that the data in the shipment card now matches what we just submitted
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();

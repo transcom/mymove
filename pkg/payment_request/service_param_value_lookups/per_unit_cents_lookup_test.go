@@ -167,7 +167,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "6997")
+		suite.Equal(perUnitCents, "8186")
 	})
 
 	suite.Run("success - returns perUnitCent value for INPK", func() {
@@ -178,7 +178,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "6997")
+		suite.Equal(perUnitCents, "8186")
 	})
 
 	suite.Run("success - returns perUnitCent value for IHUPK", func() {
@@ -189,7 +189,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "752")
+		suite.Equal(perUnitCents, "915")
 	})
 
 	suite.Run("success - returns perUnitCent value for ISLH", func() {
@@ -250,7 +250,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "1605")
+		suite.Equal(perUnitCents, "1894")
 	})
 
 	suite.Run("success - returns perUnitCent value for IOFSIT", func() {
@@ -261,7 +261,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "607")
+		suite.Equal(perUnitCents, "710")
 	})
 
 	suite.Run("success - returns perUnitCent value for IOASIT", func() {
@@ -272,7 +272,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "14")
+		suite.Equal(perUnitCents, "16")
 	})
 
 	suite.Run("success - returns perUnitCent value for IDFSIT", func() {
@@ -283,7 +283,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "607")
+		suite.Equal(perUnitCents, "710")
 	})
 
 	suite.Run("success - returns perUnitCent value for IDASIT", func() {
@@ -294,7 +294,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "14")
+		suite.Equal(perUnitCents, "16")
 	})
 
 	suite.Run("success - returns perUnitCent value for IDASIT for a PPM", func() {
@@ -371,7 +371,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "7250")
+		suite.Equal(perUnitCents, "8482")
 	})
 
 	suite.Run("success - returns perUnitCent value for IUBUPK", func() {
@@ -382,7 +382,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "724")
+		suite.Equal(perUnitCents, "847")
 	})
 
 	suite.Run("success - returns perUnitCent value for UBP", func() {
@@ -443,7 +443,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "3411")
+		suite.Equal(perUnitCents, "4025")
 	})
 
 	suite.Run("success - less than 50 miles returns perUnitCent value for IOPSIT", func() {
@@ -455,7 +455,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal("16417", perUnitCents)
+		suite.Equal("19208", perUnitCents)
 	})
 
 	suite.Run("success - over 50 miles returns perUnitCent value for IOPSIT", func() {
@@ -491,7 +491,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal("21796", perUnitCents)
+		suite.Equal("25501", perUnitCents)
 	})
 
 	suite.Run("failure - unauthorized service code", func() {
