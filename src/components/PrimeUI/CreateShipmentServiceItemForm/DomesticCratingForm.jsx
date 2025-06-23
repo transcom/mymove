@@ -71,6 +71,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
               id="reServiceCode"
               required
               options={domesticCratingServiceItemCodeOptions}
+              showRequiredAsterisk
             />
             {values.reServiceCode === SERVICE_ITEM_CODES.DCRT && (
               <CheckboxField id="standaloneCrate" name="standaloneCrate" label="Standalone Crate" />
@@ -84,6 +85,8 @@ const DomesticCratingForm = ({ shipment, submission }) => {
               scale={0}
               thousandsSeparator=","
               lazy={false}
+              showRequiredAsterisk
+              required
             />
             <MaskedTextField
               data-testid="itemWidth"
@@ -94,6 +97,8 @@ const DomesticCratingForm = ({ shipment, submission }) => {
               scale={0}
               thousandsSeparator=","
               lazy={false}
+              showRequiredAsterisk
+              required
             />
             <MaskedTextField
               data-testid="itemHeight"
@@ -104,6 +109,8 @@ const DomesticCratingForm = ({ shipment, submission }) => {
               scale={0}
               thousandsSeparator=","
               lazy={false}
+              showRequiredAsterisk
+              required
             />
             <MaskedTextField
               data-testid="crateLength"
@@ -114,6 +121,8 @@ const DomesticCratingForm = ({ shipment, submission }) => {
               scale={0}
               thousandsSeparator=","
               lazy={false}
+              showRequiredAsterisk
+              required
             />
             <MaskedTextField
               data-testid="crateWidth"
@@ -124,6 +133,8 @@ const DomesticCratingForm = ({ shipment, submission }) => {
               scale={0}
               thousandsSeparator=","
               lazy={false}
+              showRequiredAsterisk
+              required
             />
             <MaskedTextField
               data-testid="crateHeight"
@@ -134,9 +145,11 @@ const DomesticCratingForm = ({ shipment, submission }) => {
               scale={0}
               thousandsSeparator=","
               lazy={false}
+              showRequiredAsterisk
+              required
             />
-            <TextField name="description" id="description" label="Description" />
-            <TextField name="reason" id="reason" label="Reason" />
+            <TextField name="description" id="description" label="Description" showRequiredAsterisk required />
+            <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk required />
             <Button type="submit">Create service item</Button>
           </Form>
         );

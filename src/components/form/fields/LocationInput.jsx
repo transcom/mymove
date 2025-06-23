@@ -11,7 +11,16 @@ import { selectLoggedInUser } from 'store/entities/selectors';
 import { OfficeUserInfoShape } from 'types/index';
 
 export const LocationInput = (props) => {
-  const { label, name, displayAddress, placeholder, isDisabled, handleLocationChange, officeUser } = props;
+  const {
+    label,
+    name,
+    displayAddress,
+    placeholder,
+    isDisabled,
+    handleLocationChange,
+    officeUser,
+    showRequiredAsteriskForLocationLookup,
+  } = props;
   const [field, meta] = useField(props);
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
@@ -25,7 +34,8 @@ export const LocationInput = (props) => {
         locationState: () => {},
         name,
       }}
-      hint="Required"
+      required={showRequiredAsteriskForLocationLookup}
+      showRequiredAsterisk={showRequiredAsteriskForLocationLookup}
       errorMsg={errorString}
       displayAddress={displayAddress}
       placeholder={placeholder}

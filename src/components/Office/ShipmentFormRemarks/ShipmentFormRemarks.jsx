@@ -10,8 +10,18 @@ import DataTable from 'components/DataTable';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint/index';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
-const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselorRemarks, error, showHint }) => {
+const ShipmentFormRemarks = ({
+  userRole,
+  shipmentType,
+  customerRemarks,
+  counselorRemarks,
+  error,
+  showHint,
+  advanceStatus,
+}) => {
+  const advanceRejected = advanceStatus === 'REJECTED';
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset>
@@ -19,7 +29,7 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
           Remarks{' '}
           {userRole === roleTypes.SERVICES_COUNSELOR && shipmentType !== SHIPMENT_OPTIONS.PPM && (
             <span className="float-right">
-              <span className={formStyles.optional}>Optional</span>
+              <span className={formStyles.optional} />
             </span>
           )}
         </h2>
@@ -42,6 +52,7 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
               </Hint>
             )}
             <FormGroup className={styles.remarksField}>
+              {advanceRejected && requiredAsteriskMessage}
               <TextField
                 display="textarea"
                 label="Counselor remarks"
@@ -52,6 +63,8 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
                 id="counselorRemarks"
                 maxLength={500}
                 error={error}
+                showRequiredAsterisk={advanceRejected}
+                required={advanceRejected}
               />
             </FormGroup>
           </>
@@ -78,6 +91,7 @@ ShipmentFormRemarks.propTypes = {
   counselorRemarks: PropTypes.string,
   showHint: PropTypes.bool,
   error: PropTypes.bool,
+  advanceStatus: PropTypes.string,
 };
 
 ShipmentFormRemarks.defaultProps = {
@@ -85,6 +99,7 @@ ShipmentFormRemarks.defaultProps = {
   counselorRemarks: '—',
   showHint: true,
   error: undefined,
+  advanceStatus: undefined,
 };
 
 export default ShipmentFormRemarks;

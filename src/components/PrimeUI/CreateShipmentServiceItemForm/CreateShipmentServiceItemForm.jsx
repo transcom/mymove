@@ -17,6 +17,7 @@ import { ShipmentShape } from 'types/shipment';
 import { createServiceItemModelTypes } from 'constants/prime';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) => {
   const {
@@ -48,8 +49,13 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
   return (
     <div className={styles.CreateShipmentServiceItemForm}>
       <Shipment shipment={shipment} />
-      <Label htmlFor="serviceItemType">Service item type</Label>
-      <Dropdown id="serviceItemType" name="serviceItemType" onChange={handleServiceItemTypeChange}>
+      {requiredAsteriskMessage}
+      <Label htmlFor="serviceItemType">
+        <span required>
+          Service item type <RequiredAsterisk />
+        </span>
+      </Label>
+      <Dropdown id="serviceItemType" name="serviceItemType" onChange={handleServiceItemTypeChange} required>
         <>
           <option value={MTOServiceItemOriginSIT}>Origin SIT</option>
           <option value={MTOServiceItemDestSIT}>Destination SIT</option>

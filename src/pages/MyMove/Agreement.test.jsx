@@ -54,7 +54,7 @@ describe('Agreement page', () => {
     const checkbox = await screen.findByRole('checkbox', {
       name: /I have read and understand the agreement as shown above/i,
     });
-    const signatureInput = screen.getByLabelText('SIGNATURE');
+    const signatureInput = screen.getByLabelText('SIGNATURE *');
     const completeButton = screen.getByRole('button', { name: 'Complete' });
 
     // all controls should start of disabled
@@ -132,10 +132,10 @@ describe('Agreement page', () => {
     expect(checkbox).toBeEnabled();
     await userEvent.click(checkbox);
 
-    const signatureInput = await screen.findByLabelText('SIGNATURE');
+    const signatureInput = await screen.findByLabelText('SIGNATURE *');
     expect(signatureInput).toBeEnabled();
 
-    await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
+    await userEvent.type(screen.getByLabelText('SIGNATURE *'), 'Sofia Clark-Nuñez');
     await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 
     await waitFor(() => {
