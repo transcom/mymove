@@ -318,9 +318,15 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
 			}
 
-			priorPrivileges, err := h.PrivilegeAssociator.FetchPrivilegesForUser(appCtx, requestedOfficeUserID)
+			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", requestedOfficeUserID)}
+			priorRequestedOfficeUser, err := h.RequestedOfficeUserFetcher.FetchRequestedOfficeUser(appCtx, queryFilters)
 			if err != nil {
-				appCtx.Logger().Error("Error retreiving prior user privileges", zap.Error(err))
+				appCtx.Logger().Error(fmt.Sprintf("Could not retrieve requestedOfficeUser by id - %s", params.OfficeUserID.String()), zap.Error(err))
+				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
+			}
+			priorPrivileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *priorRequestedOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 
 			body := params.Body
@@ -379,8 +385,8 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				isSupervisorPrivilegeRejected := false
 
 				if len(updatedPrivileges) == len(priorPrivileges) {
-					for i, priv := range updatedPrivileges {
-						if priv != priorPrivileges[i].PrivilegeType {
+					for _, priv := range priorPrivileges {
+						if !slices.Contains(updatedPrivileges, priv.PrivilegeType) {
 							privilegesDiffer = true
 							break
 						}
@@ -427,7 +433,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				}
 
 				// send email notification if request was rejected for supervisor privilege
-				if isSupervisorPrivilegeRejected {
+				if params.Body.Status == "APPROVED" && isSupervisorPrivilegeRejected {
 					err = h.NotificationSender().SendNotification(txAppCtx, notifications.NewOfficeAccountPrivilegeRejectedSupervisor(requestedOfficeUser.ID))
 					if err != nil {
 						txAppCtx.Logger().Error("Error sending supervisor privilege rejection email", zap.Error(err))
