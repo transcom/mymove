@@ -142,6 +142,10 @@ properties:
     pattern: '^(\d{5}([\-]\d{4})?)$'
   country:
     $ref: 'Country.yaml'
+  countryID:
+    type: string
+    format: uuid
+    example: a56a4180-65aa-42ec-a945-5fd21dec0573
   county:
     type: string
     title: County

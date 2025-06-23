@@ -7024,6 +7024,11 @@ func init() {
         "country": {
           "$ref": "#/definitions/Country"
         },
+        "countryID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a56a4180-65aa-42ec-a945-5fd21dec0573"
+        },
         "county": {
           "type": "string",
           "title": "County",
@@ -17090,6 +17095,11 @@ func init() {
         },
         "country": {
           "$ref": "#/definitions/Country"
+        },
+        "countryID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a56a4180-65aa-42ec-a945-5fd21dec0573"
         },
         "county": {
           "type": "string",

@@ -1241,6 +1241,24 @@ func (suite *PayloadsSuite) TestCountryModel_WithNilCountry() {
 	suite.Nil(result)
 }
 
+func (suite *PayloadsSuite) TestCountryFullModel() {
+	expectedCountry := primev3messages.Country{
+		Name: "UNITED STATES",
+		Code: "US",
+	}
+	result := CountryFullModel(&expectedCountry)
+
+	suite.NotNil(result)
+	suite.Equal(expectedCountry.Code, result.Country)
+	suite.Equal(expectedCountry.Name, result.CountryName)
+}
+
+func (suite *PayloadsSuite) TestCountryFullModel_WithNilCountry() {
+	result := CountryFullModel(nil)
+
+	suite.Nil(result)
+}
+
 func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithNilInput() {
 	result, verrs := MTOShipmentModelFromCreate(nil)
 	suite.Nil(result)

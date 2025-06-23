@@ -212,6 +212,12 @@ var actionDispatcher = map[string]actionFunc{
 	"ApprovedMoveWithPPMProgearWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx)
 	},
+	"ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice(appCtx)
+	},
+	"ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2(appCtx)
+	},
 	"ApprovedMoveWithPPMProgearWeightTicketOfficeCivilian": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx)
 	},
@@ -287,8 +293,11 @@ var actionDispatcher = map[string]actionFunc{
 	"InternationalAlaskaBasicHHGMoveForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx)
 	},
+	"InternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx, true)
+	},
 	"InternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx)
+		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx, false)
 	},
 	"IntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(appCtx)

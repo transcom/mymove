@@ -254,6 +254,8 @@ export const FEATURE_FLAG_KEYS = {
   TERMINATING_SHIPMENTS: 'terminating_shipments',
   OCONUS_CITY_FINDER: 'oconus_city_finder',
   GUN_SAFE: 'gun_safe',
+  APPROVAL_REQUEST_TYPE_COLUMN: 'approval_request_type_column',
+  DISABLE_MOVE_APPROVAL: 'disable_move_approval',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

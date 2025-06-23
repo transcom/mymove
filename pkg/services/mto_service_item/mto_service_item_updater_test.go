@@ -343,7 +343,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
-		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
 
 		// Set shipment SIT status
@@ -467,7 +467,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
-		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
 
 		// Set shipment SIT status
@@ -595,7 +595,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
-		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		newAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
 
 		// Set shipment SIT status

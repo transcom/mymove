@@ -14,7 +14,7 @@ import (
 
 type TransportationOfficeAssignmentsFetcherServiceSuite struct {
 	*testingsuite.PopTestSuite
-	toaFetcher services.TransportaionOfficeAssignmentFetcher
+	toaFetcher services.TransportationOfficeAssignmentFetcher
 }
 
 func TestTransportationOfficeAssignmentsFetcherServiceSuite(t *testing.T) {
@@ -29,11 +29,11 @@ func TestTransportationOfficeAssignmentsFetcherServiceSuite(t *testing.T) {
 }
 
 func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTransportaionOfficeAssignmentByOfficeUserID() {
-	suite.toaFetcher = NewTransportaionOfficeAssignmentFetcher()
+	suite.toaFetcher = NewTransportationOfficeAssignmentFetcher()
 
 	// Creating an office user requires creating a transportation office assignment and we will need the office user's ID
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-	assignments, err := suite.toaFetcher.FetchTransportaionOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
+	assignments, err := suite.toaFetcher.FetchTransportationOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
 
 	suite.NoError(err)
 	suite.Equal(1, len(assignments))
@@ -42,14 +42,14 @@ func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTrans
 }
 
 func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTransportaionOfficeAssignmentsByOfficeUserID() {
-	suite.toaFetcher = NewTransportaionOfficeAssignmentFetcher()
+	suite.toaFetcher = NewTransportationOfficeAssignmentFetcher()
 
 	// Creating an office user requires creating a transportation office assignment and we will need the office user's ID
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	secondaryTransportationOfficeAssignment := factory.BuildAlternateTransportationOfficeAssignment(suite.DB(), []factory.Customization{
 		{Model: officeUser, LinkOnly: true},
 	}, nil)
-	assignments, err := suite.toaFetcher.FetchTransportaionOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
+	assignments, err := suite.toaFetcher.FetchTransportationOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
 
 	suite.NoError(err)
 	suite.Equal(2, len(assignments))

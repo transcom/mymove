@@ -64,6 +64,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			}, nil)
 		} else {
 			if isInternational {
+				parameter := models.ApplicationParameters{
+					ParameterName:  models.StringPointer("maxSitDaysAllowance"),
+					ParameterValue: models.StringPointer("90"),
+				}
+				suite.MustCreate(&parameter)
 				subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 					{
 						Model:    mto,
@@ -1698,14 +1703,15 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.NotNil(sitStatus)
 
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		country := &primemessages.Country{Code: "US"}
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
 
 		addr := primemessages.Address{
 			StreetAddress1: &destinationAddress.StreetAddress1,
 			City:           &destinationAddress.City,
 			State:          &destinationAddress.State,
 			PostalCode:     &destinationAddress.PostalCode,
-			Country:        country,
+			CountryID:      strfmt.UUID(country.ID.String()),
 		}
 
 		milTime := "1400Z"
