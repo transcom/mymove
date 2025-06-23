@@ -733,6 +733,7 @@ const ShipmentForm = (props) => {
                   agent: {
                     ...values.pickup.agent,
                     ...backupContact,
+                    phone: backupContact.telephone,
                   },
                 },
               },
@@ -769,6 +770,7 @@ const ShipmentForm = (props) => {
                   agent: {
                     ...values.delivery.agent,
                     ...backupContact,
+                    phone: backupContact.telephone,
                   },
                 },
               },
