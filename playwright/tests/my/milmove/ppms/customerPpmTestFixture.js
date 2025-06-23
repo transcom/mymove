@@ -208,8 +208,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateToWeightTicketPage() {
     await this.clickOnUploadPPMDocumentsButton();
-    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
-
+    await this.page.getByText('Add More Weight').click();
     await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
