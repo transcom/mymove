@@ -11,6 +11,10 @@ import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/
 import { primeSimulatorRoutes } from 'constants/routes';
 import { formatWeight } from 'utils/formatters';
 
+// Labels
+const payGradeLabelText = 'Pay Grade:';
+const rankLabelText = 'Rank:';
+
 const mockRequestedMoveCode = 'LN4T89';
 
 jest.mock('hooks/queries', () => ({
@@ -22,6 +26,10 @@ jest.mock('services/primeApi', () => ({
   deleteShipment: jest.fn(),
   downloadMoveOrder: jest.fn(),
 }));
+
+const mockRankValue = 'E-5';
+const mockPayGradeValue = 'SGT';
+const undefinedValue = 'undefined';
 
 const moveTaskOrder = {
   id: '1',
@@ -199,8 +207,8 @@ const moveTaskOrder = {
       weightRestriction: 500,
       ubWeightRestriction: 350,
     },
-    rank: 'E-5',
-    grade: 'SGT',
+    rank: mockRankValue,
+    grade: mockPayGradeValue,
   },
 };
 
@@ -219,6 +227,22 @@ const moveCounselingCompletedReturnValue = {
   moveTaskOrder: moveTaskOrderCounselingCompleted,
   isLoading: false,
   isError: false,
+};
+
+const PayGradeTestEvaluate = (expectedValue) => {
+  const payGradeLabel = screen.getByText(payGradeLabelText);
+  const payGradeValue = payGradeLabel.nextElementSibling;
+  expect(payGradeLabel).toBeInTheDocument();
+  expect(payGradeValue).toBeInTheDocument();
+  expect(payGradeValue.textContent).toBe(expectedValue);
+};
+
+const RankTestEvaluate = (expectedValue) => {
+  const rankLabel = screen.getByText(rankLabelText);
+  const rankValue = rankLabel.nextElementSibling;
+  expect(rankLabel).toBeInTheDocument();
+  expect(rankValue).toBeInTheDocument();
+  expect(rankValue.textContent).toBe(expectedValue);
 };
 
 const renderWithProviders = (component) => {
@@ -241,10 +265,8 @@ describe('PrimeUI MoveDetails page', () => {
         const gunSafe = screen.getByText('Gun Safe:');
         expect(gunSafe).toBeInTheDocument();
         expect(gunSafe.nextElementSibling.textContent).toBe('yes');
-        const rank = screen.getByText('Rank:');
-        expect(rank).toBeInTheDocument();
-        const grade = screen.getByText('Pay Grade:');
-        expect(grade).toBeInTheDocument();
+        PayGradeTestEvaluate(mockPayGradeValue);
+        RankTestEvaluate(mockRankValue);
         const adminRestrictedWeight = screen.getByText('Admin Restricted Weight:');
         expect(adminRestrictedWeight).toBeInTheDocument();
         expect(adminRestrictedWeight.nextElementSibling.textContent).toBe(
@@ -456,31 +478,21 @@ describe('PrimeUI MoveDetails page', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       renderWithProviders(<MoveDetails />);
 
-      const rankLabel = screen.getByText('Rank:');
-      expect(rankLabel).toBeInTheDocument();
-
-      const rankValue = rankLabel.nextElementSibling;
-      expect(rankValue).toBeInTheDocument();
-      expect(rankValue.textContent).toBe('E-5');
+      RankTestEvaluate(mockRankValue);
     });
 
     it('renders Pay Grade information correctly', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       renderWithProviders(<MoveDetails />);
 
-      const payGradeLabel = screen.getByText('Pay Grade:');
-      expect(payGradeLabel).toBeInTheDocument();
-
-      const rankValue = payGradeLabel.nextElementSibling;
-      expect(rankValue).toBeInTheDocument();
-      expect(rankValue.textContent).toBe('SGT');
+      PayGradeTestEvaluate(mockPayGradeValue);
     });
 
     it('handles missing Rank information', () => {
       usePrimeSimulatorGetMove.mockReturnValue({
         moveTaskOrder: {
           order: {
-            grade: 'SGT',
+            grade: mockPayGradeValue,
             entitlement: {
               gunSafe: true,
             },
@@ -492,19 +504,14 @@ describe('PrimeUI MoveDetails page', () => {
 
       renderWithProviders(<MoveDetails />);
 
-      const rankLabel = screen.getByText('Rank:');
-      expect(rankLabel).toBeInTheDocument();
-
-      const rankValue = rankLabel.nextElementSibling;
-      expect(rankValue).toBeInTheDocument();
-      expect(rankValue.textContent).toBe('undefined');
+      RankTestEvaluate(undefinedValue);
     });
 
     it('handles missing Pay Grade information', () => {
       usePrimeSimulatorGetMove.mockReturnValue({
         moveTaskOrder: {
           order: {
-            rank: 'E-5',
+            rank: mockRankValue,
             entitlement: {
               gunSafe: true,
             },
@@ -516,12 +523,7 @@ describe('PrimeUI MoveDetails page', () => {
 
       renderWithProviders(<MoveDetails />);
 
-      const payGradeLabel = screen.getByText('Pay Grade:');
-      expect(payGradeLabel).toBeInTheDocument();
-
-      const payGradeValue = payGradeLabel.nextElementSibling;
-      expect(payGradeValue).toBeInTheDocument();
-      expect(payGradeValue.textContent).toBe('undefined');
+      PayGradeTestEvaluate(undefinedValue);
     });
   });
 });

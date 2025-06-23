@@ -540,18 +540,17 @@ func (suite *PayloadsSuite) TestGunSafe() {
 
 func (suite *PayloadsSuite) TestPayGrades() {
 	payGrades := models.PayGrades{
-		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
-		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
-		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+		{Grade: string(models.ServiceMemberGradeE1), GradeDescription: models.StringPointer(string(models.ServiceMemberGradeE1))},
+		{Grade: string(models.ServiceMemberGradeO3), GradeDescription: models.StringPointer(string(models.ServiceMemberGradeO3))},
+		{Grade: string(models.ServiceMemberGradeW2), GradeDescription: models.StringPointer(string(models.ServiceMemberGradeW2))},
 	}
 	for _, payGrade := range payGrades {
 		suite.Run(payGrade.Grade, func() {
 			grades := models.PayGrades{payGrade}
 			result := PayGrades(grades)
-
-			suite.Require().Len(result, 1)
 			actual := result[0]
 
+			suite.Require().Len(result, 1)
 			suite.Equal(payGrade.Grade, actual.Grade)
 			suite.Equal(*payGrade.GradeDescription, actual.Description)
 		})

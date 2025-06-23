@@ -3059,7 +3059,6 @@ func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
 		}
 		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
 	}
-
 	return payloadPayGrades
 }
 
