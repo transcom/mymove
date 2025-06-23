@@ -124,7 +124,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
 		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
 		TOOTaskOrderAssignedUser:                       AssignedOfficeUser(move.TOOTaskOrderAssignedUser),
-		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
+		TIOPaymentRequestAssignedUser:                  AssignedOfficeUser(move.TIOPaymentRequestAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
 		TOODestinationAssignedUser:                     AssignedOfficeUser(move.TOODestinationAssignedUser),
@@ -2751,8 +2751,8 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
 		}
 
-		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
-			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		if paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 		}
 
 		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
@@ -2783,16 +2783,16 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			}
 
 			// if the assigned user is not in the returned list of available users append them to the end
-			if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			if paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser != nil {
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOAssignedUser.ID {
+					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser.ID {
 						userFound = true
 						break
 					}
 				}
 				if !userFound {
-					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOAssignedUser)
+					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 				}
 			}
 

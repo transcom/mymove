@@ -529,6 +529,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -561,7 +562,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 				shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 				addressCreator := address.NewAddressCreator()
 				portLocationFetcher := portlocation.NewPortLocationFetcher()
-				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 				move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 				serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 					{
@@ -742,6 +743,11 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 					{
 						Model:    move,
 						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							PrimeEstimatedWeight: models.PoundPointer(1000),
+						},
 					},
 				}, nil)
 

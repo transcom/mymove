@@ -433,7 +433,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Order:                   params.Order,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				OrderType:               params.OrderType,
-				TIOAssignedUser:         params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 				CounselingOffice:        params.CounselingOffice,
 			}
 
