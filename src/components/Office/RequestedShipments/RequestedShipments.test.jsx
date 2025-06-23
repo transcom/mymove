@@ -24,7 +24,7 @@ import {
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
-import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
@@ -540,6 +540,8 @@ describe('RequestedShipments', () => {
         });
       });
 
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.DISABLE_MOVE_APPROVAL);
       const { container } = render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
           <SubmittedRequestedShipments
@@ -619,6 +621,8 @@ describe('RequestedShipments', () => {
           resolve({ response: { status: 200 } });
         });
       });
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.DISABLE_MOVE_APPROVAL);
 
       const { container } = render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
@@ -645,8 +649,8 @@ describe('RequestedShipments', () => {
       const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
       await userEvent.click(counselingFeeInput);
       await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
-
       await userEvent.click(screen.getByText('Approve and send'));
+      expect(screen.getByRole('button', { name: 'Approve and send' })).toBeEnabled();
 
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit.mock.calls[0]).toEqual([
@@ -701,6 +705,8 @@ describe('RequestedShipments', () => {
           resolve({ response: { status: 200 } });
         });
       });
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.DISABLE_MOVE_APPROVAL);
 
       const { container } = render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
@@ -728,8 +734,9 @@ describe('RequestedShipments', () => {
       await userEvent.click(counselingFeeInput);
       await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
 
-      await userEvent.click(screen.getByText('Approve and send'));
+      expect(screen.getByRole('button', { name: 'Approve and send' })).toBeEnabled();
 
+      await userEvent.click(screen.getByText('Approve and send'));
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit.mock.calls[0]).toEqual([
         {
