@@ -70,15 +70,6 @@ const TXOMoveInfo = () => {
     checkLock();
   }, [move, officeUserID, moveLockFlag]);
 
-  const [supportingDocsFF, setSupportingDocsFF] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
-    };
-    fetchData();
-  }, []);
-
   const hideNav =
     matchPath(
       {
@@ -216,13 +207,11 @@ const TXOMoveInfo = () => {
               />
             }
           />
-          {supportingDocsFF && (
-            <Route
-              path="supporting-documents"
-              end
-              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
-            />
-          )}
+          <Route
+            path="supporting-documents"
+            end
+            element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
+          />
           <Route path="payment-requests/:paymentRequestId" end element={<PaymentRequestReview order={order} />} />
           <Route
             path="payment-requests"
