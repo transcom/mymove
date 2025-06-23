@@ -84,6 +84,7 @@ func (suite *AddressSuite) TestOconusAddressLookup() {
 	suite.Run("Successfully search for location by principal division", func() {
 		principalDivision := "HERTFORDSHIRE"
 		principalDivisionForSearch := ", HERTFORDSHIRE"
+		principalCity := "BAYFORD"
 
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		addressLookup := NewVIntlLocation()
@@ -92,7 +93,7 @@ func (suite *AddressSuite) TestOconusAddressLookup() {
 		suite.Nil(err)
 		suite.NotNil(address)
 		returnCity := (*address)[0].CityName
-		suite.Contains(strings.ToUpper(*returnCity), strings.ToUpper(city))
+		suite.Contains(strings.ToUpper(*returnCity), strings.ToUpper(principalCity))
 		returnedPrincipalDivision := (*address)[0].CountryPrnDivName
 		suite.Contains(strings.ToUpper(*returnedPrincipalDivision), strings.ToUpper(principalDivision))
 	})
