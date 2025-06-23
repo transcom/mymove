@@ -22,7 +22,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
 import { APP_NAME } from 'constants/apps';
 import { PPM_TYPES } from 'shared/constants';
-import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
   const isCustomerPage = appName === APP_NAME.MYMOVE;
@@ -236,13 +236,10 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     )}
                   />
                   <h2>Advance (AOA)</h2>
-                  {requiredAsteriskMessage}
                   <FormGroup>
                     <Fieldset className={styles.advanceFieldset}>
-                      <legend className="usa-label" aria-label="Required: Did you receive an advance for this PPM?">
-                        <span required>
-                          Did you receive an advance for this PPM? <RequiredAsterisk />
-                        </span>
+                      <legend className="usa-label" aria-label="Did you receive an advance for this PPM?">
+                        <span>Did you receive an advance for this PPM?</span>
                       </legend>
                       <Field
                         as={Radio}
@@ -265,6 +262,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                       <Hint className={ppmStyles.hint}>
                         If you requested an advance but did not receive it, select No.
                       </Hint>
+                      {values.hasReceivedAdvance === 'true' && requiredAsteriskMessage}
                       {values.hasReceivedAdvance === 'true' && (
                         <MaskedTextField
                           label="How much did you receive?"
