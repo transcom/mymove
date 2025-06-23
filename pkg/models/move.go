@@ -103,8 +103,10 @@ type Move struct {
 	SCCloseoutAssignedUser                         *OfficeUser           `belongs_to:"office_users" fk_id:"sc_closeout_assigned_id"`
 	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`                           // old column
 	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"` // old column
-	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
-	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`                           // old column
+	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`                     // old column
+	TIOPaymentRequestAssignedID                    *uuid.UUID            `json:"tio_payment_request_assigned_id" db:"tio_payment_request_assigned_id"`
+	TIOPaymentRequestAssignedUser                  *OfficeUser           `belongs_to:"office_users" fk_id:"tio_payment_request_assigned_id"`
 	TOOTaskOrderAssignedID                         *uuid.UUID            `json:"too_task_order_assigned_id" db:"too_task_order_assigned_id"`
 	TOOTaskOrderAssignedUser                       *OfficeUser           `belongs_to:"office_users" fk_id:"too_task_order_assigned_id"`
 	TOODestinationAssignedID                       *uuid.UUID            `json:"too_destination_assigned_id" db:"too_destination_assigned_id"`
