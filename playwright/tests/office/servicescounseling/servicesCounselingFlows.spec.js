@@ -190,6 +190,7 @@ test.describe('Services counselor user', () => {
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
       await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
+      await expect(page.getByText('Uploading: Uploading the file...')).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
