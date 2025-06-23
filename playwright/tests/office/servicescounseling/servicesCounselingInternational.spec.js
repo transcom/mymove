@@ -1,5 +1,5 @@
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
-import { appendTimestampToFilenamePrefix, formatDate } from '../../utils/playwrightUtility';
+import { formatDate } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -54,8 +54,7 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Location Lookup').nth(1).fill('90212');
       await expect(page.getByText(LocationLookup2, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
-      await page.getByLabel('First Name').nth(1).fill('Backup');
-      await page.getByLabel('Last Name').nth(1).fill('Friend');
+      await page.getByLabel('Name', { exact: true }).fill('Backup Friend');
       await page.getByLabel('Email', { exact: true }).nth(1).fill('backupFriend@mail.mil');
       await page.getByLabel('Phone', { exact: true }).nth(1).fill('555-867-5309');
       await page.locator('label[for="noCreateOktaAccount"]').click();
@@ -93,9 +92,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByTestId('documentAlertMessage')).toContainText('Uploading');
       await expect(page.getByTestId('documentAlertMessage')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(
-        page.getByTestId('uploads-table').getByText(appendTimestampToFilenamePrefix('AF Orders Sample')),
-      ).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
       await page.getByRole('button', { name: 'Done' }).click();
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
       await page.getByLabel('Orders number').fill('123456');

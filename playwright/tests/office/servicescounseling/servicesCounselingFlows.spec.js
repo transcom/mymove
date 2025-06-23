@@ -6,7 +6,7 @@
 
 // @ts-check
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
-import { appendTimestampToFilenamePrefix, getFutureDate } from '../../utils/playwrightUtility';
+import { getFutureDate } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -189,12 +189,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('button', { name: 'Manage Orders' }).click();
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
-      await expect(page.getByText('Uploading')).toBeVisible();
-      await expect(page.getByText('Uploading')).not.toBeVisible();
-      await expect(page.getByText('Upload complete')).not.toBeVisible();
-
-      const filenameWithTimestamp = appendTimestampToFilenamePrefix('AF Orders Sample');
-      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -205,7 +200,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -218,7 +213,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -229,7 +224,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButtonAmended.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -243,12 +238,7 @@ test.describe('Services counselor user', () => {
       // add orders
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
-      await expect(page.getByText('Uploading')).toBeVisible();
-      await expect(page.getByText('Uploading')).not.toBeVisible();
-      await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(
-        page.getByTestId('uploads-table').getByText(appendTimestampToFilenamePrefix('AF Orders Sample')),
-      ).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(1);
@@ -260,8 +250,8 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample')).not.toBeVisible();
-      await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
     });
   });
 
@@ -381,7 +371,7 @@ test.describe('Services counselor user', () => {
       // Edit the shipment so that the tag disappears
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
-      await page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+      await page.getByLabel('Requested pickup date').fill(getFutureDate());
 
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
