@@ -59,6 +59,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 	vLocationServices := address.NewVLocation()
+	vIntlLocationServices := address.NewVIntlLocation()
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -151,6 +152,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentCreator,
 			mtoChecker,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		// Make stubbed addresses just to collect address data for payload

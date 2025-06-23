@@ -35,6 +35,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	vLocation := address.NewVLocation()
+	vIntlLocation := address.NewVIntlLocation()
 
 	primeSpec, err := loads.Analyzed(primev2api.SwaggerJSON, "")
 	if err != nil {
@@ -86,6 +87,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 		shipmentCreator,
 		movetaskorder.NewMoveTaskOrderChecker(),
 		vLocation,
+		vIntlLocation,
 	}
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
@@ -117,6 +119,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 		handlerConfig,
 		shipmentUpdater,
 		vLocation,
+		vIntlLocation,
 		handlerConfig.DTODPlanner(),
 	}
 

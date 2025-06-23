@@ -29,6 +29,7 @@ type CreateMTOShipmentHandler struct {
 	services.ShipmentCreator
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
 	services.VLocation
+	services.VIntlLocation
 }
 
 // Handle creates the mto shipment
@@ -214,8 +215,13 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 
 				for _, address := range addresses {
-					addressSearch := address.City + ", " + address.State + " " + address.PostalCode
-					err := checkValidAddress(h.VLocation, appCtx, statesToExclude, addressSearch)
+					if address.Country.Country == "US" {
+						conusAddressSearch := address.City + ", " + address.State + " " + address.PostalCode
+						err = checkValidAddress(h.VLocation, appCtx, statesToExclude, conusAddressSearch)
+					} else {
+						oconusAddressSearch := address.City + ", " + address.State + " " + address.PostalCode
+						err = checkValidOconusAddress(h.VIntlLocation, appCtx, address.Country.Country, oconusAddressSearch)
+					}
 
 					if err != nil {
 						appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
@@ -283,12 +289,28 @@ func checkValidAddress(vLocation services.VLocation, appCtx appcontext.AppContex
 	return nil
 }
 
+func checkValidOconusAddress(vIntlLocation services.VIntlLocation, appCtx appcontext.AppContext, country string, addressSearch string) error {
+	locationList, err := vIntlLocation.GetOconusLocations(appCtx, country, addressSearch, true)
+
+	if err != nil {
+		serverError := apperror.NewInternalServerError("Error searching for oconus address")
+		return serverError
+	} else if len(*locationList) == 0 {
+		unprocessableErr := apperror.NewUnprocessableEntityError(
+			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: could not find the provided location: %s", addressSearch))
+		return unprocessableErr
+	}
+
+	return nil
+}
+
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentUpdater
 	planner route.Planner
 	services.VLocation
+	services.VIntlLocation
 }
 
 // Handle handler that updates a mto shipment
@@ -408,8 +430,14 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			for _, address := range addresses {
-				addressSearch := address.City + ", " + address.State + " " + address.PostalCode
-				err := checkValidAddress(h.VLocation, appCtx, statesToExclude, addressSearch)
+				err = nil
+				if address.Country.Country == "US" {
+					conusAddressSearch := address.City + ", " + address.State + " " + address.PostalCode
+					err = checkValidAddress(h.VLocation, appCtx, statesToExclude, conusAddressSearch)
+				} else {
+					oconusAddressSearch := address.City + ", " + address.State + " " + address.PostalCode
+					err = checkValidOconusAddress(h.VIntlLocation, appCtx, address.Country.Country, oconusAddressSearch)
+				}
 
 				if err != nil {
 					appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))

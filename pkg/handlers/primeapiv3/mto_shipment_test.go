@@ -66,6 +66,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 	vLocationServices := address.NewVLocation()
+	vIntlLocationServices := address.NewVIntlLocation()
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -264,6 +265,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentCreator,
 			mtoChecker,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		setupAddresses()
@@ -279,6 +281,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentCreator,
 			mtoChecker,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		setupAddresses()
@@ -616,6 +619,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -915,6 +919,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -1639,6 +1644,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -1719,6 +1725,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{}, nil)
@@ -1769,6 +1776,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -1866,6 +1874,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -2021,6 +2030,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -2150,6 +2160,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -2279,6 +2290,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -2417,6 +2429,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 			planner,
 			vLocationServices,
+			vIntlLocationServices,
 		}
 
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
