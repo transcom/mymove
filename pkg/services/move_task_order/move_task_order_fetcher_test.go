@@ -1438,27 +1438,23 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 
 	})
 	suite.Run("Success with fetching a MTO with RankID", func() {
-		// Create a rank
 		rank := factory.FetchOrBuildRank(suite.DB(), nil, nil)
-
 		rankID := rank.ID
 		orders := models.Order{
 			RankID: &rankID,
 		}
-
 		expectedMTO := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: orders,
 			},
 		}, nil)
-
 		searchParams := services.MoveTaskOrderFetcherParams{
 			MoveTaskOrderID: expectedMTO.ID,
 		}
 
 		actualMTO, err := fetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
-		suite.NoError(err)
 
+		suite.NoError(err)
 		suite.NotNil(actualMTO.Orders.RankID)
 		suite.Equal(*expectedMTO.Orders.RankID, *actualMTO.Orders.RankID)
 		suite.NotNil(actualMTO.Orders.Rank)
@@ -1467,25 +1463,21 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 	})
 
 	suite.Run("Success with fetching a MTO without RankID", func() {
-		// Create a move without a RankID
-
 		orders := models.Order{
 			RankID: nil,
 		}
-
 		expectedMTO := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: orders,
 			},
 		}, nil)
-
 		searchParams := services.MoveTaskOrderFetcherParams{
 			MoveTaskOrderID: expectedMTO.ID,
 		}
 
 		actualMTO, err := fetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
-		suite.NoError(err)
 
+		suite.NoError(err)
 		suite.Nil(actualMTO.Orders.RankID)
 		suite.Nil(actualMTO.Orders.Rank)
 	})
@@ -1493,7 +1485,6 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 	suite.Run("Valid PayGradeID", func() {
 		waf := entitlements.NewWeightAllotmentFetcher()
 		fetcher := m.NewMoveTaskOrderFetcher(waf)
-
 		customs := []factory.Customization{
 			{
 				Model: models.Rank{
@@ -1517,8 +1508,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 	suite.Run("Invalid PayGradeID", func() {
 		waf := entitlements.NewWeightAllotmentFetcher()
 		fetcher := m.NewMoveTaskOrderFetcher(waf)
-
 		invalidID := uuid.Must(uuid.NewV4())
+
 		result, err := fetcher.FindRankByRankID(suite.AppContextForTest(), invalidID)
 
 		suite.Error(err)

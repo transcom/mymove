@@ -45,6 +45,5 @@ func FetchOrBuildRank(db *pop.Connection, customs []Customization, traits []Trai
 	if rank.PayGradeID != uuid.Nil {
 		mustCreate(db, &rank)
 	}
-
 	return rank
 }

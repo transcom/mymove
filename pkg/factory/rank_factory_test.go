@@ -13,6 +13,7 @@ func (suite *FactorySuite) TestBuildRank() {
 			RankName:    "Senior Airman",
 			RankAbbv:    "SrA"}
 		rank := FetchOrBuildRank(nil, nil, nil)
+
 		suite.Equal(expected, rank)
 	})
 	suite.Run("with link only customization", func() {
@@ -25,21 +26,19 @@ func (suite *FactorySuite) TestBuildRank() {
 			},
 		}
 		rank := FetchOrBuildRank(nil, customs, nil)
+
 		suite.Equal("Linked Rank", rank.RankName)
 	})
 
 	suite.Run("with valid database connection", func() {
-
 		rank := FetchOrBuildRank(suite.DB(), nil, nil)
 
 		suite.Equal(string(models.DepartmentIndicatorARMY), rank.Affiliation)
 		suite.Equal("SrA", rank.RankAbbv)
 		suite.Equal("Senior Airman", rank.RankName)
-
 	})
 
 	suite.Run("with database and missing pay grade", func() {
-
 		rank := FetchOrBuildRank(suite.DB(), nil, nil)
 
 		suite.Equal(string(models.DepartmentIndicatorARMY), rank.Affiliation)

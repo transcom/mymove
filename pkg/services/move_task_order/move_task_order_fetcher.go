@@ -372,7 +372,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			return &models.Move{}, apperror.NewQueryError("Rank", err, "")
 		}
 		mto.Orders.Rank = &userPayGrade
-
 	}
 
 	if mto.Orders.DestinationGBLOC == nil {
