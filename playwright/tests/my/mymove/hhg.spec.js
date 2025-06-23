@@ -49,13 +49,13 @@ test.describe('HHG', () => {
     const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
     const secondaryPickupLocation = 'YUMA, AZ 85364 (YUMA)';
     const deliveryLocation = 'YUMA, AZ 85367 (YUMA)';
-    const secondaryDeliveryLocation = 'YUMA, AZ 85366 (YUMA)';
+    const secondaryDeliveryLocation = 'YUMA, AZ 85365 (YUMA)';
 
     const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
     await page.locator('input[id="pickup.address-input"]').fill('90210');
-    await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
+    await expect(page.getByText(pickupLocation, { exact: true }).nth(0)).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Secondary pickup address
@@ -79,8 +79,8 @@ test.describe('HHG', () => {
     await deliveryAddress.getByText('Yes').nth(1).click();
     await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
     await deliveryAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryDelivery.address-input"]').fill('85366');
-    await expect(page.getByText(secondaryDeliveryLocation, { exact: true })).toBeVisible();
+    await page.locator('input[id="secondaryDelivery.address-input"]').fill('85365');
+    await expect(page.getByText(secondaryDeliveryLocation, { exact: true }).nth(0)).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
 
