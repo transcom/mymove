@@ -176,6 +176,7 @@ type PPMDocuments struct {
 	WeightTickets
 	MovingExpenses
 	ProgearWeightTickets
+	GunSafeWeightTickets
 }
 
 // PPMType represents the type of a PPM shipment
@@ -252,6 +253,7 @@ type PPMShipment struct {
 	WeightTickets                  WeightTickets        `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	MovingExpenses                 MovingExpenses       `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	ProgearWeightTickets           ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	GunSafeWeightTickets           GunSafeWeightTickets `has_many:"gunsafe_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	SignedCertification            *SignedCertification `has_one:"signed_certification" fk_id:"ppm_id"`
 	AOAPacketID                    *uuid.UUID           `json:"aoa_packet_id" db:"aoa_packet_id"`
 	AOAPacket                      *Document            `belongs_to:"documents" fk_id:"aoa_packet_id"`
