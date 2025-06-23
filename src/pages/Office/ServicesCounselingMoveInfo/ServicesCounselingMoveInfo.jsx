@@ -14,7 +14,6 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import Inaccessible from 'shared/Inaccessible';
 import { roleTypes } from 'constants/userRoles';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -53,7 +52,6 @@ const ServicesCounselingMoveInfo = () => {
   const [shipmentErrorConcernCount, setShipmentErrorConcernCount] = useState(0);
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
-  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
   const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
@@ -76,23 +74,17 @@ const ServicesCounselingMoveInfo = () => {
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
 
-  // checking for the move_lock flag, if it's turned on we need to assess if the move should be locked to the user
-  useEffect(() => {
-    isBooleanFlagEnabled('move_lock').then(setMoveLockFlag);
-  }, []);
-
   useEffect(() => {
     const checkLock = async () => {
       const now = new Date();
       const isLocked =
-        moveLockFlag &&
         move?.lockedByOfficeUserID &&
         officeUserID !== move?.lockedByOfficeUserID &&
         now < new Date(move?.lockExpiresAt);
       setIsMoveLocked(isLocked);
     };
     checkLock();
-  }, [move, officeUserID, moveLockFlag]);
+  }, [move, officeUserID]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -215,7 +207,7 @@ const ServicesCounselingMoveInfo = () => {
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
     const now = new Date();
-    if (move?.lockedByOfficeUserID && move?.lockExpiresAt && moveLockFlag) {
+    if (move?.lockedByOfficeUserID && move?.lockExpiresAt) {
       if (move?.lockedByOfficeUserID !== officeUserID && now < new Date(move?.lockExpiresAt)) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">
