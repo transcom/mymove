@@ -6632,7 +6632,7 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOTaskOrderAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TIOAssignedUser:
+      TIOPaymentRequestAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOODestinationAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
