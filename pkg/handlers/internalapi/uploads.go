@@ -1,16 +1,21 @@
 package internalapi
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -20,9 +25,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 	"github.com/transcom/mymove/pkg/utils"
@@ -434,5 +441,191 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			}
 			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 			return ppmop.NewCreatePPMUploadCreated().WithPayload(uploadPayload), nil
+		})
+}
+
+// UploadStatusHandler returns status of an upload
+type GetUploadStatusHandler struct {
+	handlers.HandlerConfig
+	services.UploadInformationFetcher
+}
+
+type CustomGetUploadStatusResponse struct {
+	params     uploadop.GetUploadStatusParams
+	storageKey string
+	appCtx     appcontext.AppContext
+	receiver   notifications.NotificationReceiver
+	storer     storage.FileStorer
+}
+
+func (o *CustomGetUploadStatusResponse) writeEventStreamMessage(rw http.ResponseWriter, producer runtime.Producer, id int, event string, data string) {
+	resProcess := []byte(fmt.Sprintf("id: %s\nevent: %s\ndata: %s\n\n", strconv.Itoa(id), event, data))
+	if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
+		o.appCtx.Logger().Error(produceErr.Error())
+	}
+	if f, ok := rw.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	// Check current tag before event-driven wait for anti-virus
+	tags, err := o.storer.Tags(o.storageKey)
+	var uploadStatus models.AVStatusType
+	if err != nil {
+		uploadStatus = models.AVStatusPROCESSING
+	} else {
+		uploadStatus = models.GetAVStatusFromTags(tags)
+	}
+
+	// Limitation: once the status code header has been written (first response), we are not able to update the status for subsequent responses.
+	// Standard 200 OK used with common SSE paradigm
+	rw.WriteHeader(http.StatusOK)
+	if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED || uploadStatus == models.ClamAVStatusCLEAN || uploadStatus == models.ClamAVStatusINFECTED {
+		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
+		o.writeEventStreamMessage(rw, producer, 1, "close", "Connection closed")
+		return // skip notification loop since object already tagged from anti-virus
+	} else {
+		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
+	}
+
+	// Start waiting for tag updates
+	topicName, err := o.receiver.GetDefaultTopic()
+	if err != nil {
+		o.appCtx.Logger().Error(err.Error())
+	}
+
+	filterPolicy := fmt.Sprintf(`{
+		"detail": {
+				"object": {
+					"key": [
+						{"suffix": "%s"}
+					]
+				}
+			}
+	}`, o.params.UploadID)
+
+	notificationParams := notifications.NotificationQueueParams{
+		SubscriptionTopicName: topicName,
+		NamePrefix:            notifications.QueuePrefixObjectTagsAdded,
+		FilterPolicy:          filterPolicy,
+	}
+
+	queueUrl, err := o.receiver.CreateQueueWithSubscription(o.appCtx, notificationParams)
+	if err != nil {
+		o.appCtx.Logger().Error(err.Error())
+	}
+
+	id_counter := 1
+
+	// For loop over 120 seconds, cancel context when done and it breaks the loop
+	totalReceiverContext, totalReceiverContextCancelFunc := context.WithTimeout(context.Background(), 120*time.Second)
+	defer func() {
+		id_counter++
+		o.writeEventStreamMessage(rw, producer, id_counter, "close", "Connection closed")
+		totalReceiverContextCancelFunc()
+	}()
+
+	// Cleanup if client closes connection
+	go func() {
+		<-o.params.HTTPRequest.Context().Done()
+		totalReceiverContextCancelFunc()
+	}()
+
+	// Cleanup at end of work
+	go func() {
+		<-totalReceiverContext.Done()
+		_ = o.receiver.CloseoutQueue(o.appCtx, queueUrl)
+	}()
+
+	for {
+		o.appCtx.Logger().Info("Receiving Messages...")
+		messages, errs := o.receiver.ReceiveMessages(o.appCtx, queueUrl, totalReceiverContext)
+
+		if errors.Is(errs, context.Canceled) || errors.Is(errs, context.DeadlineExceeded) {
+			return
+		}
+		if errs != nil {
+			o.appCtx.Logger().Error(err.Error())
+			return
+		}
+
+		if len(messages) != 0 {
+			errTransaction := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+
+				tags, err := o.storer.Tags(o.storageKey)
+
+				if err != nil {
+					uploadStatus = models.AVStatusPROCESSING
+				} else {
+					uploadStatus = models.GetAVStatusFromTags(tags)
+				}
+
+				o.writeEventStreamMessage(rw, producer, id_counter, "message", string(uploadStatus))
+
+				if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED || uploadStatus == models.ClamAVStatusCLEAN || uploadStatus == models.ClamAVStatusINFECTED {
+					return errors.New("connection_closed")
+				}
+
+				return err
+			})
+
+			if errTransaction != nil && errTransaction.Error() == "connection_closed" {
+				return
+			}
+
+			if errTransaction != nil {
+				o.appCtx.Logger().Error(err.Error())
+				return
+			}
+		}
+		id_counter++
+
+		select {
+		case <-totalReceiverContext.Done():
+			return
+		default:
+			time.Sleep(1 * time.Second) // Throttle as a precaution against hounding of the SDK
+			continue
+		}
+	}
+}
+
+// Handle returns status of an upload
+func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("GetUploadStatusHandler error", zap.Error(err))
+				switch errors.Cause(err) {
+				case models.ErrFetchForbidden:
+					return uploadop.NewGetUploadStatusForbidden(), err
+				case models.ErrFetchNotFound:
+					return uploadop.NewGetUploadStatusNotFound(), err
+				default:
+					return uploadop.NewGetUploadStatusInternalServerError(), err
+				}
+			}
+
+			uploadId := params.UploadID.String()
+			uploadUUID, err := uuid.FromString(uploadId)
+			if err != nil {
+				return handleError(err)
+			}
+
+			uploaded, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadUUID)
+			if err != nil {
+				return handleError(err)
+			}
+
+			return &CustomGetUploadStatusResponse{
+				params:     params,
+				storageKey: uploaded.Upload.StorageKey,
+				appCtx:     h.AppContextFromRequest(params.HTTPRequest),
+				receiver:   h.NotificationReceiver(),
+				storer:     h.FileStorer(),
+			}, nil
 		})
 }
