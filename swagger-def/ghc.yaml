@@ -6459,7 +6459,10 @@ definitions:
       grade:
         $ref: 'definitions/OrderPayGrade.yaml'
       rank:
-        $ref: 'definitions/Rank.yaml'
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6544,6 +6547,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+        x-nullable: true
       dependentsAuthorized:
         type: boolean
         x-nullable: true

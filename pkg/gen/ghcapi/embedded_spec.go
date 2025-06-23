@@ -8290,7 +8290,10 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -15929,6 +15932,7 @@ func init() {
         "rank": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reportByDate": {
@@ -27284,7 +27288,10 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -35056,6 +35063,7 @@ func init() {
         "rank": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reportByDate": {
