@@ -54,9 +54,10 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { isPreceedingAddressComplete } from 'shared/utils';
 import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
-import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import { handleAddressToggleChange, blankAddress, blankContact } from 'utils/shipments';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import { BackupContactShape } from 'types/backupContact';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -167,6 +168,7 @@ class MtoShipmentForm extends Component {
       mtoShipment,
       orders,
       currentResidence,
+      backupContact,
       router: { params, navigate },
       handleBack,
       isMoveLocked,
@@ -249,6 +251,80 @@ class MtoShipmentForm extends Component {
                     pickup: {
                       ...values.pickup,
                       address: blankAddress.address,
+                    },
+                  },
+                  { shouldValidate: true },
+                );
+              }
+            };
+
+            const handleUseBackupContactForReleaseAgentChange = (e) => {
+              const { checked } = e.target;
+              if (checked) {
+                // use backup contact
+                setValues(
+                  {
+                    ...values,
+                    pickup: {
+                      ...values.pickup,
+                      agent: {
+                        ...values.pickup.agent,
+                        ...backupContact,
+                        phone: backupContact.telephone,
+                      },
+                    },
+                  },
+                  { shouldValidate: true },
+                );
+              } else {
+                // Revert address
+                setValues(
+                  {
+                    ...values,
+                    pickup: {
+                      ...values.pickup,
+                      agent: {
+                        ...values.pickup.agent,
+                        ...blankContact.contact,
+                        phone: blankContact.contact.telephone,
+                      },
+                    },
+                  },
+                  { shouldValidate: true },
+                );
+              }
+            };
+
+            const handleUseBackupContactForReceivingAgentChange = (e) => {
+              const { checked } = e.target;
+              if (checked) {
+                // use backup contact
+                setValues(
+                  {
+                    ...values,
+                    delivery: {
+                      ...values.delivery,
+                      agent: {
+                        ...values.delivery.agent,
+                        ...backupContact,
+                        phone: backupContact.telephone,
+                      },
+                    },
+                  },
+                  { shouldValidate: true },
+                );
+              } else {
+                // Revert address
+                setValues(
+                  {
+                    ...values,
+                    delivery: {
+                      ...values.delivery,
+                      agent: {
+                        ...values.delivery.agent,
+                        ...blankContact.contact,
+                        phone: blankContact.contact.telephone,
+                      },
                     },
                   },
                   { shouldValidate: true },
@@ -522,6 +598,13 @@ class MtoShipmentForm extends Component {
                               render={(fields) => (
                                 <>
                                   <p>Who can let the movers pick up your personal property if you are not there?</p>
+                                  <Checkbox
+                                    data-testid="useBackupContactForReleaseAgent"
+                                    label="Use backup contact"
+                                    name="useBackupContactForReleaseAgent"
+                                    onChange={handleUseBackupContactForReleaseAgentChange}
+                                    id="useBackupContactForReleaseAgent"
+                                  />
                                   {fields}
                                 </>
                               )}
@@ -724,6 +807,13 @@ class MtoShipmentForm extends Component {
                               render={(fields) => (
                                 <>
                                   <p>Who can take delivery for you if the movers arrive and you are not there?</p>
+                                  <Checkbox
+                                    data-testid="useBackupContactForReceivingAgent"
+                                    label="Use backup contact"
+                                    name="useBackupContactForReceivingAgent"
+                                    onChange={handleUseBackupContactForReceivingAgentChange}
+                                    id="useBackupContactForReceivingAgent"
+                                  />
                                   {fields}
                                 </>
                               )}
@@ -841,6 +931,7 @@ MtoShipmentForm.propTypes = {
   updateMTOShipment: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
+  backupContact: BackupContactShape.isRequired,
   newDutyLocationAddress: SimpleAddressShape,
   shipmentType: string.isRequired,
   mtoShipment: ShipmentShape,

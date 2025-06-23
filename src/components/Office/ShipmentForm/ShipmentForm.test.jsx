@@ -16,6 +16,7 @@ import { validatePostalCode } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { formatDateWithUTC, formatDateForDatePicker } from 'shared/dates';
 import { dateSelectionIsWeekendHoliday } from 'services/ghcApi';
+import { blankContact } from 'utils/shipments';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -251,6 +252,12 @@ const defaultProps = {
   userRole: roleTypes.SERVICES_COUNSELOR,
   orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   isForServivcesCounseling: false,
+  backupContact: {
+    firstName: 'John',
+    lastName: 'Miller',
+    email: 'johnmiller@abcdefg.edu',
+    telephone: '444-567-5432',
+  },
 };
 
 const mockShipmentWithDestinationType = {
@@ -525,7 +532,13 @@ describe('ShipmentForm component', () => {
       expect(screen.getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
       expect(screen.getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
 
+      const contactCheckboxes = screen.getAllByLabelText('Use backup contact');
+      expect(contactCheckboxes).toHaveLength(2);
+
       expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBeInTheDocument();
+      expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBe(contactCheckboxes[0]);
       expect(screen.getAllByLabelText('First name')[0]).toHaveAttribute('name', 'pickup.agent.firstName');
       expect(screen.getAllByLabelText('Last name')[0]).toHaveAttribute('name', 'pickup.agent.lastName');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveAttribute('name', 'pickup.agent.phone');
@@ -543,6 +556,9 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBeInTheDocument();
+      expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBe(contactCheckboxes[1]);
       expect(screen.getAllByLabelText('First name')[1]).toHaveAttribute('name', 'delivery.agent.firstName');
       expect(screen.getAllByLabelText('Last name')[1]).toHaveAttribute('name', 'delivery.agent.lastName');
       expect(screen.getAllByLabelText('Phone')[1]).toHaveAttribute('name', 'delivery.agent.phone');
@@ -574,6 +590,98 @@ describe('ShipmentForm component', () => {
           `${defaultProps.currentResidence.city}, ${defaultProps.currentResidence.state} ${defaultProps.currentResidence.postalCode} (${defaultProps.currentResidence.county})`,
         ),
       );
+    });
+
+    it('uses the backup contact for release agent when checked', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      const releaseAgentSection = screen.getByText(/Releasing agent/).closest('fieldset');
+
+      const releaseAgentBackupContactCheckbox = within(releaseAgentSection).getByTestId(
+        'useBackupContactForReleaseAgent',
+      );
+
+      await userEvent.click(releaseAgentBackupContactCheckbox);
+      expect(releaseAgentBackupContactCheckbox).toBeChecked();
+
+      await waitFor(() => {
+        expect(within(releaseAgentSection).getByLabelText('First name')).toHaveValue(
+          defaultProps.backupContact.firstName,
+        );
+        expect(within(releaseAgentSection).getByLabelText('Last name')).toHaveValue(
+          defaultProps.backupContact.lastName,
+        );
+        expect(within(releaseAgentSection).getByLabelText('Email')).toHaveValue(defaultProps.backupContact.email);
+        expect(within(releaseAgentSection).getByLabelText('Phone')).toHaveValue(defaultProps.backupContact.phone);
+      });
+    });
+
+    it('release agent is blank when unchecked', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      const releaseAgentSection = screen.getByText(/Releasing agent/).closest('fieldset');
+
+      const releaseAgentBackupContactCheckbox = within(releaseAgentSection).getByTestId(
+        'useBackupContactForReleaseAgent',
+      );
+
+      await userEvent.click(releaseAgentBackupContactCheckbox);
+      expect(releaseAgentBackupContactCheckbox).toBeChecked();
+      await userEvent.click(releaseAgentBackupContactCheckbox);
+      expect(releaseAgentBackupContactCheckbox).not.toBeChecked();
+
+      await waitFor(() => {
+        expect(within(releaseAgentSection).getByLabelText('First name')).toHaveValue(blankContact.contact.firstName);
+        expect(within(releaseAgentSection).getByLabelText('Last name')).toHaveValue(blankContact.contact.lastName);
+        expect(within(releaseAgentSection).getByLabelText('Email')).toHaveValue(blankContact.contact.email);
+        expect(within(releaseAgentSection).getByLabelText('Phone')).toHaveValue(blankContact.contact.telephone);
+      });
+    });
+
+    it('uses the backup contact for receiving agent when checked', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      const receivingAgentSection = screen.getByText(/Receiving agent/).closest('fieldset');
+
+      const receivingAgentBackupContactCheckbox = within(receivingAgentSection).getByTestId(
+        'useBackupContactForReceivingAgent',
+      );
+
+      await userEvent.click(receivingAgentBackupContactCheckbox);
+      expect(receivingAgentBackupContactCheckbox).toBeChecked();
+
+      await waitFor(() => {
+        expect(within(receivingAgentSection).getByLabelText('First name')).toHaveValue(
+          defaultProps.backupContact.firstName,
+        );
+        expect(within(receivingAgentSection).getByLabelText('Last name')).toHaveValue(
+          defaultProps.backupContact.lastName,
+        );
+        expect(within(receivingAgentSection).getByLabelText('Email')).toHaveValue(defaultProps.backupContact.email);
+        expect(within(receivingAgentSection).getByLabelText('Phone')).toHaveValue(defaultProps.backupContact.phone);
+      });
+    });
+
+    it('receiving agent is blank when unchecked', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      const receivingAgentSection = screen.getByText(/Receiving agent/).closest('fieldset');
+
+      const receivingAgentBackupContactCheckbox = within(receivingAgentSection).getByTestId(
+        'useBackupContactForReceivingAgent',
+      );
+
+      await userEvent.click(receivingAgentBackupContactCheckbox);
+      expect(receivingAgentBackupContactCheckbox).toBeChecked();
+      await userEvent.click(receivingAgentBackupContactCheckbox);
+      expect(receivingAgentBackupContactCheckbox).not.toBeChecked();
+
+      await waitFor(() => {
+        expect(within(receivingAgentSection).getByLabelText('First name')).toHaveValue(blankContact.contact.firstName);
+        expect(within(receivingAgentSection).getByLabelText('Last name')).toHaveValue(blankContact.contact.lastName);
+        expect(within(receivingAgentSection).getByLabelText('Email')).toHaveValue(blankContact.contact.email);
+        expect(within(receivingAgentSection).getByLabelText('Phone')).toHaveValue(blankContact.contact.telephone);
+      });
     });
 
     it('renders a second address fieldset when the user has a second pickup address', async () => {
