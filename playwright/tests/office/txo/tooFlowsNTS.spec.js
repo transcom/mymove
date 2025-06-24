@@ -58,7 +58,8 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       // Basic info
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.getByText('Use pickup address').click();
 
       // Storage facility info

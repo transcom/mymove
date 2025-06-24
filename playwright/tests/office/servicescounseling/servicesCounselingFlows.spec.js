@@ -103,7 +103,8 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
@@ -319,7 +320,8 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
@@ -333,7 +335,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
-      await page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
 
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
@@ -345,7 +347,8 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
