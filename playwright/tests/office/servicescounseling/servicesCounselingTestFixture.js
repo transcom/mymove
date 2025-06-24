@@ -159,11 +159,18 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Storage facility address
     const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
+    const countrySearch = 'UNITED STATES';
 
     const storageAddress = this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
     await storageAddress.getByLabel('Address 1').fill('148 S East St');
     await storageAddress.getByLabel('Address 2').fill('Suite 7A');
-    await this.page.locator('input[id="storageFacility.address-input"]').fill('30301');
+    await this.page.locator('input[id="storageFacility.address-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const storageLocator = this.page.locator('input[id="storageFacility.address-input"]');
+    await storageLocator.click({ timeout: 5000 });
+    await storageLocator.fill('30301');
     await expect(storageAddress.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
     await this.page.getByLabel('Lot number').fill('1111111');
@@ -178,7 +185,13 @@ export class ServiceCounselorPage extends OfficePage {
     const deliveryLocation = this.page.getByRole('group', { name: 'Delivery Address' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
-    await this.page.locator('input[id="delivery.address-input"]').fill('36101');
+    await this.page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const deliveryLocator = this.page.locator('input[id="delivery.address-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('36101');
     await expect(deliveryLocation.getByText(DeliveryLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
