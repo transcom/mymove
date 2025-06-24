@@ -22,6 +22,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const EvaluationForm = ({
   evaluationReport,
@@ -381,10 +382,21 @@ const EvaluationForm = ({
                   <Grid col>
                     <h2>Evaluation form</h2>
                     <h3>Evaluation information</h3>
-                    <DatePickerInput label="Date of inspection" name="inspectionDate" disableErrorLabel />
+                    {requiredAsteriskMessage}
+                    <DatePickerInput
+                      label="Date of inspection"
+                      name="inspectionDate"
+                      disableErrorLabel
+                      showRequiredAsterisk
+                      required
+                    />
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
-                        <legend className="usa-label">Evaluation type</legend>
+                        <legend className="usa-label" aria-label="Required: Evaluation type">
+                          <span required>
+                            Evaluation type <RequiredAsterisk />
+                          </span>
+                        </legend>
                         <Field
                           as={Radio}
                           label="Data review"
@@ -419,7 +431,11 @@ const EvaluationForm = ({
                     </FormGroup>
                     {showTimeDepartStartEnd && (
                       <>
-                        <legend className="usa-label">Time departed for evaluation</legend>
+                        <legend className="usa-label" aria-label="Required: Time departed for evaluation">
+                          <span required>
+                            Time departed for evaluation <RequiredAsterisk />
+                          </span>
+                        </legend>
                         <div className={styles.durationPickers}>
                           <div>
                             <DropdownInput
@@ -450,7 +466,11 @@ const EvaluationForm = ({
                         </div>
                       </>
                     )}
-                    <legend className="usa-label">Time evaluation started</legend>
+                    <legend className="usa-label" aria-label="Required: Time evaluation started">
+                      <span required>
+                        Time evaluation started <RequiredAsterisk />
+                      </span>
+                    </legend>
                     <div className={styles.durationPickers}>
                       <div>
                         <DropdownInput
@@ -479,7 +499,11 @@ const EvaluationForm = ({
                         />
                       </div>
                     </div>
-                    <legend className="usa-label">Time evaluation ended</legend>
+                    <legend className="usa-label" aria-label="Required: Time evaluation ended">
+                      <span required>
+                        Time evaluation ended <RequiredAsterisk />
+                      </span>
+                    </legend>
                     <div className={styles.durationPickers}>
                       <div>
                         <DropdownInput
@@ -510,7 +534,11 @@ const EvaluationForm = ({
                     </div>
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
-                        <legend className="usa-label">Evaluation location</legend>
+                        <legend className="usa-label" aria-label="Required: Evaluation location">
+                          <span required>
+                            Evaluation location <RequiredAsterisk />
+                          </span>
+                        </legend>
                         <Field
                           as={Radio}
                           label="Origin"
@@ -579,7 +607,11 @@ const EvaluationForm = ({
                     <h3>Violations</h3>
                     <FormGroup className={styles.violationsGroup}>
                       <Fieldset>
-                        <legend className="usa-label">Violations observed</legend>
+                        <legend className="usa-label" aria-label="Required: Violations observed">
+                          <span required>
+                            Violations observed <RequiredAsterisk />
+                          </span>
+                        </legend>
                         <Field
                           as={Radio}
                           label="No"
@@ -616,13 +648,18 @@ const EvaluationForm = ({
                 <Grid row>
                   <Grid col>
                     <h3>QAE remarks</h3>
-                    <Label htmlFor="evaluationRemarks">Evaluation remarks</Label>
+                    <Label htmlFor="evaluationRemarks">
+                      <span required>
+                        Evaluation remarks <RequiredAsterisk />
+                      </span>
+                    </Label>
                     <Field
                       as={Textarea}
                       name="remarks"
                       id="evaluationRemarks"
                       title="Evaluation remarks"
                       className={styles.textArea}
+                      required
                     />
                   </Grid>
                 </Grid>
