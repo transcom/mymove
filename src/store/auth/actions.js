@@ -54,3 +54,10 @@ export const SET_UNDER_MAINTENANCE = 'SET_UNDER_MAINTENANCE';
 export const setUnderMaintenance = () => ({
   type: SET_UNDER_MAINTENANCE,
 });
+
+export const SET_ACTIVE_OFFICE = 'SET_ACTIVE_OFFICE';
+
+export const setActiveOffice = (office) => ({
+  type: SET_ACTIVE_OFFICE,
+  payload: office,
+});
