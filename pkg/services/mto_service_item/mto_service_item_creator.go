@@ -779,6 +779,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 
+		// Unlike domestic, we need to call stored procedure to calculate and set estimated pricing for international service items.
+		if mtoShipment.MarketCode == models.MarketCodeInternational {
+			if err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(txnAppCtx.DB(), &mtoShipment, nil); err != nil {
+				return err
+			}
+		}
+
 		if _, err = o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
