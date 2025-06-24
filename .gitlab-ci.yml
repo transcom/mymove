@@ -65,7 +65,7 @@ stages:
 #anchors
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
-    - git config --global --add safe.directory /builds/milmove/mymove
+    #- git config --global --add safe.directory /builds/milmove/mymove
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
     - export REACT_APP_ERROR_LOGGING=otel
     # - echo "Listing all environment variables:"
@@ -1239,6 +1239,7 @@ integration_test_mtls:
     # - source server_env
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
+    - pwd
     - make bin/milmove
     - bin/milmove serve
     # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
