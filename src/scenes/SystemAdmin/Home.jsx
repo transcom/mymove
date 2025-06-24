@@ -106,7 +106,7 @@ const theme = deepmerge(defaultTheme, {
             opacity: '0.8',
           },
           '&:visited': {
-            color: '#FFFFF',
+            color: '##2491ff !important',
           },
         },
       },
