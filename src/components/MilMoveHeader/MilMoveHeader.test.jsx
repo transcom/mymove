@@ -44,7 +44,6 @@ describe('MilMoveHeader and User Infos', () => {
         <CustomerUserInfo handleLogout={signOutHandler} showProfileLink={false} />
       </MilMoveHeader>,
     );
-
     const signOutButton = screen.getByRole('button', { name: 'Sign out' });
     expect(signOutButton).toBeInstanceOf(HTMLButtonElement);
 
