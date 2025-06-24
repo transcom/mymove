@@ -428,6 +428,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
                     <Button
+                      data-testid="submit_button"
                       type="submit"
                       disabled={formik.isSubmitting || !counselorCanEdit}
                       onClick={scrollToViewFormikError(formik)}

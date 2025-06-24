@@ -554,6 +554,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build submitted move with ppm shipment for SC
+   * @returns {Promise<Move>}
+   */
+  async buildSubmittedMoveWithAerPPMShipmentForSC() {
+    return this.buildDefault('SubmittedMoveWithAerPPMShipmentForSC');
+  }
+
+  /**
    * Use testharness to build submitted move with too created ppm shipment for SC
    * @returns {Promise<Move>}
    */

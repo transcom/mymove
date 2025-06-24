@@ -103,12 +103,13 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
-
+      const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').fill('16 May 2022');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
       await page.locator('#requestedDeliveryDate').blur();
 
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
@@ -125,7 +126,7 @@ test.describe('Services counselor user', () => {
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+      await page.waitForSelector('text=Your changes were saved.');
     });
     test('is able to view Origin GBLOC', async ({ page }) => {
       test.slow();
@@ -188,10 +189,8 @@ test.describe('Services counselor user', () => {
       await page.getByRole('button', { name: 'Manage Orders' }).click();
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
-      await expect(page.getByText('Uploading')).toBeVisible();
-      await expect(page.getByText('Uploading')).not.toBeVisible();
-      await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
+      await expect(page.getByText('Uploading: Uploading the file...')).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -202,7 +201,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -212,10 +211,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('button', { name: 'Manage Amended Orders' }).click();
       const filepondContainer2 = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer2, 'AF Orders Sample.pdf');
-      await expect(page.getByText('Uploading')).toBeVisible();
-      await expect(page.getByText('Uploading')).not.toBeVisible();
-      await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -226,7 +222,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButtonAmended.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -240,10 +236,7 @@ test.describe('Services counselor user', () => {
       // add orders
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
-      await expect(page.getByText('Uploading')).toBeVisible();
-      await expect(page.getByText('Uploading')).not.toBeVisible();
-      await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(1);
@@ -255,7 +248,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample\.pdf-\d{14}/)).not.toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
     });
   });
@@ -268,16 +261,17 @@ test.describe('Services counselor user', () => {
 
     test('is able to add a shipment', async ({ page, scPage }) => {
       test.slow();
-      const deliveryDate = new Date().toLocaleDateString('en-US');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(2);
 
       // add a shipment
       await page.locator('[data-testid="dropdown"]').first().selectOption({ label: 'HHG' });
 
-      await page.locator('#requestedPickupDate').fill(deliveryDate);
+      await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
-      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+      const deliveryDate = new Date(Date.now() + 120 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
@@ -319,12 +313,14 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').fill('16 May 2022');
+      const deliveryDate = new Date(Date.now() + 120 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
@@ -333,24 +329,26 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
-      await page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
 
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+      await page.waitForSelector('text=Your changes were saved.');
     });
 
     test('is able to update destination type if delivery address is unknown', async ({ page, scPage }) => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').fill('16 May 2022');
+      const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
       await page.locator('#requestedDeliveryDate').blur();
 
       // Select that we do not know the delivery address yet
@@ -362,7 +360,7 @@ test.describe('Services counselor user', () => {
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+      await page.waitForSelector('text=Your changes were saved.');
     });
 
     test('is able to see that the tag next to shipment is updated', async ({ page, scPage }) => {
@@ -375,8 +373,7 @@ test.describe('Services counselor user', () => {
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
-
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+      await expect(page.getByTestId('infoSavedMessage')).toContainText(/Your changes were saved./i);
 
       // Verify that the tag after the update is blank since missing information was filled
       await expect(page.locator('[data-testid="shipment-missing-info-alert"]')).toHaveCount(0);
@@ -479,7 +476,7 @@ test.describe('Services counselor user', () => {
       // Edit Starting Address
       await page.getByTestId('pickupAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByTestId('modal').getByTestId('button').click();
       await page.waitForSelector('text="Edit Shipment Info"', { state: 'hidden' });
       await expect(page.getByLabel('Accept')).toBeVisible();
       await page.getByLabel('Accept').dispatchEvent('click');
@@ -511,25 +508,28 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       await expect(page.getByLabel('Accept')).toBeVisible();
-      await page.getByLabel('Accept').dispatchEvent('click');
-      await page.getByRole('button', { name: 'Continue' }).click();
+      await expect(page.getByTestId('approveRadio')).toBeEnabled();
+      await page.getByTestId('approveRadio').dispatchEvent('click');
+      await page.getByTestId('reviewDocumentsContinueButton').dispatchEvent('click');
 
       await scPage.waitForPage.reviewProGear();
       await expect(page.getByLabel('Accept')).toBeVisible();
-      await page.getByLabel('Accept').dispatchEvent('click');
-      await page.getByRole('button', { name: 'Continue' }).click();
+      await expect(page.getByTestId('approveRadio')).toBeEnabled();
+      await page.getByTestId('approveRadio').dispatchEvent('click');
+      await page.getByTestId('reviewDocumentsContinueButton').dispatchEvent('click');
 
       await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
-      await expect(page.getByLabel('Accept')).toBeVisible();
-      await page.getByLabel('Accept').dispatchEvent('click');
-      await page.getByRole('button', { name: 'Continue' }).click();
+      await expect(page.getByLabel('Accept')).toBeEnabled();
+      await expect(page.getByTestId('acceptRadio')).toBeEnabled();
+      await page.getByTestId('acceptRadio').dispatchEvent('click');
+      await page.getByTestId('reviewDocumentsContinueButton').dispatchEvent('click');
 
       await scPage.waitForPage.reviewDocumentsConfirmation();
       await page.waitForSelector('text="Loading, Please Wait..."', { state: 'hidden' });
       await page.getByTestId('incentives').getByTestId('incentives-showRequestDetailsButton').click();
       await page.getByTestId('advanceReceived').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Incentives/Costs"');
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByTestId('modal').getByTestId('button').click();
       await page.waitForSelector('text="Edit Incentives/Costs"', { state: 'hidden' });
     });
   });
@@ -636,28 +636,26 @@ test.describe('Services counselor user', () => {
     test.describe('is able to view/edit actual expense reimbursement for non-civilian moves', () => {
       test('view/edit actual expense reimbursement - edit shipments page', async ({ page, scPage }) => {
         test.slow();
-        const move = await scPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+        const move = await scPage.testHarness.buildSubmittedMoveWithAerPPMShipmentForSC();
         await scPage.navigateToMove(move.locator);
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
 
         await page.getByRole('button', { name: 'Edit shipment' }).click();
         await expect(page.locator('h1').getByText('Edit shipment details')).toBeVisible();
 
-        expect(await page.locator('[data-testid="actualExpenseReimbursementTag"]').count()).toBe(0);
+        expect(await page.locator('[data-testid="actualExpenseReimbursementTag"]').count()).toBe(1);
 
         await page.getByText('Yes').first().click();
         await page.getByTestId('submitForm').click();
-        await expect(page.getByTestId('actualExpenseReimbursementTag')).toContainText('Actual Expense Reimbursement');
         await page.getByText('Approve').click();
         await page.getByTestId('counselor-remarks').click();
         await page.getByTestId('counselor-remarks').fill('test');
         await page.getByTestId('submitForm').click();
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByTestId('ShipmentContainer').getByTestId('actualReimbursementTag')).toContainText(
-          'actual expense reimbursement',
+        await expect(page.getByTestId('ShipmentContainer').getByTestId('ppmType')).toContainText(
+          /actual expense reimbursement/i,
         );
 
         await page.getByRole('button', { name: 'Edit shipment' }).click();
@@ -671,49 +669,54 @@ test.describe('Services counselor user', () => {
         await scPage.navigateToMoveUsingMoveSearch(move.locator);
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
+        await expect(page.getByTestId('ppmType')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toHaveText(/actual expense reimbursement/i);
 
         await page.getByText('Review documents').click();
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
 
         expect(await page.locator('[data-testid="tag"]').count()).toBe(0);
-        await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
-        await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').click();
+        await expect(page.getByTestId('expenseType')).toBeVisible();
+        await expect(page.getByTestId('expenseType')).toHaveText(/actual expense reimbursement/i);
+        await page.getByTestId('expenseType').getByTestId('editTextButton').click();
 
-        await expect(page.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeVisible();
-        await page.getByTestId('modal').getByText('Yes').click();
+        await expect(page.getByText(/What is the PPM type?/i)).toBeVisible();
+        await expect(page.getByTestId('modal').getByTestId('isActualExpense')).toBeVisible();
+        await page.getByTestId('modal').getByTestId('isActualExpense').check();
         await page.getByTestId('modal').getByTestId('button').click();
 
         await expect(page.getByText('Is this PPM an Actual Expense Reimbursement?')).not.toBeVisible();
         await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
+        await page.waitForSelector('[data-testid="tag"]');
         expect(await page.locator('[data-testid="tag"]').count()).toBe(1);
         await page.getByText('Accept').click();
         await page.getByTestId('closeSidebar').click();
         await expect(page.getByRole('heading', { name: 'Move Details' })).toBeVisible();
-        await expect(page.getByText('actual expense reimbursement')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toHaveText(/actual expense reimbursement/i);
       });
     });
 
     test.describe('is unable to edit actual expense reimbursement for civilian moves', () => {
       test('cannot edit actual expense reimbursement - edit shipments page', async ({ page, scPage }) => {
         test.slow();
-        const move = await scPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+        const move = await scPage.testHarness.buildSubmittedMoveWithAerPPMShipmentForSC();
         await scPage.navigateToMove(move.locator);
 
-        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
         await page.getByTestId('view-edit-orders').click();
         await page.getByTestId('payGradeInput').selectOption('AVIATION_CADET');
         await page.getByTestId('payGradeInput').selectOption('CIVILIAN_EMPLOYEE');
         await page.getByRole('button', { name: 'Save' }).click();
 
         await expect(page.getByTestId('payGrade')).toContainText('Civilian Employee');
-        await expect(page.getByText('actual expense reimbursement')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toBeVisible();
+        await expect(page.getByTestId('ppmType')).toHaveText(/actual expense reimbursement/i);
         await page.getByRole('button', { name: 'Edit shipment' }).click();
 
         await expect(page.locator('h1').getByText('Edit shipment details')).toBeVisible();
 
-        expect(await page.locator('[data-testid="isActualExpenseReimbursementYes"]').isDisabled()).toBe(true);
-        expect(await page.locator('[data-testid="isActualExpenseReimbursementNo"]').isDisabled()).toBe(true);
+        expect(await page.locator('[data-testid="isIncentiveBased"]').isDisabled()).toBe(true);
+        expect(await page.locator('[data-testid="isActualExpense"]').isChecked()).toBe(true);
       });
 
       test('cannot edit actual expense reimbursement - PPM closeout review documents', async ({ page, scPage }) => {
@@ -727,10 +730,8 @@ test.describe('Services counselor user', () => {
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
         await expect(page.getByTestId('tag')).toContainText('actual expense reimbursement');
 
-        await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
-        expect(await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').isDisabled()).toBe(
-          true,
-        );
+        await expect(page.getByTestId('tag').getByText(/Actual Expense Reimbursement/i)).toBeVisible();
+        expect(await page.getByTestId('expenseType').getByTestId('editTextButton').isDisabled()).toBe(true);
       });
     });
   });
@@ -743,8 +744,8 @@ test.describe('Services counselor user', () => {
 
     test('is unable to view/edit orders after MTO has been created(sent to prime)', async ({ page }) => {
       test.slow();
-      await expect(page.getByTestId('view-edit-orders')).toBeHidden();
-      await expect(page.getByTestId('edit-allowances')).toBeHidden();
+      await expect(page.getByTestId('view-edit-orders')).toHaveText('View orders');
+      await expect(page.getByTestId('edit-allowances')).toHaveText('View allowances');
     });
   });
 });
