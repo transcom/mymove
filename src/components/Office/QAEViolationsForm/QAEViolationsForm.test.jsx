@@ -187,9 +187,12 @@ describe('QAEViolationsForm', () => {
 
     await waitFor(() => {
       // Check out headings
+
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       expect(screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Serious incident', level: 3 })).toBeInTheDocument();
-      expect(screen.getByTestId('seriousIncidentLegend')).toHaveTextContent('Serious incident');
+      expect(screen.getByTestId('seriousIncidentLegend')).toHaveTextContent('Serious incident *');
 
       // Violation Accordion is present
       expect(screen.getByRole('heading', { name: 'Category 1', level: 3 })).toBeInTheDocument();
@@ -239,7 +242,7 @@ describe('QAEViolationsForm', () => {
     });
   });
 
-  it('renders conditional datepicker when kpi violation is selected', async () => {
+  it('renders conditional observedPickupSpreadDates datepicker when kpi violation is selected', async () => {
     const mockKpiViolation = [
       {
         additionalDataElem: 'observedPickupSpreadDates',
@@ -267,9 +270,71 @@ describe('QAEViolationsForm', () => {
     await waitFor(() => {
       // Date picker should be shown if corresponding item is checked
       expect(screen.getByTestId('violation-checkbox')).toBeInTheDocument();
-      expect(screen.getByText('Observed pickup spread start date')).toBeInTheDocument();
-      expect(screen.getByText('Observed pickup spread end date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Observed pickup spread start date *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Observed pickup spread end date *')).toBeInTheDocument();
     });
+  });
+});
+
+it('renders conditional observedPickupDate datepicker when kpi violation is selected', async () => {
+  const mockKpiViolation = [
+    {
+      additionalDataElem: 'observedPickupDate',
+      category: 'Pre-Move Services',
+      displayOrder: 7,
+      isKpi: true,
+      id: 'e1ee1719-a6d5-49b0-ad3b-c4dac0a3f16f',
+      paragraphNumber: '1.2.5.3.1',
+      requirementStatement: 'requirement statement 1',
+      requirementSummary: 'Schedule relocation using pickup spread rules',
+      subCategory: 'Counseling',
+      title: 'Scheduling Requirements',
+    },
+  ];
+
+  renderForm({ violations: mockKpiViolation });
+
+  await waitFor(() => {
+    expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
+  });
+  const checkbox = screen.getByTestId('violation-checkbox');
+  await userEvent.click(checkbox);
+
+  await waitFor(() => {
+    // Date picker should be shown if corresponding item is checked
+    expect(screen.getByTestId('violation-checkbox')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Observed pickup date */)).toBeInTheDocument();
+  });
+});
+
+it('renders conditional observedDeliveryDate datepicker when kpi violation is selected', async () => {
+  const mockKpiViolation = [
+    {
+      additionalDataElem: 'observedDeliveryDate',
+      category: 'Pre-Move Services',
+      displayOrder: 7,
+      isKpi: true,
+      id: 'e1ee1719-a6d5-49b0-ad3b-c4dac0a3f16f',
+      paragraphNumber: '1.2.5.3.1',
+      requirementStatement: 'requirement statement 1',
+      requirementSummary: 'Schedule relocation using pickup spread rules',
+      subCategory: 'Counseling',
+      title: 'Scheduling Requirements',
+    },
+  ];
+
+  renderForm({ violations: mockKpiViolation });
+
+  await waitFor(() => {
+    expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
+  });
+  const checkbox = screen.getByTestId('violation-checkbox');
+  await userEvent.click(checkbox);
+
+  await waitFor(() => {
+    // Date picker should be shown if corresponding item is checked
+    expect(screen.getByTestId('violation-checkbox')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Observed delivery date */)).toBeInTheDocument();
   });
 });
 
