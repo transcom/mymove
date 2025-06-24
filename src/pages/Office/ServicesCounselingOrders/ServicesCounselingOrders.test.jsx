@@ -11,7 +11,7 @@ import { useOrdersDocumentQueries } from 'hooks/queries';
 import { MOVE_DOCUMENT_TYPE, MOVE_STATUSES } from 'shared/constants';
 import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatYesNoAPIValue } from 'utils/formatters';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -126,6 +126,28 @@ jest.mock('services/ghcApi', () => ({
   },
   counselingUpdateOrder: jest.fn(),
   getOrder: jest.fn(),
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const E_5 = 'E-5';
+    const E_6 = 'E-6';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
+
+    return Promise.resolve({
+      body: [
+        {
+          grade: E_5,
+          description: E_5,
+        },
+        {
+          grade: E_6,
+          description: E_6,
+        },
+        {
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
+        },
+      ],
+    });
+  }),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -305,7 +327,7 @@ describe('Orders page', () => {
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
-      expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
+      expect(screen.getByTestId('payGradeInput')).toHaveValue(ORDERS_PAY_GRADE_TYPE.E_5);
     });
 
     it('disables fields for correct statuses', async () => {

@@ -29,6 +29,29 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const MOCKED__ORDERS_PAY_GRADE_TYPE = {
+      E_5: 'E-5',
+      E_6: 'E-6',
+      CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
+    };
+    return Promise.resolve({
+      body: [
+        {
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+        },
+        {
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+        },
+        {
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+        },
+      ],
+    });
+  }),
 }));
 jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
@@ -424,7 +447,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
 
     await waitFor(() => {
@@ -489,7 +512,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -533,7 +556,7 @@ describe('EditOrdersForm component', () => {
           provides_services_counseling: true,
         },
         origin_duty_location: expect.any(Object),
-        grade: 'E_5',
+        grade: ORDERS_PAY_GRADE_TYPE.E_5,
         counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
         uploaded_orders: expect.arrayContaining([
           expect.objectContaining({
@@ -600,7 +623,7 @@ describe('EditOrdersForm component', () => {
           contentType: 'application/pdf',
         },
       ],
-      grade: 'E_1',
+      grade: ORDERS_PAY_GRADE_TYPE.E_5,
       origin_duty_location: {
         address: {
           city: '',
@@ -636,7 +659,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
+      expect(screen.getByLabelText(/Pay grade/)).toHaveTextContent(ORDERS_PAY_GRADE_TYPE.E_5);
       expect(screen.getByText('Altus AFB')).toBeInTheDocument();
     });
 
@@ -773,7 +796,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_8']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 200 });
@@ -988,7 +1011,7 @@ describe('EditOrdersForm component', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.E_5);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
