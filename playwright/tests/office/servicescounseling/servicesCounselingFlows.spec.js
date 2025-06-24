@@ -284,7 +284,8 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
       await page.locator('input[id="delivery.address-input"]').fill('90210');
-      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+      let spanLocator = page.locator(`span:has(mark:has-text('90210'))`);
+      await expect(spanLocator).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
       await page.locator('[data-testid="submitForm"]').click();
