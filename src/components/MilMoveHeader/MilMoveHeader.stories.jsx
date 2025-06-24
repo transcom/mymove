@@ -55,8 +55,8 @@ export const LoggedInOfficeHeaderWithNavigation = () => (
         <li className="usa-nav__primary-item">
           <a href="#">Navigation Link</a>
         </li>
+        <OfficeUserInfo {...props} />
       </ul>
-      <OfficeUserInfo {...props} />
     </MilMoveHeader>
   </div>
 );

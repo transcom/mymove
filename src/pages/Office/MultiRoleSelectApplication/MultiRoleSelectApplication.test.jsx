@@ -173,7 +173,7 @@ describe('MultiRoleSelectApplication component', () => {
       input: [roleLookupValues.services_counselor],
       expected: [roleLookupValues.services_counselor],
     },
-    oneRoleAsHeadQuarters: {
+    oneRoleAsHeadquarters: {
       input: [roleLookupValues.headquarters],
       expected: [roleLookupValues.headquarters],
     },
@@ -188,7 +188,7 @@ describe('MultiRoleSelectApplication component', () => {
     return optionValue;
   };
 
-  it.each([roleLabelScenarios.oneRoleAsServicesCounselor, roleLabelScenarios.oneRoleAsHeadQuarters])(
+  it.each([roleLabelScenarios.oneRoleAsServicesCounselor, roleLabelScenarios.oneRoleAsHeadquarters])(
     `properly displays the user role`,
     async ({ input, expected }) => {
       const expecting = expected[0];

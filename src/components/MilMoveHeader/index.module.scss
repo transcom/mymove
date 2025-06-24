@@ -119,6 +119,14 @@
   }
 
   :global(.usa-nav__primary) {
+    > :global(.usa-nav__primary-item.usa-nav__primary-item) {
+      :where(a,button){
+        @scope (&) {
+          font-weight: 700;
+          font-size: 12pt;
+        }
+      }
+    }
     margin: 0;
     padding: 0;
     display: flex;
