@@ -157,7 +157,7 @@ describe('EvaluationViolations', () => {
     }));
 
     renderWithProviders(
-      <EvaluationViolations {...{ customerInfo }} destinationDutyLocationPostalCode="12345" grade="E_4" />,
+      <EvaluationViolations {...{ customerInfo }} destinationDutyLocationPostalCode="12345" grade="E-4" />,
       mockRoutingOptions,
     );
 
