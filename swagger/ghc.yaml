@@ -5378,6 +5378,28 @@ paths:
         - move
       description: Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
+  /paygrade/{affiliation}:
+    get:
+      summary: Get pay grades for specified affiliation
+      description: Get pay grades for specified affiliation
+      operationId: getPayGrades
+      tags:
+        - orders
+      parameters:
+        - $ref: '#/parameters/AffiliationParam'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OrderPayGrades'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 definitions:
   ApplicationParameters:
     type: object
@@ -6124,70 +6146,6 @@ definitions:
     required:
       - message
     type: object
-  Grade:
-    type: string
-    x-nullable: true
-    title: grade
-    enum:
-      - E_1
-      - E_2
-      - E_3
-      - E_4
-      - E_5
-      - E_6
-      - E_7
-      - E_8
-      - E_9
-      - E_9_SPECIAL_SENIOR_ENLISTED
-      - O_1_ACADEMY_GRADUATE
-      - O_2
-      - O_3
-      - O_4
-      - O_5
-      - O_6
-      - O_7
-      - O_8
-      - O_9
-      - O_10
-      - W_1
-      - W_2
-      - W_3
-      - W_4
-      - W_5
-      - AVIATION_CADET
-      - CIVILIAN_EMPLOYEE
-      - ACADEMY_CADET
-      - MIDSHIPMAN
-    x-display-value:
-      E_1: E-1
-      E_2: E-2
-      E_3: E-3
-      E_4: E-4
-      E_5: E-5
-      E_6: E-6
-      E_7: E-7
-      E_8: E-8
-      E_9: E-9
-      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
-      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
-      O_2: O-2
-      O_3: O-3
-      O_4: O-4
-      O_5: O-5
-      O_6: O-6
-      O_7: O-7
-      O_8: O-8
-      O_9: O-9
-      O_10: O-10
-      W_1: W-1
-      W_2: W-2
-      W_3: W-3
-      W_4: W-4
-      W_5: W-5
-      AVIATION_CADET: Aviation Cadet
-      CIVILIAN_EMPLOYEE: Civilian Employee
-      ACADEMY_CADET: Service Academy Cadet
-      MIDSHIPMAN: Midshipman
   Move:
     properties:
       id:
@@ -6580,7 +6538,7 @@ definitions:
         example: Doe
         readOnly: true
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       entitlement:
@@ -6751,7 +6709,7 @@ definitions:
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       originDutyLocationId:
         type: string
         format: uuid
@@ -6851,7 +6809,7 @@ definitions:
         example: N002214CSW32Y9
         $ref: '#/definitions/NullableString'
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6936,7 +6894,7 @@ definitions:
         type: boolean
         x-nullable: true
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       dependentsAuthorized:
         type: boolean
         x-nullable: true
@@ -6958,7 +6916,7 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -7080,7 +7038,7 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -9537,6 +9495,70 @@ definitions:
       - officeUserId
       - transportationOfficeId
       - primaryOffice
+  OrderPayGrade:
+    type: string
+    x-nullable: true
+    title: Grade
+    enum:
+      - E-1
+      - E-2
+      - E-3
+      - E-4
+      - E-5
+      - E-6
+      - E-7
+      - E-8
+      - E-9
+      - E-9-SPECIAL-SENIOR-ENLISTED
+      - O-1
+      - O-2
+      - O-3
+      - O-4
+      - O-5
+      - O-6
+      - O-7
+      - O-8
+      - O-9
+      - O-10
+      - W-1
+      - W-2
+      - W-3
+      - W-4
+      - W-5
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET
+      - MIDSHIPMAN
+    x-display-value:
+      E_1: E-1
+      E_2: E-2
+      E_3: E-3
+      E_4: E-4
+      E_5: E-5
+      E_6: E-6
+      E_7: E-7
+      E_8: E-8
+      E_9: E-9
+      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
+      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
+      O_6: O-6
+      O_7: O-7
+      O_8: O-8
+      O_9: O-9
+      O_10: O-10
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman
   DutyLocation:
     type: object
     properties:
@@ -13009,6 +13031,13 @@ definitions:
       isAutoApproved:
         type: boolean
         example: true
+  OrderPayGrades:
+    type: object
+    properties:
+      grade:
+        type: string
+      description:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid
@@ -13076,3 +13105,18 @@ parameters:
     format: uuid
     required: true
     description: UUID of the pro-gear weight ticket
+  AffiliationParam:
+    name: affiliation
+    in: path
+    required: true
+    type: string
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-nullable: true
+    description: Military branch of service

@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestBooleanFeatureFlagUnauthenticatedHandler() {
 			},
 		}
 
-		handler := BooleanFeatureFlagsUnauthenticatedHandler{suite.HandlerConfig()}
+		handler := BooleanFeatureFlagsUnauthenticatedHandler{suite.NewHandlerConfig()}
 
 		response := handler.Handle(params)
 
@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestBooleanFeatureFlagUnauthenticatedHandler() {
 			},
 		}
 
-		handler := BooleanFeatureFlagsUnauthenticatedHandler{suite.HandlerConfig()}
+		handler := BooleanFeatureFlagsUnauthenticatedHandler{suite.NewHandlerConfig()}
 
 		response := handler.Handle(params)
 
@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestBooleanFeatureFlagUnauthenticatedHandler() {
 			},
 		}
 
-		handler := BooleanFeatureFlagsUnauthenticatedHandler{suite.HandlerConfig()}
+		handler := BooleanFeatureFlagsUnauthenticatedHandler{suite.NewHandlerConfig()}
 		response := handler.Handle(params)
 		res, ok := response.(*ffop.BooleanFeatureFlagUnauthenticatedUnauthorized)
 		suite.True(ok)
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestBooleanFeatureFlagForUserHandler() {
 		},
 	}
 
-	handler := BooleanFeatureFlagsForUserHandler{suite.HandlerConfig()}
+	handler := BooleanFeatureFlagsForUserHandler{suite.NewHandlerConfig()}
 
 	response := handler.Handle(params)
 
@@ -148,7 +148,7 @@ func (suite *HandlerSuite) TestVariantFeatureFlagForUserHandler() {
 		},
 	}
 
-	handler := VariantFeatureFlagsForUserHandler{suite.HandlerConfig()}
+	handler := VariantFeatureFlagsForUserHandler{suite.NewHandlerConfig()}
 
 	response := handler.Handle(params)
 
