@@ -307,8 +307,8 @@ test.describe('Prime simulator user', () => {
   test('HHG is able select third address without affecting second address selection', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationSITOutDate();
     const moveLocator = move.locator;
-    const usCountry = 'UNITED STATES (US)';
-
+    const countrySearch = "UNITED STATES";
+    
     await officePage.signInAsNewPrimeSimulatorUser();
     await page.locator('#moveCode').fill(moveLocator);
     await page.locator('#moveCode').press('Enter');
@@ -319,7 +319,8 @@ test.describe('Prime simulator user', () => {
 
     await page.locator('input[name="pickupAddress.streetAddress1"]').fill('123 Main St');
     await page.locator('input[id="pickupAddress-country-input"]').fill('UNITED STATES');
-    await expect(page.getByText(usCountry, { exact: true })).toHaveCount(1);
+    let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
     await page.keyboard.press('Enter');
     const pickupLocator = page.locator('input#pickupAddress-input');
     await pickupLocator.click({ timeout: 5000 });
@@ -332,7 +333,8 @@ test.describe('Prime simulator user', () => {
 
     await page.locator('input[name="secondaryPickupAddress.streetAddress1"]').fill('789 Elm St');
     await page.locator('input[id="secondaryPickupAddress-country-input"]').fill('UNITED STATES');
-    await expect(page.getByText(usCountry, { exact: true })).toHaveCount(2);
+    spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
     await page.keyboard.press('Enter');
     const secondaryPickupLocator = page.locator('input#secondaryPickupAddress-input');
     await secondaryPickupLocator.click({ timeout: 5000 });
@@ -345,7 +347,8 @@ test.describe('Prime simulator user', () => {
 
     await page.locator('input[name="tertiaryPickupAddress.streetAddress1"]').fill('789 Elm St');
     await page.locator('input[id="tertiaryPickupAddress-country-input"]').fill('UNITED STATES');
-    await expect(page.getByText(usCountry, { exact: true })).toHaveCount(2);
+    spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
     await page.keyboard.press('Enter');
     const tertiaryPickupLocator = page.locator('input#tertiaryPickupAddress-input');
     await tertiaryPickupLocator.click({ timeout: 5000 });
