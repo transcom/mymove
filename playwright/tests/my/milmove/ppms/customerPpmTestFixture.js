@@ -883,14 +883,6 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.waitForTimeout(1000);
   }
 
-  async selectMeProGear() {
-    await expect(this.page.getByRole('heading', { name: 'Pro-gear' })).toBeVisible();
-    const progearTypeSelector = `label[for="ownerOfProGearSelf"]`;
-    await this.page.locator(progearTypeSelector).click();
-    await expect(this.page.getByRole('heading', { name: 'Description' })).toBeVisible();
-    await this.page.waitForTimeout(1000);
-  }
-
   /**
    * returns {Promise<void>}
    */
