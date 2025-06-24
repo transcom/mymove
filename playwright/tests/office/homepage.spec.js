@@ -6,6 +6,7 @@
 
 // @ts-check
 import { test, expect } from '../utils/office/officeTest';
+import { roleTypes } from '../../../src/constants/userRoles';
 
 test.describe('Office Home Page', () => {
   test('successfully loads when not logged in', async ({ page }) => {
@@ -54,14 +55,40 @@ test.describe('Office authorization', () => {
     expect(new URL(page.url()).pathname).toBe('/counseling');
   });
 
-  // test('redirects PPM office user to old office queue', async ({page}) => {
-  //   cy.signInAsNewPPMOfficeUser();
-  //   await expect(page.getByText('New moves')).toBeVisible();
-  //   cy.url().should('eq', officeBaseURL + '/');
-  // });
-
   test.describe('multiple role selection', () => {
+    const landingChecks = {
+      [roleTypes.TOO]: { heading: 'All moves' },
+      [roleTypes.TIO]: { heading: 'Payment requests' },
+      [roleTypes.SERVICES_COUNSELOR]: { heading: 'Moves' },
+      [roleTypes.PRIME_SIMULATOR]: { heading: 'Moves available to Prime' },
+      [roleTypes.QAE]: { heading: 'Search for a move' },
+      [roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]: { heading: 'Search for a move' },
+      [roleTypes.HQ]: { heading: 'All moves' },
+      [roleTypes.CONTRACTING_OFFICER]: { heading: 'Search for a move' },
+    };
+
+    test('can switch between Multirole roles', async ({ page, officePage }) => {
+      test.slow();
+      await officePage.signInAsNewMultiRoleUser();
+      await officePage.waitForLoading();
+      for (const [role, check] of Object.entries(landingChecks)) {
+        await test.step(`switch to ${role}`, async () => {
+          // open select app
+          await page.getByText('Change user role').click();
+          await expect(page).toHaveURL(/\/select-application/);
+
+          // change roles
+          await page.getByText(`Select ${role}`).click();
+          await page.waitForTimeout(100); // SC component is flaky, let it load up here
+          await officePage.waitForLoading();
+
+          // assert landing page
+          await expect(page.getByRole('heading', { name: check.heading })).toBeVisible();
+        });
+      }
+    });
     test('can switch between TOO & TIO roles', async ({ page, officePage }) => {
+      test.slow();
       await officePage.signInAsNewTIOAndTOOUser();
       await page.getByText('Change user role').click();
       expect(page.url()).toContain('/select-application');
