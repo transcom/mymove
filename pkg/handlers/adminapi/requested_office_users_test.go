@@ -524,7 +524,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -534,7 +534,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 				UpdatedAt: time.Now(),
 			},
 		}
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -544,7 +544,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		handler := GetRequestedOfficeUserHandler{
 			suite.NewHandlerConfig(),
 			requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
-			mockRoleAssociator,
+			mockRoleFetcher,
 			query.NewQueryFilter,
 		}
 
@@ -568,7 +568,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.Anything,
 		).Return(requestedOfficeUser, nil).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -578,7 +578,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 				UpdatedAt: time.Now(),
 			},
 		}
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -587,7 +587,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		handler := GetRequestedOfficeUserHandler{
 			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
-			mockRoleAssociator,
+			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 
@@ -612,7 +612,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.Anything,
 		).Return(models.OfficeUser{}, expectedError).Once()
 
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -622,7 +622,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 				UpdatedAt: time.Now(),
 			},
 		}
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -631,7 +631,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		handler := GetRequestedOfficeUserHandler{
 			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
-			mockRoleAssociator,
+			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 
@@ -674,7 +674,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 
 		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
@@ -716,7 +716,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			mock.Anything,
 		).Return(nil, nil, nil).Once()
 
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -726,7 +726,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			suite.NewHandlerConfig(),
 			requestedOfficeUserUpdater,
 			mockUserRoleAssociator,
-			mockRoleAssociator,
+			mockRoleFetcher,
 		}
 
 		response := handler.Handle(params)
@@ -782,7 +782,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 
 		status := "APPROVED"
@@ -835,7 +835,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			mock.Anything,
 		).Return(nil, nil, nil).Once()
 
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -845,7 +845,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			suite.NewHandlerConfig(),
 			requestedOfficeUserUpdater,
 			mockUserRoleAssociator,
-			mockRoleAssociator,
+			mockRoleFetcher,
 		}
 
 		response := handler.Handle(params)
@@ -894,7 +894,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			UpdatedAt: time.Now()}
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
-		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 
 		status := "APPROVED"
@@ -947,7 +947,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			mock.Anything,
 		).Return(nil, nil, nil).Once()
 
-		mockRoleAssociator.On(
+		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -957,7 +957,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			suite.NewHandlerConfig(),
 			requestedOfficeUserUpdater,
 			mockUserRoleAssociator,
-			mockRoleAssociator,
+			mockRoleFetcher,
 		}
 
 		response := handler.Handle(params)
