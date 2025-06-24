@@ -406,8 +406,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		// Loop through shipments to find the first requested pickup date
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
 			for _, shipment := range move.MTOShipments {
-				if shipment.RequestedPickupDate != nil && shipment.DeletedAt == nil {
-					if feeDate == nil || shipment.RequestedPickupDate.Before(*feeDate) {
+				if shipment.DeletedAt == nil {
+					if feeDate == nil || shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*feeDate) {
 						feeDate = shipment.RequestedPickupDate
 					}
 
