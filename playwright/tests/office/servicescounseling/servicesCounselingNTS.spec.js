@@ -128,6 +128,7 @@ test.describe('Services counselor user', () => {
     // Today's date will fall valid under the TAC and LOA and the NTS LOA should then populate
     await page.getByTestId('ntsTacInput').fill(tac.tac);
     const ntsLoaTextField = await page.getByTestId('ntsLoaTextField');
+    await page.getByTestId('ntsTacInput').blur();
     await expect(ntsLoaTextField).toHaveValue('1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1');
 
     const loaMissingErrorMessage = page.getByText('Unable to find a LOA based on the provided details');
