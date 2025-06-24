@@ -1,5 +1,12 @@
+import {
+  LOG_OUT,
+  SET_ACTIVE_OFFICE,
+  SET_ACTIVE_ROLE,
+  SET_ACTIVE_ROLE_SUCCESS,
+  SET_ACTIVE_ROLE_FAILURE,
+} from './actions';
+
 import { officeRoles } from 'constants/userRoles';
-import { LOG_OUT, SET_ACTIVE_OFFICE, SET_ACTIVE_ROLE, SET_ACTIVE_ROLE_SUCCESS, SET_ACTIVE_ROLE_FAILURE } from './actions';
 
 export const initialState = {
   activeRole: null,
