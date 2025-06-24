@@ -165,7 +165,7 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.NewQueryFilter
 	services.NewPagination
 	services.TransportationOfficesFetcher
-	services.RoleAssociator
+	services.RoleFetcher
 }
 
 var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query){
@@ -257,8 +257,7 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 type GetRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserFetcher
-	services.RoleAssociator
-	services.UserPrivilegeAssociator
+	services.RoleFetcher
 	services.NewQueryFilter
 }
 
@@ -280,7 +279,7 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 
-			roles, err := h.RoleAssociator.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
+			roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return requested_office_users.NewGetRequestedOfficeUserInternalServerError(), err
@@ -301,9 +300,8 @@ type UpdateRequestedOfficeUserHandler struct {
 	services.RequestedOfficeUserFetcher
 	services.RequestedOfficeUserUpdater
 	services.UserPrivilegeAssociator
-	services.PrivilegeAssociator
 	services.UserRoleAssociator
-	services.RoleAssociator
+	services.RoleFetcher
 }
 
 // Handle updates a single requested office user
@@ -408,13 +406,13 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 
 				privileges := priorPrivileges
 				if privilegesDiffer {
-					privileges, err = h.PrivilegeAssociator.FetchPrivilegesForUser(txAppCtx, *requestedOfficeUser.UserID)
+					privileges, err = roles.FetchPrivilegesForUser(txAppCtx.DB(), *requestedOfficeUser.UserID)
 					if err != nil {
 						appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 					}
 				}
 
-				roles, err := h.RoleAssociator.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
+				roles, err := roles.FetchRolesForUser(txAppCtx.DB(), *requestedOfficeUser.UserID)
 				if err != nil {
 					txAppCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 					return err

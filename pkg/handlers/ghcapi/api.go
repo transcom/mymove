@@ -38,7 +38,6 @@ import (
 	portlocation "github.com/transcom/mymove/pkg/services/port_location"
 	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
-	"github.com/transcom/mymove/pkg/services/privileges"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -53,7 +52,7 @@ import (
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	transportaionofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
+	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	"github.com/transcom/mymove/pkg/services/upload"
 	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
@@ -85,8 +84,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	newUserRolesCreator := usersroles.NewUsersRolesCreator()
 	newRolesFetcher := roles.NewRolesFetcher()
 	newUserPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
-	newPrivilegesFetcher := privileges.NewPrivilegesFetcher()
-	newTransportaionOfficeAssignmentUpdater := transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater()
+	newTransportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
@@ -114,8 +112,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	serviceItemFetcher := serviceitem.NewServiceItemFetcher()
-
-	ghcAPI.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = BooleanFeatureFlagsUnauthenticatedHandler{handlerConfig}
 
 	ghcAPI.RolePrivilegesGetRolesPrivilegesHandler = GetRolesPrivilegesHandler{
 		handlerConfig,
@@ -789,8 +785,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		newUserRolesCreator,
 		newRolesFetcher,
 		newUserPrivilegesCreator,
-		newPrivilegesFetcher,
-		newTransportaionOfficeAssignmentUpdater,
+		newTransportationOfficeAssignmentUpdater,
 	}
 	ghcAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		handlerConfig,

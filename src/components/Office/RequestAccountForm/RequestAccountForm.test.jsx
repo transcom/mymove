@@ -8,7 +8,7 @@ import RequestAccountForm from './RequestAccountForm';
 
 import { renderWithRouter } from 'testUtils';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
-import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -21,28 +21,22 @@ jest.mock('services/ghcApi', () => ({
   searchTransportationOfficesOpen: jest.fn(),
 }));
 
-jest.mock('hooks/queries', () => ({
-  useRolesPrivilegesQueriesOfficeApp: () => ({
-    result: {
-      privileges: [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }],
-      rolesWithPrivs: [
-        { roleType: 'headquarters', roleName: 'Headquarters' },
-        { roleType: 'task_ordering_officer', roleName: 'Task Ordering Officer' },
-        { roleType: 'task_invoicing_officer', roleName: 'Task Invoicing Officer' },
-        { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
-        { roleType: 'services_counselor', roleName: 'Services Counselor' },
-        { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
-        { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
-        { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
-      ],
-    },
-  }),
-}));
-
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabledUnauthenticatedOffice: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabledUnauthenticated: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
+
+const mockRolesWithPrivs = [
+  { roleType: 'headquarters', roleName: 'Headquarters' },
+  { roleType: 'task_ordering_officer', roleName: 'Task Ordering Officer' },
+  { roleType: 'task_invoicing_officer', roleName: 'Task Invoicing Officer' },
+  { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
+  { roleType: 'services_counselor', roleName: 'Services Counselor' },
+  { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
+  { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
+  { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
+];
+const mockPrivileges = [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }];
 
 describe('RequestAccountForm component', () => {
   const testProps = {
@@ -58,10 +52,12 @@ describe('RequestAccountForm component', () => {
     },
     onSubmit: jest.fn(),
     onCancel: jest.fn(),
+    rolesWithPrivs: mockRolesWithPrivs,
+    privileges: mockPrivileges,
   };
 
   it('renders the form inputs', async () => {
-    isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
+    isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
     const firstName = screen.getByTestId('officeAccountRequestFirstName');
@@ -196,6 +192,60 @@ describe('RequestAccountForm component', () => {
 
     const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
     await userEvent.click(tooCheckbox);
+
+    const submitButton = await screen.getByTestId('requestOfficeAccountSubmitButton');
+    await userEvent.click(submitButton);
+
+    expect(testProps.onSubmit).toHaveBeenCalled();
+  });
+
+  it('submits requesting office account with supervisor privilege form when submit button is clicked', async () => {
+    isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
+    const mockOfficeId = '3210a533-19b8-4805-a564-7eb452afce10';
+    const mockTransportationOffice = {
+      address: {
+        city: 'Test City',
+        country: 'United States',
+        id: 'a13806fc-0e7d-4dc3-91ca-b802d9da50f1',
+        postalCode: '85309',
+        state: 'AZ',
+        streetAddress1: '7383 N Litchfield Rd',
+        streetAddress2: 'Rm 1122',
+      },
+      created_at: '2018-05-28T14:27:39.198Z',
+      gbloc: 'KKFA',
+      id: mockOfficeId,
+      name: 'Tester',
+      phone_lines: [],
+      updated_at: '2018-05-28T14:27:39.198Z',
+    };
+
+    const mockSearchTransportationOfficesOpen = () => Promise.resolve([mockTransportationOffice]);
+    searchTransportationOfficesOpen.mockImplementation(mockSearchTransportationOfficesOpen);
+
+    renderWithRouter(<RequestAccountForm {...testProps} />);
+
+    await userEvent.type(screen.getByTestId('officeAccountRequestFirstName'), 'Bob');
+    await userEvent.type(screen.getByTestId('officeAccountRequestLastName'), 'Banks');
+    await userEvent.type(screen.getByTestId('officeAccountRequestEmail'), 'banks@us.navy.mil');
+    await userEvent.type(screen.getByTestId('emailConfirmation'), 'banks@us.navy.mil');
+    await userEvent.type(screen.getByTestId('officeAccountRequestTelephone'), '333-333-3333');
+    await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
+    await userEvent.type(screen.getByTestId('edipiConfirmation'), '1111111111');
+    await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), 'uniqueID123');
+    await userEvent.type(screen.getByTestId('otherUniqueIdConfirmation'), 'uniqueID123');
+
+    const transportationOfficeInput = screen.getByLabelText(/^Transportation Office/i);
+    await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
+    await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
+
+    const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
+    await userEvent.click(tooCheckbox);
+
+    await waitFor(() => {
+      const supervisorPrivilegeCheckbox = screen.getByTestId('supervisorPrivilegeCheckbox');
+      userEvent.click(supervisorPrivilegeCheckbox);
+    });
 
     const submitButton = await screen.getByTestId('requestOfficeAccountSubmitButton');
     await userEvent.click(submitButton);

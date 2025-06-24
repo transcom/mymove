@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	prsff "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
-	"github.com/transcom/mymove/pkg/services/privileges"
 	"github.com/transcom/mymove/pkg/services/query"
 	rejectedofficeusers "github.com/transcom/mymove/pkg/services/rejected_office_users"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
@@ -54,7 +53,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
 	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
-	privilegesFetcher := privileges.NewPrivilegesFetcher()
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
@@ -75,7 +73,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
 		newRolesFetcher,
-		userPrivilegesCreator,
 		query.NewQueryFilter,
 	}
 
@@ -84,7 +81,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
 		requestedofficeusers.NewRequestedOfficeUserUpdater(queryBuilder),
 		userPrivilegesCreator,
-		privilegesFetcher,
 		userRolesCreator,
 		newRolesFetcher,
 	}
@@ -116,7 +112,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
-	transportaionOfficeAssignmentUpdater := transportationofficeassignments.NewTransportaionOfficeAssignmentUpdater()
+	transportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
@@ -124,7 +120,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		newRolesFetcher,
 		userPrivilegesCreator,
-		transportaionOfficeAssignmentUpdater,
+		transportationOfficeAssignmentUpdater,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
@@ -134,7 +130,8 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		userPrivilegesCreator,
 		user.NewUserSessionRevocation(queryBuilder),
-		transportaionOfficeAssignmentUpdater,
+		transportationOfficeAssignmentUpdater,
+		newRolesFetcher,
 	}
 
 	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{

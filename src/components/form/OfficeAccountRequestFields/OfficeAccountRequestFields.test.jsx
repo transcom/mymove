@@ -7,29 +7,11 @@ import OfficeAccountRequestFields from './OfficeAccountRequestFields';
 
 import { officeAccountRequestSchema } from 'utils/validation';
 import { ReactQueryWrapper } from 'testUtils';
-import { isBooleanFlagEnabledUnauthenticatedOffice } from 'utils/featureFlags';
-
-jest.mock('hooks/queries', () => ({
-  useRolesPrivilegesQueriesOfficeApp: () => ({
-    result: {
-      privileges: [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }],
-      rolesWithPrivs: [
-        { roleType: 'headquarters', roleName: 'Headquarters' },
-        { roleType: 'task_ordering_officer', roleName: 'Task Ordering Officer' },
-        { roleType: 'task_invoicing_officer', roleName: 'Task Invoicing Officer' },
-        { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
-        { roleType: 'services_counselor', roleName: 'Services Counselor' },
-        { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
-        { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
-        { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
-      ],
-    },
-  }),
-}));
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabledUnauthenticatedOffice: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabledUnauthenticated: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const initialValues = {
@@ -41,13 +23,25 @@ const initialValues = {
   emailConfirmation: '',
 };
 
+const mockRolesWithPrivs = [
+  { roleType: 'headquarters', roleName: 'Headquarters' },
+  { roleType: 'task_ordering_officer', roleName: 'Task Ordering Officer' },
+  { roleType: 'task_invoicing_officer', roleName: 'Task Invoicing Officer' },
+  { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
+  { roleType: 'services_counselor', roleName: 'Services Counselor' },
+  { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
+  { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
+  { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
+];
+const mockPrivileges = [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }];
+
 describe('OfficeAccountRequestFields component', () => {
-  isBooleanFlagEnabledUnauthenticatedOffice.mockImplementation(() => Promise.resolve(true));
+  isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
   it('renders the form inputs', async () => {
     render(
       <ReactQueryWrapper>
         <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-          <OfficeAccountRequestFields />
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
         </Formik>
       </ReactQueryWrapper>,
     );
@@ -79,7 +73,7 @@ describe('OfficeAccountRequestFields component', () => {
     render(
       <ReactQueryWrapper>
         <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-          <OfficeAccountRequestFields />
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
         </Formik>
       </ReactQueryWrapper>,
     );
@@ -104,7 +98,7 @@ describe('OfficeAccountRequestFields component', () => {
     render(
       <ReactQueryWrapper>
         <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-          <OfficeAccountRequestFields />
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
         </Formik>
       </ReactQueryWrapper>,
     );
@@ -129,7 +123,7 @@ describe('OfficeAccountRequestFields component', () => {
     render(
       <ReactQueryWrapper>
         <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-          <OfficeAccountRequestFields />
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
         </Formik>
       </ReactQueryWrapper>,
     );
@@ -154,7 +148,7 @@ describe('OfficeAccountRequestFields component', () => {
     render(
       <ReactQueryWrapper>
         <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-          <OfficeAccountRequestFields />
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
         </Formik>
       </ReactQueryWrapper>,
     );
@@ -172,7 +166,7 @@ describe('OfficeAccountRequestFields component', () => {
     render(
       <ReactQueryWrapper>
         <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-          <OfficeAccountRequestFields />
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
         </Formik>
       </ReactQueryWrapper>,
     );

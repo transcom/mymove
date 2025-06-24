@@ -804,6 +804,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	privatelyOwnedVehicle := true
 	proGearWeight := 1000
 	proGearWeightSpouse := 500
+	gunSafeWeight := 300
 	storageInTransit := 90
 	totalDependents := 2
 	requiredMedicalEquipmentWeight := 200
@@ -823,6 +824,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               &storageInTransit,
 		TotalDependents:                &totalDependents,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
@@ -848,6 +850,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UnaccompaniedBaggageAllowance))
 	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
 	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(int64(gunSafeWeight), returnedEntitlement.GunSafeWeight)
 	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
 	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
 	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
@@ -2064,7 +2067,7 @@ func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
 }
 
 func (suite *PayloadsSuite) TestCounselingOffices() {
-	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+	suite.Run("correctly maps transportation offices to counseling offices payload", func() {
 		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -2363,6 +2366,39 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 	suite.Run("does not attach 'EXCESS_WEIGHT' request type if the excess weight has been acknowledged", func() {
 		move.ExcessWeightQualifiedAt = models.TimePointer(time.Now())
 		move.ExcessWeightAcknowledgedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("does not attach 'EXCESS_WEIGHT' request type if ExcessUnaccompaniedBaggageWeightQualifiedAt value is nil", func() {
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("attaches UB 'EXCESS_WEIGHT' request type if is qualified but unacknowledged", func() {
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestExcessWeight), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach UB 'EXCESS_WEIGHT' request type if the excess weight has been acknowledged", func() {
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = models.TimePointer(time.Now())
+		move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt = models.TimePointer(time.Now())
 
 		moves := models.Moves{}
 		moves = append(moves, move)

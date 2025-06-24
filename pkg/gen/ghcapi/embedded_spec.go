@@ -2979,57 +2979,6 @@ func init() {
         }
       }
     },
-    "/open/feature-flags/boolean/{key}": {
-      "post": {
-        "description": "Determines if a feature flag is enabled.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "featureFlags"
-        ],
-        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
-        "operationId": "booleanFeatureFlagUnauthenticated",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Feature Flag Key",
-            "name": "key",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "context for the feature flag request",
-            "name": "flagContext",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Boolean Feature Flag Status",
-            "schema": {
-              "$ref": "#/definitions/FeatureFlagBoolean"
-            }
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/open/requested-office-users": {
       "post": {
         "description": "This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.\nRequest the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
@@ -8172,6 +8121,14 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -8863,7 +8820,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -8886,6 +8844,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -9403,6 +9369,11 @@ func init() {
           "type": "boolean",
           "example": false
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -9689,34 +9660,6 @@ func init() {
         "SHIPMENT",
         "COUNSELING"
       ]
-    },
-    "FeatureFlagBoolean": {
-      "description": "A feature flag",
-      "type": "object",
-      "required": [
-        "entity",
-        "key",
-        "match",
-        "namespace"
-      ],
-      "properties": {
-        "entity": {
-          "type": "string",
-          "example": "11111111-1111-1111-1111-111111111111"
-        },
-        "key": {
-          "type": "string",
-          "example": "flag"
-        },
-        "match": {
-          "type": "boolean",
-          "example": true
-        },
-        "namespace": {
-          "type": "string",
-          "example": "test"
-        }
-      }
     },
     "FetchLineOfAccountingPayload": {
       "type": "object",
@@ -15031,6 +14974,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -15533,6 +15478,14 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -16031,6 +15984,16 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
@@ -20703,57 +20666,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
-          }
-        }
-      }
-    },
-    "/open/feature-flags/boolean/{key}": {
-      "post": {
-        "description": "Determines if a feature flag is enabled.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "featureFlags"
-        ],
-        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
-        "operationId": "booleanFeatureFlagUnauthenticated",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Feature Flag Key",
-            "name": "key",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "context for the feature flag request",
-            "name": "flagContext",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Boolean Feature Flag Status",
-            "schema": {
-              "$ref": "#/definitions/FeatureFlagBoolean"
-            }
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "500": {
-            "description": "internal server error"
           }
         }
       }
@@ -27003,6 +26915,15 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -27698,7 +27619,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -27721,6 +27643,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -28238,6 +28168,11 @@ func init() {
           "type": "boolean",
           "example": false
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -28524,34 +28459,6 @@ func init() {
         "SHIPMENT",
         "COUNSELING"
       ]
-    },
-    "FeatureFlagBoolean": {
-      "description": "A feature flag",
-      "type": "object",
-      "required": [
-        "entity",
-        "key",
-        "match",
-        "namespace"
-      ],
-      "properties": {
-        "entity": {
-          "type": "string",
-          "example": "11111111-1111-1111-1111-111111111111"
-        },
-        "key": {
-          "type": "string",
-          "example": "flag"
-        },
-        "match": {
-          "type": "boolean",
-          "example": true
-        },
-        "namespace": {
-          "type": "string",
-          "example": "test"
-        }
-      }
     },
     "FetchLineOfAccountingPayload": {
       "type": "object",
@@ -33992,6 +33899,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -34496,6 +34405,15 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -34999,6 +34917,16 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
