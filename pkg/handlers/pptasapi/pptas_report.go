@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	pptasop "github.com/transcom/mymove/pkg/gen/pptasapi/pptasoperations/moves"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/pptasapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -26,6 +27,12 @@ func (h PPTASReportsHandler) Handle(params pptasop.PptasReportsParams) middlewar
 			if params.Since != nil {
 				since := handlers.FmtDateTimePtrToPop(params.Since)
 				searchParams.Since = &since
+			}
+
+			clientCert := authentication.ClientCertFromContext(appCtx.HTTPRequest().Context())
+
+			if clientCert.PPTASAffiliation != nil {
+				params.Branch = (*string)(clientCert.PPTASAffiliation)
 			}
 
 			if params.Branch != nil {

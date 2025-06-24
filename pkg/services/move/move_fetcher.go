@@ -108,7 +108,6 @@ func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, par
 		LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 		LeftJoin("addresses", "addresses.id in (mto_shipments.pickup_address_id, mto_shipments.destination_address_id)").
 		Where("mto_shipments.status = 'APPROVED'").
-		Where("service_members.affiliation = ?", models.AffiliationNAVY).
 		GroupBy("moves.id")
 
 	if params.Since != nil {
