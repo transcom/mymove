@@ -2826,7 +2826,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 					StreetAddress1: "Anchor 1212",
 					City:           "Fort Eisenhower",
 					State:          "GA",
-					PostalCode:     "89898",
+					PostalCode:     "89828",
 				},
 			},
 		}, nil)
