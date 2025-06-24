@@ -167,7 +167,7 @@ describe('EvaluationViolations', () => {
 
       // Displays Evaluation Violations Form
       expect(screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: '< Back to Evaluation form' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '< Back to evaluation form' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save draft' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Review and submit' })).toBeInTheDocument();
