@@ -269,16 +269,17 @@ test.describe('Services counselor user', () => {
 
     test('is able to add a shipment', async ({ page, scPage }) => {
       test.slow();
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
       const deliveryDate = new Date().toLocaleDateString('en-US');
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(2);
 
       // add a shipment
       await page.locator('[data-testid="dropdown"]').first().selectOption({ label: 'HHG' });
 
-      await page.locator('#requestedPickupDate').fill(deliveryDate);
+      await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
-      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
