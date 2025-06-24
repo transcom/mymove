@@ -6,8 +6,6 @@ import {
   SET_ACTIVE_ROLE_FAILURE,
 } from './actions';
 
-import { officeRoles } from 'constants/userRoles';
-
 export const initialState = {
   activeRole: null,
   activeOffice: null,
@@ -42,18 +40,17 @@ const authReducer = (state = initialState, action = {}) => {
     case 'GET_LOGGED_IN_USER_SUCCESS': {
       const {
         payload: {
-          roles = [],
+          activeRole,
           office_user: { transportation_office_assignments: transportationOfficeAssignments },
         },
       } = action;
-      const firstOfficeRole = roles?.find((r) => officeRoles.indexOf(r.roleType) > -1)?.roleType;
       const activeOffice =
         state.activeOffice ||
         transportationOfficeAssignments.find((office) => office.primaryOffice === true).transportationOffice;
 
       return {
         ...state,
-        activeRole: firstOfficeRole,
+        activeRole: activeRole.roleType,
         activeOffice,
         hasSucceeded: true,
         hasErrored: false,
