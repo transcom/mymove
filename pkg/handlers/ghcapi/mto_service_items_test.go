@@ -313,7 +313,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		mockCounselingPricer := mocks.CounselingServicesPricer{}
 		mockMoveManagementPricer := mocks.ManagementServicesPricer{}
 		handler := ListMTOServiceItemsHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockListFetcher,
 			&mockFetcher,
 			&mockCounselingPricer,
@@ -362,7 +362,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		mockCounselingPricer := mocks.CounselingServicesPricer{}
 		mockMoveManagementPricer := mocks.ManagementServicesPricer{}
 		handler := ListMTOServiceItemsHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockListFetcher,
 			&mockFetcher,
 			&mockCounselingPricer,
@@ -464,7 +464,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(errors.New("Not found error")).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
@@ -502,7 +502,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(&models.MTOServiceItem{ID: serviceItemID}, nil).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
@@ -541,7 +541,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(nil, apperror.NewPreconditionFailedError(serviceItemID, errors.New("oh no"))).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
@@ -580,7 +580,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(nil, errors.New("oh no")).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
@@ -612,7 +612,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(nil).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
@@ -666,7 +666,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
 			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
@@ -727,7 +727,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
 			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
@@ -790,7 +790,7 @@ func (suite *HandlerSuite) TestGetMTOServiceItemHandler() {
 		).Return(&mtoServiceItem, nil).Once()
 
 		handler := GetMTOServiceItemHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			mtoServiceItemFetcher: &serviceItemFetcher,
 		}
 
@@ -813,7 +813,7 @@ func (suite *HandlerSuite) TestGetMTOServiceItemHandler() {
 		).Return(nil, errors.New("Not found error")).Once()
 
 		handler := GetMTOServiceItemHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			mtoServiceItemFetcher: &serviceItemFetcher,
 		}
 
@@ -904,7 +904,7 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		).Return(&mtoServiceItem, nil).Once()
 
 		handler := UpdateServiceItemSitEntryDateHandler{
-			HandlerConfig:       suite.HandlerConfig(),
+			HandlerConfig:       suite.NewHandlerConfig(),
 			sitEntryDateUpdater: &sitEntryDateUpdater,
 			ShipmentSITStatus:   sitstatus.NewShipmentSITStatus(),
 			MTOShipmentFetcher:  shipmentFetcher,
@@ -930,7 +930,7 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		).Return(nil, errors.New("Not found error")).Once()
 
 		handler := UpdateServiceItemSitEntryDateHandler{
-			HandlerConfig:       suite.HandlerConfig(),
+			HandlerConfig:       suite.NewHandlerConfig(),
 			sitEntryDateUpdater: &sitEntryDateUpdater,
 			ShipmentSITStatus:   sitstatus.NewShipmentSITStatus(),
 			MTOShipmentFetcher:  shipmentFetcher,

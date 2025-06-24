@@ -87,7 +87,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -150,7 +150,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -220,7 +219,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -332,7 +331,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          user.ID,
 				IDToken:         "fake token",
-				Roles:           roles.Roles{},
+				ActiveRole:      roles.Role{},
 			}
 
 			appCtx := suite.AppContextWithSessionForTest(session)
@@ -361,7 +360,9 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			UserID:          *scOfficeUser.UserID,
 			IDToken:         "fake token",
 		}
-		session.Roles = append(session.Roles, identity.Roles...)
+		defaultRole, err := identity.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 
 		appCtx := suite.AppContextWithSessionForTest(session)
 
@@ -490,8 +491,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *scOfficeUser.UserID,
 			IDToken:         "fake token",
+			ActiveRole:      identity.Roles[0],
 		}
-		session.Roles = append(session.Roles, identity.Roles...)
 
 		appCtx := suite.AppContextWithSessionForTest(session)
 
@@ -691,8 +692,9 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator_StatusMapping() {
 		ApplicationName: auth.OfficeApp,
 		UserID:          *sc.UserID,
 		IDToken:         "fake token",
+		ActiveRole:      sc.User.Roles[0],
 	}
-	session.Roles = append(session.Roles, sc.User.Roles...)
+
 	appCtx := suite.AppContextWithSessionForTest(session)
 
 	makePPM := func(ms models.MoveStatus) *models.PPMShipment {
