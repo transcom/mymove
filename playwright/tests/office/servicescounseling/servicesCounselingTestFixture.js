@@ -131,7 +131,8 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.getByTestId('dropdown').selectOption({ label: 'NTS' });
 
     await this.waitForPage.addNTSShipment();
-    await this.page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.getByLabel('Requested pickup date').fill(pickupDate);
     await this.page.getByLabel('Requested pickup date').blur();
     await this.page.getByText('Use pickup address').click();
 
