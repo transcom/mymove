@@ -7,7 +7,6 @@ package ghcoperations
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 
@@ -43,6 +42,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/re_service_items"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/role_privileges"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
@@ -72,9 +72,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
-		TextEventStreamProducer: runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
-			return errors.NotImplemented("textEventStream producer has not yet been implemented")
-		}),
 
 		OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler: order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandlerFunc(func(params order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessUnaccompaniedBaggageWeightRisk has not yet been implemented")
@@ -286,6 +283,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ReportViolationsGetReportViolationsByReportIDHandler: report_violations.GetReportViolationsByReportIDHandlerFunc(func(params report_violations.GetReportViolationsByReportIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
 		}),
+		RolePrivilegesGetRolesPrivilegesHandler: role_privileges.GetRolesPrivilegesHandlerFunc(func(params role_privileges.GetRolesPrivilegesParams) middleware.Responder {
+			return middleware.NotImplemented("operation role_privileges.GetRolesPrivileges has not yet been implemented")
+		}),
 		QueuesGetServicesCounselingOriginListHandler: queues.GetServicesCounselingOriginListHandlerFunc(func(params queues.GetServicesCounselingOriginListParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingOriginList has not yet been implemented")
 		}),
@@ -309,9 +309,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
-		}),
-		UploadsGetUploadStatusHandler: uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
 		}),
 		CalendarIsDateWeekendHolidayHandler: calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
@@ -511,9 +508,6 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
-	// TextEventStreamProducer registers a producer for the following mime types:
-	//   - text/event-stream
-	TextEventStreamProducer runtime.Producer
 
 	// OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler sets the operation handler for the acknowledge excess unaccompanied baggage weight risk operation
 	OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler
@@ -655,6 +649,8 @@ type MymoveAPI struct {
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
 	// ReportViolationsGetReportViolationsByReportIDHandler sets the operation handler for the get report violations by report ID operation
 	ReportViolationsGetReportViolationsByReportIDHandler report_violations.GetReportViolationsByReportIDHandler
+	// RolePrivilegesGetRolesPrivilegesHandler sets the operation handler for the get roles privileges operation
+	RolePrivilegesGetRolesPrivilegesHandler role_privileges.GetRolesPrivilegesHandler
 	// QueuesGetServicesCounselingOriginListHandler sets the operation handler for the get services counseling origin list operation
 	QueuesGetServicesCounselingOriginListHandler queues.GetServicesCounselingOriginListHandler
 	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
@@ -671,8 +667,6 @@ type MymoveAPI struct {
 	TransportationOfficeGetTransportationOfficesOpenHandler transportation_office.GetTransportationOfficesOpenHandler
 	// UploadsGetUploadHandler sets the operation handler for the get upload operation
 	UploadsGetUploadHandler uploads.GetUploadHandler
-	// UploadsGetUploadStatusHandler sets the operation handler for the get upload status operation
-	UploadsGetUploadStatusHandler uploads.GetUploadStatusHandler
 	// CalendarIsDateWeekendHolidayHandler sets the operation handler for the is date weekend holiday operation
 	CalendarIsDateWeekendHolidayHandler calendar.IsDateWeekendHolidayHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
@@ -856,9 +850,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
-	}
-	if o.TextEventStreamProducer == nil {
-		unregistered = append(unregistered, "TextEventStreamProducer")
 	}
 
 	if o.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler == nil {
@@ -1071,6 +1062,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.ReportViolationsGetReportViolationsByReportIDHandler == nil {
 		unregistered = append(unregistered, "report_violations.GetReportViolationsByReportIDHandler")
 	}
+	if o.RolePrivilegesGetRolesPrivilegesHandler == nil {
+		unregistered = append(unregistered, "role_privileges.GetRolesPrivilegesHandler")
+	}
 	if o.QueuesGetServicesCounselingOriginListHandler == nil {
 		unregistered = append(unregistered, "queues.GetServicesCounselingOriginListHandler")
 	}
@@ -1094,9 +1088,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UploadsGetUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.GetUploadHandler")
-	}
-	if o.UploadsGetUploadStatusHandler == nil {
-		unregistered = append(unregistered, "uploads.GetUploadStatusHandler")
 	}
 	if o.CalendarIsDateWeekendHolidayHandler == nil {
 		unregistered = append(unregistered, "calendar.IsDateWeekendHolidayHandler")
@@ -1303,8 +1294,6 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 			result["application/pdf"] = o.BinProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
-		case "text/event-stream":
-			result["text/event-stream"] = o.TextEventStreamProducer
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -1628,6 +1617,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/open/roles-privileges"] = role_privileges.NewGetRolesPrivileges(o.context, o.RolePrivilegesGetRolesPrivilegesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/queues/counseling/origin-list"] = queues.NewGetServicesCounselingOriginList(o.context, o.QueuesGetServicesCounselingOriginListHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1657,10 +1650,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/uploads/get"] = uploads.NewGetUpload(o.context, o.UploadsGetUploadHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/uploads/{uploadID}/status"] = uploads.NewGetUploadStatus(o.context, o.UploadsGetUploadStatusHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
