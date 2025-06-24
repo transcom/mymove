@@ -661,14 +661,14 @@ func (h LogoutOktaRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 type ActiveRoleUpdateHandler struct {
 	Context
 	handlers.HandlerConfig
-	services.RoleAssociater
+	services.RoleFetcher
 }
 
-func NewActiveRoleUpdateHandler(ac Context, hc handlers.HandlerConfig, rf services.RoleAssociater) ActiveRoleUpdateHandler {
+func NewActiveRoleUpdateHandler(ac Context, hc handlers.HandlerConfig, rf services.RoleFetcher) ActiveRoleUpdateHandler {
 	handler := ActiveRoleUpdateHandler{
-		Context:        ac,
-		HandlerConfig:  hc,
-		RoleAssociater: rf,
+		Context:       ac,
+		HandlerConfig: hc,
+		RoleFetcher:   rf,
 	}
 	return handler
 }
@@ -708,7 +708,7 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	requestedRole := roles.RoleType(body.RoleType)
 
-	userRoles, err := h.RoleAssociater.FetchRolesForUser(appCtx, appCtx.Session().UserID)
+	userRoles, err := h.RoleFetcher.FetchRolesForUser(appCtx, appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("failed to fetch roles for user when updating server session current role",
 			zap.Error(err),

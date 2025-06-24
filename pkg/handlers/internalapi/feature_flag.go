@@ -21,8 +21,8 @@ func (h BooleanFeatureFlagsUnauthenticatedHandler) Handle(params ffop.BooleanFea
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			// we are only allowing this to be called from the customer app
 			// since this is an open route outside of auth, we want to buckle down on validation here
-			if !appCtx.Session().IsMilApp() {
-				return ffop.NewBooleanFeatureFlagUnauthenticatedUnauthorized(), apperror.NewSessionError("Request is not from the customer app")
+			if !appCtx.Session().IsMilApp() && !appCtx.Session().IsOfficeApp() {
+				return ffop.NewBooleanFeatureFlagUnauthenticatedUnauthorized(), apperror.NewSessionError("Request is not coming from the customer app or office app")
 			}
 			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(
 				params.HTTPRequest.Context(), appCtx.Logger(), "customer", params.Key, params.FlagContext)

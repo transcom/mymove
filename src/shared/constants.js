@@ -261,6 +261,7 @@ export const FEATURE_FLAG_KEYS = {
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
   TERMINATING_SHIPMENTS: 'terminating_shipments',
   GUN_SAFE: 'gun_safe',
+  REQUEST_ACCOUNT_PRIVILEGES: 'request_account_privileges',
   APPROVAL_REQUEST_TYPE_COLUMN: 'approval_request_type_column',
   WOUNDED_WARRIOR_MOVE: 'wounded_warrior_move',
   DISABLE_MOVE_APPROVAL: 'disable_move_approval',
