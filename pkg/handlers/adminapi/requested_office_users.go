@@ -322,7 +322,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				appCtx.Logger().Error(fmt.Sprintf("Could not retrieve requestedOfficeUser by id - %s", params.OfficeUserID.String()), zap.Error(err))
 				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
 			}
-			priorPrivileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *priorRequestedOfficeUser.UserID)
+			priorPrivileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *priorRequestedOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
@@ -406,7 +406,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 
 				privileges := priorPrivileges
 				if privilegesDiffer {
-					privileges, err = roles.FetchPrivilegesForUser(txAppCtx.DB(), *requestedOfficeUser.UserID)
+					privileges, err = h.UserPrivilegeAssociator.FetchPrivilegesForUser(txAppCtx, *requestedOfficeUser.UserID)
 					if err != nil {
 						appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 					}
