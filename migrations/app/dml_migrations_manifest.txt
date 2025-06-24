@@ -53,3 +53,4 @@
 20250605212551_B-23748_fix_intl_city_countries04.up.sql
 20250605212552_B-23748_fix_intl_city_countries05.up.sql
 20250606201946_B-23635_update_old_grades.up.sql
+20250624215232_B-23853_insert_re_zip5_rate_areas.up.sql
