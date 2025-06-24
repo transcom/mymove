@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -754,4 +755,28 @@ func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
 	}
 
 	return payloadPayGrades
+}
+
+// get pay grade / rank for orders drop down
+func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, grade string) ([]*internalmessages.Rank, error) {
+	var dropdownOptions []*internalmessages.Rank
+
+	err := appCtx.DB().Q().RawQuery(`
+		SELECT
+			ranks.rank_name AS RankName,
+			ranks.rank_abbv AS RankAbbv,
+			ranks.id,
+			ranks.pay_grade_id AS PaygradeID,
+			ranks.rank_order AS RankOrder
+		FROM ranks
+		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
+		WHERE affiliation = $1
+		AND grade = $2
+		ORDER BY ranks.rank_order ASC
+	`, affiliation, grade).All(&dropdownOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	return dropdownOptions, nil
 }

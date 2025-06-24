@@ -32,11 +32,12 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, formatPayGradeOptions, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
-import { getPayGradeOptions, showCounselingOffices } from 'services/internalApi';
+import { getPayGradeOptions, getRankOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
+import { sortRankOptions } from 'shared/utils';
 import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 
 const EditOrdersForm = ({
@@ -135,6 +136,27 @@ const EditOrdersForm = ({
     };
     checkUBFeatureFlag();
   }, []);
+
+  const [rankOptions, setRankOptions] = useState([]);
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading rank options');
+      try {
+        const fetchedRanks = await getRankOptions(affiliation, grade);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankOptions(fetchedRanks);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchRankGradeOptions();
+  }, [affiliation, setShowLoadingSpinner, grade]);
 
   useEffect(() => {
     const fetchCounselingOffices = async () => {
@@ -565,6 +587,20 @@ const EditOrdersForm = ({
                 }}
               />
 
+              {grade !== '' ? (
+                <DropdownInput
+                  label="Rank"
+                  name="rank"
+                  id="rank"
+                  required
+                  options={rankOptions}
+                  showRequiredAsterisk
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                />
+              ) : null}
+
               <p>Uploads:</p>
               <UploadsTable
                 uploads={initialValues.uploaded_orders}
@@ -670,14 +706,14 @@ EditOrdersForm.defaultProps = {
   filePondEl: null,
 };
 
-const mapDispatchToProps = {
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
-};
-
 const mapStateToProps = (state) => {
   return {
     affiliation: selectServiceMemberAffiliation(state) || '',
   };
+};
+
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditOrdersForm);

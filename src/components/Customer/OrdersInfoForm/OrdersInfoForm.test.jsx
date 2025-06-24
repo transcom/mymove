@@ -7,10 +7,11 @@ import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
-import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { getRankOptions, showCounselingOffices } from 'services/internalApi';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { MockProviders } from 'testUtils';
+// import { getRankGradeOptions } from 'services/ghcApi';
 
 jest.setTimeout(60000);
 
@@ -30,6 +31,17 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+  getRankOptions: jest.fn().mockImplementation(() => {
+    return Promise.resolve([
+      {
+        id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+        paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+        rankAbbv: 'Amn',
+        rankOrder: 24,
+      },
+    ]);
+  }),
+
   getPayGradeOptions: jest.fn().mockImplementation(() => {
     const MOCKED__ORDERS_PAY_GRADE_TYPE = {
       E_5: 'E-5',
@@ -200,6 +212,7 @@ jest.mock('../../../utils/featureFlags', () => ({
 }));
 
 const testProps = {
+  // affiliation: 'AIR_FORCE',
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   initialValues: {
     orders_type: '',
@@ -220,6 +233,7 @@ const testProps = {
     { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
   ],
+  affiliation: ORDERS_BRANCH_OPTIONS.AIR_FORCE,
 };
 
 const civilianTDYTestProps = {
@@ -327,6 +341,13 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
+    // getRankGradeOptions.mockResolvedValue({
+    //   id: '3aca9ba8-3b84-42bf-8f2f-5ef02587ba89',
+    //   paygradeId: '862eb395-86d1-44af-ad47-dec44fbeda30',
+    //   rankGradeName: 'SSgt / E-5',
+    //   rankOrder: 23,
+    // });
+
     render(
       <Provider store={mockStore.store}>
         <OrdersInfoForm {...testProps} />
@@ -338,6 +359,10 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -404,6 +429,7 @@ describe('OrdersInfoForm component', () => {
         { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
         { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
       ],
+      affiliation: ORDERS_BRANCH_OPTIONS.AIR_FORCE,
     };
 
     render(
@@ -415,7 +441,11 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.E_5);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Scott/);
@@ -451,6 +481,7 @@ describe('OrdersInfoForm component', () => {
         { key: 'SEPARATION', value: 'Separation' },
         { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
       ],
+      affiliation: ORDERS_BRANCH_OPTIONS.AIR_FORCE,
     };
 
     render(
@@ -462,7 +493,11 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.E_5);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus AFB/);
@@ -486,7 +521,11 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.E_5);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/, { exact: false }), 'AFB', { delay: 100 });
@@ -564,6 +603,10 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -602,6 +645,7 @@ describe('OrdersInfoForm component', () => {
             updated_at: '2021-02-11T16:48:04.117Z',
           },
           grade: ORDERS_PAY_GRADE_TYPE.E_5,
+          rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
           origin_duty_location: {
             address: {
               city: '',
@@ -663,6 +707,7 @@ describe('OrdersInfoForm component', () => {
         updated_at: '2020-10-19T17:01:16.114Z',
       },
       grade: ORDERS_PAY_GRADE_TYPE.E_5,
+      rank: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
       origin_duty_location: {
         address: {
           city: '',
@@ -858,7 +903,11 @@ describe('OrdersInfoForm component', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.E_6);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE]);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),

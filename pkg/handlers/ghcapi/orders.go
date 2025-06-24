@@ -356,6 +356,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				deptIndicator,
 				&originDutyLocation,
 				&grade,
+				&payload.Rank,
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
@@ -1011,4 +1012,25 @@ func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upl
 		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload, nil
+}
+
+type GetRanksHandler struct {
+	handlers.HandlerConfig
+}
+
+// Handle retrieves orders in the system belonging to the logged in user given order ID
+func (h GetRanksHandler) Handle(params orderop.GetRanksParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			ranks, err := payloads.GetRankDropdownOptions(appCtx, params.Affiliation, params.Grade)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			if len(ranks) < 1 {
+				return orderop.NewGetRanksNotFound(), nil
+			}
+
+			return orderop.NewGetRanksOK().WithPayload(ranks), nil
+		})
 }

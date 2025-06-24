@@ -311,6 +311,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
 
+	internalAPI.OrdersGetRanksHandler = GetRanksHandler{handlerConfig}
+
 	return internalAPI
 }
 

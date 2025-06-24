@@ -23,6 +23,7 @@ BEGIN
                                     'ports',
                                     'port_locations',
                                     'postal_code_to_gblocs',
+                                    'ranks',
                                     're_cities',
                                     're_countries',
                                     're_domestic_accessorial_prices',

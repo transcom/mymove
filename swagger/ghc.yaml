@@ -5375,6 +5375,29 @@ paths:
           description: request requires user authentication
         '404':
           description: ranks not found
+  /ranks/{affiliation}&{grade}:
+    get:
+      summary: Get ranks for specified affiliation
+      description: Get ranks for specified affiliation
+      operationId: getRanks
+      tags:
+        - order
+      parameters:
+        - $ref: '#/parameters/AffiliationParam'
+        - $ref: '#/parameters/OrderPayGradeParam'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Rank'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 definitions:
   ApplicationParameters:
     type: object
@@ -6455,6 +6478,8 @@ definitions:
         readOnly: true
       grade:
         $ref: '#/definitions/OrderPayGrade'
+      rank:
+        $ref: '#/definitions/Rank'
       agency:
         $ref: '#/definitions/Affiliation'
       entitlement:
@@ -6626,6 +6651,10 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       grade:
         $ref: '#/definitions/OrderPayGrade'
+      rank:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
       originDutyLocationId:
         type: string
         format: uuid
@@ -6726,6 +6755,11 @@ definitions:
         $ref: '#/definitions/NullableString'
       grade:
         $ref: '#/definitions/OrderPayGrade'
+      rank:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6811,6 +6845,11 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/OrderPayGrade'
+      rank:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        x-nullable: true
       dependentsAuthorized:
         type: boolean
         x-nullable: true
@@ -9475,6 +9514,29 @@ definitions:
       CIVILIAN_EMPLOYEE: Civilian Employee
       ACADEMY_CADET: Service Academy Cadet
       MIDSHIPMAN: Midshipman
+  Rank:
+    type: object
+    x-nullable: true
+    title: Rank
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      paygradeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      rankName:
+        type: string
+        x-nullable: true
+        example: Seargent
+      rankAbbv:
+        type: string
+        example: SGT
+      rankOrder:
+        type: integer
+        x-nullable: true
   DutyLocation:
     type: object
     properties:
@@ -13036,3 +13098,69 @@ parameters:
       - OTHER
     x-nullable: true
     description: Military branch of service
+  OrderPayGradeParam:
+    name: grade
+    type: string
+    x-nullable: true
+    in: path
+    required: true
+    enum:
+      - E-1
+      - E-2
+      - E-3
+      - E-4
+      - E-5
+      - E-6
+      - E-7
+      - E-8
+      - E-9
+      - E-9-SPECIAL-SENIOR-ENLISTED
+      - O-1
+      - O-2
+      - O-3
+      - O-4
+      - O-5
+      - O-6
+      - O-7
+      - O-8
+      - O-9
+      - O-10
+      - W-1
+      - W-2
+      - W-3
+      - W-4
+      - W-5
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET
+      - MIDSHIPMAN
+    x-display-value:
+      E-1: E-1
+      E-2: E-2
+      E-3: E-3
+      E-4: E-4
+      E-5: E-5
+      E-6: E-6
+      E-7: E-7
+      E-8: E-8
+      E-9: E-9
+      E-9-SPECIAL-SENIOR-ENLISTED: E-9 (Special Senior Enlisted)
+      O-1: O-1
+      O-2: O-2
+      O-3: O-3
+      O-4: O-4
+      O-5: O-5
+      O-6: O-6
+      O-7: O-7
+      O-8: O-8
+      O-9: O-9
+      O-10: O-10
+      W-1: W-1
+      W-2: W-2
+      W-3: W-3
+      W-4: W-4
+      W-5: W-5
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman

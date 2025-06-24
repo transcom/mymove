@@ -476,6 +476,7 @@ const MoveDetails = ({
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
     payGrade: order.grade,
+    rank: order.rank.rankAbbv,
   };
   const allowancesInfo = {
     branch: customer.agency,

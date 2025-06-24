@@ -496,6 +496,7 @@ export class Summary extends Component {
             reportByDate={currentOrders.report_by_date}
             uploads={currentOrders.uploaded_orders.uploads}
             payGrade={currentOrders?.grade || ''}
+            rank={currentOrders?.rank}
             originDutyLocationName={currentOrders.origin_duty_location.name}
             orderId={currentOrders.id}
             counselingOfficeName={currentMove.counselingOffice?.name || ''}

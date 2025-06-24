@@ -113,22 +113,36 @@ jest.mock('services/ghcApi', () => ({
       ],
     }),
   ),
+  getRankOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+          paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+          rankAbbv: 'Amn',
+          rankOrder: 24,
+        },
+      ],
+    }),
+  ),
   getPayGradeOptions: jest.fn().mockImplementation(() => {
-    const MOCKED__ORDERS_PAY_GRADE_TYPE = {
-      E_5: 'E-5',
-      E_6: 'E-6',
-      CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
-    };
+    const E_5 = 'E-5';
+    const E_6 = 'E-6';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
 
     return Promise.resolve({
       body: [
         {
-          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
-          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+          grade: E_5,
+          description: E_5,
         },
         {
-          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
-          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+          grade: E_6,
+          description: E_6,
+        },
+        {
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
         },
       ],
     });
@@ -153,12 +167,14 @@ const initialValues = {
   dependentsUnderTwelve: '',
   dependentsTwelveAndOver: '',
   counselingOfficeId: '',
+  rank: '',
 };
 const testProps = {
   initialValues,
   ordersTypeOptions: dropdownInputOptions(ORDERS_TYPE_OPTIONS),
   onSubmit: jest.fn(),
   onBack: jest.fn(),
+  affiliation: 'AIR_FORCE',
 };
 const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
 const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
@@ -246,15 +262,14 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.click(getByLabelText(/Orders type/));
     await userEvent.click(getByLabelText(/Orders date/));
     await userEvent.click(getByLabelText(/Report by date/));
-    await userEvent.click(getByLabelText(/Current duty location/));
+    await userEvent.click(getByLabelText(/Current duty location/)); // do we want to add an error alert for this field
     await userEvent.click(getByLabelText(/New duty location/));
-    await userEvent.click(getByLabelText(/Pay grade/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
-    expect(alerts.length).toBe(5);
+    expect(alerts.length).toBe(4);
 
     alerts.forEach((alert) => {
       expect(alert).toHaveTextContent('Required');
@@ -278,6 +293,7 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });

@@ -61,6 +61,18 @@ jest.mock('services/ghcApi', () => ({
       ],
     });
   }),
+  getRankOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+          paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+          rankAbbv: 'Amn',
+          rankOrder: 24,
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -321,6 +333,7 @@ const fakeResponse = {
       },
       first_name: 'TioT',
       grade: 'E_8',
+      rank: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
       id: '80ac4b6b-96a9-40d0-a897-b6ae6891854a',
       last_name: 'Tester',
       methodOfPayment: 'Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System',
@@ -389,6 +402,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
     await user.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    await user.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
@@ -461,6 +475,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
     await user.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+    await user.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText('Altus');

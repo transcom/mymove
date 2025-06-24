@@ -134,6 +134,8 @@ const requestedMoveDetailsQuery = {
     tac: '9999',
     ntsTac: '1111',
     ntsSac: '2222',
+    grade: 'E-2',
+    rank: 'AMN',
   },
   mtoShipments: [
     {
@@ -290,6 +292,8 @@ const requestedMoveDetailsQueryRetiree = {
     tac: '9999',
     ntsTac: '1111',
     ntsSac: '2222',
+    grade: 'E-1',
+    rank: 'AB',
   },
   orderDocuments: {
     'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -461,6 +465,8 @@ const requestedMoveDetailsAmendedOrdersQuery = {
     order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
     uploadedAmendedOrderID: '3',
     tac: '9999',
+    grade: 'E-2',
+    rank: 'AMN',
   },
   orderDocuments: {
     'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -624,6 +630,8 @@ const requestedMoveDetailsMissingInfoQuery = {
       totalDependents: 1,
       totalWeight: 8000,
     },
+    grade: 'E-2',
+    rank: 'AMN',
   },
   orderDocuments: undefined,
   mtoShipments: [
@@ -793,6 +801,8 @@ const requestedMoveDetailsQueryNoShipments = {
     tac: '9999',
     ntsTac: '1111',
     ntsSac: '2222',
+    grade: 'E-2',
+    rank: 'AMN',
   },
   mtoShipments: [],
   mtoServiceItems: [],

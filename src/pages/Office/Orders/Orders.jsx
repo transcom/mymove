@@ -309,7 +309,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
       organizationalClothingAndIndividualEquipment,
-      grade: values.payGrade,
+      grade: values.grade,
+      rank: values.rank,
     };
 
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
@@ -340,7 +341,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
-    payGrade: order?.grade,
+    grade: order?.grade,
+    rank: order?.rank?.id,
     dependentsAuthorized,
   };
 
@@ -446,6 +448,9 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
                         ordersType={order.order_type}
                         setFieldValue={formik.setFieldValue}
                         payGradeOptions={payGradeDropdownOptions}
+                        currentGrade={formik.values.grade}
+                        affiliation={order.agency}
+                        handleChange={formik.handleChange}
                         formIsDisabled
                       />
                     }
@@ -468,6 +473,9 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
                       ordersType={order.order_type}
                       setFieldValue={formik.setFieldValue}
                       payGradeOptions={payGradeDropdownOptions}
+                      currentGrade={formik.values.grade}
+                      affiliation={order.agency}
+                      handleChange={formik.handleChange}
                     />
                   </Restricted>
                 </div>

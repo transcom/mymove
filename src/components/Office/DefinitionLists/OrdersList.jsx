@@ -51,6 +51,10 @@ const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
           <dd data-testid="payGrade">{!ordersInfo.payGrade ? missingText : ordersInfo.payGrade}</dd>
         </div>
         <div className={descriptionListStyles.row}>
+          <dt>Rank</dt>
+          <dd data-testid="rank">{!ordersInfo.rank ? missingText : `${ordersInfo.rank}`}</dd>
+        </div>
+        <div className={descriptionListStyles.row}>
           <dt>Current duty location</dt>
           <dd data-testid="currentDutyLocation">{ordersInfo.currentDutyLocation?.name}</dd>
         </div>

@@ -286,6 +286,17 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 			weight = weightAllotment.TotalWeightSelfPlusDependents
 		}
 		order.Entitlement.DBAuthorizedWeight = &weight
+
+		var rank models.Rank
+		if payload.Rank != nil {
+			err = appCtx.DB().Find(&rank, payload.Rank)
+			if err != nil {
+				return models.Order{}, err
+			}
+
+			order.RankID = models.UUIDPointer(rank.ID)
+			order.Rank = &rank
+		}
 	}
 
 	return order, nil
@@ -427,6 +438,17 @@ func orderFromCounselingPayload(appCtx appcontext.AppContext, existingOrder mode
 			weight = weightAllotment.TotalWeightSelfPlusDependents
 		}
 		order.Entitlement.DBAuthorizedWeight = &weight
+
+		var rank models.Rank
+		if payload.Rank != nil {
+			err = appCtx.DB().Find(&rank, payload.Rank)
+			if err != nil {
+				return models.Order{}, err
+			}
+
+			order.RankID = models.UUIDPointer(rank.ID)
+			order.Rank = &rank
+		}
 	}
 
 	if payload.HasDependents != nil {
@@ -807,6 +829,8 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 			return nil, e
 		}
 	}
+
+	// rank
 
 	if order.NewDutyLocationID != uuid.Nil {
 		// TODO refactor to use service objects to fetch duty location
