@@ -14,15 +14,27 @@ import (
 )
 
 // CountryModel model
-func CountryModel(country *string) *models.Country {
+func CountryModel(countryCode *string) *models.Country {
 	// The prime doesn't know the uuids of our countries, so for now we are going to just populate the name so we can query that
 	// when creating the address IF it is provided - else this will be nil and a US country will be created
+	if countryCode == nil {
+		return nil
+	}
+
+	modelCountry := &models.Country{
+		Country: *countryCode,
+	}
+	return modelCountry
+}
+
+func CountryFullModel(country *primev2messages.Country) *models.Country {
 	if country == nil {
 		return nil
 	}
 
 	modelCountry := &models.Country{
-		Country: *country,
+		Country:     country.Code,
+		CountryName: country.Name,
 	}
 	return modelCountry
 }
@@ -56,7 +68,8 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 		modelAddress.PostalCode = *address.PostalCode
 	}
 	if address.Country != nil {
-		modelAddress.Country = CountryModel(&address.Country.Name)
+		//modelAddress.Country = CountryModel(&address.Country.Code)
+		modelAddress.Country = CountryFullModel(address.Country)
 		countryId = uuid.FromStringOrNil(address.Country.ID.String())
 	}
 	if countryId != uuid.Nil {

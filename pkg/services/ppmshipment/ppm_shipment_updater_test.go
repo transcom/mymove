@@ -1234,6 +1234,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		state := "NC"
 		postalCode := "28314"
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		newPPM := models.PPMShipment{
 			W2Address: &models.Address{
 				StreetAddress1: streetAddress1,
@@ -1242,6 +1245,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           city,
 				State:          state,
 				PostalCode:     postalCode,
+				CountryId:      &country.ID,
+				Country:        &country,
 			},
 		}
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -1611,18 +1616,10 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeMaxIncentive, *updatedPPM.EstimatedIncentive)
 	})
 
-	suite.Run("Can update entitlement when HasGunSafe value changes", func() {
+	suite.Run("Can update gun safe authorized when HasGunSafe value changes", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
-
-		parameterName := "maxGunSafeAllowance"
-		parameterValue := "500"
-		param := models.ApplicationParameters{
-			ParameterName:  &parameterName,
-			ParameterValue: &parameterValue,
-		}
-		suite.MustSave(&param)
 
 		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -1646,8 +1643,164 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NoError(err)
 
 		suite.True(updatedEntitlement.GunSafe)
-		suite.Equal(500, updatedEntitlement.GunSafeWeight)
-		suite.NotNil(updatedEntitlement.DBAuthorizedWeight)
-		suite.True(*updatedEntitlement.DBAuthorizedWeight > 0)
+	})
+
+	suite.Run("Returns error if entitlement is nil when updating gun safe", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		// Create an order and link it to the entitlement
+		orders := factory.BuildOrder(suite.DB(), nil, nil)
+
+		// Manually set EntitlementID to a fake UUID to simulate broken preload
+		orders.EntitlementID = nil
+		orders.Entitlement = nil
+		suite.MustSave(&orders)
+
+		// Create a move and link it to the order
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    orders,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Create an MTOShipment linked to the move
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+					Status:       models.MTOShipmentStatusDraft,
+				},
+			},
+		}, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PPMShipment{
+					HasGunSafe: models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			HasGunSafe: models.BoolPointer(true),
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.Nil(updatedPPM)
+		suite.Error(err)
+		suite.IsType(apperror.QueryError{}, err)
+		suite.Contains(err.Error(), "Move is missing an associated entitlement.")
+
+	})
+	suite.Run("updating PPM with valid GCC multiplier date updates PPM - expected departure date", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		originalPPM := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: validGccMultiplierDate,
+			GCCMultiplierID:       nil,
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+		suite.NotNil(updatedPPM.GCCMultiplierID)
+	})
+	suite.Run("updating PPM with invalid GCC multiplier date updates PPM multiplier to nil - expected departure date", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		invalidGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-04-02")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: validGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: invalidGccMultiplierDate,
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+		suite.Nil(updatedPPM.GCCMultiplierID)
+	})
+
+	suite.Run("updating PPM with valid GCC multiplier date updates PPM multiplier - actual move date", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		invalidGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-04-02")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		// this PPM will have a 1x multiplier (nil)
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: invalidGccMultiplierDate,
+					GCCMultiplierID:       nil,
+				},
+			},
+		}, nil)
+
+		// this should change it to 1.3x (not nil)
+		newPPM := models.PPMShipment{
+			ActualMoveDate:  &validGccMultiplierDate,
+			GCCMultiplierID: nil,
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+		suite.NotNil(updatedPPM.GCCMultiplierID)
+	})
+	suite.Run("updating PPM with invalid GCC multiplier date updates PPM multiplier - actual move date", func() {
+		validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
+		invalidGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-04-02")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		// this PPM should have a 1.3x multiplier (not nil)
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: validGccMultiplierDate,
+				},
+			},
+		}, nil)
+
+		// this should change it to 1x (nil)
+		newPPM := models.PPMShipment{
+			ActualMoveDate:  &invalidGccMultiplierDate,
+			GCCMultiplierID: nil,
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+		suite.Nil(updatedPPM.GCCMultiplierID)
 	})
 }

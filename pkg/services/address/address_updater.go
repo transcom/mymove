@@ -49,10 +49,6 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, err
 	}
 
-	// until international moves are supported, we will default the country for created addresses to "US"
-	// if mergedAddress.Country != nil && mergedAddress.Country.Country != "US" {
-	// 	return nil, fmt.Errorf("- the country %s is not supported at this time - only US is allowed", mergedAddress.Country.Country)
-	// }
 	// first we will check to see if the country values have changed at all
 	if mergedAddress.CountryId != nil && mergedAddress.CountryId != &uuid.Nil {
 		country, err := models.FetchCountryByID(appCtx.DB(), *mergedAddress.CountryId)

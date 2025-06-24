@@ -28,6 +28,11 @@ type PPMDestinationAddress struct {
 	// country
 	Country *Country `json:"country,omitempty"`
 
+	// country ID
+	// Example: a56a4180-65aa-42ec-a945-5fd21dec0573
+	// Format: uuid
+	CountryID strfmt.UUID `json:"countryID,omitempty"`
+
 	// County
 	// Example: LOS ANGELES
 	County *string `json:"county,omitempty"`
@@ -82,6 +87,10 @@ func (m *PPMDestinationAddress) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCountryID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -127,6 +136,18 @@ func (m *PPMDestinationAddress) validateCountry(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *PPMDestinationAddress) validateCountryID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CountryID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("countryID", "body", "uuid", m.CountryID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

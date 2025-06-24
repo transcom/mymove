@@ -247,9 +247,6 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 			serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
 		}
 		serviceMember.ResidentialAddress.Country = &country
-	} else {
-		boolFalseVal := false
-		serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
 	}
 
 	if serviceMember.BackupMailingAddress != nil && serviceMember.BackupMailingAddress.CountryId != nil {
