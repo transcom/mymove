@@ -168,11 +168,12 @@ export class CustomerPpmPage extends CustomerPage {
     const pickupLocation = 'YUMA, AZ 85364 (YUMA)';
     const destinationLocation = 'YUMA, AZ 85365 (YUMA)';
     const w2Location = 'YUMA, AZ 85367 (YUMA)';
-    const usCountry = 'UNITED STATES (US)';
+    const countrySearch = 'UNITED STATES';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="pickupAddress-country-input"]').fill('UNITED STATES');
-    await expect(this.page.getByText(usCountry, { exact: true })).toHaveCount(1);
+    await this.page.locator('input[id="pickupAddress-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
     const pickupLocator = this.page.locator('input[id="pickupAddress-input"]');
     await pickupLocator.click({ timeout: 5000 });
@@ -181,8 +182,9 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-country-input"]').fill('UNITED STATES');
-    await expect(this.page.getByText(usCountry, { exact: true })).toHaveCount(2);
+    await this.page.locator('input[id="destinationAddress-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
     const destLocator = this.page.locator('input[id="destinationAddress-input"]');
     await destLocator.click({ timeout: 5000 });
@@ -198,8 +200,9 @@ export class CustomerPpmPage extends CustomerPage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="w2Address-country-input"]').fill('UNITED STATES');
-    await expect(this.page.getByText(usCountry, { exact: true })).toHaveCount(3);
+    await this.page.locator('input[id="w2Address-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
     await this.page.locator('input[id="w2Address-input"]').fill('85367');
     await expect(this.page.getByText(w2Location, { exact: true })).toBeVisible();
