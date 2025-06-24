@@ -58,7 +58,7 @@ func Address(address *models.Address) *internalmessages.Address {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(usPostRegionCitiesID.String())
 	}
 
-	if *address.CountryId != uuid.Nil {
+	if address.CountryId != nil {
 		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
 	}
 
