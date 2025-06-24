@@ -46,7 +46,7 @@ const serviceMemberMoves = {
           proGear: 2000,
           proGearSpouse: 500,
         },
-        grade: 'E_7',
+        grade: 'E-7',
         has_dependents: false,
         id: 'orderId',
         issue_date: '2024-04-18',
@@ -146,7 +146,7 @@ const defaultProps = {
     orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     has_dependents: false,
     issue_date: '2020-08-11',
-    grade: 'E_1',
+    grade: 'E-1',
     moves: [mtoUuid],
     origin_duty_location: {
       name: 'Fort Drum',
