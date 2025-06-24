@@ -54,6 +54,7 @@ import (
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	"github.com/transcom/mymove/pkg/services/upload"
+	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
@@ -83,6 +84,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	newQueryFilter := query.NewQueryFilter
 	newUserRolesCreator := usersroles.NewUsersRolesCreator()
 	newRolesFetcher := roles.NewRolesFetcher()
+	newUserPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
 	newTransportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
@@ -119,6 +121,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	serviceItemFetcher := serviceitem.NewServiceItemFetcher()
+
+	ghcAPI.RolePrivilegesGetRolesPrivilegesHandler = GetRolesPrivilegesHandler{
+		handlerConfig,
+		roles.NewRolesFetcher(),
+	}
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -803,6 +810,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		newQueryFilter,
 		newUserRolesCreator,
 		newRolesFetcher,
+		newUserPrivilegesCreator,
 		newTransportationOfficeAssignmentUpdater,
 	}
 	ghcAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
