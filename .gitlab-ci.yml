@@ -65,7 +65,7 @@ stages:
 #anchors
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
-    #- git config --global --add safe.directory /builds/milmove/mymove
+    - git config --global --add safe.directory /builds/milmove/mymove
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
     - export REACT_APP_ERROR_LOGGING=otel
     # - echo "Listing all environment variables:"
@@ -1228,8 +1228,8 @@ integration_test_mtls:
   needs:
     - prep_integration_docker_microservice
   before_script:
-    - *setup_milmove_env
-    - *setup_env_intergration_mtls
+    # - *setup_milmove_env
+    # - *setup_env_intergration_mtls
   script:
     # - echo "TODO Add steps"
     # - echo "integration_test_mtls"
