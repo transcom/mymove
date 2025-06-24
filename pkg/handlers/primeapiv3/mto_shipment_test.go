@@ -183,7 +183,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	setupTestData := func(boatFeatureFlag bool, ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 		vLocationServices := address.NewVLocation()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "",
 			Match: true,
@@ -275,7 +275,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		handler := CreateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentCreator,
 			mtoChecker,
 			vLocationServices,
@@ -508,7 +508,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -612,7 +612,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Return(nil, nil)
 
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -827,7 +827,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -911,7 +911,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Return(nil, nil)
 
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -1636,7 +1636,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -1716,7 +1716,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -1766,7 +1766,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -1863,7 +1863,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -2018,7 +2018,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -2119,7 +2119,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the AK flag to true
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -2147,7 +2147,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -2248,7 +2248,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the HI flag to true
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",
@@ -2276,7 +2276,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -2386,7 +2386,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the AK flag to false
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -2414,7 +2414,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -2524,7 +2524,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the HI flag to false
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",
@@ -2608,7 +2608,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the AK flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -2670,7 +2670,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the HI flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",
@@ -2732,7 +2732,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the AK flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -2794,7 +2794,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the HI flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",

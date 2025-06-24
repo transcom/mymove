@@ -30,80 +30,80 @@ func (m OrderPayGrade) Pointer() *OrderPayGrade {
 
 const (
 
-	// OrderPayGradeE1 captures enum value "E_1"
-	OrderPayGradeE1 OrderPayGrade = "E_1"
+	// OrderPayGradeEDash1 captures enum value "E-1"
+	OrderPayGradeEDash1 OrderPayGrade = "E-1"
 
-	// OrderPayGradeE2 captures enum value "E_2"
-	OrderPayGradeE2 OrderPayGrade = "E_2"
+	// OrderPayGradeEDash2 captures enum value "E-2"
+	OrderPayGradeEDash2 OrderPayGrade = "E-2"
 
-	// OrderPayGradeE3 captures enum value "E_3"
-	OrderPayGradeE3 OrderPayGrade = "E_3"
+	// OrderPayGradeEDash3 captures enum value "E-3"
+	OrderPayGradeEDash3 OrderPayGrade = "E-3"
 
-	// OrderPayGradeE4 captures enum value "E_4"
-	OrderPayGradeE4 OrderPayGrade = "E_4"
+	// OrderPayGradeEDash4 captures enum value "E-4"
+	OrderPayGradeEDash4 OrderPayGrade = "E-4"
 
-	// OrderPayGradeE5 captures enum value "E_5"
-	OrderPayGradeE5 OrderPayGrade = "E_5"
+	// OrderPayGradeEDash5 captures enum value "E-5"
+	OrderPayGradeEDash5 OrderPayGrade = "E-5"
 
-	// OrderPayGradeE6 captures enum value "E_6"
-	OrderPayGradeE6 OrderPayGrade = "E_6"
+	// OrderPayGradeEDash6 captures enum value "E-6"
+	OrderPayGradeEDash6 OrderPayGrade = "E-6"
 
-	// OrderPayGradeE7 captures enum value "E_7"
-	OrderPayGradeE7 OrderPayGrade = "E_7"
+	// OrderPayGradeEDash7 captures enum value "E-7"
+	OrderPayGradeEDash7 OrderPayGrade = "E-7"
 
-	// OrderPayGradeE8 captures enum value "E_8"
-	OrderPayGradeE8 OrderPayGrade = "E_8"
+	// OrderPayGradeEDash8 captures enum value "E-8"
+	OrderPayGradeEDash8 OrderPayGrade = "E-8"
 
-	// OrderPayGradeE9 captures enum value "E_9"
-	OrderPayGradeE9 OrderPayGrade = "E_9"
+	// OrderPayGradeEDash9 captures enum value "E-9"
+	OrderPayGradeEDash9 OrderPayGrade = "E-9"
 
-	// OrderPayGradeE9SPECIALSENIORENLISTED captures enum value "E_9_SPECIAL_SENIOR_ENLISTED"
-	OrderPayGradeE9SPECIALSENIORENLISTED OrderPayGrade = "E_9_SPECIAL_SENIOR_ENLISTED"
+	// OrderPayGradeEDash9DashSPECIALDashSENIORDashENLISTED captures enum value "E-9-SPECIAL-SENIOR-ENLISTED"
+	OrderPayGradeEDash9DashSPECIALDashSENIORDashENLISTED OrderPayGrade = "E-9-SPECIAL-SENIOR-ENLISTED"
 
-	// OrderPayGradeO1ACADEMYGRADUATE captures enum value "O_1_ACADEMY_GRADUATE"
-	OrderPayGradeO1ACADEMYGRADUATE OrderPayGrade = "O_1_ACADEMY_GRADUATE"
+	// OrderPayGradeODash1 captures enum value "O-1"
+	OrderPayGradeODash1 OrderPayGrade = "O-1"
 
-	// OrderPayGradeO2 captures enum value "O_2"
-	OrderPayGradeO2 OrderPayGrade = "O_2"
+	// OrderPayGradeODash2 captures enum value "O-2"
+	OrderPayGradeODash2 OrderPayGrade = "O-2"
 
-	// OrderPayGradeO3 captures enum value "O_3"
-	OrderPayGradeO3 OrderPayGrade = "O_3"
+	// OrderPayGradeODash3 captures enum value "O-3"
+	OrderPayGradeODash3 OrderPayGrade = "O-3"
 
-	// OrderPayGradeO4 captures enum value "O_4"
-	OrderPayGradeO4 OrderPayGrade = "O_4"
+	// OrderPayGradeODash4 captures enum value "O-4"
+	OrderPayGradeODash4 OrderPayGrade = "O-4"
 
-	// OrderPayGradeO5 captures enum value "O_5"
-	OrderPayGradeO5 OrderPayGrade = "O_5"
+	// OrderPayGradeODash5 captures enum value "O-5"
+	OrderPayGradeODash5 OrderPayGrade = "O-5"
 
-	// OrderPayGradeO6 captures enum value "O_6"
-	OrderPayGradeO6 OrderPayGrade = "O_6"
+	// OrderPayGradeODash6 captures enum value "O-6"
+	OrderPayGradeODash6 OrderPayGrade = "O-6"
 
-	// OrderPayGradeO7 captures enum value "O_7"
-	OrderPayGradeO7 OrderPayGrade = "O_7"
+	// OrderPayGradeODash7 captures enum value "O-7"
+	OrderPayGradeODash7 OrderPayGrade = "O-7"
 
-	// OrderPayGradeO8 captures enum value "O_8"
-	OrderPayGradeO8 OrderPayGrade = "O_8"
+	// OrderPayGradeODash8 captures enum value "O-8"
+	OrderPayGradeODash8 OrderPayGrade = "O-8"
 
-	// OrderPayGradeO9 captures enum value "O_9"
-	OrderPayGradeO9 OrderPayGrade = "O_9"
+	// OrderPayGradeODash9 captures enum value "O-9"
+	OrderPayGradeODash9 OrderPayGrade = "O-9"
 
-	// OrderPayGradeO10 captures enum value "O_10"
-	OrderPayGradeO10 OrderPayGrade = "O_10"
+	// OrderPayGradeODash10 captures enum value "O-10"
+	OrderPayGradeODash10 OrderPayGrade = "O-10"
 
-	// OrderPayGradeW1 captures enum value "W_1"
-	OrderPayGradeW1 OrderPayGrade = "W_1"
+	// OrderPayGradeWDash1 captures enum value "W-1"
+	OrderPayGradeWDash1 OrderPayGrade = "W-1"
 
-	// OrderPayGradeW2 captures enum value "W_2"
-	OrderPayGradeW2 OrderPayGrade = "W_2"
+	// OrderPayGradeWDash2 captures enum value "W-2"
+	OrderPayGradeWDash2 OrderPayGrade = "W-2"
 
-	// OrderPayGradeW3 captures enum value "W_3"
-	OrderPayGradeW3 OrderPayGrade = "W_3"
+	// OrderPayGradeWDash3 captures enum value "W-3"
+	OrderPayGradeWDash3 OrderPayGrade = "W-3"
 
-	// OrderPayGradeW4 captures enum value "W_4"
-	OrderPayGradeW4 OrderPayGrade = "W_4"
+	// OrderPayGradeWDash4 captures enum value "W-4"
+	OrderPayGradeWDash4 OrderPayGrade = "W-4"
 
-	// OrderPayGradeW5 captures enum value "W_5"
-	OrderPayGradeW5 OrderPayGrade = "W_5"
+	// OrderPayGradeWDash5 captures enum value "W-5"
+	OrderPayGradeWDash5 OrderPayGrade = "W-5"
 
 	// OrderPayGradeAVIATIONCADET captures enum value "AVIATION_CADET"
 	OrderPayGradeAVIATIONCADET OrderPayGrade = "AVIATION_CADET"
@@ -123,7 +123,7 @@ var orderPayGradeEnum []interface{}
 
 func init() {
 	var res []OrderPayGrade
-	if err := json.Unmarshal([]byte(`["E_1","E_2","E_3","E_4","E_5","E_6","E_7","E_8","E_9","E_9_SPECIAL_SENIOR_ENLISTED","O_1_ACADEMY_GRADUATE","O_2","O_3","O_4","O_5","O_6","O_7","O_8","O_9","O_10","W_1","W_2","W_3","W_4","W_5","AVIATION_CADET","CIVILIAN_EMPLOYEE","ACADEMY_CADET","MIDSHIPMAN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["E-1","E-2","E-3","E-4","E-5","E-6","E-7","E-8","E-9","E-9-SPECIAL-SENIOR-ENLISTED","O-1","O-2","O-3","O-4","O-5","O-6","O-7","O-8","O-9","O-10","W-1","W-2","W-3","W-4","W-5","AVIATION_CADET","CIVILIAN_EMPLOYEE","ACADEMY_CADET","MIDSHIPMAN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

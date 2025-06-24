@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 		HTTPRequest: request,
 		CustomerID:  strfmt.UUID(customer.ID.String()),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := GetCustomerHandler{
 		handlerConfig,
 		customerservice.NewCustomerFetcher(),
@@ -100,7 +100,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		IfMatch:     etag.GenerateEtag(customer.UpdatedAt),
 		Body:        body,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := UpdateCustomerHandler{
 		handlerConfig,
 		customerservice.NewCustomerUpdater(),
@@ -207,7 +207,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			HTTPRequest: request,
 			Body:        body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateCustomerWithOktaOptionHandler{
 			handlerConfig,
 		}
@@ -299,7 +299,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			HTTPRequest: request,
 			Body:        body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateCustomerWithOktaOptionHandler{
 			handlerConfig,
 		}
@@ -384,7 +384,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			HTTPRequest: request,
 			Body:        body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateCustomerWithOktaOptionHandler{
 			handlerConfig,
 		}
@@ -457,7 +457,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			HTTPRequest: request,
 			Body:        body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateCustomerWithOktaOptionHandler{
 			handlerConfig,
 		}
@@ -485,7 +485,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		mockSearcher := mocks.CustomerSearcher{}
 
 		handler := SearchCustomersHandler{
-			HandlerConfig:    suite.HandlerConfig(),
+			HandlerConfig:    suite.NewHandlerConfig(),
 			CustomerSearcher: &mockSearcher,
 		}
 		mockSearcher.On("SearchCustomers",
@@ -520,7 +520,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		mockSearcher := mocks.CustomerSearcher{}
 
 		handler := SearchCustomersHandler{
-			HandlerConfig:    suite.HandlerConfig(),
+			HandlerConfig:    suite.NewHandlerConfig(),
 			CustomerSearcher: &mockSearcher,
 		}
 		mockSearcher.On("SearchCustomers",
