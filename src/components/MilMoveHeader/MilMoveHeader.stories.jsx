@@ -35,7 +35,9 @@ export const LoggedOutHeader = () => (
 export const LoggedInOfficeHeader = () => (
   <div className="officeApp">
     <MilMoveHeader>
-      <OfficeUserInfo {...props} />
+      <ul className="usa-nav__primary">
+        <OfficeUserInfo {...props} />
+      </ul>
     </MilMoveHeader>
   </div>
 );

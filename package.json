@@ -10,7 +10,7 @@
     "@opentelemetry/core": "^1.15.1",
     "@tanstack/react-query": "^4.29.12",
     "@tanstack/react-query-devtools": "^5.17.12",
-    "@transcom/react-file-viewer": "github:transcom/react-file-viewer#v1.4.5",
+    "@transcom/react-file-viewer": "github:transcom/react-file-viewer#v1.4.2",
     "@trussworks/react-uswds": "3.2.0",
     "axe-playwright": "^1.2.3",
     "bytes": "^3.1.2",
@@ -78,7 +78,7 @@
     "reselect": "^4.1.8",
     "sass": "^1.77.6",
     "swagger-client": "^3.18.5",
-    "swagger-ui-dist": "^5.2.0",
+    "swagger-ui-dist": "^5.18.2",
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
@@ -102,8 +102,7 @@
     "url-parse": "^1.5.1",
     "y18n": "^5.0.5",
     "follow-redirects": "^1.15.4",
-    "jsonpath-plus": "^10.3.0",
-    "body-parser": "^1.20.3"
+    "jsonpath-plus": "^10.3.0"
   },
   "name": "client",
   "private": true,
