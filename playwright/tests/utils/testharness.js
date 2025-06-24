@@ -124,6 +124,14 @@ export class TestHarness {
   }
 
   /**
+   * build office user with multirole
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithMultirole() {
+    return this.buildDefault('OfficeUserWithTOOAndTIO');
+  }
+
+  /**
    * @returns {Promise<User>}
    */
   async buildNeedsOrdersUser() {
