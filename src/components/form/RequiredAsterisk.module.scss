@@ -1,6 +1,6 @@
 @import 'shared/styles/colors';
 
 .requiredAsterisk {
-  color: $color-red;
+  color: $color-red !important;
   font-weight: bold;
 }

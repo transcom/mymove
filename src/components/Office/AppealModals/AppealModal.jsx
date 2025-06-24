@@ -12,6 +12,7 @@ import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'compo
 import TextField from 'components/form/fields/TextField/TextField';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Hint from 'components/Hint';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 export const AppealModal = ({ onClose, onSubmit, selectedReportViolation, isSeriousIncidentAppeal }) => {
   const appealSchema = Yup.object().shape({
@@ -49,12 +50,15 @@ export const AppealModal = ({ onClose, onSubmit, selectedReportViolation, isSeri
                   <Fieldset>
                     <Grid row>
                       <Grid col={12}>
+                        {requiredAsteriskMessage}
                         <TextField
                           label="Remarks"
                           id="remarks"
                           name="remarks"
                           display="textarea"
                           data-testid="addAppealRemarks"
+                          showRequiredAsterisk
+                          required
                         />
                       </Grid>
                     </Grid>
