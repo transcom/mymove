@@ -56,9 +56,9 @@ func NewBaseRoutingSuite() BaseRoutingSuite {
 	}
 }
 
-// override HandlerConfig to use the version saved in routing config
+// override NewHandlerConfig to use the version saved in routing config
 // so the same session manager(s) are used
-func (suite *BaseRoutingSuite) HandlerConfig() handlers.HandlerConfig {
+func (suite *BaseRoutingSuite) NewHandlerConfig() handlers.HandlerConfig {
 	return suite.RoutingConfig().HandlerConfig
 }
 
@@ -82,7 +82,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	// ensure the routing config is reset when the test context is finished
 	suite.T().Cleanup(func() { suite.routingConfig = nil })
 	// Test that we can initialize routing and serve the index file
-	handlerConfig := suite.BaseHandlerTestSuite.HandlerConfig()
+	handlerConfig := suite.BaseHandlerTestSuite.NewHandlerConfig()
 	handlerConfig.SetAppNames(handlers.ApplicationTestServername())
 	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
 	handlerConfig.SetNotificationReceiver(suite.TestNotificationReceiver())
@@ -181,9 +181,9 @@ func (suite *BaseRoutingSuite) SetupCustomSiteHandlerWithTelemetry(routingConfig
 }
 
 func (suite *BaseRoutingSuite) setupRequestSession(req *http.Request, user models.User, hostname string) {
-	app, err := auth.ApplicationName(hostname, suite.HandlerConfig().AppNames())
+	app, err := auth.ApplicationName(hostname, suite.NewHandlerConfig().AppNames())
 	suite.FatalNoError(err)
-	sessionManager := suite.HandlerConfig().SessionManagers().SessionManagerForApplication(app)
+	sessionManager := suite.NewHandlerConfig().SessionManagers().SessionManagerForApplication(app)
 
 	fakeAuthContext, err := sessionManager.Load(context.Background(), "")
 	suite.NoError(err)
@@ -238,15 +238,15 @@ func (suite *BaseRoutingSuite) setupRequestSession(req *http.Request, user model
 }
 
 func (suite *BaseRoutingSuite) SetupAdminRequestSession(req *http.Request, adminUser models.AdminUser) {
-	suite.setupRequestSession(req, adminUser.User, suite.HandlerConfig().AppNames().AdminServername)
+	suite.setupRequestSession(req, adminUser.User, suite.NewHandlerConfig().AppNames().AdminServername)
 }
 
 func (suite *BaseRoutingSuite) SetupMilRequestSession(req *http.Request, serviceMember models.ServiceMember) {
-	suite.setupRequestSession(req, serviceMember.User, suite.HandlerConfig().AppNames().MilServername)
+	suite.setupRequestSession(req, serviceMember.User, suite.NewHandlerConfig().AppNames().MilServername)
 }
 
 func (suite *BaseRoutingSuite) SetupOfficeRequestSession(req *http.Request, officeUser models.OfficeUser) {
-	suite.setupRequestSession(req, officeUser.User, suite.HandlerConfig().AppNames().OfficeServername)
+	suite.setupRequestSession(req, officeUser.User, suite.NewHandlerConfig().AppNames().OfficeServername)
 }
 
 func (suite *BaseRoutingSuite) NewRequest(method string, hostname string, relativePath string, body io.Reader) *http.Request {
@@ -259,7 +259,7 @@ func (suite *BaseRoutingSuite) NewRequest(method string, hostname string, relati
 
 func (suite *BaseRoutingSuite) NewAdminRequest(method string, relativePath string, body io.Reader) *http.Request {
 	return suite.NewRequest(method,
-		suite.HandlerConfig().AppNames().AdminServername,
+		suite.NewHandlerConfig().AppNames().AdminServername,
 		relativePath,
 		body)
 }
@@ -272,7 +272,7 @@ func (suite *BaseRoutingSuite) NewAuthenticatedAdminRequest(method string, relat
 
 func (suite *BaseRoutingSuite) NewMilRequest(method string, relativePath string, body io.Reader) *http.Request {
 	return suite.NewRequest(method,
-		suite.HandlerConfig().AppNames().MilServername,
+		suite.NewHandlerConfig().AppNames().MilServername,
 		relativePath,
 		body)
 }
@@ -285,7 +285,7 @@ func (suite *BaseRoutingSuite) NewAuthenticatedMilRequest(method string, relativ
 
 func (suite *BaseRoutingSuite) NewOfficeRequest(method string, relativePath string, body io.Reader) *http.Request {
 	return suite.NewRequest(method,
-		suite.HandlerConfig().AppNames().OfficeServername,
+		suite.NewHandlerConfig().AppNames().OfficeServername,
 		relativePath,
 		body)
 }
@@ -298,7 +298,7 @@ func (suite *BaseRoutingSuite) NewAuthenticatedOfficeRequest(method string, rela
 
 func (suite *BaseRoutingSuite) NewPrimeRequest(method string, relativePath string, body io.Reader) *http.Request {
 	return suite.NewRequest(method,
-		suite.HandlerConfig().AppNames().PrimeServername,
+		suite.NewHandlerConfig().AppNames().PrimeServername,
 		relativePath,
 		body)
 }
@@ -314,7 +314,7 @@ func (suite *BaseRoutingSuite) NewAuthenticatedPrimeRequest(method string, relat
 
 func (suite *BaseRoutingSuite) NewPPTASRequest(method string, relativePath string, body io.Reader) *http.Request {
 	return suite.NewRequest(method,
-		suite.HandlerConfig().AppNames().PPTASServerName,
+		suite.NewHandlerConfig().AppNames().PPTASServerName,
 		relativePath,
 		body)
 }

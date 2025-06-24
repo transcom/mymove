@@ -1,8 +1,20 @@
 export const SET_ACTIVE_ROLE = 'SET_ACTIVE_ROLE';
+export const SET_ACTIVE_ROLE_SUCCESS = 'SET_ACTIVE_ROLE_SUCCESS';
+export const SET_ACTIVE_ROLE_FAILURE = 'SET_ACTIVE_ROLE_FAILURE';
 
 export const setActiveRole = (roleType) => ({
   type: SET_ACTIVE_ROLE,
   payload: roleType,
+});
+
+export const setActiveRoleSuccess = (roleType) => ({
+  type: SET_ACTIVE_ROLE_SUCCESS,
+  payload: roleType,
+});
+
+export const setActiveRoleFailure = (error) => ({
+  type: SET_ACTIVE_ROLE_FAILURE,
+  error,
 });
 
 export const LOAD_USER = 'LOAD_USER';

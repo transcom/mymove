@@ -647,9 +647,9 @@ func Order(order *models.Order) *ghcmessages.Order {
 		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*order.OrdersTypeDetail)
 	}
 
-	var grade ghcmessages.Grade
+	var grade ghcmessages.OrderPayGrade
 	if order.Grade != nil {
-		grade = ghcmessages.Grade(*order.Grade)
+		grade = ghcmessages.OrderPayGrade(*order.Grade)
 	}
 	//
 	var affiliation ghcmessages.Affiliation
@@ -2374,6 +2374,9 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
 		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
 	}
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
 	for _, shipment := range move.MTOShipments {
 		if shipment.Status == models.MTOShipmentStatusSubmitted {
 			if shipment.Diversion {
@@ -2967,4 +2970,19 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 		}
 	}
 	return nil
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
+	var payloadPayGrades []*ghcmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := ghcmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }

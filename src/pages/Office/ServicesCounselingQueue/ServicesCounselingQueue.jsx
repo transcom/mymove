@@ -548,7 +548,6 @@ const ServicesCounselingQueue = ({
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
-  const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -752,7 +751,7 @@ const ServicesCounselingQueue = ({
         <ConnectedFlashMessage />
         <div className={styles.searchFormContainer}>
           <h1>Search for a customer</h1>
-          {searchHappened && counselorMoveCreateFeatureFlag && (
+          {searchHappened && isCounselorMoveCreateFFEnabled && (
             <Button type="submit" onClick={handleAddCustomerClick} className={styles.addCustomerBtn}>
               Add Customer
             </Button>
