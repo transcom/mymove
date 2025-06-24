@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 				HTTPRequest: request,
 				Tac:         tc.tacCode,
 			}
-			handlerConfig := suite.HandlerConfig()
+			handlerConfig := suite.NewHandlerConfig()
 			handler := TacValidationHandler{handlerConfig}
 
 			// Validate incoming payload: no body to validate
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 			HTTPRequest: request,
 			Tac:         tac,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := TacValidationHandler{handlerConfig}
 
 		// Validate incoming payload: no body to validate
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 			HTTPRequest: request,
 			Tac:         tac,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := TacValidationHandler{handlerConfig}
 
 		// Validate incoming payload: no body to validate
