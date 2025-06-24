@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/testharnessapi"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
+	officeuserfetcher "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/roles"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
@@ -706,6 +707,7 @@ func mountAuthRoutes(appCtx appcontext.AppContext, routingConfig *Config, site c
 	// As we currently do not have an auth api with swagger to create the endpoints
 	// with their dependencies, this is where they can be declared
 	roleFetcher := roles.NewRolesFetcher()
+	officeUserFetcher := officeuserfetcher.NewOfficeUserFetcherPop()
 
 	site.Route("/auth/", func(r chi.Router) {
 		r.Use(middleware.NoCache())
@@ -714,6 +716,7 @@ func mountAuthRoutes(appCtx appcontext.AppContext, routingConfig *Config, site c
 		r.Method("POST", "/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
 		r.Method("POST", "/logoutOktaRedirect", authentication.NewLogoutOktaRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
 		r.Method("PATCH", "/activeRole", authentication.NewActiveRoleUpdateHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, roleFetcher))
+		r.Method("PATCH", "/activeOffice", authentication.NewActiveOfficeUpdateHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, officeUserFetcher))
 	})
 
 	if routingConfig.ServeDevlocalAuth {

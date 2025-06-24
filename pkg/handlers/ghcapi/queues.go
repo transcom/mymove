@@ -44,6 +44,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				return queues.NewGetMovesQueueForbidden(), forbiddenErr
 			}
 
+			fmt.Println("appCtx.Session().ActiveOfficeID")
+			fmt.Println(appCtx.Session().ActiveOfficeID)
+
 			ListOrderParams := services.ListOrderParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
@@ -113,7 +116,6 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTOO,
-						officeUser.TransportationOfficeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -124,7 +126,6 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -167,8 +168,12 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
 				}
 			}
+			fmt.Println("appCtx.Session().ActiveOfficeID")
+			fmt.Println(appCtx.Session().ActiveOfficeID)
+			fmt.Println("appCtx.Session().ActiveRole")
+			fmt.Println(appCtx.Session().ActiveRole)
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeTaskOrder))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeTaskOrder), appCtx.Session().ActiveOfficeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -280,7 +285,6 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTOO,
-						officeUser.TransportationOfficeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -291,7 +295,6 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -322,7 +325,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest), appCtx.Session().ActiveOfficeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -428,6 +431,11 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				CounselingOffice:        params.CounselingOffice,
 			}
 
+			fmt.Println("appCtx.Session().ActiveOfficeID")
+			fmt.Println(appCtx.Session().ActiveOfficeID)
+			fmt.Println("appCtx.Session().ActiveRole")
+			fmt.Println(appCtx.Session().ActiveRole)
+
 			var activeRole string
 			if params.ActiveRole != nil {
 				activeRole = *params.ActiveRole
@@ -476,7 +484,6 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTIO,
-						officeUser.TransportationOfficeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -487,7 +494,6 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTIO,
-					officeUser.TransportationOfficeID,
 				)
 			}
 
@@ -646,7 +652,6 @@ func (h GetServicesCounselingQueueHandler) Handle(
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeServicesCounselor,
-						officeUser.TransportationOfficeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -657,7 +662,6 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
-					officeUser.TransportationOfficeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -703,7 +707,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling), appCtx.Session().ActiveOfficeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,

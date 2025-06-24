@@ -4967,6 +4967,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeOffice": {
+          "x-nullable": true,
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "activeRole": {
           "x-nullable": true,
           "$ref": "#/definitions/Role"
@@ -14490,6 +14494,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeOffice": {
+          "x-nullable": true,
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "activeRole": {
           "x-nullable": true,
           "$ref": "#/definitions/Role"
