@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ConnectedOfficeLoggedInHeader from './OfficeLoggedInHeader';
@@ -9,6 +9,7 @@ import { logOut } from 'store/auth/actions';
 import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
+import { gblocDropdownTestId } from 'components/Office/GblocSwitcher/GblocDropdown';
 
 jest.mock('store/auth/actions', () => ({
   loadUser: jest.fn(() => async () => {}),
@@ -209,9 +210,8 @@ describe('OfficeLoggedInHeader', () => {
         <ConnectedOfficeLoggedInHeader />
       </MockProviders>,
     );
-
-    const gblocSwitcher = screen.getByTestId('gbloc_switcher');
+    const gblocSwitcher = await screen.findByTestId(gblocDropdownTestId);
     expect(gblocSwitcher).toBeInstanceOf(HTMLSelectElement);
-    expect(gblocSwitcher.firstChild).toBeInstanceOf(HTMLOptionElement);
+    expect((await within(gblocSwitcher).findAllByRole('option')).length).toBeGreaterThan(0);
   });
 });
