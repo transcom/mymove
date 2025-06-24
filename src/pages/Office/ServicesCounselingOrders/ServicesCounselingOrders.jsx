@@ -457,15 +457,15 @@ const ServicesCounselingOrders = ({
                 {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
+                    <Button type="button" secondary onClick={handleClose}>
+                      Cancel
+                    </Button>
                     <Button
                       type="submit"
                       disabled={formik.isSubmitting || !counselorCanEdit}
                       onClick={scrollToViewFormikError(formik)}
                     >
                       Save
-                    </Button>
-                    <Button type="button" secondary onClick={handleClose}>
-                      Cancel
                     </Button>
                   </div>
                 </div>
