@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		Tac:                  handlers.FmtString("E19A"),
 		Sac:                  handlers.FmtString("SacNumber"),
 		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
-		Grade:                ghcmessages.GradeE1.Pointer(),
+		Grade:                ghcmessages.OrderPayGradeEDash1.Pointer(),
 		CounselingOfficeID:   handlers.FmtUUID(*dutyLocation.TransportationOfficeID),
 	}
 
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 		Tac:                     handlers.FmtString("E19A"),
 		Sac:                     handlers.FmtString("SacNumber"),
 		DepartmentIndicator:     ghcmessages.NewDeptIndicator(deptIndicator),
-		Grade:                   ghcmessages.GradeE1.Pointer(),
+		Grade:                   ghcmessages.OrderPayGradeEDash1.Pointer(),
 		AccompaniedTour:         &accompaniedTour,
 		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
 		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
@@ -348,7 +348,7 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 		Tac:                     handlers.FmtString("E19A"),
 		Sac:                     handlers.FmtString("SacNumber"),
 		DepartmentIndicator:     ghcmessages.NewDeptIndicator(deptIndicator),
-		Grade:                   ghcmessages.GradeCIVILIANEMPLOYEE.Pointer(),
+		Grade:                   ghcmessages.OrderPayGradeCIVILIANEMPLOYEE.Pointer(),
 		AccompaniedTour:         &accompaniedTour,
 		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
 		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
@@ -1382,7 +1382,7 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	subtestData.move = factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 	subtestData.order = subtestData.move.Orders
 
-	grade := ghcmessages.GradeO5
+	grade := ghcmessages.OrderPayGradeODash5
 	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := models.Int64Pointer(100)
@@ -1510,7 +1510,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 200 when all validations pass - gun safe FF off", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1727,7 +1727,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 }
 
 func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
-	grade := ghcmessages.GradeO5
+	grade := ghcmessages.OrderPayGradeODash5
 	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := models.Int64Pointer(100)
@@ -1809,7 +1809,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 200 when all validations pass - gun safe FF off, SC only", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 		gunSafeWeight := models.Int64Pointer(500)

@@ -2717,7 +2717,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := ApproveShipmentDiversionHandler{
-			HandlerConfig:             suite.HandlerConfig(),
+			HandlerConfig:             suite.NewHandlerConfig(),
 			ShipmentDiversionApprover: mtoshipment.NewShipmentDiversionApprover(mtoshipment.NewShipmentRouter(), moveRouter),
 			ShipmentSITStatus:         sitstatus.NewShipmentSITStatus(),
 			MoveRouter:                moveRouter,
@@ -2779,7 +2779,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := ApproveShipmentDiversionHandler{
-			HandlerConfig:             suite.HandlerConfig(),
+			HandlerConfig:             suite.NewHandlerConfig(),
 			ShipmentDiversionApprover: mtoshipment.NewShipmentDiversionApprover(mtoshipment.NewShipmentRouter(), moveRouter),
 			ShipmentSITStatus:         sitstatus.NewShipmentSITStatus(),
 			MoveRouter:                moveRouter,
@@ -5303,7 +5303,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			},
 		}, nil)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), addressCreator)
@@ -5415,7 +5415,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -6058,7 +6057,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			Match: false,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",

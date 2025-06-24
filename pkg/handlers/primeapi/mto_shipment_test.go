@@ -213,7 +213,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			vLocationServices,
 		}
