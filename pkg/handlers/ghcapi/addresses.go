@@ -12,6 +12,7 @@ import (
 	addressop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/addresses"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -83,10 +84,33 @@ func (h SearchCountriesHandler) Handle(params addressop.SearchCountriesParams) m
 				return addressop.NewSearchCountriesForbidden(), noOfficeUserIDErr
 			}
 
-			countries, err := h.CountrySearcher.SearchCountries(appCtx, params.Search)
+			/** Feature Flag - Determines if countries should return US or all countries **/
+			isOconusCityFinder := false
+			oconusFeatureFlagName := "oconus_city_finder"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, oconusFeatureFlagName, map[string]string{})
 			if err != nil {
-				appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
-				return addressop.NewSearchCountriesInternalServerError(), err
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", oconusFeatureFlagName), zap.Error(err))
+			} else {
+				isOconusCityFinder = flag.Match
+			}
+
+			var countries models.Countries
+
+			if !isOconusCityFinder {
+				country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+
+				if err != nil {
+					appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
+					return addressop.NewSearchCountriesInternalServerError(), err
+				}
+
+				countries = append(countries, country)
+			} else {
+				countries, err = h.CountrySearcher.SearchCountries(appCtx, params.Search)
+				if err != nil {
+					appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
+					return addressop.NewSearchCountriesInternalServerError(), err
+				}
 			}
 
 			returnPayload := payloads.Countries(countries)

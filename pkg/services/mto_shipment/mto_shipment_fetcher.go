@@ -164,6 +164,19 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				}
 			}
 		}
+
+		// Pop cannot handle multi layer model populations so we have to get the StorageFacility.Address Country ourselves
+		if shipments[i].StorageFacility != nil && shipments[i].StorageFacility.Address.CountryId != nil {
+			storageCountry := models.Country{}
+			sqlQuery := "SELECT * FROM re_countries WHERE id=$1"
+
+			err = appCtx.DB().RawQuery(sqlQuery, shipments[i].StorageFacility.Address.CountryId).First(&storageCountry)
+
+			if err != nil {
+				return nil, err
+			}
+			shipments[i].StorageFacility.Address.Country = &storageCountry
+		}
 	}
 
 	return shipments, nil
@@ -213,6 +226,19 @@ func (f mtoShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipmentID
 		default:
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
 		}
+	}
+
+	// Pop cannot handle multi layer model populations so we have to get the StorageFacility.Address Country ourselves
+	if shipment.StorageFacility != nil && shipment.StorageFacility.Address.CountryId != nil {
+		storageCountry := models.Country{}
+		sqlQuery := "SELECT * FROM re_countries WHERE id=$1"
+
+		err = appCtx.DB().RawQuery(sqlQuery, shipment.StorageFacility.Address.CountryId).First(&storageCountry)
+
+		if err != nil {
+			return nil, err
+		}
+		shipment.StorageFacility.Address.Country = &storageCountry
 	}
 
 	return &shipment, nil

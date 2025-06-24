@@ -6,11 +6,10 @@ import { useFormikContext } from 'formik';
 
 import Hint from 'components/Hint/index';
 import styles from 'components/form/AddressFields/AddressFields.module.scss';
-import { technicalHelpDeskURL, FEATURE_FLAG_KEYS } from 'shared/constants';
+import { technicalHelpDeskURL } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
 import LocationInput from 'components/form/fields/LocationInput';
 import CountryInput from 'components/form/fields/CountryInput';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 /**
  * @param legend
@@ -38,7 +37,6 @@ export const AddressFields = ({
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
 
-  const [isCountrySearchEnabled, setIsCountrySearchEnabled] = useState(false);
   const { values } = useFormikContext();
 
   // some 'name' are passed in like pickupAddress.address and we cannot use values to get pickupAddress.address, so we
@@ -57,9 +55,9 @@ export const AddressFields = ({
   const nameValue = values[addressName];
   let nameCountryCode = '';
 
-  if (name.includes('.address') && nameValue.address !== undefined && nameValue.address.city !== '') {
+  if (name.includes('.address') && nameValue?.address !== undefined && nameValue?.address.city !== '') {
     nameCountryCode = nameValue.address.country ? nameValue.address.country.code : '';
-  } else if (!name.includes('.address') && nameValue.country !== undefined) {
+  } else if (!name.includes('.address') && nameValue?.country !== undefined) {
     nameCountryCode = nameValue.country.code;
   }
 
@@ -68,13 +66,6 @@ export const AddressFields = ({
   useEffect(() => {
     setCurrentCountryCode(nameCountryCode);
   }, [nameCountryCode]);
-
-  useEffect(() => {
-    const fetchFlag = async () => {
-      setIsCountrySearchEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER));
-    };
-    fetchFlag();
-  }, []);
 
   const getAddress1LabelHintText = (labelHint, address1Label) => {
     if (address1Label === null) {
@@ -166,24 +157,19 @@ export const AddressFields = ({
             validate={validators?.streetAddress3}
           />
 
-          {isCountrySearchEnabled && (
-            <CountryInput
-              name={`${name}`}
-              placeholder="Start typing a country name, code"
-              label="Country Lookup"
-              handleCountryChange={handleOnCountryChange}
-            />
-          )}
+          <CountryInput
+            name={`${name}`}
+            placeholder="Start typing a country name, code"
+            label="Country Lookup"
+            handleCountryChange={handleOnCountryChange}
+          />
 
           <LocationInput
             name={`${name}`}
             placeholder="Start typing a Zip or City, State Zip"
             label="Location Lookup"
             handleLocationChange={handleOnLocationChange}
-            isDisabled={
-              isCountrySearchEnabled &&
-              (currentCountryCode === null || currentCountryCode === '' || currentCountryCode !== 'US')
-            }
+            isDisabled={currentCountryCode === null || currentCountryCode === '' || currentCountryCode !== 'US'}
           />
 
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
