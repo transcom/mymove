@@ -40,8 +40,34 @@ export const AddressFields = ({
 
   const [isCountrySearchEnabled, setIsCountrySearchEnabled] = useState(false);
   const { values } = useFormikContext();
-  const code = values[name];
-  const [currentCountryCode, setCurrentCountryCode] = useState(code?.country ? code?.country?.code : '');
+
+  // some 'name' are passed in like pickupAddress.address and we cannot use values to get pickupAddress.address, so we
+  // remove the .address and get pickupAddress then get the country code from that. If there is not a .address we just
+  // use the 'name' passed in as is
+  const separator = '.';
+  const separatorIndex = name.indexOf(separator);
+
+  let addressName;
+  if (separatorIndex !== -1) {
+    addressName = name.substring(0, separatorIndex);
+  } else {
+    addressName = name;
+  }
+
+  const nameValue = values[addressName];
+  let nameCountryCode = '';
+
+  if (name.includes('.address') && nameValue.address !== undefined) {
+    nameCountryCode = nameValue.address.country ? nameValue.address.country.code : '';
+  } else if (!name.includes('.address') && nameValue.country !== undefined) {
+    nameCountryCode = nameValue.country.code;
+  }
+
+  const [currentCountryCode, setCurrentCountryCode] = useState(nameCountryCode);
+
+  useEffect(() => {
+    setCurrentCountryCode(nameCountryCode);
+  }, [nameCountryCode]);
 
   useEffect(() => {
     const fetchFlag = async () => {
