@@ -5519,6 +5519,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		sitExpected := false
 		estimatedWeight := unit.Pound(2450)
 		hasProGear := false
+		hasGunSafe := true
+		gunSafeWeight := unit.Pound(400)
 		estimatedIncentive := 123456
 
 		var pickupAddress ghcmessages.Address
@@ -5587,6 +5589,169 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 					SitExpected:     &sitExpected,
 					EstimatedWeight: handlers.FmtPoundPtr(&estimatedWeight),
 					HasProGear:      &hasProGear,
+					HasGunSafe:      &hasGunSafe,
+					GunSafeWeight:   handlers.FmtPoundPtr(&gunSafeWeight),
+				},
+			},
+		}
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		payload := okResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		// Check MTOShipment fields.
+		suite.NotZero(payload.ID)
+		suite.NotEqual(uuid.Nil.String(), payload.ID.String())
+		suite.Equal(move.ID.String(), payload.MoveTaskOrderID.String())
+		suite.Equal(ghcmessages.MTOShipmentTypePPM, payload.ShipmentType)
+		suite.Equal(ghcmessages.MTOShipmentStatusSUBMITTED, payload.Status)
+		suite.NotZero(payload.CreatedAt)
+		suite.NotZero(payload.UpdatedAt)
+
+		// Check PPMShipment fields.
+		ppmPayload := payload.PpmShipment
+		if suite.NotNil(ppmPayload) {
+			suite.NotZero(ppmPayload.ID)
+			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
+			suite.Nil(ppmPayload.GunSafeWeight)
+			suite.Nil(ppmPayload.HasGunSafe)
+		}
+	})
+
+	suite.Run("Successful POST and Patch for delete of addresses - Integration Test (PPM, minimal fields)", func() {
+		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		handlerConfig := suite.NewHandlerConfig()
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
+		ppmEstimator := mocks.PPMEstimator{}
+		boatCreator := boatshipment.NewBoatShipmentCreator()
+		mobileHomeCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
+		shipmentRouter := mtoshipment.NewShipmentRouter()
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			siCreator,
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
+		)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
+		handler := CreateMTOShipmentHandler{
+			handlerConfig,
+			shipmentCreator,
+			sitstatus.NewShipmentSITStatus(),
+			closeoutOfficeUpdater,
+		}
+
+		shipmentType := ghcmessages.MTOShipmentTypePPM
+		expectedDepartureDate := hhgShipment.RequestedPickupDate
+		sitExpected := false
+		estimatedWeight := unit.Pound(2450)
+		hasProGear := false
+		hasGunSafe := false
+		estimatedIncentive := 123456
+
+		var pickupAddress ghcmessages.Address
+		var destinationAddress ghcmessages.PPMDestinationAddress
+
+		expectedPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		pickupAddress = ghcmessages.Address{
+			City:           &expectedPickupAddress.City,
+			PostalCode:     &expectedPickupAddress.PostalCode,
+			State:          &expectedPickupAddress.State,
+			StreetAddress1: &expectedPickupAddress.StreetAddress1,
+			StreetAddress2: expectedPickupAddress.StreetAddress2,
+			StreetAddress3: expectedPickupAddress.StreetAddress3,
+		}
+
+		expectedDestinationAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		destinationAddress = ghcmessages.PPMDestinationAddress{
+			City:           &expectedDestinationAddress.City,
+			PostalCode:     &expectedDestinationAddress.PostalCode,
+			State:          &expectedDestinationAddress.State,
+			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
+			StreetAddress2: expectedDestinationAddress.StreetAddress2,
+			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+		}
+
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			ActiveRole:      roles.Role{},
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req.WithContext(ctx),
+			Body: &ghcmessages.CreateMTOShipment{
+				MoveTaskOrderID: handlers.FmtUUID(move.ID),
+				ShipmentType:    &shipmentType,
+				PpmShipment: &ghcmessages.CreatePPMShipment{
+					ExpectedDepartureDate: handlers.FmtDatePtr(expectedDepartureDate),
+					PickupAddress:         struct{ ghcmessages.Address }{pickupAddress},
+					DestinationAddress: struct {
+						ghcmessages.PPMDestinationAddress
+					}{destinationAddress},
+					SitExpected:     &sitExpected,
+					EstimatedWeight: handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:      &hasProGear,
+					HasGunSafe:      &hasGunSafe,
 				},
 			},
 		}
