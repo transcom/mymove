@@ -57,7 +57,7 @@ export const AddressFields = ({
   const nameValue = values[addressName];
   let nameCountryCode = '';
 
-  if (name.includes('.address') && nameValue.address !== undefined) {
+  if (name.includes('.address') && nameValue.address !== undefined && nameValue.address.city !== '') {
     nameCountryCode = nameValue.address.country ? nameValue.address.country.code : '';
   } else if (!name.includes('.address') && nameValue.country !== undefined) {
     nameCountryCode = nameValue.country.code;
