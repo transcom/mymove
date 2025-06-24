@@ -41,24 +41,31 @@ jest.mock('services/internalApi', () => ({
       },
     ]);
   }),
-  getPayGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
+
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const MOCKED__ORDERS_PAY_GRADE_TYPE = {
+      E_5: 'E-5',
+      E_6: 'E-6',
+      CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
+    };
+
+    return Promise.resolve({
       body: [
         {
-          grade: 'E-5',
-          description: ' E-5',
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
         },
         {
-          grade: 'E-6',
-          description: ' E-6',
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
         },
         {
-          description: 'Civilian',
-          grade: 'CIVILIAN_EMPLOYEE',
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
         },
       ],
-    }),
-  ),
+    });
+  }),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -563,7 +570,7 @@ describe('OrdersInfoForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
-          grade: 'E-5',
+          grade: ORDERS_PAY_GRADE_TYPE.E_5,
           origin_duty_location: {
             address: {
               city: '',
@@ -637,7 +644,7 @@ describe('OrdersInfoForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
-          grade: 'E-5',
+          grade: ORDERS_PAY_GRADE_TYPE.E_5,
           rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
           origin_duty_location: {
             address: {

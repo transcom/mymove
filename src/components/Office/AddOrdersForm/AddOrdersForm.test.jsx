@@ -125,20 +125,28 @@ jest.mock('services/ghcApi', () => ({
       ],
     }),
   ),
-  getPayGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const E_5 = 'E-5';
+    const E_6 = 'E-6';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
+
+    return Promise.resolve({
       body: [
         {
-          grade: 'E-5',
-          description: ' E-5',
+          grade: E_5,
+          description: E_5,
         },
         {
-          grade: 'E-6',
-          description: ' E-6',
+          grade: E_6,
+          description: E_6,
+        },
+        {
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
         },
       ],
-    }),
-  ),
+    });
+  }),
 }));
 
 jest.mock('utils/featureFlags', () => ({

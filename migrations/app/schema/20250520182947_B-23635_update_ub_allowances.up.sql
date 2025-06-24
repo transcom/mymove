@@ -3,6 +3,7 @@
 ALTER TABLE ub_allowances
 DROP CONSTRAINT IF EXISTS ub_allowances_grade_check;
 
+-- these must be executed in this order or the updated constraint will fail because the current values no longer align
 UPDATE ub_allowances
 SET grade = 'O-1'
 WHERE grade = 'O_1_ACADEMY_GRADUATE';

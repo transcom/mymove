@@ -349,11 +349,18 @@ func (suite *PayloadsSuite) TestPayGrades() {
 		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
 		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
 	}
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
 
-	result := PayGrades(payGrades)
+			suite.Require().Len(result, 1)
+			actual := result[0]
 
-	suite.Equal(len(payGrades), len(result))
-	suite.Equal(payGrades[0].Grade, result[0].Grade)
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
 }
 
 func (suite *PayloadsSuite) TestGetRankDropdownOptions() {

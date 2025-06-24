@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 import { roleTypes } from 'constants/userRoles';
+import serviceBranches from 'content/serviceMemberAgencies';
 
 const mockPickupLocation = [
   {
@@ -333,7 +334,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
-          affiliation: 'ARMY',
+          affiliation: serviceBranches.ARMY,
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },

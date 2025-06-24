@@ -45,24 +45,28 @@ jest.mock('services/internalApi', () => ({
       },
     ]);
   }),
-  getPayGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const E_5 = 'E-5';
+    const E_6 = 'E-6';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
+
+    return Promise.resolve({
       body: [
         {
-          grade: 'E-5',
-          description: ' E-5',
+          grade: E_5,
+          description: E_5,
         },
         {
-          grade: 'E-6',
-          description: ' E-6',
+          grade: E_6,
+          description: E_6,
         },
         {
-          description: 'Civilian',
-          grade: 'CIVILIAN_EMPLOYEE',
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
         },
       ],
-    }),
-  ),
+    });
+  }),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -443,7 +447,7 @@ describe('Add Orders page', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E-1',
+      grade: ORDERS_PAY_GRADE_TYPE.E_5,
     };
 
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
@@ -546,7 +550,7 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
       },
-      grade: 'E-5',
+      grade: ORDERS_PAY_GRADE_TYPE.E_5,
       rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
@@ -651,7 +655,7 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
       },
-      grade: 'E-5',
+      grade: ORDERS_PAY_GRADE_TYPE.E_5,
       rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',

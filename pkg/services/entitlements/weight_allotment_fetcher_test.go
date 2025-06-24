@@ -12,7 +12,7 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotment() {
 	suite.Run("If a weight allotment is fetched by grade, it should be returned", func() {
 		fetcher := NewWeightAllotmentFetcher()
 
-		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E-1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), string(models.PaygradeE1), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		suite.NoError(err)
 		suite.NotEmpty(allotment)

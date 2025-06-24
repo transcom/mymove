@@ -58,24 +58,28 @@ jest.mock('services/ghcApi', () => ({
       isValid: tac === '1111' || tac === '2222' || tac === '3333',
     };
   },
-  getPayGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const E_1 = 'E-1';
+    const E_6 = 'E-6';
+    const CIVILIAN_EMPLOYEE = 'CIVILIAN_EMPLOYEE';
+
+    return Promise.resolve({
       body: [
         {
-          grade: 'E-1',
-          description: ' E-1',
+          grade: E_1,
+          description: E_1,
         },
         {
-          grade: 'E-6',
-          description: ' E-6',
+          grade: E_6,
+          description: E_6,
         },
         {
-          description: 'Civilian',
-          grade: 'CIVILIAN_EMPLOYEE',
+          description: CIVILIAN_EMPLOYEE,
+          grade: CIVILIAN_EMPLOYEE,
         },
       ],
-    }),
-  ),
+    });
+  }),
 }));
 
 const testMoveId = '10000';
