@@ -843,8 +843,8 @@ func Address(address *models.Address) *ghcmessages.Address {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
 	}
 
-	if address.Country != nil && address.Country.ID != uuid.Nil {
-		payloadAddress.CountryID = strfmt.UUID(address.Country.ID.String())
+	if address.CountryId != nil {
+		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
 	}
 
 	return payloadAddress
