@@ -13,7 +13,7 @@ func (suite *HandlerSuite) TestApplicationParametersValidateHandler() {
 	req := httptest.NewRequest("GET", "/application_parameters", nil)
 	req = suite.AuthenticateUserRequest(req, user)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := ApplicationParametersParamHandler{
 		HandlerConfig: handlerConfig,
 	}

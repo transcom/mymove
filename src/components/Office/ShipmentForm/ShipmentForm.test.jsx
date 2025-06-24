@@ -7,7 +7,7 @@ import moment from 'moment';
 import ShipmentForm from './ShipmentForm';
 
 import { PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 import { ADDRESS_UPDATE_STATUS, boatShipmentTypes, ppmShipmentStatuses } from 'constants/shipments';
 import { tooRoutes } from 'constants/routes';
@@ -285,7 +285,7 @@ const defaultProps = {
       unaccompaniedBaggageAllowance: 400,
     },
     agency: '',
-    grade: ORDERS_PAY_GRADE_OPTIONS.E_7,
+    grade: ORDERS_PAY_GRADE_TYPE.E_7,
   },
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
@@ -2429,6 +2429,12 @@ describe('ShipmentForm component', () => {
       state: 'KY',
       postalCode: '42701',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -2438,6 +2444,12 @@ describe('ShipmentForm component', () => {
       state: 'KY',
       postalCode: '42703',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
   };
 

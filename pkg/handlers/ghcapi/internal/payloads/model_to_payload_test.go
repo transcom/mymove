@@ -597,7 +597,7 @@ func (suite *PayloadsSuite) TestMoveWithGBLOC() {
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
 	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
-	defaultGrade := "E_1"
+	defaultGrade := "E-1"
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
 	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -2521,6 +2521,27 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 			}
 		}
 	})
+}
+
+func (suite *PayloadsSuite) TestPayGrades() {
+	payGrades := models.PayGrades{
+		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
+		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
+		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+	}
+
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
+
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
 }
 
 func (suite *PayloadsSuite) TestCountriesPayload() {

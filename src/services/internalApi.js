@@ -594,3 +594,7 @@ export async function showCounselingOffices(dutyLocationId) {
 export async function cancelMove(moveId) {
   return makeInternalRequestRaw('office.cancelMove', { moveId });
 }
+
+export async function getPayGradeOptions(affiliation) {
+  return makeInternalRequestRaw('orders.getPayGrades', { affiliation });
+}

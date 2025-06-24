@@ -55,9 +55,15 @@ export const AddressFields = ({
   const nameValue = values[addressName];
   let nameCountryCode = '';
 
+<<<<<<< HEAD
   if (name.includes('.address') && nameValue?.address !== undefined && nameValue?.address.city !== '') {
     nameCountryCode = nameValue.address.country ? nameValue.address.country.code : '';
   } else if (!name.includes('.address') && nameValue?.country !== undefined) {
+=======
+  if (name.includes('.address') && nameValue !== undefined && nameValue.address !== undefined) {
+    nameCountryCode = nameValue.address.country ? nameValue.address.country.code : '';
+  } else if (!name.includes('.address') && nameValue !== undefined && nameValue.country !== undefined) {
+>>>>>>> 246744c45567b63e0309b2cd2c2320ec54f9b9d0
     nameCountryCode = nameValue.country.code;
   }
 
