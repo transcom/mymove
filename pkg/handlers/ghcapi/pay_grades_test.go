@@ -21,7 +21,7 @@ func (suite *HandlerSuite) TestGetPayGradesHandler() {
 		}
 
 		handler := GetPayGradesHandler{
-			HandlerConfig: suite.HandlerConfig()}
+			HandlerConfig: suite.NewHandlerConfig()}
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&ordersop.GetPayGradesOK{}, response)

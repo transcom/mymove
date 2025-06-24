@@ -138,7 +138,7 @@ func (h CounselingUpdateOrderHandler) Handle(
 			}
 
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor) {
 				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 			}
 
@@ -509,7 +509,7 @@ func (h CounselingUpdateAllowanceHandler) Handle(
 			}
 
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor) {
 				return handleError(apperror.NewForbiddenError("is not a Services Counselor"))
 			}
 
