@@ -351,10 +351,10 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &OfficeUsers.TIOAssignedUser,
+				Type:     &OfficeUsers.TIOPaymentRequestAssignedUser,
 			},
 		}, nil)
-		suite.Equal(officeUser.ID, *move.TIOAssignedID)
+		suite.Equal(officeUser.ID, *move.TIOPaymentRequestAssignedID)
 	})
 
 	suite.Run("Successful creation of customized move with shipment", func() {
