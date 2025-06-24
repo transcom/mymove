@@ -1107,20 +1107,21 @@ integration_test_mtls:
     - <<: *node_cache
   tags:
     - $EKS_CLUSTER_RUNNER_TAG
-  image: $DOCKER_APP_IMAGE
+  image: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
   services:
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
-      alias: milmovelocal,officelocal,adminlocal,primelocal
-      entrypoint: ["/bin/milmove"]
-      command: ["serve"]
+    # - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+    #   alias: milmovelocal,officelocal,adminlocal,primelocal
+    #   entrypoint: ["/bin/milmove"]
+    #   command: ["serve"]
   variables:
     KUBERNETES_SERVICE_CPU_REQUEST: "2"
     KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
     KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
     KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "2Gi"
     CI_DEBUG_SERVICES: "true"
+    CI_DEBUG_TRACE: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
     KUBERNETES_MEMORY_LIMIT: "12Gi"
@@ -1280,6 +1281,7 @@ integration_test_admin:
     KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
     KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "2Gi"
     CI_DEBUG_SERVICES: "true"
+    CI_DEBUG_TRACE: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
     KUBERNETES_MEMORY_LIMIT: "12Gi"
@@ -1369,6 +1371,7 @@ integration_test_my:
     KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
     KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "2Gi"
     CI_DEBUG_SERVICES: "true"
+    CI_DEBUG_TRACE: "true"
     FF_NETWORK_PER_BUILD: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
@@ -1464,6 +1467,7 @@ integration_test_office:
     KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
     KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "2Gi"
     CI_DEBUG_SERVICES: "true"
+    CI_DEBUG_TRACE: "true"
     FF_NETWORK_PER_BUILD: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
