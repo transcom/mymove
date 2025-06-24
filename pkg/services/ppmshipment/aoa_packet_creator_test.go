@@ -141,7 +141,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
 		fakeErrWithWrap := fmt.Errorf("%s: %w", errMsgPrefix, fakeErr)
 
 		// Define mock behavior for FetchDataShipmentSummaryWorksheetFormData
-		mockSSWPPMComputer.On("FetchDataShipmentSummaryWorksheetFormData", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("*auth.Session"), mock.AnythingOfType("uuid.UUID")).Return(nil, fakeErr)
+		mockSSWPPMComputer.On("FetchDataShipmentSummaryWorksheetFormData", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("*auth.Session"), mock.AnythingOfType("uuid.UUID"), false).Return(nil, fakeErr)
 
 		// Test case: returns an error if FetchDataShipmentSummaryWorksheetFormData returns an error
 		packet, dirPath, err := a.CreateAOAPacket(appCtx, ppmShipmentID, false)

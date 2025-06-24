@@ -181,6 +181,7 @@ type SSWMaxWeightEntitlement struct {
 	Entitlement   unit.Pound
 	ProGear       unit.Pound
 	SpouseProGear unit.Pound
+	GunSafe       unit.Pound
 	TotalWeight   unit.Pound
 }
 
@@ -202,7 +203,7 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.OrderPayGrade, orders models.Order, spouseHasProGear bool, ordersType internalmessages.OrdersType) (models.SSWMaxWeightEntitlement, error) {
+func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.OrderPayGrade, orders models.Order, spouseHasProGear bool, ordersType internalmessages.OrdersType, includeGunSafe bool) (models.SSWMaxWeightEntitlement, error) {
 	sswEntitlements := SSWMaxWeightEntitlement{}
 	waf := entitlements.NewWeightAllotmentFetcher()
 	entitlements, err := waf.GetWeightAllotment(appCtx, string(grade), ordersType)
@@ -211,6 +212,10 @@ func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.Orde
 	}
 	//entitlements := models.GetWeightAllotment(grade, ordersType)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
+
+	if includeGunSafe {
+		sswEntitlements.addLineItem("GunSafe", entitlements.GunSafeWeight)
+	}
 	if orders.Entitlement.DependentsAuthorized == nil || !*orders.Entitlement.DependentsAuthorized {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
 		return models.SSWMaxWeightEntitlement(sswEntitlements), nil
@@ -282,6 +287,8 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(appCtx app
 	page1.WeightAllotment = FormatWeights(data.WeightAllotment.Entitlement)
 	page1.WeightAllotmentProGear = FormatWeights(data.WeightAllotment.ProGear)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
+	page1.WeightAllotmentGunSafe = FormatWeights(data.WeightAllotment.GunSafe)
+
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
 	formattedSIT := WorkSheetSIT{}
@@ -1151,7 +1158,7 @@ func (SSWPPMComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, ppmShipmentID uuid.UUID) (*models.ShipmentSummaryFormData, error) {
+func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, ppmShipmentID uuid.UUID, isPaymentPacket bool) (*models.ShipmentSummaryFormData, error) {
 
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
@@ -1163,6 +1170,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.MTOShipments.BoatShipment",
 		"W2Address",
 		"WeightTickets",
+		"GunSafeWeightTickets",
 		"MovingExpenses",
 		"GCCMultiplier",
 	).Find(&ppmShipment, ppmShipmentID)
@@ -1200,6 +1208,21 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		ppmShipment.ProgearWeightTickets = nonDeletedProgearTickets
 	}
 
+	// We do not need to consider deleted or rejected gun safe weight tickets
+	if len(ppmShipment.GunSafeWeightTickets) > 0 {
+		approvedGunSafeTickets := ppmShipment.GunSafeWeightTickets.GetApprovedTickets()
+		ppmShipment.GunSafeWeightTickets = approvedGunSafeTickets
+	}
+
+	includeGunSafe := false
+	if isPaymentPacket {
+		// Include gun safe weight in SSW if there are approved gun safe weight tickets.
+		includeGunSafe = len(ppmShipment.GunSafeWeightTickets) > 0
+	} else {
+		// Include gun safe weight in AOA if HasGunSafe is true.
+		includeGunSafe = ppmShipment.HasGunSafe != nil && *ppmShipment.HasGunSafe
+	}
+
 	// Final actual weight is a calculated value we don't store. This needs to be fetched independently
 	// Requires WeightTickets eager preload
 	ppmShipmentFinalWeight := models.GetPPMNetWeight(ppmShipment)
@@ -1209,7 +1232,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for requested shipment summary worksheet data does not have a pay grade attached")
 	}
 
-	weightAllotment, err := SSWGetEntitlement(appCtx, *ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
+	weightAllotment, err := SSWGetEntitlement(appCtx, *ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType, includeGunSafe)
 	if err != nil {
 		return nil, err
 	}
@@ -1334,7 +1357,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
-		Creation: "2025-05-23 17:26:58 UTC",
+		Creation: "2025-06-23 16:42:15 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 

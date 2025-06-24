@@ -33,6 +33,7 @@ type Page1Values struct {
 	WeightAllotment                 string
 	WeightAllotmentProGear          string
 	WeightAllotmentProgearSpouse    string
+	WeightAllotmentGunSafe          string
 	TotalWeightAllotment            string
 	POVAuthorized                   string
 	ShipmentNumberAndTypes          string
@@ -157,7 +158,7 @@ type FormattedMovingExpenses struct {
 
 //go:generate mockery --name SSWPPMComputer
 type SSWPPMComputer interface {
-	FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*models.ShipmentSummaryFormData, error)
+	FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID, isPaymentPacket bool) (*models.ShipmentSummaryFormData, error)
 	ComputeObligations(_ appcontext.AppContext, _ models.ShipmentSummaryFormData, _ route.Planner) (models.Obligations, error)
 	FormatValuesShipmentSummaryWorksheet(appCtx appcontext.AppContext, shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values, Page3Values, error)
 	FormatShipment(ppm models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement, isPaymentPacket bool) models.WorkSheetShipment

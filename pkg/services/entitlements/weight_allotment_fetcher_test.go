@@ -26,6 +26,24 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotment() {
 		suite.IsType(apperror.QueryError{}, err)
 		suite.Empty(allotment)
 	})
+
+	suite.Run("Returns an error if GetMaxGunSafeAllowance returns an error in GetWeightAllotment", func() {
+		param := models.ApplicationParameters{}
+		err := suite.DB().
+			Where("parameter_name = ?", "maxGunSafeAllowance").
+			First(&param)
+		suite.NoError(err)
+
+		err = suite.DB().Destroy(&param)
+		suite.NoError(err)
+
+		fetcher := NewWeightAllotmentFetcher()
+
+		_, err = fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "error fetching max gun safe allowance")
+	})
 }
 
 func (suite *EntitlementsServiceSuite) TestGetAllWeightAllotments() {
@@ -35,6 +53,27 @@ func (suite *EntitlementsServiceSuite) TestGetAllWeightAllotments() {
 		allotments, err := fetcher.GetAllWeightAllotments(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.Greater(len(allotments), 0)
+	})
+
+	suite.Run("Returns an error if GetMaxGunSafeAllowance returns an error in GetAllWeightAllotments", func() {
+		param := models.ApplicationParameters{}
+		err := suite.DB().
+			Where("parameter_name = ?", "maxGunSafeAllowance").
+			First(&param)
+		suite.NoError(err)
+
+		err = suite.DB().Destroy(&param)
+		suite.NoError(err)
+
+		fetcher := NewWeightAllotmentFetcher()
+		_, err = fetcher.GetWeightAllotment(
+			suite.AppContextForTest(),
+			"E_1",
+			internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "error fetching max gun safe allowance")
 	})
 }
 
@@ -71,10 +110,19 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotmentByOrdersType() {
 		suite.Equal(350, allotment.TotalWeightSelfPlusDependents)
 		suite.Equal(0, allotment.ProGearWeight)
 		suite.Equal(0, allotment.ProGearWeightSpouse)
-		suite.Equal(100, allotment.UnaccompaniedBaggageAllowance)
+		suite.Equal(0, allotment.UnaccompaniedBaggageAllowance)
 	})
 
 	suite.Run("Returns an error if json does not match allotment from db", func() {
+		param := models.ApplicationParameters{}
+		err := suite.DB().
+			Where("parameter_name = ?", "studentTravelHhgAllowance").
+			First(&param)
+		suite.NoError(err)
+
+		err = suite.DB().Destroy(&param)
+		suite.NoError(err)
+
 		// Proper JSON but not proper target struct
 		faultyParamJSON := `{
             "TotalWeight": 350,
@@ -92,7 +140,7 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotmentByOrdersType() {
 		suite.MustCreate(&parameter)
 
 		fetcher := NewWeightAllotmentFetcher()
-		_, err := fetcher.GetWeightAllotmentByOrdersType(
+		_, err = fetcher.GetWeightAllotmentByOrdersType(
 			suite.AppContextForTest(),
 			internalmessages.OrdersTypeSTUDENTTRAVEL,
 		)
@@ -103,9 +151,17 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotmentByOrdersType() {
 	})
 
 	suite.Run("Returns an error if no application_parameters entry exists for student travel", func() {
-		// Don’t create the parameter this time for the student travel
+		param := models.ApplicationParameters{}
+		err := suite.DB().
+			Where("parameter_name = ?", "studentTravelHhgAllowance").
+			First(&param)
+		suite.NoError(err)
+
+		err = suite.DB().Destroy(&param)
+		suite.NoError(err)
+
 		fetcher := NewWeightAllotmentFetcher()
-		_, err := fetcher.GetWeightAllotment(
+		_, err = fetcher.GetWeightAllotment(
 			suite.AppContextForTest(),
 			"E-1",
 			internalmessages.OrdersTypeSTUDENTTRAVEL,
