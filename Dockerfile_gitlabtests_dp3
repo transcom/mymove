@@ -65,12 +65,12 @@ COPY public/static/react-file-viewer /public/static/react-file-viewer
 #RUN apt-get install ca-certificates jq
 #RUN update-ca-certificates
 
-WORKDIR /
 
-USER nobody
+USER transcom
 
-ENTRYPOINT ["/bin/milmove"]
+# Create GOPATH, needed for swagger, needs to be owned by debian user
+RUN mkdir -p /home/transcom/go
 
-CMD ["serve", "--logging-level=debug"]
-
-EXPOSE 4000
+# Set environment variables for Go
+ENV GOPATH=/home/transcom/go
+ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH

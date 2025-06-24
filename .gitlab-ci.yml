@@ -68,8 +68,8 @@ stages:
     - git config --global --add safe.directory /builds/milmove/mymove
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
     - export REACT_APP_ERROR_LOGGING=otel
-    - echo "Listing all environment variables:"
-    - printenv
+    # - echo "Listing all environment variables:"
+    # - printenv
 
 .announce_failure: &announce_failure
   #- if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
@@ -1235,8 +1235,8 @@ integration_test_mtls:
     # - echo "integration_test_mtls"
     # - echo "Waiting for server to start"
     # - dockerize -wait http://milmovelocal:4000 -timeout 5m
-    - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
-    - source server_env
+    # - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
+    # - source server_env
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
     - make bin/milmove
