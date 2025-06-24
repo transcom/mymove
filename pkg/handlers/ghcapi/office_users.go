@@ -31,7 +31,6 @@ type RequestOfficeUserHandler struct {
 	services.UserRoleAssociator
 	services.RoleFetcher
 	services.UserPrivilegeAssociator
-	services.PrivilegeFetcher
 	services.TransportationOfficeAssignmentUpdater
 }
 
