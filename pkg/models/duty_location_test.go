@@ -156,7 +156,7 @@ func (suite *ModelSuite) Test_DutyLocationValidations() {
 		"address_id": {"AddressID can not be blank."},
 	}
 
-	suite.verifyValidationErrors(location, expErrors)
+	suite.verifyValidationErrors(location, expErrors, nil)
 }
 func (suite *ModelSuite) Test_FetchDutyLocationTransportationOffice() {
 	t := suite.T()

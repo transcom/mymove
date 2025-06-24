@@ -1,23 +1,25 @@
-import React, { useEffect, useReducer, useCallback } from 'react';
+import React, { useEffect, useReducer, useCallback, useState } from 'react';
 import { Link, useNavigate, useParams, useLocation, generatePath } from 'react-router-dom';
-import { Button } from '@trussworks/react-uswds';
+import { Button, ErrorMessage } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
 
 import ordersFormValidationSchema from './ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
+import formStyles from 'styles/form.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { getTacValid, getLoa, updateOrder } from 'services/ghcApi';
+import { getTacValid, getLoa, updateOrder, getResponseError, getPayGradeOptions } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { tooRoutes, tioRoutes } from 'constants/routes';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
-import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
+import { formatSwaggerDate, dropdownInputOptions, formatPayGradeOptions } from 'utils/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
@@ -26,18 +28,20 @@ import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { scrollToViewFormikError } from 'utils/validation';
+import retryPageLoading from 'utils/retryPageLoading';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
+const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, setShowLoadingSpinner }) => {
   const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
+  const [serverError, setServerError] = useState(null);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { state } = useLocation();
@@ -71,6 +75,11 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
       handleClose();
     },
     onError: (error) => {
+      const message = getResponseError(
+        error,
+        'Something went wrong, and your changes were not saved. Please refresh the page and try again.',
+      );
+      setServerError(message);
       const errorMsg = error?.response?.body;
       milmoveLogger.error(errorMsg);
     },
@@ -183,6 +192,27 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   };
 
   const order = Object.values(orders)?.[0];
+
+  const [payGradeDropdownOptions, setPayGradeOptions] = useState([]);
+  useEffect(() => {
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      try {
+        const fetchedRanks = await getPayGradeOptions(order.agency);
+        if (fetchedRanks) {
+          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchGradeOptions();
+  }, [order.agency, setShowLoadingSpinner]);
+
   const { entitlement, uploadedAmendedOrderID, amendedOrdersAcknowledgedAt } = order;
   // TODO - passing in these fields so they don't get unset. Need to rework the endpoint.
   const {
@@ -316,7 +346,12 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
 
   return (
     <div className={styles.sidebar}>
-      <Formik initialValues={initialValues} validationSchema={ordersFormValidationSchema} onSubmit={onSubmit}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={ordersFormValidationSchema}
+        onSubmit={onSubmit}
+        validateOnChange
+      >
         {(formik) => {
           // onBlur, if the value has 4 digits, run validator and show warning if invalid
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
@@ -436,14 +471,15 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
                     />
                   </Restricted>
                 </div>
+                {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
                 <Restricted to={permissionTypes.updateOrders}>
                   <div className={styles.bottom}>
-                    <div className={styles.buttonGroup}>
-                      <Button disabled={formik.isSubmitting} type="submit" onClick={scrollToViewFormikError(formik)}>
-                        Save
-                      </Button>
+                    <div className={formStyles.formActions}>
                       <Button type="button" secondary onClick={handleClose}>
                         Cancel
+                      </Button>
+                      <Button disabled={formik.isSubmitting} type="submit" onClick={scrollToViewFormikError(formik)}>
+                        Save
                       </Button>
                     </div>
                   </div>
@@ -457,4 +493,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   );
 };
 
-export default Orders;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => {}, mapDispatchToProps)(Orders);

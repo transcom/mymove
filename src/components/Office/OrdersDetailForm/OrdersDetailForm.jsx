@@ -42,6 +42,7 @@ const OrdersDetailForm = ({
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
+  const noStarOrQuote = (value) => (/^[^*"]*$/.test(value) ? undefined : 'SAC cannot contain * or " characters');
   // The text/placeholder are different if the customer is retiring or separating.
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
   return (
@@ -144,13 +145,16 @@ const OrdersDetailForm = ({
         />
       )}
       {showHHGSac && (
-        <TextField
+        <MaskedTextField
           name="sac"
           label="SAC"
+          mask={/[A-Za-z0-9]*/}
           id="hhgSacInput"
+          inputTestId="hhgSacInput"
           data-testid="hhgSacInput"
           isDisabled={formIsDisabled}
           maxLength="80"
+          validate={noStarOrQuote}
           optional
         />
       )}
@@ -184,13 +188,16 @@ const OrdersDetailForm = ({
         />
       )}
       {showNTSSac && (
-        <TextField
+        <MaskedTextField
           name="ntsSac"
           label="SAC"
           id="ntsSacInput"
+          mask={/[A-Za-z0-9]*/}
           isDisabled={formIsDisabled}
+          inputTestId="ntsSacInput"
           data-testid="ntsSacInput"
           maxLength="80"
+          validate={noStarOrQuote}
           optional
         />
       )}
@@ -247,7 +254,6 @@ OrdersDetailForm.propTypes = {
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
   setFieldValue: func.isRequired,
-  payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
   hhgLongLineOfAccounting: string,
   ntsLongLineOfAccounting: string,
@@ -274,7 +280,6 @@ OrdersDetailForm.defaultProps = {
   showNTSLoa: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
-  payGradeOptions: null,
   formIsDisabled: false,
   hhgLongLineOfAccounting: '',
   ntsLongLineOfAccounting: '',

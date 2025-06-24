@@ -8,6 +8,22 @@
     width: auto;
   }
 }
+.disabledCheckbox {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.readOnlyInput {
+  background-color: #dcdee0;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+.dateGrid {
+  @media (max-width: 640px) {
+    margin-top: 1rem;
+  }
+}
 
 .signatureBox {
   @include u-padding(2);
@@ -31,4 +47,6 @@
   .hideForPrint {
     display: none;
   }
+
+
 }

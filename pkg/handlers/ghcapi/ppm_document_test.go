@@ -536,7 +536,8 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	}
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	ppmEstimator := &mocks.PPMEstimator{}
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 	mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 
 	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser, signedCert models.SignedCertification) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
@@ -698,7 +699,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -734,7 +735,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -765,7 +766,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
