@@ -1,26 +1,20 @@
 @import 'shared/styles/colors';
+@import 'shared/styles/basics';
+@import 'shared/styles/mixins';
 
-div.switchGblocButton {
-  display: flex;
-  align-items: center;
 
-  select {
-    font-weight: bold;
-    margin: 0;
-    background-color: $mm-blue;
-    border-color: transparent;
-    line-height: 1;
+.switchGblocButton {
+  --top-color: #{$link-light};
+  @include mix-mm-header-font-properties;
+  @include mix-mm-dropdown($top-color: white, $background-color: transparent, $chevron-offset: -0.2rem){
+      background-color: var(--bg-color, inherit);
+      color: var(--top-color, inherit);
+      height: 100%;
+      border-radius: 0;
+      text-align: center;
 
-    option {
-      background-color: $bg-white;
-    }
-  }
-
-  select:hover, select:focus {
-    background-color: $mm-blue;
-  }
-
-  span {
-    top: 10px !important;
+      box-sizing: content-box;
+      padding: 0rem 1.8rem 0rem 0rem;
+      width: min-content;
   }
 }

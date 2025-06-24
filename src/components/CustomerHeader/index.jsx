@@ -1,6 +1,5 @@
 import React from 'react';
-import { string, PropTypes } from 'prop-types';
-import classnames from 'classnames';
+import { string } from 'prop-types';
 
 import styles from './index.module.scss';
 
@@ -12,7 +11,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { roleTypes } from 'constants/userRoles';
 import departmentIndicators from 'constants/departmentIndicators';
 
-const CustomerHeader = ({ customer, order, moveCode, move, userRole, isMultiRole }) => {
+const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
   const isCoastGuard = customer.agency === departmentIndicators.COAST_GUARD;
   // eslint-disable-next-line camelcase
   const { order_type: orderType } = order;
@@ -36,11 +35,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole, isMultiRole
       : move.shipmentGBLOC;
   const originGBLOCDisplay = order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${originGBLOC} / USMC` : originGBLOC;
   return (
-    <div
-      className={classnames(styles.custHeader, {
-        [styles.custHeaderNoMultiRole]: !isMultiRole,
-      })}
-    >
+    <div className={styles.custHeader}>
       <div>
         <div data-testid="nameBlock" className={styles.nameBlock}>
           <h2>
@@ -103,11 +98,6 @@ CustomerHeader.propTypes = {
   customer: CustomerShape.isRequired,
   order: OrderShape.isRequired,
   moveCode: string.isRequired,
-  isMultiRole: PropTypes.bool,
-};
-
-CustomerHeader.defaultProps = {
-  isMultiRole: false,
 };
 
 export default CustomerHeader;

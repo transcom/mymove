@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import { Dropdown } from '@trussworks/react-uswds';
 
 import styles from './GblocSwitcher.module.scss';
 
-import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { useListGBLOCsQueries } from 'hooks/queries';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import SelectedGblocContext, {
@@ -39,21 +40,21 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
   }, [selectedGbloc, officeUsersDefaultGbloc, isInitialPageLoad, handleGblocChange]);
 
   return (
-    <ButtonDropdown
+    <Dropdown
       onChange={(e) => {
         handleGblocChange(e.target.value);
       }}
+      className={classNames(styles.switchGblocButton)}
       value={selectedGbloc || officeUsersDefaultGbloc}
-      ariaLabel={ariaLabel}
-      divClassName={styles.switchGblocButton}
-      testId="gbloc_switcher"
+      aria-label={ariaLabel}
+      data-testid="gbloc_switcher"
     >
       {gblocs?.map((gbloc) => (
         <option value={gbloc} key={`filterOption_${gbloc}`}>
           {gbloc}
         </option>
       ))}
-    </ButtonDropdown>
+    </Dropdown>
   );
 };
 

@@ -2,7 +2,6 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import PropTypes from 'prop-types';
 
 import styles from './EditShipmentDetails.module.scss';
 
@@ -17,7 +16,7 @@ import { updateMTOShipment } from 'services/ghcApi';
 import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 
-const EditShipmentDetails = ({ isMultiRole }) => {
+const EditShipmentDetails = () => {
   const { moveCode, shipmentId } = useParams();
   const queryClient = useQueryClient();
 
@@ -53,7 +52,7 @@ const EditShipmentDetails = ({ isMultiRole }) => {
 
   return (
     <>
-      <CustomerHeader move={move} order={order} customer={customer} moveCode={moveCode} isMultiRole={isMultiRole} />
+      <CustomerHeader move={move} order={order} customer={customer} moveCode={moveCode} />
       <div className={styles.tabContent}>
         <div className={styles.container}>
           <GridContainer className={styles.gridContainer}>
@@ -82,14 +81,6 @@ const EditShipmentDetails = ({ isMultiRole }) => {
       </div>
     </>
   );
-};
-
-EditShipmentDetails.propTypes = {
-  isMultiRole: PropTypes.bool,
-};
-
-EditShipmentDetails.defaultProps = {
-  isMultiRole: false,
 };
 
 export default EditShipmentDetails;

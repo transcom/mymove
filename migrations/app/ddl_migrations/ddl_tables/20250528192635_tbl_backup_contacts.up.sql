@@ -6,6 +6,3 @@ ALTER TABLE backup_contacts
 
 COMMENT ON COLUMN backup_contacts.first_name IS 'First name of the backup contact';
 COMMENT ON COLUMN backup_contacts.last_name IS 'Last name of the backup contact';
-
-ALTER TABLE backup_contacts
-ALTER COLUMN name DROP NOT NULL;

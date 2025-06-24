@@ -846,7 +846,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 		handler := UpdateMTOShipmentHandler{
-			handlerConfig,
+			suite.NewHandlerConfig(),
 			shipmentUpdaterSO,
 		}
 
