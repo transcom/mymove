@@ -18,7 +18,7 @@ test.describe('Services counselor user', () => {
       const moveWithNeedsCloseout = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
       moveLocator = move.locator;
       moveWithNeedsCloseoutLocator = moveWithNeedsCloseout.locator;
-      dutyLocationName = move.Orders.NewDutyLocation.name;
+      dutyLocationName = move.Orders.new_duty_location.name;
       await scPage.page.locator('[data-testid="closeout-tab-link"]').click();
     });
 
