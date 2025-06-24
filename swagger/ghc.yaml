@@ -43,42 +43,6 @@ tags:
   - name: paymentRequests
   - name: reServiceItems
 paths:
-  /open/feature-flags/boolean/{key}:
-    post:
-      summary: >-
-        Determines if a feature flag is enabled. Only used for unauthenticated
-        users.
-      description: Determines if a feature flag is enabled.
-      operationId: booleanFeatureFlagUnauthenticated
-      tags:
-        - featureFlags
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: key
-          type: string
-          required: true
-          description: Feature Flag Key
-        - in: body
-          name: flagContext
-          required: true
-          description: context for the feature flag request
-          schema:
-            type: object
-            additionalProperties:
-              type: string
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Boolean Feature Flag Status
-          schema:
-            $ref: '#/definitions/FeatureFlagBoolean'
-        '401':
-          description: request requires user authentication
-        '500':
-          description: internal server error
   /customer:
     post:
       summary: Creates a customer with Okta option
@@ -9266,27 +9230,6 @@ definitions:
         type: string
       lastName:
         type: string
-  FeatureFlagBoolean:
-    description: A feature flag
-    type: object
-    properties:
-      entity:
-        type: string
-        example: 11111111-1111-1111-1111-111111111111
-      key:
-        type: string
-        example: flag
-      match:
-        type: boolean
-        example: true
-      namespace:
-        type: string
-        example: test
-    required:
-      - entity
-      - key
-      - match
-      - namespace
   Affiliation:
     type: string
     x-nullable: true
