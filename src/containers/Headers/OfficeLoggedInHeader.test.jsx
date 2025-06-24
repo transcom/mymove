@@ -16,8 +16,6 @@ jest.mock('store/auth/actions', () => ({
   logOut: jest.fn().mockImplementation(() => ({ type: '' })),
 }));
 
-// jest.mock('store/entities/selectors')
-
 jest.mock('utils/api', () => ({
   LogoutUser: jest.fn(() => ({ then: () => {} })),
 }));
