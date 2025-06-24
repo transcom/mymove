@@ -104,6 +104,31 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  /open/roles-privileges:
+    get:
+      produces:
+        - application/json
+      summary: Retrieve a list of unique role to privilege mappings.
+      description: >
+        This endpoint returns a list of unique role to privilege mappings.
+      operationId: getRolesPrivileges
+      tags:
+        - rolePrivileges
+      responses:
+        "200":
+          description: Successfully retrieved list of unique role privilege mappings
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Role'
+        "404":
+          description: No role-privilege mapping found
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        "500":
+          description: server error
   /office-users/{officeUserId}:
     patch:
       consumes:
@@ -2130,6 +2155,118 @@ paths:
       responses:
         '204':
           description: Successfully soft deleted the pro-gear weight ticket
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    post:
+      summary: Creates a gun safe weight ticket
+      description: |
+        Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a
+        gun safe weight ticket. Data should be filled in using the patch endpoint.
+      operationId: createGunSafeWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: returns a new gun safe weight ticket object
+          schema:
+            $ref: 'definitions/GunSafeWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - name: gunSafeWeightTicketId
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: UUID of the gun safe weight ticket
+    patch:
+      summary: Updates a gun safe weight ticket
+      description: |
+        Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable
+        because some have to be set by the customer, e.g. the description.
+      operationId: updateGunSafeWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ifMatch.yaml'
+        - in: body
+          name: updateGunSafeWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateGunSafeWeightTicket'
+      responses:
+        '200':
+          description: returns an updated gun safe weight ticket object
+          schema:
+            $ref: 'definitions/GunSafeWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a gun safe weight line item by ID
+      description: |
+        Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted
+        records are not visible in milmove, but are kept in the database.
+      operationId: deleteGunSafeWeightTicket
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - description: ID of the gun safe weight ticket to be deleted
+          in: path
+          name: gunSafeWeightTicketId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the gun safe weight ticket
         '401':
           $ref: '#/responses/PermissionDenied'
         '403':
@@ -5118,43 +5255,6 @@ paths:
           description: payload is too large
         '500':
           description: server error
-  /uploads/{uploadID}/status:
-    get:
-      summary: Returns status of an upload
-      description: Returns status of an upload based on antivirus run
-      operationId: getUploadStatus
-      produces:
-        - text/event-stream
-      tags:
-        - uploads
-      parameters:
-        - in: path
-          name: uploadID
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the upload to return status of
-      responses:
-        '200':
-          description: the requested upload status
-          schema:
-            type: string
-            enum:
-              - INFECTED
-              - CLEAN
-              - NO_THREATS_FOUND
-              - PROCESSING
-            readOnly: true
-        '400':
-          description: invalid request
-          schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        '403':
-          description: not authorized
-        '404':
-          description: not found
-        '500':
-          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -5431,6 +5531,13 @@ definitions:
       roleName:
         type: string
         example: Task Ordering Officer
+      sort:
+        type: integer
+        format: int32
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -5443,6 +5550,36 @@ definitions:
       - id
       - roleType
       - roleName
+      - createdAt
+      - updatedAt
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      sort:
+        type: integer
+        format: int32
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - privilegeType
+      - privilegeName
       - createdAt
       - updatedAt
   OfficeUser:
@@ -5484,6 +5621,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       edipi:
         type: string
       otherUniqueId:
@@ -5579,6 +5720,11 @@ definitions:
         items:
           $ref: '#/definitions/OfficeUserRole'
         x-nullable: false
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
+        x-nullable: false
     required:
       - firstName
       - lastName
@@ -5609,6 +5755,19 @@ definitions:
         example: 'task_ordering_officer'
         x-nullable: true
         title: roleType
+  OfficeUserPrivilege:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Supervisor
+        x-nullable: true
+        title: name
+      privilegeType:
+        type: string
+        example: supervisor
+        x-nullable: true
+        title: privilegeType
   Customer:
     type: object
     properties:
@@ -6138,7 +6297,7 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOTaskOrderAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TIOAssignedUser:
+      TIOPaymentRequestAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOODestinationAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
@@ -7614,6 +7773,24 @@ definitions:
         type: string
       description:
         description: Description of pro gear included in trips set.
+        type: string
+  UpdateGunSafeWeightTicket:
+    type: object
+    properties:
+      hasWeightTickets:
+        description: Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.
+        type: boolean
+      weight:
+        description: Weight of the gun safe contained in the shipment.
+        type: integer
+        minimum: 0
+      status:
+        $ref: 'definitions/PPMDocumentStatus.yaml'
+      reason:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+      description:
+        description: Description of gun safe included in trips set.
         type: string
   ApproveShipments:
     type: object

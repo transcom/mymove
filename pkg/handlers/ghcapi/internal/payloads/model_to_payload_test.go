@@ -338,7 +338,7 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 		suite.Nil(paymentRequestCopy[0].CounselingOffice)
 	})
 
-	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
+	paymentRequests[0].MoveTaskOrder.TIOPaymentRequestAssignedUser = &officeUserTIO
 	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
 
 	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
@@ -402,6 +402,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	pgBoolSpouse := false
 	weightCustomer := unit.Pound(100)
 	weightSpouse := unit.Pound(120)
+	gunSafeWeight := unit.Pound(400)
 	finalIncentive := unit.Cents(20000)
 
 	weightTickets := models.WeightTickets{
@@ -432,6 +433,13 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 			UpdatedAt:     time.Now(),
 		},
 	}
+	gunSafeWeightTickets := models.GunSafeWeightTickets{
+		models.GunSafeWeightTicket{
+			Weight:    &gunSafeWeight,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
@@ -440,6 +448,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
 		WeightTickets:                weightTickets,
 		ProgearWeightTickets:         proGearWeightTickets,
+		GunSafeWeightTickets:         gunSafeWeightTickets,
 		FinalIncentive:               &finalIncentive,
 	}
 
@@ -467,6 +476,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 		suite.Equal(len(returnedPPMShipment.WeightTickets), 2)
 		suite.Equal(ProGearWeightTickets(suite.storer, proGearWeightTickets), returnedPPMShipment.ProGearWeightTickets)
+		suite.Equal(GunSafeWeightTickets(suite.storer, gunSafeWeightTickets), returnedPPMShipment.GunSafeWeightTickets)
 		suite.Equal(handlers.FmtCost(&finalIncentive), returnedPPMShipment.FinalIncentive)
 	})
 

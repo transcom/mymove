@@ -154,6 +154,46 @@ export async function deleteProGearWeightTicket({ ppmShipmentId, proGearWeightTi
   );
 }
 
+export async function createGunSafeWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchGunSafeWeightTicket({ ppmShipmentId, gunSafeWeightTicketId, payload, eTag }) {
+  return makeGHCRequest(
+    'ppm.updateGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+      gunSafeWeightTicketId,
+      'If-Match': eTag,
+      updateGunSafeWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteGunSafeWeightTicket({ ppmShipmentId, gunSafeWeightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+      gunSafeWeightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function getPPMCloseout(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getPPMCloseout', { ppmShipmentId }, { normalize: false });
 }
@@ -1165,4 +1205,9 @@ export function getResponseError(errorOrResponse, defaultErrorMessage) {
 
 export async function getPayGradeOptions(affiliation) {
   return makeGHCRequestRaw('orders.getPayGrades', { affiliation });
+}
+
+export async function getRolesPrivilegesOfficeApp() {
+  const operationPath = 'rolePrivileges.getRolesPrivileges';
+  return makeGHCRequest(operationPath, {}, { normalize: false });
 }

@@ -124,7 +124,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
 		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
 		TOOTaskOrderAssignedUser:                       AssignedOfficeUser(move.TOOTaskOrderAssignedUser),
-		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
+		TIOPaymentRequestAssignedUser:                  AssignedOfficeUser(move.TIOPaymentRequestAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
 		TOODestinationAssignedUser:                     AssignedOfficeUser(move.TOODestinationAssignedUser),
@@ -1022,6 +1022,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		HasGunSafe:                     ppmShipment.HasGunSafe,
 		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
+		GunSafeWeightTickets:           GunSafeWeightTickets(storer, ppmShipment.GunSafeWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
@@ -1177,6 +1178,52 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 		payload.Reason = &reason
 	}
 
+	return payload
+}
+
+// GunSafeWeightTicket payload
+func GunSafeWeightTicket(storer storage.FileStorer, gunsafe *models.GunSafeWeightTicket) *ghcmessages.GunSafeWeightTicket {
+	ppmShipmentID := strfmt.UUID(gunsafe.PPMShipmentID.String())
+
+	document, err := PayloadForDocumentModel(storer, gunsafe.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &ghcmessages.GunSafeWeightTicket{
+		ID:               strfmt.UUID(gunsafe.ID.String()),
+		PpmShipmentID:    ppmShipmentID,
+		CreatedAt:        *handlers.FmtDateTime(gunsafe.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(gunsafe.UpdatedAt),
+		DocumentID:       *handlers.FmtUUID(gunsafe.DocumentID),
+		Document:         document,
+		Weight:           handlers.FmtPoundPtr(gunsafe.Weight),
+		HasWeightTickets: gunsafe.HasWeightTickets,
+		Description:      gunsafe.Description,
+		ETag:             etag.GenerateEtag(gunsafe.UpdatedAt),
+	}
+
+	if gunsafe.Status != nil {
+		status := ghcmessages.OmittablePPMDocumentStatus(*gunsafe.Status)
+		payload.Status = &status
+	}
+
+	if gunsafe.Reason != nil {
+		reason := ghcmessages.PPMDocumentStatusReason(*gunsafe.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
+// GunSafeWeightTickets sets up a GunSafeWeightTicket slice for the api using model data.
+func GunSafeWeightTickets(storer storage.FileStorer, gunSafeWeightTickets models.GunSafeWeightTickets) []*ghcmessages.GunSafeWeightTicket {
+	payload := make([]*ghcmessages.GunSafeWeightTicket, len(gunSafeWeightTickets))
+	for i, gunSafeWeightTicket := range gunSafeWeightTickets {
+		copyOfGunSafeWeightTicket := gunSafeWeightTicket
+		gunSafeWeightTicketPayload := GunSafeWeightTicket(storer, &copyOfGunSafeWeightTicket)
+		payload[i] = gunSafeWeightTicketPayload
+	}
 	return payload
 }
 
@@ -1346,6 +1393,7 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
 		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
 		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearWeightTickets),
+		GunSafeWeightTickets: GunSafeWeightTickets(storer, ppmDocuments.GunSafeWeightTickets),
 	}
 
 	return payload
@@ -2703,8 +2751,8 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
 		}
 
-		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
-			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		if paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 		}
 
 		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
@@ -2735,16 +2783,16 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			}
 
 			// if the assigned user is not in the returned list of available users append them to the end
-			if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			if paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser != nil {
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOAssignedUser.ID {
+					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser.ID {
 						userFound = true
 						break
 					}
 				}
 				if !userFound {
-					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOAssignedUser)
+					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 				}
 			}
 

@@ -29,6 +29,11 @@ type Entitlement struct {
 	// Example: 5
 	DependentsUnderTwelve *int64 `json:"dependents_under_twelve,omitempty"`
 
+	// Gun safe weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade
+	//
+	// Example: 500
+	GunSafeWeight *int64 `json:"gunSafeWeight,omitempty"`
+
 	// Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade
 	//
 	// Example: 2000

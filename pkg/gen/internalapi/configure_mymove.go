@@ -4,6 +4,7 @@ package internalapi
 
 import (
 	"crypto/tls"
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -62,6 +63,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
+	api.TextEventStreamProducer = runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+		return errors.NotImplemented("textEventStream producer has not yet been implemented")
+	})
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// ppm.CreatePPMUploadMaxParseMemory = 32 << 20
@@ -105,6 +109,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MoveDocsCreateGenericMoveDocumentHandler == nil {
 		api.MoveDocsCreateGenericMoveDocumentHandler = move_docs.CreateGenericMoveDocumentHandlerFunc(func(params move_docs.CreateGenericMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateGenericMoveDocument has not yet been implemented")
+		})
+	}
+	if api.PpmCreateGunSafeWeightTicketHandler == nil {
+		api.PpmCreateGunSafeWeightTicketHandler = ppm.CreateGunSafeWeightTicketHandlerFunc(func(params ppm.CreateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateGunSafeWeightTicket has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {
@@ -167,6 +176,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation registration.CustomerRegistration has not yet been implemented")
 		})
 	}
+	if api.PpmDeleteGunSafeWeightTicketHandler == nil {
+		api.PpmDeleteGunSafeWeightTicketHandler = ppm.DeleteGunSafeWeightTicketHandlerFunc(func(params ppm.DeleteGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteGunSafeWeightTicket has not yet been implemented")
+		})
+	}
 	if api.MoveDocsDeleteMoveDocumentHandler == nil {
 		api.MoveDocsDeleteMoveDocumentHandler = move_docs.DeleteMoveDocumentHandlerFunc(func(params move_docs.DeleteMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
@@ -220,6 +234,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
 		api.TransportationOfficesGetTransportationOfficesHandler = transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
+		})
+	}
+	if api.UploadsGetUploadStatusHandler == nil {
+		api.UploadsGetUploadStatusHandler = uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
 		})
 	}
 	if api.EntitlementsIndexEntitlementsHandler == nil {
@@ -375,6 +394,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmSubmitPPMShipmentDocumentationHandler == nil {
 		api.PpmSubmitPPMShipmentDocumentationHandler = ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
+		})
+	}
+	if api.PpmUpdateGunSafeWeightTicketHandler == nil {
+		api.PpmUpdateGunSafeWeightTicketHandler = ppm.UpdateGunSafeWeightTicketHandlerFunc(func(params ppm.UpdateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateGunSafeWeightTicket has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentUpdateMTOShipmentHandler == nil {
