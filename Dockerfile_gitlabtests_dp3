@@ -33,10 +33,11 @@
 
 # EXPOSE 4000
 
-FROM alpine:3.20.3
+FROM milmove01/transcom-docker:milmove-app-ubuntu
+#FROM alpine:3.20.3
 
 # hadolint ignore=DL3017
-RUN apk upgrade --no-cache busybox
+#RUN apk upgrade --no-cache busybox
 
 COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
 COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
@@ -60,8 +61,9 @@ COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 # Install tools needed in container
 # hadolint ignore=DL3018
-RUN apk update && apk add ca-certificates --no-cache && apk add jq bash --no-cache
-RUN update-ca-certificates
+#RUN apk update && apk add ca-certificates --no-cache && apk add jq bash --no-cache
+#RUN apt-get install ca-certificates jq
+#RUN update-ca-certificates
 
 WORKDIR /
 
