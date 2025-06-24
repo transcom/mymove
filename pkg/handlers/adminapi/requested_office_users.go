@@ -159,7 +159,7 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.NewQueryFilter
 	services.NewPagination
 	services.TransportationOfficesFetcher
-	services.RoleAssociater
+	services.RoleFetcher
 }
 
 var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query){
@@ -251,7 +251,7 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 type GetRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserFetcher
-	services.RoleAssociater
+	services.RoleFetcher
 	services.NewQueryFilter
 }
 
@@ -269,7 +269,7 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
+			roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 				return requested_office_users.NewGetRequestedOfficeUserInternalServerError(), err
@@ -288,7 +288,7 @@ type UpdateRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserUpdater
 	services.UserRoleAssociator
-	services.RoleAssociater
+	services.RoleFetcher
 }
 
 // Handle updates a single requested office user
@@ -349,7 +349,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 					}
 				}
 
-				roles, err := h.RoleAssociater.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
+				roles, err := h.RoleFetcher.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
 				if err != nil {
 					txAppCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 					return err
