@@ -129,7 +129,11 @@ definitions:
         $ref: '#/definitions/ServiceMemberPayload'
       office_user:
         $ref: '#/definitions/OfficeUser'
-      roles:
+      activeRole:
+        $ref: '#/definitions/Role'
+        # The user can sign in without a role, they'll just have no permissions
+        x-nullable: true
+      inactiveRoles:
         type: array
         items:
           $ref: '#/definitions/Role'
