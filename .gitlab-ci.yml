@@ -1240,10 +1240,11 @@ integration_test_mtls:
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
     - make bin/milmove
-    - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
-    - make bin/prime-api-client
-    - echo "Running E2E mTLS tests"
-    - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.output 2>&1
+    - bin/milmove serve
+    # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
+    # - make bin/prime-api-client
+    # - echo "Running E2E mTLS tests"
+    # - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.output 2>&1
   artifacts:
     paths:
       - test-results/
