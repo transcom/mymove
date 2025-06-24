@@ -4,9 +4,11 @@
 -- B-22760 - Paul Stonebraker retrieve mto_service_items for the moves and delivery address update requests for the shipments
 -- B-23545 - Daniel Jordan updating returns to use destination, filtering adjustments, removing gbloc return
 -- B-23739 - Daniel Jordan updating returns to consider lock_expires_at
+-- B-22759 - Paul Stonebraker add SIT extensions as part of the mto_shipments
 
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle
+
 DROP FUNCTION IF EXISTS get_destination_queue;
 CREATE OR REPLACE FUNCTION get_destination_queue(
     user_gbloc TEXT DEFAULT NULL,
@@ -101,6 +103,18 @@ BEGIN
                             ''prime_estimated_weight'', ms.prime_estimated_weight,
                             ''delivery_address_update'', json_build_object(
                                 ''status'', ms.address_update_status
+                            ),
+                            ''sit_duration_updates'', (
+                                SELECT json_agg(
+                                    json_build_object(
+                                        ''status'', se.status
+                                    )
+                                )
+                                FROM sit_extensions se
+                                LEFT JOIN mto_shipments ON mto_shipments.id = se.mto_shipment_id
+                                LEFT JOIN mto_service_items ON mto_shipments.id = mto_service_items.mto_shipment_id
+                                LEFT JOIN re_services ON mto_service_items.re_service_id = re_services.id
+                                WHERE se.mto_shipment_id = ms.id AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'')
                             )
                         )
                     )

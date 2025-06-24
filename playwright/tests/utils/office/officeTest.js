@@ -110,6 +110,14 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
+   * Use devlocal auth to sign in as office user with multirole
+   */
+  async signInAsNewMultiroleUser() {
+    const user = await this.testHarness.buildOfficeUserWithMultirole();
+    await this.signInAsExistingOfficeUser(user.okta_email);
+  }
+
+  /**
    * Use devlocal auth to sign in as office user with both TOO and TIO roles
    */
   async signInAsNewTIOAndTOOUser() {
