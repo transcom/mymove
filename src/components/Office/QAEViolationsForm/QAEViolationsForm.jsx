@@ -4,9 +4,7 @@ import { Grid, GridContainer, Button, FormGroup, Radio, Fieldset, Textarea } fro
 import { useParams, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
-import classnames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './QAEViolationsForm.module.scss';
 import SelectedViolation from './SelectedViolation/SelectedViolation';
@@ -98,7 +96,7 @@ const QAEViolationsForm = ({
         className={styles.closeModalBtn}
         data-testid="backToEvalFromSubmit"
       >
-        <FontAwesomeIcon icon="chevron-left" className={styles.backIcon} /> Back to Evaluation form
+        Cancel
       </Button>
       <Button
         type="submit"
@@ -456,41 +454,37 @@ const QAEViolationsForm = ({
               <GridContainer className={styles.buttonContainer}>
                 <Grid row>
                   <Grid col>
-                    <div className={styles.buttonRow}>
-                      <Button
-                        className={classnames(styles.backToEvalButton, 'usa-button--unstyled')}
-                        type="button"
-                        onClick={handleBackToEvalForm}
-                        data-testid="backToEvalForm"
-                      >
-                        {'< Back to Evaluation form'}
+                    <div className={styles.buttonRowSplit}>
+                      <Button unstyled type="button" onClick={handleBackToEvalForm} data-testid="backToEvalForm">
+                        {'< Back to evaluation form'}
                       </Button>
-                      <div className={styles.grow} />
-
-                      <Button
-                        className="usa-button--unstyled"
-                        type="button"
-                        onClick={cancelForViolations}
-                        data-testid="cancelReport"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        data-testid="saveDraft"
-                        type="button"
-                        className="usa-button--secondary"
-                        onClick={() => handleSaveDraft(values)}
-                      >
-                        Save draft
-                      </Button>
-                      <Button
-                        disabled={!isValid}
-                        type="button"
-                        onClick={() => handlePreviewReport(values)}
-                        data-testid="reviewAndSubmit"
-                      >
-                        Review and submit
-                      </Button>
+                      <div className={styles.buttonRow}>
+                        <Button
+                          type="button"
+                          onClick={cancelForViolations}
+                          data-testid="cancelReport"
+                          unstyled
+                          className={styles.cancelBtn}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          data-testid="saveDraft"
+                          type="button"
+                          className="usa-button--secondary"
+                          onClick={() => handleSaveDraft(values)}
+                        >
+                          Save draft
+                        </Button>
+                        <Button
+                          disabled={!isValid}
+                          type="button"
+                          onClick={() => handlePreviewReport(values)}
+                          data-testid="reviewAndSubmit"
+                        >
+                          Review and submit
+                        </Button>
+                      </div>
                     </div>
                   </Grid>
                 </Grid>
