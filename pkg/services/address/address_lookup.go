@@ -147,7 +147,10 @@ func FindOconusLocations(appCtx appcontext.AppContext, country string, search st
 
 	if len(searchSlice) > 1 {
 		city = searchSlice[0]
-		principalDivision = strings.TrimSpace(searchSlice[1])
+
+		if len(searchSlice) > 2 {
+			principalDivision = strings.TrimSpace(searchSlice[1])
+		}
 	} else {
 		city = search
 	}
