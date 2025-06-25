@@ -1256,11 +1256,9 @@ integration_test_mtls:
             # mtls tests do not need client
     - mkdir -p build
     - touch build/index.html
-
-    #- make bin/prime-api-client
-    #- /bin/milmove migrate
-    - /bin/milmove serve
-    - curl http://milmovelocal:4000
+    - /bin/milmove serve 2>&1 | fmt
+    - ./scripts/run-e2e-mtls-test
+    # - curl http://milmovelocal:4000
     # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
     # - make bin/prime-api-client
     # - echo "Running E2E mTLS tests"
