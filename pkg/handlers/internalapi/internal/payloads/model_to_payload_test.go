@@ -558,3 +558,24 @@ func (suite *PayloadsSuite) TestVIntlLocation() {
 		suite.Equal(principalDivision, payload.PrincipalDivision, "Expected Principal Division to match")
 	})
 }
+
+func (suite *PayloadsSuite) TestVIntlLocations() {
+	suite.Run("correctly maps VIntlLocations with all fields populated", func() {
+		city := "LONDON"
+		principalDivision := "CARDIFF"
+		intlCityCountriesId := uuid.Must(uuid.NewV4())
+
+		vIntlLocation := &models.VIntlLocation{
+			CityName:            &city,
+			CountryPrnDivName:   &principalDivision,
+			IntlCityCountriesID: &intlCityCountriesId,
+		}
+		vIntlLocations := []models.VIntlLocation{*vIntlLocation}
+		payload := VIntlLocations(vIntlLocations)
+
+		suite.IsType(payload, internalmessages.VIntlLocations{})
+		suite.Equal(handlers.FmtUUID(intlCityCountriesId), &payload[0].IntlCityCountriesID, "Expected IntlCityCountriesID to match")
+		suite.Equal(city, payload[0].City, "Expected City to match")
+		suite.Equal(principalDivision, payload[0].PrincipalDivision, "Expected Principal Division to match")
+	})
+}
