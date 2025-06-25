@@ -129,6 +129,14 @@ flags:
       - segment:
           key: mil-app
           value: true
+  - key: wounded_warrior_move
+    name: Wounded Warrior feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
   - key: bulk_assignment
     name: bulk assignment feature flag
     type: BOOLEAN_FLAG_TYPE
