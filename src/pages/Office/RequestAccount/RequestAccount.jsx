@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { func } from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
@@ -11,10 +11,23 @@ import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAcco
 import { createOfficeAccountRequest } from 'services/ghcApi';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes } from 'constants/routes';
+import { useRolesPrivilegesQueriesOfficeApp } from 'hooks/queries';
+import { setShowLoadingSpinner } from 'store/general/actions';
 
 export const RequestAccount = ({ setFlashMessage }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [serverError, setServerError] = useState(null);
+
+  const { result, isLoading } = useRolesPrivilegesQueriesOfficeApp();
+
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setShowLoadingSpinner(true, null));
+    } else {
+      dispatch(setShowLoadingSpinner(false, null));
+    }
+  }, [isLoading, dispatch]);
 
   const initialValues = {
     officeAccountRequestFirstName: '',
@@ -32,56 +45,20 @@ export const RequestAccount = ({ setFlashMessage }) => {
   };
 
   const handleSubmit = async (values) => {
-    const requestedRoles = [];
+    // Dynamically build requestedRoles and requestedPrivileges
+    const requestedRoles = (result.rolesWithPrivs || [])
+      .filter((role) => values[`${role.roleType}Checkbox`])
+      .map((role) => ({
+        name: role.roleName,
+        roleType: role.roleType,
+      }));
 
-    if (values.taskInvoicingOfficerCheckBox) {
-      requestedRoles.push({
-        name: 'Task Invoicing Officer',
-        roleType: 'task_invoicing_officer',
-      });
-    }
-    if (values.taskOrderingOfficerCheckBox) {
-      requestedRoles.push({
-        name: 'Task Ordering Officer',
-        roleType: 'task_ordering_officer',
-      });
-    }
-    if (values.headquartersCheckBox) {
-      requestedRoles.push({
-        name: 'Headquarters',
-        roleType: 'headquarters',
-      });
-    }
-    if (values.transportationContractingOfficerCheckBox) {
-      requestedRoles.push({
-        name: 'Contracting Officer',
-        roleType: 'contracting_officer',
-      });
-    }
-    if (values.servicesCounselorCheckBox) {
-      requestedRoles.push({
-        name: 'Services Counselor',
-        roleType: 'services_counselor',
-      });
-    }
-    if (values.qualityAssuranceEvaluatorCheckBox) {
-      requestedRoles.push({
-        name: 'Quality Assurance Evaluator',
-        roleType: 'qae',
-      });
-    }
-    if (values.customerSupportRepresentativeCheckBox) {
-      requestedRoles.push({
-        name: 'Customer Service Representative',
-        roleType: 'customer_service_representative',
-      });
-    }
-    if (values.governmentSurveillanceRepresentativeCheckbox) {
-      requestedRoles.push({
-        name: 'Government Surveillance Representative',
-        roleType: 'gsr',
-      });
-    }
+    const requestedPrivileges = (result.privileges || [])
+      .filter((priv) => values[`${priv.privilegeType}PrivilegeCheckbox`])
+      .map((priv) => ({
+        name: priv.privilegeName,
+        privilegeType: priv.privilegeType,
+      }));
 
     let body = {
       email: values.officeAccountRequestEmail,
@@ -91,6 +68,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
       telephone: values.officeAccountRequestTelephone,
       transportationOfficeId: values.officeAccountTransportationOffice.id,
       roles: requestedRoles,
+      privileges: requestedPrivileges,
     };
 
     if (values.officeAccountRequestEdipi !== '') {
@@ -143,6 +121,10 @@ export const RequestAccount = ({ setFlashMessage }) => {
       });
   };
 
+  if (isLoading || !result.rolesWithPrivs || !result.privileges) {
+    return null;
+  }
+
   return (
     <GridContainer>
       <NotificationScrollToTop dependency={serverError} />
@@ -160,10 +142,18 @@ export const RequestAccount = ({ setFlashMessage }) => {
           </Alert>
         </Grid>
       )}
-
       <Grid row>
         <Grid col desktop={{ col: 8 }} className={styles.formContainer}>
-          <RequestAccountForm onCancel={handleCancel} onSubmit={handleSubmit} initialValues={initialValues} />
+          <RequestAccountForm
+            onCancel={handleCancel}
+            onSubmit={handleSubmit}
+            Add
+            commentMore
+            actions
+            initialValues={initialValues}
+            rolesWithPrivs={result.rolesWithPrivs}
+            privileges={result.privileges}
+          />
         </Grid>
       </Grid>
     </GridContainer>

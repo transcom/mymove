@@ -45,10 +45,43 @@ func (suite *HandlerSuite) TestBooleanFeatureFlagUnauthenticatedHandler() {
 		suite.Equal(expected.Match, *okResponse.Payload.Match)
 		suite.Equal(expected.Namespace, *okResponse.Payload.Namespace)
 	})
-	suite.Run("error for unauthenticated user outside the customer app", func() {
+	suite.Run("success for unauthenticated user in the office app", func() {
 		req := httptest.NewRequest("POST", "/open/feature-flags/boolean/test_ff", nil)
 		session := &auth.Session{
 			ApplicationName: auth.OfficeApp,
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
+		params := ffop.BooleanFeatureFlagUnauthenticatedParams{
+			HTTPRequest: req.WithContext(ctx),
+			Key:         "key",
+			FlagContext: map[string]string{
+				"thing": "one",
+			},
+		}
+
+		handler := BooleanFeatureFlagsUnauthenticatedHandler{suite.NewHandlerConfig()}
+
+		response := handler.Handle(params)
+
+		okResponse, ok := response.(*ffop.BooleanFeatureFlagUnauthenticatedOK)
+		suite.True(ok)
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+		expected := services.FeatureFlag{
+			Entity:    "user@example.com",
+			Key:       params.Key,
+			Match:     true,
+			Namespace: "test",
+		}
+		suite.Equal(expected.Entity, *okResponse.Payload.Entity)
+		suite.Equal(expected.Key, *okResponse.Payload.Key)
+		suite.Equal(expected.Match, *okResponse.Payload.Match)
+		suite.Equal(expected.Namespace, *okResponse.Payload.Namespace)
+	})
+	suite.Run("error for unauthenticated user outside the customer app", func() {
+		req := httptest.NewRequest("POST", "/open/feature-flags/boolean/test_ff", nil)
+		session := &auth.Session{
+			ApplicationName: auth.AdminApp,
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
