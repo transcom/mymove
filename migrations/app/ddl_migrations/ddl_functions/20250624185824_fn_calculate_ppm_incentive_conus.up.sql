@@ -31,6 +31,7 @@ cents_per_cwt numeric;
 escalation_factor numeric;
 gcc_multiplier NUMERIC := 1.00;
 v_gcc_multiplier_id uuid;
+grade text;
 
 begin
 
@@ -40,24 +41,39 @@ and not is_max then
     raise exception 'is_estimated, is_actual, and is_max cannot all be FALSE. No update will be performed.';
 end if;
 
+select
+    ppms.id
+into
+    ppm
+from
+    ppm_shipments ppms
+where ppms.id = ppm_id;
+
+if ppm is null then
+    raise exception 'PPM with ID % not found', ppm_id;
+end if;
+
 SELECT 
   ppm_shipments.pickup_postal_address_id,
   ppm_shipments.destination_postal_address_id,
   coalesce(ppm_shipments.actual_move_date,ppm_shipments.expected_departure_date),
   mto_shipments.distance,
-  ppm_shipments.estimated_weight
+  ppm_shipments.estimated_weight,
+  f.grade
 INTO 
   pickup_address_id,
   destination_address_id,
   move_date,
   mileage,
-  weight
+  weight,
+  grade
 FROM 
   ppm_shipments
-LEFT JOIN 
-  mto_shipments ON ppm_shipments.shipment_id = mto_shipments.id
-WHERE 
-  ppm_shipments.id = ppm_id;
+LEFT JOIN mto_shipments ON ppm_shipments.shipment_id = mto_shipments.id
+LEFT JOIN moves d on mto_shipments.move_id = d.id
+LEFT JOIN orders f on d.orders_id = f.id 
+LEFT JOIN service_members e on f.service_member_id = e.id
+WHERE ppm_shipments.id = ppm_id;
 
 IF is_actual THEN
   SELECT 
@@ -77,18 +93,7 @@ IF weight < 500 THEN
 END IF;
 
 peak_period := is_peak_period(move_date);
-select
-    ppms.id
-into
-    ppm
-from
-    ppm_shipments ppms
-where
-    ppms.id = ppm_id;
 
-if ppm is null then
-    raise exception 'PPM with ID % not found', ppm_id;
-end if;
 
 v_contract_id := get_contract_id(move_date);
 if v_contract_id is null then
@@ -214,28 +219,34 @@ fuel_price := get_fuel_price(move_date);
 price_difference := calculate_price_difference(fuel_price);
 cents_above_baseline := mileage * estimated_fsc_multiplier;
 price_fsc := ROUND((cents_above_baseline * price_difference) * 100);
-EXECUTE 'SELECT multiplier, id FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1' INTO gcc_multiplier, v_gcc_multiplier_id USING move_date;
-RAISE NOTICE 'GCC Multiplier %', gcc_multiplier;
 
-IF price_dlh > 0 AND gcc_multiplier != 1.00 THEN
-price_dlh := ROUND(price_dlh * gcc_multiplier);
+IF grade != 'CIVILIAN_EMPLOYEE' THEN --do not apply multiplier for Cilivilan PPMs
+
+	EXECUTE 'SELECT multiplier, id FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1' INTO gcc_multiplier, v_gcc_multiplier_id USING move_date;
+	RAISE NOTICE 'GCC Multiplier %', gcc_multiplier;
+	
+	IF price_dlh > 0 AND gcc_multiplier != 1.00 THEN
+	price_dlh := ROUND(price_dlh * gcc_multiplier);
+	END IF;
+	IF price_dop > 0 AND gcc_multiplier != 1.00 THEN
+	price_dop := ROUND(price_dop * gcc_multiplier);
+	END IF;
+	raise notice 'DOP price after multiplier: %', price_dop;
+	IF price_ddp > 0 AND gcc_multiplier != 1.00 THEN
+	price_ddp := ROUND(price_ddp * gcc_multiplier);
+	END IF;
+	IF price_dpk > 0 AND gcc_multiplier != 1.00 THEN
+	price_dpk := ROUND(price_dpk * gcc_multiplier);
+	END IF;
+	IF price_dupk > 0 AND gcc_multiplier != 1.00 THEN
+	price_dupk := ROUND(price_dupk * gcc_multiplier);
+	END IF;
+	IF price_fsc > 0 AND gcc_multiplier != 1.00 THEN
+	price_fsc := ROUND(price_fsc * gcc_multiplier);
+	END IF;
+
 END IF;
-IF price_dop > 0 AND gcc_multiplier != 1.00 THEN
-price_dop := ROUND(price_dop * gcc_multiplier);
-END IF;
-raise notice 'DOP price after multiplier: %', price_dop;
-IF price_ddp > 0 AND gcc_multiplier != 1.00 THEN
-price_ddp := ROUND(price_ddp * gcc_multiplier);
-END IF;
-IF price_dpk > 0 AND gcc_multiplier != 1.00 THEN
-price_dpk := ROUND(price_dpk * gcc_multiplier);
-END IF;
-IF price_dupk > 0 AND gcc_multiplier != 1.00 THEN
-price_dupk := ROUND(price_dupk * gcc_multiplier);
-END IF;
-IF price_fsc > 0 AND gcc_multiplier != 1.00 THEN
-price_fsc := ROUND(price_fsc * gcc_multiplier);
-END IF;
+
 -- Calculate total incentive
 total_incentive := price_dlh + price_dop + price_ddp + price_dpk + price_dupk + price_fsc;
 IF update_table THEN
