@@ -498,8 +498,6 @@ const ServicesCounselingQueue = ({
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
         setisCounselorMoveCreateFFEnabled(isEnabled);
-        // const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-        // setMoveLockFlag(lockedMoveFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
