@@ -2619,9 +2619,6 @@ func init() {
         "allowNavyOrdersWrite": {
           "type": "boolean"
         },
-        "allowOrdersAPI": {
-          "type": "boolean"
-        },
         "allowPPTAS": {
           "type": "boolean"
         },
@@ -2696,9 +2693,6 @@ func init() {
         "allowNavyOrdersWrite": {
           "type": "boolean"
         },
-        "allowOrdersAPI": {
-          "type": "boolean"
-        },
         "allowPPTAS": {
           "type": "boolean"
         },
@@ -2763,10 +2757,6 @@ func init() {
           "x-nullable": true
         },
         "allowNavyOrdersWrite": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "allowOrdersAPI": {
           "type": "boolean",
           "x-nullable": true
         },
@@ -6668,9 +6658,6 @@ func init() {
         "allowNavyOrdersWrite": {
           "type": "boolean"
         },
-        "allowOrdersAPI": {
-          "type": "boolean"
-        },
         "allowPPTAS": {
           "type": "boolean"
         },
@@ -6745,9 +6732,6 @@ func init() {
         "allowNavyOrdersWrite": {
           "type": "boolean"
         },
-        "allowOrdersAPI": {
-          "type": "boolean"
-        },
         "allowPPTAS": {
           "type": "boolean"
         },
@@ -6812,10 +6796,6 @@ func init() {
           "x-nullable": true
         },
         "allowNavyOrdersWrite": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "allowOrdersAPI": {
           "type": "boolean",
           "x-nullable": true
         },

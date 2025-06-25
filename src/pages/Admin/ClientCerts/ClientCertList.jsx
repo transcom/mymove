@@ -49,7 +49,6 @@ const ClientCertList = (props) => {
         <TextField source="userId" label="User Id" />
         <BooleanField cellClassName={classes.tableCell} source="allowPrime" label="Prime API" />
         <BooleanField cellClassName={classes.tableCell} source="allowPPTAS" label="PPTAS API" />
-        <BooleanField cellClassName={classes.tableCell} source="allowOrdersAPI" label="Orders API" />
         <BooleanField cellClassName={classes.tableCell} source="allowAirForceOrdersRead" label="USAF Orders Read" />
         <BooleanField cellClassName={classes.tableCell} source="allowAirForceOrdersWrite" label="USAF Orders Write" />
         <BooleanField cellClassName={classes.tableCell} source="allowArmyOrdersRead" label="Army Orders Read" />

@@ -11,8 +11,6 @@ const (
 	SwaggerFlag string = "swagger"
 	// InternalSwaggerFlag is the Internal Swagger Flag
 	InternalSwaggerFlag string = "internal-swagger"
-	// OrdersSwaggerFlag is the Orders Swagger Flag
-	OrdersSwaggerFlag string = "orders-swagger"
 	// AdminSwaggerFlag is the Admin Swagger Flag
 	AdminSwaggerFlag string = "admin-swagger"
 	// GHCSwaggerFlag is the GHC Swagger Flag
@@ -35,7 +33,6 @@ const (
 func InitSwaggerFlags(flag *pflag.FlagSet) {
 	flag.String(SwaggerFlag, "swagger/api.yaml", "The location of the public API swagger definition")
 	flag.String(InternalSwaggerFlag, "swagger/internal.yaml", "The location of the internal API swagger definition")
-	flag.String(OrdersSwaggerFlag, "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	flag.String(AdminSwaggerFlag, "swagger/admin.yaml", "The location of the admin API swagger definition")
 	flag.String(GHCSwaggerFlag, "swagger/ghc.yaml", "The location of the GHC API swagger definition")
 	flag.String(PrimeSwaggerFlag, "swagger/prime.yaml", "The location of the Prime API swagger definition")
@@ -51,7 +48,6 @@ func CheckSwagger(v *viper.Viper) error {
 	swaggerVars := []string{
 		SwaggerFlag,
 		InternalSwaggerFlag,
-		OrdersSwaggerFlag,
 		GHCSwaggerFlag,
 		AdminSwaggerFlag,
 		PrimeSwaggerFlag,

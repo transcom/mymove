@@ -355,8 +355,6 @@ definitions:
         readOnly: true
       allowDpsAuthAPI:
         type: boolean
-      allowOrdersAPI:
-        type: boolean
       allowAirForceOrdersRead:
         type: boolean
       allowAirForceOrdersWrite:
@@ -401,8 +399,6 @@ definitions:
       subject:
         type: string
         example: CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
-      allowOrdersAPI:
-        type: boolean
       allowAirForceOrdersRead:
         type: boolean
       allowAirForceOrdersWrite:
@@ -437,9 +433,6 @@ definitions:
         type: string
         example: CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
       allowDpsAuthAPI:
-        type: boolean
-        x-nullable: true
-      allowOrdersAPI:
         type: boolean
         x-nullable: true
       allowAirForceOrdersRead:
