@@ -310,9 +310,9 @@ stages:
     export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
     export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
     export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
-    echo "Overriding application-specific configurations"
-    sed 's,^,export ,' config/env/review.app.env > server_env
-    source server_env
+    # echo "Overriding application-specific configurations"
+    # sed 's,^,export ,' config/env/review.app.env > server_env
+    # source server_env
     export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
     export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
     export LOGIN_GOV_CALLBACK_PORT=4000
@@ -1203,6 +1203,7 @@ integration_test_mtls:
     OKTA_API_KEY: notrealapikey
     OKTA_OFFICE_GROUP_ID: notrealgroupId
     OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+    CSRF_AUTH_KEY: d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
 
     SERVE_API_SUPPORT: true
     SERVE_PRIME_SIMULATOR: true
@@ -1226,7 +1227,7 @@ integration_test_mtls:
     IWS_RBS_HOST: 'pkict.dmdc.osd.mil'
     DTOD_USE_MOCK: true
   before_script:
-    # - *setup_milmove_env
+    - *setup_milmove_env
     # - *setup_env_intergration_mtls
   script:
     # - echo "TODO Add steps"
@@ -1237,9 +1238,22 @@ integration_test_mtls:
     # - source server_env
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
+    - |
+      export MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
+      export MIL_MOVE_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+      export MIL_MOVE_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+      export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+      export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+      export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+      export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+      export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+      export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+      export LOGIN_GOV_CALLBACK_PORT=4000
+      export LOGIN_GOV_CALLBACK_PROTOCOL=http
+
     - pwd
-    - git config --global --add safe.directory /builds/milmove/mymove
-    - make bin/
+    # - git config --global --add safe.directory /builds/milmove/mymove
+    - make bin/milmove
     - echo "IWS_RBS_HOST is- $IWS_RBS_HOST"
     - echo "CSRF_AUTH_KEY is- $CSRF_AUTH_KEY"
     - echo "MOVE_MIL_DOD_CA_CERT is- $MOVE_MIL_DOD_CA_CERT"
