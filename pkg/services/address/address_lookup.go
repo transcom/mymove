@@ -152,11 +152,22 @@ func FindOconusLocations(appCtx appcontext.AppContext, country string, search st
 		city = search
 	}
 
-	sqlQuery := `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE upper(vil.country) like upper(?) AND (upper(vil.city_name) like upper(?) AND upper(vil.country_prn_dv_nm) like upper(?)) ORDER BY vil.country_prn_dv_nm`
-
+	var queryCondition string
 	if exactMatch {
-		sqlQuery = `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE upper(vil.country) = upper(?) AND (upper(vil.city_name) = upper(?) AND upper(vil.country_prn_dv_nm) = upper(?)) ORDER BY vil.country_prn_dv_nm`
+		queryCondition = "="
+	} else {
+		queryCondition = "LIKE"
 	}
+
+	sqlQuery := fmt.Sprintf(`
+	    SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id
+	    FROM v_intl_locations vil
+	    WHERE upper(vil.country) %s upper(?)
+	    AND upper(vil.city_name) %s upper(?)
+	    AND upper(vil.country_prn_dv_nm) %s upper(?)
+	    ORDER BY vil.country_prn_dv_nm`,
+		queryCondition, queryCondition, queryCondition,
+	)
 
 	sqlQuery += ` limit 30`
 	var query *pop.Query
