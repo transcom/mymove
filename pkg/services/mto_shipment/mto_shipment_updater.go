@@ -272,10 +272,6 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.ActualSpouseProGearWeight = requestedUpdatedShipment.ActualSpouseProGearWeight
 	}
 
-	if requestedUpdatedShipment.ActualGunSafeWeight != nil {
-		dbShipment.ActualGunSafeWeight = requestedUpdatedShipment.ActualGunSafeWeight
-	}
-
 	if requestedUpdatedShipment.OriginSITAuthEndDate != nil {
 		dbShipment.OriginSITAuthEndDate = requestedUpdatedShipment.OriginSITAuthEndDate
 	}
