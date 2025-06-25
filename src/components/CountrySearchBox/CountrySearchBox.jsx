@@ -133,7 +133,7 @@ export const CountrySearchBoxComponent = ({
     if (loadDefaultCountry) {
       setLoadDefaultCountry(false);
 
-      if (value === null || (value !== undefined && value.city === '')) {
+      if (value === null || value?.city === '') {
         const country = 'UNITED STATES';
         searchCountries(country)
           .then((locations) => {

@@ -268,7 +268,7 @@ describe('AboutForm component', () => {
       // street 1 is now OPTIONAL for onboarding but required for PPM doc upload. If this fails it means addtional labelHints
       // have been introduced elsewhere within the control.
       const hints = document.getElementsByClassName('usa-hint');
-      expect(hints.length).toBe(18);
+      expect(hints.length).toBe(21);
       // verify labelHints are actually 'Optional'
       for (let i = 0; i < hints.length; i += 1) {
         expect(hints[i]).toHaveTextContent('Required');
