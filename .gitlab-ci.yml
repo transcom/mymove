@@ -1111,10 +1111,10 @@ integration_test_mtls:
   services:
     - name: $postgres
     - name: $redis
-    # - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
-    #   alias: milmovelocal,officelocal,adminlocal,primelocal
-    #   entrypoint: ["/bin/milmove"]
-    #   command: ["serve"]
+    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+      alias: milmovelocal,officelocal,adminlocal,primelocal
+      entrypoint: ["/bin/milmove"]
+      command: ["serve"]
   variables:
     KUBERNETES_SERVICE_CPU_REQUEST: "2"
     KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
@@ -1221,15 +1221,6 @@ integration_test_mtls:
   before_script:
     - *setup_milmove_env
     # - *setup_env_intergration_mtls
-  script:
-    # - echo "TODO Add steps"
-    # - echo "integration_test_mtls"
-    # - echo "Waiting for server to start"
-    # - dockerize -wait http://milmovelocal:4000 -timeout 5m
-    # - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
-    # - source server_env
-    # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
-    # - curl http://milmovelocal:4000
     - export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
     - export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
     - export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
@@ -1241,7 +1232,15 @@ integration_test_mtls:
     - export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
     - export LOGIN_GOV_CALLBACK_PORT=4000
     - export LOGIN_GOV_CALLBACK_PROTOCOL=http
-
+  script:
+    # - echo "TODO Add steps"
+    # - echo "integration_test_mtls"
+    # - echo "Waiting for server to start"
+    # - dockerize -wait http://milmovelocal:4000 -timeout 5m
+    # - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
+    # - source server_env
+    # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
+    # - curl http://milmovelocal:4000
     - pwd
     # - git config --global --add safe.directory /builds/milmove/mymove
     - make bin/milmove
@@ -1252,6 +1251,7 @@ integration_test_mtls:
     - echo "MOVE_MIL_DOD_TLS_KEY is- $MOVE_MIL_DOD_TLS_KEY"
     - echo "NO_TLS_ENABLED is- $NO_TLS_ENABLED"
     - bin/milmove serve
+    - curl http://milmovelocal:4000
     # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
     # - make bin/prime-api-client
     # - echo "Running E2E mTLS tests"
