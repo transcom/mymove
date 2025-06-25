@@ -663,6 +663,7 @@ export const useServicesCounselingQueuePPMQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
   activeRole,
+  activeOfficeID,
 }) => {
   const {
     refetch,
@@ -671,7 +672,17 @@ export const useServicesCounselingQueuePPMQueries = ({
   } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
-      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC, activeRole },
+      {
+        sort,
+        order,
+        filters,
+        currentPage,
+        currentPageSize,
+        needsPPMCloseout: true,
+        viewAsGBLOC,
+        activeRole,
+        activeOfficeID,
+      },
     ],
     ({ queryKey }) => getServicesCounselingPPMQueue(...queryKey),
   );

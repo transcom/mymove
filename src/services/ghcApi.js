@@ -832,6 +832,7 @@ export async function getServicesCounselingPPMQueue(
     needsPPMCloseout = true,
     viewAsGBLOC,
     activeRole,
+    activeOfficeID,
   },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
@@ -851,6 +852,7 @@ export async function getServicesCounselingPPMQueue(
       viewAsGBLOC,
       ...paramFilters,
       activeRole,
+      activeOfficeID,
     },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
@@ -858,7 +860,7 @@ export async function getServicesCounselingPPMQueue(
 
 export async function getPaymentRequestsQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole, activeOfficeID },
 ) {
   const operationPath = 'queues.getPaymentRequestsQueue';
   const paramFilters = {};
@@ -867,7 +869,16 @@ export async function getPaymentRequestsQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      viewAsGBLOC,
+      activeRole,
+      activeOfficeID,
+      ...paramFilters,
+    },
     { schemaKey: 'queuePaymentRequestsResult', normalize: false },
   );
 }

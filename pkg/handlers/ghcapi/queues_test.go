@@ -2368,7 +2368,7 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 
 		request := httptest.NewRequest("GET", "/queues/counseling", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUsers[0])
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetServicesCounselingQueueHandler{
 			handlerConfig,
@@ -2432,7 +2432,7 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 
 		request := httptest.NewRequest("GET", "/queues/counseling", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUsers[0])
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetServicesCounselingQueueHandler{
 			handlerConfig,
@@ -2493,7 +2493,7 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUsers[0])
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetMovesQueueHandler{
 			handlerConfig,
@@ -2596,7 +2596,7 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 
 		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUsers[0])
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetDestinationRequestsQueueHandler{
 			handlerConfig,
@@ -2650,7 +2650,7 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 
 		request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUsers[0])
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetPaymentRequestsQueueHandler{
 			handlerConfig,
