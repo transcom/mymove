@@ -1242,7 +1242,7 @@ integration_test_mtls:
       echo "MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)"
       echo "MIL_MOVE_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)"
       echo "MIL_MOVE_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)"
-      echo "CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)""
+      echo "CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)"
       echo "LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)"
       echo "HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID"
       echo "HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE"
