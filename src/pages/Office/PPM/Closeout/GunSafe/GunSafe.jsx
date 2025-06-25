@@ -12,7 +12,6 @@ import {
   patchGunSafeWeightTicket,
   createUploadForPPMDocument,
   deleteUploadForDocument,
-  updateMTOShipment,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -31,12 +30,11 @@ const GunSafe = ({ appName }) => {
   // moveId, mtoShipmentId and gunSafeId used for customer side, shipmentId and gunSafeId for office
   const { shipmentId, gunSafeId } = useParams();
 
-  const { mtoShipment, refetchMTOShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const { moveCode } = useParams();
   const { orders } = useReviewShipmentWeightsQuery(moveCode);
   const ppmShipment = mtoShipment?.ppmShipment;
   const gunSafeWeightTickets = documents?.GunSafeWeightTickets ?? [];
-  const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
 
   const currentGunSafeWeightTicket = gunSafeWeightTickets?.find((item) => item.id === gunSafeId) ?? null;
   const currentIndex = Array.isArray(gunSafeWeightTickets)
@@ -73,43 +71,11 @@ const GunSafe = ({ appName }) => {
     },
   });
 
-  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment, {
-    onSuccess: () => {
-      navigate(reviewPath);
-    },
-    onError: () => {
-      setErrorMessage(`Failed to update shipment record`);
-    },
-  });
-
   useEffect(() => {
     if (!gunSafeId && ppmShipment?.id) {
       mutateGunSafeCreateWeightTicket(ppmShipment?.id);
     }
   }, [mutateGunSafeCreateWeightTicket, ppmShipment?.id, gunSafeId]);
-
-  const updateShipment = async (values) => {
-    const shipmentResp = await refetchMTOShipment();
-    if (shipmentResp.isSuccess) {
-      const shipmentPayload = {
-        ppmShipment: {
-          id: mtoShipment.ppmShipment.id,
-        },
-        shipmentType: mtoShipment.shipmentType,
-        shipmentLocator: values.shipmentLocator,
-        eTag: shipmentResp?.data?.eTag,
-      };
-
-      mutateUpdateMtoShipment({
-        moveTaskOrderID,
-        shipmentID: mtoShipment.id,
-        ifMatchETag: shipmentPayload.eTag,
-        body: shipmentPayload,
-      });
-    } else {
-      setErrorMessage('Failed to fetch shipment record');
-    }
-  };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const { documentId } = currentGunSafeWeightTicket;
@@ -172,7 +138,6 @@ const GunSafe = ({ appName }) => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
-          updateShipment(values);
           navigate(reviewPath);
         },
         onError: () => {
