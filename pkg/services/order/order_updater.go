@@ -874,7 +874,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 	// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
 	// if not, do the opposite and make the PPM type INCENTIVE_BASED
 	if order.Grade != nil && *order.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
-		moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+		moves, fetchErr := models.FetchMoveByOrderIDWithPreloads(appCtx.DB(), order.ID)
 		if fetchErr != nil {
 			appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(fetchErr))
 		} else {

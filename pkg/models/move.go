@@ -535,8 +535,8 @@ func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 	return move, nil
 }
 
-// FetchMovesByOrderID returns moves for a given id of an order
-func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
+// FetchMoveByOrderIDWithPreloads returns moves for a given id of an order
+func FetchMoveByOrderIDWithPreloads(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 	var moves Moves
 
 	query := db.Where("orders_id = ?", orderID)

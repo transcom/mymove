@@ -8,7 +8,7 @@ import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_RANK_OPTIONS, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { MockProviders } from 'testUtils';
 
 jest.setTimeout(60000);
@@ -278,7 +278,7 @@ const initialValues = {
       contentType: 'application/pdf',
     },
   ],
-  grade: 'E_1',
+  grade: 'E-1',
   accompanied_tour: '',
   dependents_under_twelve: '',
   dependents_twelve_and_over: '',
@@ -454,7 +454,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
 
     await waitFor(() => {
@@ -520,7 +520,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -807,7 +807,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 200 });
@@ -1023,7 +1023,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),

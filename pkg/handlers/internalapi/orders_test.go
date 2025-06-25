@@ -37,7 +37,10 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		},
 	}, nil)
 
-	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
+	var rank models.Rank
+	err := suite.DB().First(&rank)
+	suite.NoError(err)
+
 	parameterName := "maxGunSafeAllowance"
 	parameterValue := "500"
 	param := models.ApplicationParameters{
@@ -370,7 +373,10 @@ func (suite *HandlerSuite) TestShowOrder() {
 			LinkOnly: true,
 		},
 	}, nil)
-	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
+	var rank models.Rank
+	err := suite.DB().First(&rank)
+	suite.NoError(err)
+
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    dutyLocation,
@@ -421,7 +427,9 @@ func (suite *HandlerSuite) TestPayloadForOrdersModel() {
 			LinkOnly: true,
 		},
 	}, nil)
-	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
+	var rank models.Rank
+	err := suite.DB().First(&rank)
+	suite.NoError(err)
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    dutyLocation,
@@ -748,7 +756,9 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
-	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
+	var rank models.Rank
+	err := suite.DB().First(&rank)
+	suite.NoError(err)
 	suite.Run("Can update CONUS orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -1208,7 +1218,9 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 	}, nil)
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
-	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
+	var rank models.Rank
+	err := suite.DB().First(&rank)
+	suite.NoError(err)
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -1358,7 +1370,10 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 			},
 		},
 	}, nil)
-	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
+	var rank models.Rank
+	err := suite.DB().First(&rank)
+	suite.NoError(err)
+
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    originDutyLocation,
