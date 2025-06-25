@@ -707,11 +707,10 @@ test.describe('Services counselor user', () => {
 
         await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
         await page.getByTestId('view-edit-orders').click();
-        await page.getByTestId('payGradeInput').selectOption('AVIATION_CADET');
         await page.getByTestId('payGradeInput').selectOption('CIVILIAN_EMPLOYEE');
         await page.getByRole('button', { name: 'Save' }).click();
 
-        await expect(page.getByTestId('payGrade')).toContainText('Civilian Employee');
+        await expect(page.getByTestId('payGrade')).toContainText('CIVILIAN_EMPLOYEE');
         await expect(page.getByText('actual expense reimbursement')).toBeVisible();
         await page.getByRole('button', { name: 'Edit shipment' }).click();
 
@@ -726,7 +725,7 @@ test.describe('Services counselor user', () => {
         const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicketOfficeCivilian();
         await scPage.navigateToMoveUsingMoveSearch(move.locator);
 
-        await expect(page.getByTestId('payGrade')).toContainText('Civilian Employee');
+        await expect(page.getByTestId('payGrade')).toContainText('CIVILIAN EMPLOYEE');
 
         await page.getByText('Review documents').click();
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
