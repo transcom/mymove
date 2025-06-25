@@ -461,6 +461,7 @@ const ServicesCounselingOrders = ({
                       Cancel
                     </Button>
                     <Button
+                      data-testid="submit_button"
                       type="submit"
                       disabled={formik.isSubmitting || !counselorCanEdit}
                       onClick={scrollToViewFormikError(formik)}

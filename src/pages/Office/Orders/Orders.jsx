@@ -474,7 +474,15 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
                 {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
                 <Restricted to={permissionTypes.updateOrders}>
                   <div className={styles.bottom}>
-                    <div className={formStyles.formActions}>
+                    <div className={styles.buttonGroup}>
+                      <Button
+                        data-testid="submit_button"
+                        disabled={formik.isSubmitting}
+                        type="submit"
+                        onClick={scrollToViewFormikError(formik)}
+                      >
+                        Save
+                      </Button>
                       <Button type="button" secondary onClick={handleClose}>
                         Cancel
                       </Button>
