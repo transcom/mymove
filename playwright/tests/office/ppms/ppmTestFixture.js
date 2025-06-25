@@ -100,7 +100,7 @@ export class PpmPage extends ServiceCounselorPage {
 
     await this.page.locator('input[name="pickup.address.streetAddress1"]').fill('123 Street');
     await this.page.locator('input[id="pickup.address-country-input"]').fill(countrySearch);
-    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    const spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
     const pickupLocator = this.page.locator('input[id="pickup.address-input"]');
@@ -123,12 +123,12 @@ export class PpmPage extends ServiceCounselorPage {
 
     await this.page.locator('input[name="destination.address.streetAddress1"]').fill('123 Street');
     await this.page.locator('input[id="destination.address-country-input"]').fill(countrySearch);
-    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    const spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
-    const pickupLocator = this.page.locator('input[id="destination.address-input"]');
-    await pickupLocator.click({ timeout: 5000 });
-    await pickupLocator.fill('76127');
+    const deliveryLocator = this.page.locator('input[id="destination.address-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('76127');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
   }
