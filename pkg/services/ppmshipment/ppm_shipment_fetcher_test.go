@@ -212,7 +212,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					suite.Nil(actual.WeightTickets)
 					suite.Nil(actual.ProgearWeightTickets)
 					suite.Nil(actual.MovingExpenses)
-					suite.Nil(actual.W2Address)
+					suite.NotNil(actual.W2Address)
 					suite.Nil(actual.AOAPacket)
 					suite.Nil(actual.PaymentPacket)
 				},
@@ -230,7 +230,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					suite.Nil(actual.WeightTickets)
 					suite.Nil(actual.ProgearWeightTickets)
 					suite.Nil(actual.MovingExpenses)
-					suite.Nil(actual.W2Address)
+					suite.NotNil(actual.W2Address)
 					suite.Nil(actual.AOAPacket)
 					suite.Nil(actual.PaymentPacket)
 				},
@@ -249,7 +249,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 
 					suite.Nil(actual.ProgearWeightTickets)
 					suite.Nil(actual.MovingExpenses)
-					suite.Nil(actual.W2Address)
+					suite.NotNil(actual.W2Address)
 					suite.Nil(actual.AOAPacket)
 					suite.Nil(actual.PaymentPacket)
 				},
