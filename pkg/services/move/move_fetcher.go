@@ -80,8 +80,21 @@ func (f moveFetcher) FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds [
 }
 
 // Fetches moves for Navy servicemembers with approved shipments. Ignores gbloc rules
-func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MovesForPPTASFetcherParams) (models.Moves, error) {
+func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MovesForPPTASFetcherParams, clientCert models.ClientCert) (models.Moves, error) {
 	var moves models.Moves
+
+	user, err := models.GetUser(appCtx.DB(), clientCert.UserID)
+	if err != nil {
+		return nil, err
+	}
+	officeUser, err := models.FetchOfficeUserByUserID(appCtx.DB(), user.ID)
+	if err != nil {
+		return nil, err
+	}
+	transportationOffice, err := models.FetchTransportationOfficeByID(appCtx.DB(), officeUser.TransportationOfficeID)
+	if err != nil {
+		return nil, err
+	}
 
 	query := appCtx.DB().EagerPreload(
 		"MTOShipments.DestinationAddress",
@@ -114,13 +127,13 @@ func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, par
 		query.Where("mto_shipments.updated_at >= ?", params.Since)
 	}
 
-	if params.Branch != nil && *params.Branch == models.AffiliationMARINES.String() {
+	if transportationOffice.Gbloc == "TVCB" {
 		query.Where("service_members.affiliation = ?", models.AffiliationMARINES)
 	} else {
 		query.Where("service_members.affiliation = ?", models.AffiliationNAVY)
 	}
 
-	err := query.All(&moves)
+	err = query.All(&moves)
 
 	if err != nil {
 		return nil, err

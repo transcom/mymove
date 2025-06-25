@@ -84,3 +84,10 @@ func GetCounselingOffices(db *pop.Connection, dutyLocationID uuid.UUID, serviceM
 
 	return officeList, nil
 }
+
+// FetchTransportationOfficeByID fetches an office user by ID
+func FetchTransportationOfficeByID(tx *pop.Connection, id uuid.UUID) (*TransportationOffice, error) {
+	var transportationOffice TransportationOffice
+	err := tx.Find(&transportationOffice, id)
+	return &transportationOffice, err
+}

@@ -90,6 +90,17 @@ func FetchOfficeUserByID(tx *pop.Connection, id uuid.UUID) (*OfficeUser, error) 
 	return &user, err
 }
 
+// FetchOfficeUserByUserID fetches an office user by UserID
+func FetchOfficeUserByUserID(tx *pop.Connection, id uuid.UUID) (*OfficeUser, error) {
+	var user OfficeUser
+	err := tx.Where("user_id = ?", id).First(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 // FetchOfficeUserByID fetches an office user by ID
 func GetAssignedGBLOCs(o OfficeUser) []string {
 	var assignedGblocs []string
