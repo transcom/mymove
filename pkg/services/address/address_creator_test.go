@@ -173,15 +173,15 @@ func (suite *AddressSuite) TestAddressCreator() {
 	})
 
 	suite.Run("Fails when us_post_region_city is not found", func() {
-		country := &models.Country{}
-		country.Country = "US"
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
 		addressCreator := NewAddressCreator()
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			StreetAddress1: "7645 Ballinshire N",
 			City:           "Charlotte",
 			State:          "IN",
 			PostalCode:     "46254",
-			Country:        country,
+			Country:        &country,
 		})
 
 		suite.NotNil(err)
@@ -190,8 +190,8 @@ func (suite *AddressSuite) TestAddressCreator() {
 	})
 
 	suite.Run("returns error when address has an invalid USPRC assignment", func() {
-		country := &models.Country{}
-		country.Country = "US"
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
 		addressCreator := NewAddressCreator()
 
 		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "29229", "Columbia")
@@ -202,7 +202,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 			City:               "Indianapolis",
 			State:              "IN",
 			PostalCode:         "46254",
-			Country:            country,
+			Country:            &country,
 			UsPostRegionCityID: &usprc.ID,
 			UsPostRegionCity:   usprc,
 		})
@@ -214,8 +214,8 @@ func (suite *AddressSuite) TestAddressCreator() {
 	})
 
 	suite.Run("returns error when USPRC validation fails", func() {
-		country := &models.Country{}
-		country.Country = "US"
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
 		addressCreator := NewAddressCreator()
 
 		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "29229", "Columbia")
@@ -226,7 +226,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 			City:               "Indianapolis",
 			State:              "IN",
 			PostalCode:         "29229",
-			Country:            country,
+			Country:            &country,
 			UsPostRegionCityID: &usprc.ID,
 			UsPostRegionCity:   usprc,
 		})
