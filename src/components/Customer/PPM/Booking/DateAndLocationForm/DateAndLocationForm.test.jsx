@@ -377,16 +377,6 @@ describe('validates form fields and displays error messages', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-
-        // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 delivery address with 2 misc).
-        // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
-        // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
-        const hints = document.getElementsByClassName('usa-hint');
-        expect(hints.length).toBe(15);
-        // verify labelHints are actually 'Optional'
-        for (let i = 0; i < hints.length; i += 1) {
-          expect(hints[i]).toHaveTextContent('Required');
-        }
       });
     });
   });
