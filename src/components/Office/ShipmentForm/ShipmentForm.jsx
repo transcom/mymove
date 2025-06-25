@@ -1809,7 +1809,7 @@ const ShipmentForm = (props) => {
                       (values.advanceRequested !== mtoShipment.ppmShipment?.hasRequestedAdvance ||
                         values.advance !== mtoShipment.ppmShipment?.advanceAmountRequested)
                     }
-                    advanceStatus={values.advanceStatus}
+                    isAdvancePage={isAdvancePage}
                   />
                 )}
 
