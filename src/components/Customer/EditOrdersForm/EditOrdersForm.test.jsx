@@ -8,7 +8,7 @@ import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
-import { getRankOptions, showCounselingOffices } from 'services/internalApi';
+import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { MockProviders } from 'testUtils';
 
@@ -518,10 +518,6 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-
-    getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'SSgt' }]),
-    );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
 
@@ -588,10 +584,6 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-
-    getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'SSgt' }]),
-    );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
 
     // Test New Duty Location Search Box interaction
@@ -880,9 +872,6 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'SSgt' }]),
-    );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
 
     // Test New Duty Location Search Box interaction
@@ -1099,9 +1088,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'SSgt' }]),
-    );
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),

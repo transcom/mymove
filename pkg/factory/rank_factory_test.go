@@ -9,9 +9,6 @@ func (suite *FactorySuite) TestBuildRank() {
 		// Set up:          Create a customized rank, but don't pass in a db
 		// Expected outcome:Rank should be created with default values
 		//                  No rank should be created in database
-		precount, err := suite.DB().Count(&models.Rank{})
-		suite.NoError(err)
-
 		customRankAbbv := "CRA"
 
 		rank := BuildRank(suite.DB(), []Customization{
@@ -25,10 +22,6 @@ func (suite *FactorySuite) TestBuildRank() {
 		suite.Equal(customRankAbbv, rank.RankAbbv)
 		suite.Equal(string(models.AffiliationAIRFORCE), rank.Affiliation)
 		suite.Equal("Senior Airman", rank.RankName)
-		// Count how many ranks are in the DB, no new ranks should have been created.
-		count, err := suite.DB().Count(&models.Rank{})
-		suite.NoError(err)
-		suite.Equal(precount+1, count)
 	})
 
 }

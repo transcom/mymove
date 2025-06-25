@@ -5,7 +5,7 @@ import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
-import { createOrders, getRankOptions, getServiceMember, showCounselingOffices } from 'services/internalApi';
+import { createOrders, getServiceMember, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
@@ -569,9 +569,6 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
       await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-      getRankOptions.mockImplementation(() =>
-        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'SSgt' }]),
-      );
       await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
 
       // Select a CONUS current duty location
@@ -674,9 +671,6 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
       await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-      getRankOptions.mockImplementation(() =>
-        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'SSgt' }]),
-      );
       await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
 
       // Select a CONUS current duty location
