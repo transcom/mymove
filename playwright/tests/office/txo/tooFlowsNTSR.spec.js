@@ -275,8 +275,6 @@ test.describe('TOO user', () => {
       await modal.locator('#facilityServiceOrderNumber').fill('098098');
 
       // Storage facility address
-      const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
-      const countrySearch = 'UNITED STATES';
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').clear();
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').fill('265 S East St');
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
