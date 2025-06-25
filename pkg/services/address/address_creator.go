@@ -38,11 +38,6 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.County = county
 	}
 
-	// until international moves are supported, we will default the country for created addresses to "US"
-	// if address.Country != nil && address.Country.Country != "US" {
-	// 	return nil, fmt.Errorf("- the country %s is not supported at this time - only US is allowed", address.Country.Country)
-	// }
-
 	if address.CountryId != nil {
 		country, err := models.FetchCountryByID(appCtx.DB(), *address.CountryId)
 		if err != nil {
