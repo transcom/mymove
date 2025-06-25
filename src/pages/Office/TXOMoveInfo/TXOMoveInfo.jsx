@@ -2,6 +2,8 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
+import { checkIfMoveIsLocked } from '../../../shared/constants';
+
 import 'styles/office.scss';
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
@@ -51,15 +53,7 @@ const TXOMoveInfo = () => {
   const officeUserID = data?.office_user?.id;
 
   useEffect(() => {
-    const checkLock = async () => {
-      const now = new Date();
-      const isLocked =
-        move?.lockedByOfficeUserID &&
-        officeUserID !== move?.lockedByOfficeUserID &&
-        now < new Date(move?.lockExpiresAt);
-      setIsMoveLocked(isLocked);
-    };
-    checkLock();
+    checkIfMoveIsLocked(move, officeUserID).then(setIsMoveLocked);
   }, [move, officeUserID]);
 
   const hideNav =

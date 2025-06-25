@@ -4,6 +4,8 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
+import { checkIfMoveIsLocked } from '../../../shared/constants';
+
 import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/ServicesCounselingTabNav';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
@@ -75,15 +77,7 @@ const ServicesCounselingMoveInfo = () => {
   const officeUserID = data?.office_user?.id;
 
   useEffect(() => {
-    const checkLock = async () => {
-      const now = new Date();
-      const isLocked =
-        move?.lockedByOfficeUserID &&
-        officeUserID !== move?.lockedByOfficeUserID &&
-        now < new Date(move?.lockExpiresAt);
-      setIsMoveLocked(isLocked);
-    };
-    checkLock();
+    checkIfMoveIsLocked(move, officeUserID).then(setIsMoveLocked);
   }, [move, officeUserID]);
 
   useEffect(() => {
