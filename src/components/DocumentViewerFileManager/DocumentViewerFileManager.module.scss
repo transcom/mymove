@@ -13,3 +13,14 @@
 .documentViewerFileManager .sectionWrapper {
   padding: 1.6rem;
 }
+
+.fullWidth {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.flexRight {
+  display: flex;
+    justify-content: flex-end;
+}
