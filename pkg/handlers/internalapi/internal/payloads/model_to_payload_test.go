@@ -198,7 +198,7 @@ func (suite *PayloadsSuite) TestWeightTicket() {
 }
 
 func (suite *PayloadsSuite) TestCounselingOffices() {
-	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+	suite.Run("correctly maps transportation offices to counseling offices payload", func() {
 		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -525,7 +525,6 @@ func (suite *PayloadsSuite) TestPayGrades() {
 		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
 		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
 	}
-
 	for _, payGrade := range payGrades {
 		suite.Run(payGrade.Grade, func() {
 			grades := models.PayGrades{payGrade}
