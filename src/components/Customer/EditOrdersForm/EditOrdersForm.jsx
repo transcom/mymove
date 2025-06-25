@@ -142,7 +142,7 @@ const EditOrdersForm = ({
   }, []);
 
   useEffect(() => {
-    const fetchRankGradeOptions = async () => {
+    const fetchRankOptions = async () => {
       setShowLoadingSpinner(true, null);
       try {
         const fetchedRanks = await getRankOptions(affiliation, grade);
@@ -158,7 +158,7 @@ const EditOrdersForm = ({
       setShowLoadingSpinner(false, null);
     };
 
-    fetchRankGradeOptions();
+    fetchRankOptions();
   }, [affiliation, setShowLoadingSpinner, grade]);
 
   useEffect(() => {
