@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -535,32 +534,6 @@ func (suite *PayloadsSuite) TestPayGrades() {
 
 			suite.Equal(payGrade.Grade, actual.Grade)
 			suite.Equal(*payGrade.GradeDescription, actual.Description)
-		})
-	}
-}
-
-func (suite *PayloadsSuite) TestGetRankDropdownOptions() {
-	type testCase struct {
-		grade string
-		count int
-	}
-
-	testCases := map[models.ServiceMemberAffiliation]testCase{
-		models.ServiceMemberAffiliation(models.AffiliationARMY): {
-			grade: "E-4",
-			count: 2,
-		},
-		models.ServiceMemberAffiliation(models.AffiliationNAVY): {
-			grade: "E-2",
-			count: 1,
-		},
-	}
-
-	for affiliation, tc := range testCases {
-		suite.Run(fmt.Sprintf("Affiliation: %s, Grade: %s", affiliation, tc.grade), func() {
-			options, err := GetRankDropdownOptions(suite.AppContextForTest(), string(affiliation), tc.grade)
-			suite.NoError(err)
-			suite.Equal(tc.count, len(options))
 		})
 	}
 }

@@ -603,7 +603,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
 				// if not, do the opposite and make the PPM type INCENTIVE_BASED
 				if payload.Grade != nil && *payload.Grade != *order.Grade {
-					moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+					moves, fetchErr := models.FetchMoveByOrderIDWithPreloads(appCtx.DB(), order.ID)
 					if fetchErr != nil {
 						appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(fetchErr))
 					} else {
@@ -781,7 +781,21 @@ type GetRanksHandler struct {
 func (h GetRanksHandler) Handle(params ordersop.GetRanksParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			ranks, err := payloads.GetRankDropdownOptions(appCtx, params.Affiliation, params.Grade)
+			var ranks []*internalmessages.Rank
+
+			err := appCtx.DB().Q().RawQuery(`
+		SELECT
+			ranks.rank_name AS RankName,
+			ranks.rank_abbv AS RankAbbv,
+			ranks.id,
+			ranks.pay_grade_id AS PaygradeID,
+			ranks.rank_order AS RankOrder
+		FROM ranks
+		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
+		WHERE affiliation = $1
+		AND grade = $2
+		ORDER BY ranks.rank_order ASC
+	`, params.Affiliation, params.Grade).All(&ranks)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/UpdateOrders/updateOrder';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_RANK_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 
 describe('when given an Order update history record', () => {
   const historyRecord = {
@@ -20,7 +20,7 @@ describe('when given an Order update history record', () => {
         new_duty_location_id: 'ID2',
         has_dependents: true,
         grade: ORDERS_PAY_GRADE_TYPE.E_2,
-        rank: 'AMN',
+        rank: ORDERS_RANK_OPTIONS.AIR_FORCE.Amn.rankAbbv,
       },
       context: [
         {
@@ -66,7 +66,7 @@ describe('when given an Order update history record', () => {
       ['New duty location name', ': Fairchild AFB', historyRecord.RELOCATION],
       ['Dependents included', ': Yes', historyRecord.RELOCATION],
       ['Pay grade', ': E-2', historyRecord.RELOCATION],
-      ['Rank', ': AMN', historyRecord.RELOCATION],
+      ['Rank', ': Amn', historyRecord.RELOCATION],
       ['Date of separation', ': 12 Oct 2022', historyRecord.SEPARATION],
       ['Orders type', ': Retirement', historyRecord.RETIREMENT],
       ['Date of retirement', ': 12 Oct 2022', historyRecord.RETIREMENT],

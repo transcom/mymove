@@ -129,7 +129,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [payGradeOptions, setPayGradeOptions] = useState([]);
   useEffect(() => {
     const fetchGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      setShowLoadingSpinner(true, null);
       try {
         const fetchedRanks = await getPayGradeOptions(affiliation);
         if (fetchedRanks) {
@@ -148,7 +148,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
   useEffect(() => {
     const fetchRankOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading rank options');
+      setShowLoadingSpinner(true, null);
       try {
         const fetchedRanks = await getRankOptions(affiliation, grade);
         if (fetchedRanks) {

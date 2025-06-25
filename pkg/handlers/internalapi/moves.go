@@ -386,7 +386,7 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 
 			// Get All Moves for the ServiceMember
 			for _, order := range serviceMember.Orders {
-				moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+				moves, fetchErr := models.FetchMoveByOrderIDWithPreloads(appCtx.DB(), order.ID)
 				if fetchErr != nil {
 					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}

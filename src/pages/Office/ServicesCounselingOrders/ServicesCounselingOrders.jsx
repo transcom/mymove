@@ -202,7 +202,7 @@ const ServicesCounselingOrders = ({
   const [payGradeDropdownOptions, setPayGradeOptions] = useState([]);
   useEffect(() => {
     const fetchGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      setShowLoadingSpinner(true, null);
       try {
         const fetchedRanks = await getPayGradeOptions(order.agency);
         if (fetchedRanks) {

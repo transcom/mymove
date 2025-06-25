@@ -8,7 +8,13 @@ import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import {
+  ORDERS_BRANCH_OPTIONS,
+  ORDERS_PAY_GRADE_TYPE,
+  ORDERS_RANK_OPTIONS,
+  ORDERS_TYPE,
+  ORDERS_TYPE_OPTIONS,
+} from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { MockProviders } from 'testUtils';
 
@@ -357,7 +363,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -437,7 +443,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Scott/);
@@ -486,7 +492,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus AFB/);
@@ -511,7 +517,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/, { exact: false }), 'AFB', { delay: 100 });
@@ -589,7 +595,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -886,7 +892,7 @@ describe('OrdersInfoForm component', () => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
