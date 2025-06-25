@@ -1111,7 +1111,7 @@ integration_test_mtls:
   services:
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+    - name: registry.csde.caci.com/milmove/mymove:e2e-b9e3e814
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
