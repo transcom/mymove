@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
-import { checkIfMoveIsLocked } from '../../../shared/constants';
+import { checkIfMoveIsLockedById } from '../../../shared/constants';
 
 import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/ServicesCounselingTabNav';
 import CustomerHeader from 'components/CustomerHeader';
@@ -77,7 +77,7 @@ const ServicesCounselingMoveInfo = () => {
   const officeUserID = data?.office_user?.id;
 
   useEffect(() => {
-    checkIfMoveIsLocked(move, officeUserID).then(setIsMoveLocked);
+    checkIfMoveIsLockedById(move, officeUserID).then(setIsMoveLocked);
   }, [move, officeUserID]);
 
   useEffect(() => {
