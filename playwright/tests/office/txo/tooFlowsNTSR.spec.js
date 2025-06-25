@@ -29,7 +29,7 @@ test.describe('TOO user', () => {
     // TOO has to enter Service Order Number (SON) for NTS-RELEASE shipments prior to posting to the MTO
 
     // This test covers editing the NTS shipment and prepares it for approval
-    test('TOO can edit a request for Domestic NTS-R Shipment handled by the Prime', async ({ page }) => {
+     test('TOO can edit a request for Domestic NTS-R Shipment handled by the Prime', async ({ page }) => {
       // This test is almost exactly a duplicate of the test in
       // tooFlowsNTS.
       await expect(page.getByText('Approve selected')).toBeDisabled();
@@ -77,12 +77,19 @@ test.describe('TOO user', () => {
       // Storage facility address
       const pickupLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
       const destinationLocationLookup = 'YUMA, AZ 85365 (YUMA)';
+      const countrySearch = 'UNITED STATES';
 
       await page.locator('input[name="storageFacility.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.locator('input[id="storageFacility.address-input"]').fill('30301');
+      await page.locator('input[id="pickupAddress-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const pickupLocator = page.locator('input[id="pickupAddress-input"]');
+      await pickupLocator.click({ timeout: 5000 });
+      await pickupLocator.fill('30301');
       await expect(page.getByText(pickupLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('#facilityLotNumber').fill('1111111');
