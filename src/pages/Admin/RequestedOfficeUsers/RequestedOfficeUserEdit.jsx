@@ -84,15 +84,15 @@ const RequestedOfficeUserEdit = () => {
   const [validationCheck, setValidationCheck] = useState('');
   const [open, setOpen] = useState(false);
   const [userData, setUserData] = useState({});
-  const [checkedPrivileges, setCheckedPrivileges] = useState([]);
+  const [privilegesSelected, setPrivilegesSelected] = useState([]);
   const [isOfficeUserRequestedPrivileges, setIsOfficeUserRequestedPrivileges] = useState(false);
-  const [isRequestAccountPrivilegesFF, setRequestAccountPrivilegesFF] = useState(false);
+  const [isRequestAccountPrivilegesFF, setIsRequestAccountPrivilegesFF] = useState(false);
   const handleClick = () => setOpen(true);
   const handleDialogClose = () => setOpen(false);
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
 
   useEffect(() => {
-    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES).then(setRequestAccountPrivilegesFF);
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.REQUEST_ACCOUNT_PRIVILEGES).then(setIsRequestAccountPrivilegesFF);
   }, []);
 
   // rejects the user with all relevant updates made by admin
@@ -182,7 +182,7 @@ const RequestedOfficeUserEdit = () => {
     const filteredPrivileges = getSupervisorPrivilege(data.privileges);
     if (isRequestAccountPrivilegesFF && filteredPrivileges.length > 0 && isOfficeUserRequestedPrivileges) {
       setUserData(data);
-      setCheckedPrivileges(filteredPrivileges.map((priv) => priv.id));
+      setPrivilegesSelected(filteredPrivileges.map((priv) => priv.id));
       setApproveDialogOpen(true);
       return;
     }
@@ -194,7 +194,7 @@ const RequestedOfficeUserEdit = () => {
     setApproveDialogOpen(false);
     // Only include checked privileges in approval, and only SUPERVISOR privilege
     const filteredPrivileges = getSupervisorPrivilege(userData.privileges);
-    const approvedPrivileges = filteredPrivileges.filter((priv) => checkedPrivileges.includes(priv.id)) || [];
+    const approvedPrivileges = filteredPrivileges.filter((priv) => privilegesSelected.includes(priv.id)) || [];
     await approve({ ...userData, privileges: approvedPrivileges });
   };
 
@@ -279,8 +279,8 @@ const RequestedOfficeUserEdit = () => {
         dialogId="edit-approve-privilege-dialog"
         isOpen={approveDialogOpen}
         privileges={userData?.privileges || []}
-        checkedPrivileges={checkedPrivileges}
-        setCheckedPrivileges={setCheckedPrivileges}
+        privilegesSelected={privilegesSelected}
+        setPrivilegesSelected={setPrivilegesSelected}
         onConfirm={handlePrivilegeConfirm}
         onClose={() => setApproveDialogOpen(false)}
       />

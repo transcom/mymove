@@ -68,7 +68,7 @@ const RequestedOfficeUserActionButtons = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectionReasonCheck, setRejectionReasonCheck] = useState('');
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
-  const [checkedPrivileges, setCheckedPrivileges] = useState([]);
+  const [privilegesSelected, setPrivilegesSelected] = useState([]);
   const navigate = useNavigate();
   const record = useRecordContext();
   const [isRequestAccountPrivilegesFF, setRequestAccountPrivilegesFF] = useState(false);
@@ -135,7 +135,7 @@ const RequestedOfficeUserActionButtons = () => {
   const handlePrivilegeConfirm = async () => {
     setApproveDialogOpen(false);
     const filteredPrivileges = getSupervisorPrivilege(record.privileges);
-    const approvedPrivileges = filteredPrivileges.filter((priv) => checkedPrivileges.includes(priv.id)) || [];
+    const approvedPrivileges = filteredPrivileges.filter((priv) => privilegesSelected.includes(priv.id)) || [];
     await approve({ ...record, privileges: approvedPrivileges });
   };
 
@@ -143,7 +143,7 @@ const RequestedOfficeUserActionButtons = () => {
   const handleOnClickApprove = () => {
     const filteredPrivileges = getSupervisorPrivilege(record.privileges);
     if (isRequestAccountPrivilegesFF && filteredPrivileges.length) {
-      setCheckedPrivileges(filteredPrivileges.map((priv) => priv.id));
+      setPrivilegesSelected(filteredPrivileges.map((priv) => priv.id));
       setApproveDialogOpen(true);
       return;
     }
@@ -194,8 +194,8 @@ const RequestedOfficeUserActionButtons = () => {
         dialogId="show-approve-privilege-dialog"
         isOpen={approveDialogOpen}
         privileges={record?.privileges || []}
-        checkedPrivileges={checkedPrivileges}
-        setCheckedPrivileges={setCheckedPrivileges}
+        privilegesSelected={privilegesSelected}
+        setPrivilegesSelected={setPrivilegesSelected}
         onConfirm={handlePrivilegeConfirm}
         onClose={() => setApproveDialogOpen(false)}
       />
