@@ -1568,42 +1568,44 @@ const ShipmentForm = (props) => {
                       >
                         <h3>PPM Type</h3>
                         <FormGroup>
-                          <Label className={styles.Label} htmlFor="ppmType">
-                            Indicate the PPM Type
-                          </Label>
-                          <Field
-                            as={Radio}
-                            id="isIncentiveBased"
-                            label={getPPMTypeLabel(PPM_TYPES.INCENTIVE_BASED)}
-                            name="ppmType"
-                            value={PPM_TYPES.INCENTIVE_BASED}
-                            checked={(ppmType == null && !isCivilian) || ppmType === PPM_TYPES.INCENTIVE_BASED}
-                            disabled={isCivilian}
-                            className={styles.buttonGroup}
-                            data-testid="isIncentiveBased"
-                          />
-                          <Field
-                            as={Radio}
-                            id="isActualExpense"
-                            label={getPPMTypeLabel(PPM_TYPES.ACTUAL_EXPENSE)}
-                            name="ppmType"
-                            value={PPM_TYPES.ACTUAL_EXPENSE}
-                            checked={(ppmType == null && isCivilian) || ppmType === PPM_TYPES.ACTUAL_EXPENSE}
-                            className={styles.buttonGroup}
-                            data-testid="isActualExpense"
-                          />
-                          {ppmSprFF && (
+                          <div>
+                            <Label className={styles.Label} htmlFor="ppmType">
+                              Indicate the PPM Type
+                            </Label>
                             <Field
                               as={Radio}
-                              id="isSmallPackage"
-                              label={getPPMTypeLabel(PPM_TYPES.SMALL_PACKAGE)}
+                              id="isIncentiveBased"
+                              label={getPPMTypeLabel(PPM_TYPES.INCENTIVE_BASED)}
                               name="ppmType"
-                              value={PPM_TYPES.SMALL_PACKAGE}
-                              checked={ppmType === PPM_TYPES.SMALL_PACKAGE}
+                              value={PPM_TYPES.INCENTIVE_BASED}
+                              checked={(ppmType == null && !isCivilian) || ppmType === PPM_TYPES.INCENTIVE_BASED}
+                              disabled={isCivilian}
                               className={styles.buttonGroup}
-                              data-testid="isSmallPackage"
+                              data-testid="isIncentiveBased"
                             />
-                          )}
+                            <Field
+                              as={Radio}
+                              id="isActualExpense"
+                              label={getPPMTypeLabel(PPM_TYPES.ACTUAL_EXPENSE)}
+                              name="ppmType"
+                              value={PPM_TYPES.ACTUAL_EXPENSE}
+                              checked={(ppmType == null && isCivilian) || ppmType === PPM_TYPES.ACTUAL_EXPENSE}
+                              className={styles.buttonGroup}
+                              data-testid="isActualExpense"
+                            />
+                            {ppmSprFF && (
+                              <Field
+                                as={Radio}
+                                id="isSmallPackage"
+                                label={getPPMTypeLabel(PPM_TYPES.SMALL_PACKAGE)}
+                                name="ppmType"
+                                value={PPM_TYPES.SMALL_PACKAGE}
+                                checked={ppmType === PPM_TYPES.SMALL_PACKAGE}
+                                className={styles.buttonGroup}
+                                data-testid="isSmallPackage"
+                              />
+                            )}
+                          </div>
                         </FormGroup>
                       </SectionWrapper>
                     )}
@@ -1918,6 +1920,15 @@ const ShipmentForm = (props) => {
                 )}
 
                 <div className={`${formStyles.formActions} ${styles.buttonGroup}`}>
+                  <Button
+                    type="button"
+                    secondary
+                    onClick={() => {
+                      navigate(moveDetailsPath);
+                    }}
+                  >
+                    Cancel
+                  </Button>
                   {!isPPM && (
                     <Button
                       data-testid="submitForm"
@@ -1928,15 +1939,6 @@ const ShipmentForm = (props) => {
                       Save
                     </Button>
                   )}
-                  <Button
-                    type="button"
-                    secondary
-                    onClick={() => {
-                      navigate(moveDetailsPath);
-                    }}
-                  >
-                    Cancel
-                  </Button>
                   {isPPM && (
                     <Button
                       data-testid="submitForm"

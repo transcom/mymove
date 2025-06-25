@@ -24,7 +24,7 @@ func (suite *HandlerSuite) TestValidationValidateHander() {
 			HTTPRequest: req,
 			Body:        body,
 		}
-		handler := ValidationCodeValidationCodeHandler{suite.HandlerConfig()}
+		handler := ValidationCodeValidationCodeHandler{suite.NewHandlerConfig()}
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&vcodeops.ValidateCodeOK{}, response)
@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestValidationValidateHander() {
 			Body:        body,
 		}
 
-		handler := ValidationCodeValidationCodeHandler{suite.HandlerConfig()}
+		handler := ValidationCodeValidationCodeHandler{suite.NewHandlerConfig()}
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&vcodeops.ValidateCodeUnauthorized{}, response)
