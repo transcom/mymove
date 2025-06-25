@@ -13,6 +13,7 @@ import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { officeRoles, roleTypes } from 'constants/userRoles';
 import { checkForLockedMovesAndUnlock } from 'services/ghcApi';
+import { generalRoutes } from 'constants/routes';
 
 const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   }
 
   const location = useLocation();
-  if (officeRoles.includes(activeRole) && location.pathname === '/') {
+  if (officeRoles.includes(activeRole) && location.pathname === generalRoutes.HOME_PATH) {
     checkForLockedMovesAndUnlock(officeUser.id);
   }
 

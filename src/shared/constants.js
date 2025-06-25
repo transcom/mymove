@@ -38,6 +38,13 @@ export const checkIfMoveIsLocked = (move) => {
   return move?.status === MOVE_STATUSES.DRAFT && new Date() < new Date(move?.lockExpiresAt);
 };
 
+export const checkIfMoveIsLockedById = async (move, officeUserID) => {
+  const now = new Date();
+  return (
+    move?.lockedByOfficeUserID && officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt)
+  );
+};
+
 export const MOVE_STATUSES = {
   DRAFT: 'DRAFT',
   SUBMITTED: 'SUBMITTED',

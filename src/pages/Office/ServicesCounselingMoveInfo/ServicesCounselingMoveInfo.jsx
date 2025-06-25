@@ -15,7 +15,7 @@ import Inaccessible from 'shared/Inaccessible';
 import { roleTypes } from 'constants/userRoles';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, checkIfMoveIsLockedById } from 'shared/constants';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -79,15 +79,7 @@ const ServicesCounselingMoveInfo = () => {
   const officeUserID = data?.office_user?.id;
 
   useEffect(() => {
-    const checkLock = async () => {
-      const now = new Date();
-      const isLocked =
-        move?.lockedByOfficeUserID &&
-        officeUserID !== move?.lockedByOfficeUserID &&
-        now < new Date(move?.lockExpiresAt);
-      setIsMoveLocked(isLocked);
-    };
-    checkLock();
+    checkIfMoveIsLockedById(move, officeUserID).then(setIsMoveLocked);
   }, [move, officeUserID]);
 
   useEffect(() => {
