@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -24,8 +25,11 @@ import { calculateWeightRequested } from 'hooks/custom';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { PPM_TYPES, PPM_DOCUMENT_TYPES } from 'shared/constants';
 import { PPM_DOCUMENT_STATUS } from 'constants/ppms';
+import { fetchPaymentPacketBlob } from 'services/ghcApi';
+import CompletePPMCloseoutConfirmationModal from 'components/Office/PPM/CompletePPMCloseoutConfirmationModal/CompletePPMCloseoutConfirmationModal';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 
-export const ReviewDocuments = ({ readOnly }) => {
+export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
@@ -42,6 +46,10 @@ export const ReviewDocuments = ({ readOnly }) => {
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
+
+  const [paymentPacketFile, setPaymentPacketFile] = useState(null);
+  const [packetLoading, setPacketLoading] = useState(false);
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
 
   const [allWeightTicketsRejected, setAllWeightTicketsRejected] = useState(false);
   const [allMovingExpensesRejected, setAllMovingExpensesRejected] = useState(false);
@@ -229,6 +237,33 @@ export const ReviewDocuments = ({ readOnly }) => {
     }
   };
 
+  // when a payment packet is previewed in the doc viewer, we can use browser memory to store and view the file using JS "blobs"
+  // this stores the file in the browser memory and then we can point to the blob URL when previewing the file
+  // using React State, we can just load the PDF via the temp URL
+  const handleDownloadPaymentPacket = async () => {
+    try {
+      setPacketLoading(true);
+      setShowLoadingSpinner(true, null);
+      const blob = await fetchPaymentPacketBlob(mtoShipment.ppmShipment.id);
+      const fileUrl = window.URL.createObjectURL(blob);
+
+      setPaymentPacketFile({
+        id: `payment-packet-${shipmentId}`,
+        filename: `payment-packet-${shipmentId}.pdf`,
+        url: fileUrl,
+        createdAt: new Date().toISOString(),
+        rotation: 0,
+        contentType: 'application/pdf',
+      });
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      setServerError(msg);
+    } finally {
+      setPacketLoading(false);
+      setShowLoadingSpinner(false, null);
+    }
+  };
+
   const currentDocumentSet = documentSets[documentSetIndex];
   const updateDocumentSetAllowableWeight = (newWeight) => {
     currentDocumentSet.documentSet.allowableWeight = newWeight;
@@ -243,12 +278,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
 
   const formatDocumentSetDisplay = documentSetIndex + 1;
-
-  let nextButton = 'Continue';
-  if (showOverview) {
-    nextButton = readOnly ? 'Close' : 'PPM Review Complete';
-  }
-
   const currentTripNumber = currentDocumentSet?.tripNumber != null ? currentDocumentSet.tripNumber + 1 : 0;
   const currentDocumentCategoryIndex =
     currentDocumentSet?.categoryIndex != null ? currentDocumentSet.categoryIndex + 1 : 0;
@@ -280,13 +309,28 @@ export const ReviewDocuments = ({ readOnly }) => {
 
   const uploads = showOverview ? getAllUploads() : currentDocumentSet?.uploads;
 
+  const handleSubmitPPMShipmentModal = () => {
+    onContinue();
+  };
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   return (
     <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
+      <CompletePPMCloseoutConfirmationModal
+        isOpen={isConfirmModalVisible}
+        onClose={setIsConfirmModalVisible}
+        onSubmit={handleSubmitPPMShipmentModal}
+      />
       <div className={styles.embed}>
-        <DocumentViewer files={uploads} allowDownload isFileUploading={isFileUploading} />
+        {paymentPacketFile ? (
+          // View the payment packet preview, allowing full unmount of the uploads
+          <DocumentViewer key="packet" files={[paymentPacketFile]} allowDownload isFileUploading={false} />
+        ) : (
+          // View the uploads
+          <DocumentViewer key="docs" files={uploads} allowDownload isFileUploading={isFileUploading} />
+        )}
       </div>
       <DocumentViewerSidebar
         title={readOnly ? 'View documents' : 'Review documents'}
@@ -520,23 +564,81 @@ export const ReviewDocuments = ({ readOnly }) => {
             ))}
         </DocumentViewerSidebar.Content>
         <DocumentViewerSidebar.Footer>
-          <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
-            Back
-          </Button>
-          <Button
-            type="submit"
-            onClick={onContinue}
-            data-testid="reviewDocumentsContinueButton"
-            disabled={
-              (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
-              (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
-            }
-          >
-            {nextButton}
-          </Button>
+          <div className={styles.formActions}>
+            {!paymentPacketFile && (
+              <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
+                Back
+              </Button>
+            )}
+
+            {showOverview && !paymentPacketFile && !readOnly && (
+              <Button
+                onClick={handleDownloadPaymentPacket}
+                disabled={
+                  packetLoading ||
+                  (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
+                  (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
+                }
+              >
+                Preview PPM Payment Packet
+              </Button>
+            )}
+
+            {showOverview && paymentPacketFile && (
+              <>
+                <Button
+                  className="usa-button--secondary"
+                  onClick={() => {
+                    // reset back to document review
+                    setPaymentPacketFile(null);
+                    setDocumentSetIndex(0);
+                    setShowOverview(false);
+                  }}
+                >
+                  Edit PPM
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsConfirmModalVisible(true);
+                  }}
+                >
+                  Complete PPM Review
+                </Button>
+              </>
+            )}
+
+            {!showOverview && (
+              <Button
+                type="submit"
+                onClick={onContinue}
+                data-testid="reviewDocumentsContinueButton"
+                disabled={
+                  (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
+                  (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
+                }
+              >
+                Continue
+              </Button>
+            )}
+
+            {readOnly && showOverview && (
+              <Button type="submit" onClick={onClose} data-testid="closeBtn">
+                Close
+              </Button>
+            )}
+          </div>
         </DocumentViewerSidebar.Footer>
       </DocumentViewerSidebar>
     </div>
   );
 };
-export default ReviewDocuments;
+
+ReviewDocuments.defaultProps = {
+  loadingMessage: null,
+};
+
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(ReviewDocuments);

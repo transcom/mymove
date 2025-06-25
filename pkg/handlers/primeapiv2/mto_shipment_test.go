@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	setupTestData := func(ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		if ubFeatureFlag {
 			expectedFeatureFlag := services.FeatureFlag{
 				Key:   "unaccompanied_baggage",
@@ -317,7 +317,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -373,7 +373,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(&counselorRemarks, createdShipment.CounselorRemarks)
 
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
-		suite.Equal(primev2messages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
+		suite.Equal(primev2messages.PPMShipmentStatusWAITINGONCUSTOMER, createdPPM.Status)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), createdPPM.ExpectedDepartureDate)
 		suite.Equal(&sitExpected, createdPPM.SitExpected)
 		suite.Equal(&sitLocation, createdPPM.SitLocation)
