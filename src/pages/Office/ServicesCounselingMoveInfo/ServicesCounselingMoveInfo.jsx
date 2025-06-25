@@ -79,6 +79,18 @@ const ServicesCounselingMoveInfo = () => {
   const officeUserID = data?.office_user?.id;
 
   useEffect(() => {
+    const checkLock = async () => {
+      const now = new Date();
+      const isLocked =
+        move?.lockedByOfficeUserID &&
+        officeUserID !== move?.lockedByOfficeUserID &&
+        now < new Date(move?.lockExpiresAt);
+      setIsMoveLocked(isLocked);
+    };
+    checkLock();
+  }, [move, officeUserID]);
+
+  useEffect(() => {
     const fetchData = async () => {
       if (
         infoSavedAlert &&
@@ -92,14 +104,10 @@ const ServicesCounselingMoveInfo = () => {
       ) {
         setInfoSavedAlert(null);
       }
-      const now = new Date();
-      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt)) {
-        setIsMoveLocked(true);
-      }
     };
 
     fetchData();
-  }, [infoSavedAlert, location, move, officeUserID]);
+  }, [infoSavedAlert, location]);
 
   useEffect(() => {
     const fetchData = async () => {

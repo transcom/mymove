@@ -51,13 +51,15 @@ const TXOMoveInfo = () => {
   const officeUserID = data?.office_user?.id;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const checkLock = async () => {
       const now = new Date();
-      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt)) {
-        setIsMoveLocked(true);
-      }
+      const isLocked =
+        move?.lockedByOfficeUserID &&
+        officeUserID !== move?.lockedByOfficeUserID &&
+        now < new Date(move?.lockExpiresAt);
+      setIsMoveLocked(isLocked);
     };
-    fetchData();
+    checkLock();
   }, [move, officeUserID]);
 
   const hideNav =
