@@ -1,6 +1,6 @@
 -- B-23853 Beth Grohmann Initial check-in
 
-DROP FUNCTION public.calculate_escalated_price_domestic(uuid, uuid, uuid, uuid, text, date, uuid);
+DROP FUNCTION IF EXISTS public.calculate_escalated_price_domestic(uuid, uuid, uuid, uuid, text, date, uuid);
 
 CREATE OR REPLACE FUNCTION public.calculate_escalated_price_domestic(o_rate_area_id uuid, d_rate_area_id uuid, re_service_id uuid, c_id uuid, service_code text, requested_pickup_date date, address_id uuid)
  RETURNS numeric
@@ -59,6 +59,4 @@ begin
     per_unit_cents := per_unit_cents::numeric / 100.0;
     escalated_price := ROUND(per_unit_cents * escalation_factor, 2);
     return escalated_price;
-end;
-$function$
-;
+end LANGUAGE plpgsql;
