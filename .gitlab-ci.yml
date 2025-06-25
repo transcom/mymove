@@ -1102,9 +1102,9 @@ integration_tests:
 integration_test_mtls:
   stage: pre_checks
   interruptible: true
-  cache:
-    - <<: *yarn_cache
-    - <<: *node_cache
+  # cache:
+  #   - <<: *yarn_cache
+  #   - <<: *node_cache
   tags:
     - $EKS_CLUSTER_RUNNER_TAG
   image: registry.csde.caci.com/milmove/mymove:e2e-b9e3e814
@@ -1239,7 +1239,7 @@ integration_test_mtls:
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
     - |
-      echo "MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)" > .env
+      echo "MIL_MOVE_DOD_CA_CERT=$MIL_MOVE_DOD_CA_CERT" > .env
       echo "MIL_MOVE_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)" >> .env
       echo "MIL_MOVE_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)" >> .env
       echo "CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)" >> .env
@@ -1265,8 +1265,6 @@ integration_test_mtls:
     # - make bin/prime-api-client
     # - echo "Running E2E mTLS tests"
     # - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.output 2>&1
-  needs:
-    - pre_deps_golang
   # artifacts:
   #   paths:
   #     - test-results/
