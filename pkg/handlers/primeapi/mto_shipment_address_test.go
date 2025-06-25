@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 		// Create handler
 		handler := UpdateMTOShipmentAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			mtoshipment.NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater),
 			vLocationServices,
 		}
@@ -302,7 +302,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		response := handler.Handle(params)
 		resp, ok := response.(*mtoshipmentops.UpdateMTOShipmentAddressConflict)
 		suite.True(ok, "Expected response to be of type UpdateMTOShipmentAddressConflict")
-		suite.Contains(*resp.Payload.Detail, "This shipment is approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address")
+		suite.Contains(*resp.Payload.Detail, "This shipment has already been approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address")
 	})
 
 	suite.Run("Fail - Conflict due to updating pickup address on NTS-Release shipment", func() {
@@ -408,7 +408,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		}
 
 		// setting the AK flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -465,7 +465,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		}
 
 		// setting the HI flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",

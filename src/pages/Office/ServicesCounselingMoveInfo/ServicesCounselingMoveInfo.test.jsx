@@ -10,7 +10,6 @@ import { mockPage, ReactQueryWrapper } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -209,11 +208,9 @@ describe('Services Counseling Move Info Container', () => {
     });
   });
 
-  it('should render the Supporting Documents component if the feature flag is enabled', async () => {
+  it('should render the Supporting Documents component', async () => {
     const componentName = 'Supporting Documents';
     const nestedPath = 'supporting-documents';
-
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     renderSCMoveInfo(nestedPath);
 
@@ -223,21 +220,6 @@ describe('Services Counseling Move Info Container', () => {
     // Assert that the mock component is rendered
     await waitFor(() => {
       expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
-    });
-  });
-
-  it('should not render the Supporting Documents component if the feature flag is turned off', async () => {
-    const componentName = 'Supporting Documents';
-    const nestedPath = 'counseling/supporting-documents';
-
-    renderSCMoveInfo(nestedPath);
-
-    // Wait for loading to finish
-    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
-
-    // Assert that the mock component has not been rendered
-    await waitFor(() => {
-      expect(screen.queryByText(`Mock ${componentName} Component`)).not.toBeInTheDocument();
     });
   });
 

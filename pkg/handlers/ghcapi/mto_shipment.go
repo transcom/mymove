@@ -261,6 +261,22 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+			// set payloads for gun safe to nil if FF is turned OFF
+			if !isGunSafeFeatureOn && payload.PpmShipment != nil {
+				payload.PpmShipment.HasGunSafe = nil
+				payload.PpmShipment.GunSafeWeight = nil
+			}
+
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
 			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && mtoShipment.NTSRecordedWeight != nil {
@@ -357,6 +373,22 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 						&ghcmessages.Error{Message: &msg},
 					), err
 				}
+			}
+
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+			// set payloads for gun safe to nil if FF is turned OFF
+			if !isGunSafeFeatureOn && payload.PpmShipment != nil {
+				payload.PpmShipment.HasGunSafe = nil
+				payload.PpmShipment.GunSafeWeight = nil
 			}
 
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
@@ -479,7 +511,7 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			if !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) && !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor) {
 				forbiddenError := apperror.NewForbiddenError("user is not authenticated with an office role")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewDeleteShipmentForbidden(), forbiddenError
@@ -550,7 +582,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("Only TOO role can approve shipments")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewApproveShipmentForbidden(), forbiddenError
@@ -601,6 +633,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			if reweighActiveForMove {
 				for _, shipment := range move.MTOShipments {
 					if (shipment.Status == models.MTOShipmentStatusApproved ||
+						shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 						shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 						shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 						shipment.Reweigh.ID == uuid.Nil &&
@@ -702,7 +735,7 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			// Check user permissions (TOO role required)
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("Only TOO role can approve shipments")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewApproveShipmentsForbidden(), forbiddenError
@@ -822,6 +855,7 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 					for i := range move.MTOShipments {
 						shipment := move.MTOShipments[i]
 						if (shipment.Status == models.MTOShipmentStatusApproved ||
+							shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 							shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 							shipment.Reweigh.ID == uuid.Nil &&
@@ -888,7 +922,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("Only TOO role can Request shipment diversions")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewRequestShipmentDiversionForbidden(), forbiddenError
@@ -971,7 +1005,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("Only TOO role can approve shipment diversions")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewApproveShipmentDiversionForbidden(), forbiddenError
@@ -1073,7 +1107,7 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("Only TOO role can reject shipments")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewRejectShipmentForbidden(), forbiddenError
@@ -1146,7 +1180,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("Only TOO role can Request shipment diversions")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewRequestShipmentCancellationForbidden(), forbiddenError
@@ -1231,7 +1265,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("Only TOO role can Request a shipment reweigh")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewRequestShipmentReweighForbidden(), forbiddenError
@@ -1403,7 +1437,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("is not a TOO")
 				return handleError(forbiddenError)
 			}
@@ -1492,7 +1526,7 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("is not a TOO")
 				return handleError(forbiddenError)
 			}
@@ -1574,7 +1608,7 @@ func (h UpdateSITServiceItemCustomerExpenseHandler) Handle(params shipmentops.Up
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("is not a TOO")
 				return handleError(forbiddenError)
 			}
@@ -1661,7 +1695,7 @@ func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.Create
 				return handleError(err)
 			}
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() || !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) {
 				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
@@ -1695,7 +1729,7 @@ func (h TerminateShipmentHandler) Handle(params shipmentops.CreateTerminationPar
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().Roles.HasRole(roles.RoleTypeContractingOfficer) {
+			if !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeContractingOfficer) {
 				forbiddenError := apperror.NewForbiddenError("user is not authenticated with the authorized office role to terminate shipments")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewCreateTerminationForbidden(), forbiddenError

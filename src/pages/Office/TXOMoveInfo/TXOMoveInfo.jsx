@@ -14,7 +14,6 @@ import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import Inaccessible, { INACCESSIBLE_API_RESPONSE } from 'shared/Inaccessible';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import EvaluationReportView from 'components/Office/EvaluationReportView/EvaluationReportView';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
@@ -61,15 +60,6 @@ const TXOMoveInfo = () => {
     };
     fetchData();
   }, [move, officeUserID]);
-
-  const [supportingDocsFF, setSupportingDocsFF] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
-    };
-    fetchData();
-  }, []);
 
   const hideNav =
     matchPath(
@@ -208,13 +198,11 @@ const TXOMoveInfo = () => {
               />
             }
           />
-          {supportingDocsFF && (
-            <Route
-              path="supporting-documents"
-              end
-              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
-            />
-          )}
+          <Route
+            path="supporting-documents"
+            end
+            element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
+          />
           <Route path="payment-requests/:paymentRequestId" end element={<PaymentRequestReview order={order} />} />
           <Route
             path="payment-requests"

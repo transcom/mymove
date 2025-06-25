@@ -88,7 +88,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -139,7 +139,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -242,6 +242,53 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}
 		suite.Contains(moveIDs, expectedComboMove.ID)
 		suite.Contains(moveIDs, expectedMove.ID)
+	})
+
+	suite.Run("returns moves filtered by ppm_type", func() {
+		// Set up:       Make 2 moves, one with ppm_type 'PARTIAL' and another with 'FULL'
+		//               The 'FULL' type should be filtered out if the origin_duty_location provides services counseling
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			ActiveRole:      officeUser.User.Roles[0],
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		// move with ppm_type 'PARTIAL'
+		partial := models.MovePPMTypePARTIAL
+		movePartial := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: &partial,
+				},
+			},
+		}, nil)
+
+		// move with ppm_type 'FULL' and origin_duty_location that provides services counseling
+		full := models.MovePPMTypeFULL
+		moveFull := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: &full,
+				},
+			},
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+
+		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
+		suite.FatalNoError(err)
+
+		// the returned moves should not include the 'FULL' type because the origin duty location provides services counseling
+		suite.Equal(1, len(moves)) // only the 'PARTIAL' move should be returned
+		suite.Equal(movePartial.Locator, moves[0].Locator)
+		suite.NotEqual(moveFull.Locator, moves[0].Locator)
 	})
 
 	suite.Run("returns moves filtered by service member affiliation", func() {
@@ -681,7 +728,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -701,7 +748,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -745,7 +792,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -765,7 +812,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -793,7 +840,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move2,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 
 		destinationSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -822,7 +869,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -842,7 +889,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -894,7 +941,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -914,7 +961,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -940,7 +987,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -960,7 +1007,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -999,7 +1046,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1019,7 +1066,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		internationalOriginShuttleServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1045,7 +1092,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1065,7 +1112,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		domesticDestinationShuttleServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1091,7 +1138,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1111,7 +1158,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		domesticOriginShuttleServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1150,7 +1197,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1172,7 +1219,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 
 		moves, moveCount, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
@@ -1186,7 +1233,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1208,7 +1255,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 
 		moves, moveCount, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
@@ -1222,7 +1269,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1242,7 +1289,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1285,7 +1332,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1346,7 +1393,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1366,7 +1413,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		destinationSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1409,7 +1456,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1429,7 +1476,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1486,7 +1533,7 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	var orderFetcherTest orderFetcher
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           scUser.User.Roles,
+		ActiveRole:      scUser.User.Roles[0],
 		OfficeUserID:    scUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -1547,7 +1594,7 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1659,7 +1706,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1687,7 +1734,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1733,7 +1780,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1767,7 +1814,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1801,7 +1848,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1860,7 +1907,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1890,7 +1937,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1947,10 +1994,11 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 		},
 	}, nil)
 
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	suite.NotEmpty(officeUser.User.Roles)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           officeUser.User.Roles,
+		ActiveRole:      officeUser.User.Roles[0],
 		OfficeUserID:    officeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -1968,7 +2016,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           officeUser.User.Roles,
+		ActiveRole:      officeUser.User.Roles[0],
 		OfficeUserID:    officeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -2050,7 +2098,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2200,6 +2248,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	suite.Run("Sort by request move date", func() {
 		_, _, session := setupTestData()
+
 		params := services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
@@ -2233,8 +2282,13 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 				},
 			},
 		}, nil)
-
-		shipmentPPM := factory.BuildMTOShipmentWithMove(&movePPM, suite.DB(), nil, nil)
+		shipmentPPM := factory.BuildMTOShipmentWithMove(&movePPM, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
@@ -2288,7 +2342,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2303,9 +2357,21 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			},
 		}, nil)
 		move2 := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		factory.BuildMTOShipmentWithMove(&move2, suite.DB(), nil, nil)
-		move3 := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
-		factory.BuildMTOShipmentWithMove(&move3, suite.DB(), nil, nil)
+		factory.BuildMTOShipmentWithMove(&move2, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
+		move3 := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		factory.BuildMTOShipmentWithMove(&move3, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
 
 		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}
 
@@ -2738,7 +2804,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2824,7 +2890,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           tooOfficeUser.User.Roles,
+		ActiveRole:      tooOfficeUser.User.Roles[0],
 		OfficeUserID:    tooOfficeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -2865,7 +2931,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           tooOfficeUser.User.Roles,
+		ActiveRole:      tooOfficeUser.User.Roles[0],
 		OfficeUserID:    tooOfficeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -2941,7 +3007,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 		hqOfficeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
 		hqSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           hqOfficeUser.User.Roles,
+			ActiveRole:      hqOfficeUser.User.Roles[0],
 			OfficeUserID:    hqOfficeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2957,7 +3023,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 		}, []roles.RoleType{roles.RoleTypeHQ})
 		hqSessionAGFM := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           hqOfficeUserAGFM.User.Roles,
+			ActiveRole:      hqOfficeUserAGFM.User.Roles[0],
 			OfficeUserID:    hqOfficeUserAGFM.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3043,7 +3109,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           tooOfficeUser.User.Roles,
+		ActiveRole:      tooOfficeUser.User.Roles[0],
 		OfficeUserID:    tooOfficeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -3124,7 +3190,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           tooOfficeUser.User.Roles,
+		ActiveRole:      tooOfficeUser.User.Roles[0],
 		OfficeUserID:    tooOfficeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -3144,7 +3210,7 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3210,7 +3276,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3328,7 +3394,7 @@ func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() 
 		}, nil)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3401,7 +3467,7 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3457,7 +3523,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -4072,7 +4138,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		suite.Equal("KKFA", secondaryTransportationOfficeAssignment.TransportationOffice.Gbloc)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

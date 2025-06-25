@@ -646,9 +646,9 @@ func Order(order *models.Order) *ghcmessages.Order {
 		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*order.OrdersTypeDetail)
 	}
 
-	var grade ghcmessages.Grade
+	var grade ghcmessages.OrderPayGrade
 	if order.Grade != nil {
-		grade = ghcmessages.Grade(*order.Grade)
+		grade = ghcmessages.OrderPayGrade(*order.Grade)
 	}
 	//
 	var affiliation ghcmessages.Affiliation
@@ -707,9 +707,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var proGearWeight, proGearWeightSpouse, gunSafeWeight, totalWeight int64
 	proGearWeight = int64(entitlement.ProGearWeight)
 	proGearWeightSpouse = int64(entitlement.ProGearWeightSpouse)
+	gunSafeWeight = int64(entitlement.GunSafeWeight)
 
 	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
 		if *entitlement.DependentsAuthorized {
@@ -768,6 +769,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               sit,
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
@@ -1013,6 +1015,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
@@ -1372,6 +1376,7 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
 		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+		GccMultiplier:         swag.Float32(float32(*ppmCloseout.GCCMultiplier)),
 	}
 
 	return payload
@@ -2246,6 +2251,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusApprovalsRequested ||
 		status == models.MTOShipmentStatusDiversionRequested ||
 		status == models.MTOShipmentStatusCancellationRequested ||
 		status == models.MTOShipmentStatusTerminatedForCause
@@ -2386,6 +2392,9 @@ func attachApprovalRequestTypes(move models.Move) []string {
 		requestTypes = append(requestTypes, string(models.ApprovalRequestAmendedOrders))
 	}
 	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
 		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
 	}
 	for _, shipment := range move.MTOShipments {
@@ -2981,4 +2990,19 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 		}
 	}
 	return nil
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
+	var payloadPayGrades []*ghcmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := ghcmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }
