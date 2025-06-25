@@ -133,11 +133,6 @@ jest.mock('utils/featureFlags', () => ({
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
-
 const useOrdersDocumentQueriesReturnValue = {
   orders: {
     1: {
