@@ -260,9 +260,9 @@ const MoveQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
-  isApprovalRequestTypeFFEnabled,
   activeOfficeID,
   activeGbloc,
+  isApprovalRequestTypeFFEnabled,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();

@@ -543,7 +543,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				}
 			}
 
-			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
+			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole, officeID)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),

@@ -41,7 +41,6 @@ const authReducer = (state = initialState, action = {}) => {
       const {
         payload: { activeRole, office_user: officeUser },
       } = action;
-
       const transportationOfficeAssignments = officeUser?.transportation_office_assignments ?? [];
       const activeOffice =
         state.activeOffice ||
