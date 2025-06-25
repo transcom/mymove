@@ -12,12 +12,13 @@ import (
 	addressop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
 )
 
-func fakeAddressPayload() *internalmessages.Address {
+func fakeAddressPayload(country *models.Country) *internalmessages.Address {
 	return &internalmessages.Address{
 		StreetAddress1: models.StringPointer("An address"),
 		StreetAddress2: models.StringPointer("Apt. 2"),
@@ -27,6 +28,8 @@ func fakeAddressPayload() *internalmessages.Address {
 		PostalCode:     models.StringPointer("40356"),
 		County:         models.StringPointer("JESSAMINE"),
 		IsOconus:       models.BoolPointer(false),
+		CountryID:      strfmt.UUID(country.ID.String()),
+		Country:        payloads.Country(country),
 	}
 }
 

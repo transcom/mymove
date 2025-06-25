@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -67,6 +68,9 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		RoleType: roles.RoleTypeServicesCounselor,
 	})
 
+	country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NoError(err)
+
 	body := &ghcmessages.UpdateCustomerPayload{
 		LastName:  "Newlastname",
 		FirstName: "Newfirstname",
@@ -83,6 +87,8 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		City:           handlers.FmtString("SCHENECTADY"),
 		State:          handlers.FmtString("NY"),
 		PostalCode:     handlers.FmtString("12345"),
+		CountryID:      strfmt.UUID(country.ID.String()),
+		Country:        payloads.Country(&country),
 	}
 	body.CurrentAddress.Address = currentAddress
 
@@ -143,11 +149,16 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 
 		mockAndActivateOktaEndpoints(provider)
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		residentialAddress := ghcmessages.Address{
 			StreetAddress1: handlers.FmtString("123 New Street"),
 			City:           handlers.FmtString("Boston"),
 			State:          handlers.FmtString("MA"),
 			PostalCode:     handlers.FmtString("02110"),
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		backupAddress := ghcmessages.Address{
@@ -155,6 +166,8 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			City:           handlers.FmtString("Boston"),
 			State:          handlers.FmtString("MA"),
 			PostalCode:     handlers.FmtString("02115"),
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		affiliation := ghcmessages.AffiliationARMY

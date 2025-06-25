@@ -6,7 +6,7 @@
 
 // @ts-check
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
-import { appendTimestampToFilenamePrefix, getFutureDate } from '../../utils/playwrightUtility';
+import { appendTimestampToFilenamePrefix } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -104,7 +104,8 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill(getFutureDate());
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
@@ -115,7 +116,14 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-input"]').fill('90210');
+      const countrySearch = 'UNITED STATES';
+      await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+      await deliveryLocator.click({ timeout: 5000 });
+      await deliveryLocator.fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
@@ -273,7 +281,8 @@ test.describe('Services counselor user', () => {
 
     test('is able to add a shipment', async ({ page, scPage }) => {
       test.slow();
-      const pickupDate = getFutureDate();
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      const deliveryDate = new Date().toLocaleDateString('en-US');
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(2);
 
       // add a shipment
@@ -282,11 +291,18 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
-      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-input"]').fill('90210');
+      const countrySearch = 'UNITED STATES';
+      await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+      await deliveryLocator.click({ timeout: 5000 });
+      await deliveryLocator.fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
@@ -324,7 +340,8 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill(getFutureDate());
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
@@ -334,11 +351,18 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-input"]').fill('90210');
+      const countrySearch = 'UNITED STATES';
+      await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+      await deliveryLocator.click({ timeout: 5000 });
+      await deliveryLocator.fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
-      await page.getByLabel('Requested pickup date').fill(getFutureDate());
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
 
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
@@ -350,7 +374,8 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill(getFutureDate());
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
@@ -711,11 +736,10 @@ test.describe('Services counselor user', () => {
 
         await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
         await page.getByTestId('view-edit-orders').click();
-        await page.getByTestId('payGradeInput').selectOption('AVIATION_CADET');
         await page.getByTestId('payGradeInput').selectOption('CIVILIAN_EMPLOYEE');
         await page.getByRole('button', { name: 'Save' }).click();
 
-        await expect(page.getByTestId('payGrade')).toContainText('Civilian Employee');
+        await expect(page.getByTestId('payGrade')).toContainText('CIVILIAN_EMPLOYEE');
         await expect(page.getByText('actual expense reimbursement')).toBeVisible();
         await page.getByRole('button', { name: 'Edit shipment' }).click();
 
@@ -730,7 +754,7 @@ test.describe('Services counselor user', () => {
         const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicketOfficeCivilian();
         await scPage.navigateToMoveUsingMoveSearch(move.locator);
 
-        await expect(page.getByTestId('payGrade')).toContainText('Civilian Employee');
+        await expect(page.getByTestId('payGrade')).toContainText('CIVILIAN EMPLOYEE');
 
         await page.getByText('Review documents').click();
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();

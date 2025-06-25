@@ -67,6 +67,12 @@ const mockMTOShipment = {
       state: 'TX',
       postalCode: '78234',
       usPostRegionCitiesID: '',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     destinationAddress: {
       streetAddress1: '441 SW Rio de la Plata Drive',
@@ -76,6 +82,12 @@ const mockMTOShipment = {
       state: 'WA',
       postalCode: '98421',
       usPostRegionCitiesID: '',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     w2Address: {
       streetAddress1: '11 NE Elm Road',
@@ -86,6 +98,12 @@ const mockMTOShipment = {
       postalCode: '32217',
       county: 'Duval',
       usPostRegionCitiesID: '',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
   },
   createdAt: mtoShipmentCreatedDate.toISOString(),
@@ -103,6 +121,12 @@ const partialPayload = {
     state: 'TX',
     postalCode: '78234',
     usPostRegionCitiesID: '',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
@@ -112,6 +136,12 @@ const partialPayload = {
     state: 'WA',
     postalCode: '98421',
     usPostRegionCitiesID: '',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   secondaryPickupAddress: null,
   secondaryDestinationAddress: null,
@@ -128,6 +158,12 @@ const partialPayload = {
     postalCode: '32217',
     county: 'Duval',
     usPostRegionCitiesID: '',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
 };
 

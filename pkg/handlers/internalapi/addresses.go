@@ -27,6 +27,12 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(rawAddress.UsPostRegionCitiesID.String())
 
+	var countryID uuid.UUID
+
+	if rawAddress.Country != nil {
+		countryID = uuid.FromStringOrNil(rawAddress.Country.ID.String())
+	}
+
 	return &models.Address{
 		StreetAddress1:     *rawAddress.StreetAddress1,
 		StreetAddress2:     rawAddress.StreetAddress2,
@@ -36,6 +42,7 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 		PostalCode:         *rawAddress.PostalCode,
 		County:             rawAddress.County,
 		UsPostRegionCityID: &usPostRegionCitiesID,
+		CountryId:          &countryID,
 	}
 }
 
@@ -48,6 +55,15 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 	a.PostalCode = *payload.PostalCode
 	usPostRegionCitiesID := uuid.FromStringOrNil(payload.UsPostRegionCitiesID.String())
 	a.UsPostRegionCityID = &usPostRegionCitiesID
+
+	var countryID uuid.UUID
+
+	if payload.Country != nil {
+		countryID = uuid.FromStringOrNil(payload.Country.ID.String())
+	}
+
+	a.CountryId = &countryID
+
 	if payload.County == nil {
 		a.County = nil
 	} else {
@@ -149,10 +165,33 @@ func (h SearchCountriesHandler) Handle(params addressop.SearchCountriesParams) m
 				return addressop.NewSearchCountriesForbidden(), noServiceMemberIDErr
 			}
 
-			countries, err := h.CountrySearcher.SearchCountries(appCtx, params.Search)
+			/** Feature Flag - Determines if countries should return US or all countries **/
+			isOconusCityFinder := false
+			oconusFeatureFlagName := "oconus_city_finder"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, oconusFeatureFlagName, map[string]string{})
 			if err != nil {
-				appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
-				return addressop.NewSearchCountriesInternalServerError(), err
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", oconusFeatureFlagName), zap.Error(err))
+			} else {
+				isOconusCityFinder = flag.Match
+			}
+
+			var countries models.Countries
+
+			if !isOconusCityFinder {
+				country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+
+				if err != nil {
+					appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
+					return addressop.NewSearchCountriesInternalServerError(), err
+				}
+
+				countries = append(countries, country)
+			} else {
+				countries, err = h.CountrySearcher.SearchCountries(appCtx, params.Search)
+				if err != nil {
+					appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
+					return addressop.NewSearchCountriesInternalServerError(), err
+				}
 			}
 
 			returnPayload := payloads.Countries(countries)

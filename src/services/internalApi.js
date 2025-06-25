@@ -683,6 +683,10 @@ export async function searchLocationByZipCityState(search, includePOBoxes) {
   return makeInternalRequest('addresses.getLocationByZipCityState', { search, includePOBoxes }, { normalize: false });
 }
 
+export async function searchCountry(search) {
+  return makeInternalRequest('addresses.searchCountries', { search }, { normalize: false });
+}
+
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeInternalRequestRaw(
     'calendar.isDateWeekendHoliday',

@@ -61,6 +61,26 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
+			/** Feature Flag - Country Finder **/
+			featureFlagName := "oconus_city_finder"
+			countrySelectOn := false
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+			} else {
+				countrySelectOn = flag.Match
+			}
+			// If country search is turned off set address country ID to default(US). Need to be set before db update.
+			if !countrySelectOn {
+				country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+				if err != nil {
+					appCtx.Logger().Error("Cannot set default country id for address", zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				payloads.SetMTOShipmentModelWithDefaultCountry(mtoShipment, country)
+			}
+			/*******************/
+
 			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
@@ -184,6 +204,26 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						"When present, the MTO Shipment status must be one of: DRAFT or SUBMITTED.",
 						h.GetTraceIDFromRequest(params.HTTPRequest))), invalidShipmentStatusErr
 			}
+
+			/** Feature Flag - Country Finder**/
+			featureFlagName := "oconus_city_finder"
+			countrySelectOn := false
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+			} else {
+				countrySelectOn = flag.Match
+			}
+			// If country search is turned off set address country ID to default(US). Need to be set before db update.
+			if !countrySelectOn {
+				country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+				if err != nil {
+					appCtx.Logger().Error("Cannot set default country id for address", zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				payloads.SetMTOShipmentModelWithDefaultCountry(mtoShipment, country)
+			}
+			/*******************/
 
 			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "internal")
 

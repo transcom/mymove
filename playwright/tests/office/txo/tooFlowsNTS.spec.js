@@ -6,7 +6,6 @@
 
 // @ts-check
 import { test, expect } from '../../utils/office/officeTest';
-import { getFutureDate } from '../../utils/playwrightUtility';
 
 import { TooFlowPage } from './tooTestFixture';
 
@@ -59,7 +58,8 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       // Basic info
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill(getFutureDate());
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.getByText('Use pickup address').click();
 
       // Storage facility info
@@ -74,11 +74,18 @@ test.describe('TOO user', () => {
 
       // Storage facility address
       const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
+      const countrySearch = 'UNITED STATES';
       await page.locator('input[name="storageFacility.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.locator('input[id="storageFacility.address-input"]').fill('30301');
+      await page.locator('input[id="storageFacility.address-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const storageLocator = page.locator('input[id="storageFacility.address-input"]');
+      await storageLocator.click({ timeout: 5000 });
+      await storageLocator.fill('30301');
       await expect(page.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('#facilityLotNumber').fill('1111111');
@@ -281,6 +288,7 @@ test.describe('TOO user', () => {
       // Storage facility address
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').clear();
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').fill('265 S East St');
+      await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await modal.locator('#facilityLotNumber').clear();
       await modal.locator('#facilityLotNumber').fill('1111111');
 

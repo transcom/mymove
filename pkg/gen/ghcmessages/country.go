@@ -24,6 +24,11 @@ type Country struct {
 	// Enum: [A2 AD AE AF AG AI AL AM AN AO AQ AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CP CR CU CV CW CX CY CZ DE DG DJ DK DM DO DZ EC EE EG ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LV LY MA MD ME MF MG MH MK ML MM MN MO MP MQ MS MT MU MV MW MY MZ NA NC NE NG NL NO NP NU NZ OM PA PF PG PH PL PM PN PR PW PY QA QM QS QU QW QX QZ RO RS RW SA SB SC SD SE SG SH SI SK SM SN SO SR SS ST SV SX SZ TC TD TF TH TJ TK TN TO TR TT TV TW UA UG US UY VA VC VG VI VN VU WS XA XB XC XD XE XG XH XJ XK XL XM XP XQ XR XS XU XV XW YE YT ZA ZM LU EH MC ZW VE WF XT MR MX NF NI NR PE PK PT RE RU SL SY TG TL TM TZ UZ]
 	Code string `json:"code,omitempty"`
 
+	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
+
 	// Country Name
 	// Example: UNITED STATES
 	Name string `json:"name,omitempty"`
@@ -34,6 +39,10 @@ func (m *Country) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -895,6 +904,18 @@ func (m *Country) validateCode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validateCodeEnum("code", "body", m.Code); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Country) validateID(formats strfmt.Registry) error {
+	if swag.IsZero(m.ID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 

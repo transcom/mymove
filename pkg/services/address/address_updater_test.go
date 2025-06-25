@@ -200,25 +200,6 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Equal(false, *updatedAddress.IsOconus)
 	})
 
-	suite.Run("Receives an error when trying to update to an international address", func() {
-		originalAddress := createOriginalAddress()
-		addressUpdater := NewAddressUpdater()
-
-		desiredAddress := &models.Address{
-			ID:             originalAddress.ID,
-			StreetAddress1: streetAddress1,
-			City:           city,
-			State:          state,
-			PostalCode:     postalCode,
-			Country:        &models.Country{Country: "GB"},
-		}
-		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
-
-		suite.Error(err)
-		suite.Nil(updatedAddress)
-		suite.Equal("- the country GB is not supported at this time - only US is allowed", err.Error())
-	})
-
 	suite.Run("Fails to updated an address when us_post_region_city record is not found", func() {
 		originalAddress := createOriginalAddress()
 

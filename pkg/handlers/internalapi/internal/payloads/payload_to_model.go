@@ -15,6 +15,7 @@ import (
 // AddressModel model
 func AddressModel(address *internalmessages.Address) *models.Address {
 	var blankSwaggerID strfmt.UUID
+
 	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
@@ -23,6 +24,18 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+
+	var countryModel *models.Country
+	countryId := uuid.Nil
+
+	if address.Country != nil {
+		countryId = uuid.FromStringOrNil(address.Country.ID.String())
+		countryModel = &models.Country{
+			ID:          countryId,
+			CountryName: address.Country.Name,
+			Country:     address.Country.Code,
+		}
+	}
 
 	return &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
@@ -33,6 +46,8 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		State:              *address.State,
 		PostalCode:         *address.PostalCode,
 		County:             address.County,
+		CountryId:          &countryId,
+		Country:            countryModel,
 		UsPostRegionCityID: &usPostRegionCitiesID,
 	}
 }
@@ -62,6 +77,11 @@ func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress)
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	var countryID uuid.UUID
+
+	if address.Country != nil {
+		countryID = uuid.FromStringOrNil(address.Country.ID.String())
+	}
 
 	addressModel := &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
@@ -72,6 +92,7 @@ func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress)
 		PostalCode:         *address.PostalCode,
 		County:             address.County,
 		UsPostRegionCityID: &usPostRegionCitiesID,
+		CountryId:          &countryID,
 	}
 	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
 		addressModel.StreetAddress1 = *address.StreetAddress1
@@ -178,6 +199,44 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	}
 
 	return model
+}
+
+func SetMTOShipmentModelWithDefaultCountry(mtoShipment *models.MTOShipment, country models.Country) {
+	setCountryID := func(a *models.Address, countryID uuid.UUID) {
+		if a != nil && (a.CountryId.IsNil() || a.CountryId == &uuid.Nil) {
+			a.CountryId = &countryID
+		}
+	}
+	setCountryID(mtoShipment.PickupAddress, country.ID)
+	setCountryID(mtoShipment.SecondaryPickupAddress, country.ID)
+	setCountryID(mtoShipment.TertiaryPickupAddress, country.ID)
+
+	setCountryID(mtoShipment.DestinationAddress, country.ID)
+	setCountryID(mtoShipment.SecondaryDeliveryAddress, country.ID)
+	setCountryID(mtoShipment.TertiaryDeliveryAddress, country.ID)
+
+	if mtoShipment.PPMShipment != nil {
+		setCountryID(mtoShipment.PPMShipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.SecondaryDestinationAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.TertiaryDestinationAddress, country.ID)
+	} else if mtoShipment.BoatShipment != nil {
+		setCountryID(mtoShipment.BoatShipment.Shipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.SecondaryDeliveryAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.TertiaryDeliveryAddress, country.ID)
+	} else if mtoShipment.MobileHome != nil {
+		setCountryID(mtoShipment.MobileHome.Shipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.SecondaryDeliveryAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.TertiaryDeliveryAddress, country.ID)
+	}
 }
 
 // PPMShipmentModelFromCreate model

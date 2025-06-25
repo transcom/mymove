@@ -187,6 +187,36 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 		serviceMember.BackupMailingAddress = nil
 	}
 
+	if serviceMember.ResidentialAddress != nil && serviceMember.ResidentialAddress.CountryId != nil {
+		country, err := FetchCountryByID(db, *serviceMember.ResidentialAddress.CountryId)
+		if err != nil {
+			return ServiceMember{}, err
+		}
+		if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State == "HI" {
+			boolTrueVal := true
+			serviceMember.ResidentialAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+		}
+		serviceMember.ResidentialAddress.Country = &country
+	} else {
+		boolFalseVal := false
+
+		if serviceMember.ResidentialAddress != nil {
+			serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+		}
+	}
+
+	if serviceMember.BackupMailingAddress != nil && serviceMember.BackupMailingAddress.CountryId != nil {
+		country, err := FetchCountryByID(db, *serviceMember.BackupMailingAddress.CountryId)
+		if err != nil {
+			return ServiceMember{}, err
+		}
+
+		serviceMember.BackupMailingAddress.Country = &country
+	}
+
 	return serviceMember, nil
 }
 
@@ -202,6 +232,30 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return ServiceMember{}, err
+	}
+
+	if serviceMember.ResidentialAddress != nil && serviceMember.ResidentialAddress.CountryId != nil {
+		country, err := FetchCountryByID(db, *serviceMember.ResidentialAddress.CountryId)
+		if err != nil {
+			return ServiceMember{}, err
+		}
+		if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State == "HI" {
+			boolTrueVal := true
+			serviceMember.ResidentialAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+		}
+		serviceMember.ResidentialAddress.Country = &country
+	}
+
+	if serviceMember.BackupMailingAddress != nil && serviceMember.BackupMailingAddress.CountryId != nil {
+		country, err := FetchCountryByID(db, *serviceMember.BackupMailingAddress.CountryId)
+		if err != nil {
+			return ServiceMember{}, err
+		}
+
+		serviceMember.BackupMailingAddress.Country = &country
 	}
 
 	return serviceMember, nil
@@ -235,19 +289,18 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 
 			serviceMember.ResidentialAddress.County = county
 
-			// until international moves are supported, we will default the country for created addresses to "US"
-			if serviceMember.ResidentialAddress.Country != nil && serviceMember.ResidentialAddress.Country.Country != "" {
-				country, err := FetchCountryByCode(appCtx.DB(), serviceMember.ResidentialAddress.Country.Country)
+			if serviceMember.ResidentialAddress.CountryId != nil {
+				country, err := FetchCountryByID(appCtx.DB(), *serviceMember.ResidentialAddress.CountryId)
 				if err != nil {
 					return err
 				}
 				serviceMember.ResidentialAddress.Country = &country
-				serviceMember.ResidentialAddress.CountryId = &country.ID
 			} else {
 				country, err := FetchCountryByCode(appCtx.DB(), "US")
 				if err != nil {
 					return err
 				}
+
 				serviceMember.ResidentialAddress.Country = &country
 				serviceMember.ResidentialAddress.CountryId = &country.ID
 			}
@@ -315,19 +368,18 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				return err
 			}
 			serviceMember.BackupMailingAddress.County = county
-			// until international moves are supported, we will default the country for created addresses to "US"
-			if serviceMember.BackupMailingAddress.Country != nil && serviceMember.BackupMailingAddress.Country.Country != "" {
-				country, err := FetchCountryByCode(appCtx.DB(), serviceMember.BackupMailingAddress.Country.Country)
+			if serviceMember.BackupMailingAddress.CountryId != nil {
+				country, err := FetchCountryByID(appCtx.DB(), *serviceMember.BackupMailingAddress.CountryId)
 				if err != nil {
 					return err
 				}
 				serviceMember.BackupMailingAddress.Country = &country
-				serviceMember.BackupMailingAddress.CountryId = &country.ID
 			} else {
 				country, err := FetchCountryByCode(appCtx.DB(), "US")
 				if err != nil {
 					return err
 				}
+
 				serviceMember.BackupMailingAddress.Country = &country
 				serviceMember.BackupMailingAddress.CountryId = &country.ID
 			}

@@ -45,6 +45,8 @@ test.describe('About Your PPM', () => {
         await expect(customerPpmPage.page.locator('input[name="w2Address.streetAddress1"]')).toHaveValue(
           '1819 S Cedar Street',
         );
+        // Verify the W-2 country is present and contains the Country
+        await expect(customerPpmPage.page.getByText('UNITED STATES (US)').nth(2)).toBeVisible();
         // Verify the W-2 location is present and contains City, State, ZIP, and County
         await expect(customerPpmPage.page.getByText('YUMA, AZ 85367 (YUMA)')).toBeVisible();
       });

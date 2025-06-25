@@ -1130,6 +1130,10 @@ export async function searchLocationByZipCityState(search, includePOBoxes) {
   return makeGHCRequest('addresses.getLocationByZipCityState', { search, includePOBoxes }, { normalize: false });
 }
 
+export async function searchCountry(search) {
+  return makeGHCRequest('addresses.searchCountries', { search }, { normalize: false });
+}
+
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeGHCRequestRaw(
     'calendar.isDateWeekendHoliday',

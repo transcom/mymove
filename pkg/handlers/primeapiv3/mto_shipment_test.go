@@ -965,6 +965,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchParams.Body = &primev3messages.UpdateMTOShipment{
 			ShipmentType: primev3messages.MTOShipmentTypePPM,
 		}
+		country := &primev3messages.Country{Code: "US"}
 		// *************************************************************************************
 		// *************************************************************************************
 		// Run with whitespace in destination street 1. Whitespace will be trimmed and seen as
@@ -972,7 +973,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// *************************************************************************************
 		ppmDestinationAddressOptionalStreet1ContainingWhitespaces := primev3messages.PPMDestinationAddress{
 			City:           models.StringPointer("Beverly Hills"),
-			Country:        models.StringPointer("US"),
+			Country:        country,
 			PostalCode:     models.StringPointer("90210"),
 			State:          models.StringPointer("CA"),
 			StreetAddress1: models.StringPointer("  "), //whitespace

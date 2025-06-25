@@ -26,10 +26,12 @@ test.describe('HHG', () => {
 
     // Fill in form to create HHG shipment
     await customerPage.waitForPage.hhgShipment();
-    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred pickup date').fill(pickupDate);
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred delivery date').fill(deliveryDate);
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByTestId('remarks').fill('Grandfather antique clock');
     await customerPage.navigateForward();
@@ -48,11 +50,19 @@ test.describe('HHG', () => {
     const secondaryPickupLocation = 'YUMA, AZ 85364 (YUMA)';
     const deliveryLocation = 'YUMA, AZ 85367 (YUMA)';
     const secondaryDeliveryLocation = 'YUMA, AZ 85366 (YUMA)';
+    const countrySearch = 'UNITED STATES';
 
     const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
-    await page.locator('input[id="pickup.address-input"]').fill('90210');
+
+    await page.locator('input[id="pickup.address-country-input"]').fill(countrySearch);
+    let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const pickupLocator = page.locator('input[id="pickup.address-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('90210');
     await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -60,7 +70,13 @@ test.describe('HHG', () => {
     await pickupAddress.getByText('Yes').click();
     await pickupAddress.getByLabel('Address 1').nth(1).fill('8 Q St');
     await pickupAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryPickup.address-input"]').fill('85364');
+    await page.locator('input[id="secondaryPickup.address-country-input"]').fill(countrySearch);
+    spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const secondPickupLocator = page.locator('input[id="secondaryPickup.address-input"]');
+    await secondPickupLocator.click({ timeout: 5000 });
+    await secondPickupLocator.fill('85364');
     await expect(page.getByText(secondaryPickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -69,7 +85,13 @@ test.describe('HHG', () => {
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
-    await page.locator('input[id="delivery.address-input"]').fill('85367');
+    await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+    spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('85367');
     await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -77,7 +99,13 @@ test.describe('HHG', () => {
     await deliveryAddress.getByText('Yes').nth(1).click();
     await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
     await deliveryAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryDelivery.address-input"]').fill('85366');
+    await page.locator('input[id="secondaryDelivery.address-country-input"]').fill(countrySearch);
+    spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const secondDeliveryLocator = page.locator('input[id="secondaryDelivery.address-input"]');
+    await secondDeliveryLocator.click({ timeout: 5000 });
+    await secondDeliveryLocator.fill('85366');
     await expect(page.getByText(secondaryDeliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
@@ -139,10 +167,12 @@ test.describe('HHG', () => {
 
     // Fill in form to create HHG shipment
     await customerPage.waitForPage.hhgShipment();
-    await page.getByLabel('Preferred pickup date').fill('29 Dec 2025');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred pickup date').fill(pickupDate);
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('29 Dec 2025');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred delivery date').fill(deliveryDate);
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByTestId('remarks').fill('Going to Alaska');
     await customerPage.navigateForward();
@@ -159,9 +189,16 @@ test.describe('HHG', () => {
 
     // Update form (adding pickup and delivery address)
     const pickupLocation = 'LAWTON, OK 73505 (COMANCHE)';
+    const countrySearch = 'UNITED STATES';
     const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('123 Warm St.');
-    await page.locator('input[id="pickup.address-input"]').fill('73505');
+    await page.locator('input[id="pickup.address-country-input"]').fill(countrySearch);
+    let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const pickupLocator = page.locator('input[id="pickup.address-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('73505');
     await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -170,7 +207,13 @@ test.describe('HHG', () => {
     const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('123 Cold Ave.');
-    await page.locator('input[id="delivery.address-input"]').fill('99505');
+    await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+    spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('99505');
     await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();

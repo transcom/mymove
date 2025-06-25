@@ -558,11 +558,19 @@ func inputReportTAC(report *models.PPTASReport, pptasShipment *pptasmessages.PPT
 }
 
 // Country payload
-func Country(country *models.Country) *string {
+func Country(country *models.Country) *pptasmessages.Country {
 	if country == nil {
 		return nil
 	}
-	return &country.Country
+	if *country == (models.Country{}) {
+		return nil
+	}
+	payloadCountry := &pptasmessages.Country{
+		ID:   strfmt.UUID(country.ID.String()),
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+	return payloadCountry
 }
 
 // converts models.Address into payload address
