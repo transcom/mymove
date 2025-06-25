@@ -77,12 +77,19 @@ test.describe('TOO user', () => {
       // Storage facility address
       const pickupLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
       const destinationLocationLookup = 'YUMA, AZ 85365 (YUMA)';
+      const countrySearch = 'UNITED STATES';
 
       await page.locator('input[name="storageFacility.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.locator('input[id="storageFacility.address-input"]').fill('30301');
+      await page.locator('input[id="pickupAddress-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const pickupLocator = page.locator('input[id="storageFacility.address-input"]');
+      await pickupLocator.click({ timeout: 5000 });
+      await pickupLocator.fill('30301');
       await expect(page.getByText(pickupLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('#facilityLotNumber').fill('1111111');
@@ -97,7 +104,12 @@ test.describe('TOO user', () => {
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="delivery.address.streetAddress2"]').clear();
       await page.locator('input[name="delivery.address.streetAddress2"]').fill('Suite 7A');
-      await page.locator('input[id="delivery.address-input"]').fill('85365');
+      spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+      await deliveryLocator.click({ timeout: 5000 });
+      await deliveryLocator.fill('85365');
       await expect(page.getByText(destinationLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
@@ -120,9 +132,10 @@ test.describe('TOO user', () => {
 
       // edit the NTS shipment back to being handled by the GHC Prime contractor
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-      await expect(page.locator('[data-testid="alert"]')).toContainText(
-        'The GHC prime contractor is not handling the shipment.',
-      );
+      const selector = page
+        .locator('[data-testid="alert"]')
+        .getByText(/The GHC prime contractor is not handling the shipment./);
+      await selector.waitFor({ state: 'visible' });
 
       await page.locator('label[for="vendorPrime"]').click();
       await page.locator('[data-testid="submitForm"]').click();
