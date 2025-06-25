@@ -382,7 +382,7 @@ describe('validates form fields and displays error messages', () => {
         // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
         // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
         const hints = document.getElementsByClassName('usa-hint');
-        expect(hints.length).toBe(13);
+        expect(hints.length).toBe(15);
         // verify labelHints are actually 'Optional'
         for (let i = 0; i < hints.length; i += 1) {
           expect(hints[i]).toHaveTextContent('Required');

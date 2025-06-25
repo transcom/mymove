@@ -248,6 +248,7 @@ const ordersPath = generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_A
 
 describe('CreateCustomerForm', () => {
   it('renders without crashing', async () => {
+    searchCountry.mockImplementation(mockSearchPickupCountry);
     render(
       <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
@@ -273,6 +274,7 @@ describe('CreateCustomerForm', () => {
   });
 
   it('renders emplid input if branch is coast guard', async () => {
+    searchCountry.mockImplementation(mockSearchPickupCountry);
     const { getByLabelText } = render(
       <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
@@ -288,6 +290,7 @@ describe('CreateCustomerForm', () => {
   it('payload can have an empty secondary phone number', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
     searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+    searchCountry.mockImplementation(mockSearchPickupCountry);
 
     const { getByLabelText, getByTestId, getByRole } = render(
       <MockProviders initialState={serviceCounselorState}>
@@ -313,7 +316,7 @@ describe('CreateCustomerForm', () => {
 
     const locationBox = screen.getAllByRole('combobox');
     await act(async () => {
-      await userEvent.type(locationBox[1], '2BEVERLY HILLS');
+      await userEvent.type(locationBox[2], 'BEVERLY HILLS');
       const selectedResidentialLocation = await screen.findByText(/90210/);
       await userEvent.click(selectedResidentialLocation);
     });
@@ -324,7 +327,7 @@ describe('CreateCustomerForm', () => {
     );
 
     await act(async () => {
-      await userEvent.type(locationBox[2], 'DRYDEN');
+      await userEvent.type(locationBox[4], 'DRYDEN');
       const selectedBackupLocation = await screen.findByText(/04225/);
       await userEvent.click(selectedBackupLocation);
     });
@@ -404,7 +407,7 @@ describe('CreateCustomerForm', () => {
     const locationBox = screen.getAllByRole('combobox');
 
     await act(async () => {
-      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+      await userEvent.type(locationBox[2], 'BEVERLY HILLS');
       const selectedResidentialLocation = await screen.findByText(/90210/);
       await userEvent.click(selectedResidentialLocation);
     });
@@ -415,7 +418,7 @@ describe('CreateCustomerForm', () => {
     );
 
     await act(async () => {
-      await userEvent.type(locationBox[2], 'DRYDEN');
+      await userEvent.type(locationBox[4], 'DRYDEN');
       const selectedBackupLocation = await screen.findByText(/04225/);
       await userEvent.click(selectedBackupLocation);
     });
@@ -453,6 +456,7 @@ describe('CreateCustomerForm', () => {
   it('validates emplid against a coast guard member', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
     searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+    searchCountry.mockImplementation(mockSearchPickupCountry);
 
     const { getByLabelText, getByTestId, getByRole } = render(
       <MockProviders initialState={serviceCounselorState}>
@@ -483,7 +487,7 @@ describe('CreateCustomerForm', () => {
     const locationBox = screen.getAllByRole('combobox');
 
     await act(async () => {
-      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+      await userEvent.type(locationBox[2], 'BEVERLY HILLS');
       const selectedResidentialLocation = await screen.findByText(/90210/);
       await userEvent.click(selectedResidentialLocation);
     });
@@ -494,7 +498,7 @@ describe('CreateCustomerForm', () => {
     );
 
     await act(async () => {
-      await userEvent.type(locationBox[2], 'DRYDEN');
+      await userEvent.type(locationBox[4], 'DRYDEN');
       const selectedBackupLocation = await screen.findByText(/04225/);
       await userEvent.click(selectedBackupLocation);
     });
