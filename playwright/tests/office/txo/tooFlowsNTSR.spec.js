@@ -29,7 +29,7 @@ test.describe('TOO user', () => {
     // TOO has to enter Service Order Number (SON) for NTS-RELEASE shipments prior to posting to the MTO
 
     // This test covers editing the NTS shipment and prepares it for approval
-     test('TOO can edit a request for Domestic NTS-R Shipment handled by the Prime', async ({ page }) => {
+    test('TOO can edit a request for Domestic NTS-R Shipment handled by the Prime', async ({ page }) => {
       // This test is almost exactly a duplicate of the test in
       // tooFlowsNTS.
       await expect(page.getByText('Approve selected')).toBeDisabled();
@@ -134,9 +134,10 @@ test.describe('TOO user', () => {
 
       // edit the NTS shipment back to being handled by the GHC Prime contractor
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-      await expect(page.locator('[data-testid="alert"]')).toContainText(
-        'The GHC prime contractor is not handling the shipment.',
-      );
+      const selector = page
+        .locator('[data-testid="alert"]')
+        .getByText(/The GHC prime contractor is not handling the shipment./);
+      await selector.waitFor({ state: 'visible' });
 
       await page.locator('label[for="vendorPrime"]').click();
       await page.locator('[data-testid="submitForm"]').click();
