@@ -9,7 +9,7 @@ import { counselingCreateOrder } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({

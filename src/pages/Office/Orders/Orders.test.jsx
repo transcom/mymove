@@ -10,7 +10,7 @@ import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const mockOriginDutyLocation = {
   address: {
