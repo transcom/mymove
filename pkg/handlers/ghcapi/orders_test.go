@@ -3079,7 +3079,7 @@ func (suite *HandlerSuite) TestGetRanksHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		showHandler := GetRanksHandler{handlerConfig}
 		response := showHandler.Handle(params)
@@ -3101,7 +3101,7 @@ func (suite *HandlerSuite) TestGetRanksHandler() {
 			Affiliation: "FAKE",
 		}
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		showHandler := GetRanksHandler{handlerConfig}
 		response := showHandler.Handle(params)
