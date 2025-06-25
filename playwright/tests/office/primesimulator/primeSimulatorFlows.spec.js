@@ -88,7 +88,14 @@ test.describe('Prime simulator user', () => {
     await page.locator('input[name="actualWeight"]').type('{backspace}8000');
     await page.locator('input[name="destinationAddress.streetAddress1"]').fill('142 E Barrel Hoop Circle');
     const locationLookup = 'JOSHUA TREE, CA 92252 (SAN BERNARDINO)';
-    await page.locator('input#destinationAddress-input').fill('92252');
+    const countrySearch = 'UNITED STATES';
+    await page.locator('input[id="destinationAddress-country-input"]').fill(countrySearch);
+    let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const deliveryLocator = page.locator('input[id="destinationAddress-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('92252');
     await expect(page.getByText(locationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -147,7 +154,14 @@ test.describe('Prime simulator user', () => {
     await page.locator('input[name="actualWeight"]').type('{backspace}8000');
     await page.locator('input[name="destinationAddress.streetAddress1"]').fill('142 E Barrel Hoop Circle');
     const locationLookup = 'JOSHUA TREE, CA 92252 (SAN BERNARDINO)';
-    await page.locator('input#destinationAddress-input').fill('92252');
+    const countrySearch = 'UNITED STATES';
+    await page.locator('input[id="destinationAddress-country-input"]').fill(countrySearch);
+    let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const deliveryLocator = page.locator('input[id="destinationAddress-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('92252');
     await expect(page.getByText(locationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
@@ -322,7 +336,7 @@ test.describe('Prime simulator user', () => {
     let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await page.keyboard.press('Enter');
-    const pickupLocator = page.locator('input#pickupAddress-input');
+    const pickupLocator = page.locator('input[id="pickupAddress-input"]');
     await pickupLocator.click({ timeout: 5000 });
     await pickupLocator.fill('90210');
     await expect(page.getByText('BEVERLY HILLS, CA 90210 (LOS ANGELES)', { exact: true })).toBeVisible();
@@ -336,7 +350,7 @@ test.describe('Prime simulator user', () => {
     spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await page.keyboard.press('Enter');
-    const secondaryPickupLocator = page.locator('input#secondaryPickupAddress-input');
+    const secondaryPickupLocator = page.locator('input[id="secondaryPickupAddress-input"]');
     await secondaryPickupLocator.click({ timeout: 5000 });
     await secondaryPickupLocator.fill('60601');
     await expect(page.getByText('CHICAGO, IL 60601 (COOK)', { exact: true })).toBeVisible();
@@ -350,7 +364,7 @@ test.describe('Prime simulator user', () => {
     spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await page.keyboard.press('Enter');
-    const tertiaryPickupLocator = page.locator('input#tertiaryPickupAddress-input');
+    const tertiaryPickupLocator = page.locator('input[id="tertiaryPickupAddress-input"]');
     await tertiaryPickupLocator.click({ timeout: 5000 });
     await tertiaryPickupLocator.fill('60605');
     await expect(page.getByText('CHICAGO, IL 60605 (COOK)', { exact: true })).toBeVisible();
@@ -378,7 +392,14 @@ test.describe('Prime simulator user', () => {
     await page.locator('select[name="shipmentType"]').selectOption('PPM');
 
     await page.locator('input[name="ppmShipment.pickupAddress.streetAddress1"]').fill('123 Main St');
-    await page.locator('input[id="ppmShipment.pickupAddress-input"]').fill('90210');
+    const countrySearch = 'UNITED STATES';
+    await page.locator('input[id="ppmShipment.pickupAddress-country-input"]').fill(countrySearch);
+    let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const pickupLocator = page.locator('input[id="ppmShipment.pickupAddress-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('90210');
 
     await page.getByText('BEVERLY HILLS, CA 90210 (LOS ANGELES)').click();
 
@@ -386,13 +407,26 @@ test.describe('Prime simulator user', () => {
     await page.locator('label[for="has-secondary-pickup"]').click({ force: true });
 
     await page.locator('input[name="ppmShipment.secondaryPickupAddress.streetAddress1"]').fill('789 Elm St');
-    await page.locator('input[id="ppmShipment.secondaryPickupAddress-input"]').fill('60601');
+    await page.locator('input[id="ppmShipment.secondaryPickupAddress-country-input"]').fill(countrySearch);
+    spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const secondaryPickupLocator = page.locator('input[id="ppmShipment.secondaryPickupAddress-input"]');
+    await secondaryPickupLocator.click({ timeout: 5000 });
+    await secondaryPickupLocator.fill('60601');
     await page.getByText('CHICAGO, IL 60601 (COOK)').click();
 
     await page.waitForTimeout(1000); // Wait for 1 second
     await page.locator('label[for="has-tertiary-pickup"]').click({ force: true });
 
     await page.locator('input[name="ppmShipment.tertiaryPickupAddress.streetAddress1"]').fill('789 Elm St');
+    await page.locator('input[id="ppmShipment.tertiaryPickupAddress-country-input"]').fill(countrySearch);
+    spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await page.keyboard.press('Enter');
+    const tertiaryPickupLocator = page.locator('input[id="ppmShipment.tertiaryPickupAddress-input"]');
+    await tertiaryPickupLocator.click({ timeout: 5000 });
+    await tertiaryPickupLocator.fill('60605');
     await page.locator('input[id="ppmShipment.tertiaryPickupAddress-input"]').fill('60605');
     await page.getByText('CHICAGO, IL 60605 (COOK)').click();
 

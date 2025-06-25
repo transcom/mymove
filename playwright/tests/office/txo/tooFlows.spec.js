@@ -527,6 +527,7 @@ test.describe('TOO user', () => {
     test('is able to edit shipment', async ({ page }) => {
       const deliveryDate = new Date().toLocaleDateString('en-US');
       const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
+      const countrySearch = 'UNITED STATES';
 
       // Edit the shipment
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
@@ -536,7 +537,13 @@ test.describe('TOO user', () => {
       await page.locator('#requestedDeliveryDate').blur();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+      await deliveryLocator.click({ timeout: 5000 });
+      await deliveryLocator.fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('[data-testid="submitForm"]').click();
@@ -633,7 +640,8 @@ test.describe('TOO user', () => {
     test('is able to edit shipment for retiree', async ({ page }) => {
       const deliveryDate = new Date().toLocaleDateString('en-US');
       const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
-
+      const countrySearch = 'UNITED STATES';
+      
       // Edit the shipment
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       // fill out some changes on the form
@@ -643,7 +651,13 @@ test.describe('TOO user', () => {
 
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+      await deliveryLocator.click({ timeout: 5000 });
+      await deliveryLocator.fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
