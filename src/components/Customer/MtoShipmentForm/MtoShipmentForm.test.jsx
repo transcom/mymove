@@ -286,7 +286,7 @@ describe('MtoShipmentForm component', () => {
       const contactCheckboxes = screen.getAllByLabelText('Use backup contact');
       expect(contactCheckboxes).toHaveLength(2);
 
-      expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Releasing agent/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBeInTheDocument();
       expect(screen.getByTestId('useBackupContactForReleaseAgent')).toBe(contactCheckboxes[0]);
@@ -306,7 +306,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.queryByTitle('Yes, I have a second delivery address')).not.toBeInTheDocument();
       expect(screen.queryByTitle('No, I do not have a second delivery address')).not.toBeInTheDocument();
 
-      expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Receiving agent/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBeInTheDocument();
       expect(screen.getByTestId('useBackupContactForReceivingAgent')).toBe(contactCheckboxes[1]);
@@ -1464,7 +1464,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByTitle('Yes, I have a second pickup address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second pickup address')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Releasing agent/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText(/First name/)[0]).toHaveAttribute('name', 'pickup.agent.firstName');
       expect(screen.getAllByLabelText(/Last name/)[0]).toHaveAttribute('name', 'pickup.agent.lastName');
       expect(screen.getAllByLabelText(/Phone/)[0]).toHaveAttribute('name', 'pickup.agent.phone');
@@ -1481,7 +1481,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.queryByTitle('Yes, I have a second delivery address')).not.toBeInTheDocument();
       expect(screen.queryByTitle('No, I do not have a second delivery address')).not.toBeInTheDocument();
 
-      expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Receiving agent/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText(/First name/)[1]).toHaveAttribute('name', 'delivery.agent.firstName');
       expect(screen.getAllByLabelText(/Last name/)[1]).toHaveAttribute('name', 'delivery.agent.lastName');
       expect(screen.getAllByLabelText(/Phone/)[1]).toHaveAttribute('name', 'delivery.agent.phone');
@@ -2232,7 +2232,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
       expect(screen.getByLabelText('Location Lookup *', { exact: false })).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Releasing agent/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/First name/)).toHaveAttribute('name', 'pickup.agent.firstName');
       expect(screen.getByLabelText(/Last name/)).toHaveAttribute('name', 'pickup.agent.lastName');
       expect(screen.getByLabelText(/Phone/)).toHaveAttribute('name', 'pickup.agent.phone');
@@ -2347,7 +2347,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Receiving agent/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/First name/)).toHaveAttribute('name', 'delivery.agent.firstName');
       expect(screen.getByLabelText(/Last name/)).toHaveAttribute('name', 'delivery.agent.lastName');
       expect(screen.getByLabelText(/Phone/)).toHaveAttribute('name', 'delivery.agent.phone');

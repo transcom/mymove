@@ -592,23 +592,25 @@ class MtoShipmentForm extends Component {
                               )}
                             />
 
-                            <ContactInfoFields
-                              name="pickup.agent"
-                              legend={<div className={formStyles.legendContent}>Releasing agent</div>}
-                              render={(fields) => (
-                                <>
-                                  <p>Who can let the movers pick up your personal property if you are not there?</p>
-                                  <Checkbox
-                                    data-testid="useBackupContactForReleaseAgent"
-                                    label="Use backup contact"
-                                    name="useBackupContactForReleaseAgent"
-                                    onChange={handleUseBackupContactForReleaseAgentChange}
-                                    id="useBackupContactForReleaseAgent"
-                                  />
-                                  {fields}
-                                </>
-                              )}
-                            />
+                            <fieldset>
+                              <legend className={formStyles.legendContent}>Releasing agent</legend>
+                              <ContactInfoFields
+                                name="pickup.agent"
+                                render={(fields) => (
+                                  <>
+                                    <p>Who can let the movers pick up your personal property if you are not there?</p>
+                                    <Checkbox
+                                      data-testid="useBackupContactForReleaseAgent"
+                                      label="Use backup contact"
+                                      name="useBackupContactForReleaseAgent"
+                                      onChange={handleUseBackupContactForReleaseAgentChange}
+                                      id="useBackupContactForReleaseAgent"
+                                    />
+                                    {fields}
+                                  </>
+                                )}
+                              />
+                            </fieldset>
                           </SectionWrapper>
                         )}
 
@@ -801,23 +803,25 @@ class MtoShipmentForm extends Component {
                               )}
                             </Fieldset>
 
-                            <ContactInfoFields
-                              name="delivery.agent"
-                              legend={<div className={formStyles.legendContent}>Receiving agent</div>}
-                              render={(fields) => (
-                                <>
-                                  <p>Who can take delivery for you if the movers arrive and you are not there?</p>
-                                  <Checkbox
-                                    data-testid="useBackupContactForReceivingAgent"
-                                    label="Use backup contact"
-                                    name="useBackupContactForReceivingAgent"
-                                    onChange={handleUseBackupContactForReceivingAgentChange}
-                                    id="useBackupContactForReceivingAgent"
-                                  />
-                                  {fields}
-                                </>
-                              )}
-                            />
+                            <fieldset>
+                              <legend className={formStyles.legendContent}>Receiving agent</legend>
+                              <ContactInfoFields
+                                name="delivery.agent"
+                                render={(fields) => (
+                                  <>
+                                    <p>Who can take delivery for you if the movers arrive and you are not there?</p>
+                                    <Checkbox
+                                      data-testid="useBackupContactForReceivingAgent"
+                                      label="Use backup contact"
+                                      name="useBackupContactForReceivingAgent"
+                                      onChange={handleUseBackupContactForReceivingAgentChange}
+                                      id="useBackupContactForReceivingAgent"
+                                    />
+                                    {fields}
+                                  </>
+                                )}
+                              />
+                            </fieldset>
                           </SectionWrapper>
                         )}
 
