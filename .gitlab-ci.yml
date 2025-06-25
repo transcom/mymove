@@ -1251,8 +1251,8 @@ integration_test_mtls:
     - echo "MOVE_MIL_DOD_TLS_KEY is- $MOVE_MIL_DOD_TLS_KEY"
     - echo "NO_TLS_ENABLED is- $NO_TLS_ENABLED"
     - make bin/prime-api-client
-    - bin/milmove migrate
-    - bin/milmove serve
+    - /bin/milmove migrate
+    - /bin/milmove serve
     - curl http://milmovelocal:4000
     # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
     # - make bin/prime-api-client
