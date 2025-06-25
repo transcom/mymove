@@ -11,15 +11,14 @@ DO \$\$ DECLARE
 BEGIN
 
     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()
-            AND tablename NOT IN ('country_holidays',
-                                    'addresses',
-                                    'intl_city_countries',
-                                    're_country_prn_divisions',
+            AND tablename NOT IN ('addresses',
+                                    'country_holidays',
                                     'country_weekends',
                                     'gbloc_aors',
                                     'gcc_multipliers',
                                     'ghc_diesel_fuel_prices',
                                     'hhg_allowances',
+                                    'intl_city_countries',
                                     'jppso_region_state_assignments',
                                     'jppso_regions',
                                     'pay_grade_ranks',
@@ -32,6 +31,7 @@ BEGIN
                                     're_contract_years',
                                     're_contracts',
                                     're_countries',
+                                    're_country_prn_divisions',
                                     're_domestic_accessorial_prices',
                                     're_domestic_linehaul_prices',
                                     're_domestic_other_prices',
