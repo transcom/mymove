@@ -3,7 +3,6 @@ package internalapi
 import (
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -15,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 // SubmitPPMShipmentDocumentationHandler is the handler to save a PPMShipment signature and route the PPM shipment to the office
@@ -322,9 +322,10 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 					WithPayload(payload), err
 			}
 
-			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
+			filenameWithTimestamp := utils.AppendTimestampToFilename("AOA.pdf")
+			filenameDisposition := fmt.Sprintf("inline; filename=\"%s\"", filenameWithTimestamp)
 
-			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
+			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filenameDisposition).WithPayload(payload), nil
 		})
 }
 
@@ -383,8 +384,9 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 				return ppmops.NewShowPaymentPacketInternalServerError(), err
 			}
 
-			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+			filenameWithTimestamp := utils.AppendTimestampToFilename("ppm_payment_packet.pdf")
+			filenameDisposition := fmt.Sprintf("inline; filename=\"%s\"", filenameWithTimestamp)
 
-			return ppmops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
+			return ppmops.NewShowPaymentPacketOK().WithContentDisposition(filenameDisposition).WithPayload(payload), nil
 		})
 }

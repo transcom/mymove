@@ -216,13 +216,14 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
-		serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(suite.DB(), testdatagen.Assertions{
+		serviceItemDCRT, err := testdatagen.MakeMTOServiceItemDomesticCrating(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDCRT,
 			},
 			MTOShipment: shipment,
 			Move:        move,
 		})
+		suite.NoError(err)
 
 		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
 			{
@@ -262,9 +263,10 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, []factory.Trait{factory.GetTraitApprovedSITDurationUpdate})
 
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
 		})
+		suite.NoError(err)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.MilApp,
@@ -335,10 +337,19 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			DocumentID:    userUpload.Document.ID,
 		}
 
+		gunSafe := &models.GunSafeWeightTicket{
+			PPMShipmentID: ppmShipment.ID,
+			Document:      userUpload.Document,
+			DocumentID:    userUpload.Document.ID,
+		}
+
 		err := suite.DB().Create(movingExpense)
 		suite.NoError(err)
 
 		err = suite.DB().Create(proGear)
+		suite.NoError(err)
+
+		err = suite.DB().Create(gunSafe)
 		suite.NoError(err)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
@@ -364,6 +375,9 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		suite.Len(actualPPMShipment.ProgearWeightTickets, 1)
 		suite.Len(actualPPMShipment.ProgearWeightTickets[0].Document.UserUploads, 1)
+
+		suite.Len(actualPPMShipment.GunSafeWeightTickets, 1)
+		suite.Len(actualPPMShipment.GunSafeWeightTickets[0].Document.UserUploads, 1)
 	})
 }
 

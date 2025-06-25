@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 // GetPaymentRequestForMoveHandler gets payment requests associated with a move
@@ -305,8 +306,9 @@ func (h PaymentRequestBulkDownloadHandler) Handle(params paymentrequestop.BulkDo
 				logger.Error("Error deleting temp bulk payment request files", zap.Error(err))
 			}
 
-			filename := fmt.Sprintf("inline; filename=\"PaymentRequestBulkPacket-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
+			filenameWithTimestamp := utils.AppendTimestampToFilename("PaymentRequestBulkPacket.pdf")
+			filenameDisposition := fmt.Sprintf("inline; filename=\"%s\"", filenameWithTimestamp)
 
-			return paymentrequestop.NewBulkDownloadOK().WithContentDisposition(filename).WithPayload(payload), nil
+			return paymentrequestop.NewBulkDownloadOK().WithContentDisposition(filenameDisposition).WithPayload(payload), nil
 		})
 }

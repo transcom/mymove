@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			})).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -180,7 +180,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -237,7 +237,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -284,7 +284,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -314,7 +314,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, errors.New("creator failed")).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -351,7 +351,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -386,7 +386,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -434,7 +434,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -481,7 +481,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -527,7 +527,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -611,9 +611,6 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		{
 			Model: models.Address{
 				StreetAddress1: "7 Q St",
-				City:           "Birmingham",
-				State:          "AL",
-				PostalCode:     "90210",
 			},
 		},
 	}, nil)
@@ -697,7 +694,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 		{
 			Model: models.MTOShipment{
-				Status:               models.MTOShipmentStatusSubmitted,
+				Status:               models.MTOShipmentStatusApproved,
 				PrimeEstimatedWeight: &testEstWeight,
 				PrimeActualWeight:    &testActualWeight,
 			},
@@ -745,7 +742,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		)
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -803,7 +800,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		)
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -847,7 +844,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		)
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -905,7 +902,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		)
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -964,7 +961,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		)
 
 		handler := CreatePaymentRequestHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			paymentRequestCreator,
 		}
 

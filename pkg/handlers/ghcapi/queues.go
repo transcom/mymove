@@ -36,7 +36,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
+				(!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) && !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TOO or HQ office role",
 				)
@@ -60,7 +60,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Sort:                    params.Sort,
 				Order:                   params.Order,
 				OrderType:               params.OrderType,
-				TOOAssignedUser:         params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 				CounselingOffice:        params.CounselingOffice,
 			}
 
@@ -96,7 +96,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -105,7 +105,6 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 			officeUser.User.Privileges = privileges
-			officeUser.User.Roles = appCtx.Session().Roles
 
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
@@ -195,7 +194,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO)) {
+				(!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TOO role",
 				)
@@ -204,23 +203,23 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			}
 
 			ListOrderParams := services.ListOrderParams{
-				Branch:                     params.Branch,
-				Locator:                    params.Locator,
-				Edipi:                      params.Edipi,
-				Emplid:                     params.Emplid,
-				CustomerName:               params.CustomerName,
-				DestinationDutyLocation:    params.DestinationDutyLocation,
-				OriginDutyLocation:         params.OriginDutyLocation,
-				AppearedInTOOAt:            handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
-				RequestedMoveDate:          params.RequestedMoveDate,
-				Status:                     params.Status,
-				Page:                       params.Page,
-				PerPage:                    params.PerPage,
-				Sort:                       params.Sort,
-				Order:                      params.Order,
-				OrderType:                  params.OrderType,
-				TOODestinationAssignedUser: params.AssignedTo,
-				CounselingOffice:           params.CounselingOffice,
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				Edipi:                   params.Edipi,
+				Emplid:                  params.Emplid,
+				CustomerName:            params.CustomerName,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				OriginDutyLocation:      params.OriginDutyLocation,
+				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
+				RequestedMoveDate:       params.RequestedMoveDate,
+				Status:                  params.Status,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				OrderType:               params.OrderType,
+				AssignedTo:              params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			var activeRole string
@@ -253,7 +252,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -274,7 +273,6 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 			officeUser.User.Privileges = privileges
-			officeUser.User.Roles = appCtx.Session().Roles
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
 			if privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) {
@@ -403,7 +401,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
+				(!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTIO) && !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TIO or HQ office role",
 				)
@@ -426,7 +424,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Order:                   params.Order,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				OrderType:               params.OrderType,
-				TIOAssignedUser:         params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 				CounselingOffice:        params.CounselingOffice,
 			}
 
@@ -460,7 +458,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				listPaymentRequestParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -469,7 +467,6 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 			officeUser.User.Privileges = privileges
-			officeUser.User.Roles = appCtx.Session().Roles
 
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
@@ -553,6 +550,160 @@ type GetServicesCounselingQueueHandler struct {
 	services.OfficeUserFetcherPop
 }
 
+type GetPPMCloseoutQueueHandler struct {
+	handlers.HandlerConfig
+	services.OrderFetcher
+	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+}
+
+// Handle returns the paginated list of moves for the services counselor
+func (h GetPPMCloseoutQueueHandler) Handle(
+	params queues.GetPPMCloseoutQueueParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			ListOrderParams := services.ListOrderParams{
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				Edipi:                   params.Edipi,
+				Emplid:                  params.Emplid,
+				CustomerName:            params.CustomerName,
+				OriginDutyLocation:      params.OriginDutyLocation,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				OriginGBLOC:             params.OriginGBLOC,
+				RequestedMoveDate:       params.RequestedMoveDate,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				NeedsPPMCloseout:        params.NeedsPPMCloseout,
+				PPMType:                 params.PpmType,
+				CloseoutInitiated:       handlers.FmtDateTimePtrToPopPtr(params.CloseoutInitiated), // ListOrderParam SubmittedAt is for filtering moves, closeout is for filtering ppms
+				CloseoutLocation:        params.CloseoutLocation,
+				OrderType:               params.OrderType,
+				PPMStatus:               params.PpmStatus,
+				CounselingOffice:        params.CounselingOffice,
+				AssignedTo:              params.AssignedTo,
+			}
+
+			var requestedPpmStatus models.PPMShipmentStatus
+			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
+				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
+			} else if len(params.Status) == 0 {
+				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
+			} else {
+				ListOrderParams.Status = params.Status
+			}
+
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+			// for perPage.
+			if params.Page == nil {
+				ListOrderParams.Page = models.Int64Pointer(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetPPMCloseoutQueueInternalServerError(), err
+				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || params.ViewAsGBLOC != nil && slices.Contains(assignedGblocs, *params.ViewAsGBLOC) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+
+			if privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeServicesCounselor,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetPPMCloseoutQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetPPMCloseoutQueueInternalServerError(), err
+			}
+
+			// Fetch the moves
+			moves, count, err := h.ListPPMCloseoutOrders(appCtx, appCtx.Session().OfficeUserID, &ListOrderParams)
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetPPMCloseoutQueueInternalServerError(), err
+			}
+
+			// Convert payload
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, string(appCtx.Session().ActiveRole.RoleType), string(models.QueueTypeCloseout))
+
+			// if the SC/office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetPPMCloseoutQueueInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
+				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
+				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
+				}
+			}
+
+			result := &ghcmessages.QueueMovesResult{
+				Page:       *ListOrderParams.Page,
+				PerPage:    *ListOrderParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
+			}
+
+			return queues.NewGetPPMCloseoutQueueOK().WithPayload(result), nil
+		})
+}
+
 // Handle returns the paginated list of moves for the services counselor
 func (h GetServicesCounselingQueueHandler) Handle(
 	params queues.GetServicesCounselingQueueParams,
@@ -560,7 +711,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
+				(!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor) && !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with Services Counselor or HQ office role",
 				)
@@ -590,7 +741,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,
 				CounselingOffice:        params.CounselingOffice,
-				SCAssignedUser:          params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 			}
 
 			var activeRole string
@@ -631,7 +782,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -640,7 +791,6 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 			officeUser.User.Privileges = privileges
-			officeUser.User.Roles = appCtx.Session().Roles
 
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
@@ -707,7 +857,12 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
+			queueType := string(models.QueueTypeCounseling)
+			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				queueType = string(models.QueueTypeCloseout)
+			}
+
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, queueType)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -1000,7 +1155,7 @@ func (h GetServicesCounselingOriginListHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with an office role",
 				)
@@ -1030,7 +1185,7 @@ func (h GetServicesCounselingOriginListHandler) Handle(
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 

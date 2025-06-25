@@ -154,6 +154,46 @@ export async function deleteProGearWeightTicket({ ppmShipmentId, proGearWeightTi
   );
 }
 
+export async function createGunSafeWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchGunSafeWeightTicket({ ppmShipmentId, gunSafeWeightTicketId, payload, eTag }) {
+  return makeGHCRequest(
+    'ppm.updateGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+      gunSafeWeightTicketId,
+      'If-Match': eTag,
+      updateGunSafeWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteGunSafeWeightTicket({ ppmShipmentId, gunSafeWeightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+      gunSafeWeightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function getPPMCloseout(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getPPMCloseout', { ppmShipmentId }, { normalize: false });
 }
@@ -801,7 +841,7 @@ export async function getServicesCounselingOriginLocations(needsPPMCloseout, vie
   );
 }
 
-export async function getServicesCounselingPPMQueue(
+export async function getPPMCloseoutQueue(
   key,
   {
     sort,
@@ -814,7 +854,7 @@ export async function getServicesCounselingPPMQueue(
     activeRole,
   },
 ) {
-  const operationPath = 'queues.getServicesCounselingQueue';
+  const operationPath = 'queues.getPPMCloseoutQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
     paramFilters[`${filter.id}`] = filter.value;
@@ -1086,8 +1126,8 @@ export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
 }
 
-export async function searchLocationByZipCityState(search) {
-  return makeGHCRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
+export async function searchLocationByZipCityState(search, includePOBoxes) {
+  return makeGHCRequest('addresses.getLocationByZipCityState', { search, includePOBoxes }, { normalize: false });
 }
 
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
@@ -1109,7 +1149,7 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, qu
 }
 
 export async function checkForLockedMovesAndUnlock(officeUserID) {
-  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+  return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
 }
@@ -1161,6 +1201,10 @@ export function getResponseError(errorOrResponse, defaultErrorMessage) {
   }
 
   return detail;
+}
+
+export async function getPayGradeOptions(affiliation) {
+  return makeGHCRequestRaw('orders.getPayGrades', { affiliation });
 }
 
 export async function getRolesPrivilegesOfficeApp() {

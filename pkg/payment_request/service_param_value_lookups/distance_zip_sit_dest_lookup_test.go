@@ -33,6 +33,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				{
 					Model: models.Address{
 						PostalCode: destZip,
+						City:       "AUGUSTA",
 					},
 				},
 			}, nil)
@@ -42,6 +43,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				{
 					Model: models.Address{
 						PostalCode: finalDestZipSameZip3,
+						City:       "AUGUSTA",
 					},
 				},
 			}, nil)
@@ -51,6 +53,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 				{
 					Model: models.Address{
 						PostalCode: finalDestZipDiffZip3,
+						City:       "MONTGOMERY",
 					},
 				},
 			}, nil)
@@ -216,8 +219,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipSITDestLookup{
-			FinalDestinationAddress: models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
-			DestinationAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
+			FinalDestinationAddress: models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, City: mtoServiceItem.MTOShipment.DestinationAddress.City},
+			DestinationAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, City: mtoServiceItem.MTOShipment.DestinationAddress.City},
 		}
 
 		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
@@ -237,8 +240,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipSITDestLookup{
-			FinalDestinationAddress: models.Address{PostalCode: "10001"},
-			DestinationAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
+			FinalDestinationAddress: models.Address{PostalCode: "10001", City: "NEW YORK"},
+			DestinationAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, City: mtoServiceItem.MTOShipment.DestinationAddress.City},
 		}
 
 		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{

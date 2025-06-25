@@ -143,19 +143,25 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 				suite.MustSave(&approvedMove.Orders)
 
 				// update Pickup Address
+				usprcNorfolk, err := models.FindByZipCodeAndCity(suite.DB(), "23503", "Norfolk")
+				suite.NoError(err)
 				oldAddress := *approvedShipment.PickupAddress
 				updateAddress := approvedShipment.PickupAddress
 				updateAddress.City = "Norfolk"
 				updateAddress.State = "VA"
 				updateAddress.PostalCode = "23503"
+				updateAddress.UsPostRegionCityID = &usprcNorfolk.ID
 				suite.MustSave(updateAddress)
 
 				// update Secondary Pickup Address
+				usprcHampton, err := models.FindByZipCodeAndCity(suite.DB(), "23661", "Hampton")
+				suite.NoError(err)
 				oldSecondaryPickupAddress := *approvedShipment.SecondaryPickupAddress
 				updateSecondaryPickupAddress := approvedShipment.SecondaryPickupAddress
 				updateSecondaryPickupAddress.City = "Hampton"
 				updateSecondaryPickupAddress.State = "VA"
 				updateSecondaryPickupAddress.PostalCode = "23661"
+				updateSecondaryPickupAddress.UsPostRegionCityID = &usprcHampton.ID
 				suite.MustSave(updateSecondaryPickupAddress)
 
 				// update move
@@ -521,22 +527,42 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		},
 	}
 
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	suite.Run("has audit history records for service item", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
-
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 				shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 				addressCreator := address.NewAddressCreator()
 				portLocationFetcher := portlocation.NewPortLocationFetcher()
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
-				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 				move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 				serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 					{
@@ -709,6 +735,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	suite.Run("has audit history records for service item dimensions", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
+				testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 				move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -717,16 +744,12 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 						Model:    move,
 						LinkOnly: true,
 					},
+					{
+						Model: models.MTOShipment{
+							PrimeEstimatedWeight: models.PoundPointer(1000),
+						},
+					},
 				}, nil)
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
-				creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 				dimension := models.MTOServiceItemDimension{
 					Type:      models.DimensionTypeItem,
@@ -796,15 +819,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 						LinkOnly: true,
 					},
 				}, nil)
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
-				creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 				reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
@@ -1411,33 +1425,35 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 
 	suite.Run("has audit history records for terminated shipments", func() {
 		for _, tc := range procFeatureFlagCases {
-			terminator := mtoshipment.NewShipmentTermination()
+			suite.Run(tc.testScenario, func() {
+				terminator := mtoshipment.NewShipmentTermination()
 
-			shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-				{
-					Model: models.MTOShipment{
-						Status: models.MTOShipmentStatusApproved,
+				shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							Status: models.MTOShipmentStatusApproved,
+						},
 					},
-				},
-			}, nil)
+				}, nil)
 
-			terminatedShipment, err := terminator.TerminateShipment(suite.AppContextForTest(), shipment.ID, "get in the choppuh")
-			suite.NoError(err)
-			suite.Equal(shipment.ID, terminatedShipment.ID)
+				terminatedShipment, err := terminator.TerminateShipment(suite.AppContextForTest(), shipment.ID, "get in the choppuh")
+				suite.NoError(err)
+				suite.Equal(shipment.ID, terminatedShipment.ID)
 
-			params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
-			moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
-			suite.NotNil(moveHistoryData)
-			suite.NoError(err)
+				params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+				moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
+				suite.NotNil(moveHistoryData)
+				suite.NoError(err)
 
-			terminationFound := false
-			for _, h := range moveHistoryData.AuditHistories {
-				if h.AuditedTable == "mto_shipments" && *h.ObjectID == terminatedShipment.ID {
-					terminationFound = true
-					break
+				terminationFound := false
+				for _, h := range moveHistoryData.AuditHistories {
+					if h.AuditedTable == "mto_shipments" && *h.ObjectID == terminatedShipment.ID {
+						terminationFound = true
+						break
+					}
 				}
-			}
-			suite.True(terminationFound, "AuditHistories contains an AuditHistory with a terminated shipment")
+				suite.True(terminationFound, "AuditHistories contains an AuditHistory with a terminated shipment")
+			})
 		}
 	})
 

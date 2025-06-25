@@ -538,13 +538,13 @@ func (suite *ModelSuite) TestSaveOrder() {
 	order := move.Orders
 
 	postalCode := "30813"
-	newPostalCode := "12345"
+	newPostalCode := "95437"
 	addressCreator := address.NewAddressCreator()
 
 	newAddress := &m.Address{
 		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
+		City:           "FORT BRAGG",
+		State:          "NC",
 		PostalCode:     newPostalCode,
 	}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
@@ -599,12 +599,12 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	order := move.Orders
 
 	postalCode := "30813"
-	newPostalCode := "12345"
+	newPostalCode := "95437"
 	addressCreator := address.NewAddressCreator()
 	newAddress := &m.Address{
 		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
+		City:           "FORT BRAGG",
+		State:          "NC",
 		PostalCode:     newPostalCode,
 	}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)

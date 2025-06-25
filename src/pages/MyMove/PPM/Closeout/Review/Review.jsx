@@ -20,9 +20,11 @@ import {
   formatExpenseItems,
   formatProGearItems,
   formatWeightTicketItems,
+  formatGunSafeItems,
 } from 'utils/ppmCloseout';
 import {
   calculateTotalNetWeightForProGearWeightTickets,
+  calculateTotalNetWeightForGunSafeWeightTickets,
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -35,11 +37,18 @@ import {
   deleteMovingExpense,
   getMTOShipmentsForMove,
   getAllMoves,
+  deleteGunSafeWeightTicket,
 } from 'services/internalApi';
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
-import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
+import {
+  hasCompletedAllWeightTickets,
+  hasCompletedAllExpenses,
+  hasCompletedAllProGear,
+  hasCompletedAllGunSafe,
+} from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
-import { PPM_TYPES } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, PPM_TYPES } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -47,22 +56,22 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal>
+        <Modal onClose={() => onClose(false)}>
           <ModalClose handleClick={() => onClose(false)} />
           <ModalTitle>
             <h3>Delete this?</h3>
           </ModalTitle>
           {deleteDetailMessage}
           <ModalActions>
+            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
+              No, Keep It
+            </Button>
             <Button
               className="usa-button--destructive"
               type="submit"
               onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemNumber)}
             >
               Yes, Delete
-            </Button>
-            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
-              No, Keep It
             </Button>
           </ModalActions>
         </Modal>
@@ -81,6 +90,9 @@ function deleteLineItem(ppmShipmentId, itemType, itemId) {
   if (itemType === 'expense') {
     return deleteMovingExpense(ppmShipmentId, itemId);
   }
+  if (itemType === 'gunSafe') {
+    return deleteGunSafeWeightTicket(ppmShipmentId, itemId);
+  }
   return Promise.reject();
 }
 
@@ -95,15 +107,25 @@ const Review = () => {
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGearWeightTickets;
+  const gunSafe = mtoShipment?.ppmShipment?.gunSafeWeightTickets;
   const expenses = mtoShipment?.ppmShipment?.movingExpenses;
   const dispatch = useDispatch();
+
+  const [gunSafeEnabled, setGunSafeEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
 
   useEffect(() => {
-    const moves = getAllMoves(serviceMemberId);
-    dispatch(updateAllMoves(moves));
+    getAllMoves(serviceMemberId).then((moves) => {
+      dispatch(updateAllMoves(moves));
+    });
   }, [moveId, mtoShipmentId, mtoShipment, dispatch, serviceMemberId]);
 
   if (!mtoShipment) {
@@ -115,6 +137,7 @@ const Review = () => {
     mtoShipmentId,
   });
   const proGearCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, { moveId, mtoShipmentId });
+  const gunSafeCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_GUN_SAFE_PATH, { moveId, mtoShipmentId });
   const expensesCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, { moveId, mtoShipmentId });
   const completePath = generatePath(customerRoutes.SHIPMENT_PPM_COMPLETE_PATH, { moveId, mtoShipmentId });
 
@@ -135,8 +158,9 @@ const Review = () => {
         getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
           dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
         );
-        const moves = getAllMoves(serviceMemberId);
-        dispatch(updateAllMoves(moves));
+        getAllMoves(serviceMemberId).then((moves) => {
+          dispatch(updateAllMoves(moves));
+        });
       })
       .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
       .catch(() => {
@@ -159,10 +183,12 @@ const Review = () => {
 
   const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
 
+  const gunSafeCheck = gunSafeEnabled ? hasCompletedAllGunSafe(gunSafe) : true;
   const canAdvance =
     hasCompletedAllWeightTickets(weightTickets, ppmType) &&
     hasCompletedAllExpenses(expenses) &&
-    hasCompletedAllProGear(proGear);
+    hasCompletedAllProGear(proGear) &&
+    gunSafeCheck;
 
   // PPM-SPRs must have at least one moving expense to advance
   const ppmSmalLPackageCanAdvance = ppmType === PPM_TYPES.SMALL_PACKAGE && expenses && expenses.length < 1;
@@ -175,6 +201,15 @@ const Review = () => {
   );
 
   const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGear);
+
+  const gunSafeContents = formatGunSafeItems(
+    gunSafe,
+    customerRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH,
+    { moveId, mtoShipmentId },
+    handleDelete,
+  );
+
+  const gunSafeTotal = calculateTotalNetWeightForGunSafeWeightTickets(gunSafe);
 
   const expenseContents = formatExpenseItems(
     expenses,
@@ -223,40 +258,58 @@ const Review = () => {
             <SectionWrapper>
               <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Small Package Expenses' : 'Documents'}</h2>
               {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
-                <ReviewItems
-                  className={classnames(styles.reviewItems, 'reviewWeightTickets')}
-                  heading={
-                    <>
-                      <h3>Weight moved</h3>
-                      <span>({formatWeight(weightTicketsTotal)})</span>
-                    </>
-                  }
-                  contents={weightTicketContents}
-                  renderAddButton={() => (
-                    <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
-                      Add More Weight
-                    </Link>
+                <>
+                  <ReviewItems
+                    className={classnames(styles.reviewItems, 'reviewWeightTickets')}
+                    heading={
+                      <>
+                        <h3>Weight moved</h3>
+                        <span>({formatWeight(weightTicketsTotal)})</span>
+                      </>
+                    }
+                    contents={weightTicketContents}
+                    renderAddButton={() => (
+                      <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
+                        Add More Weight
+                      </Link>
+                    )}
+                    emptyMessage="No weight moved documented. At least one trip is required to continue."
+                  />
+                  <ReviewItems
+                    className={classnames(styles.reviewItems, 'progearSection')}
+                    heading={
+                      <>
+                        <h3>Pro-gear</h3>
+                        <span>({formatWeight(proGearTotal)})</span>
+                      </>
+                    }
+                    contents={proGearContents}
+                    renderAddButton={() => (
+                      <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
+                        Add Pro-gear Weight
+                      </Link>
+                    )}
+                    emptyMessage="No pro-gear weight documented."
+                  />
+                  {gunSafeEnabled && (
+                    <ReviewItems
+                      className={classnames(styles.reviewItems, 'gunSafeSection')}
+                      heading={
+                        <>
+                          <h3>Gun safe</h3>
+                          <span>({formatWeight(gunSafeTotal)})</span>
+                        </>
+                      }
+                      contents={gunSafeContents}
+                      renderAddButton={() => (
+                        <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
+                          Add Gun Safe Weight
+                        </Link>
+                      )}
+                      emptyMessage="No gun safe weight documented."
+                    />
                   )}
-                  emptyMessage="No weight moved documented. At least one trip is required to continue."
-                />
-              )}
-              {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
-                <ReviewItems
-                  className={classnames(styles.reviewItems, 'progearSection')}
-                  heading={
-                    <>
-                      <h3>Pro-gear</h3>
-                      <span>({formatWeight(proGearTotal)})</span>
-                    </>
-                  }
-                  contents={proGearContents}
-                  renderAddButton={() => (
-                    <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
-                      Add Pro-gear Weight
-                    </Link>
-                  )}
-                  emptyMessage="No pro-gear weight documented."
-                />
+                </>
               )}
               <ReviewItems
                 className={classnames(styles.reviewItems, 'reviewExpenses')}

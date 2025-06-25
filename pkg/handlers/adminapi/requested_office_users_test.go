@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -144,7 +144,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -301,7 +301,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -326,7 +326,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder = query.NewQueryBuilder()
 		handler = IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -351,7 +351,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder = query.NewQueryBuilder()
 		handler = IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -400,7 +400,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -432,7 +432,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -465,7 +465,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -499,7 +499,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRequestedOfficeUsersHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			NewQueryFilter:                 query.NewQueryFilter,
 			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                  pagination.NewPagination,
@@ -526,6 +526,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		}
 
 		mockRoleFetcher := &mocks.RoleFetcher{}
+		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -543,8 +544,9 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
+			userPrivilegeAssociator,
 			mockRoleFetcher,
 			query.NewQueryFilter,
 		}
@@ -570,6 +572,8 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		).Return(requestedOfficeUser, nil).Once()
 
 		mockRoleFetcher := &mocks.RoleFetcher{}
+		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
+
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -586,8 +590,9 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		).Return(mockRoles, nil)
 
 		handler := GetRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
+			userPrivilegeAssociator,
 			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -614,6 +619,8 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		).Return(models.OfficeUser{}, expectedError).Once()
 
 		mockRoleFetcher := &mocks.RoleFetcher{}
+		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
+
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -630,8 +637,9 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		).Return(mockRoles, nil)
 
 		handler := GetRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
+			userPrivilegeAssociator,
 			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -675,6 +683,18 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		).Return(requestedOfficeUser, nil).Once()
 
 		mockRoleFetcher := &mocks.RoleFetcher{}
+		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
+
+		mockPrivileges := []roles.Privilege{
+			{
+				ID:            uuid.Must(uuid.NewV4()),
+				PrivilegeType: roles.PrivilegeTypeSupervisor,
+				PrivilegeName: "Supervisor",
+				CreatedAt:     time.Now(),
+				UpdatedAt:     time.Now(),
+			},
+		}
+
 		mockRoles := roles.Roles{
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
@@ -690,9 +710,16 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.Anything,
 		).Return(mockRoles, nil)
 
+		userPrivilegeAssociator.On(
+			"FetchPrivilegesForUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockPrivileges, nil)
+
 		handler := GetRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
+			userPrivilegeAssociator,
 			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -738,6 +765,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler_WithSupervisorPrivi
 			mock.Anything,
 		).Return(requestedOfficeUser, nil).Once()
 
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
 		mockPrivileges := []roles.Privilege{
 			{
@@ -758,8 +786,6 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler_WithSupervisorPrivi
 				UpdatedAt: time.Now(),
 			},
 		}
-
-		mockRoleFetcher := mocks.RoleFetcher{}
 		mockRoleFetcher.On(
 			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -773,9 +799,10 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler_WithSupervisorPrivi
 		).Return(mockPrivileges, nil)
 
 		handler := GetRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
-			&mockRoleFetcher,
+			userPrivilegeAssociator,
+			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 
@@ -818,9 +845,9 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 
 		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
 		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
+		mockRoleFetcher := &mocks.RoleFetcher{}
 		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
 		userPrivilegeAssociator := &mocks.UserPrivilegeAssociator{}
-		mockRoleFetcher := &mocks.RoleFetcher{}
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", officeUser.ID), nil)
 		session := &auth.Session{
@@ -833,7 +860,6 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
 			HTTPRequest: req.WithContext(ctx),
 			Body: &adminmessages.RequestedOfficeUserUpdate{
-
 				Roles: []*adminmessages.OfficeUserRole{
 					{
 						Name:     &tooRoleName,
@@ -899,7 +925,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 		).Return(mockRoles, nil)
 
 		handler := UpdateRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,
@@ -1025,7 +1051,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler_WithSupervisorPr
 
 		notificationSender.On("SendNotification", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(nil)
 
-		suiteHandler := suite.HandlerConfig()
+		suiteHandler := suite.NewHandlerConfig()
 		suiteHandler.SetNotificationSender(notificationSender)
 
 		handler := UpdateRequestedOfficeUserHandler{
@@ -1161,7 +1187,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 		).Return(requestedOfficeUser.User.Privileges, nil)
 
 		handler := UpdateRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,
@@ -1298,7 +1324,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		).Return(requestedOfficeUser.User.Privileges, nil)
 
 		handler := UpdateRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,
@@ -1421,7 +1447,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		).Return(requestedOfficeUser.User.Privileges, nil)
 
 		handler := UpdateRequestedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			requestedOfficeUserFetcher,
 			requestedOfficeUserUpdater,
 			userPrivilegeAssociator,

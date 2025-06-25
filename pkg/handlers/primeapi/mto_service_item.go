@@ -29,6 +29,7 @@ var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:                true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalOriginSIT: true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalDestSIT:   true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:                true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:        true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle:   true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:        true,
@@ -184,7 +185,8 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 				"TertiaryDeliveryAddress",
 				"MTOServiceItems.ReService",
 				"StorageFacility.Address",
-				"PPMShipment"}
+				"PPMShipment",
+				"SITDurationUpdates"}
 			serviceItem, err := mtoserviceitem.NewMTOServiceItemFetcher().GetServiceItem(appCtx, mtoServiceItem.ID)
 
 			if err != nil {

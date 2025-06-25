@@ -21,6 +21,7 @@ import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import DeleteDocumentFileConfirmationModal from 'components/ConfirmationModals/DeleteDocumentFileConfirmationModal';
 import { PPM_DOCUMENT_TYPES, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import appendTimestampToFilename from 'utils/fileUpload';
 import { ShipmentShape } from 'types';
 
 const DocumentViewerFileManager = ({
@@ -47,27 +48,15 @@ const DocumentViewerFileManager = ({
   const [isExpandedView, setIsExpandedView] = useState(false);
   const [buttonHeaderText, setButtonHeaderText] = useState(title !== null ? title : 'Manage Documents');
   const [buttonHeaderChevron, setButtonHeaderChevron] = useState('chevron-up');
+  const [pendingIDs, setPendingIDs] = useState(() => new Set());
+
+  // Files are already established from the backend
+  // When appending a new file, it will not be accessible until processing has completed, thus we filter it.
+  // This makes sure we do not show processing files by watching their IDs
+  const visibleFiles = React.useMemo(() => files.filter((f) => !pendingIDs.has(f.id)), [files, pendingIDs]);
 
   const moveId = move?.id;
   const moveCode = move?.locator;
-
-  function appendTimestampToFilename(file) {
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    return new File([file], newFileName, { type: file.type });
-  }
 
   useEffect(() => {
     if (documentType === MOVE_DOCUMENT_TYPE.ORDERS) {
@@ -127,7 +116,6 @@ const DocumentViewerFileManager = ({
       })
       .finally(() => {
         queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
-        setIsFileProcessing(false);
       });
   };
 
@@ -144,7 +132,6 @@ const DocumentViewerFileManager = ({
       })
       .finally(() => {
         queryClient.invalidateQueries([DOCUMENTS, mtoShipment.Id]);
-        setIsFileProcessing(false);
       });
   };
 
@@ -201,7 +188,6 @@ const DocumentViewerFileManager = ({
       })
       .finally(() => {
         queryClient.invalidateQueries([MOVES, moveCode]);
-        setIsFileProcessing(false);
       });
   };
 
@@ -233,23 +219,46 @@ const DocumentViewerFileManager = ({
 
   const handleUpload = async (file) => {
     setIsFileProcessing(true);
+    let uploadPromise;
     if (documentType === MOVE_DOCUMENT_TYPE.ORDERS) {
-      uploadOrders(file);
+      uploadPromise = uploadOrders(file);
     } else if (documentType === MOVE_DOCUMENT_TYPE.AMENDMENTS) {
-      uploadAmdendedOrders(file);
+      uploadPromise = uploadAmdendedOrders(file);
     } else if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
-      uploadSupportingDocuments(file);
+      uploadPromise = uploadSupportingDocuments(file);
     } else if (documentType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET) {
-      handleCreateUpload(file, true);
+      uploadPromise = handleCreateUpload(file, true);
     } else if (documentType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE) {
-      handleCreateUpload(file, false);
+      uploadPromise = handleCreateUpload(file, false);
     } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
-      handleCreateUpload(file, false);
-    }
+      uploadPromise = handleCreateUpload(file, false);
+    } else uploadPromise = handleCreateUpload(file, false);
+    // Upload is complete, but the processing is not.
+    // The next step will be waiting for the antivirus, which we must wait for FilePond
+    // to have its `load` func called. The FileUpload component will not let FilePond call `load`
+    // until the AV is done, hence until we handleChange of the file, we are still processing.
+    // Add this file to the pending IDs
+    uploadPromise.then((upload) => {
+      if (upload?.id) {
+        setPendingIDs((old) => new Set(old).add(upload.id));
+      }
+    });
+    return uploadPromise;
   };
 
-  const handleChange = () => {
-    filePondEl.current?.removeFiles();
+  const handleChange = (err, file) => {
+    // FilePond `load` called
+    // Processing complete
+    setIsFileProcessing(false);
+    if (file?.serverId) {
+      // FilePond provided file can now be removed from "Pending"
+      setPendingIDs((old) => {
+        const next = new Set(old);
+        next.delete(file.serverId);
+        return next;
+      });
+    }
+    filePondEl.current?.removeFile(file.id);
     queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
     setServerError('');
   };
@@ -272,7 +281,11 @@ const DocumentViewerFileManager = ({
         />
       )}
       {!isExpandedView && !useChevron && (
-        <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+        <Button
+          disabled={isFileProcessing || fileUploadRequired}
+          onClick={toggleUploadVisibility}
+          className={styles.fullWidth}
+        >
           {buttonHeaderText}
         </Button>
       )}
@@ -297,7 +310,7 @@ const DocumentViewerFileManager = ({
                 {serverError}
               </Alert>
             )}
-            <UploadsTable className={styles.sectionWrapper} uploads={files} onDelete={openDeleteFileModal} />
+            <UploadsTable className={styles.sectionWrapper} uploads={visibleFiles} onDelete={openDeleteFileModal} />
             <div className={classnames(styles.upload, className)}>
               {fileUploadRequired && (
                 <Alert type="error" id="fileRequiredAlert" data-testid="fileRequiredAlert">
@@ -314,9 +327,11 @@ const DocumentViewerFileManager = ({
               />
               <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
               {!isExpandedView && (
-                <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
-                  Done
-                </Button>
+                <div className={styles.flexRight}>
+                  <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+                    Done
+                  </Button>
+                </div>
               )}
             </div>
           </>

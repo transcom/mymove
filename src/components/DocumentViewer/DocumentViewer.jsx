@@ -19,6 +19,7 @@ import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketD
 import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { hasRotationChanged, toRotatedDegrees, toRotatedPosition } from 'shared/utils';
+import { waitForAvScan } from 'services/internalApi';
 
 const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploading }) => {
   const [selectedFileIndex, selectFile] = useState(0);
@@ -98,11 +99,13 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         case UPLOAD_SCAN_STATUS.PROCESSING:
           setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
           break;
-        case UPLOAD_SCAN_STATUS.CLEAN:
+        case UPLOAD_SCAN_STATUS.NO_THREATS_FOUND:
+        case UPLOAD_SCAN_STATUS.LEGACY_CLEAN:
           setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
           break;
-        case UPLOAD_SCAN_STATUS.INFECTED:
-          setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+        case UPLOAD_SCAN_STATUS.LEGACY_INFECTED:
+        case UPLOAD_SCAN_STATUS.THREATS_FOUND:
+          setFileStatus(UPLOAD_DOC_STATUS.LEGACY_INFECTED);
           break;
         default:
           throw new Error(`unrecognized file status`);
@@ -112,33 +115,27 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
       setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
     }
 
-    let sse;
-    if (selectedFile) {
-      sse = new EventSource(`/ghc/v1/uploads/${selectedFile.id}/status`, { withCredentials: true });
-      sse.onmessage = (event) => {
-        handleFileProcessing(event.data);
-        if (
-          event.data === UPLOAD_SCAN_STATUS.CLEAN ||
-          event.data === UPLOAD_SCAN_STATUS.INFECTED ||
-          event.data === 'Connection closed'
-        ) {
-          sse.close();
-        }
-      };
-      sse.onerror = () => {
-        sse.close();
-        setFileStatus(null);
-      };
+    if (selectedFile && !isFileUploading) {
+      // Begin scanning
+      handleFileProcessing(UPLOAD_SCAN_STATUS.PROCESSING); // Adjust label
+      waitForAvScan(selectedFile.id)
+        .then((status) => {
+          handleFileProcessing(status);
+        })
+        .catch((err) => {
+          if (err.message === UPLOAD_SCAN_STATUS.LEGACY_INFECTED || err.message === UPLOAD_SCAN_STATUS.THREATS_FOUND) {
+            handleFileProcessing(UPLOAD_SCAN_STATUS.THREATS_FOUND);
+          } else {
+            handleFileProcessing(UPLOAD_SCAN_STATUS.CONNECTION_CLOSED);
+          }
+        });
     }
-
-    return () => {
-      sse?.close();
-    };
   }, [selectedFile, isFileUploading, isJustUploadedFile, fileTypeMap]);
   useEffect(() => {
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
       setTimeout(() => {
         setFileStatus(UPLOAD_DOC_STATUS.LOADED);
+        setShowContentError(false);
       }, 2000);
     }
   }, [fileStatus]);
@@ -152,6 +149,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
       case UPLOAD_DOC_STATUS.ESTABLISHING:
         return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEWING;
       case UPLOAD_DOC_STATUS.INFECTED:
+      case UPLOAD_SCAN_STATUS.THREATS_FOUND:
         return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE;
       default:
         if (!currentSelectedFile) {
@@ -162,8 +160,12 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   };
 
   const alertMessage = getStatusMessage(fileStatus, selectedFile);
-  const alertType = fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'error' : 'info';
-  const alertHeading = fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'Ask for a new file' : 'Document Status';
+  const alertType = [UPLOAD_SCAN_STATUS.INFECTED, UPLOAD_SCAN_STATUS.THREATS_FOUND].includes(fileStatus)
+    ? 'error'
+    : 'info';
+  const alertHeading = [UPLOAD_SCAN_STATUS.INFECTED, UPLOAD_SCAN_STATUS.THREATS_FOUND].includes(fileStatus)
+    ? 'Ask for a new file'
+    : 'Document Status';
   if (alertMessage) {
     return (
       <Alert type={alertType} className="usa-width-one-whole" heading={alertHeading} data-testid="documentAlertHeading">
@@ -223,7 +225,14 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
-        <Button data-testid="openMenu" type="button" onClick={openMenu} aria-label="Open menu" unstyled>
+        <Button
+          data-testid="openMenu"
+          type="button"
+          onClick={openMenu}
+          aria-label="Open menu"
+          unstyled
+          style={{ maxWidth: 'fit-content' }}
+        >
           <FontAwesomeIcon icon="th-list" />
         </Button>
         <p title={selectedFilename} className={styles.documentTitle} data-testid="documentTitle">
@@ -239,7 +248,14 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         {paymentRequestId !== undefined ? paymentPacketDownload : null}
       </div>
       {showContentError && (
-        <div className={styles.errorMessage}>If your document does not display, please refresh your browser.</div>
+        <div className={styles.errorMessage}>
+          <Alert type="error" className="usa-width-one-whole" heading={alertHeading} data-testid="documentAlertHeading">
+            <span data-testid="documentAlertMessage">
+              MilMove encountered an issue during the scanning phase of this document. Contact the service member. Ask
+              them to upload a photo of the original document instead.
+            </span>
+          </Alert>
+        </div>
       )}
       <Content
         fileType={fileType.current}
@@ -250,6 +266,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         saveRotation={saveRotation}
         onError={onContentError}
       />
+
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}

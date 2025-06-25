@@ -12,9 +12,10 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import CertificationText from 'components/CertificationText/CertificationText';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const SubmitMoveForm = (props) => {
-  const { initialValues, onPrint, onSubmit, onBack, certificationText, error, currentUser } = props;
+  const { initialValues, onPrint, onSubmit, onBack, certificationText, error, currentUser, isMoveLocked } = props;
   const [hasReadTheAgreement, setHasReadTheAgreement] = useState(false);
   const [hasAcknowledgedTerms, sethasAcknowledgedTerms] = useState(false);
 
@@ -68,6 +69,7 @@ const SubmitMoveForm = (props) => {
               <CertificationText certificationText={certificationText} onScrollToBottom={setHasReadTheAgreement} />
 
               <FormGroup>
+                {requiredAsteriskMessage}
                 <FormControlLabel
                   className={!hasReadTheAgreement ? styles.disabledCheckbox : ''}
                   control={
@@ -83,7 +85,11 @@ const SubmitMoveForm = (props) => {
                       }}
                     />
                   }
-                  label="I have read and understand the agreement as shown above"
+                  label={
+                    <>
+                      <RequiredAsterisk /> I have read and understand the agreement as shown above
+                    </>
+                  }
                 />
               </FormGroup>
 
@@ -98,7 +104,11 @@ const SubmitMoveForm = (props) => {
                   <Grid row gap>
                     <Grid tablet={{ col: 'fill' }} className={styles.dateGrid}>
                       <FormGroup error={showSignatureError}>
-                        <Label htmlFor="signature">SIGNATURE</Label>
+                        <Label htmlFor="signature">
+                          <span>
+                            SIGNATURE <RequiredAsterisk />
+                          </span>
+                        </Label>
                         {showSignatureError && (
                           <ErrorMessage id="signature-error-message">{errors.signature}</ErrorMessage>
                         )}
@@ -154,7 +164,7 @@ const SubmitMoveForm = (props) => {
               <WizardNavigation
                 isLastPage
                 onBackClick={onBack}
-                disableNext={!isValid || isSubmitting || !dirty || !hasAcknowledgedTerms}
+                disableNext={!isValid || isSubmitting || !dirty || !hasAcknowledgedTerms || isMoveLocked}
                 onNextClick={handleSubmit}
               />
             </div>

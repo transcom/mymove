@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 		HTTPRequest: request,
 		CustomerID:  strfmt.UUID(customer.ID.String()),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := GetCustomerHandler{
 		handlerConfig,
 		customerservice.NewCustomerFetcher(),
@@ -72,15 +72,16 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		FirstName: "Newfirstname",
 		Phone:     handlers.FmtString("223-455-3399"),
 		BackupContact: &ghcmessages.BackupContact{
-			Name:  handlers.FmtString("New Backup Contact"),
-			Phone: handlers.FmtString("445-345-1212"),
-			Email: handlers.FmtString("newbackup@mail.com"),
+			FirstName: handlers.FmtString("New"),
+			LastName:  handlers.FmtString("Backup Contact"),
+			Phone:     handlers.FmtString("445-345-1212"),
+			Email:     handlers.FmtString("newbackup@mail.com"),
 		},
 	}
 	currentAddress := ghcmessages.Address{
 		StreetAddress1: handlers.FmtString("123 New Street"),
-		City:           handlers.FmtString("Newcity"),
-		State:          handlers.FmtString("MA"),
+		City:           handlers.FmtString("SCHENECTADY"),
+		State:          handlers.FmtString("NY"),
 		PostalCode:     handlers.FmtString("12345"),
 	}
 	body.CurrentAddress.Address = currentAddress
@@ -94,7 +95,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		IfMatch:     etag.GenerateEtag(customer.UpdatedAt),
 		Body:        body,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := UpdateCustomerHandler{
 		handlerConfig,
 		customerservice.NewCustomerUpdater(),
@@ -122,7 +123,8 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	suite.Equal(body.CurrentAddress.City, updateCustomerPayload.CurrentAddress.City)
 	suite.Equal(body.CurrentAddress.PostalCode, updateCustomerPayload.CurrentAddress.PostalCode)
 	suite.Equal(body.CurrentAddress.State, updateCustomerPayload.CurrentAddress.State)
-	suite.Equal(body.BackupContact.Name, updateCustomerPayload.BackupContact.Name)
+	suite.Equal(body.BackupContact.FirstName, updateCustomerPayload.BackupContact.FirstName)
+	suite.Equal(body.BackupContact.LastName, updateCustomerPayload.BackupContact.LastName)
 	suite.Equal(body.BackupContact.Phone, updateCustomerPayload.BackupContact.Phone)
 	suite.Equal(body.BackupContact.Email, updateCustomerPayload.BackupContact.Email)
 }
@@ -143,14 +145,14 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 
 		residentialAddress := ghcmessages.Address{
 			StreetAddress1: handlers.FmtString("123 New Street"),
-			City:           handlers.FmtString("Newcity"),
+			City:           handlers.FmtString("Boston"),
 			State:          handlers.FmtString("MA"),
 			PostalCode:     handlers.FmtString("02110"),
 		}
 
 		backupAddress := ghcmessages.Address{
 			StreetAddress1: handlers.FmtString("123 Backup Street"),
-			City:           handlers.FmtString("Backupcity"),
+			City:           handlers.FmtString("Boston"),
 			State:          handlers.FmtString("MA"),
 			PostalCode:     handlers.FmtString("02115"),
 		}
@@ -166,9 +168,10 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Emplid:        handlers.FmtString(""),
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
-				Name:  handlers.FmtString("New Backup Contact"),
-				Phone: handlers.FmtString("445-345-1212"),
-				Email: handlers.FmtString("newbackup@mail.com"),
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
 			},
 			ResidentialAddress: struct {
 				ghcmessages.Address
@@ -194,7 +197,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			HTTPRequest: request,
 			Body:        body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateCustomerWithOktaOptionHandler{
 			handlerConfig,
 		}
@@ -214,7 +217,8 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		suite.Equal(body.LastName, createdCustomerPayload.LastName)
 		suite.Equal(body.Edipi, *createdCustomerPayload.Edipi)
 		suite.Equal(body.Telephone, createdCustomerPayload.Telephone)
-		suite.Equal(body.BackupContact.Name, createdCustomerPayload.BackupContact.Name)
+		suite.Equal(body.BackupContact.FirstName, createdCustomerPayload.BackupContact.FirstName)
+		suite.Equal(body.BackupContact.LastName, createdCustomerPayload.BackupContact.LastName)
 		suite.Equal(body.BackupContact.Phone, createdCustomerPayload.BackupContact.Phone)
 		suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
 		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
@@ -259,9 +263,10 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Emplid:        handlers.FmtString(""),
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
-				Name:  handlers.FmtString("New Backup Contact"),
-				Phone: handlers.FmtString("445-345-1212"),
-				Email: handlers.FmtString("newbackup@mail.com"),
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
 			},
 			ResidentialAddress: struct {
 				ghcmessages.Address
@@ -286,7 +291,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			HTTPRequest: request,
 			Body:        body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateCustomerWithOktaOptionHandler{
 			handlerConfig,
 		}
@@ -343,9 +348,10 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Edipi:         *customer.Edipi,
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
-				Name:  handlers.FmtString("New Backup Contact"),
-				Phone: handlers.FmtString("445-345-1212"),
-				Email: handlers.FmtString("newbackup@mail.com"),
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
 			},
 			ResidentialAddress: struct {
 				ghcmessages.Address
@@ -371,7 +377,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			HTTPRequest: request,
 			Body:        body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateCustomerWithOktaOptionHandler{
 			handlerConfig,
 		}
@@ -416,9 +422,10 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Edipi:         "1234567890",
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
-				Name:  handlers.FmtString("New Backup Contact"),
-				Phone: handlers.FmtString("445-345-1212"),
-				Email: handlers.FmtString("newbackup@mail.com"),
+				FirstName: handlers.FmtString("New"),
+				LastName:  handlers.FmtString("Backup Contact"),
+				Phone:     handlers.FmtString("445-345-1212"),
+				Email:     handlers.FmtString("newbackup@mail.com"),
 			},
 			ResidentialAddress: struct {
 				ghcmessages.Address
@@ -444,7 +451,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			HTTPRequest: request,
 			Body:        body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CreateCustomerWithOktaOptionHandler{
 			handlerConfig,
 		}
@@ -472,7 +479,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		mockSearcher := mocks.CustomerSearcher{}
 
 		handler := SearchCustomersHandler{
-			HandlerConfig:    suite.HandlerConfig(),
+			HandlerConfig:    suite.NewHandlerConfig(),
 			CustomerSearcher: &mockSearcher,
 		}
 		mockSearcher.On("SearchCustomers",
@@ -507,7 +514,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		mockSearcher := mocks.CustomerSearcher{}
 
 		handler := SearchCustomersHandler{
-			HandlerConfig:    suite.HandlerConfig(),
+			HandlerConfig:    suite.NewHandlerConfig(),
 			CustomerSearcher: &mockSearcher,
 		}
 		mockSearcher.On("SearchCustomers",

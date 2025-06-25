@@ -129,7 +129,11 @@ definitions:
         $ref: '#/definitions/ServiceMemberPayload'
       office_user:
         $ref: '#/definitions/OfficeUser'
-      roles:
+      activeRole:
+        $ref: '#/definitions/Role'
+        # The user can sign in without a role, they'll just have no permissions
+        x-nullable: true
+      inactiveRoles:
         type: array
         items:
           $ref: '#/definitions/Role'
@@ -216,6 +220,10 @@ definitions:
         readOnly: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
+      lockExpiresAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
@@ -277,6 +285,19 @@ definitions:
         type: boolean
       weight:
         description: Weight of the vehicle not including the pro-gear.
+        type: integer
+        minimum: 0
+  UpdateGunSafeWeightTicket:
+    type: object
+    properties:
+      description:
+        description: Describes the gun safe that was moved.
+        type: string
+      hasWeightTickets:
+        description: Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.
+        type: boolean
+      weight:
+        description: Weight of the vehicle not including the gun safe.
         type: integer
         minimum: 0
   MoveDocumentPayload:
@@ -611,6 +632,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/VLocation.yaml'
+  Countries:
+    type: array
+    items:
+      $ref: 'definitions/Country.yaml'
   OfficeUser:
     type: object
     properties:
@@ -699,7 +724,7 @@ definitions:
         $ref: 'definitions/Affiliation.yaml'
         title: Branch
       grade:
-        $ref: '#/definitions/OrderPayGrade'
+        $ref: 'definitions/OrderPayGrade.yaml'
         title: Grade
       first_name:
         type: string
@@ -794,7 +819,7 @@ definitions:
       affiliation:
         $ref: 'definitions/Affiliation.yaml'
       grade:
-        $ref: '#/definitions/OrderPayGrade'
+        $ref: 'definitions/OrderPayGrade.yaml'
       first_name:
         type: string
         example: John
@@ -949,11 +974,16 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      name:
+      firstName:
         type: string
-        example: Susan Smith
+        example: Susan
         x-nullable: true
-        title: Name
+        title: First Name
+      lastName:
+        type: string
+        example: Smith
+        x-nullable: true
+        title: Last Name
       telephone:
         type: string
         format: telephone
@@ -980,7 +1010,8 @@ definitions:
       - id
       - created_at
       - updated_at
-      - name
+      - firstName
+      - lastName
       - email
       - permission
   BackupContactPermission:
@@ -997,11 +1028,16 @@ definitions:
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:
-      name:
+      firstName:
         type: string
-        example: Susan Smith
+        example: Susan
         x-nullable: true
-        title: Name
+        title: First Name
+      lastName:
+        type: string
+        example: Smith
+        x-nullable: true
+        title: Last Name
       telephone:
         type: string
         format: telephone
@@ -1019,15 +1055,20 @@ definitions:
       permission:
         $ref: '#/definitions/BackupContactPermission'
     required:
-      - name
+      - firstName
+      - lastName
       - email
       - permission
   UpdateServiceMemberBackupContactPayload:
     type: object
     properties:
-      name:
+      firstName:
         type: string
-        example: Susan Smith
+        example: Susan
+        x-nullable: true
+      lastName:
+        type: string
+        example: Smith
         x-nullable: true
       telephone:
         type: string
@@ -1045,7 +1086,8 @@ definitions:
       permission:
         $ref: '#/definitions/BackupContactPermission'
     required:
-      - name
+      - firstName
+      - lastName
       - email
       - permission
   IndexServiceMemberBackupContactsPayload:
@@ -1161,70 +1203,6 @@ definitions:
         type: string
         format: uuid
         title: The service member this document belongs to
-  OrderPayGrade:
-    type: string
-    x-nullable: true
-    title: Grade
-    enum:
-      - E_1
-      - E_2
-      - E_3
-      - E_4
-      - E_5
-      - E_6
-      - E_7
-      - E_8
-      - E_9
-      - E_9_SPECIAL_SENIOR_ENLISTED
-      - O_1_ACADEMY_GRADUATE
-      - O_2
-      - O_3
-      - O_4
-      - O_5
-      - O_6
-      - O_7
-      - O_8
-      - O_9
-      - O_10
-      - W_1
-      - W_2
-      - W_3
-      - W_4
-      - W_5
-      - AVIATION_CADET
-      - CIVILIAN_EMPLOYEE
-      - ACADEMY_CADET
-      - MIDSHIPMAN
-    x-display-value:
-      E_1: E-1
-      E_2: E-2
-      E_3: E-3
-      E_4: E-4
-      E_5: E-5
-      E_6: E-6
-      E_7: E-7
-      E_8: E-8
-      E_9: E-9
-      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
-      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
-      O_2: O-2
-      O_3: O-3
-      O_4: O-4
-      O_5: O-5
-      O_6: O-6
-      O_7: O-7
-      O_8: O-8
-      O_9: O-9
-      O_10: O-10
-      W_1: W-1
-      W_2: W-2
-      W_3: W-3
-      W_4: W-4
-      W_5: W-5
-      AVIATION_CADET: Aviation Cadet
-      CIVILIAN_EMPLOYEE: Civilian Employee
-      ACADEMY_CADET: Service Academy Cadet
-      MIDSHIPMAN: Midshipman
   DeptIndicator:
     type: string
     x-nullable: true
@@ -1352,7 +1330,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       grade:
-        $ref: '#/definitions/OrderPayGrade'
+        $ref: 'definitions/OrderPayGrade.yaml'
       issue_date:
         type: string
         description: The date and time that these orders were cut.
@@ -1461,6 +1439,12 @@ definitions:
         x-nullable: true
         description: >
           Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade
+      gunSafeWeight:
+        type: integer
+        example: 500
+        x-nullable: true
+        description: >
+          Gun safe weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade
       accompanied_tour:
         type: boolean
         example: true
@@ -1551,7 +1535,7 @@ definitions:
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
       grade:
-        $ref: '#/definitions/OrderPayGrade'
+        $ref: 'definitions/OrderPayGrade.yaml'
       origin_duty_location_id:
         type: string
         format: uuid
@@ -1630,7 +1614,7 @@ definitions:
         example: '5789345789'
         title: 'DoD ID #'
       grade:
-        $ref: '#/definitions/OrderPayGrade'
+        $ref: 'definitions/OrderPayGrade.yaml'
       orders_type:
         $ref: 'definitions/OrdersType.yaml'
       move_date:
@@ -1741,11 +1725,15 @@ definitions:
       pro_gear_weight_spouse:
         type: integer
         example: 500
+      gun_safe_weight:
+        type: integer
+        example: 500
     required:
       - total_weight_self
       - total_weight_self_plus_dependents
       - pro_gear_weight
       - pro_gear_weight_spouse
+      - gun_safe_weight
   IndexEntitlements:
     type: object
     additionalProperties:
@@ -2460,6 +2448,10 @@ definitions:
         type: string
         readOnly: true
       primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      lockExpiresAt:
         format: date-time
         type: string
         readOnly: true
@@ -3483,6 +3475,44 @@ paths:
           description: not found
         '500':
           description: server error
+  /uploads/{uploadID}/status:
+    get:
+      summary: Returns status of an upload
+      description: Returns status of an upload based on antivirus run
+      operationId: getUploadStatus
+      produces:
+        - text/event-stream
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to return status of
+      responses:
+        '200':
+          description: the requested upload status
+          schema:
+            type: string
+            enum:
+              - INFECTED
+              - CLEAN
+              - NO_THREATS_FOUND
+              - THREATS_FOUND
+              - PROCESSING
+            readOnly: true
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
   /uploads:
     post:
       summary: Create a new upload
@@ -4120,6 +4150,116 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    post:
+      summary: Creates a gun safe weight ticket
+      description: |
+        Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a
+        gun safe weight ticket. Data should be filled in using the patch endpoint.
+      operationId: createGunSafeWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: returns a new gun safe weight ticket object
+          schema:
+            $ref: 'definitions/GunSafeWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}:
+    patch:
+      summary: Updates a gun safe weight ticket
+      description: |
+        Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable
+        because some have to be set by the customer, e.g. the description.
+      operationId: updateGunSafeWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ifMatch.yaml'
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - $ref: 'parameters/gunSafeWeightTicketId.yaml'
+        - in: body
+          name: updateGunSafeWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateGunSafeWeightTicket'
+      responses:
+        '200':
+          description: returns an updated gun safe weight ticket object
+          schema:
+            $ref: 'definitions/GunSafeWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a gun safe weight line item by ID
+      description: |
+        Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted
+        records are not visible in milmove, but are kept in the database.
+      operationId: deleteGunSafeWeightTicket
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - description: ID of the gun safe weight ticket to be deleted
+          in: path
+          name: gunSafeWeightTicketId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the gun safe weight ticket
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves/{moveId}/uploadAdditionalDocuments:
     patch:
       summary: Patch the additional documents for a given move
@@ -4564,11 +4704,46 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
             $ref: '#/definitions/VLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /addresses/countries:
+    get:
+      summary: Returns the countries matching the search query
+      description: >
+        Search API using search string that returns list of countries containing its code and name.
+        Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will
+        do an exact match on country code and also do a starts with match on country name. If not 2 characters search
+        will do a starts with match on country name.
+      operationId: searchCountries
+      tags:
+        - addresses
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: false
+          description: Search string for countries
+      responses:
+        '200':
+          description: countries matching the search query
+          schema:
+            $ref: '#/definitions/Countries'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -4838,6 +5013,28 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  '/paygrade/{affiliation}':
+    get:
+      summary: Get pay grades for specified affiliation
+      description: Get pay grades for specified affiliation
+      operationId: getPayGrades
+      tags:
+        - orders
+      parameters:
+        - $ref: 'definitions/AffiliationParam.yaml'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: 'definitions/OrderPayGrades.yaml'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 responses:
   InvalidRequest:
     description: The request payload is invalid.

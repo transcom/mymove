@@ -9,19 +9,26 @@ import * as Yup from 'yup';
 import styles from './EditSitEntryDateModal.module.scss';
 
 import DataTableWrapper from 'components/DataTableWrapper/index';
-import DataTable from 'components/DataTable/index';
 import { DatePickerInput } from 'components/form/fields';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 // datepickers that show the SIT entry dates - the previous one will be disabled
 const SitEntryDateForm = ({ onChange }) => (
-  <DatePickerInput name="sitEntryDate" label="" id="sitEntryDate" onChange={onChange} />
+  <DatePickerInput
+    name="sitEntryDate"
+    label="New SIT entry date "
+    id="sitEntryDate"
+    onChange={onChange}
+    showRequiredAsterisk
+    required
+  />
 );
 const DisabledSitEntryDateForm = () => (
-  <DatePickerInput disabled name="prevSitEntryDate" label="" id="prevSitEntryDate" />
+  <DatePickerInput disabled name="prevSitEntryDate" label="Original SIT entry date" id="prevSitEntryDate" />
 );
 
 /**
@@ -37,19 +44,22 @@ const SitDatePickers = () => {
   };
 
   return (
-    <div className={styles.tableContainer}>
-      <DataTable
-        columnHeaders={[`Original SIT entry date`, `New SIT entry date`]}
-        dataRow={[
-          <DisabledSitEntryDateForm />,
-          <SitEntryDateForm
-            onChange={(value) => {
-              handleSitStartDateChange(value);
-            }}
-          />,
-        ]}
-        custClass={styles.currentLocation}
-      />
+    <div className={styles.formContainer}>
+      {requiredAsteriskMessage}
+      <div className={styles.formField}>
+        <DisabledSitEntryDateForm />
+      </div>
+      <div className={styles.formField}>
+        <SitEntryDateForm
+          id="new-sit-entry-date"
+          name="newSITEntryDate"
+          required
+          aria-required="true"
+          onChange={(value) => {
+            handleSitStartDateChange(value);
+          }}
+        />
+      </div>
     </div>
   );
 };
@@ -94,7 +104,7 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.UpdateSitEntryDateModal}>
+        <Modal className={styles.UpdateSitEntryDateModal} onClose={() => onClose()}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h2>Edit SIT Entry Date</h2>
@@ -118,15 +128,29 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
                     >
                       <SitDatePickers serviceItem={serviceItem} />
                     </DataTableWrapper>
-                    <Label htmlFor="officeRemarks">Office remarks</Label>
+                    <Label htmlFor="officeRemarks" required>
+                      <span required>
+                        Office remarks <RequiredAsterisk />
+                      </span>
+                    </Label>
                     <Field
                       as={Textarea}
                       data-testid="officeRemarks"
                       label="No"
                       name="officeRemarks"
                       id="officeRemarks"
+                      required
                     />
                     <ModalActions>
+                      <Button
+                        type="button"
+                        onClick={() => onClose()}
+                        data-testid="modalCancelButton"
+                        secondary
+                        className={styles.CancelButton}
+                      >
+                        Cancel
+                      </Button>
                       <Button
                         type="submit"
                         disabled={
@@ -137,15 +161,6 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
                         onClick={() => setTouched({ sitEntryDate: true, officeRemarks: true })}
                       >
                         Save
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onClose()}
-                        data-testid="modalCancelButton"
-                        outline
-                        className={styles.CancelButton}
-                      >
-                        Cancel
                       </Button>
                     </ModalActions>
                   </Form>

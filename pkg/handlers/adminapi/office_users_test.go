@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			NewQueryFilter:        query.NewQueryFilter,
 			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
 			NewPagination:         pagination.NewPagination,
@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			NewQueryFilter:        query.NewQueryFilter,
 			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
 			NewPagination:         pagination.NewPagination,
@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
 			NewQueryFilter:        query.NewQueryFilter,
 			NewPagination:         pagination.NewPagination,
@@ -214,7 +214,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			NewQueryFilter:        query.NewQueryFilter,
 			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
 			NewPagination:         pagination.NewPagination,
@@ -314,7 +314,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 
 		// queryBuilder := query.NewQueryBuilder()
 		handler := GetOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserFetcherPop(),
 			query.NewQueryFilter,
 		}
@@ -338,7 +338,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 
 		// queryBuilder := query.NewQueryBuilder()
 		handler := GetOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserFetcherPop(),
 			query.NewQueryFilter,
 		}
@@ -401,7 +401,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -449,7 +449,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -505,7 +505,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -540,7 +540,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -587,7 +587,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -624,7 +624,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -673,7 +673,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			mock.Anything,
 		).Return(nil, expectedError, nil).Once()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeUserCreator,
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -725,7 +725,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		).Return(nil, expectedError, nil).Once()
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			userRoleAssociator,
@@ -774,7 +774,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -823,7 +823,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -839,7 +839,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	setupHandler := func(updater services.OfficeUserUpdater, revoker services.UserSessionRevocation) UpdateOfficeUserHandler {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		return UpdateOfficeUserHandler{
 			handlerConfig,
 			updater,
@@ -1172,7 +1172,7 @@ func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := DeleteOfficeUserHandler{
-			HandlerConfig:     suite.HandlerConfig(),
+			HandlerConfig:     suite.NewHandlerConfig(),
 			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
 		}
 
@@ -1212,7 +1212,7 @@ func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := DeleteOfficeUserHandler{
-			HandlerConfig:     suite.HandlerConfig(),
+			HandlerConfig:     suite.NewHandlerConfig(),
 			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
 		}
 
@@ -1239,13 +1239,69 @@ func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := DeleteOfficeUserHandler{
-			HandlerConfig:     suite.HandlerConfig(),
+			HandlerConfig:     suite.NewHandlerConfig(),
 			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
 		}
 
 		response := handler.Handle(params)
 
 		suite.IsType(&officeuserop.DeleteOfficeUserUnauthorized{}, response)
+	})
+
+	suite.Run("get an error when the office user has a move assigned", func() {
+		status := models.OfficeUserStatusAPPROVED
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					Status: &status,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		_ = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					TOOTaskOrderAssignedID: &officeUser.ID,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+		}, nil)
+		userID := officeUser.UserID
+		officeUserID := officeUser.ID
+
+		params := officeuserop.DeleteOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/office_users/%s", officeUserID)),
+			OfficeUserID: *handlers.FmtUUID(officeUserID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteOfficeUserHandler{
+			HandlerConfig:     suite.NewHandlerConfig(),
+			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.DeleteOfficeUserConflict{}, response)
+
+		var dbUser models.User
+		err := suite.DB().Where("id = ?", userID).First(&dbUser)
+		suite.NoError(err)
+		suite.NotEmpty(dbUser, "User should remain after failed delete.")
+
+		var dbOfficeUser models.OfficeUser
+		err = suite.DB().Where("user_id = ?", userID).First(&dbOfficeUser)
+		suite.NoError(err)
+		suite.NotEmpty(dbOfficeUser, "OfficeUser should remain after failed delete.")
+
+		// .All does not return a sql no rows error, so we will verify that the struct is empty
+		var userRoles []models.UsersRoles
+		err = suite.DB().Where("user_id = ?", userID).All(&userRoles)
+		suite.NoError(err)
+		suite.NotEmpty(userRoles, "Roles should remain after failed delete.")
 	})
 }
 
@@ -1259,7 +1315,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 		}
 
 		handler := GetRolesPrivilegesHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			rolesservice.NewRolesFetcher(),
 		}
 
@@ -1324,7 +1380,18 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 		// Test:				GetOfficeUserHandler, Fetcher - Unauthorized
 		// Set up:				Run request when NOT logged in as admin user
 		// Expected Outcome:	Unauthorized response returned, no data
-		requestUser := factory.BuildOfficeUser(nil, nil, nil)
+		requestUser := factory.BuildOfficeUser(nil, []factory.Customization{
+			{
+				Model: models.User{
+					Roles: roles.Roles{
+						{
+							RoleType: roles.RoleTypeTOO,
+						},
+					},
+				},
+			},
+		}, nil)
+
 		req := httptest.NewRequest("GET", "/office_users/roles-privileges", nil) // We never need to set a body this endpoint
 
 		params := officeuserop.GetRolesPrivilegesParams{
@@ -1332,7 +1399,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 		}
 
 		handler := GetRolesPrivilegesHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			rolesservice.NewRolesFetcher(),
 		}
 
@@ -1353,7 +1420,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 		mockFetcher.On("FetchRolesPrivileges", mock.AnythingOfType("*appcontext.appContext")).Return(nil, sql.ErrNoRows)
 
 		handler := GetRolesPrivilegesHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockFetcher,
 		}
 
@@ -1374,7 +1441,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 		mockFetcher.On("FetchRolesPrivileges", mock.AnythingOfType("*appcontext.appContext")).Return(nil, apperror.InternalServerError{})
 
 		handler := GetRolesPrivilegesHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockFetcher,
 		}
 

@@ -143,6 +143,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
 		HasGunSafe:                     ppmShipment.HasGunSafe,
 		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
+		GunSafeWeightTickets:           GunSafeWeightTickets(storer, ppmShipment.GunSafeWeightTickets),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
@@ -687,6 +688,54 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 	return payload
 }
 
+// GunsafeWeightTickets sets up a GunSafeWeightTicket slice for the api using model data.
+func GunSafeWeightTickets(storer storage.FileStorer, gunSafeWeightTickets models.GunSafeWeightTickets) []*internalmessages.GunSafeWeightTicket {
+	payload := make([]*internalmessages.GunSafeWeightTicket, len(gunSafeWeightTickets))
+	for i, gunSafeWeightTicket := range gunSafeWeightTickets {
+		copyOfGunSafeWeightTicket := gunSafeWeightTicket
+		gunSafeWeightTicketPayload := GunSafeWeightTicket(storer, &copyOfGunSafeWeightTicket)
+		payload[i] = gunSafeWeightTicketPayload
+	}
+	return payload
+}
+
+// GunSafeWeightTicket payload
+func GunSafeWeightTicket(storer storage.FileStorer, gunSafe *models.GunSafeWeightTicket) *internalmessages.GunSafeWeightTicket {
+	ppmShipmentID := strfmt.UUID(gunSafe.PPMShipmentID.String())
+
+	document, err := PayloadForDocumentModel(storer, gunSafe.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &internalmessages.GunSafeWeightTicket{
+		ID:                        strfmt.UUID(gunSafe.ID.String()),
+		PpmShipmentID:             ppmShipmentID,
+		CreatedAt:                 *handlers.FmtDateTime(gunSafe.CreatedAt),
+		UpdatedAt:                 *handlers.FmtDateTime(gunSafe.UpdatedAt),
+		DocumentID:                *handlers.FmtUUID(gunSafe.DocumentID),
+		Document:                  document,
+		Weight:                    handlers.FmtPoundPtr(gunSafe.Weight),
+		SubmittedWeight:           handlers.FmtPoundPtr(gunSafe.SubmittedWeight),
+		HasWeightTickets:          gunSafe.HasWeightTickets,
+		SubmittedHasWeightTickets: gunSafe.SubmittedHasWeightTickets,
+		Description:               gunSafe.Description,
+		ETag:                      etag.GenerateEtag(gunSafe.UpdatedAt),
+	}
+
+	if gunSafe.Status != nil {
+		status := internalmessages.OmittablePPMDocumentStatus(*gunSafe.Status)
+		payload.Status = &status
+	}
+
+	if gunSafe.Reason != nil {
+		reason := internalmessages.PPMDocumentStatusReason(*gunSafe.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
 // SignedCertification converts a model to the api payload type
 func SignedCertification(signedCertification *models.SignedCertification) *internalmessages.SignedCertification {
 	if signedCertification == nil {
@@ -739,4 +788,39 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 		payload[i] = VLocation(&copyOfVLocation)
 	}
 	return payload
+}
+
+func CountryCodeName(country *models.Country) *internalmessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &internalmessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+}
+
+func Countries(countries models.Countries) internalmessages.Countries {
+	payload := make(internalmessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
+	}
+	return payload
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
+	var payloadPayGrades []*internalmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := internalmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }

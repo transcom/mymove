@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
 
 import { counselingColumns, closeoutColumns } from '../ServicesCounselingQueue/ServicesCounselingQueue';
@@ -13,12 +13,12 @@ import {
   useMoveSearchQueries,
   usePaymentRequestQueueQueries,
   useServicesCounselingQueueQueries,
-  useServicesCounselingQueuePPMQueries,
+  usePPMQueueQueries,
   useUserQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingQueue,
-  getServicesCounselingPPMQueue,
+  getPPMCloseoutQueue,
   getPaymentRequestsQueue,
   getMovesQueue,
 } from 'services/ghcApi';
@@ -32,9 +32,6 @@ import TabNav from 'components/TabNav';
 import { generalRoutes, hqRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import retryPageLoading from 'utils/retryPageLoading';
-import { milmoveLogger } from 'utils/milmoveLog';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
@@ -43,37 +40,6 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
-  const [moveLockFlag, setMoveLockFlag] = useState(false);
-  const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-      setMoveLockFlag(lockedMoveFlag);
-    };
-
-    fetchData();
-  }, []);
-
-  // Feature Flag
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-        setMoveLockFlag(lockedMoveFlag);
-      } catch (error) {
-        const { message } = error;
-        milmoveLogger.error({ message, info: null });
-        setErrorState({
-          hasError: true,
-          error,
-          info: null,
-        });
-        retryPageLoading(error);
-      }
-    };
-    fetchData();
-  }, [setErrorState]);
 
   const onSearchSubmit = useCallback((values) => {
     const payload = {
@@ -238,7 +204,6 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           disableMultiSort
           disableSortBy={false}
           columns={tooQueueColumns(
-            moveLockFlag,
             isQueueManagementFFEnabled,
             queueType,
             null,
@@ -271,7 +236,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           defaultSortedColumns={[{ id: 'age', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tioQueueColumns(moveLockFlag, queueType, isQueueManagementFFEnabled, null, showBranchFilter)}
+          columns={tioQueueColumns(queueType, isQueueManagementFFEnabled, null, showBranchFilter)}
           title="Payment requests"
           handleClick={handleClickNavigateToPaymentRequests}
           useQueries={usePaymentRequestQueueQueries}
@@ -298,22 +263,14 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(
-            moveLockFlag,
-            inPPMCloseoutGBLOC,
-            null,
-            null,
-            queueType,
-            isQueueManagementFFEnabled,
-            null,
-          )}
+          columns={closeoutColumns(inPPMCloseoutGBLOC, null, null, queueType, isQueueManagementFFEnabled, null)}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
-          useQueries={useServicesCounselingQueuePPMQueries}
+          useQueries={usePPMQueueQueries}
           key="PPM Closeout Queue"
           showCSVExport
           csvExportFileNamePrefix="PPM-Closeout-Queue"
-          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcher={getPPMCloseoutQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           activeRole={activeRole}
@@ -334,7 +291,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag, null, null, queueType, isQueueManagementFFEnabled, null)}
+          columns={counselingColumns(null, null, queueType, isQueueManagementFFEnabled, null)}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueueQueries}

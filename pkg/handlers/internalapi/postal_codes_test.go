@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler() {
 			PostalCodeType: postalCodeTypeString,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		postalCodeValidator := &mocks.PostalCodeValidator{}
 		postalCodeValidator.On("ValidatePostalCode",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler() {
 	suite.Run("Invalid postal code", func() {
 		user := factory.BuildUser(nil, nil, nil)
 
-		postalCode := "00000"
+		postalCode := "00988"
 		postalCodeTypeString := "destination"
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/rate_engine_postal_codes/%s?postal_code_type=%s", postalCode, postalCodeTypeString), nil)
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler() {
 			PostalCodeType: postalCodeTypeString,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		postalCodeValidator := &mocks.PostalCodeValidator{}
 		postalCodeValidator.On("ValidatePostalCode",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler() {
 			PostalCodeType: postalCodeTypeString,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		postalCodeValidator := &mocks.PostalCodeValidator{}
 		postalCodeValidator.On("ValidatePostalCode",
 			mock.AnythingOfType("*appcontext.appContext"),

@@ -39,6 +39,44 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
+    "/addresses/countries": {
+      "get": {
+        "description": "Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.\n",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns the countries matching the search query",
+        "operationId": "searchCountries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for countries",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "countries matching the search query",
+            "schema": {
+              "$ref": "#/definitions/Countries"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -53,6 +91,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1988,6 +2033,41 @@ func init() {
         }
       }
     },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
@@ -2039,6 +2119,170 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a\ngun safe weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a gun safe weight ticket",
+        "operationId": "createGunSafeWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a gun safe weight line item by ID",
+        "operationId": "deleteGunSafeWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the gun safe weight ticket to be deleted",
+            "name": "gunSafeWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the gun safe weight ticket"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a gun safe weight ticket",
+        "operationId": "updateGunSafeWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "$ref": "#/parameters/gunSafeWeightTicketId"
+          },
+          {
+            "name": "updateGunSafeWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGunSafeWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
@@ -3348,6 +3592,60 @@ func init() {
         }
       }
     },
+    "/uploads/{uploadID}/status": {
+      "get": {
+        "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns status of an upload",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to return status of",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested upload status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INFECTED",
+                "CLEAN",
+                "NO_THREATS_FOUND",
+                "THREATS_FOUND",
+                "PROCESSING"
+              ],
+              "readOnly": true
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadId}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -3888,6 +4186,579 @@ func init() {
         "$ref": "#/definitions/CounselingOffice"
       }
     },
+    "Countries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Country"
+      }
+    },
+    "Country": {
+      "description": "Country code and name",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "Country Code",
+          "enum": [
+            "A2",
+            "AD",
+            "AE",
+            "AF",
+            "AG",
+            "AI",
+            "AL",
+            "AM",
+            "AN",
+            "AO",
+            "AQ",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "AW",
+            "AZ",
+            "BA",
+            "BB",
+            "BD",
+            "BE",
+            "BF",
+            "BG",
+            "BH",
+            "BI",
+            "BJ",
+            "BL",
+            "BM",
+            "BN",
+            "BO",
+            "BQ",
+            "BR",
+            "BS",
+            "BT",
+            "BV",
+            "BW",
+            "BY",
+            "BZ",
+            "CA",
+            "CC",
+            "CD",
+            "CF",
+            "CG",
+            "CH",
+            "CI",
+            "CK",
+            "CL",
+            "CM",
+            "CN",
+            "CO",
+            "CP",
+            "CR",
+            "CU",
+            "CV",
+            "CW",
+            "CX",
+            "CY",
+            "CZ",
+            "DE",
+            "DG",
+            "DJ",
+            "DK",
+            "DM",
+            "DO",
+            "DZ",
+            "EC",
+            "EE",
+            "EG",
+            "ER",
+            "ES",
+            "ET",
+            "FI",
+            "FJ",
+            "FK",
+            "FM",
+            "FO",
+            "FR",
+            "GA",
+            "GB",
+            "GD",
+            "GE",
+            "GF",
+            "GG",
+            "GH",
+            "GI",
+            "GL",
+            "GM",
+            "GN",
+            "GP",
+            "GQ",
+            "GR",
+            "GS",
+            "GT",
+            "GU",
+            "GW",
+            "GY",
+            "HK",
+            "HM",
+            "HN",
+            "HR",
+            "HT",
+            "HU",
+            "ID",
+            "IE",
+            "IL",
+            "IM",
+            "IN",
+            "IO",
+            "IQ",
+            "IR",
+            "IS",
+            "IT",
+            "JE",
+            "JM",
+            "JO",
+            "JP",
+            "KE",
+            "KG",
+            "KH",
+            "KI",
+            "KM",
+            "KN",
+            "KP",
+            "KR",
+            "KW",
+            "KY",
+            "KZ",
+            "LA",
+            "LB",
+            "LC",
+            "LI",
+            "LK",
+            "LR",
+            "LS",
+            "LT",
+            "LV",
+            "LY",
+            "MA",
+            "MD",
+            "ME",
+            "MF",
+            "MG",
+            "MH",
+            "MK",
+            "ML",
+            "MM",
+            "MN",
+            "MO",
+            "MP",
+            "MQ",
+            "MS",
+            "MT",
+            "MU",
+            "MV",
+            "MW",
+            "MY",
+            "MZ",
+            "NA",
+            "NC",
+            "NE",
+            "NG",
+            "NL",
+            "NO",
+            "NP",
+            "NU",
+            "NZ",
+            "OM",
+            "PA",
+            "PF",
+            "PG",
+            "PH",
+            "PL",
+            "PM",
+            "PN",
+            "PR",
+            "PW",
+            "PY",
+            "QA",
+            "QM",
+            "QS",
+            "QU",
+            "QW",
+            "QX",
+            "QZ",
+            "RO",
+            "RS",
+            "RW",
+            "SA",
+            "SB",
+            "SC",
+            "SD",
+            "SE",
+            "SG",
+            "SH",
+            "SI",
+            "SK",
+            "SM",
+            "SN",
+            "SO",
+            "SR",
+            "SS",
+            "ST",
+            "SV",
+            "SX",
+            "SZ",
+            "TC",
+            "TD",
+            "TF",
+            "TH",
+            "TJ",
+            "TK",
+            "TN",
+            "TO",
+            "TR",
+            "TT",
+            "TV",
+            "TW",
+            "UA",
+            "UG",
+            "US",
+            "UY",
+            "VA",
+            "VC",
+            "VG",
+            "VI",
+            "VN",
+            "VU",
+            "WS",
+            "XA",
+            "XB",
+            "XC",
+            "XD",
+            "XE",
+            "XG",
+            "XH",
+            "XJ",
+            "XK",
+            "XL",
+            "XM",
+            "XP",
+            "XQ",
+            "XR",
+            "XS",
+            "XU",
+            "XV",
+            "XW",
+            "YE",
+            "YT",
+            "ZA",
+            "ZM",
+            "LU",
+            "EH",
+            "MC",
+            "ZW",
+            "VE",
+            "WF",
+            "XT",
+            "MR",
+            "MX",
+            "NF",
+            "NI",
+            "NR",
+            "PE",
+            "PK",
+            "PT",
+            "RE",
+            "RU",
+            "SL",
+            "SY",
+            "TG",
+            "TL",
+            "TM",
+            "TZ",
+            "UZ"
+          ],
+          "x-display-value": {
+            "A2": "A2",
+            "AD": "AD",
+            "AE": "AE",
+            "AF": "AF",
+            "AG": "AG",
+            "AI": "AI",
+            "AL": "AL",
+            "AM": "AM",
+            "AN": "AN",
+            "AO": "AO",
+            "AQ": "AQ",
+            "AR": "AR",
+            "AS": "AS",
+            "AT": "AT",
+            "AU": "AU",
+            "AW": "AW",
+            "AZ": "AZ",
+            "BA": "BA",
+            "BB": "BB",
+            "BD": "BD",
+            "BE": "BE",
+            "BF": "BF",
+            "BG": "BG",
+            "BH": "BH",
+            "BI": "BI",
+            "BJ": "BJ",
+            "BL": "BL",
+            "BM": "BM",
+            "BN": "BN",
+            "BO": "BO",
+            "BQ": "BQ",
+            "BR": "BR",
+            "BS": "BS",
+            "BT": "BT",
+            "BV": "BV",
+            "BW": "BW",
+            "BY": "BY",
+            "BZ": "BZ",
+            "CA": "CA",
+            "CC": "CC",
+            "CD": "CD",
+            "CF": "CF",
+            "CG": "CG",
+            "CH": "CH",
+            "CI": "CI",
+            "CK": "CK",
+            "CL": "CL",
+            "CM": "CM",
+            "CN": "CN",
+            "CO": "CO",
+            "CP": "CP",
+            "CR": "CR",
+            "CU": "CU",
+            "CV": "CV",
+            "CW": "CW",
+            "CX": "CX",
+            "CY": "CY",
+            "CZ": "CZ",
+            "DE": "DE",
+            "DG": "DG",
+            "DJ": "DJ",
+            "DK": "DK",
+            "DM": "DM",
+            "DO": "DO",
+            "DZ": "DZ",
+            "EC": "EC",
+            "EE": "EE",
+            "EG": "EG",
+            "EH": "EH",
+            "ER": "ER",
+            "ES": "ES",
+            "ET": "ET",
+            "FI": "FI",
+            "FJ": "FJ",
+            "FK": "FK",
+            "FM": "FM",
+            "FO": "FO",
+            "FR": "FR",
+            "GA": "GA",
+            "GB": "GB",
+            "GD": "GD",
+            "GE": "GE",
+            "GF": "GF",
+            "GG": "GG",
+            "GH": "GH",
+            "GI": "GI",
+            "GL": "GL",
+            "GM": "GM",
+            "GN": "GN",
+            "GP": "GP",
+            "GQ": "GQ",
+            "GR": "GR",
+            "GS": "GS",
+            "GT": "GT",
+            "GU": "GU",
+            "GW": "GW",
+            "GY": "GY",
+            "HK": "HK",
+            "HM": "HM",
+            "HN": "HN",
+            "HR": "HR",
+            "HT": "HT",
+            "HU": "HU",
+            "ID": "ID",
+            "IE": "IE",
+            "IL": "IL",
+            "IM": "IM",
+            "IN": "IN",
+            "IO": "IO",
+            "IQ": "IQ",
+            "IR": "IR",
+            "IS": "IS",
+            "IT": "IT",
+            "JE": "JE",
+            "JM": "JM",
+            "JO": "JO",
+            "JP": "JP",
+            "KE": "KE",
+            "KG": "KG",
+            "KH": "KH",
+            "KI": "KI",
+            "KM": "KM",
+            "KN": "KN",
+            "KP": "KP",
+            "KR": "KR",
+            "KW": "KW",
+            "KY": "KY",
+            "KZ": "KZ",
+            "LA": "LA",
+            "LB": "LB",
+            "LC": "LC",
+            "LI": "LI",
+            "LK": "LK",
+            "LR": "LR",
+            "LS": "LS",
+            "LT": "LT",
+            "LU": "LU",
+            "LV": "LV",
+            "LY": "LY",
+            "MA": "MA",
+            "MC": "MC",
+            "MD": "MD",
+            "ME": "ME",
+            "MF": "MF",
+            "MG": "MG",
+            "MH": "MH",
+            "MK": "MK",
+            "ML": "ML",
+            "MM": "MM",
+            "MN": "MN",
+            "MO": "MO",
+            "MP": "MP",
+            "MQ": "MQ",
+            "MR": "MR",
+            "MS": "MS",
+            "MT": "MT",
+            "MU": "MU",
+            "MV": "MV",
+            "MW": "MW",
+            "MX": "MX",
+            "MY": "MY",
+            "MZ": "MZ",
+            "NA": "NA",
+            "NC": "NC",
+            "NE": "NE",
+            "NF": "NF",
+            "NG": "NG",
+            "NI": "NI",
+            "NL": "NL",
+            "NO": "NO",
+            "NP": "NP",
+            "NR": "NR",
+            "NU": "NU",
+            "NZ": "NZ",
+            "OM": "OM",
+            "PA": "PA",
+            "PE": "PE",
+            "PF": "PF",
+            "PG": "PG",
+            "PH": "PH",
+            "PK": "PK",
+            "PL": "PL",
+            "PM": "PM",
+            "PN": "PN",
+            "PR": "PR",
+            "PT": "PT",
+            "PW": "PW",
+            "PY": "PY",
+            "QA": "QA",
+            "QM": "QM",
+            "QS": "QS",
+            "QU": "QU",
+            "QW": "QW",
+            "QX": "QX",
+            "QZ": "QZ",
+            "RE": "RE",
+            "RO": "RO",
+            "RS": "RS",
+            "RU": "RU",
+            "RW": "RW",
+            "SA": "SA",
+            "SB": "SB",
+            "SC": "SC",
+            "SD": "SD",
+            "SE": "SE",
+            "SG": "SG",
+            "SH": "SH",
+            "SI": "SI",
+            "SK": "SK",
+            "SL": "SL",
+            "SM": "SM",
+            "SN": "SN",
+            "SO": "SO",
+            "SR": "SR",
+            "SS": "SS",
+            "ST": "ST",
+            "SV": "SV",
+            "SX": "SX",
+            "SY": "SY",
+            "SZ": "SZ",
+            "TC": "TC",
+            "TD": "TD",
+            "TF": "TF",
+            "TG": "TG",
+            "TH": "TH",
+            "TJ": "TJ",
+            "TK": "TK",
+            "TL": "TL",
+            "TM": "TM",
+            "TN": "TN",
+            "TO": "TO",
+            "TR": "TR",
+            "TT": "TT",
+            "TV": "TV",
+            "TW": "TW",
+            "TZ": "TZ",
+            "UA": "UA",
+            "UG": "UG",
+            "US": "US",
+            "UY": "UY",
+            "UZ": "UZ",
+            "VA": "VA",
+            "VC": "VC",
+            "VE": "VE",
+            "VG": "VG",
+            "VI": "VI",
+            "VN": "VN",
+            "VU": "VU",
+            "WF": "WF",
+            "WS": "WS",
+            "XA": "XA",
+            "XB": "XB",
+            "XC": "XC",
+            "XD": "XD",
+            "XE": "XE",
+            "XG": "XG",
+            "XH": "XH",
+            "XJ": "XJ",
+            "XK": "XK",
+            "XL": "XL",
+            "XM": "XM",
+            "XP": "XP",
+            "XQ": "XQ",
+            "XR": "XR",
+            "XS": "XS",
+            "XT": "XT",
+            "XU": "XU",
+            "XV": "XV",
+            "XW": "XW",
+            "YE": "YE",
+            "YT": "YT",
+            "ZA": "ZA",
+            "ZM": "ZM",
+            "ZW": "ZW"
+          }
+        },
+        "name": {
+          "type": "string",
+          "title": "Country Name",
+          "example": "UNITED STATES"
+        }
+      }
+    },
     "CreateBoatShipment": {
       "description": "Boat shipment information for the move.",
       "required": [
@@ -4157,7 +5028,8 @@ func init() {
     "CreateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -4170,11 +5042,17 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@exmaple.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
-          "title": "Name",
+          "title": "First Name",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -4692,6 +5570,12 @@ func init() {
           "x-nullable": true,
           "example": 5
         },
+        "gunSafeWeight": {
+          "description": "Gun safe weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -4804,6 +5688,113 @@ func init() {
         }
       }
     },
+    "GunSafeWeightTicket": {
+      "description": "Gun safe associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the gun safe that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the gun safe weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the gun safe weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "The ID of the gun safe weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this gun safe weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the gun safe.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the gun safe.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
     "IndexEntitlements": {
       "type": "object",
       "additionalProperties": {
@@ -4844,6 +5835,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "moveCode": {
           "type": "string",
@@ -4932,6 +5928,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeRole": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Role"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -4949,6 +5949,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "inactiveRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          },
+          "x-nullable": true
+        },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
@@ -4963,13 +5970,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Privilege"
           }
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Role"
-          },
-          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -5507,6 +6507,11 @@ func init() {
         "locator": {
           "type": "string",
           "example": "12432"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
@@ -6113,31 +7118,31 @@ func init() {
       "type": "string",
       "title": "Grade",
       "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
         "AVIATION_CADET",
         "CIVILIAN_EMPLOYEE",
         "ACADEMY_CADET",
@@ -6175,6 +7180,17 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      }
     },
     "Orders": {
       "type": "object",
@@ -6689,6 +7705,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gunSafeWeightTickets": {
+          "description": "All gun safe weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GunSafeWeightTicket"
+          }
         },
         "hasGunSafe": {
           "description": "Indicates whether PPM shipment has gun safe.\n",
@@ -7370,7 +8393,8 @@ func init() {
         "id",
         "created_at",
         "updated_at",
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -7387,16 +8411,22 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "Susan"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "name": {
+        "lastName": {
           "type": "string",
-          "title": "Name",
+          "title": "Last Name",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -7909,6 +8939,23 @@ func init() {
         }
       }
     },
+    "UpdateGunSafeWeightTicket": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Describes the gun safe that was moved.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "weight": {
+          "description": "Weight of the vehicle not including the gun safe.",
+          "type": "integer"
+        }
+      }
+    },
     "UpdateMobileHomeShipment": {
       "properties": {
         "heightInInches": {
@@ -8188,7 +9235,8 @@ func init() {
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -8201,10 +9249,15 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -8402,6 +9455,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -8605,9 +9659,14 @@ func init() {
         "total_weight_self",
         "total_weight_self_plus_dependents",
         "pro_gear_weight",
-        "pro_gear_weight_spouse"
+        "pro_gear_weight_spouse",
+        "gun_safe_weight"
       ],
       "properties": {
+        "gun_safe_weight": {
+          "type": "integer",
+          "example": 500
+        },
         "pro_gear_weight": {
           "type": "integer",
           "example": 2000
@@ -8833,6 +9892,31 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
+    "gunSafeWeightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the gun safe weight ticket",
+      "name": "gunSafeWeightTicketId",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -9011,6 +10095,56 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
+    "/addresses/countries": {
+      "get": {
+        "description": "Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.\n",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns the countries matching the search query",
+        "operationId": "searchCountries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for countries",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "countries matching the search query",
+            "schema": {
+              "$ref": "#/definitions/Countries"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -9025,6 +10159,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -11072,6 +12213,55 @@ func init() {
         }
       }
     },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
@@ -11138,6 +12328,257 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a\ngun safe weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a gun safe weight ticket",
+        "operationId": "createGunSafeWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a gun safe weight line item by ID",
+        "operationId": "deleteGunSafeWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the gun safe weight ticket to be deleted",
+            "name": "gunSafeWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the gun safe weight ticket"
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a gun safe weight ticket",
+        "operationId": "updateGunSafeWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the gun safe weight ticket",
+            "name": "gunSafeWeightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "updateGunSafeWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGunSafeWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
@@ -12788,6 +14229,60 @@ func init() {
         }
       }
     },
+    "/uploads/{uploadID}/status": {
+      "get": {
+        "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns status of an upload",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to return status of",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested upload status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INFECTED",
+                "CLEAN",
+                "NO_THREATS_FOUND",
+                "THREATS_FOUND",
+                "PROCESSING"
+              ],
+              "readOnly": true
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadId}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -13328,6 +14823,579 @@ func init() {
         "$ref": "#/definitions/CounselingOffice"
       }
     },
+    "Countries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Country"
+      }
+    },
+    "Country": {
+      "description": "Country code and name",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "Country Code",
+          "enum": [
+            "A2",
+            "AD",
+            "AE",
+            "AF",
+            "AG",
+            "AI",
+            "AL",
+            "AM",
+            "AN",
+            "AO",
+            "AQ",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "AW",
+            "AZ",
+            "BA",
+            "BB",
+            "BD",
+            "BE",
+            "BF",
+            "BG",
+            "BH",
+            "BI",
+            "BJ",
+            "BL",
+            "BM",
+            "BN",
+            "BO",
+            "BQ",
+            "BR",
+            "BS",
+            "BT",
+            "BV",
+            "BW",
+            "BY",
+            "BZ",
+            "CA",
+            "CC",
+            "CD",
+            "CF",
+            "CG",
+            "CH",
+            "CI",
+            "CK",
+            "CL",
+            "CM",
+            "CN",
+            "CO",
+            "CP",
+            "CR",
+            "CU",
+            "CV",
+            "CW",
+            "CX",
+            "CY",
+            "CZ",
+            "DE",
+            "DG",
+            "DJ",
+            "DK",
+            "DM",
+            "DO",
+            "DZ",
+            "EC",
+            "EE",
+            "EG",
+            "ER",
+            "ES",
+            "ET",
+            "FI",
+            "FJ",
+            "FK",
+            "FM",
+            "FO",
+            "FR",
+            "GA",
+            "GB",
+            "GD",
+            "GE",
+            "GF",
+            "GG",
+            "GH",
+            "GI",
+            "GL",
+            "GM",
+            "GN",
+            "GP",
+            "GQ",
+            "GR",
+            "GS",
+            "GT",
+            "GU",
+            "GW",
+            "GY",
+            "HK",
+            "HM",
+            "HN",
+            "HR",
+            "HT",
+            "HU",
+            "ID",
+            "IE",
+            "IL",
+            "IM",
+            "IN",
+            "IO",
+            "IQ",
+            "IR",
+            "IS",
+            "IT",
+            "JE",
+            "JM",
+            "JO",
+            "JP",
+            "KE",
+            "KG",
+            "KH",
+            "KI",
+            "KM",
+            "KN",
+            "KP",
+            "KR",
+            "KW",
+            "KY",
+            "KZ",
+            "LA",
+            "LB",
+            "LC",
+            "LI",
+            "LK",
+            "LR",
+            "LS",
+            "LT",
+            "LV",
+            "LY",
+            "MA",
+            "MD",
+            "ME",
+            "MF",
+            "MG",
+            "MH",
+            "MK",
+            "ML",
+            "MM",
+            "MN",
+            "MO",
+            "MP",
+            "MQ",
+            "MS",
+            "MT",
+            "MU",
+            "MV",
+            "MW",
+            "MY",
+            "MZ",
+            "NA",
+            "NC",
+            "NE",
+            "NG",
+            "NL",
+            "NO",
+            "NP",
+            "NU",
+            "NZ",
+            "OM",
+            "PA",
+            "PF",
+            "PG",
+            "PH",
+            "PL",
+            "PM",
+            "PN",
+            "PR",
+            "PW",
+            "PY",
+            "QA",
+            "QM",
+            "QS",
+            "QU",
+            "QW",
+            "QX",
+            "QZ",
+            "RO",
+            "RS",
+            "RW",
+            "SA",
+            "SB",
+            "SC",
+            "SD",
+            "SE",
+            "SG",
+            "SH",
+            "SI",
+            "SK",
+            "SM",
+            "SN",
+            "SO",
+            "SR",
+            "SS",
+            "ST",
+            "SV",
+            "SX",
+            "SZ",
+            "TC",
+            "TD",
+            "TF",
+            "TH",
+            "TJ",
+            "TK",
+            "TN",
+            "TO",
+            "TR",
+            "TT",
+            "TV",
+            "TW",
+            "UA",
+            "UG",
+            "US",
+            "UY",
+            "VA",
+            "VC",
+            "VG",
+            "VI",
+            "VN",
+            "VU",
+            "WS",
+            "XA",
+            "XB",
+            "XC",
+            "XD",
+            "XE",
+            "XG",
+            "XH",
+            "XJ",
+            "XK",
+            "XL",
+            "XM",
+            "XP",
+            "XQ",
+            "XR",
+            "XS",
+            "XU",
+            "XV",
+            "XW",
+            "YE",
+            "YT",
+            "ZA",
+            "ZM",
+            "LU",
+            "EH",
+            "MC",
+            "ZW",
+            "VE",
+            "WF",
+            "XT",
+            "MR",
+            "MX",
+            "NF",
+            "NI",
+            "NR",
+            "PE",
+            "PK",
+            "PT",
+            "RE",
+            "RU",
+            "SL",
+            "SY",
+            "TG",
+            "TL",
+            "TM",
+            "TZ",
+            "UZ"
+          ],
+          "x-display-value": {
+            "A2": "A2",
+            "AD": "AD",
+            "AE": "AE",
+            "AF": "AF",
+            "AG": "AG",
+            "AI": "AI",
+            "AL": "AL",
+            "AM": "AM",
+            "AN": "AN",
+            "AO": "AO",
+            "AQ": "AQ",
+            "AR": "AR",
+            "AS": "AS",
+            "AT": "AT",
+            "AU": "AU",
+            "AW": "AW",
+            "AZ": "AZ",
+            "BA": "BA",
+            "BB": "BB",
+            "BD": "BD",
+            "BE": "BE",
+            "BF": "BF",
+            "BG": "BG",
+            "BH": "BH",
+            "BI": "BI",
+            "BJ": "BJ",
+            "BL": "BL",
+            "BM": "BM",
+            "BN": "BN",
+            "BO": "BO",
+            "BQ": "BQ",
+            "BR": "BR",
+            "BS": "BS",
+            "BT": "BT",
+            "BV": "BV",
+            "BW": "BW",
+            "BY": "BY",
+            "BZ": "BZ",
+            "CA": "CA",
+            "CC": "CC",
+            "CD": "CD",
+            "CF": "CF",
+            "CG": "CG",
+            "CH": "CH",
+            "CI": "CI",
+            "CK": "CK",
+            "CL": "CL",
+            "CM": "CM",
+            "CN": "CN",
+            "CO": "CO",
+            "CP": "CP",
+            "CR": "CR",
+            "CU": "CU",
+            "CV": "CV",
+            "CW": "CW",
+            "CX": "CX",
+            "CY": "CY",
+            "CZ": "CZ",
+            "DE": "DE",
+            "DG": "DG",
+            "DJ": "DJ",
+            "DK": "DK",
+            "DM": "DM",
+            "DO": "DO",
+            "DZ": "DZ",
+            "EC": "EC",
+            "EE": "EE",
+            "EG": "EG",
+            "EH": "EH",
+            "ER": "ER",
+            "ES": "ES",
+            "ET": "ET",
+            "FI": "FI",
+            "FJ": "FJ",
+            "FK": "FK",
+            "FM": "FM",
+            "FO": "FO",
+            "FR": "FR",
+            "GA": "GA",
+            "GB": "GB",
+            "GD": "GD",
+            "GE": "GE",
+            "GF": "GF",
+            "GG": "GG",
+            "GH": "GH",
+            "GI": "GI",
+            "GL": "GL",
+            "GM": "GM",
+            "GN": "GN",
+            "GP": "GP",
+            "GQ": "GQ",
+            "GR": "GR",
+            "GS": "GS",
+            "GT": "GT",
+            "GU": "GU",
+            "GW": "GW",
+            "GY": "GY",
+            "HK": "HK",
+            "HM": "HM",
+            "HN": "HN",
+            "HR": "HR",
+            "HT": "HT",
+            "HU": "HU",
+            "ID": "ID",
+            "IE": "IE",
+            "IL": "IL",
+            "IM": "IM",
+            "IN": "IN",
+            "IO": "IO",
+            "IQ": "IQ",
+            "IR": "IR",
+            "IS": "IS",
+            "IT": "IT",
+            "JE": "JE",
+            "JM": "JM",
+            "JO": "JO",
+            "JP": "JP",
+            "KE": "KE",
+            "KG": "KG",
+            "KH": "KH",
+            "KI": "KI",
+            "KM": "KM",
+            "KN": "KN",
+            "KP": "KP",
+            "KR": "KR",
+            "KW": "KW",
+            "KY": "KY",
+            "KZ": "KZ",
+            "LA": "LA",
+            "LB": "LB",
+            "LC": "LC",
+            "LI": "LI",
+            "LK": "LK",
+            "LR": "LR",
+            "LS": "LS",
+            "LT": "LT",
+            "LU": "LU",
+            "LV": "LV",
+            "LY": "LY",
+            "MA": "MA",
+            "MC": "MC",
+            "MD": "MD",
+            "ME": "ME",
+            "MF": "MF",
+            "MG": "MG",
+            "MH": "MH",
+            "MK": "MK",
+            "ML": "ML",
+            "MM": "MM",
+            "MN": "MN",
+            "MO": "MO",
+            "MP": "MP",
+            "MQ": "MQ",
+            "MR": "MR",
+            "MS": "MS",
+            "MT": "MT",
+            "MU": "MU",
+            "MV": "MV",
+            "MW": "MW",
+            "MX": "MX",
+            "MY": "MY",
+            "MZ": "MZ",
+            "NA": "NA",
+            "NC": "NC",
+            "NE": "NE",
+            "NF": "NF",
+            "NG": "NG",
+            "NI": "NI",
+            "NL": "NL",
+            "NO": "NO",
+            "NP": "NP",
+            "NR": "NR",
+            "NU": "NU",
+            "NZ": "NZ",
+            "OM": "OM",
+            "PA": "PA",
+            "PE": "PE",
+            "PF": "PF",
+            "PG": "PG",
+            "PH": "PH",
+            "PK": "PK",
+            "PL": "PL",
+            "PM": "PM",
+            "PN": "PN",
+            "PR": "PR",
+            "PT": "PT",
+            "PW": "PW",
+            "PY": "PY",
+            "QA": "QA",
+            "QM": "QM",
+            "QS": "QS",
+            "QU": "QU",
+            "QW": "QW",
+            "QX": "QX",
+            "QZ": "QZ",
+            "RE": "RE",
+            "RO": "RO",
+            "RS": "RS",
+            "RU": "RU",
+            "RW": "RW",
+            "SA": "SA",
+            "SB": "SB",
+            "SC": "SC",
+            "SD": "SD",
+            "SE": "SE",
+            "SG": "SG",
+            "SH": "SH",
+            "SI": "SI",
+            "SK": "SK",
+            "SL": "SL",
+            "SM": "SM",
+            "SN": "SN",
+            "SO": "SO",
+            "SR": "SR",
+            "SS": "SS",
+            "ST": "ST",
+            "SV": "SV",
+            "SX": "SX",
+            "SY": "SY",
+            "SZ": "SZ",
+            "TC": "TC",
+            "TD": "TD",
+            "TF": "TF",
+            "TG": "TG",
+            "TH": "TH",
+            "TJ": "TJ",
+            "TK": "TK",
+            "TL": "TL",
+            "TM": "TM",
+            "TN": "TN",
+            "TO": "TO",
+            "TR": "TR",
+            "TT": "TT",
+            "TV": "TV",
+            "TW": "TW",
+            "TZ": "TZ",
+            "UA": "UA",
+            "UG": "UG",
+            "US": "US",
+            "UY": "UY",
+            "UZ": "UZ",
+            "VA": "VA",
+            "VC": "VC",
+            "VE": "VE",
+            "VG": "VG",
+            "VI": "VI",
+            "VN": "VN",
+            "VU": "VU",
+            "WF": "WF",
+            "WS": "WS",
+            "XA": "XA",
+            "XB": "XB",
+            "XC": "XC",
+            "XD": "XD",
+            "XE": "XE",
+            "XG": "XG",
+            "XH": "XH",
+            "XJ": "XJ",
+            "XK": "XK",
+            "XL": "XL",
+            "XM": "XM",
+            "XP": "XP",
+            "XQ": "XQ",
+            "XR": "XR",
+            "XS": "XS",
+            "XT": "XT",
+            "XU": "XU",
+            "XV": "XV",
+            "XW": "XW",
+            "YE": "YE",
+            "YT": "YT",
+            "ZA": "ZA",
+            "ZM": "ZM",
+            "ZW": "ZW"
+          }
+        },
+        "name": {
+          "type": "string",
+          "title": "Country Name",
+          "example": "UNITED STATES"
+        }
+      }
+    },
     "CreateBoatShipment": {
       "description": "Boat shipment information for the move.",
       "required": [
@@ -13597,7 +15665,8 @@ func init() {
     "CreateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -13610,11 +15679,17 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@exmaple.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
-          "title": "Name",
+          "title": "First Name",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -14134,6 +16209,12 @@ func init() {
           "x-nullable": true,
           "example": 5
         },
+        "gunSafeWeight": {
+          "description": "Gun safe weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -14246,6 +16327,115 @@ func init() {
         }
       }
     },
+    "GunSafeWeightTicket": {
+      "description": "Gun safe associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the gun safe that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the gun safe weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the gun safe weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "The ID of the gun safe weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this gun safe weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the gun safe.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the gun safe.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
     "IndexEntitlements": {
       "type": "object",
       "additionalProperties": {
@@ -14286,6 +16476,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "moveCode": {
           "type": "string",
@@ -14374,6 +16569,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeRole": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Role"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -14391,6 +16590,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "inactiveRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          },
+          "x-nullable": true
+        },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
@@ -14405,13 +16611,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Privilege"
           }
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Role"
-          },
-          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -14951,6 +17150,11 @@ func init() {
         "locator": {
           "type": "string",
           "example": "12432"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
@@ -15557,31 +17761,31 @@ func init() {
       "type": "string",
       "title": "Grade",
       "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
         "AVIATION_CADET",
         "CIVILIAN_EMPLOYEE",
         "ACADEMY_CADET",
@@ -15619,6 +17823,17 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      }
     },
     "Orders": {
       "type": "object",
@@ -16134,6 +18349,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gunSafeWeightTickets": {
+          "description": "All gun safe weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GunSafeWeightTicket"
+          }
         },
         "hasGunSafe": {
           "description": "Indicates whether PPM shipment has gun safe.\n",
@@ -16817,7 +19039,8 @@ func init() {
         "id",
         "created_at",
         "updated_at",
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -16834,16 +19057,22 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "Susan"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "name": {
+        "lastName": {
           "type": "string",
-          "title": "Name",
+          "title": "Last Name",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -17356,6 +19585,24 @@ func init() {
         }
       }
     },
+    "UpdateGunSafeWeightTicket": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Describes the gun safe that was moved.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "weight": {
+          "description": "Weight of the vehicle not including the gun safe.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
     "UpdateMobileHomeShipment": {
       "properties": {
         "heightInInches": {
@@ -17636,7 +19883,8 @@ func init() {
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "permission"
       ],
@@ -17649,10 +19897,15 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
           "x-nullable": true,
-          "example": "Susan Smith"
+          "example": "Susan"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Smith"
         },
         "permission": {
           "$ref": "#/definitions/BackupContactPermission"
@@ -17853,6 +20106,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -18059,9 +20313,14 @@ func init() {
         "total_weight_self",
         "total_weight_self_plus_dependents",
         "pro_gear_weight",
-        "pro_gear_weight_spouse"
+        "pro_gear_weight_spouse",
+        "gun_safe_weight"
       ],
       "properties": {
+        "gun_safe_weight": {
+          "type": "integer",
+          "example": 500
+        },
         "pro_gear_weight": {
           "type": "integer",
           "example": 2000
@@ -18292,6 +20551,31 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
+    "gunSafeWeightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the gun safe weight ticket",
+      "name": "gunSafeWeightTicketId",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",

@@ -21,6 +21,7 @@ import {
 import { DOCUMENTS } from 'constants/queryKeys';
 import { APP_NAME } from 'constants/apps';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -87,20 +88,8 @@ const WeightTickets = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-    createUploadForPPMDocument(ppmShipment?.id, documentId, newFile, true)
+
+    createUploadForPPMDocument(ppmShipment?.id, documentId, appendTimestampToFilename(file), true)
       .then((upload) => {
         documents?.WeightTickets[currentWeightTicketIdx][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);
@@ -112,8 +101,8 @@ const WeightTickets = () => {
           'The uploaded .xlsx file does not match the expected weight estimator file format.'
         ) {
           setIsErrorModalVisible(true);
-          setErrorMessage('Failed to save the file upload');
         } else {
+          setErrorMessage('Failed to save the file upload');
           setIsErrorModalVisible(true);
         }
       });

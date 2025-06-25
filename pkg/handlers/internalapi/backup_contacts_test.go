@@ -19,7 +19,8 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
 		Email:      models.StringPointer("email@example.com"),
-		Name:       models.StringPointer("name"),
+		FirstName:  models.StringPointer("firstName"),
+		LastName:   models.StringPointer("lastName"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionEDIT),
 		Telephone:  models.StringPointer("5555555555"),
 	}
@@ -32,7 +33,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 
 	params.HTTPRequest = suite.AuthenticateRequest(req, serviceMember)
 
-	handler := CreateBackupContactHandler{suite.HandlerConfig()}
+	handler := CreateBackupContactHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	_, ok := response.(*contactop.CreateServiceMemberBackupContactCreated)
@@ -74,7 +75,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := IndexBackupContactsHandler{suite.HandlerConfig()}
+	handler := IndexBackupContactsHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.IndexServiceMemberBackupContactsOK)
@@ -104,7 +105,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := IndexBackupContactsHandler{suite.HandlerConfig()}
+	handler := IndexBackupContactsHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	errResponse := response.(*handlers.ErrResponse)
@@ -128,7 +129,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := ShowBackupContactHandler{suite.HandlerConfig()}
+	handler := ShowBackupContactHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.ShowServiceMemberBackupContactOK)
@@ -154,7 +155,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := ShowBackupContactHandler{suite.HandlerConfig()}
+	handler := ShowBackupContactHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	errResponse := response.(*handlers.ErrResponse)
@@ -175,7 +176,8 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
 		Email:      models.StringPointer("otheremail@example.com"),
-		Name:       models.StringPointer("other name"),
+		FirstName:  models.StringPointer("other"),
+		LastName:   models.StringPointer("name"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionNONE),
 		Telephone:  models.StringPointer("4444444444"),
 	}
@@ -186,13 +188,13 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	}
 	params.HTTPRequest = suite.AuthenticateRequest(req, contact.ServiceMember)
 
-	handler := UpdateBackupContactHandler{suite.HandlerConfig()}
+	handler := UpdateBackupContactHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	okResponse := response.(*contactop.UpdateServiceMemberBackupContactCreated)
 	payload := okResponse.Payload
 
-	if *payload.Name != "other name" {
+	if *payload.FirstName != "other" && *payload.LastName != "name" {
 		t.Errorf("Expected backup contact to be updated, but it wasn't.")
 	}
 }
@@ -208,7 +210,8 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
 		Email:      models.StringPointer("otheremail@example.com"),
-		Name:       models.StringPointer("other name"),
+		FirstName:  models.StringPointer("other"),
+		LastName:   models.StringPointer("name"),
 		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionNONE),
 		Telephone:  models.StringPointer("4444444444"),
 	}
@@ -220,7 +223,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	// Logged in as other user
 	params.HTTPRequest = suite.AuthenticateRequest(req, otherServiceMember)
 
-	handler := UpdateBackupContactHandler{suite.HandlerConfig()}
+	handler := UpdateBackupContactHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	errResponse := response.(*handlers.ErrResponse)

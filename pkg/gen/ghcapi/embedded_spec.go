@@ -36,6 +36,44 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/addresses/countries": {
+      "get": {
+        "description": "Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.\n",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns the countries matching the search query",
+        "operationId": "searchCountries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for countries",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "countries matching the search query",
+            "schema": {
+              "$ref": "#/definitions/Countries"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -50,6 +88,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3637,6 +3682,41 @@ func init() {
         }
       }
     },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -4042,6 +4122,171 @@ func init() {
       "parameters": [
         {
           "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a\ngun safe weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a gun safe weight ticket",
+        "operationId": "createGunSafeWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a gun safe weight line item by ID",
+        "operationId": "deleteGunSafeWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the gun safe weight ticket to be deleted",
+            "name": "gunSafeWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the gun safe weight ticket"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a gun safe weight ticket",
+        "operationId": "updateGunSafeWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "name": "updateGunSafeWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGunSafeWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the gun safe weight ticket",
+          "name": "gunSafeWeightTicketId",
+          "in": "path",
+          "required": true
         }
       ]
     },
@@ -5766,6 +6011,231 @@ func init() {
         }
       }
     },
+    "/queues/ppmCloseout": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. Personally procured moves will show up here once they are pending closeout by the services counselor. The services counselor is the designated role to action the items in this queue.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing PPM closeout by GBLOC origin",
+        "operationId": "getPPMCloseoutQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "requestedMoveDate",
+              "submittedAt",
+              "originGBLOC",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation",
+              "ppmStatus",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "As of right now the only ppm_shipments status is \"NEEDS_CLOSEOUT\". But we allow the frontend to \"filter\" this, it may be useful in the future. For now it'll always just be in need of closeout. If null we still show PPM moves needing closeout. Don't confuse this with the move's status. Move status and ppm shipment status are different.\n",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/prime-moves": {
       "get": {
         "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
@@ -7362,58 +7832,6 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadID}/status": {
-      "get": {
-        "description": "Returns status of an upload based on antivirus run",
-        "produces": [
-          "text/event-stream"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Returns status of an upload",
-        "operationId": "getUploadStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to return status of",
-            "name": "uploadID",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the requested upload status",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "INFECTED",
-                "CLEAN",
-                "PROCESSING"
-              ],
-              "readOnly": true
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/uploads/{uploadID}/update": {
       "patch": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
@@ -7851,7 +8269,8 @@ func init() {
     "BackupContact": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "phone"
       ],
@@ -7861,7 +8280,10 @@ func init() {
           "format": "x-email",
           "example": "backupContact@mail.com"
         },
-        "name": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
           "type": "string"
         },
         "phone": {
@@ -8114,7 +8536,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
@@ -8204,7 +8626,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -8271,6 +8693,579 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "Countries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Country"
+      }
+    },
+    "Country": {
+      "description": "Country code and name",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "Country Code",
+          "enum": [
+            "A2",
+            "AD",
+            "AE",
+            "AF",
+            "AG",
+            "AI",
+            "AL",
+            "AM",
+            "AN",
+            "AO",
+            "AQ",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "AW",
+            "AZ",
+            "BA",
+            "BB",
+            "BD",
+            "BE",
+            "BF",
+            "BG",
+            "BH",
+            "BI",
+            "BJ",
+            "BL",
+            "BM",
+            "BN",
+            "BO",
+            "BQ",
+            "BR",
+            "BS",
+            "BT",
+            "BV",
+            "BW",
+            "BY",
+            "BZ",
+            "CA",
+            "CC",
+            "CD",
+            "CF",
+            "CG",
+            "CH",
+            "CI",
+            "CK",
+            "CL",
+            "CM",
+            "CN",
+            "CO",
+            "CP",
+            "CR",
+            "CU",
+            "CV",
+            "CW",
+            "CX",
+            "CY",
+            "CZ",
+            "DE",
+            "DG",
+            "DJ",
+            "DK",
+            "DM",
+            "DO",
+            "DZ",
+            "EC",
+            "EE",
+            "EG",
+            "ER",
+            "ES",
+            "ET",
+            "FI",
+            "FJ",
+            "FK",
+            "FM",
+            "FO",
+            "FR",
+            "GA",
+            "GB",
+            "GD",
+            "GE",
+            "GF",
+            "GG",
+            "GH",
+            "GI",
+            "GL",
+            "GM",
+            "GN",
+            "GP",
+            "GQ",
+            "GR",
+            "GS",
+            "GT",
+            "GU",
+            "GW",
+            "GY",
+            "HK",
+            "HM",
+            "HN",
+            "HR",
+            "HT",
+            "HU",
+            "ID",
+            "IE",
+            "IL",
+            "IM",
+            "IN",
+            "IO",
+            "IQ",
+            "IR",
+            "IS",
+            "IT",
+            "JE",
+            "JM",
+            "JO",
+            "JP",
+            "KE",
+            "KG",
+            "KH",
+            "KI",
+            "KM",
+            "KN",
+            "KP",
+            "KR",
+            "KW",
+            "KY",
+            "KZ",
+            "LA",
+            "LB",
+            "LC",
+            "LI",
+            "LK",
+            "LR",
+            "LS",
+            "LT",
+            "LV",
+            "LY",
+            "MA",
+            "MD",
+            "ME",
+            "MF",
+            "MG",
+            "MH",
+            "MK",
+            "ML",
+            "MM",
+            "MN",
+            "MO",
+            "MP",
+            "MQ",
+            "MS",
+            "MT",
+            "MU",
+            "MV",
+            "MW",
+            "MY",
+            "MZ",
+            "NA",
+            "NC",
+            "NE",
+            "NG",
+            "NL",
+            "NO",
+            "NP",
+            "NU",
+            "NZ",
+            "OM",
+            "PA",
+            "PF",
+            "PG",
+            "PH",
+            "PL",
+            "PM",
+            "PN",
+            "PR",
+            "PW",
+            "PY",
+            "QA",
+            "QM",
+            "QS",
+            "QU",
+            "QW",
+            "QX",
+            "QZ",
+            "RO",
+            "RS",
+            "RW",
+            "SA",
+            "SB",
+            "SC",
+            "SD",
+            "SE",
+            "SG",
+            "SH",
+            "SI",
+            "SK",
+            "SM",
+            "SN",
+            "SO",
+            "SR",
+            "SS",
+            "ST",
+            "SV",
+            "SX",
+            "SZ",
+            "TC",
+            "TD",
+            "TF",
+            "TH",
+            "TJ",
+            "TK",
+            "TN",
+            "TO",
+            "TR",
+            "TT",
+            "TV",
+            "TW",
+            "UA",
+            "UG",
+            "US",
+            "UY",
+            "VA",
+            "VC",
+            "VG",
+            "VI",
+            "VN",
+            "VU",
+            "WS",
+            "XA",
+            "XB",
+            "XC",
+            "XD",
+            "XE",
+            "XG",
+            "XH",
+            "XJ",
+            "XK",
+            "XL",
+            "XM",
+            "XP",
+            "XQ",
+            "XR",
+            "XS",
+            "XU",
+            "XV",
+            "XW",
+            "YE",
+            "YT",
+            "ZA",
+            "ZM",
+            "LU",
+            "EH",
+            "MC",
+            "ZW",
+            "VE",
+            "WF",
+            "XT",
+            "MR",
+            "MX",
+            "NF",
+            "NI",
+            "NR",
+            "PE",
+            "PK",
+            "PT",
+            "RE",
+            "RU",
+            "SL",
+            "SY",
+            "TG",
+            "TL",
+            "TM",
+            "TZ",
+            "UZ"
+          ],
+          "x-display-value": {
+            "A2": "A2",
+            "AD": "AD",
+            "AE": "AE",
+            "AF": "AF",
+            "AG": "AG",
+            "AI": "AI",
+            "AL": "AL",
+            "AM": "AM",
+            "AN": "AN",
+            "AO": "AO",
+            "AQ": "AQ",
+            "AR": "AR",
+            "AS": "AS",
+            "AT": "AT",
+            "AU": "AU",
+            "AW": "AW",
+            "AZ": "AZ",
+            "BA": "BA",
+            "BB": "BB",
+            "BD": "BD",
+            "BE": "BE",
+            "BF": "BF",
+            "BG": "BG",
+            "BH": "BH",
+            "BI": "BI",
+            "BJ": "BJ",
+            "BL": "BL",
+            "BM": "BM",
+            "BN": "BN",
+            "BO": "BO",
+            "BQ": "BQ",
+            "BR": "BR",
+            "BS": "BS",
+            "BT": "BT",
+            "BV": "BV",
+            "BW": "BW",
+            "BY": "BY",
+            "BZ": "BZ",
+            "CA": "CA",
+            "CC": "CC",
+            "CD": "CD",
+            "CF": "CF",
+            "CG": "CG",
+            "CH": "CH",
+            "CI": "CI",
+            "CK": "CK",
+            "CL": "CL",
+            "CM": "CM",
+            "CN": "CN",
+            "CO": "CO",
+            "CP": "CP",
+            "CR": "CR",
+            "CU": "CU",
+            "CV": "CV",
+            "CW": "CW",
+            "CX": "CX",
+            "CY": "CY",
+            "CZ": "CZ",
+            "DE": "DE",
+            "DG": "DG",
+            "DJ": "DJ",
+            "DK": "DK",
+            "DM": "DM",
+            "DO": "DO",
+            "DZ": "DZ",
+            "EC": "EC",
+            "EE": "EE",
+            "EG": "EG",
+            "EH": "EH",
+            "ER": "ER",
+            "ES": "ES",
+            "ET": "ET",
+            "FI": "FI",
+            "FJ": "FJ",
+            "FK": "FK",
+            "FM": "FM",
+            "FO": "FO",
+            "FR": "FR",
+            "GA": "GA",
+            "GB": "GB",
+            "GD": "GD",
+            "GE": "GE",
+            "GF": "GF",
+            "GG": "GG",
+            "GH": "GH",
+            "GI": "GI",
+            "GL": "GL",
+            "GM": "GM",
+            "GN": "GN",
+            "GP": "GP",
+            "GQ": "GQ",
+            "GR": "GR",
+            "GS": "GS",
+            "GT": "GT",
+            "GU": "GU",
+            "GW": "GW",
+            "GY": "GY",
+            "HK": "HK",
+            "HM": "HM",
+            "HN": "HN",
+            "HR": "HR",
+            "HT": "HT",
+            "HU": "HU",
+            "ID": "ID",
+            "IE": "IE",
+            "IL": "IL",
+            "IM": "IM",
+            "IN": "IN",
+            "IO": "IO",
+            "IQ": "IQ",
+            "IR": "IR",
+            "IS": "IS",
+            "IT": "IT",
+            "JE": "JE",
+            "JM": "JM",
+            "JO": "JO",
+            "JP": "JP",
+            "KE": "KE",
+            "KG": "KG",
+            "KH": "KH",
+            "KI": "KI",
+            "KM": "KM",
+            "KN": "KN",
+            "KP": "KP",
+            "KR": "KR",
+            "KW": "KW",
+            "KY": "KY",
+            "KZ": "KZ",
+            "LA": "LA",
+            "LB": "LB",
+            "LC": "LC",
+            "LI": "LI",
+            "LK": "LK",
+            "LR": "LR",
+            "LS": "LS",
+            "LT": "LT",
+            "LU": "LU",
+            "LV": "LV",
+            "LY": "LY",
+            "MA": "MA",
+            "MC": "MC",
+            "MD": "MD",
+            "ME": "ME",
+            "MF": "MF",
+            "MG": "MG",
+            "MH": "MH",
+            "MK": "MK",
+            "ML": "ML",
+            "MM": "MM",
+            "MN": "MN",
+            "MO": "MO",
+            "MP": "MP",
+            "MQ": "MQ",
+            "MR": "MR",
+            "MS": "MS",
+            "MT": "MT",
+            "MU": "MU",
+            "MV": "MV",
+            "MW": "MW",
+            "MX": "MX",
+            "MY": "MY",
+            "MZ": "MZ",
+            "NA": "NA",
+            "NC": "NC",
+            "NE": "NE",
+            "NF": "NF",
+            "NG": "NG",
+            "NI": "NI",
+            "NL": "NL",
+            "NO": "NO",
+            "NP": "NP",
+            "NR": "NR",
+            "NU": "NU",
+            "NZ": "NZ",
+            "OM": "OM",
+            "PA": "PA",
+            "PE": "PE",
+            "PF": "PF",
+            "PG": "PG",
+            "PH": "PH",
+            "PK": "PK",
+            "PL": "PL",
+            "PM": "PM",
+            "PN": "PN",
+            "PR": "PR",
+            "PT": "PT",
+            "PW": "PW",
+            "PY": "PY",
+            "QA": "QA",
+            "QM": "QM",
+            "QS": "QS",
+            "QU": "QU",
+            "QW": "QW",
+            "QX": "QX",
+            "QZ": "QZ",
+            "RE": "RE",
+            "RO": "RO",
+            "RS": "RS",
+            "RU": "RU",
+            "RW": "RW",
+            "SA": "SA",
+            "SB": "SB",
+            "SC": "SC",
+            "SD": "SD",
+            "SE": "SE",
+            "SG": "SG",
+            "SH": "SH",
+            "SI": "SI",
+            "SK": "SK",
+            "SL": "SL",
+            "SM": "SM",
+            "SN": "SN",
+            "SO": "SO",
+            "SR": "SR",
+            "SS": "SS",
+            "ST": "ST",
+            "SV": "SV",
+            "SX": "SX",
+            "SY": "SY",
+            "SZ": "SZ",
+            "TC": "TC",
+            "TD": "TD",
+            "TF": "TF",
+            "TG": "TG",
+            "TH": "TH",
+            "TJ": "TJ",
+            "TK": "TK",
+            "TL": "TL",
+            "TM": "TM",
+            "TN": "TN",
+            "TO": "TO",
+            "TR": "TR",
+            "TT": "TT",
+            "TV": "TV",
+            "TW": "TW",
+            "TZ": "TZ",
+            "UA": "UA",
+            "UG": "UG",
+            "US": "US",
+            "UY": "UY",
+            "UZ": "UZ",
+            "VA": "VA",
+            "VC": "VC",
+            "VE": "VE",
+            "VG": "VG",
+            "VI": "VI",
+            "VN": "VN",
+            "VU": "VU",
+            "WF": "WF",
+            "WS": "WS",
+            "XA": "XA",
+            "XB": "XB",
+            "XC": "XC",
+            "XD": "XD",
+            "XE": "XE",
+            "XG": "XG",
+            "XH": "XH",
+            "XJ": "XJ",
+            "XK": "XK",
+            "XL": "XL",
+            "XM": "XM",
+            "XP": "XP",
+            "XQ": "XQ",
+            "XR": "XR",
+            "XS": "XS",
+            "XT": "XT",
+            "XU": "XU",
+            "XV": "XV",
+            "XW": "XW",
+            "YE": "YE",
+            "YT": "YT",
+            "ZA": "ZA",
+            "ZM": "ZM",
+            "ZW": "ZW"
+          }
+        },
+        "name": {
+          "type": "string",
+          "title": "Country Name",
+          "example": "UNITED STATES"
         }
       }
     },
@@ -8749,7 +9744,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -9777,72 +10772,120 @@ func init() {
         "$ref": "#/definitions/GSRAppeal"
       }
     },
-    "Grade": {
-      "type": "string",
-      "title": "grade",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
+    "GunSafeWeightTicket": {
+      "description": "Gun safe associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "documentId",
+        "document"
       ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
+      "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the gun safe that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the gun safe weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the gun safe weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "The ID of the gun safe weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this gun safe weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the gun safe.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the gun safe.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
+    "GunSafeWeightTickets": {
+      "description": "All gunsafe weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GunSafeWeightTicket"
       },
-      "x-nullable": true
+      "x-omitempty": false
     },
     "InvalidRequestResponsePayload": {
       "type": "object",
@@ -11258,16 +12301,19 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TIOAssignedUser": {
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOODestinationAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -12330,7 +13376,7 @@ func init() {
           "example": "John"
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -12442,6 +13488,84 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid"
+        }
+      }
+    },
+    "OrderPayGrade": {
+      "type": "string",
+      "title": "Grade",
+      "enum": [
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
         }
       }
     },
@@ -12899,6 +14023,9 @@ func init() {
       "description": "All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.",
       "type": "object",
       "properties": {
+        "GunSafeWeightTickets": {
+          "$ref": "#/definitions/GunSafeWeightTickets"
+        },
         "MovingExpenses": {
           "$ref": "#/definitions/MovingExpenses"
         },
@@ -13106,6 +14233,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gunSafeWeightTickets": {
+          "description": "All gun safe weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GunSafeWeightTicket"
+          }
         },
         "hasGunSafe": {
           "description": "Indicates whether PPM shipment has gun safe.\n",
@@ -14063,6 +15197,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "closeoutInitiatedDates": {
+          "description": "comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)",
+          "type": "string",
+          "x-nullable": true
+        },
         "closeoutLocation": {
           "type": "string",
           "x-nullable": true
@@ -14938,7 +16077,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -15471,7 +16610,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
@@ -15682,6 +16821,30 @@ func init() {
         }
       }
     },
+    "UpdateGunSafeWeightTicket": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Description of gun safe included in trips set.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the gun safe contained in the shipment.",
+          "type": "integer"
+        }
+      }
+    },
     "UpdateMaxBillableWeightAsTIOPayload": {
       "type": "object",
       "required": [
@@ -15868,7 +17031,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -16445,6 +17608,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -16828,6 +17992,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -16986,6 +18167,56 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/addresses/countries": {
+      "get": {
+        "description": "Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.\n",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns the countries matching the search query",
+        "operationId": "searchCountries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for countries",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "countries matching the search query",
+            "schema": {
+              "$ref": "#/definitions/Countries"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -17000,6 +18231,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -21461,6 +22699,55 @@ func init() {
         }
       }
     },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -22002,6 +23289,247 @@ func init() {
           "format": "uuid",
           "description": "UUID of the PPM shipment",
           "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a\ngun safe weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a gun safe weight ticket",
+        "operationId": "createGunSafeWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a gun safe weight line item by ID",
+        "operationId": "deleteGunSafeWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the gun safe weight ticket to be deleted",
+            "name": "gunSafeWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the gun safe weight ticket"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a gun safe weight ticket",
+        "operationId": "updateGunSafeWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateGunSafeWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGunSafeWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the gun safe weight ticket",
+          "name": "gunSafeWeightTicketId",
           "in": "path",
           "required": true
         }
@@ -24148,6 +25676,237 @@ func init() {
         }
       }
     },
+    "/queues/ppmCloseout": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. Personally procured moves will show up here once they are pending closeout by the services counselor. The services counselor is the designated role to action the items in this queue.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing PPM closeout by GBLOC origin",
+        "operationId": "getPPMCloseoutQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "requestedMoveDate",
+              "submittedAt",
+              "originGBLOC",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation",
+              "ppmStatus",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "As of right now the only ppm_shipments status is \"NEEDS_CLOSEOUT\". But we allow the frontend to \"filter\" this, it may be useful in the future. For now it'll always just be in need of closeout. If null we still show PPM moves needing closeout. Don't confuse this with the move's status. Move status and ppm shipment status are different.\n",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/prime-moves": {
       "get": {
         "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
@@ -26152,58 +27911,6 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadID}/status": {
-      "get": {
-        "description": "Returns status of an upload based on antivirus run",
-        "produces": [
-          "text/event-stream"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Returns status of an upload",
-        "operationId": "getUploadStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to return status of",
-            "name": "uploadID",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the requested upload status",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "INFECTED",
-                "CLEAN",
-                "PROCESSING"
-              ],
-              "readOnly": true
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/uploads/{uploadID}/update": {
       "patch": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
@@ -26645,7 +28352,8 @@ func init() {
     "BackupContact": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "phone"
       ],
@@ -26655,7 +28363,10 @@ func init() {
           "format": "x-email",
           "example": "backupContact@mail.com"
         },
-        "name": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
           "type": "string"
         },
         "phone": {
@@ -26908,7 +28619,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
@@ -27003,7 +28714,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -27070,6 +28781,579 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "Countries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Country"
+      }
+    },
+    "Country": {
+      "description": "Country code and name",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "Country Code",
+          "enum": [
+            "A2",
+            "AD",
+            "AE",
+            "AF",
+            "AG",
+            "AI",
+            "AL",
+            "AM",
+            "AN",
+            "AO",
+            "AQ",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "AW",
+            "AZ",
+            "BA",
+            "BB",
+            "BD",
+            "BE",
+            "BF",
+            "BG",
+            "BH",
+            "BI",
+            "BJ",
+            "BL",
+            "BM",
+            "BN",
+            "BO",
+            "BQ",
+            "BR",
+            "BS",
+            "BT",
+            "BV",
+            "BW",
+            "BY",
+            "BZ",
+            "CA",
+            "CC",
+            "CD",
+            "CF",
+            "CG",
+            "CH",
+            "CI",
+            "CK",
+            "CL",
+            "CM",
+            "CN",
+            "CO",
+            "CP",
+            "CR",
+            "CU",
+            "CV",
+            "CW",
+            "CX",
+            "CY",
+            "CZ",
+            "DE",
+            "DG",
+            "DJ",
+            "DK",
+            "DM",
+            "DO",
+            "DZ",
+            "EC",
+            "EE",
+            "EG",
+            "ER",
+            "ES",
+            "ET",
+            "FI",
+            "FJ",
+            "FK",
+            "FM",
+            "FO",
+            "FR",
+            "GA",
+            "GB",
+            "GD",
+            "GE",
+            "GF",
+            "GG",
+            "GH",
+            "GI",
+            "GL",
+            "GM",
+            "GN",
+            "GP",
+            "GQ",
+            "GR",
+            "GS",
+            "GT",
+            "GU",
+            "GW",
+            "GY",
+            "HK",
+            "HM",
+            "HN",
+            "HR",
+            "HT",
+            "HU",
+            "ID",
+            "IE",
+            "IL",
+            "IM",
+            "IN",
+            "IO",
+            "IQ",
+            "IR",
+            "IS",
+            "IT",
+            "JE",
+            "JM",
+            "JO",
+            "JP",
+            "KE",
+            "KG",
+            "KH",
+            "KI",
+            "KM",
+            "KN",
+            "KP",
+            "KR",
+            "KW",
+            "KY",
+            "KZ",
+            "LA",
+            "LB",
+            "LC",
+            "LI",
+            "LK",
+            "LR",
+            "LS",
+            "LT",
+            "LV",
+            "LY",
+            "MA",
+            "MD",
+            "ME",
+            "MF",
+            "MG",
+            "MH",
+            "MK",
+            "ML",
+            "MM",
+            "MN",
+            "MO",
+            "MP",
+            "MQ",
+            "MS",
+            "MT",
+            "MU",
+            "MV",
+            "MW",
+            "MY",
+            "MZ",
+            "NA",
+            "NC",
+            "NE",
+            "NG",
+            "NL",
+            "NO",
+            "NP",
+            "NU",
+            "NZ",
+            "OM",
+            "PA",
+            "PF",
+            "PG",
+            "PH",
+            "PL",
+            "PM",
+            "PN",
+            "PR",
+            "PW",
+            "PY",
+            "QA",
+            "QM",
+            "QS",
+            "QU",
+            "QW",
+            "QX",
+            "QZ",
+            "RO",
+            "RS",
+            "RW",
+            "SA",
+            "SB",
+            "SC",
+            "SD",
+            "SE",
+            "SG",
+            "SH",
+            "SI",
+            "SK",
+            "SM",
+            "SN",
+            "SO",
+            "SR",
+            "SS",
+            "ST",
+            "SV",
+            "SX",
+            "SZ",
+            "TC",
+            "TD",
+            "TF",
+            "TH",
+            "TJ",
+            "TK",
+            "TN",
+            "TO",
+            "TR",
+            "TT",
+            "TV",
+            "TW",
+            "UA",
+            "UG",
+            "US",
+            "UY",
+            "VA",
+            "VC",
+            "VG",
+            "VI",
+            "VN",
+            "VU",
+            "WS",
+            "XA",
+            "XB",
+            "XC",
+            "XD",
+            "XE",
+            "XG",
+            "XH",
+            "XJ",
+            "XK",
+            "XL",
+            "XM",
+            "XP",
+            "XQ",
+            "XR",
+            "XS",
+            "XU",
+            "XV",
+            "XW",
+            "YE",
+            "YT",
+            "ZA",
+            "ZM",
+            "LU",
+            "EH",
+            "MC",
+            "ZW",
+            "VE",
+            "WF",
+            "XT",
+            "MR",
+            "MX",
+            "NF",
+            "NI",
+            "NR",
+            "PE",
+            "PK",
+            "PT",
+            "RE",
+            "RU",
+            "SL",
+            "SY",
+            "TG",
+            "TL",
+            "TM",
+            "TZ",
+            "UZ"
+          ],
+          "x-display-value": {
+            "A2": "A2",
+            "AD": "AD",
+            "AE": "AE",
+            "AF": "AF",
+            "AG": "AG",
+            "AI": "AI",
+            "AL": "AL",
+            "AM": "AM",
+            "AN": "AN",
+            "AO": "AO",
+            "AQ": "AQ",
+            "AR": "AR",
+            "AS": "AS",
+            "AT": "AT",
+            "AU": "AU",
+            "AW": "AW",
+            "AZ": "AZ",
+            "BA": "BA",
+            "BB": "BB",
+            "BD": "BD",
+            "BE": "BE",
+            "BF": "BF",
+            "BG": "BG",
+            "BH": "BH",
+            "BI": "BI",
+            "BJ": "BJ",
+            "BL": "BL",
+            "BM": "BM",
+            "BN": "BN",
+            "BO": "BO",
+            "BQ": "BQ",
+            "BR": "BR",
+            "BS": "BS",
+            "BT": "BT",
+            "BV": "BV",
+            "BW": "BW",
+            "BY": "BY",
+            "BZ": "BZ",
+            "CA": "CA",
+            "CC": "CC",
+            "CD": "CD",
+            "CF": "CF",
+            "CG": "CG",
+            "CH": "CH",
+            "CI": "CI",
+            "CK": "CK",
+            "CL": "CL",
+            "CM": "CM",
+            "CN": "CN",
+            "CO": "CO",
+            "CP": "CP",
+            "CR": "CR",
+            "CU": "CU",
+            "CV": "CV",
+            "CW": "CW",
+            "CX": "CX",
+            "CY": "CY",
+            "CZ": "CZ",
+            "DE": "DE",
+            "DG": "DG",
+            "DJ": "DJ",
+            "DK": "DK",
+            "DM": "DM",
+            "DO": "DO",
+            "DZ": "DZ",
+            "EC": "EC",
+            "EE": "EE",
+            "EG": "EG",
+            "EH": "EH",
+            "ER": "ER",
+            "ES": "ES",
+            "ET": "ET",
+            "FI": "FI",
+            "FJ": "FJ",
+            "FK": "FK",
+            "FM": "FM",
+            "FO": "FO",
+            "FR": "FR",
+            "GA": "GA",
+            "GB": "GB",
+            "GD": "GD",
+            "GE": "GE",
+            "GF": "GF",
+            "GG": "GG",
+            "GH": "GH",
+            "GI": "GI",
+            "GL": "GL",
+            "GM": "GM",
+            "GN": "GN",
+            "GP": "GP",
+            "GQ": "GQ",
+            "GR": "GR",
+            "GS": "GS",
+            "GT": "GT",
+            "GU": "GU",
+            "GW": "GW",
+            "GY": "GY",
+            "HK": "HK",
+            "HM": "HM",
+            "HN": "HN",
+            "HR": "HR",
+            "HT": "HT",
+            "HU": "HU",
+            "ID": "ID",
+            "IE": "IE",
+            "IL": "IL",
+            "IM": "IM",
+            "IN": "IN",
+            "IO": "IO",
+            "IQ": "IQ",
+            "IR": "IR",
+            "IS": "IS",
+            "IT": "IT",
+            "JE": "JE",
+            "JM": "JM",
+            "JO": "JO",
+            "JP": "JP",
+            "KE": "KE",
+            "KG": "KG",
+            "KH": "KH",
+            "KI": "KI",
+            "KM": "KM",
+            "KN": "KN",
+            "KP": "KP",
+            "KR": "KR",
+            "KW": "KW",
+            "KY": "KY",
+            "KZ": "KZ",
+            "LA": "LA",
+            "LB": "LB",
+            "LC": "LC",
+            "LI": "LI",
+            "LK": "LK",
+            "LR": "LR",
+            "LS": "LS",
+            "LT": "LT",
+            "LU": "LU",
+            "LV": "LV",
+            "LY": "LY",
+            "MA": "MA",
+            "MC": "MC",
+            "MD": "MD",
+            "ME": "ME",
+            "MF": "MF",
+            "MG": "MG",
+            "MH": "MH",
+            "MK": "MK",
+            "ML": "ML",
+            "MM": "MM",
+            "MN": "MN",
+            "MO": "MO",
+            "MP": "MP",
+            "MQ": "MQ",
+            "MR": "MR",
+            "MS": "MS",
+            "MT": "MT",
+            "MU": "MU",
+            "MV": "MV",
+            "MW": "MW",
+            "MX": "MX",
+            "MY": "MY",
+            "MZ": "MZ",
+            "NA": "NA",
+            "NC": "NC",
+            "NE": "NE",
+            "NF": "NF",
+            "NG": "NG",
+            "NI": "NI",
+            "NL": "NL",
+            "NO": "NO",
+            "NP": "NP",
+            "NR": "NR",
+            "NU": "NU",
+            "NZ": "NZ",
+            "OM": "OM",
+            "PA": "PA",
+            "PE": "PE",
+            "PF": "PF",
+            "PG": "PG",
+            "PH": "PH",
+            "PK": "PK",
+            "PL": "PL",
+            "PM": "PM",
+            "PN": "PN",
+            "PR": "PR",
+            "PT": "PT",
+            "PW": "PW",
+            "PY": "PY",
+            "QA": "QA",
+            "QM": "QM",
+            "QS": "QS",
+            "QU": "QU",
+            "QW": "QW",
+            "QX": "QX",
+            "QZ": "QZ",
+            "RE": "RE",
+            "RO": "RO",
+            "RS": "RS",
+            "RU": "RU",
+            "RW": "RW",
+            "SA": "SA",
+            "SB": "SB",
+            "SC": "SC",
+            "SD": "SD",
+            "SE": "SE",
+            "SG": "SG",
+            "SH": "SH",
+            "SI": "SI",
+            "SK": "SK",
+            "SL": "SL",
+            "SM": "SM",
+            "SN": "SN",
+            "SO": "SO",
+            "SR": "SR",
+            "SS": "SS",
+            "ST": "ST",
+            "SV": "SV",
+            "SX": "SX",
+            "SY": "SY",
+            "SZ": "SZ",
+            "TC": "TC",
+            "TD": "TD",
+            "TF": "TF",
+            "TG": "TG",
+            "TH": "TH",
+            "TJ": "TJ",
+            "TK": "TK",
+            "TL": "TL",
+            "TM": "TM",
+            "TN": "TN",
+            "TO": "TO",
+            "TR": "TR",
+            "TT": "TT",
+            "TV": "TV",
+            "TW": "TW",
+            "TZ": "TZ",
+            "UA": "UA",
+            "UG": "UG",
+            "US": "US",
+            "UY": "UY",
+            "UZ": "UZ",
+            "VA": "VA",
+            "VC": "VC",
+            "VE": "VE",
+            "VG": "VG",
+            "VI": "VI",
+            "VN": "VN",
+            "VU": "VU",
+            "WF": "WF",
+            "WS": "WS",
+            "XA": "XA",
+            "XB": "XB",
+            "XC": "XC",
+            "XD": "XD",
+            "XE": "XE",
+            "XG": "XG",
+            "XH": "XH",
+            "XJ": "XJ",
+            "XK": "XK",
+            "XL": "XL",
+            "XM": "XM",
+            "XP": "XP",
+            "XQ": "XQ",
+            "XR": "XR",
+            "XS": "XS",
+            "XT": "XT",
+            "XU": "XU",
+            "XV": "XV",
+            "XW": "XW",
+            "YE": "YE",
+            "YT": "YT",
+            "ZA": "ZA",
+            "ZM": "ZM",
+            "ZW": "ZW"
+          }
+        },
+        "name": {
+          "type": "string",
+          "title": "Country Name",
+          "example": "UNITED STATES"
         }
       }
     },
@@ -27548,7 +29832,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -28576,72 +30860,122 @@ func init() {
         "$ref": "#/definitions/GSRAppeal"
       }
     },
-    "Grade": {
-      "type": "string",
-      "title": "grade",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
+    "GunSafeWeightTicket": {
+      "description": "Gun safe associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "documentId",
+        "document"
       ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
+      "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the gun safe that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the gun safe weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the gun safe weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "The ID of the gun safe weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this gun safe weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the gun safe.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the gun safe.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
+    "GunSafeWeightTickets": {
+      "description": "All gunsafe weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GunSafeWeightTicket"
       },
-      "x-nullable": true
+      "x-omitempty": false
     },
     "InvalidRequestResponsePayload": {
       "type": "object",
@@ -30057,16 +32391,19 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TIOAssignedUser": {
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOODestinationAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -31129,7 +33466,7 @@ func init() {
           "example": "John"
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -31241,6 +33578,84 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid"
+        }
+      }
+    },
+    "OrderPayGrade": {
+      "type": "string",
+      "title": "Grade",
+      "enum": [
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
         }
       }
     },
@@ -31699,6 +34114,9 @@ func init() {
       "description": "All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.",
       "type": "object",
       "properties": {
+        "GunSafeWeightTickets": {
+          "$ref": "#/definitions/GunSafeWeightTickets"
+        },
         "MovingExpenses": {
           "$ref": "#/definitions/MovingExpenses"
         },
@@ -31979,6 +34397,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gunSafeWeightTickets": {
+          "description": "All gun safe weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GunSafeWeightTicket"
+          }
         },
         "hasGunSafe": {
           "description": "Indicates whether PPM shipment has gun safe.\n",
@@ -32938,6 +35363,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "closeoutInitiatedDates": {
+          "description": "comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)",
+          "type": "string",
+          "x-nullable": true
+        },
         "closeoutLocation": {
           "type": "string",
           "x-nullable": true
@@ -33863,7 +36293,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -34398,7 +36828,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
@@ -34614,6 +37044,31 @@ func init() {
         }
       }
     },
+    "UpdateGunSafeWeightTicket": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Description of gun safe included in trips set.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the gun safe contained in the shipment.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
     "UpdateMaxBillableWeightAsTIOPayload": {
       "type": "object",
       "required": [
@@ -34800,7 +37255,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -35382,6 +37837,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -35773,6 +38229,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",

@@ -20,6 +20,7 @@ import (
 type OrderFetcher interface {
 	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
 	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *ListOrderParams) ([]models.Move, int, error)
+	ListPPMCloseoutOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
 	ListOriginRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
 	ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *ListOrderParams) ([]models.Move, int, error)
 	ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, error)
@@ -49,31 +50,29 @@ type ExcessWeightRiskManager interface {
 
 // ListOrderParams is a public struct that's used to pass filter arguments to the ListOrders
 type ListOrderParams struct {
-	Branch                     *string
-	Locator                    *string
-	Edipi                      *string
-	Emplid                     *string
-	CustomerName               *string
-	DestinationDutyLocation    *string
-	OriginDutyLocation         []string
-	OriginGBLOC                *string
-	SubmittedAt                *time.Time
-	AppearedInTOOAt            *time.Time
-	RequestedMoveDate          *string
-	Status                     []string
-	Page                       *int64
-	PerPage                    *int64
-	Sort                       *string
-	Order                      *string
-	NeedsPPMCloseout           *bool
-	PPMType                    *string
-	CloseoutInitiated          *time.Time
-	CloseoutLocation           *string
-	OrderType                  *string
-	PPMStatus                  *string
-	ViewAsGBLOC                *string
-	CounselingOffice           *string
-	SCAssignedUser             *string
-	TOOAssignedUser            *string
-	TOODestinationAssignedUser *string
+	Branch                  *string
+	Locator                 *string
+	Edipi                   *string
+	Emplid                  *string
+	CustomerName            *string
+	DestinationDutyLocation *string
+	OriginDutyLocation      []string
+	OriginGBLOC             *string
+	SubmittedAt             *time.Time
+	AppearedInTOOAt         *time.Time
+	RequestedMoveDate       *string
+	Status                  []string
+	Page                    *int64
+	PerPage                 *int64
+	Sort                    *string
+	Order                   *string
+	NeedsPPMCloseout        *bool
+	PPMType                 *string
+	CloseoutInitiated       *time.Time
+	CloseoutLocation        *string
+	OrderType               *string
+	PPMStatus               *string
+	ViewAsGBLOC             *string
+	CounselingOffice        *string
+	AssignedTo              *string
 }

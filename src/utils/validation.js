@@ -57,7 +57,6 @@ export const IsSupportedState = async (value, context) => {
   const selectedState = value;
 
   const enableAK = 'enabledAK';
-
   let unsupportedStates;
   if (enableAK in context.options.context) {
     unsupportedStates = context.options.context.enabledAK ? unSupportedStates : unSupportedStatesDisabledAlaska;
@@ -151,7 +150,8 @@ export const contactInfoSchema = Yup.object()
   .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
 
 export const backupContactInfoSchema = Yup.object().shape({
-  name: Yup.string().required('Required'),
+  firstName: Yup.string().trim().min(1, 'Required').required('Required'),
+  lastName: Yup.string().trim().min(1, 'Required').required('Required'),
   email: emailSchema.required('Required'),
   telephone: phoneSchema.required('Required'),
 });

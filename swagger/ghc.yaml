@@ -2257,6 +2257,125 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    post:
+      summary: Creates a gun safe weight ticket
+      description: >
+        Creates a PPM shipment's gun safe weight ticket. This will only contain
+        the minimum necessary fields for a
+
+        gun safe weight ticket. Data should be filled in using the patch
+        endpoint.
+      operationId: createGunSafeWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: returns a new gun safe weight ticket object
+          schema:
+            $ref: '#/definitions/GunSafeWeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+      - name: gunSafeWeightTicketId
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: UUID of the gun safe weight ticket
+    patch:
+      summary: Updates a gun safe weight ticket
+      description: >
+        Updates a PPM shipment's gun safe weight ticket with new information.
+        Only some of the fields are editable
+
+        because some have to be set by the customer, e.g. the description.
+      operationId: updateGunSafeWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - in: body
+          name: updateGunSafeWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateGunSafeWeightTicket'
+      responses:
+        '200':
+          description: returns an updated gun safe weight ticket object
+          schema:
+            $ref: '#/definitions/GunSafeWeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a gun safe weight line item by ID
+      description: >
+        Removes a single gun safe weight ticket set from the closeout line items
+        for a PPM shipment. Soft deleted
+
+        records are not visible in milmove, but are kept in the database.
+      operationId: deleteGunSafeWeightTicket
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ppmShipmentId'
+        - description: ID of the gun safe weight ticket to be deleted
+          in: path
+          name: gunSafeWeightTicketId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the gun safe weight ticket
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/aoa-packet:
     parameters:
       - description: the id for the ppmshipment with aoa to be downloaded
@@ -4123,6 +4242,184 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+  /queues/ppmCloseout:
+    get:
+      produces:
+        - application/json
+      summary: >-
+        Gets queued list of all customer moves needing PPM closeout by GBLOC
+        origin
+      description: >
+        An office services counselor user will be assigned a transportation
+        office that will determine which moves are displayed in their queue
+        based on the origin duty location. Personally procured moves will show
+        up here once they are pending closeout by the services counselor. The
+        services counselor is the designated role to action the items in this
+        queue.
+      operationId: getPPMCloseoutQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page number of paginated move results
+        - in: query
+          name: perPage
+          type: integer
+          description: maximum number of moves to show on each page of paginated results
+        - in: query
+          name: sort
+          type: string
+          enum:
+            - customerName
+            - edipi
+            - emplid
+            - branch
+            - locator
+            - status
+            - requestedMoveDate
+            - submittedAt
+            - originGBLOC
+            - originDutyLocation
+            - destinationDutyLocation
+            - ppmType
+            - closeoutInitiated
+            - closeoutLocation
+            - ppmStatus
+            - counselingOffice
+            - assignedTo
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum:
+            - asc
+            - desc
+          description: direction of sort order if applied
+        - in: query
+          name: branch
+          type: string
+          description: filters by the branch of the move's service member
+        - in: query
+          name: locator
+          type: string
+          description: filters to match the unique move code locator
+        - in: query
+          name: customerName
+          type: string
+          description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
+        - in: query
+          name: edipi
+          type: string
+          description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
+        - in: query
+          name: submittedAt
+          type: string
+          format: date-time
+          description: >-
+            Start of the submitted at date in the user's local time zone
+            converted to UTC
+        - in: query
+          name: originGBLOC
+          type: string
+          description: filters the GBLOC of the service member's origin duty location
+        - in: query
+          name: originDutyLocation
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
+          description: filters the name of the origin duty location on the orders
+        - in: query
+          name: destinationDutyLocation
+          type: string
+          description: filters the name of the destination duty location on the orders
+        - in: query
+          name: status
+          type: array
+          description: filters the status of the move
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - NEEDS SERVICE COUNSELING
+              - SERVICE COUNSELING COMPLETED
+        - in: query
+          name: needsPPMCloseout
+          type: boolean
+          description: >
+            As of right now the only ppm_shipments status is "NEEDS_CLOSEOUT".
+            But we allow the frontend to "filter" this, it may be useful in the
+            future. For now it'll always just be in need of closeout. If null we
+            still show PPM moves needing closeout. Don't confuse this with the
+            move's status. Move status and ppm shipment status are different.
+        - in: query
+          name: ppmType
+          type: string
+          enum:
+            - FULL
+            - PARTIAL
+          description: filters PPM type
+        - in: query
+          name: closeoutInitiated
+          type: string
+          format: date-time
+          description: Latest date that closeout was initiated on a PPM on the move
+        - in: query
+          name: closeoutLocation
+          type: string
+          description: closeout location
+        - in: query
+          name: orderType
+          type: string
+          description: order type
+        - in: query
+          name: ppmStatus
+          type: string
+          enum:
+            - WAITING_ON_CUSTOMER
+            - NEEDS_CLOSEOUT
+          description: filters the status of the PPM shipment
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >
+            Used to return a queue for a GBLOC other than the default of the
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/bulk-assignment:
     get:
       produces:
@@ -4961,11 +5258,49 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: >-
+            Toggles whether the search results should include postal codes that
+            only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
             $ref: '#/definitions/VLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /addresses/countries:
+    get:
+      summary: Returns the countries matching the search query
+      description: >
+        Search API using search string that returns list of countries containing
+        its code and name. Will return all if 'search' query string parameter is
+        not available/empty. If 2 chars are provided search will do an exact
+        match on country code and also do a starts with match on country name.
+        If not 2 characters search will do a starts with match on country name.
+      operationId: searchCountries
+      tags:
+        - addresses
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: false
+          description: Search string for countries
+      responses:
+        '200':
+          description: countries matching the search query
+          schema:
+            $ref: '#/definitions/Countries'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -5182,42 +5517,6 @@ paths:
           description: payload is too large
         '500':
           description: server error
-  /uploads/{uploadID}/status:
-    get:
-      summary: Returns status of an upload
-      description: Returns status of an upload based on antivirus run
-      operationId: getUploadStatus
-      produces:
-        - text/event-stream
-      tags:
-        - uploads
-      parameters:
-        - in: path
-          name: uploadID
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the upload to return status of
-      responses:
-        '200':
-          description: the requested upload status
-          schema:
-            type: string
-            enum:
-              - INFECTED
-              - CLEAN
-              - PROCESSING
-            readOnly: true
-        '400':
-          description: invalid request
-          schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        '403':
-          description: not authorized
-        '404':
-          description: not found
-        '500':
-          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -5378,6 +5677,28 @@ paths:
         - move
       description: Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
+  /paygrade/{affiliation}:
+    get:
+      summary: Get pay grades for specified affiliation
+      description: Get pay grades for specified affiliation
+      operationId: getPayGrades
+      tags:
+        - orders
+      parameters:
+        - $ref: '#/parameters/AffiliationParam'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OrderPayGrades'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 definitions:
   ApplicationParameters:
     type: object
@@ -5436,7 +5757,9 @@ definitions:
   BackupContact:
     type: object
     properties:
-      name:
+      firstName:
+        type: string
+      lastName:
         type: string
       email:
         type: string
@@ -5447,7 +5770,8 @@ definitions:
         format: telephone
         pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
     required:
-      - name
+      - firstName
+      - lastName
       - email
       - phone
   Contractor:
@@ -6124,70 +6448,6 @@ definitions:
     required:
       - message
     type: object
-  Grade:
-    type: string
-    x-nullable: true
-    title: grade
-    enum:
-      - E_1
-      - E_2
-      - E_3
-      - E_4
-      - E_5
-      - E_6
-      - E_7
-      - E_8
-      - E_9
-      - E_9_SPECIAL_SENIOR_ENLISTED
-      - O_1_ACADEMY_GRADUATE
-      - O_2
-      - O_3
-      - O_4
-      - O_5
-      - O_6
-      - O_7
-      - O_8
-      - O_9
-      - O_10
-      - W_1
-      - W_2
-      - W_3
-      - W_4
-      - W_5
-      - AVIATION_CADET
-      - CIVILIAN_EMPLOYEE
-      - ACADEMY_CADET
-      - MIDSHIPMAN
-    x-display-value:
-      E_1: E-1
-      E_2: E-2
-      E_3: E-3
-      E_4: E-4
-      E_5: E-5
-      E_6: E-6
-      E_7: E-7
-      E_8: E-8
-      E_9: E-9
-      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
-      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
-      O_2: O-2
-      O_3: O-3
-      O_4: O-4
-      O_5: O-5
-      O_6: O-6
-      O_7: O-7
-      O_8: O-8
-      O_9: O-9
-      O_10: O-10
-      W_1: W-1
-      W_2: W-2
-      W_3: W-3
-      W_4: W-4
-      W_5: W-5
-      AVIATION_CADET: Aviation Cadet
-      CIVILIAN_EMPLOYEE: Civilian Employee
-      ACADEMY_CADET: Service Academy Cadet
-      MIDSHIPMAN: Midshipman
   Move:
     properties:
       id:
@@ -6329,11 +6589,13 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: '#/definitions/Document'
-      SCAssignedUser:
+      SCCounselingAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TOOAssignedUser:
+      SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TIOAssignedUser:
+      TOOTaskOrderAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TIOPaymentRequestAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOODestinationAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
@@ -6580,7 +6842,7 @@ definitions:
         example: Doe
         readOnly: true
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       entitlement:
@@ -6751,7 +7013,7 @@ definitions:
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       originDutyLocationId:
         type: string
         format: uuid
@@ -6851,7 +7113,7 @@ definitions:
         example: N002214CSW32Y9
         $ref: '#/definitions/NullableString'
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6936,7 +7198,7 @@ definitions:
         type: boolean
         x-nullable: true
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       dependentsAuthorized:
         type: boolean
         x-nullable: true
@@ -6958,7 +7220,7 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -7080,7 +7342,7 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -7910,6 +8172,26 @@ definitions:
       description:
         description: Description of pro gear included in trips set.
         type: string
+  UpdateGunSafeWeightTicket:
+    type: object
+    properties:
+      hasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their gun safe,
+          otherwise they have a constructed weight.
+        type: boolean
+      weight:
+        description: Weight of the gun safe contained in the shipment.
+        type: integer
+        minimum: 0
+      status:
+        $ref: '#/definitions/PPMDocumentStatus'
+      reason:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+      description:
+        description: Description of gun safe included in trips set.
+        type: string
   ApproveShipments:
     type: object
     properties:
@@ -8482,6 +8764,12 @@ definitions:
       requestedMoveDates:
         type: string
         description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
+      closeoutInitiatedDates:
+        type: string
+        description: >-
+          comma‑separated list of PPM shipment closeout initiated dates
+          (YYYY‑MM‑DD)
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
@@ -9140,6 +9428,10 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  ReServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ReServiceItem'
   TransportationOffices:
     type: array
     items:
@@ -9148,10 +9440,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/VLocation'
-  ReServiceItems:
+  Countries:
     type: array
     items:
-      $ref: '#/definitions/ReServiceItem'
+      $ref: '#/definitions/Country'
   GBLOCs:
     type: array
     items:
@@ -9537,6 +9829,70 @@ definitions:
       - officeUserId
       - transportationOfficeId
       - primaryOffice
+  OrderPayGrade:
+    type: string
+    x-nullable: true
+    title: Grade
+    enum:
+      - E-1
+      - E-2
+      - E-3
+      - E-4
+      - E-5
+      - E-6
+      - E-7
+      - E-8
+      - E-9
+      - E-9-SPECIAL-SENIOR-ENLISTED
+      - O-1
+      - O-2
+      - O-3
+      - O-4
+      - O-5
+      - O-6
+      - O-7
+      - O-8
+      - O-9
+      - O-10
+      - W-1
+      - W-2
+      - W-3
+      - W-4
+      - W-5
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET
+      - MIDSHIPMAN
+    x-display-value:
+      E_1: E-1
+      E_2: E-2
+      E_3: E-3
+      E_4: E-4
+      E_5: E-5
+      E_6: E-6
+      E_7: E-7
+      E_8: E-8
+      E_9: E-9
+      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
+      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
+      O_6: O-6
+      O_7: O-7
+      O_8: O-8
+      O_9: O-9
+      O_10: O-10
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman
   DutyLocation:
     type: object
     properties:
@@ -9615,6 +9971,7 @@ definitions:
         enum:
           - INFECTED
           - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
         readOnly: true
       createdAt:
@@ -10503,6 +10860,101 @@ definitions:
     type: string
     x-nullable: true
     x-omitempty: false
+  GunSafeWeightTicket:
+    description: Gun safe associated information and weight docs for a PPM shipment
+    type: object
+    properties:
+      id:
+        description: The ID of the gun safe weight ticket.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmShipmentId:
+        description: >-
+          The ID of the PPM shipment that this gun safe weight ticket is
+          associated with.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      description:
+        description: Describes the gun safe that was moved.
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      hasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their gun safe,
+          otherwise they have a constructed weight.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      submittedHasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their gun safe,
+          otherwise they have a constructed weight.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      weight:
+        description: Weight of the gun safe.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedWeight:
+        description: Customer submitted weight of the gun safe.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      documentId:
+        description: >-
+          The ID of the document that is associated with the user uploads
+          containing the gun safe weight.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      document:
+        allOf:
+          - description: >-
+              Document that is associated with the user uploads containing the
+              gun safe weight.
+          - $ref: '#/definitions/Document'
+      status:
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
+      reason:
+        $ref: '#/definitions/PPMDocumentStatusReason'
+      eTag:
+        description: A hash that should be used as the "If-Match" header for any updates.
+        type: string
+        readOnly: true
+      amount:
+        description: The total amount of the expense as indicated on the receipt
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+    required:
+      - ppmShipmentId
+      - createdAt
+      - updatedAt
+      - documentId
+      - document
   WeightTicket:
     description: >-
       Vehicle and optional trailer information and weight documents used to move
@@ -11269,6 +11721,13 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      gunSafeWeightTickets:
+        description: >-
+          All gun safe weight ticket documentation records for this PPM
+          shipment.
+        type: array
+        items:
+          $ref: '#/definitions/GunSafeWeightTicket'
       estimatedIncentive:
         description: >-
           The estimated amount the government will pay the service member to
@@ -11942,6 +12401,12 @@ definitions:
     items:
       $ref: '#/definitions/ProGearWeightTicket'
     x-omitempty: false
+  GunSafeWeightTickets:
+    description: All gunsafe weight tickets associated with a PPM shipment.
+    type: array
+    items:
+      $ref: '#/definitions/GunSafeWeightTicket'
+    x-omitempty: false
   MovingExpenses:
     description: All moving expenses associated with a PPM shipment.
     type: array
@@ -11960,6 +12425,8 @@ definitions:
         $ref: '#/definitions/WeightTickets'
       ProGearWeightTickets:
         $ref: '#/definitions/ProGearWeightTickets'
+      GunSafeWeightTickets:
+        $ref: '#/definitions/GunSafeWeightTickets'
       MovingExpenses:
         $ref: '#/definitions/MovingExpenses'
   PPMDocumentStatus:
@@ -12363,7 +12830,7 @@ definitions:
       - IsPeak
       - MarketDest
       - MarketOrigin
-      - MTOAvailableToPrimeAt
+      - MTOEarliestRequestedPickup
       - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
@@ -12927,6 +13394,567 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  Country:
+    description: Country code and name
+    type: object
+    properties:
+      code:
+        title: Country Code
+        type: string
+        x-display-value:
+          A2: A2
+          AD: AD
+          AE: AE
+          AF: AF
+          AG: AG
+          AI: AI
+          AL: AL
+          AM: AM
+          AN: AN
+          AO: AO
+          AQ: AQ
+          AR: AR
+          AS: AS
+          AT: AT
+          AU: AU
+          AW: AW
+          AZ: AZ
+          BA: BA
+          BB: BB
+          BD: BD
+          BE: BE
+          BF: BF
+          BG: BG
+          BH: BH
+          BI: BI
+          BJ: BJ
+          BL: BL
+          BM: BM
+          BN: BN
+          BO: BO
+          BQ: BQ
+          BR: BR
+          BS: BS
+          BT: BT
+          BV: BV
+          BW: BW
+          BY: BY
+          BZ: BZ
+          CA: CA
+          CC: CC
+          CD: CD
+          CF: CF
+          CG: CG
+          CH: CH
+          CI: CI
+          CK: CK
+          CL: CL
+          CM: CM
+          CN: CN
+          CO: CO
+          CP: CP
+          CR: CR
+          CU: CU
+          CV: CV
+          CW: CW
+          CX: CX
+          CY: CY
+          CZ: CZ
+          DE: DE
+          DG: DG
+          DJ: DJ
+          DK: DK
+          DM: DM
+          DO: DO
+          DZ: DZ
+          EC: EC
+          EE: EE
+          EG: EG
+          ER: ER
+          ES: ES
+          ET: ET
+          FI: FI
+          FJ: FJ
+          FK: FK
+          FM: FM
+          FO: FO
+          FR: FR
+          GA: GA
+          GB: GB
+          GD: GD
+          GE: GE
+          GF: GF
+          GG: GG
+          GH: GH
+          GI: GI
+          GL: GL
+          GM: GM
+          GN: GN
+          GP: GP
+          GQ: GQ
+          GR: GR
+          GS: GS
+          GT: GT
+          GU: GU
+          GW: GW
+          GY: GY
+          HK: HK
+          HM: HM
+          HN: HN
+          HR: HR
+          HT: HT
+          HU: HU
+          ID: ID
+          IE: IE
+          IL: IL
+          IM: IM
+          IN: IN
+          IO: IO
+          IQ: IQ
+          IR: IR
+          IS: IS
+          IT: IT
+          JE: JE
+          JM: JM
+          JO: JO
+          JP: JP
+          KE: KE
+          KG: KG
+          KH: KH
+          KI: KI
+          KM: KM
+          KN: KN
+          KP: KP
+          KR: KR
+          KW: KW
+          KY: KY
+          KZ: KZ
+          LA: LA
+          LB: LB
+          LC: LC
+          LI: LI
+          LK: LK
+          LR: LR
+          LS: LS
+          LT: LT
+          LV: LV
+          LY: LY
+          MA: MA
+          MD: MD
+          ME: ME
+          MF: MF
+          MG: MG
+          MH: MH
+          MK: MK
+          ML: ML
+          MM: MM
+          MN: MN
+          MO: MO
+          MP: MP
+          MQ: MQ
+          MS: MS
+          MT: MT
+          MU: MU
+          MV: MV
+          MW: MW
+          MY: MY
+          MZ: MZ
+          NA: NA
+          NC: NC
+          NE: NE
+          NG: NG
+          NL: NL
+          'NO': 'NO'
+          NP: NP
+          NU: NU
+          NZ: NZ
+          OM: OM
+          PA: PA
+          PF: PF
+          PG: PG
+          PH: PH
+          PL: PL
+          PM: PM
+          PN: PN
+          PR: PR
+          PW: PW
+          PY: PY
+          QA: QA
+          QM: QM
+          QS: QS
+          QU: QU
+          QW: QW
+          QX: QX
+          QZ: QZ
+          RO: RO
+          RS: RS
+          RW: RW
+          SA: SA
+          SB: SB
+          SC: SC
+          SD: SD
+          SE: SE
+          SG: SG
+          SH: SH
+          SI: SI
+          SK: SK
+          SM: SM
+          SN: SN
+          SO: SO
+          SR: SR
+          SS: SS
+          ST: ST
+          SV: SV
+          SX: SX
+          SZ: SZ
+          TC: TC
+          TD: TD
+          TF: TF
+          TH: TH
+          TJ: TJ
+          TK: TK
+          TN: TN
+          TO: TO
+          TR: TR
+          TT: TT
+          TV: TV
+          TW: TW
+          UA: UA
+          UG: UG
+          US: US
+          UY: UY
+          VA: VA
+          VC: VC
+          VG: VG
+          VI: VI
+          VN: VN
+          VU: VU
+          WS: WS
+          XA: XA
+          XB: XB
+          XC: XC
+          XD: XD
+          XE: XE
+          XG: XG
+          XH: XH
+          XJ: XJ
+          XK: XK
+          XL: XL
+          XM: XM
+          XP: XP
+          XQ: XQ
+          XR: XR
+          XS: XS
+          XU: XU
+          XV: XV
+          XW: XW
+          YE: YE
+          YT: YT
+          ZA: ZA
+          ZM: ZM
+          LU: LU
+          EH: EH
+          MC: MC
+          ZW: ZW
+          VE: VE
+          WF: WF
+          XT: XT
+          MR: MR
+          MX: MX
+          NF: NF
+          NI: NI
+          NR: NR
+          PE: PE
+          PK: PK
+          PT: PT
+          RE: RE
+          RU: RU
+          SL: SL
+          SY: SY
+          TG: TG
+          TL: TL
+          TM: TM
+          TZ: TZ
+          UZ: UZ
+        enum:
+          - A2
+          - AD
+          - AE
+          - AF
+          - AG
+          - AI
+          - AL
+          - AM
+          - AN
+          - AO
+          - AQ
+          - AR
+          - AS
+          - AT
+          - AU
+          - AW
+          - AZ
+          - BA
+          - BB
+          - BD
+          - BE
+          - BF
+          - BG
+          - BH
+          - BI
+          - BJ
+          - BL
+          - BM
+          - BN
+          - BO
+          - BQ
+          - BR
+          - BS
+          - BT
+          - BV
+          - BW
+          - BY
+          - BZ
+          - CA
+          - CC
+          - CD
+          - CF
+          - CG
+          - CH
+          - CI
+          - CK
+          - CL
+          - CM
+          - CN
+          - CO
+          - CP
+          - CR
+          - CU
+          - CV
+          - CW
+          - CX
+          - CY
+          - CZ
+          - DE
+          - DG
+          - DJ
+          - DK
+          - DM
+          - DO
+          - DZ
+          - EC
+          - EE
+          - EG
+          - ER
+          - ES
+          - ET
+          - FI
+          - FJ
+          - FK
+          - FM
+          - FO
+          - FR
+          - GA
+          - GB
+          - GD
+          - GE
+          - GF
+          - GG
+          - GH
+          - GI
+          - GL
+          - GM
+          - GN
+          - GP
+          - GQ
+          - GR
+          - GS
+          - GT
+          - GU
+          - GW
+          - GY
+          - HK
+          - HM
+          - HN
+          - HR
+          - HT
+          - HU
+          - ID
+          - IE
+          - IL
+          - IM
+          - IN
+          - IO
+          - IQ
+          - IR
+          - IS
+          - IT
+          - JE
+          - JM
+          - JO
+          - JP
+          - KE
+          - KG
+          - KH
+          - KI
+          - KM
+          - KN
+          - KP
+          - KR
+          - KW
+          - KY
+          - KZ
+          - LA
+          - LB
+          - LC
+          - LI
+          - LK
+          - LR
+          - LS
+          - LT
+          - LV
+          - LY
+          - MA
+          - MD
+          - ME
+          - MF
+          - MG
+          - MH
+          - MK
+          - ML
+          - MM
+          - MN
+          - MO
+          - MP
+          - MQ
+          - MS
+          - MT
+          - MU
+          - MV
+          - MW
+          - MY
+          - MZ
+          - NA
+          - NC
+          - NE
+          - NG
+          - NL
+          - 'NO'
+          - NP
+          - NU
+          - NZ
+          - OM
+          - PA
+          - PF
+          - PG
+          - PH
+          - PL
+          - PM
+          - PN
+          - PR
+          - PW
+          - PY
+          - QA
+          - QM
+          - QS
+          - QU
+          - QW
+          - QX
+          - QZ
+          - RO
+          - RS
+          - RW
+          - SA
+          - SB
+          - SC
+          - SD
+          - SE
+          - SG
+          - SH
+          - SI
+          - SK
+          - SM
+          - SN
+          - SO
+          - SR
+          - SS
+          - ST
+          - SV
+          - SX
+          - SZ
+          - TC
+          - TD
+          - TF
+          - TH
+          - TJ
+          - TK
+          - TN
+          - TO
+          - TR
+          - TT
+          - TV
+          - TW
+          - UA
+          - UG
+          - US
+          - UY
+          - VA
+          - VC
+          - VG
+          - VI
+          - VN
+          - VU
+          - WS
+          - XA
+          - XB
+          - XC
+          - XD
+          - XE
+          - XG
+          - XH
+          - XJ
+          - XK
+          - XL
+          - XM
+          - XP
+          - XQ
+          - XR
+          - XS
+          - XU
+          - XV
+          - XW
+          - YE
+          - YT
+          - ZA
+          - ZM
+          - LU
+          - EH
+          - MC
+          - ZW
+          - VE
+          - WF
+          - XT
+          - MR
+          - MX
+          - NF
+          - NI
+          - NR
+          - PE
+          - PK
+          - PT
+          - RE
+          - RU
+          - SL
+          - SY
+          - TG
+          - TL
+          - TM
+          - TZ
+          - UZ
+      name:
+        type: string
+        example: UNITED STATES
+        title: Country Name
   ReServiceItem:
     description: A Service Item which ties an ReService, Market, and Shipment Type together
     type: object
@@ -13009,6 +14037,13 @@ definitions:
       isAutoApproved:
         type: boolean
         example: true
+  OrderPayGrades:
+    type: object
+    properties:
+      grade:
+        type: string
+      description:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid
@@ -13076,3 +14111,18 @@ parameters:
     format: uuid
     required: true
     description: UUID of the pro-gear weight ticket
+  AffiliationParam:
+    name: affiliation
+    in: path
+    required: true
+    type: string
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-nullable: true
+    description: Military branch of service

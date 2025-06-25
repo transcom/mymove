@@ -127,7 +127,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const location = useLocation();
   const displayChangeRole =
     props.userIsLoggedIn &&
-    props.userRoles?.length > 1 &&
+    !!props.userInactiveRoles?.length &&
     !matchPath(
       {
         path: '/select-application',
@@ -551,6 +551,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                         </PrivateRoute>
                       }
                     />
+
                     {/* COR */}
                     <Route
                       key="corMoveSearchPath"
@@ -636,7 +637,7 @@ OfficeApp.propTypes = {
   loginIsLoading: PropTypes.bool,
   userIsLoggedIn: PropTypes.bool,
   userPermissions: PropTypes.arrayOf(PropTypes.string),
-  userRoles: UserRolesShape,
+  userInactiveRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
@@ -653,7 +654,7 @@ OfficeApp.defaultProps = {
   loginIsLoading: false,
   userIsLoggedIn: false,
   userPermissions: [],
-  userRoles: [],
+  userInactiveRoles: [],
   activeRole: null,
   userPrivileges: [],
   underMaintenance: false,
@@ -670,7 +671,7 @@ const mapStateToProps = (state) => {
     loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
     userPermissions: user?.permissions || [],
-    userRoles: user?.roles || [],
+    userInactiveRoles: user?.inactiveRoles ?? null,
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,

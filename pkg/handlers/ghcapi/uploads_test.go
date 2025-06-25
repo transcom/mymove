@@ -17,9 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/notifications"
 	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/services/upload"
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -108,7 +106,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := CreateUploadHandler{handlerConfig}
@@ -123,7 +121,7 @@ func makePPMRequest(suite *HandlerSuite, params ppmop.CreatePPMUploadParams, off
 
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	suite.FatalNoError(err)
@@ -259,129 +257,6 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	}
 }
 
-func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-	localReceiver := notifications.StubNotificationReceiver{}
-
-	orders := factory.BuildOrder(suite.DB(), nil, nil)
-	uploadUser1 := factory.BuildUserUpload(suite.DB(), []factory.Customization{
-		{
-			Model:    orders.UploadedOrders,
-			LinkOnly: true,
-		},
-		{
-			Model: models.Upload{
-				Filename:    "FileName",
-				Bytes:       int64(15),
-				ContentType: uploader.FileTypePDF,
-			},
-		},
-	}, nil)
-
-	file := suite.Fixture(FixturePDF)
-	_, err := fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
-	suite.NoError(err)
-
-	params := uploadop.NewGetUploadStatusParams()
-	params.UploadID = strfmt.UUID(uploadUser1.Upload.ID.String())
-
-	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
-	params.HTTPRequest = req
-
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetFileStorer(fakeS3)
-	handlerConfig.SetNotificationReceiver(localReceiver)
-	uploadInformationFetcher := upload.NewUploadInformationFetcher()
-	handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
-
-	response := handler.Handle(params)
-	_, ok := response.(*CustomGetUploadStatusResponse)
-	suite.True(ok)
-
-	queriedUpload := models.Upload{}
-	err = suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
-	suite.NoError(err)
-}
-
-func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
-	suite.Run("Error on no match for uploadId", func() {
-		orders := factory.BuildOrder(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
-
-		uploadUUID := uuid.Must(uuid.NewV4())
-
-		params := uploadop.NewGetUploadStatusParams()
-		params.UploadID = strfmt.UUID(uploadUUID.String())
-
-		req := &http.Request{}
-		req = suite.AuthenticateRequest(req, orders.ServiceMember)
-		params.HTTPRequest = req
-
-		fakeS3 := storageTest.NewFakeS3Storage(true)
-		localReceiver := notifications.StubNotificationReceiver{}
-
-		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetFileStorer(fakeS3)
-		handlerConfig.SetNotificationReceiver(localReceiver)
-		uploadInformationFetcher := upload.NewUploadInformationFetcher()
-		handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
-
-		response := handler.Handle(params)
-		_, ok := response.(*uploadop.GetUploadStatusNotFound)
-		suite.True(ok)
-
-		queriedUpload := models.Upload{}
-		err := suite.DB().Find(&queriedUpload, uploadUUID)
-		suite.Error(err)
-	})
-
-	suite.Run("Error when attempting access to another service member's upload", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
-		localReceiver := notifications.StubNotificationReceiver{}
-
-		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-
-		orders := factory.BuildOrder(suite.DB(), nil, nil)
-		uploadUser1 := factory.BuildUserUpload(suite.DB(), []factory.Customization{
-			{
-				Model:    orders.UploadedOrders,
-				LinkOnly: true,
-			},
-			{
-				Model: models.Upload{
-					Filename:    "FileName",
-					Bytes:       int64(15),
-					ContentType: uploader.FileTypePDF,
-				},
-			},
-		}, nil)
-
-		file := suite.Fixture(FixturePDF)
-		_, err := fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
-		suite.NoError(err)
-
-		params := uploadop.NewGetUploadStatusParams()
-		params.UploadID = strfmt.UUID(uploadUser1.Upload.ID.String())
-
-		req := &http.Request{}
-		req = suite.AuthenticateRequest(req, otherServiceMember)
-		params.HTTPRequest = req
-
-		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetFileStorer(fakeS3)
-		handlerConfig.SetNotificationReceiver(localReceiver)
-		uploadInformationFetcher := upload.NewUploadInformationFetcher()
-		handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
-
-		response := handler.Handle(params)
-		_, ok := response.(*uploadop.GetUploadStatusForbidden)
-		suite.True(ok)
-
-		queriedUpload := models.Upload{}
-		err = suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
-		suite.NoError(err)
-	})
-}
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	suite.Run("uploads .xls file", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -639,7 +514,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		suite.Equal("File has length of 0", badResponseErr.Err.Error())
 	})
 
-	suite.Run("Non-weight Estimator FIle Submitted for upload", func() {
+	suite.Run("Non-weight Estimator File Submitted for upload", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		_, params := createPPMPrereqs(suite, WeightEstimatorXlsxFail, true)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})

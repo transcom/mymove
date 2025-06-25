@@ -15,9 +15,11 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 
 	suite.Run("search with no filters should fail", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -39,14 +41,16 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			},
 		}, nil)
 
-		_, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{})
+		_, _, err = searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{})
 		suite.Error(err)
 	})
 	suite.Run("search with valid locator", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -75,9 +79,11 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 	})
 	suite.Run("search with valid DOD ID", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -106,9 +112,11 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 	})
 	suite.Run("search with customer name", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -143,9 +151,11 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 	})
 	suite.Run("search with both DOD ID and locator filters should fail", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -168,7 +178,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		}, nil)
 
 		// Search for Locator of one move and DOD ID of another move
-		_, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{
+		_, _, err = searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{
 			Locator: &firstMove.Locator,
 			DodID:   secondMove.Orders.ServiceMember.Edipi,
 		})
@@ -176,9 +186,11 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 	})
 	suite.Run("search with no results", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -191,9 +203,11 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 	})
 	suite.Run("test pagination", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -251,9 +265,11 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 	suite.Run("filtering mto shipments search results", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -344,6 +360,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MTOShipment) {
 	armyAffiliation := models.AffiliationARMY
 	navyAffiliation := models.AffiliationNAVY
+
 	firstMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{PostalCode: "89523"},
@@ -351,7 +368,7 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MT
 	}, nil)
 	firstMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "11111"},
+			Model: models.Address{PostalCode: "11101"},
 		},
 	}, nil)
 
@@ -458,9 +475,11 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 		suite.NoError(suite.DB().EagerPreload("Orders", "Orders.NewDutyLocation", "Orders.NewDutyLocation.Address").All(&testMoves))
 
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -496,9 +515,11 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 		searcher := NewMoveSearcher()
 
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		defaultRole, err := qaeUser.User.Roles.Default()
+		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           qaeUser.User.Roles,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

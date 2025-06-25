@@ -11,12 +11,13 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { Form } from 'components/form';
 import { shipmentTypes } from 'constants/shipments';
 import { AccountingCodesShape } from 'types/accountingCodes';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentType, TACs, SACs, tacType, sacType }) => {
   const handleFormSubmit = (values) => onSubmit(values);
 
   return (
-    <Modal data-testid="AccountingCodes">
+    <Modal data-testid="AccountingCodes" onClose={onClose}>
       <ModalClose handleClick={onClose} />
 
       <ModalTitle>
@@ -26,6 +27,7 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
 
       <Formik initialValues={{ tacType, sacType }} onSubmit={handleFormSubmit}>
         <Form>
+          {requiredAsteriskMessage}
           <AccountingCodeSection
             label="TAC"
             emptyMessage="No TAC code entered."
@@ -34,7 +36,7 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
           />
 
           <AccountingCodeSection
-            label="SAC (optional)"
+            label="SAC"
             emptyMessage="No SAC code entered."
             fieldName="sacType"
             shipmentTypes={SACs}
@@ -46,10 +48,10 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
             </button>
           </div>
           <ModalActions>
-            <Button type="submit">Save</Button>
             <Button type="button" secondary onClick={onClose}>
               Cancel
             </Button>
+            <Button type="submit">Save</Button>
           </ModalActions>
         </Form>
       </Formik>

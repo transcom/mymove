@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		Tac:                  handlers.FmtString("E19A"),
 		Sac:                  handlers.FmtString("SacNumber"),
 		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
-		Grade:                ghcmessages.GradeE1.Pointer(),
+		Grade:                ghcmessages.OrderPayGradeEDash1.Pointer(),
 		CounselingOfficeID:   handlers.FmtUUID(*dutyLocation.TransportationOfficeID),
 	}
 
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	createHandler := CreateOrderHandler{handlerConfig, waf}
 
@@ -143,8 +143,9 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	address := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				IsOconus:           models.BoolPointer(true),
-				UsPostRegionCityID: &usprc.ID,
+				IsOconus:   models.BoolPointer(true),
+				City:       usprc.USPostRegionCityNm,
+				PostalCode: usprc.UsprZipID,
 			},
 		},
 	}, nil)
@@ -215,7 +216,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 		Tac:                     handlers.FmtString("E19A"),
 		Sac:                     handlers.FmtString("SacNumber"),
 		DepartmentIndicator:     ghcmessages.NewDeptIndicator(deptIndicator),
-		Grade:                   ghcmessages.GradeE1.Pointer(),
+		Grade:                   ghcmessages.OrderPayGradeEDash1.Pointer(),
 		AccompaniedTour:         &accompaniedTour,
 		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
 		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
@@ -227,7 +228,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	createHandler := CreateOrderHandler{handlerConfig, waf}
 
@@ -276,8 +277,9 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 	address := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				IsOconus:           models.BoolPointer(true),
-				UsPostRegionCityID: &usprc.ID,
+				IsOconus:   models.BoolPointer(true),
+				City:       usprc.USPostRegionCityNm,
+				PostalCode: usprc.UsprZipID,
 			},
 		},
 	}, nil)
@@ -348,7 +350,7 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 		Tac:                     handlers.FmtString("E19A"),
 		Sac:                     handlers.FmtString("SacNumber"),
 		DepartmentIndicator:     ghcmessages.NewDeptIndicator(deptIndicator),
-		Grade:                   ghcmessages.GradeCIVILIANEMPLOYEE.Pointer(),
+		Grade:                   ghcmessages.OrderPayGradeCIVILIANEMPLOYEE.Pointer(),
 		AccompaniedTour:         &accompaniedTour,
 		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
 		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
@@ -361,7 +363,7 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	createHandler := CreateOrderHandler{handlerConfig, waf}
 
@@ -390,7 +392,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := GetOrdersHandler{
 		handlerConfig,
 		orderservice.NewOrderFetcher(waf),
@@ -453,7 +455,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID).Return(&order, nil)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetOrdersHandler{
 			handlerConfig,
 			&orderFetcher,
@@ -501,7 +503,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID).Return(&order, nil)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetOrdersHandler{
 			handlerConfig,
 			&orderFetcher,
@@ -620,10 +622,27 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	}
 
 	ppmEstimator := &mocks.PPMEstimator{}
-	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
@@ -803,7 +822,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	})
 
 	suite.Run("Does not update move status if move status is not APPROVALS_REQUESTED", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		move := subtestData.move
 		order := subtestData.move.Orders
@@ -904,7 +923,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -960,7 +979,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	// be authorized to update orders. If not, we also need to prevent them from
 	// clicking the Edit Orders button in the frontend.
 	suite.Run("Allows a TIO to update orders", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		move := subtestData.move
 		order := subtestData.order
@@ -999,7 +1018,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1037,7 +1056,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1075,7 +1094,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1139,7 +1158,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := UpdateOrderHandler{
 		handlerConfig,
 		updater,
@@ -1199,12 +1218,12 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -1247,7 +1266,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1284,7 +1303,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1321,7 +1340,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1382,7 +1401,7 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	subtestData.move = factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 	subtestData.order = subtestData.move.Orders
 
-	grade := ghcmessages.GradeO5
+	grade := ghcmessages.OrderPayGradeODash5
 	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := models.Int64Pointer(100)
@@ -1449,7 +1468,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1510,7 +1529,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 200 when all validations pass - gun safe FF off", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1565,7 +1584,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1602,7 +1621,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1639,7 +1658,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1702,7 +1721,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := UpdateAllowanceHandler{
 		handlerConfig,
 		updater,
@@ -1727,7 +1746,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 }
 
 func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
-	grade := ghcmessages.GradeO5
+	grade := ghcmessages.OrderPayGradeODash5
 	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := models.Int64Pointer(100)
@@ -1750,11 +1769,11 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
@@ -1809,7 +1828,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 200 when all validations pass - gun safe FF off, SC only", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 		gunSafeWeight := models.Int64Pointer(500)
@@ -1864,7 +1883,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
@@ -1900,7 +1919,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
@@ -1936,7 +1955,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
@@ -1976,7 +1995,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-max-billable-weight/tio", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -2015,7 +2034,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -2054,7 +2073,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -2093,7 +2112,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -2139,7 +2158,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-billable-weight", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -2178,7 +2197,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -2216,7 +2235,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -2254,7 +2273,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -2322,7 +2341,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
 	updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, dbAuthorizedWeight, params.IfMatch).Return(&order, move.ID, nil)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := UpdateBillableWeightHandler{
 		handlerConfig,
 		updater,
@@ -2350,7 +2369,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-weight-risk", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
 			{
@@ -2393,7 +2412,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
 			{
@@ -2434,7 +2453,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
 			{
@@ -2475,7 +2494,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
 			{
@@ -2523,7 +2542,7 @@ func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHa
 	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
 			{
@@ -2566,7 +2585,7 @@ func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHa
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
 			{
@@ -2607,7 +2626,7 @@ func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHa
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
 			{
@@ -2648,7 +2667,7 @@ func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHa
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
 			{
@@ -2722,7 +2741,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 	updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, params.IfMatch).Return(&move, nil)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := AcknowledgeExcessWeightRiskHandler{
 		handlerConfig,
 		updater,

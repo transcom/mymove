@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import Modal, { connectModal, ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { Form } from 'components/form';
 import TextField from 'components/form/fields/TextField/TextField';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   serviceOrderNumber: Yup.string()
@@ -19,7 +20,7 @@ const ServiceOrderNumberModal = ({ onClose, onSubmit, serviceOrderNumber }) => {
 
   return (
     <div data-testid="ServiceOrderNumber">
-      <Modal>
+      <Modal onClose={onClose}>
         <ModalClose handleClick={onClose} />
 
         <ModalTitle>
@@ -28,13 +29,20 @@ const ServiceOrderNumberModal = ({ onClose, onSubmit, serviceOrderNumber }) => {
 
         <Formik initialValues={{ serviceOrderNumber }} onSubmit={handleFormSubmit} validationSchema={validationSchema}>
           <Form>
-            <TextField label="Service order number" id="facilityServiceOrderNumber" name="serviceOrderNumber" />
+            {requiredAsteriskMessage}
+            <TextField
+              label="Service order number"
+              id="facilityServiceOrderNumber"
+              name="serviceOrderNumber"
+              showRequiredAsterisk
+              required
+            />
 
             <ModalActions>
-              <Button type="submit">Save</Button>
               <Button type="button" secondary onClick={onClose}>
                 Cancel
               </Button>
+              <Button type="submit">Save</Button>
             </ModalActions>
           </Form>
         </Formik>

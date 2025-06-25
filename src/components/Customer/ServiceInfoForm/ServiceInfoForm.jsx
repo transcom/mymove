@@ -14,8 +14,9 @@ import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isMoveLocked }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
   const [isDodidDisabled, setIsDodidDisabled] = useState(false);
@@ -70,21 +71,22 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
           <Form className={formStyles.form}>
             <h1>Edit service info</h1>
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <Grid row gap>
                 <Grid mobileLg={{ col: 6 }}>
-                  <TextField label="First name" name="first_name" id="firstName" required />
+                  <TextField label="First name" name="first_name" id="firstName" showRequiredAsterisk required />
                 </Grid>
                 <Grid mobileLg={{ col: 6 }}>
-                  <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
+                  <TextField label="Middle name" name="middle_name" id="middleName" />
                 </Grid>
               </Grid>
 
               <Grid row gap>
                 <Grid mobileLg={{ col: 6 }}>
-                  <TextField label="Last name" name="last_name" id="lastName" required />
+                  <TextField label="Last name" name="last_name" id="lastName" showRequiredAsterisk required />
                 </Grid>
                 <Grid mobileLg={{ col: 6 }}>
-                  <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+                  <TextField label="Suffix" name="suffix" id="suffix" />
                 </Grid>
               </Grid>
 
@@ -94,6 +96,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                     label="Branch of service"
                     name="affiliation"
                     id="affiliation"
+                    showRequiredAsterisk
                     required
                     options={branchOptions}
                     onChange={(e) => {
@@ -108,6 +111,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                       label="EMPLID"
                       name="emplid"
                       id="emplid"
+                      showRequiredAsterisk
                       required
                       maxLength="7"
                       inputMode="numeric"
@@ -123,6 +127,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                     label="DoD ID number"
                     name="edipi"
                     id="edipi"
+                    showRequiredAsterisk
                     required
                     maxLength="10"
                     inputMode="numeric"
@@ -139,6 +144,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 onCancelClick={onCancel}
                 disableNext={!isValid || isSubmitting}
                 onNextClick={handleSubmit}
+                readOnly={isMoveLocked}
               />
             </div>
           </Form>

@@ -9,6 +9,7 @@ import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { renderWithRouter } from 'testUtils';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MOVE_LOCKED_WARNING } from 'shared/constants';
 
 const mockNavigate = jest.fn();
 
@@ -186,6 +187,27 @@ describe('MobileHomeShipmentCreate component', () => {
 
         expect(screen.getByText('Some error message')).toBeInTheDocument();
       });
+    });
+
+    it('disables the continue button when the move is locked by an office user', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
+
+      await renderMobileHomeShipmentCreate({ isMoveLocked: true });
+
+      await act(async () => {
+        await userEvent.type(screen.getByTestId('year'), '2022');
+        await userEvent.type(screen.getByTestId('make'), 'Yamaha');
+        await userEvent.type(screen.getByTestId('model'), 'SX210');
+        await userEvent.type(screen.getByTestId('lengthFeet'), '21');
+        await userEvent.type(screen.getByTestId('widthFeet'), '8');
+        await userEvent.type(screen.getByTestId('heightFeet'), '7');
+      });
+
+      expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeVisible();
     });
   });
 

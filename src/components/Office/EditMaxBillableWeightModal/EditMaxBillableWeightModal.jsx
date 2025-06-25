@@ -10,6 +10,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { Form } from 'components/form';
 import Modal, { ModalActions, ModalClose, ModalTitle, connectModal } from 'components/Modal/Modal';
 import { formatWeight } from 'utils/formatters';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const maxBillableWeightSchema = Yup.object().shape({
   maxBillableWeight: Yup.number().min(1, 'Max billable weight must be greater than or equal to 1').required('Required'),
@@ -17,7 +18,7 @@ const maxBillableWeightSchema = Yup.object().shape({
 
 export const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBillableWeight }) => {
   return (
-    <Modal className={styles.EditMaxBillableWeightModal}>
+    <Modal className={styles.EditMaxBillableWeightModal} onClose={() => onClose()}>
       <ModalClose className={styles.weightModalClose} handleClick={() => onClose()} />
       <ModalTitle>
         <h4>Edit max billable weight</h4>
@@ -36,6 +37,7 @@ export const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, m
         {({ isValid }) => {
           return (
             <Form>
+              {requiredAsteriskMessage}
               <MaskedTextField
                 name="maxBillableWeight"
                 id="maxBillableWeight"
@@ -50,13 +52,15 @@ export const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, m
                   },
                 }}
                 lazy={false}
+                showRequiredAsterisk
+                required
               />
               <ModalActions>
-                <Button type="submit" disabled={!isValid}>
-                  Save
-                </Button>
                 <Button type="button" secondary onClick={() => onClose()} data-testid="modalBackButton" outline>
                   Back
+                </Button>
+                <Button type="submit" disabled={!isValid}>
+                  Save
                 </Button>
               </ModalActions>
             </Form>

@@ -1693,7 +1693,7 @@ paths:
       produces:
         - application/json
       summary: Deletes an Office User
-      description: Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.
+      description: Deletes a single office user (including Roles, and Privileges) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.
       operationId: deleteOfficeUser
       tags:
         - Office users
@@ -1710,6 +1710,8 @@ paths:
           description: request requires user authentication
         '404':
           description: Office User not found
+        "409":
+          description: User cannot be deleted due to associated data
         '500':
           description: server error
   /office-users/roles-privileges:

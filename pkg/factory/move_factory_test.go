@@ -271,10 +271,10 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &OfficeUsers.SCAssignedUser,
+				Type:     &OfficeUsers.SCCounselingAssignedUser,
 			},
 		}, nil)
-		suite.Equal(officeUser.ID, *move.SCAssignedID)
+		suite.Equal(officeUser.ID, *move.SCCounselingAssignedID)
 	})
 	suite.Run("Successful creation of move with shipment", func() {
 		// Under test:      BuildMoveWithShipment
@@ -297,10 +297,10 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &OfficeUsers.SCAssignedUser,
+				Type:     &OfficeUsers.SCCounselingAssignedUser,
 			},
 		}, nil)
-		suite.Equal(officeUser.ID, *move.SCAssignedID)
+		suite.Equal(officeUser.ID, *move.SCCounselingAssignedID)
 	})
 
 	suite.Run("Successful creation of a move with an assigned TOO", func() {
@@ -315,10 +315,10 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &OfficeUsers.TOOAssignedUser,
+				Type:     &OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 		}, nil)
-		suite.Equal(officeUser.ID, *move.TOOAssignedID)
+		suite.Equal(officeUser.ID, *move.TOOTaskOrderAssignedID)
 	})
 
 	suite.Run("Successful creation of a move with an assigned TOO for Destination Request", func() {
@@ -351,10 +351,10 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &OfficeUsers.TIOAssignedUser,
+				Type:     &OfficeUsers.TIOPaymentRequestAssignedUser,
 			},
 		}, nil)
-		suite.Equal(officeUser.ID, *move.TIOAssignedID)
+		suite.Equal(officeUser.ID, *move.TIOPaymentRequestAssignedID)
 	})
 
 	suite.Run("Successful creation of customized move with shipment", func() {

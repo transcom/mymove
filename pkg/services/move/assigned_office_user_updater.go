@@ -34,20 +34,20 @@ func (s AssignedOfficeUserUpdater) UpdateAssignedOfficeUser(appCtx appcontext.Ap
 
 	switch queueType {
 	case models.QueueTypeCounseling:
-		move.SCAssignedID = &officeUser.ID
-		move.SCAssignedUser = officeUser
+		move.SCCounselingAssignedID = &officeUser.ID
+		move.SCCounselingAssignedUser = officeUser
 	case models.QueueTypeCloseout:
-		move.SCAssignedID = &officeUser.ID
-		move.SCAssignedUser = officeUser
+		move.SCCloseoutAssignedID = &officeUser.ID
+		move.SCCloseoutAssignedUser = officeUser
 	case models.QueueTypeTaskOrder:
-		move.TOOAssignedID = &officeUser.ID
-		move.TOOAssignedUser = officeUser
+		move.TOOTaskOrderAssignedID = &officeUser.ID
+		move.TOOTaskOrderAssignedUser = officeUser
 	case models.QueueTypeDestinationRequest:
 		move.TOODestinationAssignedID = &officeUser.ID
 		move.TOODestinationAssignedUser = officeUser
 	case models.QueueTypePaymentRequest:
-		move.TIOAssignedID = &officeUser.ID
-		move.TIOAssignedUser = officeUser
+		move.TIOPaymentRequestAssignedID = &officeUser.ID
+		move.TIOPaymentRequestAssignedUser = officeUser
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
@@ -72,20 +72,20 @@ func (s AssignedOfficeUserUpdater) DeleteAssignedOfficeUser(appCtx appcontext.Ap
 
 	switch queueType {
 	case models.QueueTypeCounseling:
-		move.SCAssignedID = nil
-		move.SCAssignedUser = nil
+		move.SCCounselingAssignedID = nil
+		move.SCCounselingAssignedUser = nil
 	case models.QueueTypeCloseout:
-		move.SCAssignedID = nil
-		move.SCAssignedUser = nil
+		move.SCCloseoutAssignedID = nil
+		move.SCCloseoutAssignedUser = nil
 	case models.QueueTypeTaskOrder:
-		move.TOOAssignedID = nil
-		move.TOOAssignedUser = nil
+		move.TOOTaskOrderAssignedID = nil
+		move.TOOTaskOrderAssignedUser = nil
 	case models.QueueTypeDestinationRequest:
 		move.TOODestinationAssignedID = nil
 		move.TOODestinationAssignedUser = nil
 	case models.QueueTypePaymentRequest:
-		move.TIOAssignedID = nil
-		move.TIOAssignedUser = nil
+		move.TIOPaymentRequestAssignedID = nil
+		move.TIOPaymentRequestAssignedUser = nil
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&move)

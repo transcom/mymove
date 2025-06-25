@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRejectedOfficeUsersHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			NewQueryFilter:                query.NewQueryFilter,
 			RejectedOfficeUserListFetcher: rejectedofficeusers.NewRejectedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                 pagination.NewPagination,
@@ -142,7 +142,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexRejectedOfficeUsersHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			NewQueryFilter:                query.NewQueryFilter,
 			RejectedOfficeUserListFetcher: rejectedofficeusers.NewRejectedOfficeUsersListFetcher(queryBuilder),
 			NewPagination:                 pagination.NewPagination,
@@ -283,7 +283,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetRejectedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			rejectedofficeusers.NewRejectedOfficeUserFetcher(queryBuilder),
 			mockRoleFetcher,
 			query.NewQueryFilter,
@@ -326,7 +326,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 		).Return(mockRoles, nil)
 
 		handler := GetRejectedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			rejectedOfficeUserFetcher,
 			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
@@ -370,7 +370,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 		).Return(mockRoles, nil)
 
 		handler := GetRejectedOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			rejectedOfficeUserFetcher,
 			mockRoleFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),

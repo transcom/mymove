@@ -257,6 +257,7 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 type GetRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserFetcher
+	services.UserPrivilegeAssociator
 	services.RoleFetcher
 	services.NewQueryFilter
 }
@@ -412,7 +413,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 					}
 				}
 
-				roles, err := roles.FetchRolesForUser(txAppCtx.DB(), *requestedOfficeUser.UserID)
+				roles, err := h.RoleFetcher.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
 				if err != nil {
 					txAppCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 					return err

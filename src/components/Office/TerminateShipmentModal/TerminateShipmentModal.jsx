@@ -40,7 +40,7 @@ export const TerminateShipmentModal = ({ onClose, onSubmit, shipmentID, shipment
                   required
                   showRequiredAsterisk
                 />
-                <ModalActions autofocus="true">
+                <ModalActions>
                   <Button
                     className="usa-button--secondary"
                     type="button"

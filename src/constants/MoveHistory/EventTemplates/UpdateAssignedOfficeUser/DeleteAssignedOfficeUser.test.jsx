@@ -2,7 +2,6 @@ import { screen, render } from '@testing-library/react';
 
 import e from 'constants/MoveHistory/EventTemplates/UpdateAssignedOfficeUser/DeleteAssignedOfficeUser';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import { MOVE_STATUSES } from 'shared/constants';
 
 describe('When given a move that has been unassigned', () => {
   const historyRecord = {
@@ -10,7 +9,7 @@ describe('When given a move that has been unassigned', () => {
     eventName: 'deleteAssignedOfficeUser',
     tableName: 'moves',
     changedValues: {
-      sc_assigned_id: null,
+      sc_closeout_assigned_id: null,
     },
   };
 
@@ -35,13 +34,13 @@ describe('When given a move that has been unassigned', () => {
     });
     it('services counselor', () => {
       const template = getTemplate(historyRecord);
-      historyRecord.oldValues = { status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING };
+      historyRecord.changedValues = { sc_counseling_assigned_id: null };
 
       render(template.getDetails(historyRecord));
       expect(screen.getByText('Counselor unassigned')).toBeInTheDocument();
     });
     it('task ordering officer', () => {
-      historyRecord.changedValues = { too_assigned_id: null };
+      historyRecord.changedValues = { too_task_order_assigned_id: null };
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
@@ -52,20 +51,14 @@ describe('When given a move that has been unassigned', () => {
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
-      expect(screen.getByText('Task ordering officer unassigned')).toBeInTheDocument();
+      expect(screen.getByText('Destination task ordering officer unassigned')).toBeInTheDocument();
     });
     it('task invoicing officer', () => {
-      historyRecord.changedValues = { tio_assigned_id: null };
+      historyRecord.changedValues = { tio_payment_request_assigned_id: null };
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
       expect(screen.getByText('Task invoicing officer unassigned')).toBeInTheDocument();
-    });
-    it('task ordering officer for destination request queue', () => {
-      historyRecord.changedValues = { too_destination_assigned_id: null };
-      const template = getTemplate(historyRecord);
-      render(template.getDetails(historyRecord));
-      expect(screen.getByText('Task ordering officer unassigned')).toBeInTheDocument();
     });
   });
 });

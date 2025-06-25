@@ -164,6 +164,7 @@ const ServicesCounselingMoveAllowances = () => {
   };
 
   const counselorCanEdit =
+    move.status === MOVE_STATUSES.DRAFT ||
     move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
     move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
     (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt); // status is set to 'Approval Requested' if customer uploads amended orders.
@@ -244,15 +245,15 @@ const ServicesCounselingMoveAllowances = () => {
               </div>
               <div className={styles.bottom}>
                 <div className={styles.buttonGroup}>
+                  <Button type="button" secondary onClick={handleClose}>
+                    Cancel
+                  </Button>
                   <Button
                     disabled={formik.isSubmitting || !formik.isValid || !counselorCanEdit}
                     data-testid="scAllowancesSave"
                     type="submit"
                   >
                     Save
-                  </Button>
-                  <Button type="button" secondary onClick={handleClose}>
-                    Cancel
                   </Button>
                 </div>
               </div>

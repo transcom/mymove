@@ -120,13 +120,13 @@ func sendEmails(appCtx appcontext.AppContext, emails []emailContent, svc RawEmai
 		if err != nil {
 			return err
 		}
+
 		var destinations []string
 		if len(email.recipientEmails) > 0 {
 			destinations = email.recipientEmails
 		} else {
 			destinations = []string{email.recipientEmail}
 		}
-
 		input := ses.SendRawEmailInput{
 			Destinations: destinations,
 			RawMessage:   &types.RawMessage{Data: rawMessage},

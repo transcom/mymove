@@ -188,7 +188,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					err := checkValidAddress(h.VLocation, appCtx, statesToExclude, addressSearch)
 
 					if err != nil {
-						appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+						appCtx.Logger().Error("primeapiv2.UpdateMTOShipmentHandler error", zap.Error(err))
 						switch e := err.(type) {
 						case apperror.UnprocessableEntityError:
 							payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
@@ -349,7 +349,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				err := checkValidAddress(h.VLocation, appCtx, statesToExclude, addressSearch)
 
 				if err != nil {
-					appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+					appCtx.Logger().Error("primeapiv2.UpdateMTOShipmentHandler error", zap.Error(err))
 					switch e := err.(type) {
 					case apperror.UnprocessableEntityError:
 						payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
@@ -364,7 +364,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v2")
 			if err != nil {
-				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+				appCtx.Logger().Error("primeapiv2.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
@@ -389,14 +389,18 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 }
 
 func checkValidAddress(vLocation services.VLocation, appCtx appcontext.AppContext, statesToExclude []string, addressSearch string) error {
-	locationList, err := vLocation.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true)
+	locationList, err := vLocation.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true, true)
 
 	if err != nil {
 		serverError := apperror.NewInternalServerError("Error searching for address")
 		return serverError
 	} else if len(*locationList) == 0 {
 		unprocessableErr := apperror.NewUnprocessableEntityError(
-			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: could not find the provided location: %s", addressSearch))
+			fmt.Sprintf("primeapiv2.checkValidAddress: could not find the provided location: %s", addressSearch))
+		return unprocessableErr
+	} else if len(*locationList) > 0 && (*locationList)[0].IsPoBox {
+		unprocessableErr := apperror.NewUnprocessableEntityError(
+			fmt.Sprintf("primeapiv2.checkValidAddress: must be a physical address, cannot accept PO Box address: %s", addressSearch))
 		return unprocessableErr
 	}
 
