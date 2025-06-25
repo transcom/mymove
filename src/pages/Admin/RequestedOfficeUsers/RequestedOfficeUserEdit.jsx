@@ -19,13 +19,13 @@ import adminStyles from '../adminStyles.module.scss';
 
 import styles from './RequestedOfficeUserShow.module.scss';
 import RequestedOfficeUserPrivilegeConfirm from './RequestedOfficeUserPrivilegeConfirm';
+import { getSupervisorPrivilege } from './RequestedOfficeUserShow';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { edipiValidator, phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { deleteOfficeUser, updateRequestedOfficeUser } from 'services/adminApi';
 import { roleTypes } from 'constants/userRoles';
-import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const RequestedOfficeUserShowTitle = () => {
@@ -34,17 +34,12 @@ const RequestedOfficeUserShowTitle = () => {
   return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
 };
 
-// Helper to filter only SUPERVISOR privileges from a privileges array
-function getFilteredPrivileges(privileges) {
-  return (privileges || []).filter((priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR);
-}
-
 // RecordInitializer: Initializes userData and isOfficeUserRequestedPrivileges state from the current record context.
 // Sets userData to the current record and sets isOfficeUserRequestedPrivileges to true if privileges(Supervisor) was requested/exist.
 const RecordInitializer = ({ setUserData, setIsOfficeUserRequestedPrivileges }) => {
   const record = useRecordContext();
   useEffect(() => {
-    const filteredPrivileges = getFilteredPrivileges(record?.privileges);
+    const filteredPrivileges = getSupervisorPrivilege(record?.privileges);
     setUserData(record || {});
     setIsOfficeUserRequestedPrivileges(filteredPrivileges.length > 0);
   }, [record, setUserData, setIsOfficeUserRequestedPrivileges]);
@@ -184,7 +179,7 @@ const RequestedOfficeUserEdit = () => {
 
   // Approve button success handler
   const handleOnClickApprove = async (data) => {
-    const filteredPrivileges = getFilteredPrivileges(data.privileges);
+    const filteredPrivileges = getSupervisorPrivilege(data.privileges);
     if (isRequestAccountPrivilegesFF && filteredPrivileges.length > 0 && isOfficeUserRequestedPrivileges) {
       setUserData(data);
       setCheckedPrivileges(filteredPrivileges.map((priv) => priv.id));
@@ -198,7 +193,7 @@ const RequestedOfficeUserEdit = () => {
   const handlePrivilegeConfirm = async () => {
     setApproveDialogOpen(false);
     // Only include checked privileges in approval, and only SUPERVISOR privilege
-    const filteredPrivileges = getFilteredPrivileges(userData.privileges);
+    const filteredPrivileges = getSupervisorPrivilege(userData.privileges);
     const approvedPrivileges = filteredPrivileges.filter((priv) => checkedPrivileges.includes(priv.id)) || [];
     await approve({ ...userData, privileges: approvedPrivileges });
   };

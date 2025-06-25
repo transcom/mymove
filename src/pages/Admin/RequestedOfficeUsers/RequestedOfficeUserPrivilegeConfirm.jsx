@@ -1,26 +1,23 @@
 import React from 'react';
 import { Confirm } from 'react-admin';
 
-import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
-
 const RequestedOfficeUserPrivilegeConfirm = ({
   dialogId,
   isOpen,
-  title = 'Attention: The user has requested the selected privilege(s)',
+  title,
   privileges = [],
   checkedPrivileges = [],
   setCheckedPrivileges,
   onConfirm,
   onClose,
 }) => {
-  const filteredPrivileges = (privileges || []).filter(
-    (priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR,
-  );
+  const modalTitle =
+    title || `Attention: The user has requested the selected privilege${privileges.length === 1 ? '' : 's'}`;
 
   return (
     <Confirm
       isOpen={isOpen}
-      title={title}
+      title={modalTitle}
       content={
         <div id={dialogId} data-testid="RequestedOfficeUserPrivilegeConfirm">
           <p id="privilege-dialog-desc" aria-labelledby="privilege-dialog-legend">
@@ -36,10 +33,10 @@ const RequestedOfficeUserPrivilegeConfirm = ({
             <legend id="privilege-dialog-legend" className="usa-sr-only">
               Requested privileges
             </legend>
-            {filteredPrivileges.length > 0 && (
+            {privileges.length > 0 && (
               <>
-                {filteredPrivileges.map((priv) => (
-                  <div key={priv.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                {privileges.map((priv) => (
+                  <div key={priv.id} style={{ display: 'flex', alignItems: 'center' }}>
                     <input
                       type="checkbox"
                       id={`privilege-${priv.id}`}
