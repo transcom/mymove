@@ -143,7 +143,6 @@ const theme = deepmerge(defaultTheme, {
             color: '#fff',
             '&:hover': {
               opacity: '0.8',
-              backgroundColor: '#1a4480',
             },
           },
           '& .MuiDialogActions-root > button:nth-of-type(1)': {
