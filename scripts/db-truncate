@@ -11,12 +11,12 @@ DO \$\$ DECLARE
 BEGIN
 
     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()
-            AND tablename NOT IN ('country_holidays',
+            AND tablename NOT IN ('addresses',
+                                  'country_holidays',
                                   'country_weekends',
                                   'gbloc_aors',
                                   'gcc_multipliers',
                                   'ghc_diesel_fuel_prices',
-                                  'addresses',
                                   'hhg_allowances',
                                   'intl_city_countries',
                                   'jppso_regions',
@@ -25,7 +25,11 @@ BEGIN
                                   'ports',
                                   'port_locations',
                                   'postal_code_to_gblocs',
+                                  'privileges',
+                                  'ranks',
                                   're_cities',
+                                  're_contracts',
+                                  're_contract_years',
                                   're_countries',
                                   're_country_prn_divisions',
                                   're_domestic_accessorial_prices',
@@ -43,22 +47,17 @@ BEGIN
                                   're_rate_areas',
                                   're_services',
                                   're_service_items',
+                                  're_shipment_type_prices',
                                   're_states',
                                   're_us_post_regions',
                                   're_zip3s',
                                   'roles',
-                                  're_contracts',
-                                  'privileges',
                                   'roles_privileges',
-                                  're_contracts',
-                                  're_contract_years',
                                   'service_params',
-                                  're_shipment_type_prices',
                                   'service_item_param_keys',
                                   'ub_allowances',
                                   'us_post_region_cities',
-                                  'zip3_distances',
-                                  'ranks'
+                                  'zip3_distances'
                                     ) order by tablename ) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;
