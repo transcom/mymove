@@ -19,9 +19,8 @@ const ShipmentFormRemarks = ({
   counselorRemarks,
   error,
   showHint,
-  advanceStatus,
+  isAdvancePage,
 }) => {
-  const advanceRejected = advanceStatus === 'REJECTED';
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset>
@@ -52,7 +51,7 @@ const ShipmentFormRemarks = ({
               </Hint>
             )}
             <FormGroup className={styles.remarksField}>
-              {advanceRejected && requiredAsteriskMessage}
+              {isAdvancePage && requiredAsteriskMessage}
               <TextField
                 display="textarea"
                 label="Counselor remarks"
@@ -63,8 +62,8 @@ const ShipmentFormRemarks = ({
                 id="counselorRemarks"
                 maxLength={500}
                 error={error}
-                showRequiredAsterisk={advanceRejected}
-                required={advanceRejected}
+                showRequiredAsterisk={isAdvancePage}
+                required={isAdvancePage}
               />
             </FormGroup>
           </>
@@ -91,7 +90,7 @@ ShipmentFormRemarks.propTypes = {
   counselorRemarks: PropTypes.string,
   showHint: PropTypes.bool,
   error: PropTypes.bool,
-  advanceStatus: PropTypes.string,
+  isAdvancePage: PropTypes.bool,
 };
 
 ShipmentFormRemarks.defaultProps = {
@@ -99,7 +98,7 @@ ShipmentFormRemarks.defaultProps = {
   counselorRemarks: '—',
   showHint: true,
   error: undefined,
-  advanceStatus: undefined,
+  isAdvancePage: false,
 };
 
 export default ShipmentFormRemarks;
