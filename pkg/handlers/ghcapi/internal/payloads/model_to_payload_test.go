@@ -2530,10 +2530,18 @@ func (suite *PayloadsSuite) TestPayGrades() {
 		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
 	}
 
-	result := PayGrades(payGrades)
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
 
-	suite.Equal(len(payGrades), len(result))
-	suite.Equal(payGrades[0].Grade, result[0].Grade)
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
 }
 
 func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {

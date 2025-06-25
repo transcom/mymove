@@ -71,6 +71,7 @@ const EditOrdersForm = ({
   const [grade, setGrade] = useState(initialValues.grade);
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
+  const [rankOptions, setRankOptions] = useState([]);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -96,6 +97,9 @@ const EditOrdersForm = ({
       )
       .min(1),
     grade: Yup.string().required('Required'),
+    rank: Yup.mixed()
+      .oneOf(rankOptions.map((i) => i.key))
+      .required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation?.provides_services_counseling
       ? Yup.string().required('Required')
@@ -137,7 +141,6 @@ const EditOrdersForm = ({
     checkUBFeatureFlag();
   }, []);
 
-  const [rankOptions, setRankOptions] = useState([]);
   useEffect(() => {
     const fetchRankGradeOptions = async () => {
       setShowLoadingSpinner(true, 'Loading rank options');
@@ -584,6 +587,7 @@ const EditOrdersForm = ({
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);
+                  setFieldValue('rank', '');
                 }}
               />
 

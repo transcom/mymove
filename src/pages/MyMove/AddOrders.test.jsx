@@ -5,13 +5,13 @@ import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
-import { createOrders, getRankOptions, getServiceMember, showCounselingOffices } from 'services/internalApi';
+import { createOrders, getServiceMember, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setCanAddOrders, setMoveId, setShowLoadingSpinner } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 // Tests are timing out. High assumption it is due to service counseling office drop-down choice not being loaded on initial form load. It's another API call
 jest.setTimeout(60000);
@@ -40,29 +40,35 @@ jest.mock('services/internalApi', () => ({
       {
         id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
         paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
-        rankAbbv: 'Amn',
+        rankAbbv: 'SSgt',
         rankOrder: 24,
       },
     ]);
   }),
-  getPayGradeOptions: jest.fn().mockImplementation(() =>
-    Promise.resolve({
+  getPayGradeOptions: jest.fn().mockImplementation(() => {
+    const MOCKED__ORDERS_PAY_GRADE_TYPE = {
+      E_5: 'E-5',
+      E_6: 'E-6',
+      CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
+    };
+
+    return Promise.resolve({
       body: [
         {
-          grade: 'E-5',
-          description: ' E-5',
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
         },
         {
-          grade: 'E-6',
-          description: ' E-6',
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
         },
         {
-          description: 'Civilian',
-          grade: 'CIVILIAN_EMPLOYEE',
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
         },
       ],
-    }),
-  ),
+    });
+  }),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -443,7 +449,7 @@ describe('Add Orders page', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E-1',
+      grade: ORDERS_PAY_GRADE_TYPE.E_1,
     };
 
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
@@ -464,11 +470,8 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
-      getRankOptions.mockImplementation(() =>
-        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
-      );
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -546,7 +549,7 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
       },
-      grade: 'E_2',
+      grade: ORDERS_PAY_GRADE_TYPE.E_5,
       rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
@@ -568,11 +571,8 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
-      getRankOptions.mockImplementation(() =>
-        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
-      );
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -651,7 +651,7 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
       },
-      grade: 'E_2',
+      grade: ORDERS_PAY_GRADE_TYPE.E_5,
       rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
@@ -673,11 +673,8 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
-      getRankOptions.mockImplementation(() =>
-        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
-      );
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });

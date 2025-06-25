@@ -1,34 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { arrayOf, oneOf, shape, bool, node, string, func } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { connect } from 'react-redux';
 
 import styles from './PaymentRequestCard.module.scss';
 
 import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { nonWeightReliantServiceItems } from 'content/serviceItems';
-import {
-  toDollarString,
-  formatDateFromIso,
-  formatCents,
-  formatDollarFromMillicents,
-  formatPayGradeOptions,
-} from 'utils/formatters';
+import { toDollarString, formatDateFromIso, formatCents, formatDollarFromMillicents } from 'utils/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
 import { groupByShipment } from 'utils/serviceItems';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { formatDateWithUTC } from 'shared/dates';
-import { getPayGradeOptions } from 'services/ghcApi';
-import { milmoveLogger } from 'utils/milmoveLog';
-import retryPageLoading from 'utils/retryPageLoading';
-import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -57,8 +46,6 @@ const PaymentRequestCard = ({
   hasBillableWeightIssues,
   onEditAccountingCodes,
   isMoveLocked,
-  affiliation,
-  setShowLoadingSpinner,
 }) => {
   const navigate = useNavigate();
   // show details by default if in pending/needs review
@@ -78,26 +65,6 @@ const PaymentRequestCard = ({
   // show/hide AccountingCodesModal
   const [showModal, setShowModal] = useState(false);
   const [modalShipment, setModalShipment] = useState({});
-
-  const [payGradeOptions, setPayGradeOptions] = useState([]);
-  useEffect(() => {
-    const fetchGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Pay Grade options');
-      try {
-        const fetchedRanks = await getPayGradeOptions(affiliation);
-        if (fetchedRanks) {
-          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
-        }
-      } catch (error) {
-        const { message } = error;
-        milmoveLogger.error({ message, info: null });
-        retryPageLoading(error);
-      }
-      setShowLoadingSpinner(false, null);
-    };
-
-    fetchGradeOptions();
-  }, [affiliation, setShowLoadingSpinner]);
 
   const handleModalSave = (values) => {
     onEditAccountingCodes(modalShipment.mtoShipmentID, {
@@ -438,7 +405,7 @@ const PaymentRequestCard = ({
           </dl>
           {!isMoveLocked &&
             (paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING ? (
-              <Link to="../orders" state={{ from: 'paymentRequestDetails', payGradeOptions }}>
+              <Link to="../orders" state={{ from: 'paymentRequestDetails' }}>
                 View orders
               </Link>
             ) : (
@@ -523,8 +490,4 @@ PaymentRequestCard.defaultProps = {
   onEditAccountingCodes: () => {},
 };
 
-const mapDispatchToProps = {
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
-};
-
-export default connect(() => {}, mapDispatchToProps)(PaymentRequestCard);
+export default PaymentRequestCard;

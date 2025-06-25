@@ -51,6 +51,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
 
+  const [rankOptions, setRankOptions] = useState([]);
+
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -64,7 +66,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.string().required('Required'),
-    rank: Yup.string().required('Required'),
+    rank: Yup.mixed()
+      .oneOf(rankOptions.map((i) => i.key))
+      .required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
@@ -122,7 +126,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     fetchCounselingOffices();
   }, [counselingOfficeOptions, currentDutyLocation.id, setShowLoadingSpinner]);
 
-  const [rankOptions, setRankOptions] = useState([]);
   const [payGradeOptions, setPayGradeOptions] = useState([]);
 
   useEffect(() => {
@@ -541,6 +544,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);
+                  setFieldValue('rank', '');
                 }}
               />
 
