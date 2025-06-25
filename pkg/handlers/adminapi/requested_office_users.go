@@ -275,7 +275,7 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 			}
 			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *requestedOfficeUser.UserID)
 			if err != nil {
-				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				appCtx.Logger().Error("Error retrieving user privileges", zap.Error(err))
 			}
 
 			roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
@@ -369,7 +369,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				}
 				privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *requestedOfficeUser.UserID)
 				if err != nil {
-					appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+					appCtx.Logger().Error("Error retrieving user privileges", zap.Error(err))
 				}
 
 				roles, err := h.RoleFetcher.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)

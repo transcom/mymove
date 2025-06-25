@@ -6,8 +6,8 @@ const RequestedOfficeUserPrivilegeConfirm = ({
   isOpen,
   title,
   privileges = [],
-  checkedPrivileges = [],
-  setCheckedPrivileges,
+  privilegesSelected = [],
+  setPrivilegesSelected,
   onConfirm,
   onClose,
 }) => {
@@ -42,20 +42,20 @@ const RequestedOfficeUserPrivilegeConfirm = ({
                       id={`privilege-${priv.id}`}
                       name="privileges"
                       value={priv.id}
-                      checked={checkedPrivileges.includes(priv.id)}
+                      checked={privilegesSelected.includes(priv.id)}
                       aria-labelledby={`privilege-label-${priv.id}`}
                       aria-describedby="privilege-dialog-desc"
                       tabIndex={0}
                       onKeyDown={(e) => {
                         if (e.key === ' ' || e.key === 'Enter') {
                           e.preventDefault();
-                          setCheckedPrivileges((prev) =>
+                          setPrivilegesSelected((prev) =>
                             prev.includes(priv.id) ? prev.filter((id) => id !== priv.id) : [...prev, priv.id],
                           );
                         }
                       }}
                       onChange={(e) => {
-                        setCheckedPrivileges((prev) =>
+                        setPrivilegesSelected((prev) =>
                           e.target.checked ? [...prev, priv.id] : prev.filter((id) => id !== priv.id),
                         );
                       }}
