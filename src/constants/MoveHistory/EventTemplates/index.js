@@ -103,7 +103,7 @@ export { default as denySITExtensionMove } from './DenySITExtension/denySITExten
 export { default as denySITExtensionServiceItem } from './DenySITExtension/denySITExtensionServiceItem';
 export { default as removeSITExtensionServiceItem } from './RemoveSITExtension/removeSITExtensionServiceItem';
 export { default as updateMoveStatusAfterSITExtensionRemoval } from './ApproveMoveAfterSitExtRemoval/approveMoveAfterSitExtRemoval';
-export { default as approveShipmentAfterSitExtRemoval } from './ApproveShipmentAfterSitExtRemoval/approveShipmentAfterSitExtRemoval';
+export { default as updateShipmentStatusAfterSITExtensionRemoval } from './ApproveShipmentAfterSitExtRemoval/approveShipmentAfterSitExtRemoval';
 export { default as updateShipmentStatusAfterSITExtensionCreation } from './UpdateShipmentAfterSitExtCreation/updateShipmentAfterSitExtCreation';
 export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/updateAllowanceUpdateOrder';
 export { default as updateMTOShipmentUpdateAllowance } from './UpdateMTOShipment/updateMTOShipmentUpdateAllowance';
