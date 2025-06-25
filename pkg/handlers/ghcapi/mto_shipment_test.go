@@ -5565,6 +5565,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
 		// Need a logged in user
 		lgu := uuid.Must(uuid.NewV4()).String()
 		user := models.User{
