@@ -253,6 +253,8 @@ func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID)
 		EagerPreload(
 			"Shipment",
 			"WeightTickets",
+			"PickupAddress",
+			"DestinationAddress",
 		).
 		Find(&ppmShipment, id)
 
@@ -285,6 +287,7 @@ func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*mod
 			"DestinationAddress.Country",
 			"SecondaryDestinationAddress.Country",
 			"TertiaryDestinationAddress.Country",
+			"GCCMultiplier",
 		).
 		Where("shipment_id = ?", mtoID).First(&ppmShipment)
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -39,6 +41,7 @@ type paymentRequestReviewedProcessor struct {
 	runSendToSyncada              bool // if false, do not send to Syncada, e.g. UT shouldn't send to Syncada
 	gexSender                     services.GexSender
 	sftpSender                    services.SyncadaSFTPSender
+	notifications                 notifications.NotificationSender
 }
 
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
@@ -47,14 +50,16 @@ func NewPaymentRequestReviewedProcessor(
 	generator services.GHCPaymentRequestInvoiceGenerator,
 	runSendToSyncada bool,
 	gexSender services.GexSender,
-	sftpSender services.SyncadaSFTPSender) services.PaymentRequestReviewedProcessor {
+	sftpSender services.SyncadaSFTPSender,
+	notificationSender notifications.NotificationSender) services.PaymentRequestReviewedProcessor {
 
 	return &paymentRequestReviewedProcessor{
 		reviewedPaymentRequestFetcher: fetcher,
 		ediGenerator:                  generator,
 		gexSender:                     gexSender,
 		sftpSender:                    sftpSender,
-		runSendToSyncada:              runSendToSyncada}
+		runSendToSyncada:              runSendToSyncada,
+		notifications:                 notificationSender}
 }
 
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
@@ -63,6 +68,16 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
+	v := viper.New()
+	flag := pflag.CommandLine
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	cli.InitEmailFlags(flag)
+	notificationSender, notificationErr := notifications.InitEmail(v, appCtx.Logger())
+	if notificationErr != nil {
+		appCtx.Logger().Error("notification sender initialization failed", zap.Error(notificationErr))
+	}
 	var sftpSession services.SyncadaSFTPSender
 	if gexSender == nil {
 		var err error
@@ -79,7 +94,9 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 		generator,
 		sendToSyncada,
 		gexSender,
-		sftpSession), nil
+		sftpSession,
+		notificationSender,
+	), nil
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
@@ -154,6 +171,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 
 		return nil
 	})
+	paymentRequestNotifier := notifications.NewPaymentRequestFailed(pr)
 	if transactionError != nil {
 		errDescription := transactionError.Error()
 
@@ -186,6 +204,14 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 			// if we failed in sending there is nothing to do here but retry later so keep the status the same
 		default:
 			pr.Status = models.PaymentRequestStatusEDIError
+			//send email to open HDT for review for payment requests that failed to send to GEX
+			err = p.notifications.SendNotification(appCtx, paymentRequestNotifier)
+			if err != nil {
+				appCtx.Logger().Error(
+					"failed to send notification for payment request that failed to send to GEX",
+					zap.String("PaymentRequestID", pr.ID.String()),
+					zap.Error(verrs))
+			}
 		}
 		verrs, err = appCtx.DB().ValidateAndUpdate(&pr)
 		if err != nil {

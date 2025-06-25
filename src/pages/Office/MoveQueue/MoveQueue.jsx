@@ -41,8 +41,10 @@ export const columns = (
   isQueueManagementEnabled,
   queueType,
   setRefetchQueue,
+  isApprovalRequestTypeColEnabled,
   showBranchFilter = true,
 ) => {
+  const isDestinationQueue = queueType === tooRoutes.DESTINATION_REQUESTS_QUEUE;
   const cols = [
     createHeader('ID', 'id', { id: 'id' }),
     createHeader(
@@ -94,40 +96,64 @@ export const columns = (
       id: 'emplid',
       isFilterable: true,
     }),
-    createHeader(
-      'Status',
-      (row) => {
-        return MOVE_STATUS_LABELS[`${row.status}`];
-      },
-      {
-        id: 'status',
-        isFilterable: true,
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
-      },
-    ),
-    createHeader(
-      'Approval Request Type',
-      (row) => {
-        if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
-          return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
-        }
-        return '';
-      },
-      {
-        id: 'approvalRequestTypes',
-        isFilterable: false,
-        disableSortBy: true,
-      },
-    ),
+    !isDestinationQueue
+      ? createHeader(
+          'Status',
+          (row) => {
+            return MOVE_STATUS_LABELS[`${row.status}`];
+          },
+          {
+            id: 'status',
+            isFilterable: true,
+            Filter: (props) => (
+              <MultiSelectCheckBoxFilter
+                options={MOVE_STATUS_OPTIONS}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+              />
+            ),
+          },
+        )
+      : createHeader(
+          'Status',
+          (row) => {
+            return MOVE_STATUS_LABELS[`${row.status}`];
+          },
+          {
+            id: 'status',
+            disableSortBy: true,
+          },
+        ),
+  ];
+
+  if (isApprovalRequestTypeColEnabled) {
+    cols.push(
+      createHeader(
+        'Approval Request Type',
+        (row) => {
+          if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
+            return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
+          }
+          return '';
+        },
+        {
+          id: 'approvalRequestTypes',
+          isFilterable: false,
+          disableSortBy: true,
+        },
+      ),
+    );
+  }
+
+  cols.push(
     createHeader('Move code', 'locator', {
       id: 'locator',
       isFilterable: true,
     }),
     createHeader(
-      'Requested move date',
+      'Requested move date(s)',
       (row) => {
-        return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
+        return row.requestedMoveDates;
       },
       {
         id: 'requestedMoveDate',
@@ -163,19 +189,27 @@ export const columns = (
       },
     ),
     createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
-    createHeader('Origin duty location', 'originDutyLocation.name', {
-      id: 'originDutyLocation',
-      isFilterable: true,
-      exportValue: (row) => {
-        return row.originDutyLocation?.name;
-      },
-    }),
-    createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    !isDestinationQueue
+      ? createHeader('Origin duty location', 'originDutyLocation.name', {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
+        })
+      : createHeader('Destination duty location', 'destinationDutyLocation.name', {
+          id: 'destinationDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.newDutyLocation?.name;
+          },
+        }),
+    ...(!isDestinationQueue ? [createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true })] : []),
     createHeader('Counseling office', 'counselingOffice', {
       id: 'counselingOffice',
       isFilterable: true,
     }),
-  ];
+  );
   if (isQueueManagementEnabled)
     cols.push(
       createHeader(
@@ -228,6 +262,7 @@ const MoveQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
+  isApprovalRequestTypeFFEnabled,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
@@ -368,10 +403,17 @@ const MoveQueue = ({
           showPagination
           manualSortBy
           defaultCanSort
-          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          defaultSortedColumns={[{ id: 'status', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
+          columns={columns(
+            moveLockFlag,
+            isQueueManagementFFEnabled,
+            queueType,
+            setRefetchQueue,
+            isApprovalRequestTypeFFEnabled,
+            showBranchFilter,
+          )}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
@@ -401,7 +443,14 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
+          columns={columns(
+            moveLockFlag,
+            isQueueManagementFFEnabled,
+            queueType,
+            setRefetchQueue,
+            isApprovalRequestTypeFFEnabled,
+            showBranchFilter,
+          )}
           title="Destination requests"
           handleClick={handleClick}
           useQueries={useDestinationRequestsQueueQueries}

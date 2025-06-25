@@ -1,0 +1,11 @@
+Help Desk,
+
+Please escalate to Tier 3 for analysis.
+
+Payment Request {{ .PaymentRequestNumber }} is in EDI Error Status
+
+Due to error code: {{ .ErrorCode }}
+
+Description: {{ .ErrorDescription }}
+
+Thank you

@@ -272,7 +272,11 @@ const DocumentViewerFileManager = ({
         />
       )}
       {!isExpandedView && !useChevron && (
-        <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+        <Button
+          disabled={isFileProcessing || fileUploadRequired}
+          onClick={toggleUploadVisibility}
+          className={styles.fullWidth}
+        >
           {buttonHeaderText}
         </Button>
       )}
@@ -310,13 +314,15 @@ const DocumentViewerFileManager = ({
                 createUpload={handleUpload}
                 onChange={handleChange}
                 onAddFile={onAddFile}
-                labelIdle='Drag files here or <span class="filepond--label-action">click</span> to upload'
+                labelIdle='Drag files here or <span class="filepond--label-action" aria-label="Click to upload a document" role="button">click</span> to upload'
               />
               <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
               {!isExpandedView && (
-                <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
-                  Done
-                </Button>
+                <div className={styles.flexRight}>
+                  <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+                    Done
+                  </Button>
+                </div>
               )}
             </div>
           </>

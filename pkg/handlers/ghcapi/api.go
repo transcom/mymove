@@ -52,7 +52,7 @@ import (
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	transportaionofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
+	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	"github.com/transcom/mymove/pkg/services/upload"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
@@ -82,7 +82,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	newQueryFilter := query.NewQueryFilter
 	newUserRolesCreator := usersroles.NewUsersRolesCreator()
 	newRolesFetcher := roles.NewRolesFetcher()
-	newTransportaionOfficeAssignmentUpdater := transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater()
+	newTransportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
@@ -106,7 +106,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	)
 
 	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher, ppmEstimator)
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	serviceItemFetcher := serviceitem.NewServiceItemFetcher()
@@ -252,7 +252,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		fetch.NewFetcher(queryBuilder),
 		handlerConfig.HHGPlanner(),
 		moveRouter,
-		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()),
+		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf),
 		handlerConfig.NotificationSender(),
 		paymentRequestShipmentRecalculator,
 		addressUpdater,
@@ -410,7 +410,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmShowAOAPacketHandler = showAOAPacketHandler{handlerConfig, SSWPPMComputer, SSWPPMGenerator, AOAPacketCreator}
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()))
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf))
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
 		shipmentCreator,
@@ -445,14 +445,14 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			shipmentRouter,
 			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			handlerConfig.HHGPlanner(),
-			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf),
 			moveTaskOrderUpdater,
 			moveRouter,
 		),
 		shipmentSITStatus,
 		moveTaskOrderUpdater,
-		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()),
-		mtoshipment.NewShipmentReweighRequester(),
+		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf),
+		mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()),
 	}
 
 	ghcAPI.ShipmentApproveShipmentHandler = ApproveShipmentHandler{
@@ -461,14 +461,14 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			shipmentRouter,
 			mtoServiceItemCreator,
 			handlerConfig.HHGPlanner(),
-			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf),
 			moveTaskOrderUpdater,
 			moveRouter,
 		),
 		shipmentSITStatus,
 		moveTaskOrderUpdater,
-		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()),
-		mtoshipment.NewShipmentReweighRequester(),
+		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf),
+		mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()),
 	}
 
 	ghcAPI.ShipmentRequestShipmentDiversionHandler = RequestShipmentDiversionHandler{
@@ -486,6 +486,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			moveRouter,
 		),
 		shipmentSITStatus,
+		moveRouter,
 	}
 
 	ghcAPI.ShipmentRejectShipmentHandler = RejectShipmentHandler{
@@ -506,14 +507,14 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
 		handlerConfig,
-		mtoshipment.NewShipmentReweighRequester(),
+		mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()),
 		shipmentSITStatus,
 		mtoshipment.NewOfficeMTOShipmentUpdater(
 			queryBuilder,
 			fetch.NewFetcher(queryBuilder),
 			handlerConfig.HHGPlanner(),
 			moveRouter,
-			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf),
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 			addressUpdater,
@@ -525,7 +526,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		fetch.NewFetcher(queryBuilder),
 		handlerConfig.HHGPlanner(),
 		moveRouter,
-		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()),
+		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf),
 		handlerConfig.NotificationSender(),
 		paymentRequestShipmentRecalculator,
 		addressUpdater,
@@ -678,7 +679,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmFinishDocumentReviewHandler = FinishDocumentReviewHandler{
 		handlerConfig,
 		ppmshipment.NewPPMShipmentReviewDocuments(
-			ppmShipmentRouter, signedCertificationCreator, signedCertificationUpdater, SSWPPMComputer,
+			ppmShipmentRouter,
+			signedCertificationCreator, signedCertificationUpdater, SSWPPMComputer,
 		),
 	}
 
@@ -775,7 +777,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		newQueryFilter,
 		newUserRolesCreator,
 		newRolesFetcher,
-		newTransportaionOfficeAssignmentUpdater,
+		newTransportationOfficeAssignmentUpdater,
 	}
 	ghcAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		handlerConfig,
@@ -846,6 +848,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		serviceItemFetcher,
 	}
+
+	ppmShipmentNewSubmitter := ppmshipment.NewPPMShipmentNewSubmitter(ppmShipmentFetcher, signedCertificationCreator, ppmShipmentRouter)
+	ghcAPI.PpmSubmitPPMShipmentDocumentationHandler = SubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentNewSubmitter}
+
+	ghcAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
 
 	return ghcAPI
 }

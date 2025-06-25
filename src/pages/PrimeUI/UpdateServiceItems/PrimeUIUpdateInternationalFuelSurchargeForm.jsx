@@ -7,7 +7,7 @@ import classnames from 'classnames';
 
 import styles from './PrimeUIUpdateInternationalFuelSurcharge.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -125,14 +125,15 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
                   }}
                 />
               </SectionWrapper>
-              <WizardNavigation
-                editMode
-                className={formStyles.formActions}
-                aria-label="Update International Fuel Surcharge Service Item"
-                type="submit"
-                onCancelClick={handleClose}
-                onNextClick={handleSubmit}
-              />
+              <div className={formStyles.formActions}>
+                <WizardNavigation
+                  editMode
+                  aria-label="Update International Fuel Surcharge Service Item"
+                  type="submit"
+                  onCancelClick={handleClose}
+                  onNextClick={handleSubmit}
+                />
+              </div>
             </div>
           </FormGroup>
         </Form>

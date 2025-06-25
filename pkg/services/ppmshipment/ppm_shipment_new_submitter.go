@@ -37,6 +37,8 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 		return nil, apperror.NewBadDataError("PPM ID is required")
 	}
 
+	nilCert := models.SignedCertification{}
+
 	ppmShipment, err := p.GetPPMShipment(
 		appCtx,
 		ppmShipmentID,
@@ -58,12 +60,14 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 		return nil, err
 	}
 
-	signedCertification.SubmittingUserID = appCtx.Session().UserID
-	signedCertification.MoveID = ppmShipment.Shipment.MoveTaskOrderID
-	signedCertification.PpmID = &ppmShipment.ID
+	if signedCertification != nilCert {
+		signedCertification.SubmittingUserID = appCtx.Session().UserID
+		signedCertification.MoveID = ppmShipment.Shipment.MoveTaskOrderID
+		signedCertification.PpmID = &ppmShipment.ID
 
-	certType := models.SignedCertificationTypePPMPAYMENT
-	signedCertification.CertificationType = &certType
+		certType := models.SignedCertificationTypePPMPAYMENT
+		signedCertification.CertificationType = &certType
+	}
 
 	var updatedPPMShipment models.PPMShipment
 
@@ -92,26 +96,24 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 	updatedPPMShipment.AllowableWeight = &allowableWeight
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		updatedPPMShipment.SignedCertification, err = p.SignedCertificationCreator.CreateSignedCertification(txnAppCtx, signedCertification)
-
-		if err != nil {
-			return err
+		if !appCtx.Session().IsOfficeApp() { // Don't create signed cert if office user is completing closeout on behalf of customer
+			updatedPPMShipment.SignedCertification, err = p.SignedCertificationCreator.CreateSignedCertification(txnAppCtx, signedCertification)
+			if err != nil {
+				return err
+			}
 		}
 
 		err = p.PPMShipmentRouter.SubmitCloseOutDocumentation(txnAppCtx, &updatedPPMShipment)
-
 		if err != nil {
 			return err
 		}
 
 		err = validatePPMShipment(appCtx, updatedPPMShipment, ppmShipment, &ppmShipment.Shipment, PPMShipmentUpdaterChecks...)
-
 		if err != nil {
 			return err
 		}
 
 		verrs, err := txnAppCtx.DB().ValidateAndUpdate(&updatedPPMShipment)
-
 		if verrs.HasAny() {
 			return apperror.NewInvalidInputError(ppmShipment.ID, err, verrs, "unable to validate PPMShipment")
 		} else if err != nil {

@@ -13,26 +13,26 @@ import styles from './OrdersInfoForm.module.scss';
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
 import { DutyLocationShape } from 'types/dutyLocation';
 import formStyles from 'styles/form.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
-import { showCounselingOffices } from 'services/internalApi';
+import { formatLabelReportByDate, formatPayGradeOptions } from 'utils/formatters';
+import { getPayGradeOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 
 let originMeta;
 let newDutyMeta = '';
-const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner, affiliation }) => {
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
@@ -62,7 +62,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    grade: Yup.string().required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
@@ -119,6 +119,26 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     };
     fetchCounselingOffices();
   }, [counselingOfficeOptions, currentDutyLocation.id, setShowLoadingSpinner]);
+
+  const [payGradeOptions, setPayGradeOptions] = useState([]);
+  useEffect(() => {
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      try {
+        const fetchedRanks = await getPayGradeOptions(affiliation);
+        if (fetchedRanks) {
+          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchGradeOptions();
+  }, [affiliation, setShowLoadingSpinner]);
 
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
@@ -343,7 +363,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label="HOR, PLEAD or HOS"
+                    label="Destination Location (As Authorized on Orders)"
                     showRequiredAsterisk
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
@@ -577,4 +597,10 @@ const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(OrdersInfoForm);
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfoForm);

@@ -382,9 +382,7 @@ const defaultPropsOrdersWithUnsubmittedShipments = {
             id: '0c7f88b8-75a9-41fe-b884-ea39e6024f24',
             moveTaskOrderID: 'cf2508aa-2b0a-47e9-8688-37b41623837d',
             ppmShipment: {
-              actualDestinationPostalCode: null,
               actualMoveDate: null,
-              actualPickupPostalCode: null,
               advanceAmountReceived: null,
               advanceAmountRequested: null,
               approvedAt: null,
@@ -597,9 +595,7 @@ const defaultPropsOrdersWithSubmittedShipments = {
             id: '0c7f88b8-75a9-41fe-b884-ea39e6024f24',
             moveTaskOrderID: 'cf2508aa-2b0a-47e9-8688-37b41623837d',
             ppmShipment: {
-              actualDestinationPostalCode: null,
               actualMoveDate: null,
-              actualPickupPostalCode: null,
               advanceAmountReceived: null,
               advanceAmountRequested: null,
               approvedAt: null,
@@ -782,9 +778,7 @@ const defaultPropsAmendedOrdersWithAdvanceRequested = {
             id: '322ebc9f-0ca8-4943-a7a8-39235f4e680b',
             moveTaskOrderID: '4918b8c9-5e0a-4d65-a6b8-6a7a6ce265d4',
             ppmShipment: {
-              actualDestinationPostalCode: null,
               actualMoveDate: null,
-              actualPickupPostalCode: null,
               advanceAmountReceived: null,
               advanceAmountRequested: 400000,
               approvedAt: null,
@@ -985,9 +979,7 @@ const defaultPropsWithAdvanceAndPPMApproved = {
             id: '322ebc9f-0ca8-4943-a7a8-39235f4e680b',
             moveTaskOrderID: '4918b8c9-5e0a-4d65-a6b8-6a7a6ce265d4',
             ppmShipment: {
-              actualDestinationPostalCode: null,
               actualMoveDate: null,
-              actualPickupPostalCode: null,
               advanceAmountReceived: null,
               advanceAmountRequested: 400000,
               advanceStatus: 'APPROVED',
@@ -1549,9 +1541,7 @@ describe('Home component', () => {
               id: '322ebc9f-0ca8-4943-a7a8-39235f4e680b',
               moveTaskOrderID: '4918b8c9-5e0a-4d65-a6b8-6a7a6ce265d4',
               ppmShipment: {
-                actualDestinationPostalCode: null,
                 actualMoveDate: null,
-                actualPickupPostalCode: null,
                 advanceAmountReceived: null,
                 advanceAmountRequested: 400000,
                 advanceStatus: 'APPROVED',

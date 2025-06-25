@@ -1988,6 +1988,41 @@ func init() {
         }
       }
     },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
@@ -6117,31 +6152,31 @@ func init() {
       "type": "string",
       "title": "Grade",
       "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
         "AVIATION_CADET",
         "CIVILIAN_EMPLOYEE",
         "ACADEMY_CADET",
@@ -6179,6 +6214,17 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      }
     },
     "Orders": {
       "type": "object",
@@ -6391,7 +6437,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -6610,32 +6655,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -6708,6 +6733,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -8051,28 +8088,10 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -8107,6 +8126,15 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -8855,6 +8883,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -11090,6 +11135,55 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
           }
         }
       }
@@ -15583,31 +15677,31 @@ func init() {
       "type": "string",
       "title": "Grade",
       "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
         "AVIATION_CADET",
         "CIVILIAN_EMPLOYEE",
         "ACADEMY_CADET",
@@ -15645,6 +15739,17 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      }
     },
     "Orders": {
       "type": "object",
@@ -15857,7 +15962,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -16076,32 +16180,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -16175,6 +16259,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
@@ -17520,28 +17616,10 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -17576,6 +17654,15 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
+          "x-nullable": true
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -18336,6 +18423,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",

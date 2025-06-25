@@ -3,8 +3,6 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -30,7 +28,6 @@ const About = () => {
   const dispatch = useDispatch();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
-  const [multiMove, setMultiMove] = useState(false);
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
   const { ppmType } = ppmShipment;
@@ -47,10 +44,6 @@ const About = () => {
       .finally(() => {
         setIsLoading(false);
       });
-
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
   }, [moveId, mtoShipmentId, dispatch]);
 
   if (!mtoShipment || isLoading) {
@@ -58,11 +51,7 @@ const About = () => {
   }
 
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -80,8 +69,6 @@ const About = () => {
         hasSecondaryDestinationAddress: values.hasSecondaryDestinationAddress === 'true',
         secondaryDestinationAddress:
           values.hasSecondaryDestinationAddress === 'true' ? values.secondaryDestinationAddress : null,
-        actualPickupPostalCode: values.pickupAddress.postalCode,
-        actualDestinationPostalCode: values.destinationAddress.postalCode,
         hasReceivedAdvance,
         advanceAmountReceived: hasReceivedAdvance ? values.advanceAmountReceived * 100 : null,
         w2Address: values.w2Address,

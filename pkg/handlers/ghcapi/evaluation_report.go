@@ -201,7 +201,7 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 			}
 
 			buf := new(bytes.Buffer)
-			err = formFiller.Output(buf)
+			err = formFiller.Output(buf, *evaluationReport)
 			if err != nil {
 				appCtx.Logger().Error("Error writing out PDF", zap.Error(err))
 				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err

@@ -10,7 +10,7 @@ import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectMTOShipmentById, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';

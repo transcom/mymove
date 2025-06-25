@@ -35,6 +35,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/orders"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -261,6 +262,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ApplicationParametersGetParamHandler: application_parameters.GetParamHandlerFunc(func(params application_parameters.GetParamParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.GetParam has not yet been implemented")
 		}),
+		OrdersGetPayGradesHandler: orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
+		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
 		}),
@@ -362,6 +366,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsSubmitEvaluationReportHandler: evaluation_reports.SubmitEvaluationReportHandlerFunc(func(params evaluation_reports.SubmitEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SubmitEvaluationReport has not yet been implemented")
+		}),
+		PpmSubmitPPMShipmentDocumentationHandler: ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
 		}),
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
@@ -617,6 +624,8 @@ type MymoveAPI struct {
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// ApplicationParametersGetParamHandler sets the operation handler for the get param operation
 	ApplicationParametersGetParamHandler application_parameters.GetParamHandler
+	// OrdersGetPayGradesHandler sets the operation handler for the get pay grades operation
+	OrdersGetPayGradesHandler orders.GetPayGradesHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
@@ -685,6 +694,8 @@ type MymoveAPI struct {
 	PpmShowPaymentPacketHandler ppm.ShowPaymentPacketHandler
 	// EvaluationReportsSubmitEvaluationReportHandler sets the operation handler for the submit evaluation report operation
 	EvaluationReportsSubmitEvaluationReportHandler evaluation_reports.SubmitEvaluationReportHandler
+	// PpmSubmitPPMShipmentDocumentationHandler sets the operation handler for the submit p p m shipment documentation operation
+	PpmSubmitPPMShipmentDocumentationHandler ppm.SubmitPPMShipmentDocumentationHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
 	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
@@ -1011,6 +1022,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.ApplicationParametersGetParamHandler == nil {
 		unregistered = append(unregistered, "application_parameters.GetParamHandler")
 	}
+	if o.OrdersGetPayGradesHandler == nil {
+		unregistered = append(unregistered, "orders.GetPayGradesHandler")
+	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
 	}
@@ -1112,6 +1126,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsSubmitEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SubmitEvaluationReportHandler")
+	}
+	if o.PpmSubmitPPMShipmentDocumentationHandler == nil {
+		unregistered = append(unregistered, "ppm.SubmitPPMShipmentDocumentationHandler")
 	}
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
@@ -1539,6 +1556,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/paygrade/{affiliation}"] = orders.NewGetPayGrades(o.context, o.OrdersGetPayGradesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}"] = payment_requests.NewGetPaymentRequest(o.context, o.PaymentRequestsGetPaymentRequestHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1672,6 +1693,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/evaluation-reports/{reportID}/submit"] = evaluation_reports.NewSubmitEvaluationReport(o.context, o.EvaluationReportsSubmitEvaluationReportHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation"] = ppm.NewSubmitPPMShipmentDocumentation(o.context, o.PpmSubmitPPMShipmentDocumentationHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

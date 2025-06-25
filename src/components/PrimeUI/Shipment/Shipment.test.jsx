@@ -140,10 +140,6 @@ describe('Shipment details component', () => {
     expect(updateShipmentLink).toBeInTheDocument();
     expect(updateShipmentLink.getAttribute('href')).toBe(`/shipments/${shipmentId}`);
 
-    const addServiceItemLink = screen.getByText(/Add Service Item/, { selector: 'a.usa-button' });
-    expect(addServiceItemLink).toBeInTheDocument();
-    expect(addServiceItemLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/service-items/new`);
-
     const acknowledgeShipmentLink = screen.getByText(/Acknowledge Shipment/, { selector: 'a.usa-button' });
     expect(acknowledgeShipmentLink).toBeInTheDocument();
     expect(acknowledgeShipmentLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/acknowledge`);
@@ -408,9 +404,7 @@ const ppmShipment = {
     streetAddress1: null,
   },
   ppmShipment: {
-    actualDestinationPostalCode: '30814',
     actualMoveDate: '2022-07-13',
-    actualPickupPostalCode: '90212',
     advanceAmountReceived: 598600,
     advanceAmountRequested: 598700,
     approvedAt: '2022-07-03T14:20:21.620Z',
@@ -552,8 +546,8 @@ describe('PPM shipments are handled', () => {
     ['PPM SIT Estimated Entry Date:', formatDateFromIso(ppmShipmentFields.sitEstimatedEntryDate, 'YYYY-MM-DD')],
     ['PPM SIT Estimated Departure Date:', formatDateFromIso(ppmShipmentFields.sitEstimatedDepartureDate, 'YYYY-MM-DD')],
     ['PPM SIT Estimated Cost:', toDollarString(formatCents(ppmShipmentFields.sitEstimatedCost))],
-    ['PPM Actual Pickup Postal Code:', ppmShipmentFields.actualPickupPostalCode],
-    ['PPM Actual Destination Postal Code:', ppmShipmentFields.actualDestinationPostalCode],
+    ['PPM Actual Pickup Postal Code:', ppmShipmentFields.pickupAddress.postalCode],
+    ['PPM Actual Destination Postal Code:', ppmShipmentFields.destinationAddress.postalCode],
     ['PPM Has Requested Advance:', formatYesNoInputValue(ppmShipmentFields.hasRequestedAdvance)],
     ['PPM Advance Amount Requested:', toDollarString(formatCents(ppmShipmentFields.advanceAmountRequested))],
     ['PPM Has Received Advance:', formatYesNoInputValue(ppmShipmentFields.hasReceivedAdvance)],

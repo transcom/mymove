@@ -44,9 +44,12 @@ const moveData = [
     originDutyLocation: {
       name: 'Area 51',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-10',
+    requestedMoveDates: '10 Feb 2023, 10 Mar 2023',
     appearedInTooAt: '2023-02-10T00:00:00.000Z',
     lockExpiresAt: '2099-02-10T00:00:00.000Z',
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
@@ -84,9 +87,12 @@ const moveData = [
     originDutyLocation: {
       name: 'Los Alamos',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-12',
+    requestedMoveDates: '12 Feb 2023',
     appearedInTooAt: '2023-02-12T00:00:00.000Z',
     assignedTo: {
       officeUserId: 'exampleId2',
@@ -121,9 +127,12 @@ const moveData = [
     originDutyLocation: {
       name: 'Area 52',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-03-12',
+    requestedMoveDates: '12 Mar 2023',
     appearedInTooAt: '2023-03-12T00:00:00.000Z',
     lockExpiresAt: '2099-03-12T00:00:00.000Z',
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
@@ -208,7 +217,7 @@ const GetMountedComponent = (queueTypeToMount) => {
   reactRouterDom.useParams.mockReturnValue({ queueType: queueTypeToMount });
   const wrapper = mount(
     <MockProviders>
-      <MoveQueue isQueueManagementFFEnabled />
+      <MoveQueue isQueueManagementFFEnabled isApprovalRequestTypeFFEnabled />
     </MockProviders>,
   );
   return wrapper;
@@ -273,7 +282,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('10 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe(
+      '10 Feb 2023, 10 Mar 2023',
+    );
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
 
     currentIndex += 1;
@@ -363,16 +374,15 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].shipmentsCount.toString(),
     );
-    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originDutyLocation.name,
-    );
-    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originGBLOC,
+    expect(currentMove.find({ 'data-testid': `destinationDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].destinationDutyLocation.name,
     );
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('10 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe(
+      '10 Feb 2023, 10 Mar 2023',
+    );
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
 
     currentIndex += 1;
@@ -398,16 +408,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].shipmentsCount.toString(),
     );
-    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originDutyLocation.name,
-    );
-    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originGBLOC,
-    );
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('12 Feb 2023');
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('12 Feb 2023');
 
     currentIndex += 1;
@@ -427,11 +430,8 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].shipmentsCount.toString(),
     );
-    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originDutyLocation.name,
-    );
-    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originGBLOC,
+    expect(currentMove.find({ 'data-testid': `destinationDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].destinationDutyLocation.name,
     );
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
@@ -451,7 +451,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
   it('applies the sort to the status column in descending direction on both queues', () => {
     expect(
       GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending'),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE)
         .find({ 'data-testid': 'status' })
@@ -466,13 +466,13 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     statusHeading.simulate('click');
     wrapper.update();
 
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     statusHeading.simulate('click');
     wrapper.update();
 
-    // no sort direction should be applied
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
+    // asc should be applied
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(true);
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
@@ -489,18 +489,6 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
   });
   it('toggles the sort direction when clicked - DestinationRequestsQueue', () => {
     const wrapper = GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE);
-    const statusHeading = wrapper.find({ 'data-testid': 'status' }).at(0);
-    statusHeading.simulate('click');
-    wrapper.update();
-
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
-
-    statusHeading.simulate('click');
-    wrapper.update();
-
-    // no sort direction should be applied
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
     nameHeading.simulate('click');
@@ -517,16 +505,6 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
 
   it('filters the queue - MovesQueue', () => {
     const wrapper = GetMountedComponent(tooRoutes.MOVE_QUEUE);
-    const input = wrapper.find(Select).at(0).find('input');
-    input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
-    input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
-
-    wrapper.update();
-    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
-  });
-
-  it('filters the queue - DestinationRequestsQueue', () => {
-    const wrapper = GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE);
     const input = wrapper.find(Select).at(0).find('input');
     input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
     input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
@@ -718,6 +696,54 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     await waitFor(() => {
       const assignedSelect = screen.queryByTestId('assigned-col');
       expect(assignedSelect).not.toBeInTheDocument();
+    });
+  });
+  it('renders an approval request type column when the feature flag is on - MoveQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isApprovalRequestTypeFFEnabled />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const approvalRequestColumn = screen.queryAllByTestId('approvalRequestTypes');
+      expect(approvalRequestColumn).not.toHaveLength(0);
+    });
+  });
+  it('renders an approval request type column when the feature flag is on - DestinationRequestsQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isApprovalRequestTypeFFEnabled />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const approvalRequestColumn = screen.queryAllByTestId('approvalRequestTypes');
+      expect(approvalRequestColumn).not.toHaveLength(0);
+    });
+  });
+  it('does not render an approval request type column when the feature flag is off - MoveQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isApprovalRequestTypeFFEnable={false} />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const approvalRequestColumn = screen.queryByTestId('approvalRequestTypes');
+      expect(approvalRequestColumn).not.toBeInTheDocument();
+    });
+  });
+  it('does not render an approval request type column when the feature flag is off - DestinationRequestsQueue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue isApprovalRequestTypeFFEnable={false} />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const approvalRequestColumn = screen.queryAllByTestId('approvalRequestTypes');
+      expect(approvalRequestColumn).toHaveLength(0);
     });
   });
 });

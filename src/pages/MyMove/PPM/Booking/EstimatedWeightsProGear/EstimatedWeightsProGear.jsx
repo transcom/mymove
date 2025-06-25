@@ -38,6 +38,7 @@ const EstimatedWeightsProGear = () => {
     setErrorMessage(null);
 
     const hasProGear = values.hasProGear === 'true';
+    const hasGunSafe = values.hasGunSafe === 'true';
 
     const payload = {
       shipmentType: mtoShipment.shipmentType,
@@ -47,6 +48,8 @@ const EstimatedWeightsProGear = () => {
         hasProGear,
         proGearWeight: hasProGear ? Number(values.proGearWeight) : null,
         spouseProGearWeight: hasProGear ? Number(values.spouseProGearWeight) : null,
+        hasGunSafe,
+        gunSafeWeight: hasGunSafe ? Number(values.gunSafeWeight) : null,
       },
     };
 

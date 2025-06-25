@@ -14,7 +14,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { servicesCounselingRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { CheckboxField, DropdownInput } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
@@ -142,7 +142,13 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
           generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
             customerId,
           }),
-          { state: { isSafetyMoveSelected: isSafetyMove, isBluebarkMoveSelected: isBluebarkMove } },
+          {
+            state: {
+              isSafetyMoveSelected: isSafetyMove,
+              isBluebarkMoveSelected: isBluebarkMove,
+              affiliation: values.affiliation,
+            },
+          },
         );
       })
       .catch((e) => {

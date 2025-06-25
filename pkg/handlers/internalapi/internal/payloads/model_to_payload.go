@@ -128,13 +128,11 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -143,6 +141,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
@@ -739,4 +739,19 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 		payload[i] = VLocation(&copyOfVLocation)
 	}
 	return payload
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
+	var payloadPayGrades []*internalmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := internalmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }

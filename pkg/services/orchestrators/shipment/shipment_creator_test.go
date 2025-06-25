@@ -71,7 +71,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 
 		waf := entitlements.NewWeightAllotmentFetcher()
 		mockSender := setUpMockNotificationSender()
-		moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, subtestData.mockBoatShipmentCreator, subtestData.mockMobileHomeShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater, moveWeights)
 
 		if returnErrorForMTOShipment {

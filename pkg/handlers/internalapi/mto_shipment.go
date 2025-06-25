@@ -155,6 +155,22 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), noBodyErr
 			}
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+			// set payloads for gun safe to nil if FF is turned OFF
+			if !isGunSafeFeatureOn && payload.PpmShipment != nil {
+				payload.PpmShipment.HasGunSafe = nil
+				payload.PpmShipment.GunSafeWeight = nil
+			}
+
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 			mtoShipment.ID = uuid.FromStringOrNil(params.MtoShipmentID.String())
 
