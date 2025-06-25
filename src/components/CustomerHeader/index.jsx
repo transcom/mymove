@@ -5,12 +5,7 @@ import styles from './index.module.scss';
 
 import { OrderShape, CustomerShape } from 'types/order';
 import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
-import {
-  CHECK_SPECIAL_ORDERS_TYPES,
-  ORDERS_BRANCH_OPTIONS,
-  ORDERS_PAY_GRADE_OPTIONS,
-  SPECIAL_ORDERS_TYPES,
-} from 'constants/orders.js';
+import { CHECK_SPECIAL_ORDERS_TYPES, ORDERS_BRANCH_OPTIONS, SPECIAL_ORDERS_TYPES } from 'constants/orders.js';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import MOVE_STATUSES from 'constants/moves';
 import { roleTypes } from 'constants/userRoles';
@@ -51,7 +46,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
         <div>
           <p>
             <span data-testid="deptPayGrade" className={styles.details}>
-              {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {ORDERS_PAY_GRADE_OPTIONS[`${order.grade}`]}
+              {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {order.grade}
             </span>
             <span className={styles.verticalBar}>|</span>
             <span data-testid="edipi" className={styles.details}>

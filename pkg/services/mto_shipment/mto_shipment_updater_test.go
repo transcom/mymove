@@ -2344,6 +2344,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
 		session.ActiveRole.RoleType = roles.RoleTypeTOO
 		expectedMileage := 314
@@ -2534,6 +2535,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
 		session.ActiveRole.RoleType = roles.RoleTypeTOO
 		expectedMileage := 314
@@ -2722,6 +2724,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
 		session.ActiveRole.RoleType = roles.RoleTypeTOO
 		plannerSITFSC := &mocks.Planner{}
@@ -2847,6 +2850,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
 
 		var serviceItems []models.MTOServiceItem
@@ -5528,6 +5532,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          *too.UserID,
 				OfficeUserID:    too.ID,
+				ActiveRole:      too.User.Roles[0],
 			}
 			session.ActiveRole.RoleType = roles.RoleTypeTOO
 			shipment, err := shipmentUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")

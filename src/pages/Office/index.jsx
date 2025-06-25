@@ -692,7 +692,7 @@ const mapStateToProps = (state) => {
     loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
     userPermissions: user?.permissions || [],
-    userInactiveRoles: user?.inactiveRoles || [],
+    userInactiveRoles: user?.inactiveRoles ?? null,
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,

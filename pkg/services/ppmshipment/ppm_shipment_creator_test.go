@@ -693,6 +693,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator_StatusMapping() {
 		ApplicationName: auth.OfficeApp,
 		UserID:          *sc.UserID,
 		IDToken:         "fake token",
+		ActiveRole:      sc.User.Roles[0],
 	}
 	session.ActiveRole.RoleType = roles.RoleTypeServicesCounselor
 	appCtx := suite.AppContextWithSessionForTest(session)

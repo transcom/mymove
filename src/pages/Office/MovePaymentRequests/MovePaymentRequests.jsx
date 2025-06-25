@@ -306,6 +306,7 @@ const MovePaymentRequests = ({
                   key={paymentRequest.id}
                   onEditAccountingCodes={handleEditAccountingCodes}
                   isMoveLocked={isMoveLocked}
+                  affiliation={order.agency}
                 />
               ))
             ) : (
