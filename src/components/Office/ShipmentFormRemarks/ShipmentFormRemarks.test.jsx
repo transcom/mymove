@@ -50,6 +50,7 @@ describe('components/Office/ShipmentFormRemarks', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           counselorRemarks="Counselor remarks from props"
           advanceStatus="REJECTED"
+          isAdvancePage
         />
       </Formik>,
     );
