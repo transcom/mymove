@@ -514,7 +514,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		return nil, err
 	}
 
-	// Check if valid service SIT service item to get correct authorized end date.
+	// Check if valid SIT service item to get correct authorized end date.
 	var endDate *time.Time
 
 	if slices.Contains(models.ValidOriginSITReServiceCodes, updatedServiceItem.ReService.Code) &&
@@ -528,7 +528,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	// then REMOVE any pending sit extensions and update move status
 	if len(shipment.SITDurationUpdates) > 0 {
 		if mtoServiceItem.SITDepartureDate != nil && endDate != nil {
-			today := time.Now()
 			if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
 				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = ?, decision_date = ? WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusRemoved, today, models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
 				if err != nil {
