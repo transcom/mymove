@@ -30,8 +30,8 @@ import { permissionTypes } from 'constants/permissions';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { scrollToViewFormikError } from 'utils/validation';
-import retryPageLoading from 'utils/retryPageLoading';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import retryPageLoading from 'utils/retryPageLoading';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);

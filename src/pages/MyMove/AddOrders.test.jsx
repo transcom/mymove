@@ -700,6 +700,7 @@ describe('Add Orders page', () => {
 describe('Order type: Wounded Warrior', () => {
   it('wounded warrior FF turned off', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,

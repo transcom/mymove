@@ -574,6 +574,24 @@ describe('Orders page', () => {
         expect(hasWoundedWarrior).toBe(false);
       });
     });
+
+    it('wounded warrior FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+        expect(hasWoundedWarrior).toBe(true);
+      });
+    });
   });
 
   describe('BLUEBARK FF', () => {
