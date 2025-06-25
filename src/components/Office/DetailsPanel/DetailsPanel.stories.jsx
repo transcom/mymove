@@ -127,8 +127,7 @@ const info = {
     postalCode: '78234',
   },
   backupContact: {
-    firstName: 'Quinn',
-    lastName: 'Ocampo',
+    name: 'Quinn Ocampo',
     email: 'quinnocampo@myemail.com',
     phone: '999-999-9999',
   },

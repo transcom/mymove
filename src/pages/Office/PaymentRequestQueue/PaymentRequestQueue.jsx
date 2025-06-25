@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
 import { Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -29,19 +29,26 @@ import { tioRoutes, generalRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { DEFAULT_EMPTY_VALUE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { handleQueueAssignment, getQueue } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
-export const columns = (queueType, isQueueManagementEnabled, setRefetchQueue, showBranchFilter = true) => {
+export const columns = (
+  moveLockFlag,
+  queueType,
+  isQueueManagementEnabled,
+  setRefetchQueue,
+  showBranchFilter = true,
+) => {
   const cols = [
     createHeader(
       ' ',
       (row) => {
         const now = new Date();
         // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
           return (
             <div data-testid="lock-icon">
               <FontAwesomeIcon icon="lock" />
@@ -208,9 +215,19 @@ const PaymentRequestQueue = ({
   const navigate = useNavigate();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const supervisor = userPrivileges
     ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
     : false;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
 
   const {
     // eslint-disable-next-line camelcase
@@ -324,7 +341,7 @@ const PaymentRequestQueue = ({
           defaultSortedColumns={[{ id: 'age', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(queueType, isQueueManagementFFEnabled, setRefetchQueue, showBranchFilter)}
+          columns={columns(moveLockFlag, queueType, isQueueManagementFFEnabled, setRefetchQueue, showBranchFilter)}
           title="Payment requests"
           handleClick={handleClick}
           useQueries={usePaymentRequestQueueQueries}

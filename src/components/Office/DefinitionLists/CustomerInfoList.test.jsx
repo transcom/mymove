@@ -59,7 +59,7 @@ describe('CustomerInfoList', () => {
 
   it('renders formatted backup contact name', () => {
     render(<CustomerInfoList customerInfo={info} />);
-    expect(screen.getByText('Quinn Ocampo')).toBeInTheDocument();
+    expect(screen.getByText('Ocampo, Quinn')).toBeInTheDocument();
   });
 
   it('renders formatted backup contact email', () => {

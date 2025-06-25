@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import SearchResultsTable from './SearchResultsTable';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { setCanAddOrders } from 'store/general/actions';
 import { MockProviders } from 'testUtils';
 
@@ -155,7 +156,9 @@ describe('SearchResultsTable', () => {
     const phone = screen.queryByText('212-123-4567');
     expect(phone).toBeInTheDocument();
   });
-  it('renders a lock icon', async () => {
+  it('renders a lock icon when move lock flag is on', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
     render(
       <MockProviders>
         <SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} searchType="move" />
@@ -165,6 +168,20 @@ describe('SearchResultsTable', () => {
     await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');
       expect(lockIcon).toBeInTheDocument();
+    });
+  });
+  it('does NOT render a lock icon when move lock flag is off', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+
+    render(
+      <MockProviders>
+        <SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} searchType="move" />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      const lockIcon = screen.queryByTestId('lock-icon');
+      expect(lockIcon).not.toBeInTheDocument();
     });
   });
   it('renders create move button on customer search', () => {

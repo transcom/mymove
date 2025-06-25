@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate, generatePath } from 'react-router-dom';
 import { Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -31,11 +31,13 @@ import TabNav from 'components/TabNav';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { handleQueueAssignment, getQueue, formatApprovalRequestTypes } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 export const columns = (
+  moveLockFlag,
   isQueueManagementEnabled,
   queueType,
   setRefetchQueue,
@@ -50,7 +52,7 @@ export const columns = (
       (row) => {
         const now = new Date();
         // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
           return (
             <div data-testid="lock-icon">
               <FontAwesomeIcon icon="lock" />
@@ -266,9 +268,18 @@ const MoveQueue = ({
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const supervisor = userPrivileges
     ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
     : false;
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -396,6 +407,7 @@ const MoveQueue = ({
           disableMultiSort
           disableSortBy={false}
           columns={columns(
+            moveLockFlag,
             isQueueManagementFFEnabled,
             queueType,
             setRefetchQueue,
@@ -432,6 +444,7 @@ const MoveQueue = ({
           disableMultiSort
           disableSortBy={false}
           columns={columns(
+            moveLockFlag,
             isQueueManagementFFEnabled,
             queueType,
             setRefetchQueue,

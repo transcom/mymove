@@ -9,6 +9,7 @@ import MoveQueue from './MoveQueue';
 import { MockProviders } from 'testUtils';
 import { MOVE_STATUS_OPTIONS, BRANCH_OPTIONS } from 'constants/queues';
 import { generalRoutes, tooRoutes } from 'constants/routes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { APPROVAL_REQUEST_TYPES } from 'constants/approvalRequestTypes';
 
 jest.mock('react-router-dom', () => ({
@@ -594,7 +595,8 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
   });
 
-  it('renders a lock icon - MoveQueue', async () => {
+  it('renders a lock icon when move lock flag is on - MoveQueue', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
       <MockProviders>
@@ -606,7 +608,8 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
       expect(lockIcon).toBeInTheDocument();
     });
   });
-  it('renders a lock icon - DestinationRequestsQueue', async () => {
+  it('renders a lock icon when move lock flag is on - DestinationRequestsQueue', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
     render(
       <MockProviders>
@@ -618,6 +621,34 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
       expect(lockIcon).toBeInTheDocument();
     });
   });
+
+  it('does NOT render a lock icon when move lock flag is off - MoveQueue', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue />
+      </MockProviders>,
+    );
+    await await waitFor(() => {
+      const lockIcon = screen.queryByTestId('lock-icon');
+      expect(lockIcon).not.toBeInTheDocument();
+    });
+  });
+  it('does NOT render a lock icon when move lock flag is off - DestinationRequestsQueue', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
+    render(
+      <MockProviders>
+        <MoveQueue />
+      </MockProviders>,
+    );
+    await await waitFor(() => {
+      const lockIcon = screen.queryByTestId('lock-icon');
+      expect(lockIcon).not.toBeInTheDocument();
+    });
+  });
+
   it('renders an assigned column when the queue management flag is on - MoveQueue', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(

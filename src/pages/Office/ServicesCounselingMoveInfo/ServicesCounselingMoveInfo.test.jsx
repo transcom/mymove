@@ -10,6 +10,7 @@ import { mockPage, ReactQueryWrapper } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -201,12 +202,24 @@ describe('Services Counseling Move Info Container', () => {
       },
     );
   });
-  it('renders a lock icon', async () => {
+  it('renders a lock icon when move lock flag is on', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
     renderSCMoveInfo();
 
     await waitFor(() => {
       const lockIcon = screen.queryByTestId('locked-move-banner');
       expect(lockIcon).toBeInTheDocument();
+    });
+  });
+  it('does NOT render a lock icon when move lock flag is off', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+
+    renderSCMoveInfo();
+
+    await waitFor(() => {
+      const lockIcon = screen.queryByTestId('locked-move-banner');
+      expect(lockIcon).not.toBeInTheDocument();
     });
   });
 

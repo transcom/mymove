@@ -9,6 +9,7 @@ import HeadquartersQueue from './HeadquartersQueues';
 import { MockProviders } from 'testUtils';
 import { MOVE_STATUS_OPTIONS } from 'constants/queues';
 import { generalRoutes, hqRoutes } from 'constants/routes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -371,7 +372,8 @@ describe('HeadquartersQueue', () => {
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
   });
 
-  it('renders a lock icon', async () => {
+  it('renders a lock icon when move lock flag is on', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.MOVE_QUEUE });
     render(
       <MockProviders>
@@ -381,6 +383,20 @@ describe('HeadquartersQueue', () => {
     await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');
       expect(lockIcon).toBeInTheDocument();
+    });
+  });
+
+  it('does NOT render a lock icon when move lock flag is off', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+    reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.MOVE_QUEUE });
+    render(
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
+    );
+    await await waitFor(() => {
+      const lockIcon = screen.queryByTestId('lock-icon');
+      expect(lockIcon).not.toBeInTheDocument();
     });
   });
 });

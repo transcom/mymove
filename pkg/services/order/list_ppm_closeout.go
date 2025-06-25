@@ -26,7 +26,6 @@ type PPMCloseoutQueueItem struct {
 	FullOrPartialPPM                 *string            `json:"full_or_partial_ppm" db:"full_or_partial_ppm"`
 	OrdersID                         *uuid.UUID         `json:"orders_id" db:"orders_id"`
 	LockedBy                         *uuid.UUID         `json:"locked_by" db:"locked_by"`
-	UpdatedAt                        *time.Time         `json:"updated_at" db:"updated_at"`
 	LockExpiresAt                    *time.Time         `json:"lock_expires_at" db:"lock_expires_at"`
 	SCCloseoutAssignedID             *uuid.UUID         `json:"sc_closeout_assigned_id" db:"sc_closeout_assigned_id"`
 	CounselingTransportationOfficeID *uuid.UUID         `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
@@ -161,9 +160,6 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 		}
 		if queueItem.LockedBy != nil {
 			move.LockedByOfficeUserID = queueItem.LockedBy
-		}
-		if queueItem.UpdatedAt != nil {
-			move.UpdatedAt = *queueItem.UpdatedAt
 		}
 		if queueItem.LockExpiresAt != nil {
 			move.LockExpiresAt = queueItem.LockExpiresAt

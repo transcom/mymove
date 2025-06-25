@@ -21,15 +21,16 @@ import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheck
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { withContext } from 'shared/AppContext';
 import withRouter from 'utils/routing';
 import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
 
-const moveSearchColumns = (handleEditProfileClick) => [
+const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
       return (
         <div data-testid="lock-icon">
           <FontAwesomeIcon icon="lock" />
@@ -285,6 +286,7 @@ const SearchResultsTable = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
   const [pageCount, setPageCount] = useState(0);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
@@ -318,8 +320,8 @@ const SearchResultsTable = (props) => {
   const tableColumns = useMemo(() => {
     return searchType === 'customer'
       ? customerSearchColumns({ setCanAddOrders })
-      : moveSearchColumns(handleEditProfileClick);
-  }, [searchType, setCanAddOrders, handleEditProfileClick]);
+      : moveSearchColumns(moveLockFlag, handleEditProfileClick);
+  }, [searchType, setCanAddOrders, moveLockFlag, handleEditProfileClick]);
 
   const {
     getTableProps,
@@ -391,6 +393,16 @@ const SearchResultsTable = (props) => {
     }
     setParamFilters(filtersToAdd.concat(filters));
   }, [filters, moveCode, dodID, customerName, paymentRequestCode]);
+
+  // this useEffect handles the fetching of feature flags
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
