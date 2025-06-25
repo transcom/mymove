@@ -26,7 +26,7 @@ var rankDisplayValue = map[internalmessages.OrderPayGrade]string{
 	models.ServiceMemberGradeE8:                      "E-8",
 	models.ServiceMemberGradeE9:                      "E-9",
 	models.ServiceMemberGradeE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
-	models.ServiceMemberGradeO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
+	models.ServiceMemberGradeO1:                      "O-1 or Service Academy Graduate",
 	models.ServiceMemberGradeO2:                      "O-2",
 	models.ServiceMemberGradeO3:                      "O-3",
 	models.ServiceMemberGradeO4:                      "O-4",

@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 	setupHandler := func() UpdateMTOShipmentStatusHandlerFunc {
 		return UpdateMTOShipmentStatusHandlerFunc{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			fetcher,
 			updater,
 		}
@@ -124,7 +124,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		mockHandler := UpdateMTOShipmentStatusHandlerFunc{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockFetcher,
 			&mockUpdater,
 		}
