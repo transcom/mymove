@@ -1239,13 +1239,13 @@ integration_test_mtls:
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
     - |
-      export MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
-      export MIL_MOVE_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
-      export MIL_MOVE_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
-      export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
-      export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-      export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
-      export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+      echo "MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)"
+      echo "MIL_MOVE_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)"
+      echo "MIL_MOVE_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)"
+      echo "CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)""
+      echo "LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)"
+      echo "HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID"
+      echo "HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE"
       export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
       export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
       export LOGIN_GOV_CALLBACK_PORT=4000
@@ -1259,6 +1259,7 @@ integration_test_mtls:
     - echo "CSRF_AUTH_KEY is- $CSRF_AUTH_KEY"
     - echo "MOVE_MIL_DOD_CA_CERT is- $MOVE_MIL_DOD_CA_CERT"
     - echo "MOVE_MIL_DOD_TLS_CERT is- $MOVE_MIL_DOD_TLS_CERT"
+    - echo "MIL_MOVE_DOD_TLS_KEY is- $MIL_MOVE_DOD_TLS_KEY"
     - echo "NO_TLS_ENABLED is- $NO_TLS_ENABLED"
     - bin/milmove serve
     # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
