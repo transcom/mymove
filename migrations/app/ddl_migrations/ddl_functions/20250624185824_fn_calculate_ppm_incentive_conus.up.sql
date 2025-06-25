@@ -1,6 +1,6 @@
 -- B-23853 Beth Grohmann Initial check-in
 
-DROP FUNCTION public.calculate_ppm_incentive_conus(uuid, bool, bool, bool, bool);
+DROP FUNCTION IF EXISTS public.calculate_ppm_incentive_conus(uuid, bool, bool, bool, bool);
 
 CREATE OR REPLACE FUNCTION public.calculate_ppm_incentive_conus(ppm_id uuid, is_estimated boolean, is_actual boolean, is_max boolean, update_table boolean)
  RETURNS TABLE(total_incentive numeric, price_dlh numeric, price_ddp numeric, price_dop numeric, price_dpk numeric, price_dupk numeric, price_fsc numeric)
@@ -266,6 +266,4 @@ select
     price_dpk,
     price_dupk,
     price_fsc;
-end;
-$function$
-;
+end LANGUAGE plpgsql;

@@ -1,6 +1,6 @@
 -- B-23853 Beth Grohmann Initial check-in, added additional logic to pull from re_zip5_rate_areas
 
-drop function get_rate_area_id;
+drop function if exists get_rate_area_id;
 
 CREATE OR REPLACE FUNCTION get_rate_area_id(
     address_id UUID,
