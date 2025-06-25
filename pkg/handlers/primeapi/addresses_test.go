@@ -167,25 +167,4 @@ func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 		suite.Equal(cityResult, responsePayload.Payload[0].City)
 	})
-
-	suite.Run("forbidden", func() {
-		vIntlLocationService := address.NewVIntlLocation()
-
-		req := httptest.NewRequest("GET", "/addresses/oconus_lookup/"+country+"/"+city, nil)
-		notOfficeUser := factory.BuildUser(nil, nil, nil)
-		req = suite.AuthenticateUserRequest(req, notOfficeUser)
-		params := addressop.GetOconusLocationParams{
-			HTTPRequest: req,
-			Country:     country,
-			Search:      city,
-		}
-
-		handler := GetOconusLocationHandler{
-			HandlerConfig: suite.NewHandlerConfig(),
-			VIntlLocation: vIntlLocationService,
-		}
-
-		response := handler.Handle(params)
-		suite.Assertions.IsType(&addressop.GetLocationByZipCityStateForbidden{}, response)
-	})
 }

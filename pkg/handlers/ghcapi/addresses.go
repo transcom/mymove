@@ -109,7 +109,7 @@ func (h GetOconusLocationHandler) Handle(params addressop.GetOconusLocationParam
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeApp() && appCtx.Session().OfficeUserID == uuid.Nil {
 				noOfficeUserIDErr := apperror.NewSessionError("No office user ID")
-				return addressop.NewGetLocationByZipCityStateForbidden(), noOfficeUserIDErr
+				return addressop.NewGetOconusLocationForbidden(), noOfficeUserIDErr
 			}
 
 			locationList, err := h.GetOconusLocations(appCtx, params.Country, params.Search, false)

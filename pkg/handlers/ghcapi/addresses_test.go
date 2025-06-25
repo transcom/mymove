@@ -211,11 +211,11 @@ func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 		}
 
 		handler := GetOconusLocationHandler{
-			HandlerConfig: suite.NewHandlerConfig(),
+			HandlerConfig: suite.HandlerConfig(),
 			VIntlLocation: vIntlLocationService,
 		}
 
 		response := handler.Handle(params)
-		suite.Assertions.IsType(&addressop.GetLocationByZipCityStateForbidden{}, response)
+		suite.Assertions.IsType(&addressop.GetOconusLocationForbidden{}, response)
 	})
 }

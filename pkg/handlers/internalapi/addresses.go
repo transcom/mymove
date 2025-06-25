@@ -170,7 +170,7 @@ func (h GetOconusLocationHandler) Handle(params addressop.GetOconusLocationParam
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
 				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
-				return addressop.NewGetLocationByZipCityStateForbidden(), noServiceMemberIDErr
+				return addressop.NewGetOconusLocationForbidden(), noServiceMemberIDErr
 			}
 
 			locationList, err := h.GetOconusLocations(appCtx, params.Country, params.Search, false)
