@@ -166,6 +166,126 @@ func (f ppmShipmentFetcher) GetPPMShipment(
 		}
 	}
 
+	if ppmShipment.PickupAddressID != nil {
+		if ppmShipment.PickupAddress == nil {
+			address := models.FetchAddressByID(appCtx.DB(), ppmShipment.PickupAddressID)
+
+			if address != nil {
+				ppmShipment.PickupAddress = address
+			}
+		}
+
+		country, err := models.FetchCountryByID(appCtx.DB(), *ppmShipment.PickupAddress.CountryId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmShipment.PickupAddress.Country = &country
+	}
+	if ppmShipment.SecondaryPickupAddressID != nil {
+		if ppmShipment.SecondaryPickupAddress == nil {
+			address := models.FetchAddressByID(appCtx.DB(), ppmShipment.SecondaryPickupAddressID)
+
+			if address != nil {
+				ppmShipment.SecondaryPickupAddress = address
+			}
+		}
+
+		country, err := models.FetchCountryByID(appCtx.DB(), *ppmShipment.SecondaryPickupAddress.CountryId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmShipment.SecondaryPickupAddress.Country = &country
+	}
+	if ppmShipment.TertiaryPickupAddressID != nil {
+		if ppmShipment.TertiaryPickupAddress == nil {
+			address := models.FetchAddressByID(appCtx.DB(), ppmShipment.TertiaryPickupAddressID)
+
+			if address != nil {
+				ppmShipment.TertiaryPickupAddress = address
+			}
+		}
+
+		country, err := models.FetchCountryByID(appCtx.DB(), *ppmShipment.TertiaryPickupAddress.CountryId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmShipment.TertiaryPickupAddress.Country = &country
+	}
+	if ppmShipment.DestinationAddressID != nil {
+		if ppmShipment.DestinationAddress == nil {
+			address := models.FetchAddressByID(appCtx.DB(), ppmShipment.DestinationAddressID)
+
+			if address != nil {
+				ppmShipment.DestinationAddress = address
+			}
+		}
+
+		country, err := models.FetchCountryByID(appCtx.DB(), *ppmShipment.DestinationAddress.CountryId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmShipment.DestinationAddress.Country = &country
+	}
+	if ppmShipment.SecondaryDestinationAddressID != nil {
+		if ppmShipment.SecondaryDestinationAddress == nil {
+			address := models.FetchAddressByID(appCtx.DB(), ppmShipment.SecondaryDestinationAddressID)
+
+			if address != nil {
+				ppmShipment.SecondaryDestinationAddress = address
+			}
+		}
+
+		country, err := models.FetchCountryByID(appCtx.DB(), *ppmShipment.SecondaryDestinationAddress.CountryId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmShipment.SecondaryDestinationAddress.Country = &country
+	}
+	if ppmShipment.TertiaryDestinationAddressID != nil {
+		if ppmShipment.TertiaryDestinationAddress == nil {
+			address := models.FetchAddressByID(appCtx.DB(), ppmShipment.TertiaryDestinationAddressID)
+
+			if address != nil {
+				ppmShipment.TertiaryDestinationAddress = address
+			}
+		}
+
+		country, err := models.FetchCountryByID(appCtx.DB(), *ppmShipment.TertiaryDestinationAddress.CountryId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmShipment.TertiaryDestinationAddress.Country = &country
+	}
+	if ppmShipment.W2AddressID != nil {
+		if ppmShipment.W2Address == nil {
+			address := models.FetchAddressByID(appCtx.DB(), ppmShipment.W2AddressID)
+
+			if address != nil {
+				ppmShipment.W2Address = address
+			}
+		}
+
+		country, err := models.FetchCountryByID(appCtx.DB(), *ppmShipment.W2Address.CountryId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmShipment.W2Address.Country = &country
+	}
+
 	return &ppmShipment, nil
 }
 
