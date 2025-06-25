@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"strconv"
@@ -272,6 +273,18 @@ func initializeViper(cmd *cobra.Command, args []string) (*viper.Viper, error) {
 	v.AutomaticEnv()
 
 	return v, nil
+}
+
+// Detect Pdfium returning path and found
+func detectPdfium(logger *zap.Logger) (string, bool) {
+	logger.Info("Checking host machine for Pdfium dependency")
+	if path, err := exec.LookPath("pdfium"); err == nil {
+		if err := exec.Command(path, "--version").Run(); err == nil {
+			logger.Info("Pdfium found", zap.String("path", path))
+			return path, true
+		}
+	}
+	return "", false
 }
 
 func initializeLogger(v *viper.Viper) (*zap.Logger, func()) {
@@ -665,6 +678,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	isDevOrTest := dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {
 		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
+	}
+
+	// Ensure the pdfium host dependency is configured.
+	// This is a dependency that must be built before the server runs
+	// as it is required for runtime and it is not natively
+	// included in the go compiled output
+	if _, ok := detectPdfium(logger); !ok {
+		// The container hosting MilMove should have configured the Pdfium dependency outside of the compiled go app
+		// However development machines do not normally run MilMove in a container
+		if isDevOrTest {
+			// TODO: Add script support for compiling Pdfium
+			logger.Fatal("External dependency Pdfium not found, please rebuild dependencies using make deps")
+		}
+		logger.Fatal("External dependency Pdfium not found, please check container setup before serving milmove and ensure Pdfium is configured and added to PATH")
 	}
 
 	// connect to the db
