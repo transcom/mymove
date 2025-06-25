@@ -3,6 +3,7 @@ package address
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
@@ -195,7 +196,8 @@ func FindOconusLocations(appCtx appcontext.AppContext, country string, search st
 	for i := range locationList {
 		err := appCtx.DB().Load(&locationList[i], "CityName")
 		if err != nil {
-			return locationList, err
+			log.Printf("Error loading CityName for location %v: %v", locationList[i], err)
+			continue
 		}
 	}
 	return locationList, nil
