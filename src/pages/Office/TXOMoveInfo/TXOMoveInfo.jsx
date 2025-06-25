@@ -50,7 +50,6 @@ const TXOMoveInfo = () => {
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
 
-  // checking for the move_lock flag, if it's turned on we need to assess if the move should be locked to the user
   useEffect(() => {
     const fetchData = async () => {
       const now = new Date();
