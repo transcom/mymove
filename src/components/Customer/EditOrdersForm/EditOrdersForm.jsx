@@ -32,11 +32,12 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, formatPayGradeOptions, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
-import { getPayGradeOptions, showCounselingOffices } from 'services/internalApi';
+import { getPayGradeOptions, getRankOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
+import { sortRankOptions } from 'shared/utils';
 import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 
 const EditOrdersForm = ({
@@ -70,6 +71,7 @@ const EditOrdersForm = ({
   const [grade, setGrade] = useState(initialValues.grade);
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
+  const [rankOptions, setRankOptions] = useState([]);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -95,6 +97,9 @@ const EditOrdersForm = ({
       )
       .min(1),
     grade: Yup.string().required('Required'),
+    rank: Yup.mixed()
+      .oneOf(rankOptions.map((i) => i.key))
+      .required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation?.provides_services_counseling
       ? Yup.string().required('Required')
@@ -135,6 +140,26 @@ const EditOrdersForm = ({
     };
     checkUBFeatureFlag();
   }, []);
+
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading rank options');
+      try {
+        const fetchedRanks = await getRankOptions(affiliation, grade);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankOptions(fetchedRanks);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchRankGradeOptions();
+  }, [affiliation, setShowLoadingSpinner, grade]);
 
   useEffect(() => {
     const fetchCounselingOffices = async () => {
@@ -562,8 +587,23 @@ const EditOrdersForm = ({
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);
+                  setFieldValue('rank', '');
                 }}
               />
+
+              {grade !== '' ? (
+                <DropdownInput
+                  label="Rank"
+                  name="rank"
+                  id="rank"
+                  required
+                  options={rankOptions}
+                  showRequiredAsterisk
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                />
+              ) : null}
 
               <p>Uploads:</p>
               <UploadsTable
@@ -670,14 +710,14 @@ EditOrdersForm.defaultProps = {
   filePondEl: null,
 };
 
-const mapDispatchToProps = {
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
-};
-
 const mapStateToProps = (state) => {
   return {
     affiliation: selectServiceMemberAffiliation(state) || '',
   };
+};
+
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditOrdersForm);

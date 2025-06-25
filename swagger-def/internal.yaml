@@ -705,6 +705,8 @@ definitions:
       grade:
         $ref: 'definitions/OrderPayGrade.yaml'
         title: Grade
+      rank:
+        $ref: 'definitions/Rank.yaml'
       first_name:
         type: string
         example: John
@@ -797,6 +799,8 @@ definitions:
         title: 'DoD ID number'
       affiliation:
         $ref: 'definitions/Affiliation.yaml'
+      rank:
+        $ref: 'definitions/Rank.yaml'
       grade:
         $ref: 'definitions/OrderPayGrade.yaml'
       first_name:
@@ -1293,6 +1297,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       grade:
         $ref: 'definitions/OrderPayGrade.yaml'
+      rank:
+        $ref: 'definitions/Rank.yaml'
       issue_date:
         type: string
         description: The date and time that these orders were cut.
@@ -1492,6 +1498,10 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       grade:
         $ref: 'definitions/OrderPayGrade.yaml'
+      rank:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
       origin_duty_location_id:
         type: string
         format: uuid
@@ -4778,6 +4788,29 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  '/ranks/{affiliation}&{grade}':
+    get:
+      summary: Get ranks for specified affiliation
+      description: Get ranks for specified affiliation
+      operationId: getRanks
+      tags:
+        - orders
+      parameters:
+        - $ref: 'definitions/AffiliationParam.yaml'
+        - $ref: 'definitions/OrderPayGradeParam.yaml'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: 'definitions/Rank.yaml'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
   '/paygrade/{affiliation}':
     get:
       summary: Get pay grades for specified affiliation
@@ -4789,7 +4822,7 @@ paths:
         - $ref: 'definitions/AffiliationParam.yaml'
       responses:
         '200':
-          description: list all ranks for specified affiliation
+          description: list all pay grades for specified affiliation
           schema:
             type: array
             items:
@@ -4799,7 +4832,7 @@ paths:
         '401':
           description: request requires user authentication
         '404':
-          description: ranks not found
+          description: pay grades not found
 responses:
   InvalidRequest:
     description: The request payload is invalid.
