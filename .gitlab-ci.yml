@@ -1223,7 +1223,7 @@ integration_test_mtls:
 
     NO_TLS_ENABLED: true
     SERVE_ADMIN: 1
-    IWS_RBS_HOST: pkict.dmdc.osd.mil
+    IWS_RBS_HOST: 'pkict.dmdc.osd.mil'
     DTOD_USE_MOCK: true
   before_script:
     # - *setup_milmove_env
@@ -1239,7 +1239,12 @@ integration_test_mtls:
     # - curl http://milmovelocal:4000
     - pwd
     - git config --global --add safe.directory /builds/milmove/mymove
-    - make bin/milmove
+    - make bin/
+    - echo "IWS_RBS_HOST is- $IWS_RBS_HOST"
+    - echo "CSRF_AUTH_KEY is- $CSRF_AUTH_KEY"
+    - echo "MOVE_MIL_DOD_CA_CERT is- $MOVE_MIL_DOD_CA_CERT"
+    - echo "MOVE_MIL_DOD_TLS_CERT is- $MOVE_MIL_DOD_TLS_CERT"
+    - echo "NO_TLS_ENABLED is- $NO_TLS_ENABLED"
     - bin/milmove serve
     # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
     # - make bin/prime-api-client
