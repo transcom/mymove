@@ -1243,14 +1243,14 @@ integration_test_mtls:
     # - curl http://milmovelocal:4000
     - pwd
     # - git config --global --add safe.directory /builds/milmove/mymove
-    - make bin/milmove
+    # - make bin/milmove
     - echo "IWS_RBS_HOST is- $IWS_RBS_HOST"
     - echo "CSRF_AUTH_KEY is- $CSRF_AUTH_KEY"
     - echo "MOVE_MIL_DOD_CA_CERT is- $MOVE_MIL_DOD_CA_CERT"
     - echo "MOVE_MIL_DOD_TLS_CERT is- $MOVE_MIL_DOD_TLS_CERT"
     - echo "MOVE_MIL_DOD_TLS_KEY is- $MOVE_MIL_DOD_TLS_KEY"
     - echo "NO_TLS_ENABLED is- $NO_TLS_ENABLED"
-    - bin/milmove serve
+    # - bin/milmove serve
     - curl http://milmovelocal:4000
     # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
     # - make bin/prime-api-client
