@@ -2522,7 +2522,7 @@ func (suite *PayloadsSuite) TestVIntlLocation() {
 		suite.IsType(payload, &ghcmessages.VIntlLocation{})
 		suite.Equal(handlers.FmtUUID(intlCityCountriesId), &payload.IntlCityCountriesID, "Expected IntlCityCountriesID to match")
 		suite.Equal(city, payload.City, "Expected City to match")
-		suite.Equal(principalDivision, payload.PrincipalDivision, "Expected State to match")
+		suite.Equal(principalDivision, payload.PrincipalDivision, "Expected Principal Division to match")
 	})
 }
 
