@@ -83,11 +83,11 @@ test.describe('TOO user', () => {
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.locator('input[id="pickupAddress-country-input"]').fill(countrySearch);
+      await page.locator('input[id="storageFacility.address-country-input"]').fill(countrySearch);
       let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
       await expect(spanLocator).toBeVisible();
       await page.keyboard.press('Enter');
-      const pickupLocator = page.locator('input[id="pickupAddress-input"]');
+      const pickupLocator = page.locator('input[id="storageFacility.address-input"]');
       await pickupLocator.click({ timeout: 5000 });
       await pickupLocator.fill('30301');
       await expect(page.getByText(pickupLocationLookup, { exact: true })).toBeVisible();
@@ -104,7 +104,14 @@ test.describe('TOO user', () => {
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="delivery.address.streetAddress2"]').clear();
       await page.locator('input[name="delivery.address.streetAddress2"]').fill('Suite 7A');
-      await page.locator('input[id="delivery.address-input"]').fill('85365');
+      await page.locator('input[name="delivery.address.streetAddress2"]').blur();
+      await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+      spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+      await deliveryLocator.click({ timeout: 5000 });
+      await deliveryLocator.fill('85365');
       await expect(page.getByText(destinationLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
