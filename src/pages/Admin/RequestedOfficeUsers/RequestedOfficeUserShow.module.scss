@@ -2,22 +2,14 @@
 
 .btnContainer {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-self: center;
     gap: 10px;
 
     .approveBtn {
-        width: 100px;
+        background-color: $color-blue;
         height: 38px;
-        margin-left: 15px;
-        background-color: $primary;
-
-        &:active,
-        &:hover,
-        &:focus {
-          background-color:  $primary;
-          opacity: 80%;
-        }
+        min-width: 120px;
     }
 
     .rejectBtn {
