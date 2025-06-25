@@ -46,3 +46,34 @@ describe('when given a Create mto shipment history record', () => {
     });
   });
 });
+
+describe('when given a Create mto shipment history record for PPM', () => {
+  const historyRecord = {
+    action: 'INSERT',
+    eventName: 'createMTOShipment',
+    tableName: 'mto_shipments',
+    changedValues: {
+      customer_remarks: 'Redacted',
+      requested_delivery_date: '2022-12-12',
+      requested_pickup_date: '2022-12-10',
+      status: 'SUBMITTED',
+    },
+    context: [
+      {
+        shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
+        shipment_id_abbr: 'a1b2c',
+      },
+    ],
+  };
+  it('correctly renders details', () => {
+    const result = getTemplate(historyRecord);
+    expect(result).toMatchObject(e);
+    expect(result.getEventNameDisplay(historyRecord)).toEqual('PPM shipment created');
+  });
+  it('displays the correct label for shipment', () => {
+    const result = getTemplate(historyRecord);
+    render(result.getDetails(historyRecord));
+    expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
+  });
+});
