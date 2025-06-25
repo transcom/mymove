@@ -1245,6 +1245,8 @@ integration_test_mtls:
     # - make bin/prime-api-client
     # - echo "Running E2E mTLS tests"
     # - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.output 2>&1
+  needs:
+    - pre_deps_golang
   # artifacts:
   #   paths:
   #     - test-results/
