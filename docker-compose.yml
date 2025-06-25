@@ -74,9 +74,6 @@ services:
       - HTTP_ADMIN_SERVER_NAME=adminlocal
       - HTTP_MY_SERVER_NAME=milmovelocal
       - HTTP_OFFICE_SERVER_NAME=officelocal
-      - HTTP_ORDERS_SERVER_NAME=orderslocal
-      - IWS_RBS_ENABLED=1
-      - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp
       - LOCAL_STORAGE_WEB_ROOT=storage
       - LOGIN_GOV_ADMIN_CLIENT_ID

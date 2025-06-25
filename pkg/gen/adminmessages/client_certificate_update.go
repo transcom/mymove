@@ -50,9 +50,6 @@ type ClientCertificateUpdate struct {
 	// allow navy orders write
 	AllowNavyOrdersWrite *bool `json:"allowNavyOrdersWrite,omitempty"`
 
-	// allow orders API
-	AllowOrdersAPI *bool `json:"allowOrdersAPI,omitempty"`
-
 	// allow p p t a s
 	AllowPPTAS *bool `json:"allowPPTAS,omitempty"`
 

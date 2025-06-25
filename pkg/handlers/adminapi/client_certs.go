@@ -26,7 +26,6 @@ func payloadForClientCertModel(o models.ClientCert) *adminmessages.ClientCertifi
 		UserID:                      strfmt.UUID(o.UserID.String()),
 		CreatedAt:                   strfmt.DateTime(o.CreatedAt),
 		UpdatedAt:                   strfmt.DateTime(o.UpdatedAt),
-		AllowOrdersAPI:              o.AllowOrdersAPI,
 		AllowAirForceOrdersRead:     o.AllowAirForceOrdersRead,
 		AllowAirForceOrdersWrite:    o.AllowAirForceOrdersWrite,
 		AllowArmyOrdersRead:         o.AllowArmyOrdersRead,
@@ -137,7 +136,6 @@ func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertific
 			clientCert := models.ClientCert{
 				Sha256Digest:                *payload.Sha256Digest,
 				Subject:                     *payload.Subject,
-				AllowOrdersAPI:              payload.AllowOrdersAPI,
 				AllowAirForceOrdersRead:     payload.AllowAirForceOrdersRead,
 				AllowAirForceOrdersWrite:    payload.AllowAirForceOrdersWrite,
 				AllowArmyOrdersRead:         payload.AllowArmyOrdersRead,

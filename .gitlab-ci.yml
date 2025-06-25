@@ -273,7 +273,6 @@ stages:
       export OKTA_API_KEY=notrealapikey8675309
       export OKTA_OFFICE_GROUP_ID=notrealgroupId
       export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-      export IWS_RBS_HOST=pkict.dmdc.osd.mil
 
 .setup_env_intergration_mtls: &setup_env_intergration_mtls
   - |
@@ -477,8 +476,6 @@ golang_lint:
 #     POSTGRES_HOST_AUTH_METHOD: trust
 #     DPS_AUTH_SECRET_KEY: placeholder
 #     CSRF_AUTH_KEY: d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
-#     IWS_RBS_ENABLED: 0
-#     IWS_RBS_HOST: "pkict.dmdc.osd.mil"
 #   script:
 #     - go test ./... -coverprofile=coverage.txt -covermode count
 #     - go get github.com/boumenot/gocover-cobertura
@@ -841,8 +838,6 @@ server_test:
     POSTGRES_HOST_AUTH_METHOD: trust
     DPS_AUTH_SECRET_KEY: placeholder
     CSRF_AUTH_KEY: d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
-    IWS_RBS_ENABLED: 0
-    IWS_RBS_HOST: "pkict.dmdc.osd.mil"
   script:
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
     - scripts/check-generated-code go.sum

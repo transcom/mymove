@@ -15,7 +15,6 @@ type ClientCert struct {
 	ID                          uuid.UUID `json:"id" db:"id"`
 	Sha256Digest                string    `db:"sha256_digest"`
 	Subject                     string    `db:"subject"`
-	AllowOrdersAPI              bool      `db:"allow_orders_api"`
 	CreatedAt                   time.Time `db:"created_at"`
 	UpdatedAt                   time.Time `db:"updated_at"`
 	AllowAirForceOrdersRead     bool      `db:"allow_air_force_orders_read"`

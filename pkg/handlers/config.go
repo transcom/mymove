@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
-	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -43,7 +42,6 @@ type HandlerConfig interface {
 	HHGPlanner() route.Planner
 	DTODPlanner() route.Planner
 	CookieSecret() string
-	IWSPersonLookup() iws.PersonLookup
 	SendProductionInvoice() bool
 	UseSecureCookie() bool
 	AppNames() auth.ApplicationServername
@@ -68,7 +66,6 @@ type Config struct {
 	storage               storage.FileStorer
 	notificationSender    notifications.NotificationSender
 	notificationReceiver  notifications.NotificationReceiver
-	iwsPersonLookup       iws.PersonLookup
 	sendProductionInvoice bool
 	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
@@ -89,7 +86,6 @@ func NewHandlerConfig(
 	storage storage.FileStorer,
 	notificationSender notifications.NotificationSender,
 	notificationReceiver notifications.NotificationReceiver,
-	iwsPersonLookup iws.PersonLookup,
 	sendProductionInvoice bool,
 	senderToGex services.GexSender,
 	icnSequencer sequence.Sequencer,
@@ -107,7 +103,6 @@ func NewHandlerConfig(
 		storage:               storage,
 		notificationSender:    notificationSender,
 		notificationReceiver:  notificationReceiver,
-		iwsPersonLookup:       iwsPersonLookup,
 		sendProductionInvoice: sendProductionInvoice,
 		senderToGex:           senderToGex,
 		icnSequencer:          icnSequencer,
@@ -296,14 +291,6 @@ func (c *Config) CookieSecret() string {
 // SetCookieSecret is a simple setter for the cookieSeecret private Field
 func (c *Config) SetCookieSecret(cookieSecret string) {
 	c.cookieSecret = cookieSecret
-}
-
-func (c *Config) IWSPersonLookup() iws.PersonLookup {
-	return c.iwsPersonLookup
-}
-
-func (c *Config) SetIWSPersonLookup(rbs iws.PersonLookup) {
-	c.iwsPersonLookup = rbs
 }
 
 // SendProductionInvoice is a flag to notify EDI invoice generation whether it should be sent as a test or production transaction
