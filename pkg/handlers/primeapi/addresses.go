@@ -72,7 +72,7 @@ func (h GetOconusLocationHandler) Handle(params addressop.GetOconusLocationParam
 			locationList, err := h.GetOconusLocations(appCtx, params.Country, params.Search, false)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for OCONUS location: ", zap.Error(err))
-				return addressop.NewGetOconusLocationInternalServerError(), err
+				return addressop.NewGetOconusLocationForbidden(), err
 			}
 
 			returnPayload := payloads.VIntlLocations(*locationList)
