@@ -1713,9 +1713,9 @@ func (suite *HandlerSuite) makePPMCloseoutSubtestData() (subtestData *ppmCloseou
 		{
 			Model: models.Address{
 				StreetAddress1: "Fort Eisenhower",
-				City:           "Fort Eisenhower",
+				City:           "BEAUMONT",
 				State:          "GA",
-				PostalCode:     "77777",
+				PostalCode:     "77709",
 			},
 		},
 	}, nil)

@@ -1226,3 +1226,8 @@ export function getResponseError(errorOrResponse, defaultErrorMessage) {
 export async function getPayGradeOptions(affiliation) {
   return makeGHCRequestRaw('orders.getPayGrades', { affiliation });
 }
+
+export async function getRolesPrivilegesOfficeApp() {
+  const operationPath = 'rolePrivileges.getRolesPrivileges';
+  return makeGHCRequest(operationPath, {}, { normalize: false });
+}

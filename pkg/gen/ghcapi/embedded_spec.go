@@ -3067,6 +3067,42 @@ func init() {
         }
       }
     },
+    "/open/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "rolePrivileges"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Role"
+              }
+            }
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/open/transportation-offices": {
       "get": {
         "description": "This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.",
@@ -7812,59 +7848,6 @@ func init() {
         "responses": {
           "204": {
             "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/uploads/{uploadID}/status": {
-      "get": {
-        "description": "Returns status of an upload based on antivirus run",
-        "produces": [
-          "text/event-stream"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Returns status of an upload",
-        "operationId": "getUploadStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to return status of",
-            "name": "uploadID",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the requested upload status",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "INFECTED",
-                "CLEAN",
-                "NO_THREATS_FOUND",
-                "PROCESSING"
-              ],
-              "readOnly": true
-            }
           },
           "400": {
             "description": "invalid request",
@@ -13162,6 +13145,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -13253,6 +13242,13 @@ func init() {
           "title": "Office user identifier when EDIPI is not available",
           "x-nullable": true
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          },
+          "x-nullable": false
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -13272,6 +13268,23 @@ func init() {
           "format": "uuid",
           "x-nullable": false,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -15005,6 +15018,45 @@ func init() {
         }
       }
     },
+    "Privilege": {
+      "type": "object",
+      "required": [
+        "id",
+        "privilegeType",
+        "privilegeName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
@@ -15626,6 +15678,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roleName": {
           "type": "string",
           "example": "Task Ordering Officer"
@@ -15633,6 +15691,10 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",
@@ -21924,6 +21986,42 @@ func init() {
         }
       }
     },
+    "/open/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "rolePrivileges"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Role"
+              }
+            }
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/open/transportation-offices": {
       "get": {
         "description": "This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.",
@@ -27883,59 +27981,6 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadID}/status": {
-      "get": {
-        "description": "Returns status of an upload based on antivirus run",
-        "produces": [
-          "text/event-stream"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Returns status of an upload",
-        "operationId": "getUploadStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to return status of",
-            "name": "uploadID",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the requested upload status",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "INFECTED",
-                "CLEAN",
-                "NO_THREATS_FOUND",
-                "PROCESSING"
-              ],
-              "readOnly": true
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/uploads/{uploadID}/update": {
       "patch": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
@@ -33225,6 +33270,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -33316,6 +33367,13 @@ func init() {
           "title": "Office user identifier when EDIPI is not available",
           "x-nullable": true
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          },
+          "x-nullable": false
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -33335,6 +33393,23 @@ func init() {
           "format": "uuid",
           "x-nullable": false,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -35142,6 +35217,45 @@ func init() {
         }
       }
     },
+    "Privilege": {
+      "type": "object",
+      "required": [
+        "id",
+        "privilegeType",
+        "privilegeName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
@@ -35765,6 +35879,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roleName": {
           "type": "string",
           "example": "Task Ordering Officer"
@@ -35772,6 +35892,10 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",
