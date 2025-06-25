@@ -690,7 +690,7 @@ test.describe('TOO user', () => {
       await page.locator(`label[for="${serviceItemID}"]`).nth(0).check();
       await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).fill('10000');
       await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).blur();
-      await page.getByTestId('form').getByTestId('button').click();
+      await page.getByTestId('form').getByLabel('Submit Payment Request').click();
       await page.getByRole('link', { name: 'Change user role' }).click();
       await page.getByRole('button', { name: 'Select task_ordering_officer' }).click();
     });
