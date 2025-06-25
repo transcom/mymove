@@ -40,37 +40,6 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
-  // const [moveLockFlag, setMoveLockFlag] = useState(false);
-  // const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-  //     setMoveLockFlag(lockedMoveFlag);
-  //   };
-
-  //   fetchData();
-  // }, []);
-
-  // // Feature Flag
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-  //       setMoveLockFlag(lockedMoveFlag);
-  //     } catch (error) {
-  //       const { message } = error;
-  //       milmoveLogger.error({ message, info: null });
-  //       setErrorState({
-  //         hasError: true,
-  //         error,
-  //         info: null,
-  //       });
-  //       retryPageLoading(error);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [setErrorState]);
 
   const onSearchSubmit = useCallback((values) => {
     const payload = {
