@@ -204,7 +204,9 @@ export class CustomerPpmPage extends CustomerPage {
     spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
-    await this.page.locator('input[id="w2Address-input"]').fill('85367');
+    const w2Locator = this.page.locator('input[id="w2Address-input"]');
+    await w2Locator.click({ timeout: 5000 });
+    await w2Locator.fill('85367');
     await expect(this.page.getByText(w2Location, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -532,13 +534,26 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
     const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
     const destinationLocation = 'FORT WORTH, TX 76127 (TARRANT)';
+    const countrySearch = 'UNITED STATES';
     await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[id="pickupAddress.address-input"]').fill('90210');
+    await this.page.locator('input[id="pickupAddress.address-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const pickupLocator = this.page.locator('input[id="pickupAddress.address-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('90210');
     await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[id="destinationAddress.address-input"]').fill('76127');
+    await this.page.locator('input[id="destinationAddress.address-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const deliveryLocator = this.page.locator('input[id="destinationAddress.address-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('76127');
     await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 

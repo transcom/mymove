@@ -275,8 +275,20 @@ test.describe('TOO user', () => {
       await modal.locator('#facilityServiceOrderNumber').fill('098098');
 
       // Storage facility address
+      const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
+      const countrySearch = 'UNITED STATES';
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').clear();
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').fill('265 S East St');
+      await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
+      await page.locator('input[id="storageFacility.address-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const pickupLocator = page.locator('input[id="storageFacility.address-input"]');
+      await pickupLocator.click({ timeout: 5000 });
+      await pickupLocator.fill('30301');
+      await expect(page.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
       await modal.locator('#facilityLotNumber').clear();
       await modal.locator('#facilityLotNumber').fill('1111111');
 

@@ -82,10 +82,17 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
    */
   async submitAndVerifyUpdateDateAndLocation() {
     const pickupLocation = 'BEVERLY HILLS, CA 90212 (LOS ANGELES)';
+    const countrySearch = 'UNITED STATES';
     await this.page.locator('label[for="yes-secondary-pickup-address"]').click();
 
     await this.page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').fill('1234 Street');
-    await this.page.locator('input[id="secondaryPickupAddress.address-input"]').fill('90212');
+    await this.page.locator('input[id="secondaryPickupAddress.address-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const pickupLocator = this.page.locator('input[id="secondaryPickupAddress.address-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('90212');
     await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 

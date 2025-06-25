@@ -96,9 +96,16 @@ export class PpmPage extends ServiceCounselorPage {
     const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
     const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
     await this.page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
+    const countrySearch = 'UNITED STATES';
 
     await this.page.locator('input[name="pickup.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[id="pickup.address-input"]').fill('90210');
+    await this.page.locator('input[id="pickup.address-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const pickupLocator = this.page.locator('input[id="pickup.address-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('90210');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
   }
@@ -112,9 +119,16 @@ export class PpmPage extends ServiceCounselorPage {
    */
   async fillOutDestinationInfo() {
     const LocationLookup = 'FORT WORTH, TX 76127 (TARRANT)';
+    const countrySearch = 'UNITED STATES';
 
     await this.page.locator('input[name="destination.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[id="destination.address-input"]').fill('76127');
+    await this.page.locator('input[id="destination.address-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const pickupLocator = this.page.locator('input[id="destination.address-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('76127');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
   }
