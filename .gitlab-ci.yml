@@ -1251,6 +1251,7 @@ integration_test_mtls:
       export LOGIN_GOV_CALLBACK_PORT=4000
       export LOGIN_GOV_CALLBACK_PROTOCOL=http
 
+    - echo "MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)"
     - pwd
     # - git config --global --add safe.directory /builds/milmove/mymove
     - make bin/milmove
