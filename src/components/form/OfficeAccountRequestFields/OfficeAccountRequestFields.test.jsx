@@ -1,11 +1,18 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
 import OfficeAccountRequestFields from './OfficeAccountRequestFields';
 
 import { officeAccountRequestSchema } from 'utils/validation';
+import { ReactQueryWrapper } from 'testUtils';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabledUnauthenticated: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
 
 const initialValues = {
   officeAccountRequestEdipi: '',
@@ -16,12 +23,27 @@ const initialValues = {
   emailConfirmation: '',
 };
 
+const mockRolesWithPrivs = [
+  { roleType: 'headquarters', roleName: 'Headquarters' },
+  { roleType: 'task_ordering_officer', roleName: 'Task Ordering Officer' },
+  { roleType: 'task_invoicing_officer', roleName: 'Task Invoicing Officer' },
+  { roleType: 'contracting_officer', roleName: 'Contracting Officer' },
+  { roleType: 'services_counselor', roleName: 'Services Counselor' },
+  { roleType: 'qae', roleName: 'Quality Assurance Evaluator' },
+  { roleType: 'customer_service_representative', roleName: 'Customer Service Representative' },
+  { roleType: 'gsr', roleName: 'Government Surveillance Representative' },
+];
+const mockPrivileges = [{ privilegeType: 'supervisor', privilegeName: 'Supervisor' }];
+
 describe('OfficeAccountRequestFields component', () => {
+  isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
   it('renders the form inputs', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     expect(screen.getByTestId('officeAccountRequestFirstName')).toBeInTheDocument();
@@ -34,21 +56,26 @@ describe('OfficeAccountRequestFields component', () => {
     expect(screen.getByTestId('edipiConfirmation')).toBeInTheDocument();
     expect(screen.getByTestId('officeAccountRequestOtherUniqueId')).toBeInTheDocument();
     expect(screen.getByTestId('otherUniqueIdConfirmation')).toBeInTheDocument();
-    expect(screen.getByTestId('headquartersCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('taskOrderingOfficerCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('taskInvoicingOfficerCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('transportationContractingOfficerCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('servicesCounselorCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('qualityAssuranceEvaluatorCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('customerSupportRepresentativeCheckBox')).toBeInTheDocument();
-    expect(screen.getByTestId('governmentSurveillanceRepresentativeCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('headquartersCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('task_ordering_officerCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('task_invoicing_officerCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('contracting_officerCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('services_counselorCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('qaeCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('customer_service_representativeCheckbox')).toBeInTheDocument();
+    expect(screen.getByTestId('gsrCheckbox')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('supervisorPrivilegeCheckbox')).toBeInTheDocument();
+    });
   });
 
   it('validates that EDIPI and EDIPI confirmation match', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     const edipiInput = screen.getByTestId('officeAccountRequestEdipi');
@@ -69,9 +96,11 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('validates that Other Unique ID and its confirmation match', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     const uniqueIdInput = screen.getByTestId('officeAccountRequestOtherUniqueId');
@@ -92,9 +121,11 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('validates that email and email confirmation match', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
     const emailInput = screen.getByTestId('officeAccountRequestEmail');
@@ -115,12 +146,14 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('shows a validation error if no roles are selected after interaction', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
-    const headquartersCheckbox = screen.getByTestId('headquartersCheckBox');
+    const headquartersCheckbox = screen.getByTestId('headquartersCheckbox');
 
     await userEvent.click(headquartersCheckbox); // check
     await userEvent.click(headquartersCheckbox); // uncheck
@@ -131,13 +164,15 @@ describe('OfficeAccountRequestFields component', () => {
 
   it('shows a validation error if both Task Ordering and Task Invoicing Officer are selected', async () => {
     render(
-      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
-        <OfficeAccountRequestFields />
-      </Formik>,
+      <ReactQueryWrapper>
+        <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+          <OfficeAccountRequestFields rolesWithPrivs={mockRolesWithPrivs} privileges={mockPrivileges} />
+        </Formik>
+      </ReactQueryWrapper>,
     );
 
-    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
-    const tioCheckbox = screen.getByTestId('taskInvoicingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('task_ordering_officerCheckbox');
+    const tioCheckbox = screen.getByTestId('task_invoicing_officerCheckbox');
 
     await userEvent.click(tooCheckbox);
     await userEvent.click(tioCheckbox);
