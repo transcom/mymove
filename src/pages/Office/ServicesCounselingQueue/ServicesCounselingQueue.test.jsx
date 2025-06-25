@@ -438,7 +438,7 @@ describe('ServicesCounselingQueue', () => {
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('PPMADD');
     expect(wrapper.find('th[data-testid="requestedMoveDates"] input').instance().value).toBe('21 Jun 2024');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('20 Jun 2024');
-    if (wrapper.find('th[data-testid="originDutyLocation"] input').instance().value != "") {
+    if (wrapper.find('th[data-testid="originDutyLocation"] input').instance().value !== '') {
       expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toContain('12345');
     }
     expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('ARMY');
