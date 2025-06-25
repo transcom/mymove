@@ -3601,6 +3601,41 @@ func init() {
         }
       }
     },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -8078,12 +8113,20 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
           "type": "boolean",
           "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -8160,7 +8203,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -8705,7 +8748,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -8776,7 +8819,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -8799,6 +8843,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -9316,6 +9368,11 @@ func init() {
           "type": "boolean",
           "example": false
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -9718,73 +9775,6 @@ func init() {
       "items": {
         "$ref": "#/definitions/GSRAppeal"
       }
-    },
-    "Grade": {
-      "type": "string",
-      "title": "grade",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
     },
     "InvalidRequestResponsePayload": {
       "type": "object",
@@ -12242,7 +12232,7 @@ func init() {
           "example": "John"
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -12354,6 +12344,84 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid"
+        }
+      }
+    },
+    "OrderPayGrade": {
+      "type": "string",
+      "title": "Grade",
+      "enum": [
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
         }
       }
     },
@@ -14837,6 +14905,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -15332,12 +15402,20 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
           "type": "boolean",
           "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -15721,7 +15799,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -15837,6 +15915,16 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
@@ -16671,6 +16759,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -21264,6 +21369,55 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
           }
         }
       }
@@ -26715,12 +26869,21 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
           "type": "boolean",
           "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -26801,7 +26964,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -27346,7 +27509,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -27417,7 +27580,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -27440,6 +27604,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -27957,6 +28129,11 @@ func init() {
           "type": "boolean",
           "example": false
         },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -28359,73 +28536,6 @@ func init() {
       "items": {
         "$ref": "#/definitions/GSRAppeal"
       }
-    },
-    "Grade": {
-      "type": "string",
-      "title": "grade",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
     },
     "InvalidRequestResponsePayload": {
       "type": "object",
@@ -30883,7 +30993,7 @@ func init() {
           "example": "John"
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -30995,6 +31105,84 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid"
+        }
+      }
+    },
+    "OrderPayGrade": {
+      "type": "string",
+      "title": "Grade",
+      "enum": [
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
         }
       }
     },
@@ -33604,6 +33792,8 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
+        "SITRateAreaDest",
+        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -34101,12 +34291,21 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
           "type": "boolean",
           "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -34494,7 +34693,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/Grade"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -34611,6 +34810,16 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "gunSafeWeight": {
+          "description": "The estimated weight of the gun safe being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
@@ -35457,6 +35666,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
