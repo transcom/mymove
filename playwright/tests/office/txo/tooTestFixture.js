@@ -107,7 +107,8 @@ export class TooFlowPage extends OfficePage {
     await form.locator('[data-testid="ntsTacInput"]').fill('F123');
     await form.locator('[data-testid="ntsSacInput"]').fill('3L988AS098F');
     // Edit orders page | Save
-    await form.getByRole('button', { name: 'Save' }).click();
+    await expect(this.page.getByTestId('submit_button')).toBeEnabled();
+    await this.page.getByTestId('submit_button').click();
     await this.waitForLoading();
 
     await expect(this.page.locator('[data-testid="tacMDC"]')).toContainText('E15A');

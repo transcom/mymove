@@ -6008,6 +6008,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(340000)),
 			W2Address:             &address,
 			FinalIncentive:        models.CentPointer(50000000),
+			MaxIncentive:          models.CentPointer(50000000),
 		},
 	}
 
