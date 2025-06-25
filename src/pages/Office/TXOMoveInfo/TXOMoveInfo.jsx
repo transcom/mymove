@@ -2,8 +2,6 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-import { checkIfMoveIsLockedById } from '../../../shared/constants';
-
 import 'styles/office.scss';
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
@@ -14,6 +12,7 @@ import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
 import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import Inaccessible, { INACCESSIBLE_API_RESPONSE } from 'shared/Inaccessible';
+import { checkIfMoveIsLockedById } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import EvaluationReportView from 'components/Office/EvaluationReportView/EvaluationReportView';

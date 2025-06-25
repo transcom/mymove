@@ -49,7 +49,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
-import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { handleQueueAssignment, getQueue } from 'utils/queues';
@@ -498,8 +498,6 @@ const ServicesCounselingQueue = ({
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
         setisCounselorMoveCreateFFEnabled(isEnabled);
-        // const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-        // setMoveLockFlag(lockedMoveFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });

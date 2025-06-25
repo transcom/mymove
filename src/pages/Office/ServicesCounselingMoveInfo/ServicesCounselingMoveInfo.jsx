@@ -4,8 +4,6 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
-import { checkIfMoveIsLockedById } from '../../../shared/constants';
-
 import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/ServicesCounselingTabNav';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
@@ -15,6 +13,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import Inaccessible from 'shared/Inaccessible';
 import { roleTypes } from 'constants/userRoles';
+import { checkIfMoveIsLockedById } from 'shared/constants';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
