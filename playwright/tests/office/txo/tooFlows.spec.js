@@ -446,7 +446,7 @@ test.describe('TOO user', () => {
 
       await tooFlowPage.selectDutyLocation('Fort Irwin', 'originDutyLocation');
       // select the 5th option in the dropdown
-      await tooFlowPage.selectDutyLocation('JB McGuire-Dix-Lakehurst', 'newDutyLocation', 5);
+      await tooFlowPage.selectDutyLocation('JB McGuire-Dix-Lakehurst', 'newDutyLocation', 1);
 
       await page.locator('input[name="issueDate"]').clear();
       await page.locator('input[name="issueDate"]').fill('16 Mar 2018');
@@ -463,7 +463,7 @@ test.describe('TOO user', () => {
       await page.locator('input[name="sac"]').fill('4K988AS098F');
 
       // Edit orders page | Save
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByTestId('submit_button').click();
       await page.getByRole('heading', { name: 'Move Details' }).waitFor();
 
       // Verify edited values are saved
@@ -471,7 +471,7 @@ test.describe('TOO user', () => {
 
       await expect(page.locator('[data-testid="currentDutyLocation"]')).toContainText('Fort Irwin');
       await expect(page.locator('[data-testid="newDutyLocation"]')).toContainText(
-        'JB Langley-Eustis (Fort Eustis), VA 23604',
+        'JB McGuire-Dix-Lakehurst (McGuire AFB), NJ 08562',
       );
       await expect(page.locator('[data-testid="issuedDate"]')).toContainText('16 Mar 2018');
       await expect(page.locator('[data-testid="reportByDate"]')).toContainText('22 Mar 2018');
@@ -538,7 +538,7 @@ test.describe('TOO user', () => {
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
       await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
-      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      const spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
       await expect(spanLocator).toBeVisible();
       await page.keyboard.press('Enter');
       const deliveryLocator = page.locator('input[id="delivery.address-input"]');
@@ -641,7 +641,7 @@ test.describe('TOO user', () => {
       const deliveryDate = new Date().toLocaleDateString('en-US');
       const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
       const countrySearch = 'UNITED STATES';
-      
+
       // Edit the shipment
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       // fill out some changes on the form
@@ -652,7 +652,7 @@ test.describe('TOO user', () => {
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
       await page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
-      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      const spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
       await expect(spanLocator).toBeVisible();
       await page.keyboard.press('Enter');
       const deliveryLocator = page.locator('input[id="delivery.address-input"]');
@@ -715,9 +715,9 @@ test.describe('TOO user', () => {
     test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
     const shipmentAddressUpdate = await officePage.testHarness.buildHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
-    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
+    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.move_task_order);
     await tooFlowPage.waitForLoading();
-    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.move_task_order.locator);
 
     await expect(page.getByText('Review required')).toBeVisible();
 
@@ -764,7 +764,7 @@ test.describe('TOO user', () => {
 
     await page.getByText('KKFA moves').click();
 
-    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.move_task_order.locator);
     await page.locator('input[name="locator"]').blur();
     // once the move is in the Move approved status, it will no longer show up in the TOO queue
     await expect(page.getByText('Move approved')).not.toBeVisible();
@@ -774,9 +774,9 @@ test.describe('TOO user', () => {
   test('approves a delivery address change request for a NTSr shipment', async ({ officePage, page }) => {
     const shipmentAddressUpdate = await officePage.testHarness.buildNTSRMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
-    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
+    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.move_task_order);
     await tooFlowPage.waitForLoading();
-    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.move_task_order.locator);
 
     await expect(page.getByText('Review required')).toBeVisible();
     await page.getByRole('button', { name: 'Edit shipment' }).click();
@@ -815,7 +815,7 @@ test.describe('TOO user', () => {
 
     // go back and make sure the move is in approved status (won't be viewable in TOO queue)
     await page.getByText('KKFA moves').click();
-    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.move_task_order.locator);
     await page.locator('input[name="locator"]').blur();
     await expect(page.getByText('Move approved')).not.toBeVisible();
     await expect(page.getByText('Approvals requested')).not.toBeVisible();

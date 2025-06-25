@@ -102,7 +102,7 @@ export class WaitForOfficePage extends WaitForPage {
    */
   async reviewDocumentsConfirmation() {
     const selector = this.page.getByRole('heading', { name: 'Send to customer?', level: 3 });
-    await selector.waitFor({ state: 'visible'});
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
@@ -110,7 +110,7 @@ export class WaitForOfficePage extends WaitForPage {
    */
   async reviewProGear() {
     const selector = this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 });
-    await selector.waitFor({ state: 'visible'});
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
@@ -118,7 +118,7 @@ export class WaitForOfficePage extends WaitForPage {
    */
   async reviewReceipt() {
     const selector = this.page.getByRole('heading', { name: 'Review receipt 1', level: 3 });
-    await selector.waitFor({ state: 'visible'});
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
@@ -126,7 +126,7 @@ export class WaitForOfficePage extends WaitForPage {
    */
   async reviewShipmentWeights() {
     const selector = this.page.getByRole('heading', { name: 'Review shipment weights', level: 1 });
-    await selector.waitFor({ state: 'visible'});
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
@@ -134,7 +134,7 @@ export class WaitForOfficePage extends WaitForPage {
    */
   async reviewWeightTicket() {
     const selector = this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 });
-    await selector.waitFor({ state: 'visible'});
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**

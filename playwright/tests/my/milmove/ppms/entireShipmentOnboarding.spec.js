@@ -8,6 +8,20 @@
 import { expect, test, forEachViewport, CustomerPpmPage } from './customerPpmTestFixture';
 
 /**
+ * @param {string} dateString
+ */
+function formatDate(dateString) {
+  const [month, day, year] = dateString.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+
+  const dayFormatted = String(date.getDate()).padStart(2, '0');
+  const monthFormatted = date.toLocaleString('default', { month: 'short' });
+  const yearFormatted = date.getFullYear();
+
+  return `${dayFormatted} ${monthFormatted} ${yearFormatted}`;
+}
+
+/**
  * CustomerPpmOnboardingPage test fixture. Our linting rules (like
  * no-use-before-define) pushes us towards grouping all these helpers
  * into a class. It also follows the examples at
@@ -40,7 +54,9 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await expect(shipmentInfo.getByText('4,000 lbs')).toBeVisible();
     await expect(shipmentInfo.getByText('90210')).toBeVisible();
     await expect(shipmentInfo.getByText('76127')).toBeVisible();
-    await expect(shipmentInfo.getByText('01 Feb 2022')).toBeVisible();
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const formattedDate = formatDate(expectedDeparture);
+    await expect(shipmentInfo.getByText(formattedDate)).toBeVisible();
   }
 
   /**
@@ -71,7 +87,7 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
 
     await this.page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').fill('1234 Street');
     await this.page.locator('input[id="secondaryPickupAddress.address-country-input"]').fill(countrySearch);
-    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    const spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
     const pickupLocator = this.page.locator('input[id="secondaryPickupAddress.address-input"]');
@@ -84,7 +100,8 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await this.page.locator('label[for="sitExpectedNo"]').click();
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
-    await this.page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
 
     // Change closeout location
