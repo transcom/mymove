@@ -48,7 +48,7 @@ func BuildPrivilege(db *pop.Connection, customs []Customization, traits []Trait)
 	return privilege
 }
 
-// lookup a rank by rank type, if it doesn't exist make it
+// lookup a privilege by privilege type, if it doesn't exist make it
 func FetchOrBuildPrivilegeByPrivilegeType(db *pop.Connection, privilegeType roles.PrivilegeType) roles.Privilege {
 	privilegeName := roles.PrivilegeName(cases.Title(language.Und).String(string(privilegeType)))
 

@@ -46,7 +46,7 @@ func BuildRank(db *pop.Connection, customs []Customization, traits []Trait) mode
 	return rank
 }
 
-// lookup a privilege by privilege type, if it doesn't exist make it
+// lookup a rank by rank type, if it doesn't exist make it
 func FetchOrBuildRankByPayGradeAndAffiliation(db *pop.Connection, payGrade string, affiliation string) models.Rank {
 	var rank models.Rank
 	var pg models.PayGrade
