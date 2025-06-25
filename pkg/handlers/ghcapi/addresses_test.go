@@ -211,7 +211,7 @@ func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 		}
 
 		handler := GetOconusLocationHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			VIntlLocation: vIntlLocationService,
 		}
 
