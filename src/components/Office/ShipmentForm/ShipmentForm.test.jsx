@@ -256,7 +256,7 @@ const defaultProps = {
     firstName: 'John',
     lastName: 'Miller',
     email: 'johnmiller@abcdefg.edu',
-    telephone: '444-567-5432',
+    phone: '444-567-5432',
   },
 };
 
