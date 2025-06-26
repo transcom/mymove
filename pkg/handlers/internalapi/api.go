@@ -328,9 +328,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		countrySearcher,
 	}
 
-	internalAPI.UploadsGetUploadStatusHandler = GetUploadStatusHandler{handlerConfig, upload.NewUploadInformationFetcher()}
-	internalAPI.TextEventStreamProducer = runtime.ByteStreamProducer() // GetUploadStatus produces Event Stream
-
 	internalAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
 
 	return internalAPI

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 
@@ -56,10 +56,6 @@ const mockProps = {
   uploads: mockUploads,
 };
 
-jest.mock('services/internalApi', () => ({
-  waitForAvScan: jest.fn().mockResolvedValue('NO_THREATS_FOUND'),
-}));
-
 describe('Supporting Documents Viewer', () => {
   describe('displays viewer', () => {
     it('renders document viewer correctly on load', async () => {
@@ -68,9 +64,6 @@ describe('Supporting Documents Viewer', () => {
           <SupportingDocuments {...mockProps} />
         </QueryClientProvider>,
       );
-      const banner = await screen.findByTestId('documentAlertMessage');
-      await waitForElementToBeRemoved(banner, { timeout: 3000 });
-
       const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
       expect(docMenuButton).toBeInTheDocument();
 
