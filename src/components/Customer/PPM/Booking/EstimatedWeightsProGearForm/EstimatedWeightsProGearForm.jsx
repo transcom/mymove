@@ -19,7 +19,7 @@ import { formatWeight } from 'utils/formatters';
 import LoadingButton from 'components/LoadingButton/LoadingButton';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
-import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
@@ -173,6 +173,11 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 </Hint>
                 {values.hasProGear === 'true' && (
                   <>
+                    <span className="usa-label">
+                      <span>
+                        <RequiredAsterisk /> Enter a weight into at least one pro-gear field.
+                      </span>
+                    </span>
                     <MaskedTextField
                       defaultValue="0"
                       name="proGearWeight"

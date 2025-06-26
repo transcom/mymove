@@ -65,6 +65,8 @@ describe('ReviewProGear component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'Pro-gear 1' })).toBeInTheDocument();
       });
 
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       expect(screen.getByText('Belongs to')).toBeInTheDocument();
       expect(screen.getByLabelText('Customer')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Spouse')).toBeInstanceOf(HTMLInputElement);
