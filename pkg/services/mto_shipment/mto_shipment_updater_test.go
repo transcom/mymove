@@ -5530,6 +5530,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
 				OfficeUserID:    too.ID,
 				ActiveRole:      too.User.Roles[0],
 			}
+
 			shipment, err := shipmentUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
 
 			testCaseInputString := ""
