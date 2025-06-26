@@ -1516,7 +1516,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentPPMStatus() 
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 	e9 := models.ServiceMemberGradeE9
-	multipleGrades := models.ServiceMemberGradeO1ACADEMYGRADUATE
+	multipleGrades := models.ServiceMemberGradeO1
 
 	suite.Equal("E-9", FormatGrade(&e9))
 	suite.Equal("O-1 or Service Academy Graduate", FormatGrade(&multipleGrades))

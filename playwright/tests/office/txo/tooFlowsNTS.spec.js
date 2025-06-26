@@ -281,6 +281,7 @@ test.describe('TOO user', () => {
       // Storage facility address
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').clear();
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').fill('265 S East St');
+      await modal.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await modal.locator('#facilityLotNumber').clear();
       await modal.locator('#facilityLotNumber').fill('1111111');
 

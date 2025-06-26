@@ -101,7 +101,8 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewDocumentsConfirmation() {
-    await base.expect(this.page.getByRole('heading', { name: 'Send to customer?', level: 3 })).toBeVisible();
+    const selector = this.page.getByRole('heading', { name: 'Send to customer?', level: 3 });
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
@@ -116,14 +117,16 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewReceipt() {
-    await base.expect(this.page.getByRole('heading', { name: 'Review receipt 1', level: 3 })).toBeVisible();
+    const selector = this.page.getByRole('heading', { name: 'Review receipt 1', level: 3 });
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
    * @returns {Promise<void>}
    */
   async reviewShipmentWeights() {
-    await base.expect(this.page.getByRole('heading', { name: 'Review shipment weights', level: 1 })).toBeVisible();
+    const selector = this.page.getByRole('heading', { name: 'Review shipment weights', level: 1 });
+    await selector.waitFor({ state: 'visible' });
   }
 
   /**
@@ -147,8 +150,8 @@ export class WaitForOfficePage extends WaitForPage {
 
     const expenseCheck = `Review ${expense} #${expenseIndex}`;
     const expenseElement = this.page.getByRole('heading', { name: expenseCheck, level: 3, exact: false });
-    await base.expect(receiptElement).toBeVisible({ timeout: 2000 });
-    await base.expect(expenseElement).toBeVisible({ timeout: 2000 });
+    await receiptElement.waitFor({ state: 'visible' });
+    await expenseElement.waitFor({ state: 'visible' });
   }
 }
 

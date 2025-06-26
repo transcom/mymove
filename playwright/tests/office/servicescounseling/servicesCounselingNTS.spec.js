@@ -127,9 +127,9 @@ test.describe('Services counselor user', () => {
     await page.getByTestId('hhgSacInput').fill('4K988AS098F');
     // Today's date will fall valid under the TAC and LOA and the NTS LOA should then populate
     await page.getByTestId('ntsTacInput').fill(tac.tac);
-    await expect(page.getByTestId('ntsLoaTextField')).toHaveValue(
-      '1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1',
-    );
+    const ntsLoaTextField = page.getByTestId('ntsLoaTextField');
+    await page.getByTestId('ntsTacInput').blur();
+    await expect(ntsLoaTextField).toHaveValue('1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1');
 
     const loaMissingErrorMessage = page.getByText(
       'Unable to find a LOA based on the provided details. Please ensure a department indicator and TAC are present on this form.',
