@@ -11,6 +11,9 @@ test.describe('Mobile Home shipment', () => {
     const userId = move.Orders.service_member.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
+    // Navigate from MM Dashboard to Move
+    await customerPage.navigateFromMMDashboardToMove(move);
+    
     // Navigate to create a new shipment
     await page.getByTestId('goToMoveBtn').click();
     await customerPage.waitForPage.home();

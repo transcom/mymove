@@ -433,7 +433,6 @@ test.describe('TIO user', () => {
       // Confirm TIO can view the calculations
       await expect(page.getByTestId('toggleCalculations')).toBeVisible();
       await page.getByTestId('toggleCalculations').click();
-      // await page.getByText('Show calculations').click();
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Total:');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Service schedule: 2');

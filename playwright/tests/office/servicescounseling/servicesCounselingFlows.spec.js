@@ -6,7 +6,7 @@
 
 // @ts-check
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
-import { getFutureDate } from '../../utils/playwrightUtility';
+import { appendTimestampToFilenamePrefix, getFutureDate } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -236,7 +236,8 @@ test.describe('Services counselor user', () => {
       // add orders
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
-      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample-\d{14}\.pdf/)).toBeVisible();
+      const filenameWithTimestamp = appendTimestampToFilenamePrefix('AF Orders Sample');
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(1);
@@ -249,7 +250,7 @@ test.describe('Services counselor user', () => {
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
       await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText(/AF Orders Sample-\d{14}\.pdf/)).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).not.toBeVisible();
     });
   });
 
