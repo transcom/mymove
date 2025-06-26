@@ -2551,7 +2551,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -2715,7 +2715,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			},
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 		patchHandler.HandlerConfig = handlerConfig
 
