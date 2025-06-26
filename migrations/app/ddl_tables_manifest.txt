@@ -28,4 +28,4 @@
 20250506180535_tbl_B-23565_alter_addresses.up.sql
 20250513171013_tbl_country_holidays.up.sql
 20250513172017_tbl_country_weekends.up.sql
-20250516151608_tbl_B-23635_alter_pay_grades.up.sql
+20250516151608_tbl_pay_grades.up.sql

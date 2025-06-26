@@ -287,8 +287,16 @@ describe('PrimeUI MoveDetails page', () => {
       const paymentRequestsHeading = screen.getByRole('heading', { name: 'Payment Requests', level: 2 });
       expect(paymentRequestsHeading).toBeInTheDocument();
 
-      const uploadButton = screen.getByRole('link', { name: 'Upload Document' });
-      expect(uploadButton).toBeInTheDocument();
+      const uploadButton = screen.getAllByRole('link', { name: 'Upload Document' });
+      expect(uploadButton).toHaveLength(6);
+    });
+
+    it('displays add service item button', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      renderWithProviders(<MoveDetails />);
+
+      const addServiceItemLinks = screen.getAllByText(/Add Service Item/, { selector: 'a.usa-button' });
+      expect(addServiceItemLinks).toHaveLength(5);
     });
 
     it('displays the move acknowledge button', async () => {
