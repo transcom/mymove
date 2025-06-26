@@ -178,4 +178,5 @@ export default {
   available_to_prime_at: 'Available to Prime at',
   terminated_at: 'Terminated at',
   termination_comments: 'Comments',
+  required_delivery_date: 'Required delivery date',
 };
