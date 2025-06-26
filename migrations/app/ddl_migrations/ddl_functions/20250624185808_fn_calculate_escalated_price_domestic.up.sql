@@ -45,7 +45,7 @@ begin
     end if;
     raise notice '% per unit cents: %', service_code, per_unit_cents;
     if per_unit_cents is null then
-        raise exception 'No per unit cents found for service item id: %, origin rate area: %, dest rate area: %, and contract_id: %', 
+        raise exception 'No per unit cents found for service item id: %, origin rate area: %, dest rate area: %, and contract_id: %',
             re_service_id, o_rate_area_id, d_rate_area_id, c_id;
     end if;
     select rcy.escalation_compounded
@@ -59,4 +59,6 @@ begin
     per_unit_cents := per_unit_cents::numeric / 100.0;
     escalated_price := ROUND(per_unit_cents * escalation_factor, 2);
     return escalated_price;
-end LANGUAGE plpgsql;
+END;
+$function$
+;
