@@ -15,11 +15,13 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import ReviewShipmentWeightsTable from 'components/Office/PPM/ReviewShipmentWeightsTable/ReviewShipmentWeightsTable';
 import {
   PPMReviewWeightsTableConfig,
+  PPMReviewWeightsTableConfigWithoutGunSafe,
   nonPPMReviewWeightsTableConfig,
 } from 'components/Office/PPM/ReviewShipmentWeightsTable/helpers';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const sortShipments = (shipments) => {
   const ppmShipment = [];
@@ -50,6 +52,14 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   useEffect(() => {
     setShowExcessWeightAlert(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
+
+  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -94,7 +104,7 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
             <h2 className={styles.weightMovedHeader}>Weight moved by customer</h2>
             <ReviewShipmentWeightsTable
               tableData={sortedShipments.ppmShipment}
-              tableConfig={PPMReviewWeightsTableConfig}
+              tableConfig={isGunSafeEnabled ? PPMReviewWeightsTableConfig : PPMReviewWeightsTableConfigWithoutGunSafe}
             />
           </div>
         )}
