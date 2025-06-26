@@ -45,7 +45,7 @@ BEGIN
         ON rz.rate_area_id = ra.id
         WHERE rz.zip3 = zip3_value
             AND ra.contract_id = c_id;
-           
+
         IF o_rate_area_id IS NULL THEN
 
 			--if o_rate_area_id is null check zip5
@@ -56,7 +56,7 @@ BEGIN
 			    ON rz.rate_area_id = ra.id
 	         WHERE rz.zip5 = zip5_value
 	           AND ra.contract_id = c_id;
-	          
+
 	    END IF;
     END IF;
 
