@@ -5,15 +5,16 @@ import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 
 import { officeRoutes } from 'constants/routes';
+import { formatOfficeProfileFirstAndLast } from 'utils/formatters';
 
 const OfficeUserInfo = ({ handleLogout, firstName, lastName }) => {
+  const content = formatOfficeProfileFirstAndLast({ firstName, lastName });
+
   return (
     <>
       <li className={classNames('usa-nav__primary-item')}>
         <Link to={officeRoutes.PROFILE_PATH} title="profile-link">
-          {lastName}
-          {lastName && firstName && ', '}
-          {firstName}
+          {content}
         </Link>
       </li>
       <li className={classNames('usa-nav__primary-item')}>
