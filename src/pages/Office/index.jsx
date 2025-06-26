@@ -201,7 +201,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
               role="main"
               className={classnames('site__content site-office__content', {
                 [styles.headerMargin]: hasCustomerHeader,
-                [styles.headerMarginNoRoleChange]: !hasCustomerHeader,
+                [styles.headerMarginNoCustHeader]: !hasCustomerHeader,
               })}
             >
               <ConnectedLogoutOnInactivity />
