@@ -34,6 +34,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
       ? order.originDutyLocationGBLOC
       : move.shipmentGBLOC;
   const originGBLOCDisplay = order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${originGBLOC} / USMC` : originGBLOC;
+
   return (
     <div className={styles.custHeader}>
       <div>

@@ -1,8 +1,8 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import 'styles/office.scss';
 
+import 'styles/office.scss';
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
