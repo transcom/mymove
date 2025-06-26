@@ -120,7 +120,6 @@ const ClientCertCreate = (props) => (
       />
       <SelectInput
         source="allowNavyOrdersWrite"
-        label="allow pptas"
         choices={[
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },

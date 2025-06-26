@@ -109,6 +109,7 @@ const ClientCertEdit = (props) => (
       />
       <SelectInput
         source="pptasAffiliation"
+        label="PPTAS Affiliation"
         choices={[
           { id: 'NAVY', name: 'Navy' },
           { id: 'MARINES', name: 'Marine Corps' },
