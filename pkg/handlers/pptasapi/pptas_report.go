@@ -7,7 +7,9 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	pptasop "github.com/transcom/mymove/pkg/gen/pptasapi/pptasoperations/moves"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/pptasapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -21,10 +23,25 @@ type PPTASReportsHandler struct {
 func (h PPTASReportsHandler) Handle(params pptasop.PptasReportsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			var searchParams services.MoveTaskOrderFetcherParams
+			var searchParams services.MovesForPPTASFetcherParams
 			if params.Since != nil {
 				since := handlers.FmtDateTimePtrToPop(params.Since)
 				searchParams.Since = &since
+			}
+
+			clientCert := authentication.ClientCertFromContext(appCtx.HTTPRequest().Context())
+
+			if clientCert.PPTASAffiliation != nil {
+				params.Affiliation = (*string)(clientCert.PPTASAffiliation)
+			}
+
+			if params.Affiliation != nil {
+				if *params.Affiliation == models.AffiliationNAVY.String() || *params.Affiliation == models.AffiliationMARINES.String() {
+					searchParams.Affiliation = params.Affiliation
+				} else {
+					appCtx.Logger().Error("Invalid branch provided for filtering reports", zap.String("branch", *params.Affiliation))
+					return pptasop.NewPptasReportsBadRequest().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), nil
+				}
 			}
 
 			movesForReport, err := h.GetMovesForReportBuilder(appCtx, &searchParams)

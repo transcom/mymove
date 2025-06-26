@@ -24,6 +24,8 @@ func (suite *FactorySuite) TestBuildClientCert() {
 		suite.NotEmpty(clientCert.Sha256Digest)
 		suite.Contains(clientCert.Subject, "OU=AppClientTLS/CN=factory-")
 		suite.True(clientCert.AllowPrime)
+		suite.True(clientCert.AllowPPTAS)
+		suite.Nil(clientCert.PPTASAffiliation)
 	})
 
 	suite.Run("Successful creation of prime clientCert", func() {
@@ -129,5 +131,43 @@ func (suite *FactorySuite) TestBuildClientCert() {
 		existingClientCertCount, err := suite.DB().Where(`sha256_digest=$1`, devlocalSha256Digest).Count(&models.ClientCert{})
 		suite.NoError(err)
 		suite.Equal(1, existingClientCertCount)
+	})
+
+	suite.Run("Successful creation of pptas clientCert", func() {
+		// Under test:      BuildClientCert
+		// Mocked:          None
+		// Set up:          Create a clientCert with pptas
+		// Expected outcome:ClientCert should be created with pptas values
+
+		// SETUP
+		// Create a custom pptas clientCert to compare values
+		s := sha256.Sum256([]byte("custom"))
+		custClientCert := models.ClientCert{
+			Sha256Digest:     hex.EncodeToString(s[:]),
+			Subject:          "CustomSubject",
+			AllowPrime:       false,
+			AllowPPTAS:       true,
+			PPTASAffiliation: (*models.ServiceMemberAffiliation)(models.StringPointer("MARINES")),
+		}
+
+		customUser := BuildUser(suite.DB(), nil, nil)
+
+		// FUNCTION UNDER TEST
+		clientCert := BuildClientCert(suite.DB(), []Customization{
+			{
+				Model: custClientCert,
+			},
+			{
+				Model:    customUser,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// VALIDATE RESULTS
+		suite.Equal(custClientCert.PPTASAffiliation, clientCert.PPTASAffiliation)
+		suite.Equal(custClientCert.Sha256Digest, clientCert.Sha256Digest)
+		suite.Equal(custClientCert.Subject, clientCert.Subject)
+		suite.Equal(custClientCert.AllowPrime, clientCert.AllowPrime)
+		suite.Equal(customUser.ID, clientCert.UserID)
 	})
 }

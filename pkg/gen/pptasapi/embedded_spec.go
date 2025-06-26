@@ -61,6 +61,12 @@ func init() {
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Return moves for this affiliation, defaults to NAVY.",
+            "name": "affiliation",
+            "in": "query"
           }
         ],
         "responses": {
@@ -69,6 +75,9 @@ func init() {
             "schema": {
               "$ref": "#/definitions/PPTASReports"
             }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
             "$ref": "#/responses/PermissionDenied"
@@ -342,6 +351,17 @@ func init() {
         "ITEM",
         "CRATE"
       ]
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
     },
     "MTOServiceItemDimension": {
       "description": "Describes a dimension object for the MTOServiceItem.",
@@ -893,6 +913,12 @@ func init() {
     }
   },
   "responses": {
+    "InvalidRequest": {
+      "description": "The request payload is invalid",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
@@ -956,6 +982,12 @@ func init() {
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Return moves for this affiliation, defaults to NAVY.",
+            "name": "affiliation",
+            "in": "query"
           }
         ],
         "responses": {
@@ -963,6 +995,12 @@ func init() {
             "description": "Successfully retrieved pptas reports. A successful fetch might still return zero pptas reports.",
             "schema": {
               "$ref": "#/definitions/PPTASReports"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -1247,6 +1285,17 @@ func init() {
         "CRATE"
       ]
     },
+    "Error": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
     "MTOServiceItemDimension": {
       "description": "Describes a dimension object for the MTOServiceItem.",
       "type": "object",
@@ -1797,6 +1846,12 @@ func init() {
     }
   },
   "responses": {
+    "InvalidRequest": {
+      "description": "The request payload is invalid",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {

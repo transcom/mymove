@@ -176,10 +176,12 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 		params := clientcertop.CreateClientCertificateParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/client-certificates"),
 			ClientCertificate: &adminmessages.ClientCertificateCreate{
-				Subject:      &clientCert.Subject,
-				Sha256Digest: &clientCert.Sha256Digest,
-				Email:        &email,
-				AllowPrime:   true,
+				Subject:          &clientCert.Subject,
+				Sha256Digest:     &clientCert.Sha256Digest,
+				Email:            &email,
+				AllowPrime:       true,
+				AllowPPTAS:       true,
+				PptasAffiliation: (*adminmessages.Affiliation)(models.StringPointer("MARINES")),
 			},
 		}
 
@@ -202,10 +204,12 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 		params := clientcertop.CreateClientCertificateParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/client-certificates"),
 			ClientCertificate: &adminmessages.ClientCertificateCreate{
-				Subject:      &clientCert.Subject,
-				Sha256Digest: &clientCert.Sha256Digest,
-				Email:        &email,
-				AllowPrime:   true,
+				Subject:          &clientCert.Subject,
+				Sha256Digest:     &clientCert.Sha256Digest,
+				Email:            &email,
+				AllowPrime:       true,
+				AllowPPTAS:       true,
+				PptasAffiliation: (*adminmessages.Affiliation)(models.StringPointer("MARINES")),
 			},
 		}
 
@@ -228,9 +232,11 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 
 func (suite *HandlerSuite) TestUpdateClientCertificateHandler() {
 	clientCert := models.ClientCert{
-		ID:         uuid.Nil,
-		AllowPrime: false,
-		UserID:     uuid.Nil,
+		ID:               uuid.Nil,
+		AllowPrime:       false,
+		UserID:           uuid.Nil,
+		AllowPPTAS:       true,
+		PPTASAffiliation: (*models.ServiceMemberAffiliation)(models.StringPointer("MARINES")),
 	}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
@@ -239,7 +245,9 @@ func (suite *HandlerSuite) TestUpdateClientCertificateHandler() {
 		params := clientcertop.UpdateClientCertificateParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/client-certificates/%s", clientCert.ID)),
 			ClientCertificate: &adminmessages.ClientCertificateUpdate{
-				AllowPrime: &clientCert.AllowPrime,
+				AllowPrime:       &clientCert.AllowPrime,
+				AllowPPTAS:       &clientCert.AllowPPTAS,
+				PptasAffiliation: (*adminmessages.Affiliation)(clientCert.PPTASAffiliation),
 			},
 		}
 
@@ -269,7 +277,9 @@ func (suite *HandlerSuite) TestUpdateClientCertificateHandler() {
 		params := clientcertop.UpdateClientCertificateParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/client-certificates/%s", clientCert.ID)),
 			ClientCertificate: &adminmessages.ClientCertificateUpdate{
-				AllowPrime: &clientCert.AllowPrime,
+				AllowPrime:       &clientCert.AllowPrime,
+				AllowPPTAS:       &clientCert.AllowPPTAS,
+				PptasAffiliation: (*adminmessages.Affiliation)(clientCert.PPTASAffiliation),
 			},
 		}
 

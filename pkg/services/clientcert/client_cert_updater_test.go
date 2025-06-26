@@ -42,7 +42,9 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 			},
 			{
 				Model: models.ClientCert{
-					AllowPrime: true,
+					AllowPrime:       true,
+					AllowPPTAS:       true,
+					PPTASAffiliation: (*models.ServiceMemberAffiliation)(models.StringPointer("MARINES")),
 				},
 			},
 		}, nil)
@@ -54,10 +56,14 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 		updater := NewClientCertUpdater(queryBuilder, associator, mockSender)
 
 		allowPrime := false
+		allowPPTAS := false
+		pptasAffiliation := (*models.ServiceMemberAffiliation)(models.StringPointer("NAVY"))
 		payload := &adminmessages.ClientCertificateUpdate{
-			Subject:      "new-subject",
-			Sha256Digest: digest,
-			AllowPrime:   &allowPrime,
+			Subject:          "new-subject",
+			Sha256Digest:     digest,
+			AllowPrime:       &allowPrime,
+			AllowPPTAS:       &allowPPTAS,
+			PptasAffiliation: (*adminmessages.Affiliation)(pptasAffiliation),
 		}
 		updatedClientCert, verrs, err := updater.UpdateClientCert(
 			suite.AppContextWithSessionForTest(&auth.Session{}),
@@ -68,6 +74,8 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 		suite.Equal(payload.Subject, updatedClientCert.Subject)
 		suite.Equal(payload.Sha256Digest, updatedClientCert.Sha256Digest)
 		suite.Equal(*payload.AllowPrime, updatedClientCert.AllowPrime)
+		suite.Equal(*payload.AllowPPTAS, updatedClientCert.AllowPrime)
+		suite.Equal((*models.ServiceMemberAffiliation)(payload.PptasAffiliation), updatedClientCert.PPTASAffiliation)
 
 		userRoles, err = roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
 		suite.NoError(err)

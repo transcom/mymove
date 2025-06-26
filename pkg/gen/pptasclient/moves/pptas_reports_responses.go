@@ -29,6 +29,12 @@ func (o *PptasReportsReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return result, nil
+	case 400:
+		result := NewPptasReportsBadRequest()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 401:
 		result := NewPptasReportsUnauthorized()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -112,6 +118,74 @@ func (o *PptasReportsOK) readResponse(response runtime.ClientResponse, consumer 
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewPptasReportsBadRequest creates a PptasReportsBadRequest with default headers values
+func NewPptasReportsBadRequest() *PptasReportsBadRequest {
+	return &PptasReportsBadRequest{}
+}
+
+/*
+PptasReportsBadRequest describes a response with status code 400, with default header values.
+
+The request payload is invalid
+*/
+type PptasReportsBadRequest struct {
+	Payload *pptasmessages.ClientError
+}
+
+// IsSuccess returns true when this pptas reports bad request response has a 2xx status code
+func (o *PptasReportsBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this pptas reports bad request response has a 3xx status code
+func (o *PptasReportsBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this pptas reports bad request response has a 4xx status code
+func (o *PptasReportsBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this pptas reports bad request response has a 5xx status code
+func (o *PptasReportsBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this pptas reports bad request response a status code equal to that given
+func (o *PptasReportsBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the pptas reports bad request response
+func (o *PptasReportsBadRequest) Code() int {
+	return 400
+}
+
+func (o *PptasReportsBadRequest) Error() string {
+	return fmt.Sprintf("[GET /moves][%d] pptasReportsBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *PptasReportsBadRequest) String() string {
+	return fmt.Sprintf("[GET /moves][%d] pptasReportsBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *PptasReportsBadRequest) GetPayload() *pptasmessages.ClientError {
+	return o.Payload
+}
+
+func (o *PptasReportsBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(pptasmessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
