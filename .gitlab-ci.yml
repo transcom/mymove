@@ -728,7 +728,7 @@ compile_app_server:
 #####################################
 ## Test stages various conditions  ##
 #####################################
-prep_integration_docker_microservice:
+prep_integration_microservice:
   stage: test
   interruptible: true
   tags:
@@ -742,8 +742,22 @@ prep_integration_docker_microservice:
   before_script:
     - *kaniko_before_setup
   script:
+    - export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    - export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+    - export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+    - export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+    - export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    - export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+    - export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
     - /kaniko/executor
       --context "${CI_PROJECT_DIR}"
+      --build-arg MOVE_MIL_DOD_CA_CERT=$MOVE_MIL_DOD_CA_CERT
+      --build-arg MOVE_MIL_DOD_TLS_CERT=$MOVE_MIL_DOD_TLS_CERT
+      --build-arg MOVE_MIL_DOD_TLS_KEY=$MOVE_MIL_DOD_TLS_KEY
+      --build-arg CLIENT_AUTH_SECRET_KEY=$CLIENT_AUTH_SECRET_KEY
+      --build-arg LOGIN_GOV_SECRET_KEY=$LOGIN_GOV_SECRET_KEY
+      --build-arg HERE_MAPS_APP_ID=$HERE_MAPS_APP_ID
+      --build-arg HERE_MAPS_APP_CODE=$HERE_MAPS_APP_CODE
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile_gitlabtests_dp3"
       --destination "${CI_REGISTRY_IMAGE}:e2e-${CI_COMMIT_SHORT_SHA}"
   allow_failure: true
@@ -1102,16 +1116,16 @@ integration_tests:
 integration_test_mtls:
   stage: pre_checks
   interruptible: true
-  # cache:
-  #   - <<: *yarn_cache
-  #   - <<: *node_cache
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
   tags:
     - $EKS_CLUSTER_RUNNER_TAG
-  image: registry.csde.caci.com/milmove/mymove:e2e-b9e3e814
+  image: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
   services:
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-b9e3e814
+    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
@@ -1120,8 +1134,8 @@ integration_test_mtls:
     KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
     KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
     KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "2Gi"
-    # CI_DEBUG_SERVICES: "true"
-    # CI_DEBUG_TRACE: "true"
+    CI_DEBUG_SERVICES: "true"
+    CI_DEBUG_TRACE: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
     KUBERNETES_MEMORY_LIMIT: "12Gi"
@@ -1221,17 +1235,17 @@ integration_test_mtls:
   before_script:
     - *setup_milmove_env
     # - *setup_env_intergration_mtls
-    - export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
-    - export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
-    - export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
-    - export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
-    - export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-    - export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
-    - export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
-    - export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
-    - export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
-    - export LOGIN_GOV_CALLBACK_PORT=4000
-    - export LOGIN_GOV_CALLBACK_PROTOCOL=http
+    # - export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    # - export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+    # - export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+    # - export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+    # - export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    # - export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+    # - export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+    # - export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+    # - export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+    # - export LOGIN_GOV_CALLBACK_PORT=4000
+    # - export LOGIN_GOV_CALLBACK_PROTOCOL=http
   script:
     # - echo "TODO Add steps"
     # - echo "integration_test_mtls"
@@ -1240,7 +1254,7 @@ integration_test_mtls:
     # - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
     # - source server_env
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
-    # - curl http://milmovelocal:4000
+    - curl http://milmovelocal:4000
     - pwd
     # - git config --global --add safe.directory /builds/milmove/mymove
     # - make bin/milmove
@@ -1256,19 +1270,19 @@ integration_test_mtls:
             # mtls tests do not need client
     - mkdir -p build
     - touch build/index.html
-    - /bin/milmove serve 2>&1 | fmt
+    # - /bin/milmove serve 2>&1 | fmt
     - ./scripts/run-e2e-mtls-test
     # - curl http://milmovelocal:4000
     # - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
     # - make bin/prime-api-client
     # - echo "Running E2E mTLS tests"
     # - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.output 2>&1
-  # artifacts:
-  #   paths:
-  #     - test-results/
-  #     - $CI_PROJECT_DIR/e2e_mtls_test.output
-  #     - $CI_PROJECT_DIR/milmove_migrate.output
-  #   when: always
+  artifacts:
+    paths:
+      - test-results/
+      - $CI_PROJECT_DIR/e2e_mtls_test.output
+      - $CI_PROJECT_DIR/milmove_migrate.output
+    when: always
   after_script:
     - *announce_failure
   rules:
@@ -1337,7 +1351,7 @@ integration_test_admin:
     IWS_RBS_HOST: 'pkict.dmdc.osd.mil'
     DTOD_USE_MOCK: 'true'
   needs:
-    - prep_integration_docker_microservice
+    - prep_integration_microservice
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
@@ -1435,7 +1449,7 @@ integration_test_my:
     IWS_RBS_HOST: 'pkict.dmdc.osd.mil'
     DTOD_USE_MOCK: 'true'
   needs:
-    - prep_integration_docker_microservice
+    - prep_integration_microservice
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
@@ -1531,7 +1545,7 @@ integration_test_office:
     IWS_RBS_HOST: 'pkict.dmdc.osd.mil'
     DTOD_USE_MOCK: 'true'
   needs:
-    - prep_integration_docker_microservice
+    - prep_integration_microservice
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
@@ -1601,7 +1615,7 @@ integration_test_e2e_generic:
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
   needs:
-    - prep_integration_docker_microservice
+    - prep_integration_microservice
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
