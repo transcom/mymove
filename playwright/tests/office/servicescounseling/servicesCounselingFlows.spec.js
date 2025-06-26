@@ -392,6 +392,8 @@ test.describe('Services counselor user', () => {
       // Edit the shipment so that the tag disappears
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.getByLabel('Requested pickup date').fill(pickupDate);
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
       await expect(page.getByTestId('infoSavedMessage')).toContainText(/Your changes were saved./i);

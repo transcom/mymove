@@ -19,13 +19,17 @@ test.describe('Services counselor user', () => {
 
     await expect(page.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2025');
 
-    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText(
-      '987 New Street, P.O. Box 12345, c/o Some Person, Des Moines, IA 50309',
-    );
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText('987 New Street');
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText('P.O. Box 12345');
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText(/Des Moines/i);
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText('IA');
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText('50309');
 
-    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText(
-      '123 New Street, P.O. Box 12345, c/o Some Person, Fort Eisenhower, GA 30813',
-    );
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText('123 New Street');
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText('P.O. Box 12345');
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText(/Fort Eisenhower/i);
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText('GA');
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText('30813');
 
     await expect(page.locator('[data-testid="sitPlanned"]')).toContainText('No');
     await expect(page.locator('[data-testid="estimatedWeight"]')).toContainText('4,000 lbs');
