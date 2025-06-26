@@ -35,7 +35,8 @@ func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtension
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator(), portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())}
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, shipmentRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator(), portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())}
 }
 
 // DenySITExtension denies the SIT Extension

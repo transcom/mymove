@@ -280,6 +280,18 @@ type SITSummary struct {
 	SITRequestedDelivery     *time.Time
 }
 
+// Definition of valid Origin SIT ReServiceCodes for SIT extensions
+var ValidOriginAdditionalDaySITReServiceCodes = []ReServiceCode{
+	ReServiceCodeDOASIT,
+	ReServiceCodeIOASIT,
+}
+
+// Definition of valid Origin SIT ReServiceCodes for SIT extensions
+var ValidDestinationAdditionalDaySITReServiceCodes = []ReServiceCode{
+	ReServiceCodeDDASIT,
+	ReServiceCodeIDASIT,
+}
+
 // Definition of valid Domestic Origin SIT ReServiceCodes
 var ValidDomesticOriginSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeDOASIT,
