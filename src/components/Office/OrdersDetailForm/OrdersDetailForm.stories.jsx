@@ -4,12 +4,7 @@ import { Formik } from 'formik';
 
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { dropdownInputOptions } from 'utils/formatters';
-import {
-  ORDERS_TYPE_OPTIONS,
-  ORDERS_TYPE_DETAILS_OPTIONS,
-  ORDERS_PAY_GRADE_OPTIONS,
-  ORDERS_TYPE,
-} from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 
 const originDutyLocation = {
@@ -49,7 +44,7 @@ const longLineOfAccounting =
 const deptIndicatorOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_TYPE);
 
 export default {
   title: 'Office Components/OrdersDetailForm',
@@ -95,7 +90,7 @@ export const EmptyValues = () => (
           ordersTypeDetailOptions={ordersTypeDetailOptions}
           ordersType={ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION}
           setFieldValue={Formik.setFieldValue}
-          payGrade={ORDERS_PAY_GRADE_OPTIONS.E_1}
+          payGrade={ORDERS_PAY_GRADE_TYPE.E_1}
           payGradeOptions={payGradeOptions}
           hhgLongLineOfAccounting={longLineOfAccounting}
           ntsLongLineOfAccounting={longLineOfAccounting}
