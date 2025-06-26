@@ -39,6 +39,7 @@ import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
 import { sortRankOptions } from 'shared/utils';
 import { selectServiceMemberAffiliation } from 'store/entities/selectors';
+import RankField from 'components/form/RankField/RankField';
 
 const EditOrdersForm = ({
   createUpload,
@@ -592,19 +593,7 @@ const EditOrdersForm = ({
                 }}
               />
 
-              {grade !== '' ? (
-                <DropdownInput
-                  label="Rank"
-                  name="rank"
-                  id="rank"
-                  required
-                  options={rankOptions}
-                  showRequiredAsterisk
-                  onChange={(e) => {
-                    handleChange(e);
-                  }}
-                />
-              ) : null}
+              {grade !== '' ? <RankField rankOptions={rankOptions} handleChange={handleChange} /> : null}
 
               <p>Uploads:</p>
               <UploadsTable

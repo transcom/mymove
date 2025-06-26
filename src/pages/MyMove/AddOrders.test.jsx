@@ -11,7 +11,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setCanAddOrders, setMoveId, setShowLoadingSpinner } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_RANK_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 // Tests are timing out. High assumption it is due to service counseling office drop-down choice not being loaded on initial form load. It's another API call
 jest.setTimeout(60000);
@@ -468,7 +468,6 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
       await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -569,7 +568,6 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
       await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -671,7 +669,6 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
       await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), [ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt.rankAbbv]);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
