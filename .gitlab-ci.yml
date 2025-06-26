@@ -746,18 +746,18 @@ prep_integration_microservice:
     - export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
     - export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
     - export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
-    - export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    # - export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
     - export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
     - export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
     - /kaniko/executor
       --context "${CI_PROJECT_DIR}"
-      --build-arg MOVE_MIL_DOD_CA_CERT=$MOVE_MIL_DOD_CA_CERT
-      --build-arg MOVE_MIL_DOD_TLS_CERT=$MOVE_MIL_DOD_TLS_CERT
-      --build-arg MOVE_MIL_DOD_TLS_KEY=$MOVE_MIL_DOD_TLS_KEY
-      --build-arg CLIENT_AUTH_SECRET_KEY=$CLIENT_AUTH_SECRET_KEY
-      --build-arg LOGIN_GOV_SECRET_KEY=$LOGIN_GOV_SECRET_KEY
-      --build-arg HERE_MAPS_APP_ID=$HERE_MAPS_APP_ID
-      --build-arg HERE_MAPS_APP_CODE=$HERE_MAPS_APP_CODE
+      --build-arg "MOVE_MIL_DOD_CA_CERT="${MOVE_MIL_DOD_CA_CER}"
+      --build-arg "MOVE_MIL_DOD_TLS_CERT=${MOVE_MIL_DOD_TLS_CERT}"
+      --build-arg "MOVE_MIL_DOD_TLS_KEY=${MOVE_MIL_DOD_TLS_KEY}"
+      --build-arg "CLIENT_AUTH_SECRET_KEY=${CLIENT_AUTH_SECRET_KEY}"
+      --build-arg "LOGIN_GOV_SECRET_KEY=${LOGIN_GOV_SECRET_KEY}"
+      --build-arg "HERE_MAPS_APP_ID=${HERE_MAPS_APP_ID}"
+      --build-arg "HERE_MAPS_APP_CODE=${HERE_MAPS_APP_CODE}"
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile_gitlabtests_dp3"
       --destination "${CI_REGISTRY_IMAGE}:e2e-${CI_COMMIT_SHORT_SHA}"
   allow_failure: true
