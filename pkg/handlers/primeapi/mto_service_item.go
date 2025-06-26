@@ -184,7 +184,8 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 				"TertiaryDeliveryAddress",
 				"MTOServiceItems.ReService",
 				"StorageFacility.Address",
-				"PPMShipment"}
+				"PPMShipment",
+				"SITDurationUpdates"}
 			serviceItem, err := mtoserviceitem.NewMTOServiceItemFetcher().GetServiceItem(appCtx, mtoServiceItem.ID)
 
 			if err != nil {
