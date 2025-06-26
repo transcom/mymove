@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -9,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -41,7 +41,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"packing_and_shipping_instructions": {"PackingAndShippingInstructions can not be blank."},
 	}
 
-	suite.verifyValidationErrors(order, expErrors)
+	suite.verifyValidationErrors(order, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
@@ -55,7 +55,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 
 		expErrors := map[string][]string{}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	})
 
 	suite.Run("test UploadedAmendedOrdersID is not nil UUID", func() {
@@ -65,7 +65,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 			"uploaded_amended_orders_id": {"UploadedAmendedOrdersID can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	})
 }
 
@@ -85,7 +85,7 @@ func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
 
 		expErrors := map[string][]string{}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	}
 }
 
@@ -111,8 +111,109 @@ func (suite *ModelSuite) TestTacFormat() {
 			"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters."},
 		}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	}
+}
+
+func (suite *ModelSuite) TestTacForbiddenCharacters() {
+	suite.Run("TAC", func() {
+		invalidTacs := []string{
+			"AB*C",
+			"A\"BC",
+			"*ABC",
+			"ABC\"",
+		}
+		for _, bad := range invalidTacs {
+			suite.Run(fmt.Sprintf("TAC with %q", bad), func() {
+				move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
+				order := move.Orders
+				order.TAC = &bad
+				order.Moves = append(order.Moves, move)
+
+				expErrors := map[string][]string{
+					"transportation_accounting_code": {
+						`TAC cannot contain * or " characters.`,
+						"TAC must be exactly 4 alphanumeric characters.",
+					},
+				}
+
+				suite.verifyValidationErrors(&order, expErrors, nil)
+			})
+		}
+	})
+
+	suite.Run("NTS TAC", func() {
+		invalidTacs := []string{
+			"AB*C",
+			"A\"BC",
+			"*ABC",
+			"ABC\"",
+		}
+		for _, bad := range invalidTacs {
+			suite.Run(fmt.Sprintf("NTS TAC with %q", bad), func() {
+				move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
+				order := move.Orders
+				order.NtsTAC = &bad
+				order.Moves = append(order.Moves, move)
+
+				expErrors := map[string][]string{
+					"nts_tac": {
+						`NTS TAC cannot contain * or " characters.`,
+					},
+				}
+
+				suite.verifyValidationErrors(&order, expErrors, nil)
+			})
+		}
+	})
+}
+
+func (suite *ModelSuite) TestSacForbiddenCharacters() {
+	suite.Run("SAC", func() {
+		invalidSacs := []string{
+			"12*4",
+			"1\"34",
+			"*234",
+			"234\"",
+		}
+		for _, bad := range invalidSacs {
+			suite.Run(fmt.Sprintf("SAC with %q", bad), func() {
+				move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
+				order := move.Orders
+				order.SAC = &bad
+				order.Moves = append(order.Moves, move)
+
+				expErrors := map[string][]string{
+					"sac": {"SAC cannot contain * or \" characters."},
+				}
+
+				suite.verifyValidationErrors(&order, expErrors, nil)
+			})
+		}
+	})
+
+	suite.Run("NTS SAC", func() {
+		invalidSacs := []string{
+			"12*4",
+			"1\"34",
+			"*234",
+			"234\"",
+		}
+		for _, bad := range invalidSacs {
+			suite.Run(fmt.Sprintf("NTS SAC with %q", bad), func() {
+				move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
+				order := move.Orders
+				order.NtsSAC = &bad
+				order.Moves = append(order.Moves, move)
+
+				expErrors := map[string][]string{
+					"nts_sac": {"NTS SAC cannot contain * or \" characters."},
+				}
+
+				suite.verifyValidationErrors(&order, expErrors, nil)
+			})
+		}
+	})
 }
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
@@ -126,8 +227,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
         }`
 		rawMessage := json.RawMessage(paramJSON)
 
-		parameter := models.ApplicationParameters{
-			ParameterName: models.StringPointer("studentTravelHhgAllowance"),
+		parameter := m.ApplicationParameters{
+			ParameterName: m.StringPointer("studentTravelHhgAllowance"),
 			ParameterJson: &rawMessage,
 		}
 		suite.MustCreate(&parameter)
@@ -160,7 +261,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		setupHhgStudentAllowanceParameter()
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model: models.Order{
+				Model: m.Order{
 					OrdersType: internalmessages.OrdersTypeSTUDENTTRAVEL,
 				},
 			},
@@ -327,7 +428,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	suite.MustSave(&uploadedOrder)
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
-	newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+	newGBLOC, gblocErr := m.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
 	suite.NoError(gblocErr)
 	order := m.Order{
 		ServiceMemberID:                serviceMember1.ID,
@@ -381,7 +482,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
 	suite.MustSave(&uploadedOrder)
-	newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+	newGBLOC, gblocErr := m.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
 	suite.NoError(gblocErr)
 	order := m.Order{
 		ServiceMemberID:                serviceMember1.ID,
@@ -462,7 +563,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 	order.NewDutyLocation = location
 
 	postalCodeToGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "12345", "UUUU") // Build a postal code -> GBLOC association for test DB
-	newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), postalCodeToGBLOC.PostalCode)
+	newGBLOC, gblocErr := m.FetchGBLOCForPostalCode(suite.DB(), postalCodeToGBLOC.PostalCode)
 
 	suite.NoError(gblocErr)
 	order.DestinationGBLOC = &newGBLOC.GBLOC

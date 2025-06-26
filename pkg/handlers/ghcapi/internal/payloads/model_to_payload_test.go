@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -596,7 +597,7 @@ func (suite *PayloadsSuite) TestMoveWithGBLOC() {
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
 	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
-	defaultGrade := "E_1"
+	defaultGrade := "E-1"
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
 	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -803,6 +804,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	privatelyOwnedVehicle := true
 	proGearWeight := 1000
 	proGearWeightSpouse := 500
+	gunSafeWeight := 300
 	storageInTransit := 90
 	totalDependents := 2
 	requiredMedicalEquipmentWeight := 200
@@ -822,6 +824,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		StorageInTransit:               &storageInTransit,
 		TotalDependents:                &totalDependents,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
@@ -847,6 +850,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UnaccompaniedBaggageAllowance))
 	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
 	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(int64(gunSafeWeight), returnedEntitlement.GunSafeWeight)
 	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
 	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
 	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
@@ -1849,6 +1853,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 	intlUnpackPrice := unit.Cents(14000)
 	intlLinehaulPrice := unit.Cents(13000)
 	sitReimbursement := unit.Cents(12000)
+	gccMultiplier := float64(1.3)
 
 	ppmCloseout := models.PPMCloseout{
 		ID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
@@ -1874,6 +1879,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 		IntlUnpackPrice:       &intlUnpackPrice,
 		IntlLinehaulPrice:     &intlLinehaulPrice,
 		SITReimbursement:      &sitReimbursement,
+		GCCMultiplier:         &gccMultiplier,
 	}
 
 	payload := PPMCloseout(&ppmCloseout)
@@ -1901,6 +1907,7 @@ func (suite *PayloadsSuite) TestPPMCloseout() {
 	suite.Equal(handlers.FmtCost(ppmCloseout.IntlUnpackPrice), payload.IntlUnpackPrice)
 	suite.Equal(handlers.FmtCost(ppmCloseout.IntlLinehaulPrice), payload.IntlLinehaulPrice)
 	suite.Equal(handlers.FmtCost(ppmCloseout.SITReimbursement), payload.SITReimbursement)
+	suite.Equal(swag.Float32(float32(*ppmCloseout.GCCMultiplier)), payload.GccMultiplier)
 }
 
 func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {
@@ -2368,6 +2375,39 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
 	})
+	suite.Run("does not attach 'EXCESS_WEIGHT' request type if ExcessUnaccompaniedBaggageWeightQualifiedAt value is nil", func() {
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("attaches UB 'EXCESS_WEIGHT' request type if is qualified but unacknowledged", func() {
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestExcessWeight), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach UB 'EXCESS_WEIGHT' request type if the excess weight has been acknowledged", func() {
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = models.TimePointer(time.Now())
+		move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
 
 	// sit extension
 	suite.Run("successfully attaches a SIT extension request to move", func() {
@@ -2481,4 +2521,99 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 			}
 		}
 	})
+}
+
+func (suite *PayloadsSuite) TestPayGrades() {
+	payGrades := models.PayGrades{
+		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
+		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
+		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+	}
+
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
+
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
+}
+
+func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				Roles: []roles.Role{{RoleType: roles.RoleTypeTOO}},
+			},
+		},
+	}, nil)
+
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{Show: models.BoolPointer(true)},
+		},
+	}, nil)
+
+	d1 := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(2025, time.February, 1, 0, 0, 0, 0, time.UTC)
+	d3 := time.Date(2025, time.March, 1, 0, 0, 0, 0, time.UTC)
+
+	sh3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d3,
+			RequestedDeliveryDate: &d3,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d2,
+			RequestedDeliveryDate: &d2,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d1,
+			RequestedDeliveryDate: &d1,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	// attach them to the move (in reversed order to prove sorting)
+	move.MTOShipments = models.MTOShipments{sh3, sh2, sh1}
+
+	queueMoves := *QueueMoves(
+		models.Moves{move},
+		nil,
+		nil,
+		officeUser,
+		nil,
+		string(roles.RoleTypeTOO),
+		string(models.QueueTypeTaskOrder),
+	)
+
+	suite.Require().Len(queueMoves, 1)
+	q := queueMoves[0]
+
+	// earliest date should be Jan 1 2025
+	expectedDate := strfmt.Date(d1)
+	suite.Equal(expectedDate, *q.RequestedMoveDate)
+
+	// all dates sorted and joined with ", "
+	suite.Require().NotNil(q.RequestedMoveDates)
+	suite.Equal("Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDates)
 }

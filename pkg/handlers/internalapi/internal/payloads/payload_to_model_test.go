@@ -204,6 +204,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	estimatedWeight := int64(5000)
 	proGearWeight := int64(500)
 	spouseProGearWeight := int64(50)
+	gunSafeWeight := int64(321)
 
 	address := models.Address{
 		StreetAddress1: "some address",
@@ -302,6 +303,8 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		ProGearWeight:                &proGearWeight,
 		SpouseProGearWeight:          &spouseProGearWeight,
 		IsActualExpenseReimbursement: models.BoolPointer(true),
+		HasGunSafe:                   models.BoolPointer(true),
+		GunSafeWeight:                &gunSafeWeight,
 	}
 
 	model := UpdatePPMShipmentModel(&ppmShipment)
@@ -319,6 +322,8 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	suite.True(*model.IsActualExpenseReimbursement)
 	suite.NotNil(model)
 	suite.Equal(model.PPMType, models.PPMTypeActualExpense)
+	suite.True(*model.HasGunSafe)
+	suite.Equal(unit.Pound(gunSafeWeight), *model.GunSafeWeight)
 }
 
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {

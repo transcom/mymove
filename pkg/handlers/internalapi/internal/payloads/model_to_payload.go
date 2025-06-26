@@ -141,6 +141,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
@@ -737,4 +739,19 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 		payload[i] = VLocation(&copyOfVLocation)
 	}
 	return payload
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
+	var payloadPayGrades []*internalmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := internalmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }

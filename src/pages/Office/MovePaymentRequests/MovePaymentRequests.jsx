@@ -124,7 +124,10 @@ const MovePaymentRequests = ({
     let serviceItemCount = 0;
     if (mtoShipments) {
       mtoShipments.forEach((shipment) => {
-        if (shipment.status === shipmentStatuses.APPROVED && shipment.mtoServiceItems) {
+        if (
+          (shipment.status === shipmentStatuses.APPROVED || shipment.status === shipmentStatuses.APPROVALS_REQUESTED) &&
+          shipment.mtoServiceItems
+        ) {
           serviceItemCount += shipment.mtoServiceItems.filter(
             (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
           ).length;
@@ -303,6 +306,7 @@ const MovePaymentRequests = ({
                   key={paymentRequest.id}
                   onEditAccountingCodes={handleEditAccountingCodes}
                   isMoveLocked={isMoveLocked}
+                  affiliation={order.agency}
                 />
               ))
             ) : (

@@ -77,7 +77,8 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 		},
 		{
 			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+				Status:               models.MTOShipmentStatusApproved,
+				PrimeEstimatedWeight: models.PoundPointer(1000),
 			},
 		},
 	}, nil)
@@ -151,6 +152,9 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 
 		suite.Equal(1, len(reports))
 		suite.Equal(tac.TAC, *reports[0].TAC)
+		// 110% of prime estimated weight
+		maxBillableWeight := move.MTOShipments[0].PrimeEstimatedWeight.Float64() * 1.1
+		suite.Equal(int(maxBillableWeight), reports[0].MaxBillableWeight.Int())
 		suite.Equal((models.ServiceMemberAffiliation)("NAVY"), *reports[0].Affiliation)
 	})
 }
@@ -217,7 +221,8 @@ func (suite *ReportServiceSuite) TestReportFetcherMarines() {
 		},
 		{
 			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+				Status:               models.MTOShipmentStatusApproved,
+				PrimeEstimatedWeight: models.PoundPointer(1000),
 			},
 		},
 	}, nil)
@@ -291,6 +296,9 @@ func (suite *ReportServiceSuite) TestReportFetcherMarines() {
 
 		suite.Equal(1, len(reports))
 		suite.Equal(tac.TAC, *reports[0].TAC)
+		// 110% of prime estimated weight
+		maxBillableWeight := move.MTOShipments[0].PrimeEstimatedWeight.Float64() * 1.1
+		suite.Equal(int(maxBillableWeight), reports[0].MaxBillableWeight.Int())
 		suite.Equal((models.ServiceMemberAffiliation)("MARINES"), *reports[0].Affiliation)
 	})
 }

@@ -61,6 +61,7 @@ type MoveFetcherParams struct {
 type MoveRouter interface {
 	Approve(appCtx appcontext.AppContext, move *models.Move) error
 	ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error)
+	UpdateShipmentStatusToApprovalsRequested(appCtx appcontext.AppContext, shipment models.MTOShipment) (*models.MTOShipment, error)
 	Cancel(appCtx appcontext.AppContext, move *models.Move) error
 	CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error
 	RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error
