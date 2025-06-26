@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -125,6 +126,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		if isInternational {
 			serviceCode = models.ReService{Code: models.ReServiceCodeIOFSIT}
 		}
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:                   mto.ID,
@@ -802,6 +805,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitDepartureDate := time.Now().Add(time.Hour * 72)
 
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -1344,6 +1349,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{

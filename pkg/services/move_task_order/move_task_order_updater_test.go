@@ -1420,6 +1420,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	queryBuilder := query.NewQueryBuilder()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	ppmEstimator := &mocks.PPMEstimator{}
 	estimatedIncentive := 654321
 	sitEstimatedCost := 67500
@@ -1462,13 +1467,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		return mockUpdater
 	}
 
-	planner.On("ZipTransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(400, nil)
-
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
 		planner,
 		queryBuilder,
 		moveRouter,
@@ -1490,7 +1489,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 	mtoUpdater := mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		siCreator,
+		creator,
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
 

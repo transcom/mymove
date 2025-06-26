@@ -26,6 +26,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
@@ -76,6 +77,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			err := suite.DB().Save(&subtestData.mtoShipment)
 			suite.NoError(err)
 		}
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
@@ -744,6 +747,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
 		sitEntryDate := time.Now()
 		sitDepartureDate := time.Now().Add(time.Hour * 72)
 		sitPostalCode := "00000"
@@ -1059,6 +1064,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		sitEntryDate := time.Now()
 		sitDepartureDate := time.Now().Add(time.Hour * 72)
