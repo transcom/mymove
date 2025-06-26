@@ -718,7 +718,6 @@ describe('Add Orders page', () => {
     renderWithProviders(<AddOrders {...testPropsRedirect} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
     });
-
     expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
   });
 });
