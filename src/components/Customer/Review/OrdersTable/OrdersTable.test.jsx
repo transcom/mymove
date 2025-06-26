@@ -3,7 +3,7 @@ import { render, screen, act, fireEvent } from '@testing-library/react';
 
 import OrdersTable from './OrdersTable';
 
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_RANK_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
 const testOrders = {
   authorizedWeight: 5000,
@@ -95,7 +95,7 @@ const mockProps = {
   uploads: [{}, {}],
   originDutyLocationName: 'Current Location',
   payGrade: ORDERS_PAY_GRADE_TYPE.E_5,
-  rank: { rankAbbv: 'SGT' },
+  rank: { rankAbbv: ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt },
   orderId: '456',
   counselingOfficeName: 'Counseling Office',
   accompaniedTour: true,

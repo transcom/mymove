@@ -9,7 +9,7 @@ import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_RANK_OPTIONS, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { MockProviders } from 'testUtils';
 
 jest.setTimeout(60000);
@@ -31,11 +31,12 @@ jest.mock('services/internalApi', () => ({
     }),
   ),
   getRankOptions: jest.fn().mockImplementation(() => {
+    const MOCK_RANK_ABBV = ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt;
     return Promise.resolve([
       {
         id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
         paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
-        rankAbbv: 'SSgt',
+        rankAbbv: MOCK_RANK_ABBV,
         rankOrder: 24,
       },
     ]);
