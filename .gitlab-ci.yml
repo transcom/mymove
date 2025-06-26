@@ -1114,7 +1114,7 @@ integration_tests:
 
 
 integration_test_mtls:
-  stage: pre_checks
+  stage: test
   interruptible: true
   cache:
     - <<: *yarn_cache
@@ -1129,6 +1129,8 @@ integration_test_mtls:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
+  needs:
+    - prep_integration_microservice
   variables:
     KUBERNETES_SERVICE_CPU_REQUEST: "2"
     KUBERNETES_SERVICE_MEMORY_REQUEST: "4Gi"
