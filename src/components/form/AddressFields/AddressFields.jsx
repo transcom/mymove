@@ -71,19 +71,6 @@ export const AddressFields = ({
     setCurrentCountryCode(nameCountryCode);
   }, [nameCountryCode]);
 
-  const getAddress1LabelHintText = (labelHint, address1Label) => {
-    if (address1Label === null) {
-      return labelHint;
-    }
-
-    // Override default and use what is passed in.
-    if (address1Label && address1Label.trim().length > 0) {
-      return address1Label;
-    }
-
-    return null;
-  };
-
   const handleOnLocationChange = (value) => {
     const city = value ? value.city : null;
     const state = value ? value.state : null;
