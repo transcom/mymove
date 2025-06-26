@@ -2346,7 +2346,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 			ActiveRole:      too.User.Roles[0],
 		}
-		session.ActiveRole.RoleType = roles.RoleTypeTOO
 		expectedMileage := 314
 		plannerSITFSC := &mocks.Planner{}
 		// expecting 50314/50314 for IOSFSC mileage lookup for source, destination
@@ -2537,7 +2536,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 			ActiveRole:      too.User.Roles[0],
 		}
-		session.ActiveRole.RoleType = roles.RoleTypeTOO
 		expectedMileage := 314
 		plannerSITFSC := &mocks.Planner{}
 		// expecting 99505/99505, 50314/50314 for IOSFSC mileage lookup for source, destination
@@ -2726,7 +2724,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 			ActiveRole:      too.User.Roles[0],
 		}
-		session.ActiveRole.RoleType = roles.RoleTypeTOO
 		plannerSITFSC := &mocks.Planner{}
 		plannerSITFSC.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -2864,7 +2861,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			suite.Nil(serviceItems[i].PricingEstimate)
 		}
 
-		session.ActiveRole.RoleType = roles.RoleTypeTOO
 		mtoShipmentUpdater := NewOfficeMTOShipmentUpdater(builder, fetcher, &mocks.Planner{}, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
 
 		updateShipment2, err := mtoShipmentUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
@@ -5534,7 +5530,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
 				OfficeUserID:    too.ID,
 				ActiveRole:      too.User.Roles[0],
 			}
-			session.ActiveRole.RoleType = roles.RoleTypeTOO
 			shipment, err := shipmentUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
 
 			testCaseInputString := ""

@@ -5851,7 +5851,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 		handler := UpdateShipmentHandler{
-			suite.NewHandlerConfig(),
+			handlerConfig,
 			shipmentUpdater,
 			sitstatus.NewShipmentSITStatus(),
 		}
