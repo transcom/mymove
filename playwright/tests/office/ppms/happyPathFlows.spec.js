@@ -63,13 +63,13 @@ test.describe('Services counselor user', () => {
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('987 New Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('P.O. Box 12345');
-    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('Des Moines');
+    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText(/Des Moines/i);
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('IA');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('50309');
 
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('123 New Street');
-    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('P.O. Box 12345');
-    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('Fort Eisenhower');
+    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('P.O. Box 12345');
+    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText(/Fort Eisenhower/i);
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('GA');
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('30813');
 

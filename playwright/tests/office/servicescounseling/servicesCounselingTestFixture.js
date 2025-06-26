@@ -158,7 +158,7 @@ export class ServiceCounselorPage extends OfficePage {
     await storageInfo.getByLabel('Service order number').fill('999999');
 
     // Storage facility address
-    const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
+    const StorageLocationLookup = 'ATLANTA, GA 30303 (FULTON)';
     const countrySearch = 'UNITED STATES';
 
     const storageAddress = this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
@@ -170,7 +170,7 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.keyboard.press('Enter');
     const storageLocator = this.page.locator('input[id="storageFacility.address-input"]');
     await storageLocator.click({ timeout: 5000 });
-    await storageLocator.fill('30301');
+    await storageLocator.fill('30303');
     await expect(storageAddress.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
     await this.page.getByLabel('Lot number').fill('1111111');
