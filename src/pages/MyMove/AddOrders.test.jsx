@@ -11,7 +11,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setCanAddOrders, setMoveId, setShowLoadingSpinner } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_RANK_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 
 // Tests are timing out. High assumption it is due to service counseling office drop-down choice not being loaded on initial form load. It's another API call
 jest.setTimeout(60000);
@@ -36,11 +36,12 @@ jest.mock('services/internalApi', () => ({
     }),
   ),
   getRankOptions: jest.fn().mockImplementation(() => {
+    const MOCK_RANK_ABBV = ORDERS_RANK_OPTIONS.AIR_FORCE.SSgt;
     return Promise.resolve([
       {
         id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
         paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
-        rankAbbv: 'SSgt',
+        rankAbbv: MOCK_RANK_ABBV,
         rankOrder: 24,
       },
     ]);
