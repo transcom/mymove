@@ -58,3 +58,4 @@
 20250606201946_B-23635_update_old_grades.up.sql
 20250609193607_B-23658_service_params_remove_distance_zip_for_ISLH.up.sql
 20250620150003_B-23819_alter_backup_contacts.up.sql
+20250626103241_alter_service_members_add_column_preferred_name.up.sql

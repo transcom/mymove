@@ -95,6 +95,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
 
 EditContactInfoForm.propTypes = {
   initialValues: PropTypes.shape({
+    preferred_name: PropTypes.string,
     telephone: PropTypes.string.isRequired,
     secondary_telephone: PropTypes.string,
     personal_email: PropTypes.string.isRequired,
@@ -110,6 +111,7 @@ EditContactInfoForm.propTypes = {
 
 EditContactInfoForm.defaultProps = {
   initialValues: {
+    preferred_name: '',
     secondaryTelephone: '',
     phoneIsPreferred: false,
     emailIsPreferred: false,

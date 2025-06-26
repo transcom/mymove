@@ -195,6 +195,10 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			}
 		}
 
+		if customer.PreferredName != nil {
+			existingCustomer.PreferredName = customer.PreferredName
+		}
+
 		if customer.FirstName != nil {
 			existingCustomer.FirstName = customer.FirstName
 		}

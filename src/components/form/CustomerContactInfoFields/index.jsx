@@ -20,6 +20,14 @@ export const CustomerContactInfoFields = ({ legend, className, render, labelHint
         <>
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
+              <TextField
+                label="Preferred Name"
+                id={`preferredName_${CustomerContactInfoFieldsUUID.current}`}
+                name="preferred_name"
+                labelHint={labelHintProp}
+              />
+            </div>
+            <div className="mobile-lg:grid-col-7">
               <MaskedTextField
                 label="Best contact phone"
                 id={`telephone_${CustomerContactInfoFieldsUUID.current}`}

@@ -10,6 +10,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const ContactInfoDisplay = ({
   telephone,
+  preferredName,
   secondaryTelephone,
   personalEmail,
   phoneIsPreferred,
@@ -41,6 +42,10 @@ const ContactInfoDisplay = ({
 
       <div className={styles.contactInfoSection}>
         <dl className={descriptionListStyles.descriptionList}>
+          <div className={descriptionListStyles.row}>
+            <dt>Preferred Name</dt>
+            <dd>{preferredName || 'Preferred Name goes here'}</dd>
+          </div>
           <div className={descriptionListStyles.row}>
             <dt>Best contact phone</dt>
             <dd>{telephone}</dd>
@@ -108,6 +113,7 @@ const ContactInfoDisplay = ({
 
 ContactInfoDisplay.propTypes = {
   telephone: PropTypes.string.isRequired,
+  preferredName: PropTypes.string,
   secondaryTelephone: PropTypes.string,
   personalEmail: PropTypes.string.isRequired,
   phoneIsPreferred: PropTypes.bool,
@@ -119,6 +125,7 @@ ContactInfoDisplay.propTypes = {
 };
 
 ContactInfoDisplay.defaultProps = {
+  preferredName: '',
   secondaryTelephone: '',
   phoneIsPreferred: false,
   emailIsPreferred: false,

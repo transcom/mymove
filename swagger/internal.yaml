@@ -862,6 +862,11 @@ definitions:
         example: Jr.
         x-nullable: true
         title: Suffix
+      preferred_name:
+        type: string
+        example: Johnny
+        x-nullable: true
+        title: Preferred Name
       telephone:
         type: string
         format: telephone
@@ -946,6 +951,11 @@ definitions:
         example: Jr.
         x-nullable: true
         title: Suffix
+      preferred_name:
+        type: string
+        example: Johnny
+        x-nullable: true
+        title: Preferred Name
       telephone:
         type: string
         format: telephone

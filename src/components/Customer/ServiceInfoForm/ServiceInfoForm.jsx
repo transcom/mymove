@@ -88,6 +88,9 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isMoveLocked }) =>
                 <Grid mobileLg={{ col: 6 }}>
                   <TextField label="Suffix" name="suffix" id="suffix" />
                 </Grid>
+                <Grid mobileLg={{ col: 6 }}>
+                  <TextField label="Preferred name ServiceInfoForm" name="preferred_name" id="preferredName" />
+                </Grid>
               </Grid>
 
               <Grid row gap>

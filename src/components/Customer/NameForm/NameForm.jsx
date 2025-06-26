@@ -30,6 +30,7 @@ const NameForm = ({ initialValues, onSubmit, onBack }) => {
               <TextField label="Middle name" name="middle_name" id="middleName" />
               <TextField label="Last name" name="last_name" id="lastName" required showRequiredAsterisk />
               <TextField label="Suffix" name="suffix" id="suffix" />
+              <TextField label="Preferred name" name="preferred_name" id="preferredName"/>
             </SectionWrapper>
             <div className={formStyles.formActions}>
               <WizardNavigation
