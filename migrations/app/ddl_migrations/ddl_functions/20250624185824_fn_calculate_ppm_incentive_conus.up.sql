@@ -166,6 +166,7 @@ begin
     --RAISE NOTICE 'DLH cents_per_cwt: %', cents_per_cwt;
 
     cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 3);
+    cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 3);
     --RAISE NOTICE 'DLH cents_per_cwt with escalation factor: %', cents_per_cwt;
 
     price_dlh := ROUND(cents_per_cwt * (weight::NUMERIC / 100) * mileage, 0);
