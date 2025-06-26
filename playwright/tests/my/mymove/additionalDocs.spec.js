@@ -19,6 +19,6 @@ test.describe('Additional Documents', () => {
     await customerPage.uploadFileViaFilepond(filepondContainer, 'trustedAgent.pdf');
 
     // Verify filename is a downloadable link
-    await expect(page.getByRole('link', { name: 'trustedAgent.pdf' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /trustedAgent-\d{14}.+/ })).toBeVisible();
   });
 });

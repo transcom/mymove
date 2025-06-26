@@ -96,8 +96,10 @@ test.describe('Services counselor user', () => {
       await page.locator('th[data-testid="closeoutInitiated"] > div > div > input').fill(closeoutDate);
       await page.getByRole('cell', { name: 'Previous Month Next Month' }).getByRole('textbox').fill(closeoutDate);
       await expect(page.locator('h1')).not.toContainText('Moves (0)');
-      await page.getByLabel('rows per page').click();
-      await page.getByLabel('rows per page').selectOption('50');
+      const moveCodeFilter = page.getByTestId('locator').getByTestId('TextBoxFilter');
+      await moveCodeFilter.fill(moveLocator);
+      await moveCodeFilter.blur();
+      await expect(page.getByTestId('locator-0')).toHaveText(moveLocator);
       await expect(page.getByText(moveLocator)).toBeVisible();
     });
   });

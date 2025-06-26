@@ -175,7 +175,14 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
               isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
             }`}
           >
-            <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+            <Button
+              data-testid="returnToHomePage"
+              className={ppmStyles.backButton}
+              type="button"
+              onClick={onBack}
+              secondary
+              outline
+            >
               {appName === APP_NAME.OFFICE ? 'Back' : 'Return To Homepage'}
             </Button>
             <Button

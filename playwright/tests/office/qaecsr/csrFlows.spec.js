@@ -31,7 +31,7 @@ test.describe('Customer Support User Flows', () => {
       );
       await expect(page.locator('[data-testid="textarea"]')).toHaveAttribute('placeholder', 'Add your remarks here');
 
-      await expect(page.locator('[data-testid=form] > [data-testid=button]')).toBeDisabled();
+      await expect(page.getByTestId('button').nth(1)).toBeDisabled();
 
       // Should not have remarks (yet)
       await expect(page.getByText('No remarks yet')).toBeVisible();
