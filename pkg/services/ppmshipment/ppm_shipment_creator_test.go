@@ -87,6 +87,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -149,7 +150,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -694,6 +694,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator_StatusMapping() {
 		IDToken:         "fake token",
 		ActiveRole:      sc.User.Roles[0],
 	}
+
 	appCtx := suite.AppContextWithSessionForTest(session)
 
 	makePPM := func(ms models.MoveStatus) *models.PPMShipment {
