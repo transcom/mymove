@@ -101,10 +101,10 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             id="ppmShipment.expectedDepartureDateInput"
             name="ppmShipment.expectedDepartureDate"
           />
-          <h2 className={styles.sectionHeader}>Origin Info</h2>
           <AddressFields
             name="ppmShipment.pickupAddress"
             legend="Pickup Address"
+            className={styles.pickupAddressHeading}
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -138,7 +138,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                       name="ppmShipment.hasSecondaryPickupAddress"
                       value="false"
                       title="No, there is not a second pickup address"
-                      checked={hasSecondaryPickupAddress !== 'true' && hasTertiaryPickupAddress !== 'true'}
+                      checked={hasSecondaryPickupAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
@@ -199,7 +199,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
               </>
             )}
           />
-          <h2 className={styles.sectionHeader}>Destination Info</h2>
           <AddressFields
             name="ppmShipment.destinationAddress"
             legend="Delivery Address"
@@ -236,7 +235,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                       name="ppmShipment.hasSecondaryDestinationAddress"
                       value="false"
                       title="No, there is not a second destination location"
-                      checked={hasSecondaryDestinationAddress !== 'true' && hasTertiaryDestinationAddress !== 'true'}
+                      checked={hasSecondaryDestinationAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
@@ -409,7 +408,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
           />
 
           <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
-          <h5 className={styles.sectionHeader}>Pickup Address</h5>
+          <h3 className={styles.sectionHeader}>Pickup Address</h3>
           <AddressFields
             name="pickupAddress"
             formikProps={{
@@ -436,7 +435,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                           name="hasSecondaryPickupAddress"
                           value="true"
                           title="Yes, there is a second pickup address"
-                          checked={hasSecondaryPickupAddress === 'true' && hasTertiaryPickupAddress !== 'true'}
+                          checked={hasSecondaryPickupAddress === 'true'}
                         />
                         <Field
                           as={Radio}
@@ -509,8 +508,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
               </>
             )}
           />
-
-          <h3 className={styles.sectionHeader}>Destination Info</h3>
           <AddressFields
             name="destinationAddress"
             legend="Delivery Address"
@@ -538,9 +535,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                           name="hasSecondaryDestinationAddress"
                           value="true"
                           title="Yes, there is a second delivery address"
-                          checked={
-                            hasSecondaryDestinationAddress === 'true' && hasTertiaryDestinationAddress !== 'true'
-                          }
+                          checked={hasSecondaryDestinationAddress === 'true'}
                         />
                         <Field
                           as={Radio}
