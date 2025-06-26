@@ -48,12 +48,6 @@ const DocumentViewerFileManager = ({
   const [isExpandedView, setIsExpandedView] = useState(false);
   const [buttonHeaderText, setButtonHeaderText] = useState(title !== null ? title : 'Manage Documents');
   const [buttonHeaderChevron, setButtonHeaderChevron] = useState('chevron-up');
-  const [pendingIDs, setPendingIDs] = useState(() => new Set());
-
-  // Files are already established from the backend
-  // When appending a new file, it will not be accessible until processing has completed, thus we filter it.
-  // This makes sure we do not show processing files by watching their IDs
-  const visibleFiles = React.useMemo(() => files.filter((f) => !pendingIDs.has(f.id)), [files, pendingIDs]);
 
   const moveId = move?.id;
   const moveCode = move?.locator;
@@ -116,6 +110,7 @@ const DocumentViewerFileManager = ({
       })
       .finally(() => {
         queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
+        setIsFileProcessing(false);
       });
   };
 
@@ -132,6 +127,7 @@ const DocumentViewerFileManager = ({
       })
       .finally(() => {
         queryClient.invalidateQueries([DOCUMENTS, mtoShipment.Id]);
+        setIsFileProcessing(false);
       });
   };
 
@@ -188,6 +184,7 @@ const DocumentViewerFileManager = ({
       })
       .finally(() => {
         queryClient.invalidateQueries([MOVES, moveCode]);
+        setIsFileProcessing(false);
       });
   };
 
@@ -221,48 +218,25 @@ const DocumentViewerFileManager = ({
 
   const handleUpload = async (file) => {
     setIsFileProcessing(true);
-    let uploadPromise;
     if (documentType === MOVE_DOCUMENT_TYPE.ORDERS) {
-      uploadPromise = uploadOrders(file);
+      uploadOrders(file);
     } else if (documentType === MOVE_DOCUMENT_TYPE.AMENDMENTS) {
-      uploadPromise = uploadAmdendedOrders(file);
+      uploadAmdendedOrders(file);
     } else if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
-      uploadPromise = uploadSupportingDocuments(file);
+      uploadSupportingDocuments(file);
     } else if (documentType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET) {
-      uploadPromise = handleCreateUpload(file, true);
+      handleCreateUpload(file, true);
     } else if (documentType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE) {
-      uploadPromise = handleCreateUpload(file, false);
+      handleCreateUpload(file, false);
     } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
-      uploadPromise = handleCreateUpload(file, false);
+      handleCreateUpload(file, false);
     } else if (documentType === PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET) {
-      uploadPromise = handleCreateUpload(file, false);
-    } else uploadPromise = handleCreateUpload(file, false);
-    // Upload is complete, but the processing is not.
-    // The next step will be waiting for the antivirus, which we must wait for FilePond
-    // to have its `load` func called. The FileUpload component will not let FilePond call `load`
-    // until the AV is done, hence until we handleChange of the file, we are still processing.
-    // Add this file to the pending IDs
-    uploadPromise.then((upload) => {
-      if (upload?.id) {
-        setPendingIDs((old) => new Set(old).add(upload.id));
-      }
-    });
-    return uploadPromise;
+      handleCreateUpload(file, false);
+    }
   };
 
-  const handleChange = (err, file) => {
-    // FilePond `load` called
-    // Processing complete
-    setIsFileProcessing(false);
-    if (file?.serverId) {
-      // FilePond provided file can now be removed from "Pending"
-      setPendingIDs((old) => {
-        const next = new Set(old);
-        next.delete(file.serverId);
-        return next;
-      });
-    }
-    filePondEl.current?.removeFile(file.id);
+  const handleChange = () => {
+    filePondEl.current?.removeFiles();
     queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
     setServerError('');
   };
@@ -314,7 +288,7 @@ const DocumentViewerFileManager = ({
                 {serverError}
               </Alert>
             )}
-            <UploadsTable className={styles.sectionWrapper} uploads={visibleFiles} onDelete={openDeleteFileModal} />
+            <UploadsTable className={styles.sectionWrapper} uploads={files} onDelete={openDeleteFileModal} />
             <div className={classnames(styles.upload, className)}>
               {fileUploadRequired && (
                 <Alert type="error" id="fileRequiredAlert" data-testid="fileRequiredAlert">
