@@ -90,7 +90,7 @@ test.describe('Prime simulator user', () => {
     const locationLookup = 'JOSHUA TREE, CA 92252 (SAN BERNARDINO)';
     const countrySearch = 'UNITED STATES';
     await page.locator('input[id="destinationAddress-country-input"]').fill(countrySearch);
-    let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    const spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await page.keyboard.press('Enter');
     const deliveryLocator = page.locator('input[id="destinationAddress-input"]');
@@ -156,7 +156,7 @@ test.describe('Prime simulator user', () => {
     const locationLookup = 'JOSHUA TREE, CA 92252 (SAN BERNARDINO)';
     const countrySearch = 'UNITED STATES';
     await page.locator('input[id="destinationAddress-country-input"]').fill(countrySearch);
-    let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    const spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
     await expect(spanLocator).toBeVisible();
     await page.keyboard.press('Enter');
     const deliveryLocator = page.locator('input[id="destinationAddress-input"]');
@@ -321,8 +321,8 @@ test.describe('Prime simulator user', () => {
   test('HHG is able select third address without affecting second address selection', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationSITOutDate();
     const moveLocator = move.locator;
-    const countrySearch = "UNITED STATES";
-    
+    const countrySearch = 'UNITED STATES';
+
     await officePage.signInAsNewPrimeSimulatorUser();
     await page.locator('#moveCode').fill(moveLocator);
     await page.locator('#moveCode').press('Enter');
