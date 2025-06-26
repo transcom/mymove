@@ -114,7 +114,7 @@ func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, par
 		query.Where("mto_shipments.updated_at >= ?", params.Since)
 	}
 
-	if params.Branch != nil && *params.Branch == models.AffiliationMARINES.String() {
+	if params.Affiliation != nil && *params.Affiliation == models.AffiliationMARINES.String() {
 		query.Where("service_members.affiliation = ?", models.AffiliationMARINES)
 	} else {
 		query.Where("service_members.affiliation = ?", models.AffiliationNAVY)

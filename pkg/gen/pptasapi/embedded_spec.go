@@ -64,8 +64,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Return moves for this branch, defaults to NAVY.",
-            "name": "branch",
+            "description": "Return moves for this affiliation, defaults to NAVY.",
+            "name": "affiliation",
             "in": "query"
           }
         ],
@@ -980,8 +980,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Return moves for this branch, defaults to NAVY.",
-            "name": "branch",
+            "description": "Return moves for this affiliation, defaults to NAVY.",
+            "name": "affiliation",
             "in": "query"
           }
         ],

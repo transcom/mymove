@@ -37,9 +37,9 @@ paths:
           format: date-time
           description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
         - in: query
-          name: branch
+          name: affiliation
           type: string
-          description: Return moves for this branch, defaults to NAVY.
+          description: Return moves for this affiliation, defaults to NAVY.
       responses:
         '200':
           description: Successfully retrieved pptas reports. A successful fetch might still return zero pptas reports.

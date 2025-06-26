@@ -141,8 +141,8 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 		var movesForReport models.Moves
 		time := time.Now().AddDate(0, 0, -50)
 		pptasFetcherParams := services.MovesForPPTASFetcherParams{
-			Since:  &time,
-			Branch: models.StringPointer("NAVY"),
+			Since:       &time,
+			Affiliation: models.StringPointer("NAVY"),
 		}
 		movesForReport, err := reportListFetcher.GetMovesForReportBuilder(appCtx, &pptasFetcherParams)
 		suite.NoError(err)
@@ -281,8 +281,8 @@ func (suite *ReportServiceSuite) TestReportFetcherMarines() {
 		var movesForReport models.Moves
 		time := time.Now().AddDate(0, 0, -50)
 		pptasFetcherParams := services.MovesForPPTASFetcherParams{
-			Since:  &time,
-			Branch: models.StringPointer("MARINES"),
+			Since:       &time,
+			Affiliation: models.StringPointer("MARINES"),
 		}
 		movesForReport, err := reportListFetcher.GetMovesForReportBuilder(appCtx, &pptasFetcherParams)
 		suite.NoError(err)
@@ -385,8 +385,8 @@ func (suite *ReportServiceSuite) TestReportFetcherBranches() {
 		var movesForReport models.Moves
 		time := time.Now().AddDate(0, 0, -50)
 		pptasFetcherParams := services.MovesForPPTASFetcherParams{
-			Since:  &time,
-			Branch: models.StringPointer("NAVY"),
+			Since:       &time,
+			Affiliation: models.StringPointer("NAVY"),
 		}
 		movesForReport, err := reportListFetcher.GetMovesForReportBuilder(appCtx, &pptasFetcherParams)
 		suite.NoError(err)

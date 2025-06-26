@@ -32,8 +32,8 @@ type MoveFetcher interface {
 
 // MovesForPPTASFetcherParams is a struct used to pass filter arguments to FetchMovesForPPTASReports
 type MovesForPPTASFetcherParams struct {
-	Since  *time.Time
-	Branch *string
+	Since       *time.Time
+	Affiliation *string
 }
 
 type MoveFetcherBulkAssignment interface {

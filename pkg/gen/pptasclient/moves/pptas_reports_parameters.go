@@ -61,11 +61,11 @@ PptasReportsParams contains all the parameters to send to the API endpoint
 */
 type PptasReportsParams struct {
 
-	/* Branch.
+	/* Affiliation.
 
-	   Return moves for this branch, defaults to NAVY.
+	   Return moves for this affiliation, defaults to NAVY.
 	*/
-	Branch *string
+	Affiliation *string
 
 	/* Since.
 
@@ -128,15 +128,15 @@ func (o *PptasReportsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBranch adds the branch to the pptas reports params
-func (o *PptasReportsParams) WithBranch(branch *string) *PptasReportsParams {
-	o.SetBranch(branch)
+// WithAffiliation adds the affiliation to the pptas reports params
+func (o *PptasReportsParams) WithAffiliation(affiliation *string) *PptasReportsParams {
+	o.SetAffiliation(affiliation)
 	return o
 }
 
-// SetBranch adds the branch to the pptas reports params
-func (o *PptasReportsParams) SetBranch(branch *string) {
-	o.Branch = branch
+// SetAffiliation adds the affiliation to the pptas reports params
+func (o *PptasReportsParams) SetAffiliation(affiliation *string) {
+	o.Affiliation = affiliation
 }
 
 // WithSince adds the since to the pptas reports params
@@ -158,18 +158,18 @@ func (o *PptasReportsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 	}
 	var res []error
 
-	if o.Branch != nil {
+	if o.Affiliation != nil {
 
-		// query param branch
-		var qrBranch string
+		// query param affiliation
+		var qrAffiliation string
 
-		if o.Branch != nil {
-			qrBranch = *o.Branch
+		if o.Affiliation != nil {
+			qrAffiliation = *o.Affiliation
 		}
-		qBranch := qrBranch
-		if qBranch != "" {
+		qAffiliation := qrAffiliation
+		if qAffiliation != "" {
 
-			if err := r.SetQueryParam("branch", qBranch); err != nil {
+			if err := r.SetQueryParam("affiliation", qAffiliation); err != nil {
 				return err
 			}
 		}

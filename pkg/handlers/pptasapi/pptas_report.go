@@ -32,14 +32,14 @@ func (h PPTASReportsHandler) Handle(params pptasop.PptasReportsParams) middlewar
 			clientCert := authentication.ClientCertFromContext(appCtx.HTTPRequest().Context())
 
 			if clientCert.PPTASAffiliation != nil {
-				params.Branch = (*string)(clientCert.PPTASAffiliation)
+				params.Affiliation = (*string)(clientCert.PPTASAffiliation)
 			}
 
-			if params.Branch != nil {
-				if *params.Branch == models.AffiliationNAVY.String() || *params.Branch == models.AffiliationMARINES.String() {
-					searchParams.Branch = params.Branch
+			if params.Affiliation != nil {
+				if *params.Affiliation == models.AffiliationNAVY.String() || *params.Affiliation == models.AffiliationMARINES.String() {
+					searchParams.Affiliation = params.Affiliation
 				} else {
-					appCtx.Logger().Error("Invalid branch provided for filtering reports", zap.String("branch", *params.Branch))
+					appCtx.Logger().Error("Invalid branch provided for filtering reports", zap.String("branch", *params.Affiliation))
 					return pptasop.NewPptasReportsBadRequest().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), nil
 				}
 			}

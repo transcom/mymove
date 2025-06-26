@@ -32,10 +32,10 @@ type PptasReportsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Return moves for this branch, defaults to NAVY.
+	/*Return moves for this affiliation, defaults to NAVY.
 	  In: query
 	*/
-	Branch *string
+	Affiliation *string
 	/*Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
 	  In: query
 	*/
@@ -53,8 +53,8 @@ func (o *PptasReportsParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	qs := runtime.Values(r.URL.Query())
 
-	qBranch, qhkBranch, _ := qs.GetOK("branch")
-	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
+	qAffiliation, qhkAffiliation, _ := qs.GetOK("affiliation")
+	if err := o.bindAffiliation(qAffiliation, qhkAffiliation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -68,8 +68,8 @@ func (o *PptasReportsParams) BindRequest(r *http.Request, route *middleware.Matc
 	return nil
 }
 
-// bindBranch binds and validates parameter Branch from query.
-func (o *PptasReportsParams) bindBranch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindAffiliation binds and validates parameter Affiliation from query.
+func (o *PptasReportsParams) bindAffiliation(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -81,7 +81,7 @@ func (o *PptasReportsParams) bindBranch(rawData []string, hasKey bool, formats s
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-	o.Branch = &raw
+	o.Affiliation = &raw
 
 	return nil
 }
