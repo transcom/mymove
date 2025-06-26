@@ -273,9 +273,6 @@ IF update_table THEN
 
 END IF;
 
-RAISE NOTICE 'PPM: %', ppm_id;
-RAISE NOTICE 'Total Incentive: %', total_incentive;
-
 return QUERY
 select
     total_incentive,
