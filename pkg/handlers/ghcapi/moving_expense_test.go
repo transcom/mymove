@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 			Match: false,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		if !closeoutForCustomerFeatureFlag {
 			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
@@ -134,7 +134,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		).Return(nil, serverErr)
 
 		handler := CreateMovingExpenseHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 		}
 
@@ -740,7 +740,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 			Match: false,
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		if !closeoutForCustomerFeatureFlag {
 			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",

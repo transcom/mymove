@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { bool, PropTypes } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import moment from 'moment';
@@ -18,12 +18,7 @@ import { filenameFromPath } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
 import Alert from 'shared/Alert';
-
-/**
- * TODO
- * - implement next/previous pages instead of scroll through pages
- * - implement rotate left/right
- */
+import { hasRotationChanged, toRotatedDegrees, toRotatedPosition } from 'shared/utils';
 
 const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploading }) => {
   const [selectedFileIndex, selectFile] = useState(0);
@@ -63,16 +58,23 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
     },
   });
 
+  const fileTypeMap = useMemo(
+    () => ({
+      'application/pdf': 'pdf',
+      'image/png': 'png',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/gif': 'gif',
+    }),
+    [],
+  );
+
+  const fileType = useRef(selectedFile?.contentType);
+
   useEffect(() => {
-    const selectedFileHasRotation = selectedFile?.rotation !== undefined;
-    if (
-      (selectedFileHasRotation && selectedFile?.rotation !== rotationValue) ||
-      (!selectedFileHasRotation && rotationValue !== 0)
-    ) {
-      setDisableSaveButton(false);
-    } else {
-      setDisableSaveButton(true);
-    }
+    const savedRotation = selectedFile?.rotation;
+    const rotationChanged = hasRotationChanged(rotationValue, savedRotation, fileType.current);
+    setDisableSaveButton(!rotationChanged);
   }, [rotationValue, selectedFile, selectFile]);
 
   useEffect(() => {
@@ -87,8 +89,10 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
 
   useEffect(() => {
     setShowContentError(false);
-    setRotationValue(selectedFile?.rotation || 0);
 
+    fileType.current = fileTypeMap[selectedFile?.contentType] || '';
+    const initialRotation = toRotatedDegrees(selectedFile?.rotation, fileType.current);
+    setRotationValue(initialRotation);
     const handleFileProcessing = async (status) => {
       switch (status) {
         case UPLOAD_SCAN_STATUS.PROCESSING:
@@ -130,7 +134,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
     return () => {
       sse?.close();
     };
-  }, [selectedFile, isFileUploading, isJustUploadedFile]);
+  }, [selectedFile, isFileUploading, isJustUploadedFile, fileTypeMap]);
   useEffect(() => {
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
       setTimeout(() => {
@@ -138,7 +142,6 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
       }, 2000);
     }
   }, [fileStatus]);
-  const fileType = useRef(selectedFile?.contentType);
 
   const getStatusMessage = (currentFileStatus, currentSelectedFile) => {
     switch (currentFileStatus) {
@@ -182,16 +185,6 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
     closeMenu();
   };
 
-  const fileTypeMap = {
-    'application/pdf': 'pdf',
-    'image/png': 'png',
-    'image/jpeg': 'jpg',
-    'image/jpg': 'jpg',
-    'image/gif': 'gif',
-  };
-
-  fileType.current = fileTypeMap[selectedFile?.contentType] || '';
-
   const selectedFilename = filenameFromPath(selectedFile?.filename);
 
   const selectedFileDate = formatDate(moment(selectedFile?.createdAt), 'DD MMM YYYY');
@@ -202,9 +195,11 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   };
 
   const saveRotation = () => {
-    if (fileType.current !== 'pdf' && mountedRef.current === true) {
+    if (mountedRef.current === true) {
+      const rotationPosition = toRotatedPosition(rotationValue, fileType.current);
+
       const uploadBody = {
-        rotation: rotationValue,
+        rotation: rotationPosition,
       };
       mutateUploads({ uploadID: selectedFile?.id, body: uploadBody });
       setDisableSaveButton(true);

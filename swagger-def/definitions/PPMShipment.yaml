@@ -81,16 +81,6 @@ properties:
     type: boolean
     x-omitempty: false
     x-nullable: true
-  actualPickupPostalCode:
-    description: >
-      The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
-    format: zip
-    type: string
-    title: ZIP
-    example: '90210'
-    pattern: ^(\d{5})$
-    x-nullable: true
-    x-omitempty: false
   destinationAddress:
     $ref: 'Address.yaml'
   secondaryDestinationAddress:
@@ -111,16 +101,6 @@ properties:
     type: boolean
     x-omitempty: false
     x-nullable: true
-  actualDestinationPostalCode:
-    description: >
-      The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
-    format: zip
-    type: string
-    title: ZIP
-    example: '90210'
-    pattern: ^(\d{5})$
-    x-nullable: true
-    x-omitempty: false
   sitExpected:
     description: |
       Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
@@ -153,6 +133,17 @@ properties:
     x-omitempty: false
   spouseProGearWeight:
     description: The estimated weight of the pro-gear being moved belonging to a spouse.
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  hasGunSafe:
+    description: >
+      Indicates whether PPM shipment has gun safe.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  gunSafeWeight:
+    description: The estimated weight of the gun safe being moved belonging to the service member.
     type: integer
     x-nullable: true
     x-omitempty: false

@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestPPMCloseoutSummaryValidation() {
 			UpdatedAt:     time.Now(),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validPPMCloseoutSummary, expErrors)
+		suite.verifyValidationErrors(&validPPMCloseoutSummary, expErrors, nil)
 	})
 
 	suite.Run("Test missing PPMShipmentID", func() {
@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestPPMCloseoutSummaryValidation() {
 			"ppmshipment_id": {"PPMShipmentID can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&invalidPPMCloseoutSummary, expErrors)
+		suite.verifyValidationErrors(&invalidPPMCloseoutSummary, expErrors, nil)
 	})
 }
 

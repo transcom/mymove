@@ -6,7 +6,7 @@ import styles from './ShipmentAccountingCodes.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import AccountingCodeSection from 'components/Office/AccountingCodeSection/AccountingCodeSection';
 import { AccountingCodesShape } from 'types/accountingCodes';
 

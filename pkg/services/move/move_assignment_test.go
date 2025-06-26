@@ -386,4 +386,53 @@ func (suite *MoveServiceSuite) TestBulkMoveAssignment() {
 		suite.Equal(officeUser.ID, *move2.TIOAssignedID)
 		suite.Nil(move3.TIOAssignedID)
 	})
+
+	suite.Run("successfully assigns multiple destination requests moves to a TOO destination user", func() {
+		transportationOffice, move1, move2, move3 := setupTestData()
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []roles.Privilege{
+						{
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeTOO,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		moves := []models.Move{move1, move2, move3}
+		userData := []*ghcmessages.BulkAssignmentForUser{
+			{ID: strfmt.UUID(officeUser.ID.String()), MoveAssignments: 2},
+		}
+
+		_, err := moveAssigner.BulkMoveAssignment(suite.AppContextForTest(), string(models.QueueTypeDestinationRequest), userData, moves)
+		suite.NoError(err)
+
+		// reload move data to check assigned
+		suite.NoError(suite.DB().Reload(&move1))
+		suite.NoError(suite.DB().Reload(&move2))
+		suite.NoError(suite.DB().Reload(&move3))
+
+		suite.Equal(officeUser.ID, *move1.TOODestinationAssignedID)
+		suite.Equal(officeUser.ID, *move2.TOODestinationAssignedID)
+		suite.Nil(move3.TOODestinationAssignedID)
+	})
 }

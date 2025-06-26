@@ -61,3 +61,28 @@ export async function getRolesPrivileges() {
   const operationPath = 'Office users.getRolesPrivileges';
   return makeAdminRequest(operationPath, {}, { normalize: false });
 }
+
+export async function deleteUser(userId) {
+  const operationPath = 'Users.deleteUser';
+
+  return makeAdminRequest(
+    operationPath,
+    {
+      userId,
+    },
+    { normalize: false },
+  );
+}
+
+export async function updateUser(userId, user) {
+  const operationPath = 'Users.updateUser';
+
+  return makeAdminRequest(
+    operationPath,
+    {
+      userId,
+      User: user,
+    },
+    { normalize: false },
+  );
+}

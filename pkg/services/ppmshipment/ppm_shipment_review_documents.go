@@ -131,7 +131,7 @@ func (p *ppmShipmentReviewDocuments) convertSSWValuesToPPMCloseoutSummary(appCtx
 	}
 
 	// we currently only need data from pages 1 and 2 and not page 3
-	page1Data, page2Data, _, err := p.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, true)
+	page1Data, page2Data, _, err := p.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(appCtx, *ssfd, true)
 
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (p *ppmShipmentReviewDocuments) convertSSWValuesToPPMCloseoutSummary(appCtx
 	ppmCloseoutSummary.PPMShipmentID = ppmShipmentID
 
 	// values are in dollar format with $ need to convert to cents without $
-	if page1Data.MaxObligationGCCMaxAdvance != "" {
+	if page1Data.MaxObligationGCCMaxAdvance != "" && page1Data.MaxObligationGCCMaxAdvance != "Advance not available." {
 		maxAdvance, err := priceToCents(page1Data.MaxObligationGCCMaxAdvance)
 
 		if err != nil {
@@ -422,6 +422,10 @@ func getPriceParts(rawPrice string, expectedDecimalPlaces int) (int, int, error)
 }
 
 func priceToCents(rawPrice string) (int, error) {
+	s := strings.TrimSpace(rawPrice)
+	if !strings.Contains(s, "$") {
+		return 0, nil
+	}
 	integerPart, fractionalPart, err := getPriceParts(rawPrice, 2)
 	if err != nil {
 		return 0, fmt.Errorf("could not parse price [%s]: %w", rawPrice, err)

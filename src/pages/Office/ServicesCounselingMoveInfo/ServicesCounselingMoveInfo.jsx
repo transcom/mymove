@@ -38,6 +38,7 @@ const PPMReview = lazy(() => import('pages/Office/PPM/Closeout/Review/Review'));
 const PPMExpenses = lazy(() => import('pages/Office/PPM/Closeout/Expenses/Expenses'));
 const WeightTickets = lazy(() => import('pages/Office/PPM/Closeout/WeightTickets/WeightTickets'));
 const ProGear = lazy(() => import('pages/Office/PPM/Closeout/ProGear/ProGear'));
+const PPMFinalCloseout = lazy(() => import('pages/Office/PPM/Closeout/FinalCloseout/FinalCloseout'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
 );
@@ -74,15 +75,6 @@ const ServicesCounselingMoveInfo = () => {
   const { move, order, customerData, isLoading, isError, errors } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
-
-  const [supportingDocsFF, setSupportingDocsFF] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
-    };
-    fetchData();
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -194,6 +186,13 @@ const ServicesCounselingMoveInfo = () => {
         end: true,
       },
       pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
+        end: true,
+      },
+      pathname,
     );
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) {
@@ -265,6 +264,7 @@ const ServicesCounselingMoveInfo = () => {
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_PATH} end element={<PPMExpenses />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} end element={<PPMExpenses />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH} end element={<WeightTickets />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_COMPLETE_PATH} end element={<PPMFinalCloseout />} />
           <Route
             path={servicesCounselingRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH}
             end
@@ -313,13 +313,11 @@ const ServicesCounselingMoveInfo = () => {
             }
           />
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
-          {supportingDocsFF && (
-            <Route
-              path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
-              end
-              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
-            />
-          )}
+          <Route
+            path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
+            end
+            element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
+          />
           <Route
             path={servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}
             end

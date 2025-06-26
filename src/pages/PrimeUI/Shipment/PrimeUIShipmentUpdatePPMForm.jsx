@@ -5,7 +5,7 @@ import { Field, useFormikContext } from 'formik';
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
 import { LOCATION_TYPES } from 'types/sitStatusShape';

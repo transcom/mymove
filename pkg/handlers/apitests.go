@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -68,11 +69,11 @@ func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageNam
 	}
 }
 
-// HandlerConfig returns a mostly empty handler config for
+// NewHandlerConfig returns a mostly empty handler config for
 // testing.
 // NOTE: it returns the Config implementation, not the
-// HandlerConfig interface, so overrides can be made to the config
-func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
+// NewHandlerConfig interface, so overrides can be made to the config
+func (suite *BaseHandlerTestSuite) NewHandlerConfig() *Config {
 	// create a mock feature flag fetcher that always returns enabled
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 	mockGetFlagFunc := func(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string) (services.FeatureFlag, error) {
@@ -235,8 +236,8 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 		IDToken:         "fake token",
 		ServiceMemberID: serviceMember.ID,
 		Email:           serviceMember.User.OktaEmail,
+		ActiveRole:      roles.Role{},
 	}
-	session.Roles = append(session.Roles, serviceMember.User.Roles...)
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
@@ -254,13 +255,21 @@ func (suite *BaseHandlerTestSuite) AuthenticateUserRequest(req *http.Request, us
 
 // AuthenticateOfficeRequest authenticates Office users
 func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
+	// Some of our tests trigger non role-related errors, let them through without a role
+	// Users can be authenticated without a role, but they will never be authorized for the GHC API without one
+	var activeRole roles.Role
+	if len(user.User.Roles) != 0 {
+		defaultRole, err := user.User.Roles.Default()
+		suite.FatalNoError(err)
+		activeRole = *defaultRole
+	}
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          *user.UserID,
 		IDToken:         "fake token",
 		OfficeUserID:    user.ID,
+		ActiveRole:      activeRole,
 	}
-	session.Roles = append(session.Roles, user.User.Roles...)
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }

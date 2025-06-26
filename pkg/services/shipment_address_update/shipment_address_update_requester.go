@@ -280,11 +280,21 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
 
+	// Check if shipmentType's delivery address can be updated and set pickup address.
+	var originalPickupAddress models.Address
+	canUpdateDestAddress := models.PrimeCanUpdateDeliveryAddress(shipment.ShipmentType)
+	if canUpdateDestAddress {
+		originalPickupAddress = *shipment.PickupAddress
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
+			originalPickupAddress = shipment.StorageFacility.Address
+		}
+	}
+
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
-	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
-		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG and NTS-Release shipments")
+	if !canUpdateDestAddress {
+		return nil, apperror.NewUnprocessableEntityError("\ndestination address cannot be created or updated for PPM and NTS shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
@@ -387,34 +397,24 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	// international shipments don't need to be concerned with shorthaul/linehaul
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-			if err != nil {
-				return nil, err
-			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+		if canUpdateDestAddress {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "destination address cannot be updated for PPM and NTS shipments")
 		}
 	}
 
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-			if err != nil {
-				return nil, err
-			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+		if canUpdateDestAddress {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "destination address update requests cannot be updated for PPM and NTS shipments")
 		}
 	}
 
@@ -452,6 +452,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 		existingMoveStatus := move.Status
 		if updateNeedsTOOReview {
+			shipment.Status = models.MTOShipmentStatusApprovalsRequested
+
 			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 			if err != nil {
 				return err
@@ -502,7 +504,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.SITDurationUpdates", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -512,10 +514,11 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 	shipment = addressUpdate.Shipment
 	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		queryBuilder := query.NewQueryBuilder()
-		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator, f.portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, shipmentRouter, f.shipmentFetcher, f.addressCreator, f.portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(f.planner, queryBuilder, f.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
@@ -524,7 +527,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
 
 		var haulPricingTypeHasChanged bool
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
+		if shipment.ShipmentType == models.MTOShipmentTypeHHG || shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			haulPricingTypeHasChanged, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
@@ -535,7 +538,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be HHG, NTSr or UB")
 		}
 
 		var shipmentDetails models.MTOShipment
@@ -643,6 +646,14 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
 		addressUpdate.OfficeRemarks = &tooRemarks
+	}
+
+	if models.IsShipmentApprovable(shipment) {
+		shipment.Status = models.MTOShipmentStatusApproved
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
+	} else {
+		shipment.Status = models.MTOShipmentStatusApprovalsRequested
 	}
 
 	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {

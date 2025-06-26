@@ -84,6 +84,7 @@ const mockMTOShipment = {
       city: 'Jacksonville',
       state: 'FL',
       postalCode: '32217',
+      county: 'Duval',
       usPostRegionCitiesID: '',
     },
   },
@@ -94,8 +95,6 @@ const mockMTOShipment = {
 
 const partialPayload = {
   actualMoveDate: '2022-05-31',
-  actualPickupPostalCode: '78234',
-  actualDestinationPostalCode: '98421',
   pickupAddress: {
     streetAddress1: '812 S 129th St',
     streetAddress2: '#123',
@@ -127,6 +126,7 @@ const partialPayload = {
     city: 'Jacksonville',
     state: 'FL',
     postalCode: '32217',
+    county: 'Duval',
     usPostRegionCitiesID: '',
   },
 };
@@ -162,7 +162,6 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
 const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -221,7 +220,7 @@ describe('About page', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith(movePath);
+    expect(mockNavigate).toHaveBeenCalledWith(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId: mockMoveId }));
   });
 
   it('calls the patch shipment with the appropriate payload', async () => {

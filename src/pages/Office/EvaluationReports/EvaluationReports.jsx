@@ -34,8 +34,8 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
 
   const { mutate: deleteEvaluationReportMutation } = useMutation(deleteEvaluationReport, {
     onSuccess: async () => {
-      await queryClient.refetchQueries([COUNSELING_EVALUATION_REPORTS]);
-      await queryClient.refetchQueries(SHIPMENT_EVALUATION_REPORTS);
+      await queryClient.refetchQueries([COUNSELING_EVALUATION_REPORTS], moveCode);
+      await queryClient.refetchQueries([SHIPMENT_EVALUATION_REPORTS], moveCode);
     },
   });
 

@@ -11,9 +11,9 @@ import { FEATURE_FLAG_KEYS } from '../../shared/constants';
 
 import styles from './MovingInfo.module.scss';
 
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import { formatUBAllowanceWeight, formatWeight } from 'utils/formatters';
 import { selectCurrentOrders, selectServiceMemberFromLoggedInUser, selectUbAllowance } from 'store/entities/selectors';
@@ -42,11 +42,6 @@ export class MovingInfo extends Component {
   componentDidMount() {
     const { serviceMemberId, fetchLatestOrders } = this.props;
     fetchLatestOrders(serviceMemberId);
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      this.setState({
-        multiMoveFeatureFlag: enabled,
-      });
-    });
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         ppmFeatureFlag: enabled,
@@ -64,11 +59,9 @@ export class MovingInfo extends Component {
       },
     } = this.props;
 
-    let multiMove = false;
     let enablePPM = true;
     if (this.state) {
-      const { multiMoveFeatureFlag, ppmFeatureFlag } = this.state;
-      multiMove = multiMoveFeatureFlag;
+      const { ppmFeatureFlag } = this.state;
       enablePPM = ppmFeatureFlag;
     }
 
@@ -158,11 +151,7 @@ export class MovingInfo extends Component {
                 navigate(nextPath);
               }}
               onCancelClick={() => {
-                if (multiMove) {
-                  navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-                } else {
-                  navigate(generalRoutes.HOME_PATH);
-                }
+                navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
               }}
             />
           </Grid>

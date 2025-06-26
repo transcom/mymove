@@ -35,7 +35,8 @@ func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtension
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator(), portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())}
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, shipmentRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator(), portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())}
 }
 
 // DenySITExtension denies the SIT Extension
@@ -88,6 +89,20 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if err := f.updateSITExtension(txnAppCtx, sitExtension, officeRemarks, convertToCustomerExpense); err != nil {
 			return err
+		}
+
+		if models.IsShipmentApprovable(shipment) {
+			shipment.Status = models.MTOShipmentStatusApproved
+			approvedDate := time.Now()
+			shipment.ApprovedDate = &approvedDate
+			verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(
+					shipment.ID, err, verrs, "Invalid input found while updating shipment")
+			}
+			if err != nil {
+				return err
+			}
 		}
 
 		if _, err := f.moveRouter.ApproveOrRequestApproval(txnAppCtx, shipment.MoveTaskOrder); err != nil {

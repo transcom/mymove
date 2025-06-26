@@ -27,6 +27,14 @@ func (t *testUserQueryBuilder) UpdateOne(_ appcontext.AppContext, _ interface{},
 	return nil, nil
 }
 
+func (t *testUserQueryBuilder) DeleteOne(appCtx appcontext.AppContext, model interface{}) error {
+	return nil
+}
+
+func (t *testUserQueryBuilder) DeleteMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+	return nil
+}
+
 func (suite *UserServiceSuite) TestFetchUser() {
 	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()

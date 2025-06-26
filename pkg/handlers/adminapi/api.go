@@ -110,7 +110,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	}
 
 	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
-	transportaionOfficeAssignmentUpdater := transportationofficeassignments.NewTransportaionOfficeAssignmentUpdater()
+	transportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
@@ -118,7 +118,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		newRolesFetcher,
 		userPrivilegesCreator,
-		transportaionOfficeAssignmentUpdater,
+		transportationOfficeAssignmentUpdater,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
@@ -128,7 +128,8 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		userPrivilegesCreator,
 		user.NewUserSessionRevocation(queryBuilder),
-		transportaionOfficeAssignmentUpdater,
+		transportationOfficeAssignmentUpdater,
+		newRolesFetcher,
 	}
 
 	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{
@@ -186,6 +187,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		user.NewUserSessionRevocation(queryBuilder),
 		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
+	}
+
+	adminAPI.UsersDeleteUserHandler = DeleteUserHandler{
+		handlerConfig,
+		user.NewUserDeleter(queryBuilder),
 	}
 
 	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{

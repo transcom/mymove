@@ -10,7 +10,7 @@ import { useParams, useNavigate, generatePath } from 'react-router-dom';
 import { acknowledgeMovesAndShipments } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';

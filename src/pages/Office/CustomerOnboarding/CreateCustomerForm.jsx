@@ -14,7 +14,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { servicesCounselingRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { CheckboxField, DropdownInput } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
@@ -46,6 +46,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
   const backupContactName = 'backup_contact';
 
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+  const [isBluebarkMoveFF, setBluebarkMoveFF] = useState(false);
 
   const uniqueDodid = generateUniqueDodid();
   const uniqueEmplid = generateUniqueEmplid();
@@ -53,6 +54,12 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
   useEffect(() => {
     isBooleanFlagEnabled('safety_move')?.then((enabled) => {
       setSafetyMoveFF(enabled);
+    });
+  }, []);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('bluebark_move')?.then((enabled) => {
+      setBluebarkMoveFF(enabled);
     });
   }, []);
 
@@ -142,7 +149,13 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
           generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
             customerId,
           }),
-          { state: { isSafetyMoveSelected: isSafetyMove, isBluebarkMoveSelected: isBluebarkMove } },
+          {
+            state: {
+              isSafetyMoveSelected: isSafetyMove,
+              isBluebarkMoveSelected: isBluebarkMove,
+              affiliation: values.affiliation,
+            },
+          },
         );
       })
       .catch((e) => {
@@ -304,61 +317,65 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
               return (
                 <Form className={classnames(formStyles.form, styles.form)}>
                   <h1 className={styles.header}>Create Customer Profile</h1>
-                  <SectionWrapper className={sectionStyles}>
-                    <h3>Special Moves</h3>
-                    {isSafetyPrivileged && (
-                      <Fieldset className={styles.trailerOwnershipFieldset}>
-                        <legend className="usa-label">Is this a Safety move?</legend>
-                        <div className="grid-row grid-gap">
-                          <Field
-                            as={Radio}
-                            id="isSafetyMoveYes"
-                            label="Yes"
-                            name="is_safety_move"
-                            value="true"
-                            data-testid="is-safety-move-yes"
-                            onChange={handleIsSafetyMove}
-                            checked={values.is_safety_move === 'true'}
-                          />
-                          <Field
-                            as={Radio}
-                            id="isSafetyMoveNo"
-                            label="No"
-                            name="is_safety_move"
-                            value="false"
-                            data-testid="is-safety-move-no"
-                            onChange={handleIsSafetyMove}
-                            checked={values.is_safety_move === 'false'}
-                          />
-                        </div>
-                      </Fieldset>
-                    )}
-                    <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Is this a Bluebark move?</legend>
-                      <div className="grid-row grid-gap">
-                        <Field
-                          as={Radio}
-                          id="isBluebarkYes"
-                          label="Yes"
-                          name="is_bluebark"
-                          value="true"
-                          data-testid="is-bluebark-yes"
-                          onChange={handleBluebarkChange}
-                          checked={values.is_bluebark === 'true'}
-                        />
-                        <Field
-                          as={Radio}
-                          id="isBluebarkNo"
-                          label="No"
-                          name="is_bluebark"
-                          value="false"
-                          data-testid="is-bluebark-no"
-                          onChange={handleBluebarkChange}
-                          checked={values.is_bluebark === 'false'}
-                        />
-                      </div>
-                    </Fieldset>
-                  </SectionWrapper>
+                  {(isSafetyPrivileged || isBluebarkMoveFF) && (
+                    <SectionWrapper className={sectionStyles}>
+                      <h3>Special Moves</h3>
+                      {isSafetyPrivileged && (
+                        <Fieldset className={styles.trailerOwnershipFieldset}>
+                          <legend className="usa-label">Is this a Safety move?</legend>
+                          <div className="grid-row grid-gap">
+                            <Field
+                              as={Radio}
+                              id="isSafetyMoveYes"
+                              label="Yes"
+                              name="is_safety_move"
+                              value="true"
+                              data-testid="is-safety-move-yes"
+                              onChange={handleIsSafetyMove}
+                              checked={values.is_safety_move === 'true'}
+                            />
+                            <Field
+                              as={Radio}
+                              id="isSafetyMoveNo"
+                              label="No"
+                              name="is_safety_move"
+                              value="false"
+                              data-testid="is-safety-move-no"
+                              onChange={handleIsSafetyMove}
+                              checked={values.is_safety_move === 'false'}
+                            />
+                          </div>
+                        </Fieldset>
+                      )}
+                      {isBluebarkMoveFF && (
+                        <Fieldset className={styles.trailerOwnershipFieldset}>
+                          <legend className="usa-label">Is this a Bluebark move?</legend>
+                          <div className="grid-row grid-gap">
+                            <Field
+                              as={Radio}
+                              id="isBluebarkYes"
+                              label="Yes"
+                              name="is_bluebark"
+                              value="true"
+                              data-testid="is-bluebark-yes"
+                              onChange={handleBluebarkChange}
+                              checked={values.is_bluebark === 'true'}
+                            />
+                            <Field
+                              as={Radio}
+                              id="isBluebarkNo"
+                              label="No"
+                              name="is_bluebark"
+                              value="false"
+                              data-testid="is-bluebark-no"
+                              onChange={handleBluebarkChange}
+                              checked={values.is_bluebark === 'false'}
+                            />
+                          </div>
+                        </Fieldset>
+                      )}
+                    </SectionWrapper>
+                  )}
                   <SectionWrapper className={sectionStyles}>
                     <h3>Customer Affiliation</h3>
                     <DropdownInput

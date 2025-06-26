@@ -22,7 +22,9 @@ const CreateMoveCustomerInfo = () => {
     navigate('/');
   };
   const handleClose = () => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, { customerId }));
+    navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, { customerId }), {
+      state: { affiliation: customerData.agency },
+    });
   };
   const queryClient = useQueryClient();
   const { mutate: mutateCustomerInfo } = useMutation(updateCustomerInfo, {

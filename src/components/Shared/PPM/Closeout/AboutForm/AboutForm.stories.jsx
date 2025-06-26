@@ -72,8 +72,6 @@ RequiredValues.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       actualMoveDate: '2022-05-19',
-      actualPickupPostalCode: '10001',
-      actualDestinationPostalCode: '60652',
       hasReceivedAdvance: false,
       w2Address: validW2Address,
     },
@@ -89,8 +87,6 @@ OptionalValues.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       actualMoveDate: '2022-05-19',
-      actualPickupPostalCode: '10001',
-      actualDestinationPostalCode: '60652',
       hasReceivedAdvance: true,
       advanceAmountReceived: 456700,
       w2Address: {
@@ -139,8 +135,6 @@ InvalidZIPs.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       actualMoveDate: '2022-05-23',
-      actualPickupPostalCode: '10000',
-      actualDestinationPostalCode: '20000',
       w2Address: validW2Address,
     },
   },

@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestShipmentAddressUpdateValidation() {
 			NewAddressID:      newAddress.ID,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validAddressChange, expErrors)
+		suite.verifyValidationErrors(&validAddressChange, expErrors, nil)
 	})
 	suite.Run("test empty ShipmentAddressUpdate", func() {
 		emptyAddressChange := models.ShipmentAddressUpdate{}
@@ -32,7 +32,7 @@ func (suite *ModelSuite) TestShipmentAddressUpdateValidation() {
 			"contractor_remarks":  {"ContractorRemarks can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&emptyAddressChange, expErrors)
+		suite.verifyValidationErrors(&emptyAddressChange, expErrors, nil)
 	})
 	suite.Run("test invalid ShipmentAddressUpdate", func() {
 		validAddressChange := models.ShipmentAddressUpdate{
@@ -50,6 +50,6 @@ func (suite *ModelSuite) TestShipmentAddressUpdateValidation() {
 			"contractor_remarks":  {"ContractorRemarks can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&validAddressChange, expErrors)
+		suite.verifyValidationErrors(&validAddressChange, expErrors, nil)
 	})
 }
