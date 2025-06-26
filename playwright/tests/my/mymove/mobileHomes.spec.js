@@ -13,7 +13,7 @@ test.describe('Mobile Home shipment', () => {
 
     // Navigate from MM Dashboard to Move
     await customerPage.navigateFromMMDashboardToMove(move);
-    
+
     // Navigate to create a new shipment
     await page.getByTestId('goToMoveBtn').click();
     await customerPage.waitForPage.home();

@@ -445,7 +445,7 @@ test.describe('TOO user', () => {
       // Edit orders fields
 
       await tooFlowPage.selectDutyLocation('Fort Irwin', 'originDutyLocation');
-      // select the 5th option in the dropdown
+      // select the 1st option in the dropdown
       await tooFlowPage.selectDutyLocation('JB McGuire-Dix-Lakehurst', 'newDutyLocation', 1);
 
       await page.locator('input[name="issueDate"]').clear();
