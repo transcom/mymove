@@ -53,6 +53,12 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
+	// RequestedPickupDate must be in the future if set
+	err = MTOShipmentHasValidRequestedPickupDate().Validate(appCtx, shipment, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	err = f.router.Approve(appCtx, shipment)
 	if err != nil {
 		return nil, err
@@ -225,7 +231,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 
 		var pickupLocation *models.Address
 		var deliveryLocation *models.Address
-		var weight int
+		var weight *int
 
 		switch shipment.ShipmentType {
 		case models.MTOShipmentTypeHHGIntoNTS:
@@ -234,20 +240,26 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 			}
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = &shipment.StorageFacility.Address
-			weight = shipment.PrimeEstimatedWeight.Int()
+			if shipment.PrimeEstimatedWeight != nil {
+				weight = models.IntPointer(shipment.PrimeEstimatedWeight.Int())
+			}
 		case models.MTOShipmentTypeHHGOutOfNTS:
 			if shipment.StorageFacility == nil {
 				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTS)
 			}
 			pickupLocation = &shipment.StorageFacility.Address
 			deliveryLocation = shipment.DestinationAddress
-			weight = shipment.NTSRecordedWeight.Int()
+			if shipment.NTSRecordedWeight != nil {
+				weight = models.IntPointer(shipment.NTSRecordedWeight.Int())
+			}
 		default:
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = shipment.DestinationAddress
-			weight = shipment.PrimeEstimatedWeight.Int()
+			if shipment.PrimeEstimatedWeight != nil {
+				weight = models.IntPointer(shipment.PrimeEstimatedWeight.Int())
+			}
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode, shipment.MoveTaskOrderID, shipment.ShipmentType)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MoveTaskOrderID, shipment.ShipmentType)
 		if calcErr != nil {
 			return calcErr
 		}

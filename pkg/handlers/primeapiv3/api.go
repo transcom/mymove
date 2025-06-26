@@ -89,7 +89,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 
-	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()))
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf))
 
 	primeAPIV3.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
@@ -105,7 +105,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
-	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender())
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf)
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(
 		builder,
 		fetcher,

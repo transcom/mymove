@@ -1,10 +1,18 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 
-import watchFetchUser, { fetchUser } from './auth';
+import { watchFetchUser, fetchUser, watchHandleSetActiveRole, handleSetActiveRole } from './auth';
 
 import { setFlashMessage } from 'store/flash/actions';
-import { GetIsLoggedIn, GetLoggedInUser, GetOktaUser, GetAdminUser } from 'utils/api';
-import { LOAD_USER, getLoggedInUserStart, getLoggedInUserFailure } from 'store/auth/actions';
+import { GetIsLoggedIn, GetLoggedInUser, GetOktaUser, GetAdminUser, UpdateActiveRoleServerSession } from 'utils/api';
+import {
+  LOAD_USER,
+  getLoggedInUserStart,
+  getLoggedInUserFailure,
+  SET_ACTIVE_ROLE,
+  setActiveRoleSuccess,
+  setActiveRoleFailure,
+  loadUser,
+} from 'store/auth/actions';
 import { setAdminUser } from 'shared/Entities/actions';
 import { serviceName } from 'shared/constants';
 
@@ -166,5 +174,73 @@ describe('fetch underMaintenance', () => {
     expect(generator.next().value).toEqual(call(GetIsLoggedIn));
     expect(generator.next({ isLoggedIn: true, underMaintenance: false }).value).toEqual(call(GetLoggedInUser));
     // expect(generator.next().value).toEqual(put(setUnderMaintenance));
+  });
+});
+
+describe('watchHandleSetActiveRole saga', () => {
+  const generator = watchHandleSetActiveRole();
+
+  it('takes the latest SET_ACTIVE_ROLE and calls handleSetActiveRole', () => {
+    expect(generator.next().value).toEqual(takeLatest(SET_ACTIVE_ROLE, handleSetActiveRole));
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toBe(true);
+  });
+});
+
+describe('handleSetActiveRole saga', () => {
+  const roleType = 'someRole';
+
+  describe('when the API call succeeds', () => {
+    const gen = handleSetActiveRole({ payload: roleType });
+
+    it('calls UpdateActiveRoleServerSession with the roleType', () => {
+      expect(gen.next().value).toEqual(call(UpdateActiveRoleServerSession, roleType));
+    });
+
+    it('dispatches setActiveRoleSuccess', () => {
+      // next() simulates the API having resolved
+      expect(gen.next().value).toEqual(put(setActiveRoleSuccess(roleType)));
+    });
+
+    it('dispatches loadUser', () => {
+      // this makes sure the entity state fetches the latest session from the server
+      expect(gen.next().value).toEqual(put(loadUser()));
+    });
+
+    it('then finishes', () => {
+      expect(gen.next().done).toBe(true);
+    });
+  });
+
+  describe('when the API call throws an error', () => {
+    const error = new Error('some error');
+    const gen = handleSetActiveRole({ payload: roleType });
+
+    it('first calls UpdateActiveRoleServerSession', () => {
+      expect(gen.next().value).toEqual(call(UpdateActiveRoleServerSession, roleType));
+    });
+
+    it('dispatches setActiveRoleFailure on throw', () => {
+      expect(gen.throw(error).value).toEqual(put(setActiveRoleFailure(error)));
+    });
+
+    it('then dispatches a flash message', () => {
+      expect(gen.next().value).toEqual(
+        put(
+          setFlashMessage(
+            'USER_ACTIVE_ROLE_SET_ERROR',
+            'error',
+            'There was an error updating your active role.',
+            'An error occurred',
+          ),
+        ),
+      );
+    });
+
+    it('finally completes', () => {
+      expect(gen.next().done).toBe(true);
+    });
   });
 });

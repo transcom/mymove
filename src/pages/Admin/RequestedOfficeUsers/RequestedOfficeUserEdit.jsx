@@ -15,6 +15,8 @@ import {
   Confirm,
 } from 'react-admin';
 
+import adminStyles from '../adminStyles.module.scss';
+
 import styles from './RequestedOfficeUserShow.module.scss';
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
@@ -164,28 +166,7 @@ const RequestedOfficeUserEdit = () => {
             {validationCheck}
           </Alert>
         )}
-        <Toolbar sx={{ display: 'flex', gap: '10px' }}>
-          <SaveButton
-            type="button"
-            alwaysEnable
-            label="Approve"
-            mutationOptions={{
-              onSuccess: async (data) => {
-                await approve(data);
-              },
-            }}
-          />
-          <SaveButton
-            type="button"
-            color="error"
-            alwaysEnable
-            label="Reject"
-            mutationOptions={{
-              onSuccess: async (data) => {
-                await reject(data);
-              },
-            }}
-          />
+        <Toolbar className={adminStyles.flexSplit} sx={{ gap: '20px' }}>
           <DeleteButton
             mutationOptions={{
               onSuccess: async (data) => {
@@ -194,7 +175,47 @@ const RequestedOfficeUserEdit = () => {
                 handleClick();
               },
             }}
+            sx={{
+              backgroundColor: '#e1400a !important',
+              width: 120,
+              '&:hover': {
+                opacity: '0.8',
+              },
+            }}
           />
+          <div className={adminStyles.flexRight}>
+            <SaveButton
+              type="button"
+              alwaysEnable
+              label="Reject"
+              mutationOptions={{
+                onSuccess: async (data) => {
+                  await reject(data);
+                },
+              }}
+              sx={{
+                backgroundColor: 'transparent !important',
+                border: '1px solid #e1400a',
+                '&:hover': {
+                  opacity: '0.8',
+                },
+                color: '#e1400a',
+                '& .MuiSvgIcon-root': {
+                  color: '#e1400a',
+                },
+              }}
+            />
+            <SaveButton
+              type="button"
+              alwaysEnable
+              label="Approve"
+              mutationOptions={{
+                onSuccess: async (data) => {
+                  await approve(data);
+                },
+              }}
+            />
+          </div>
         </Toolbar>
       </>
     );

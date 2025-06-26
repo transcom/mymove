@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useLocation, generatePath } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -21,6 +21,8 @@ import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS } from 'constants/queryKeys';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
@@ -32,6 +34,11 @@ const validationSchema = Yup.object({
     .notRequired(),
   proGearWeightSpouse: Yup.number()
     .min(0, 'Spouse pro-gear weight must be greater than or equal to 0')
+    .max(500, "Enter a weight that does not go over the customer's maximum allowance")
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .notRequired(),
+  gunSafeWeight: Yup.number()
+    .min(0, 'Gun safe weight must be greater than or equal to 0')
     .max(500, "Enter a weight that does not go over the customer's maximum allowance")
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
@@ -80,7 +87,15 @@ const MoveAllowances = () => {
   const from = state?.from;
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
   const orderId = move?.ordersId;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const handleClose = useCallback(() => {
     let redirectPath;
@@ -125,6 +140,7 @@ const MoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit,
       gunSafe,
+      gunSafeWeight,
       adminRestrictedWeightLocation,
       weightRestriction,
       adminRestrictedUBWeightLocation,
@@ -156,6 +172,7 @@ const MoveAllowances = () => {
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
       ubAllowance: Number(values.ubAllowance),
     };
+    if (isGunSafeEnabled) body.gunSafeWeight = Number(gunSafeWeight);
 
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
@@ -167,6 +184,7 @@ const MoveAllowances = () => {
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
+    gunSafeWeight,
     weightRestriction,
     ubWeightRestriction,
     storageInTransit,
@@ -183,6 +201,7 @@ const MoveAllowances = () => {
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
+    gunSafeWeight: `${gunSafeWeight}`,
     adminRestrictedWeightLocation: weightRestriction > 0,
     weightRestriction: weightRestriction ? `${weightRestriction}` : '0',
     adminRestrictedUBWeightLocation: ubWeightRestriction > 0,
@@ -246,11 +265,11 @@ const MoveAllowances = () => {
               <Restricted to={permissionTypes.updateAllowances}>
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
-                    <Button disabled={formik.isSubmitting || !formik.isValid} type="submit">
-                      Save
-                    </Button>
                     <Button type="button" secondary onClick={handleClose}>
                       Cancel
+                    </Button>
+                    <Button disabled={formik.isSubmitting || !formik.isValid} type="submit">
+                      Save
                     </Button>
                   </div>
                 </div>

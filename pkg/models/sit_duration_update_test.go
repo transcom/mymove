@@ -80,7 +80,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 			CustomerExpense:   models.BoolPointer(false),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validSITExtension, expErrors)
+		suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 	})
 
 	suite.Run("test valid SITDurationUpdate for a SIT duration decrease", func() {
@@ -100,7 +100,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 			CustomerExpense:   models.BoolPointer(false),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validSITExtension, expErrors)
+		suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 	})
 
 	reasons := []models.SITDurationUpdateRequestReason{
@@ -122,7 +122,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 				Status:        models.SITExtensionStatusPending,
 			}
 			expErrors := map[string][]string{}
-			suite.verifyValidationErrors(&validSITExtension, expErrors)
+			suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 		})
 	}
 
@@ -130,6 +130,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		models.SITExtensionStatusPending,
 		models.SITExtensionStatusApproved,
 		models.SITExtensionStatusDenied,
+		models.SITExtensionStatusRemoved,
 	}
 
 	for _, status := range statuses {
@@ -141,7 +142,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 				Status:        status,
 			}
 			expErrors := map[string][]string{}
-			suite.verifyValidationErrors(&validSITExtension, expErrors)
+			suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 		})
 	}
 
@@ -161,9 +162,9 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		expErrors := map[string][]string{
 			"mtoshipment_id": {"MTOShipmentID can not be blank."},
 			"request_reason": {"RequestReason is not in the list [SERIOUS_ILLNESS_MEMBER, SERIOUS_ILLNESS_DEPENDENT, IMPENDING_ASSIGNEMENT, DIRECTED_TEMPORARY_DUTY, NONAVAILABILITY_OF_CIVILIAN_HOUSING, AWAITING_COMPLETION_OF_RESIDENCE, OTHER]."},
-			"status":         {"Status is not in the list [PENDING, APPROVED, DENIED]."},
+			"status":         {"Status is not in the list [PENDING, APPROVED, DENIED, REMOVED]."},
 			"decision_date":  {"DecisionDate can not be blank."},
 		}
-		suite.verifyValidationErrors(&validSITExtension, expErrors)
+		suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 	})
 }
