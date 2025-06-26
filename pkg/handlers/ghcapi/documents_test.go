@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	req = suite.AuthenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := GetDocumentHandler{handlerConfig}
@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestGetDocumentHandlerForFilenamesWithCommas() {
 	req = suite.AuthenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := GetDocumentHandler{handlerConfig}
@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 	params.HTTPRequest = req
 
-	handler := CreateDocumentHandler{HandlerConfig: suite.HandlerConfig()}
+	handler := CreateDocumentHandler{HandlerConfig: suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*documentop.CreateDocumentCreated)

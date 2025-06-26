@@ -4,6 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
@@ -25,7 +26,7 @@ const domesticShippingValidationSchema = Yup.object().shape({
   reason: Yup.string().required('Required'),
 });
 
-const DomesticCratingForm = ({ shipment, submission }) => {
+const DomesticCratingForm = ({ shipment, submission, handleCancel }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -64,7 +65,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
     <Formik initialValues={initialValues} validationSchema={domesticShippingValidationSchema} onSubmit={onSubmit}>
       {({ values }) => {
         return (
-          <Form data-testid="domesticCratingForm">
+          <Form data-testid="domesticCratingForm" className={formStyles.form}>
             <DropdownInput
               label="Service item code"
               name="reServiceCode"
@@ -150,7 +151,12 @@ const DomesticCratingForm = ({ shipment, submission }) => {
             />
             <TextField name="description" id="description" label="Description" showRequiredAsterisk required />
             <TextField name="reason" id="reason" label="Reason" showRequiredAsterisk required />
-            <Button type="submit">Create service item</Button>
+            <div className={formStyles.formActions}>
+              <Button type="button" secondary onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button type="submit">Create service item</Button>
+            </div>
           </Form>
         );
       }}

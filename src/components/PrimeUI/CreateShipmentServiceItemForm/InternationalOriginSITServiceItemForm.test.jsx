@@ -74,7 +74,7 @@ describe('InternationalOriginSITServiceItemForm component', () => {
     ['SIT postal code', 'sitPostalCode'],
     ['SIT entry Date', 'sitEntryDate'],
     ['SIT departure Date', 'sitDepartureDate'],
-    ['SIT HHG actual origin', 'sitHHGActualOrigin'],
+    ['SIT HHG actual origin address', 'sitHHGActualOrigin'],
   ])('renders field %s in form', (labelName) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
