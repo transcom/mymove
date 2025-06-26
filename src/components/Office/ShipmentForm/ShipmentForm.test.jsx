@@ -7,7 +7,7 @@ import moment from 'moment';
 import ShipmentForm from './ShipmentForm';
 
 import { PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 import { ADDRESS_UPDATE_STATUS, boatShipmentTypes, ppmShipmentStatuses } from 'constants/shipments';
 import { tooRoutes } from 'constants/routes';
@@ -243,7 +243,7 @@ const defaultProps = {
       unaccompaniedBaggageAllowance: 400,
     },
     agency: '',
-    grade: ORDERS_PAY_GRADE_OPTIONS.E_7,
+    grade: ORDERS_PAY_GRADE_TYPE.E_7,
   },
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],

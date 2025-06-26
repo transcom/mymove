@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficesHandler{
-			HandlerConfig:     suite.HandlerConfig(),
+			HandlerConfig:     suite.NewHandlerConfig(),
 			NewQueryFilter:    query.NewQueryFilter,
 			OfficeListFetcher: office.NewOfficeListFetcher(queryBuilder),
 			NewPagination:     pagination.NewPagination,
@@ -62,7 +62,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 		).Return(0, expectedError).Once()
 		handler := IndexOfficesHandler{
-			HandlerConfig:     suite.HandlerConfig(),
+			HandlerConfig:     suite.NewHandlerConfig(),
 			NewQueryFilter:    newQueryFilter,
 			OfficeListFetcher: officeListFetcher,
 			NewPagination:     pagination.NewPagination,
@@ -87,7 +87,7 @@ func (suite *HandlerSuite) TestGetOfficeByIdHandler() {
 		}
 
 		handler := GetOfficeByIdHandler{
-			HandlerConfig:                suite.HandlerConfig(),
+			HandlerConfig:                suite.NewHandlerConfig(),
 			NewQueryFilter:               query.NewQueryFilter,
 			TransportationOfficesFetcher: transportationoffice.NewTransportationOfficesFetcher(),
 		}
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestGetOfficeByIdHandler() {
 		).Return(nil, expectedError).Once()
 
 		handler := GetOfficeByIdHandler{
-			HandlerConfig:                suite.HandlerConfig(),
+			HandlerConfig:                suite.NewHandlerConfig(),
 			NewQueryFilter:               query.NewQueryFilter,
 			TransportationOfficesFetcher: officeFetcher,
 		}
