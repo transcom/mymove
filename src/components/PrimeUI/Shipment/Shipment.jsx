@@ -128,6 +128,10 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>{shipment.actualPickupDate}</dd>
       </div>
       <div className={descriptionListStyles.row}>
+        <dt>Required Delivery Date:</dt>
+        <dd>{shipment.requiredDeliveryDate}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
         <dt>Scheduled Delivery Date:</dt>
         <dd>{shipment.scheduledDeliveryDate}</dd>
       </div>

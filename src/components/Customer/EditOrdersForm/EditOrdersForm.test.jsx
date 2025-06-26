@@ -209,6 +209,7 @@ const testProps = {
     { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
     { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
+    { key: ORDERS_TYPE.WOUNDED_WARRIOR, value: ORDERS_TYPE_OPTIONS.WOUNDED_WARRIOR },
   ],
   currentDutyLocation: {},
   grade: '',
@@ -378,6 +379,7 @@ describe('EditOrdersForm component', () => {
       ['TEMPORARY_DUTY', 'TEMPORARY_DUTY'],
       [ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS],
       [ORDERS_TYPE.STUDENT_TRAVEL, ORDERS_TYPE.STUDENT_TRAVEL],
+      [ORDERS_TYPE.WOUNDED_WARRIOR, ORDERS_TYPE.WOUNDED_WARRIOR],
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
