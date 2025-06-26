@@ -265,7 +265,7 @@ const MovePaymentRequests = ({
             )}
           </Grid>
           <div className={styles.tioPaymentRequestsHeadingFlexbox}>
-            <h2>Payment Requests</h2>
+            <h1>Payment Requests</h1>
             <Restricted to={permissionTypes.updateFinancialReviewFlag}>
               <FinancialReviewButton
                 onClick={handleShowFinancialReviewModal}
@@ -295,7 +295,7 @@ const MovePaymentRequests = ({
               isMoveLocked={isMoveLocked}
             />
           </div>
-          <h1>Payment requests</h1>
+          <h2>Payment requests</h2>
           <div className={txoStyles.section} id="payment-requests">
             {paymentRequests?.length > 0 ? (
               paymentRequests.map((paymentRequest) => (

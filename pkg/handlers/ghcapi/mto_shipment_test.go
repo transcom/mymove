@@ -5721,6 +5721,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
 		// Need a logged in user
 		lgu := uuid.Must(uuid.NewV4()).String()
 		user := models.User{
@@ -6006,7 +6007,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 		handler := UpdateShipmentHandler{
-			suite.NewHandlerConfig(),
+			handlerConfig,
 			shipmentUpdater,
 			sitstatus.NewShipmentSITStatus(),
 		}
