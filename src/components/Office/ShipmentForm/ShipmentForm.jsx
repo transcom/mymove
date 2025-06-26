@@ -1467,7 +1467,7 @@ const ShipmentForm = (props) => {
                         <h3>PPM Type</h3>
                         <FormGroup>
                           <div>
-                            <Label className={styles.Label} htmlFor="ppmType">
+                            <Label htmlFor="ppmType">
                               <span>Indicate the PPM Type</span>
                             </Label>
                             <Field
@@ -1811,6 +1811,7 @@ const ShipmentForm = (props) => {
                       (values.advanceRequested !== mtoShipment.ppmShipment?.hasRequestedAdvance ||
                         values.advance !== mtoShipment.ppmShipment?.advanceAmountRequested)
                     }
+                    isAdvancePage={isAdvancePage}
                   />
                 )}
 

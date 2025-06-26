@@ -30,6 +30,7 @@ import departmentIndicators from 'constants/departmentIndicators';
 import { generateUniqueDodid, generateUniqueEmplid } from 'utils/customer';
 import Hint from 'components/Hint';
 import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddOrders }) => {
   const [serverError, setServerError] = useState(null);
@@ -385,6 +386,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   )}
                   <SectionWrapper className={sectionStyles}>
                     <h3>Customer Affiliation</h3>
+                    {requiredAsteriskMessage}
                     <DropdownInput
                       label="Branch of service"
                       name="affiliation"
@@ -396,6 +398,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                         handleBranchChange(e);
                       }}
                       options={branchOptions}
+                      showRequiredAsterisk
                     />
                     <TextField
                       label="DoD ID number"
@@ -404,6 +407,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       maxLength="10"
                       isDisabled={isSafetyMove}
                       data-testid="edipiInput"
+                      showRequiredAsterisk
+                      required
                     />
                     {showEmplid && (
                       <TextField
@@ -415,6 +420,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                         pattern="[0-9]{7}"
                         isDisabled={isSafetyMove}
                         data-testid="emplidInput"
+                        showRequiredAsterisk
+                        required
                       />
                     )}
                     {isSafetyMove && showSafetyMoveHint && (
@@ -425,13 +432,15 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Customer Name</h3>
-                    <TextField label="First name" name="first_name" id="firstName" required />
-                    <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
-                    <TextField label="Last name" name="last_name" id="lastName" required />
-                    <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+                    {requiredAsteriskMessage}
+                    <TextField label="First name" name="first_name" id="firstName" showRequiredAsterisk required />
+                    <TextField label="Middle name" name="middle_name" id="middleName" />
+                    <TextField label="Last name" name="last_name" id="lastName" showRequiredAsterisk required />
+                    <TextField label="Suffix" name="suffix" id="suffix" />
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Contact Info</h3>
+                    {requiredAsteriskMessage}
                     <MaskedTextField
                       label="Best contact phone"
                       id="telephone"
@@ -439,19 +448,25 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       type="tel"
                       minimum="12"
                       mask="000{-}000{-}0000"
+                      showRequiredAsterisk
                       required
                     />
                     <MaskedTextField
                       label="Alt. phone"
-                      labelHint="Optional"
                       id="altTelephone"
                       name="secondary_telephone"
                       type="tel"
                       minimum="12"
                       mask="000{-}000{-}0000"
                     />
-                    <TextField label="Personal email" id="personalEmail" name="personal_email" required />
-                    <Label>Preferred contact method (optional)</Label>
+                    <TextField
+                      label="Personal email"
+                      id="personalEmail"
+                      name="personal_email"
+                      showRequiredAsterisk
+                      required
+                    />
+                    <Label>Preferred contact method</Label>
                     <div className={formStyles.radioGroup}>
                       <CheckboxField id="phoneIsPreferred" label="Phone" name="phone_is_preferred" />
                       <CheckboxField id="emailIsPreferred" label="Email" name="email_is_preferred" />
@@ -467,14 +482,28 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Backup Contact</h3>
+                    {requiredAsteriskMessage}
                     <TextField
                       label="First Name"
                       id="backupContactFirstName"
                       name="backup_contact.firstName"
+                      showRequiredAsterisk
                       required
                     />
-                    <TextField label="Last Name" id="backupContactLastName" name="backup_contact.lastName" required />
-                    <TextField label="Email" id="backupContactEmail" name="backup_contact.email" required />
+                    <TextField
+                      label="Last Name"
+                      id="backupContactLastName"
+                      name="backup_contact.lastName"
+                      showRequiredAsterisk
+                      required
+                    />
+                    <TextField
+                      label="Email"
+                      id="backupContactEmail"
+                      name="backup_contact.email"
+                      showRequiredAsterisk
+                      required
+                    />
                     <MaskedTextField
                       label="Phone"
                       id="backupContactTelephone"
@@ -482,14 +511,22 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       type="tel"
                       minimum="12"
                       mask="000{-}000{-}0000"
+                      // showRequiredAsterisk
                       required
                     />
                   </SectionWrapper>
                   {values.is_safety_move !== 'true' && values.is_bluebark !== 'true' && (
                     <SectionWrapper className={formStyles.formSection}>
                       <h3>Okta Account</h3>
+                      <span style={{ marginTop: '8px', marginBottom: '15px', display: 'block' }}>
+                        {requiredAsteriskMessage}
+                      </span>
                       <Fieldset className={styles.trailerOwnershipFieldset}>
-                        <legend className="usa-label">Do you want to create an Okta account for this customer?</legend>
+                        <legend className="usa-label">
+                          <span required>
+                            Do you want to create an Okta account for this customer? <RequiredAsterisk />
+                          </span>
+                        </legend>
                         <div className="grid-row grid-gap">
                           <Field
                             as={Radio}
@@ -514,8 +551,15 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   {values.is_safety_move !== 'true' && values.is_bluebark !== 'true' && (
                     <SectionWrapper className={formStyles.formSection}>
                       <h3>Non-CAC Users</h3>
+                      <span style={{ marginTop: '8px', marginBottom: '15px', display: 'block' }}>
+                        {requiredAsteriskMessage}
+                      </span>
                       <Fieldset className={styles.trailerOwnershipFieldset}>
-                        <legend className="usa-label">Does the customer have a CAC?</legend>
+                        <legend className="usa-label">
+                          <span required>
+                            Does the customer have a CAC? <RequiredAsterisk />
+                          </span>
+                        </legend>
                         <div className="grid-row grid-gap">
                           <Field
                             as={Radio}

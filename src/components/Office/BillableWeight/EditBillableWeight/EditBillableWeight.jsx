@@ -9,6 +9,7 @@ import styles from './EditBillableWeight.module.scss';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { formatWeight } from 'utils/formatters';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 function BillableWeightHintText({
   billableWeight,
@@ -135,6 +136,7 @@ export default function EditBillableWeight({
         <Formik enableReinitialize initialValues={initialValues} validationSchema={validationSchema}>
           {({ handleChange, values, isValid, errors, touched, setTouched }) => (
             <div className={styles.container}>
+              {requiredAsteriskMessage}
               {billableWeight ? (
                 <BillableWeightHintText
                   billableWeight={billableWeight}
@@ -161,11 +163,19 @@ export default function EditBillableWeight({
                   scale={0} // digits after point, 0 for integers
                   signed={false} // disallow negative
                   thousandsSeparator=","
+                  required
+                  aria-label="Billable weight"
                 >
                   {' '}
-                  lbs
+                  <span data-testid="billable-weight-label">
+                    lbs <RequiredAsterisk />
+                  </span>
                 </MaskedTextField>
-                <Label htmlFor="remarks">Remarks</Label>
+                <Label htmlFor="remarks">
+                  <span data-testid="remarks-label">
+                    Remarks <RequiredAsterisk />
+                  </span>
+                </Label>
                 <ErrorMessage
                   className={styles.errorMessage}
                   display={!!touched.billableWeightJustification && !!errors.billableWeightJustification}
@@ -187,6 +197,8 @@ export default function EditBillableWeight({
                     placeholder=""
                     onBlur={() => setTouched({ billableWeightJustification: true }, false)}
                     value={values.billableWeightJustification}
+                    aria-label="Remarks"
+                    required
                   />
                 </div>
               </Fieldset>

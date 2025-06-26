@@ -27,7 +27,7 @@ describe('AppealModal', () => {
   it('renders correctly with all fields and buttons', async () => {
     renderComponent();
     expect(screen.getByText('Leave Appeal Decision')).toBeInTheDocument();
-    expect(screen.getByLabelText('Remarks')).toBeInTheDocument();
+    expect(screen.getByLabelText('Remarks *')).toBeInTheDocument();
     expect(screen.getByLabelText('Sustained')).toBeInTheDocument();
     expect(screen.getByLabelText('Rejected')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled());
@@ -38,7 +38,7 @@ describe('AppealModal', () => {
     renderComponent();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled());
 
-    userEvent.click(screen.getByLabelText('Remarks'));
+    userEvent.click(screen.getByLabelText('Remarks *'));
     userEvent.click(screen.getByTestId('sustainedRadio'));
 
     await waitFor(() => {
@@ -50,7 +50,9 @@ describe('AppealModal', () => {
 
   it('the form successfully submits when all required fields are filled out', async () => {
     renderComponent();
-    await userEvent.type(screen.getByLabelText('Remarks'), 'These are my remarks');
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+    await userEvent.type(screen.getByLabelText('Remarks *'), 'These are my remarks');
     await userEvent.click(screen.getByTestId('sustainedRadio'));
 
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();

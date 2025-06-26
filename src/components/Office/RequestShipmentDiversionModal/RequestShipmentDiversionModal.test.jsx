@@ -87,6 +87,11 @@ describe('RequestShipmentDiversionModal', () => {
         .simulate('change', { target: { name: 'diversionReason', value: 'reasonable reason' } });
     });
 
+    expect(wrapper.text()).toContain('Fields marked with * are required.');
+    const label = wrapper.find('label[htmlFor="diversionReason"]');
+    expect(label.exists()).toBe(true);
+    expect(label.text()).toContain('*');
+
     wrapper.update();
 
     wrapper.find('button[data-testid="modalSubmitButton"]').simulate('click');

@@ -20,11 +20,17 @@ describe('RejectServiceItemModal', () => {
     },
   };
 
-  it('renders the component', () => {
+  it('renders the component and asterisks for required fields', () => {
     const wrapper = mount(
       <RejectServiceItemModal serviceItem={submittedServiceItem} onSubmit={jest.fn()} onClose={jest.fn()} />,
     );
     expect(wrapper.find('RejectServiceItemModal').exists()).toBe(true);
+
+    expect(wrapper.find('Hint').text()).toContain('Fields marked with * are required.');
+    const label = wrapper.find('label[htmlFor="rejectionReason"]');
+    expect(label.exists()).toBe(true);
+    expect(label.text()).toContain('Reason for rejection');
+    expect(label.text()).toContain('*');
   });
 
   it('closes the modal when close icon is clicked', () => {

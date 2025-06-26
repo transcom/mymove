@@ -27,7 +27,7 @@ describe('SubmitSITExtensionModal', () => {
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
     await render(<SubmitSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
-    const reasonInput = screen.getByLabelText('Reason for edit');
+    const reasonInput = screen.getByLabelText('Reason for edit *');
     const daysApprovedInput = screen.getByTestId('daysApproved');
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
@@ -53,7 +53,7 @@ describe('SubmitSITExtensionModal', () => {
   it('does not allow submission of 0 approved days', async () => {
     const mockOnSubmit = jest.fn();
     await render(<SubmitSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
-    const reasonInput = screen.getByLabelText('Reason for edit');
+    const reasonInput = screen.getByLabelText('Reason for edit *');
     const daysApprovedInput = screen.getByTestId('daysApproved');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
@@ -68,7 +68,7 @@ describe('SubmitSITExtensionModal', () => {
   it('changes the end date when the total days of SIT approved is changed', async () => {
     const mockOnSubmit = jest.fn();
     await render(<SubmitSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
-    const reasonInput = screen.getByLabelText('Reason for edit');
+    const reasonInput = screen.getByLabelText('Reason for edit *');
     const daysApprovedInput = screen.getByTestId('daysApproved');
     const sitEndDateInput = screen.getByPlaceholderText('DD MMM YYYY');
 
@@ -104,15 +104,22 @@ describe('SubmitSITExtensionModal', () => {
     });
   });
 
-  it('renders the summary SIT component', async () => {
+  it('renders the summary SIT component and asterisks for required fields', async () => {
     await render(<SubmitSITExtensionModal onSubmit={jest.fn()} onClose={jest.fn()} {...defaultValues} />);
 
     await waitFor(() => {
       expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
     });
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
     const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
     expect(sitStartAndEndTable).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('Calculated total SIT days')).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('60')).toBeInTheDocument();
+
+    const totalDaysSITApproved = screen.getByRole('columnheader', { name: 'Total days of SIT approved' });
+    expect(within(totalDaysSITApproved).getByText('*')).toBeInTheDocument();
+
+    const sitAuthEndDate = screen.getByRole('columnheader', { name: 'SIT authorized end date' });
+    expect(within(sitAuthEndDate).getByText('*')).toBeInTheDocument();
   });
 });

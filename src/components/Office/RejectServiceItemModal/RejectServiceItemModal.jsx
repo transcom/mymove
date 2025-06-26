@@ -15,6 +15,7 @@ import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItem
 import { ServiceItemDetailsShape } from 'types/serviceItems';
 import { formatDateFromIso } from 'utils/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const rejectionSchema = Yup.object().shape({
   rejectionReason: Yup.string().required('Required'),
@@ -79,6 +80,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                         </tbody>
                       </table>
                     </div>
+                    {requiredAsteriskMessage}
                     <TextField
                       id="rejectionReason"
                       name="rejectionReason"
@@ -86,6 +88,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                       type="text"
                       value={values.rejectionReason}
                       onChange={handleChange}
+                      showRequiredAsterisk
                     />
                     <div className={styles.modalActions}>
                       <Button secondary type="reset" onClick={() => onClose()} data-testid="backButton">

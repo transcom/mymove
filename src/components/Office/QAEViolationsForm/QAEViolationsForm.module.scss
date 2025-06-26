@@ -78,12 +78,15 @@
 
 .claimDatePicker {
   :global {
-    .usa-label {
-      @include u-font-weight(700);
+      .usa-label {
+        @include u-font-weight(700);
+        @include u-color('base-darker');
+      }
 
-      @include u-color('base-darker');
+      .usa-hint {
+        font-size: 0.875rem;
+      }
     }
-  }
 }
 
 .divider {

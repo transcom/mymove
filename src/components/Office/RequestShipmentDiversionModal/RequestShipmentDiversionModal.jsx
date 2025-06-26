@@ -8,6 +8,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import TextField from 'components/form/fields/TextField/TextField';
 import { Form } from 'components/form';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const diversionReasonSchema = Yup.object().shape({
   diversionReason: Yup.string().required('Required'),
@@ -44,6 +45,7 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
             {({ handleChange, values, isValid, dirty }) => {
               return (
                 <Form aria-label="diversion reason">
+                  {requiredAsteriskMessage}
                   <TextField
                     id="diversionReason"
                     name="diversionReason"
@@ -51,6 +53,8 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
                     type="text"
                     value={values.diversionReason}
                     onChange={handleChange}
+                    showRequiredAsterisk
+                    required
                   />
                   <ModalActions>
                     <Button secondary type="reset" onClick={() => onClose()} data-testid="modalBackButton">

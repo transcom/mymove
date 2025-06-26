@@ -423,7 +423,7 @@ describe('ReviewDocuments', () => {
       expect(screen.getByRole('button', { name: /close sidebar/i })).toBeInTheDocument();
     });
 
-    it('renders and handles the show/hide uploads button', async () => {
+    it('renders and handles the show/hide uploads button and shows asterisks for required fields', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
@@ -471,8 +471,10 @@ describe('ReviewDocuments', () => {
       expect(rejectOption).toBeInTheDocument();
       await userEvent.click(rejectOption);
 
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       const rejectionReason = 'Not legible';
-      const reasonTextBox = screen.getByLabelText('Reason');
+      const reasonTextBox = screen.getByLabelText('Reason *');
       expect(reasonTextBox).toBeInTheDocument();
       await userEvent.type(reasonTextBox, rejectionReason);
 
@@ -567,7 +569,7 @@ describe('ReviewDocuments', () => {
       await userEvent.click(rejectOption);
 
       const rejectionReason = 'Not legible';
-      const reasonTextBox = screen.getByLabelText('Reason');
+      const reasonTextBox = screen.getByLabelText('Reason *');
       expect(reasonTextBox).toBeInTheDocument();
       await userEvent.type(reasonTextBox, rejectionReason);
 

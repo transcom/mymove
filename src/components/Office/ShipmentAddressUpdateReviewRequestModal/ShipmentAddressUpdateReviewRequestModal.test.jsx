@@ -134,10 +134,12 @@ afterEach(() => {
 });
 
 describe('ShipmentAddressUpdateReviewRequestModal', () => {
-  it('renders the modal', async () => {
+  it('renders the modal and asterisks for required fields', async () => {
     render(
       <ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={jest.fn()} onClose={jest.fn()} />,
     );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     await waitFor(() => {
       // Shipment type flag
@@ -153,14 +155,14 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
       expect(screen.getByRole('heading', { level: 4, name: 'Review Request' })).toBeInTheDocument();
 
       // Form fields
-      const approvalQuestion = screen.getByRole('group', { name: 'Approve address change?' });
+      const approvalQuestion = screen.getByRole('group', { name: /Approve address change\?/i });
       expect(approvalQuestion).toBeInTheDocument();
       const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
       const approvalNo = within(approvalQuestion).getByRole('radio', { name: 'No' });
       expect(approvalYes).toBeInTheDocument();
       expect(approvalNo).toBeInTheDocument();
 
-      expect(screen.getByLabelText('Office remarks')).toBeInTheDocument();
+      expect(screen.getByLabelText('Office remarks *')).toBeInTheDocument();
       expect(screen.getByText('Office remarks will be sent to the contractor.')).toBeInTheDocument();
       expect(screen.getByTestId('officeRemarks')).toBeInTheDocument();
 
@@ -228,9 +230,10 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
 
     render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={onSubmit} onClose={jest.fn()} />);
 
-    const approvalQuestion = screen.getByRole('group', { name: 'Approve address change?' });
+    const approvalQuestion = screen.getByRole('group', { name: /Approve address change\?/i });
+    expect(within(approvalQuestion).getByText('*')).toBeInTheDocument();
     const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
-    const officeRemarks = screen.getByLabelText('Office remarks');
+    const officeRemarks = screen.getByLabelText('Office remarks *');
     const save = screen.getByRole('button', { name: 'Save' });
 
     await user.click(approvalYes);
