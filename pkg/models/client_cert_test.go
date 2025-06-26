@@ -20,12 +20,16 @@ func (suite *ModelSuite) Test_FetchClientCert() {
 
 	digest := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
 	subject := "/C=US/ST=DC/L=Washington/O=Test/OU=Test Cert/CN=localhost"
+	allowpptas := true
+	pptasaffiliation := (*models.ServiceMemberAffiliation)(models.StringPointer("MARINES"))
 	certNew := models.ClientCert{
-		Sha256Digest: digest,
-		Subject:      subject,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-		UserID:       userForClientCert.ID,
+		Sha256Digest:     digest,
+		Subject:          subject,
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
+		UserID:           userForClientCert.ID,
+		AllowPPTAS:       allowpptas,
+		PPTASAffiliation: pptasaffiliation,
 	}
 	suite.MustSave(&certNew)
 
@@ -33,6 +37,8 @@ func (suite *ModelSuite) Test_FetchClientCert() {
 	suite.NoError(err)
 	suite.Equal(cert.Sha256Digest, digest)
 	suite.Equal(cert.Subject, subject)
+	suite.Equal(cert.AllowPPTAS, allowpptas)
+	suite.Equal(cert.PPTASAffiliation, pptasaffiliation)
 }
 
 func (suite *ModelSuite) Test_FetchClientCertNotFound() {
