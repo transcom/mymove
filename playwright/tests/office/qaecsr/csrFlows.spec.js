@@ -41,7 +41,7 @@ test.describe('Customer Support User Flows', () => {
       const editString = '-edit';
       await page.locator('[data-testid="textarea"]').fill(testRemarkText);
       await expect(page.getByTestId('button').nth(1)).toBeEnabled();
-      await page.locator('[data-testid=form] > [data-testid=button]').click();
+      await page.getByTestId('button').nth(1).click();
       await expect(page.getByText('No remarks yet')).toHaveCount(0);
       await expect(page.getByText(testRemarkText)).toBeVisible();
 
@@ -76,8 +76,7 @@ test.describe('Customer Support User Flows', () => {
 
       // Add a new remark
       await page.locator('[data-testid="textarea"]').fill(testRemarkText);
-      await expect(page.locator('[data-testid=form] > [data-testid=button]')).toBeEnabled();
-      await page.locator('[data-testid=form] > [data-testid=button]').click();
+      await page.getByTestId('button').nth(1).click();
 
       // Open edit and cancel
       await page.locator('[data-testid="edit-remark-button"]').click();

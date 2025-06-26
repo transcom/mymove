@@ -133,7 +133,7 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewWeightTicket() {
-    const selector = this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 });
+    const selector = this.page.getByRole('heading', { name: /Review trip/, level: 3 });
     await selector.waitFor({ state: 'visible' });
   }
 

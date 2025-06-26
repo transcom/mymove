@@ -96,7 +96,8 @@ test.describe('Services counselor user', () => {
     await ppmPage.waitForLoading();
 
     // Verify SIT info
-    await expect(page.getByText(/Government constructed cost:/)).toBeVisible();
+    const selector = page.getByText(/Government constructed cost:/);
+    await selector.waitFor({ state: 'visible' });
     await expect(page.getByText('1,000 lbs of destination SIT at 76127 for 31 days.')).toBeVisible();
     // Verify estimated incentive
     await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();

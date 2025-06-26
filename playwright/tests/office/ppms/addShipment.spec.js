@@ -51,7 +51,8 @@ test.describe('Services counselor user', () => {
     await ppmPage.waitForLoading();
 
     // Fill out page two
-    await expect(page.getByText('Incentive & advance')).toBeVisible();
+    const selector = page.getByText('Incentive & advance');
+    await selector.waitFor({ state: 'visible' });
     await ppmPage.fillOutIncentiveAndAdvance({ advance: '5987' });
     await page.locator('[data-testid="counselor-remarks"]').fill('The requested advance amount has been added.');
     await page.locator('[data-testid="counselor-remarks"]').blur();
