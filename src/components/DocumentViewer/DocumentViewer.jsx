@@ -19,7 +19,6 @@ import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketD
 import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { hasRotationChanged, toRotatedDegrees, toRotatedPosition } from 'shared/utils';
-import { waitForAvScan } from 'services/internalApi';
 
 const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploading }) => {
   const [selectedFileIndex, selectFile] = useState(0);
@@ -115,21 +114,30 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
       setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
     }
 
-    if (selectedFile && !isFileUploading) {
-      // Begin scanning
-      handleFileProcessing(UPLOAD_SCAN_STATUS.PROCESSING); // Adjust label
-      waitForAvScan(selectedFile.id)
-        .then((status) => {
-          handleFileProcessing(status);
-        })
-        .catch((err) => {
-          if (err.message === UPLOAD_SCAN_STATUS.LEGACY_INFECTED || err.message === UPLOAD_SCAN_STATUS.THREATS_FOUND) {
-            handleFileProcessing(UPLOAD_SCAN_STATUS.THREATS_FOUND);
-          } else {
-            handleFileProcessing(UPLOAD_SCAN_STATUS.CONNECTION_CLOSED);
-          }
-        });
+    let sse;
+    if (selectedFile) {
+      sse = new EventSource(`/ghc/v1/uploads/${selectedFile.id}/status`, { withCredentials: true });
+      sse.onmessage = (event) => {
+        handleFileProcessing(event.data);
+        if (
+          event.data === UPLOAD_SCAN_STATUS.NO_THREATS_FOUND ||
+          event.data === UPLOAD_SCAN_STATUS.INFECTED ||
+          event.data === UPLOAD_SCAN_STATUS.LEGACY_CLEAN ||
+          event.data === UPLOAD_SCAN_STATUS.THREATS_FOUND ||
+          event.data === 'Connection closed'
+        ) {
+          sse.close();
+        }
+      };
+      sse.onerror = () => {
+        sse.close();
+        setFileStatus(null);
+      };
     }
+
+    return () => {
+      sse?.close();
+    };
   }, [selectedFile, isFileUploading, isJustUploadedFile, fileTypeMap]);
   useEffect(() => {
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
