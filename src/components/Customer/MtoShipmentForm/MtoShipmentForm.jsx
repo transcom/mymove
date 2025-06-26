@@ -592,7 +592,7 @@ class MtoShipmentForm extends Component {
                               )}
                             />
 
-                            <fieldset>
+                            <Fieldset>
                               <legend className={formStyles.legendContent}>Releasing agent</legend>
                               <ContactInfoFields
                                 name="pickup.agent"
@@ -610,7 +610,7 @@ class MtoShipmentForm extends Component {
                                   </>
                                 )}
                               />
-                            </fieldset>
+                            </Fieldset>
                           </SectionWrapper>
                         )}
 
@@ -803,7 +803,7 @@ class MtoShipmentForm extends Component {
                               )}
                             </Fieldset>
 
-                            <fieldset>
+                            <Fieldset>
                               <legend className={formStyles.legendContent}>Receiving agent</legend>
                               <ContactInfoFields
                                 name="delivery.agent"
@@ -821,7 +821,7 @@ class MtoShipmentForm extends Component {
                                   </>
                                 )}
                               />
-                            </fieldset>
+                            </Fieldset>
                           </SectionWrapper>
                         )}
 
