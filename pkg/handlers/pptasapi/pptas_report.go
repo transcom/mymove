@@ -44,7 +44,7 @@ func (h PPTASReportsHandler) Handle(params pptasop.PptasReportsParams) middlewar
 				}
 			}
 
-			movesForReport, err := h.GetMovesForReportBuilder(appCtx, &searchParams, *clientCert)
+			movesForReport, err := h.GetMovesForReportBuilder(appCtx, &searchParams)
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
 				return pptasop.NewPptasReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
