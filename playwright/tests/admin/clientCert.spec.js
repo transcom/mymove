@@ -1,9 +1,3 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
 import { test, expect } from '../utils/admin/adminTest';
 
@@ -52,8 +46,6 @@ test('Client Cert Create Page', async ({ page, adminPage }) => {
 
   // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
   const testEmail = `cy.admin_user.${Date.now()}@example.com`;
-
-  // create an admin user
   await page.getByLabel('Email').fill(testEmail);
 
   const firstName = page.getByLabel('Subject');
