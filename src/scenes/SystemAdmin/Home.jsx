@@ -142,6 +142,7 @@ const theme = deepmerge(defaultTheme, {
             backgroundColor: '#005ea2',
             color: '#fff',
             '&:hover': {
+              backgroundColor: '#005ea2',
               opacity: '0.8',
             },
           },
