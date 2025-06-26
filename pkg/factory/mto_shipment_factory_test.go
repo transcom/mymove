@@ -131,11 +131,12 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			PPMType: &partialType,
 		}
 
-		defaultRequestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-		defaultScheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
-		defaultActualPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
-		defaultRequestedDeliveryDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-		defaultScheduledDeliveryDate := time.Date(GHCTestYear, time.March, 17, 0, 0, 0, 0, time.UTC)
+		pickupDeliveryDate := time.Now().AddDate(0, 0, 5)
+		defaultRequestedPickupDate := time.Date(GHCTestYear, pickupDeliveryDate.Month(), pickupDeliveryDate.Day(), 0, 0, 0, 0, time.UTC)
+		defaultScheduledPickupDate := time.Date(GHCTestYear, pickupDeliveryDate.Month(), pickupDeliveryDate.Day(), 0, 0, 0, 0, time.UTC)
+		defaultActualPickupDate := time.Date(GHCTestYear, pickupDeliveryDate.Month(), pickupDeliveryDate.Day(), 0, 0, 0, 0, time.UTC)
+		defaultRequestedDeliveryDate := time.Date(GHCTestYear, pickupDeliveryDate.Month(), pickupDeliveryDate.Day(), 0, 0, 0, 0, time.UTC)
+		defaultScheduledDeliveryDate := time.Date(GHCTestYear, pickupDeliveryDate.Month(), pickupDeliveryDate.Day(), 0, 0, 0, 0, time.UTC)
 
 		mtoShipment := BuildMTOShipment(suite.DB(), nil, nil)
 

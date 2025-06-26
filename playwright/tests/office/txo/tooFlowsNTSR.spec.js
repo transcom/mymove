@@ -61,7 +61,8 @@ test.describe('TOO user', () => {
       await page.locator('#ntsRecordedWeight').clear();
       await page.locator('#ntsRecordedWeight').fill('3000');
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('15 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedPickupDate').fill(pickupDate);
 
       // Storage facility info
       await page.locator('#facilityName').fill('Sample Facility Name');
@@ -74,28 +75,42 @@ test.describe('TOO user', () => {
       await page.locator('#facilityServiceOrderNumber').blur();
 
       // Storage facility address
-      const LocationLookup = 'ATLANTA, GA 30301 (FULTON)';
+      const pickupLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
+      const destinationLocationLookup = 'YUMA, AZ 85365 (YUMA)';
+      const countrySearch = 'UNITED STATES';
 
       await page.locator('input[name="storageFacility.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.locator('input[id="storageFacility.address-input"]').fill('30301');
-      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+      await page.locator('input[id="pickupAddress-country-input"]').fill(countrySearch);
+      let spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const pickupLocator = page.locator('input[id="storageFacility.address-input"]');
+      await pickupLocator.click({ timeout: 5000 });
+      await pickupLocator.fill('30301');
+      await expect(page.getByText(pickupLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('#facilityLotNumber').fill('1111111');
       await page.locator('#facilityLotNumber').blur();
 
       // Delivery info
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+      const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
 
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="delivery.address.streetAddress2"]').clear();
       await page.locator('input[name="delivery.address.streetAddress2"]').fill('Suite 7A');
-      await page.locator('input[id="delivery.address-input"]').fill('30301');
-      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+      spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const deliveryLocator = page.locator('input[id="delivery.address-input"]');
+      await deliveryLocator.click({ timeout: 5000 });
+      await deliveryLocator.fill('85365');
+      await expect(page.getByText(destinationLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
       // TAC and SAC
@@ -117,9 +132,10 @@ test.describe('TOO user', () => {
 
       // edit the NTS shipment back to being handled by the GHC Prime contractor
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-      await expect(page.locator('[data-testid="alert"]')).toContainText(
-        'The GHC prime contractor is not handling the shipment.',
-      );
+      const selector = page
+        .locator('[data-testid="alert"]')
+        .getByText(/The GHC prime contractor is not handling the shipment./);
+      await selector.waitFor({ state: 'visible' });
 
       await page.locator('label[for="vendorPrime"]').click();
       await page.locator('[data-testid="submitForm"]').click();

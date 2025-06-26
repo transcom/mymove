@@ -31,7 +31,7 @@ test.describe('Customer Support User Flows', () => {
       );
       await expect(page.locator('[data-testid="textarea"]')).toHaveAttribute('placeholder', 'Add your remarks here');
 
-      await expect(page.locator('[data-testid=form] > [data-testid=button]')).toBeDisabled();
+      await expect(page.getByTestId('button').nth(1)).toBeDisabled();
 
       // Should not have remarks (yet)
       await expect(page.getByText('No remarks yet')).toBeVisible();
@@ -40,7 +40,7 @@ test.describe('Customer Support User Flows', () => {
       const testRemarkText = 'This is a test remark';
       const editString = '-edit';
       await page.locator('[data-testid="textarea"]').fill(testRemarkText);
-      await expect(page.locator('[data-testid=form] > [data-testid=button]')).toBeEnabled();
+      await expect(page.getByTestId('button').nth(1)).toBeEnabled();
       await page.locator('[data-testid=form] > [data-testid=button]').click();
       await expect(page.getByText('No remarks yet')).toHaveCount(0);
       await expect(page.getByText(testRemarkText)).toBeVisible();
