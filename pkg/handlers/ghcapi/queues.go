@@ -657,7 +657,7 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeServicesCounselor,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -668,7 +668,7 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
