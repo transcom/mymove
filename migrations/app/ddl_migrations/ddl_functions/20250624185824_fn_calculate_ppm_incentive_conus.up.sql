@@ -3,7 +3,7 @@
 DROP FUNCTION IF EXISTS public.calculate_ppm_incentive_conus(uuid, bool, bool, bool, bool);
 
 CREATE OR REPLACE FUNCTION public.calculate_ppm_incentive_conus(ppm_id uuid, is_estimated boolean, is_actual boolean, is_max boolean, update_table boolean)
- RETURNS TABLE(total_incentive numeric, price_dlh numeric, price_ddp numeric, price_dop numeric, price_dpk numeric, price_dupk numeric, price_fsc numeric)
+ RETURNS TABLE(total_incentive numeric, price_dsh numeric, price_dlh numeric, price_ddp numeric, price_dop numeric, price_dpk numeric, price_dupk numeric, price_fsc numeric)
  LANGUAGE plpgsql
 AS $function$
 declare
@@ -32,6 +32,8 @@ escalation_factor numeric;
 gcc_multiplier NUMERIC := 1.00;
 v_gcc_multiplier_id uuid;
 grade text;
+pickup_zip3 text;
+destination_zip3 text;
 
 begin
 
@@ -88,10 +90,6 @@ IF is_actual THEN
     AND wt.status NOT IN ('REJECTED', 'EXCLUDED');
 END IF;
 
-IF weight < 500 THEN
-  weight := 500;
-END IF;
-
 peak_period := is_peak_period(move_date);
 
 
@@ -110,46 +108,57 @@ if d_rate_area_id is null then
     raise exception 'Destination rate area is NULL for address ID %',destination_address_id;
 end if;
 
--- Calculate DLH price
-  service_id := get_service_id('DLH');
-  RAISE NOTICE 'DLH peak period: %', peak_period;
-  RAISE NOTICE 'DLH weight: %', weight;
-  RAISE NOTICE 'DLH mileage: %', mileage;
-    SELECT rdlp.price_millicents,
-           rdlp.weight_lower, rdlp.weight_upper,
-           rdlp.miles_lower,  rdlp.miles_upper
-      INTO raw_millicents, weight_lower_val, weight_upper_val,
-           miles_lower_val, miles_upper_val
+IF pickup_zip3 = destination_zip3 THEN
+    price_dlh := 0;
+    -- calculate DSH if ZIP3s are the same
+    service_id := get_service_id('DSH');
+    SELECT price_cents
+    INTO price_dsh
+    FROM re_domestic_service_area_prices dsap
+    JOIN re_domestic_service_areas sa ON dsap.domestic_service_area_id = sa.id
+    JOIN re_contracts c ON c.id = dsap.contract_id
+    JOIN re_zip3s rz ON pickup_zip3 = rz.zip3
+    WHERE dsap.contract_id = v_contract_id
+    AND dsap.service_id = (SELECT id FROM re_services WHERE code = 'DSH') 
+    AND dsap.is_peak_period = peak_period
+    AND dsap.domestic_service_area_id = sa.id
+    LIMIT 1;
+
+    price_dsh := ROUND(price_dsh * escalation_factor, 3);
+    --RAISE NOTICE 'DSH price with escalation factor: %', price_dsh;
+
+    price_dsh := ROUND(price_dsh * (weight::NUMERIC / 100) * mileage, 0);
+    --RAISE NOTICE 'DSH final price: %', price_dsh;
+  ELSE
+    price_dsh := 0;
+    -- calculate DLH instead
+    service_id := get_service_id('DLH');
+    SELECT rdlp.price_millicents
+    INTO raw_millicents
     FROM re_domestic_linehaul_prices AS rdlp
-    WHERE rdlp.contract_id    = v_contract_id
-      AND rdlp.is_peak_period = peak_period
-      AND weight   BETWEEN rdlp.weight_lower AND rdlp.weight_upper
-      AND mileage  BETWEEN rdlp.miles_lower  AND rdlp.miles_upper
-      AND EXISTS (
-          SELECT 1 FROM re_domestic_service_areas AS sa
-          JOIN re_zip3s AS rzs ON sa.id = rzs.domestic_service_area_id
-          JOIN addresses AS a ON LEFT(a.postal_code,3)=rzs.zip3
-          WHERE sa.id = rdlp.domestic_service_area_id AND a.id = pickup_address_id
-      );
-    --RAISE NOTICE 'DLH price: %', raw_millicents;
-    --RAISE NOTICE 'DLH lower weight: %', weight_lower_val;
-    --RAISE NOTICE 'DLH upper weight: %', weight_upper_val;
-    --RAISE NOTICE 'DLH lower miles: %', miles_lower_val;
-    --RAISE NOTICE 'DLH upper miles: %', miles_upper_val;
+    WHERE rdlp.contract_id = v_contract_id
+        AND rdlp.is_peak_period = peak_period
+        AND weight BETWEEN rdlp.weight_lower AND rdlp.weight_upper
+        AND mileage BETWEEN rdlp.miles_lower AND rdlp.miles_upper
+        AND EXISTS (
+            SELECT 1 
+            FROM re_domestic_service_areas AS sa
+            JOIN re_zip3s AS rzs ON sa.id = rzs.domestic_service_area_id
+            JOIN addresses AS a ON LEFT(a.postal_code, 3) = rzs.zip3
+            WHERE sa.id = rdlp.domestic_service_area_id 
+              AND a.id = pickup_address_id
+        );
 
     cents_per_cwt := ROUND(raw_millicents / 1000.0, 1);
     --RAISE NOTICE 'DLH cents_per_cwt: %', cents_per_cwt;
 
-    SELECT escalation_compounded INTO escalation_factor
-      FROM re_contract_years AS rcy
-     WHERE rcy.contract_id = v_contract_id
-       AND move_date BETWEEN rcy.start_date AND rcy.end_date;
-
-    cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 1);
+    cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 3);
     --RAISE NOTICE 'DLH cents_per_cwt with escalation factor: %', cents_per_cwt;
 
-    price_dlh := ROUND(cents_per_cwt * (weight::NUMERIC/100) * mileage, 0);
-     --RAISE NOTICE 'DLH final price: %', price_dlh;
+    price_dlh := ROUND(cents_per_cwt * (weight::NUMERIC / 100) * mileage, 0);
+    --RAISE NOTICE 'DLH final price: %', price_dlh;
+  END IF;
+
 -- Calculate DOP price
 service_id := get_service_id('DOP');
 price_dop := calculate_escalated_price_domestic(
@@ -223,24 +232,27 @@ price_fsc := ROUND((cents_above_baseline * price_difference) * 100);
 IF grade != 'CIVILIAN_EMPLOYEE' THEN --do not apply multiplier for Cilivilan PPMs
 
 	EXECUTE 'SELECT multiplier, id FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1' INTO gcc_multiplier, v_gcc_multiplier_id USING move_date;
-	RAISE NOTICE 'GCC Multiplier %', gcc_multiplier;
 	
 	IF price_dlh > 0 AND gcc_multiplier != 1.00 THEN
 	price_dlh := ROUND(price_dlh * gcc_multiplier);
 	END IF;
+
 	IF price_dop > 0 AND gcc_multiplier != 1.00 THEN
 	price_dop := ROUND(price_dop * gcc_multiplier);
 	END IF;
-	raise notice 'DOP price after multiplier: %', price_dop;
+
 	IF price_ddp > 0 AND gcc_multiplier != 1.00 THEN
 	price_ddp := ROUND(price_ddp * gcc_multiplier);
 	END IF;
+
 	IF price_dpk > 0 AND gcc_multiplier != 1.00 THEN
 	price_dpk := ROUND(price_dpk * gcc_multiplier);
 	END IF;
+
 	IF price_dupk > 0 AND gcc_multiplier != 1.00 THEN
 	price_dupk := ROUND(price_dupk * gcc_multiplier);
 	END IF;
+
 	IF price_fsc > 0 AND gcc_multiplier != 1.00 THEN
 	price_fsc := ROUND(price_fsc * gcc_multiplier);
 	END IF;
@@ -249,21 +261,31 @@ END IF;
 
 -- Calculate total incentive
 total_incentive := price_dlh + price_dop + price_ddp + price_dpk + price_dupk + price_fsc;
+
 IF update_table THEN
+
     UPDATE ppm_shipments
     SET estimated_incentive = CASE WHEN is_estimated THEN total_incentive ELSE estimated_incentive END,
     final_incentive = CASE WHEN is_actual THEN total_incentive ELSE final_incentive END,
     max_incentive = CASE WHEN is_max THEN total_incentive ELSE max_incentive END,
 	gcc_multiplier_id = v_gcc_multiplier_id
     WHERE id = ppm_id;
+
 END IF;
+
+RAISE NOTICE 'PPM: %', ppm_id;
+RAISE NOTICE 'Total Incentive: %', total_incentive;
+
 return QUERY
 select
     total_incentive,
+	price_dsh,
     price_dlh,
     price_ddp,  
     price_dop,
     price_dpk,
     price_dupk,
     price_fsc;
-end LANGUAGE plpgsql;
+  
+end $function$
+;
