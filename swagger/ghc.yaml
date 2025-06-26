@@ -122,6 +122,31 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  /open/roles-privileges:
+    get:
+      produces:
+        - application/json
+      summary: Retrieve a list of unique role to privilege mappings.
+      description: |
+        This endpoint returns a list of unique role to privilege mappings.
+      operationId: getRolesPrivileges
+      tags:
+        - rolePrivileges
+      responses:
+        '200':
+          description: Successfully retrieved list of unique role privilege mappings
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Role'
+        '404':
+          description: No role-privilege mapping found
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: server error
   /office-users/{officeUserId}:
     patch:
       consumes:
@@ -5492,6 +5517,43 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /uploads/{uploadID}/status:
+    get:
+      summary: Returns status of an upload
+      description: Returns status of an upload based on antivirus run
+      operationId: getUploadStatus
+      produces:
+        - text/event-stream
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to return status of
+      responses:
+        '200':
+          description: the requested upload status
+          schema:
+            type: string
+            enum:
+              - INFECTED
+              - CLEAN
+              - NO_THREATS_FOUND
+              - PROCESSING
+            readOnly: true
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -5773,6 +5835,13 @@ definitions:
       roleName:
         type: string
         example: Task Ordering Officer
+      sort:
+        type: integer
+        format: int32
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -5785,6 +5854,36 @@ definitions:
       - id
       - roleType
       - roleName
+      - createdAt
+      - updatedAt
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      sort:
+        type: integer
+        format: int32
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - privilegeType
+      - privilegeName
       - createdAt
       - updatedAt
   OfficeUser:
@@ -5826,6 +5925,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       edipi:
         type: string
       otherUniqueId:
@@ -5921,6 +6024,11 @@ definitions:
         items:
           $ref: '#/definitions/OfficeUserRole'
         x-nullable: false
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
+        x-nullable: false
     required:
       - firstName
       - lastName
@@ -5951,6 +6059,19 @@ definitions:
         example: task_ordering_officer
         x-nullable: true
         title: roleType
+  OfficeUserPrivilege:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Supervisor
+        x-nullable: true
+        title: name
+      privilegeType:
+        type: string
+        example: supervisor
+        x-nullable: true
+        title: privilegeType
   Customer:
     type: object
     properties:

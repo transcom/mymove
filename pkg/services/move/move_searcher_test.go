@@ -368,7 +368,7 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MT
 	}, nil)
 	firstMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "11111"},
+			Model: models.Address{PostalCode: "11101"},
 		},
 	}, nil)
 
