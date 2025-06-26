@@ -1,8 +1,8 @@
--- B-23853 Beth Grohmann Initial check-in
+-- B-23853  Daniel Jordan  initial function add
 
-DROP FUNCTION IF EXISTS public.calculate_ppm_incentive_conus(uuid, bool, bool, bool, bool);
+DROP FUNCTION IF EXISTS public.calculate_max_incentive_conus(uuid, numeric, bool);
 
-CREATE OR REPLACE FUNCTION public.calculate_ppm_incentive_conus(ppm_id uuid, is_estimated boolean, is_actual boolean, is_max boolean, update_table boolean)
+CREATE OR REPLACE FUNCTION public.calculate_max_incentive_conus(ppm_id uuid, mileage numeric, update_table boolean)
   RETURNS TABLE(total_incentive numeric, price_dsh numeric, price_dlh numeric, price_ddp numeric, price_dop numeric, price_dpk numeric, price_dupk numeric, price_fsc numeric)
   LANGUAGE plpgsql
 AS $function$
@@ -19,8 +19,10 @@ declare
   peak_period BOOLEAN;
   pickup_address_id UUID;
   destination_address_id UUID;
-  mileage integer;
   weight integer;
+  pro_gear_weight integer;
+  pro_gear_weight_spouse integer;
+  dependents_authorized boolean;
   move_date date;
   raw_millicents numeric;
   weight_lower_val numeric;
@@ -34,80 +36,67 @@ declare
   grade text;
   pickup_zip3 text;
   destination_zip3 text;
+
 begin
 
-  if not is_estimated
-  and not is_actual
-  and not is_max then
-    raise exception 'is_estimated, is_actual, and is_max cannot all be FALSE. No update will be performed.';
-  end if;
-
-  select
-    ppms.id
-  into
-    ppm
-  from
-    ppm_shipments ppms
-  where ppms.id = ppm_id;
-
+  select ppms.id into ppm from ppm_shipments ppms where ppms.id = ppm_id;
   if ppm is null then
     raise exception 'PPM with ID % not found', ppm_id;
   end if;
 
   SELECT
-    ppm_shipments.pickup_postal_address_id,
-    ppm_shipments.destination_postal_address_id,
-    coalesce(ppm_shipments.actual_move_date,ppm_shipments.expected_departure_date),
-    mto_shipments.distance,
-    ppm_shipments.estimated_weight,
-    f.grade
+    ol.address_id,
+    da.address_id,
+    coalesce(ppm_shipments.actual_move_date, ppm_shipments.expected_departure_date),
+    e.authorized_weight,
+    e.pro_gear_weight,
+    e.pro_gear_weight_spouse,
+    e.dependents_authorized,
+    o.grade
   INTO
     pickup_address_id,
     destination_address_id,
     move_date,
-    mileage,
     weight,
+    pro_gear_weight,
+    pro_gear_weight_spouse,
+    dependents_authorized,
     grade
   FROM
     ppm_shipments
   LEFT JOIN mto_shipments ON ppm_shipments.shipment_id = mto_shipments.id
   LEFT JOIN moves d on mto_shipments.move_id = d.id
-  LEFT JOIN orders f on d.orders_id = f.id
-  LEFT JOIN service_members e on f.service_member_id = e.id
+  LEFT JOIN orders o on d.orders_id = o.id
+  LEFT JOIN entitlements e on o.entitlement_id = e.id
+  LEFT JOIN service_members s on o.service_member_id = s.id
+  LEFT JOIN duty_locations ol ON ol.id = o.origin_duty_location_id
+  LEFT JOIN duty_locations da ON da.id = o.new_duty_location_id
   WHERE ppm_shipments.id = ppm_id;
 
-  IF is_actual THEN
-    SELECT
-      COALESCE(SUM(
-        CASE
-          WHEN adjusted_net_weight IS NOT NULL THEN adjusted_net_weight
-          ELSE full_weight - empty_weight
-        END), 0)
-    INTO weight
-    FROM weight_tickets wt
-    WHERE wt.ppm_shipment_id = ppm_id
-      AND wt.status NOT IN ('REJECTED', 'EXCLUDED');
+  -- adjust weight with pro-gear and spouse weight if authorized
+  weight := weight + pro_gear_weight;
+  IF dependents_authorized THEN
+    weight := weight + pro_gear_weight_spouse;
   END IF;
 
   peak_period := is_peak_period(move_date);
 
   v_contract_id := get_contract_id(move_date);
   if v_contract_id is null then
-    raise exception 'Contract not found for date: %',move_date;
+    raise exception 'Contract not found for date: %', move_date;
   end if;
 
-  o_rate_area_id := get_rate_area_id(pickup_address_id,null,v_contract_id);
+  o_rate_area_id := get_rate_area_id(pickup_address_id, null, v_contract_id);
   if o_rate_area_id is null then
-    raise exception 'Origin rate area is NULL for address ID %',pickup_address_id;
+    raise exception 'Origin rate area is NULL for address ID %', pickup_address_id;
   end if;
 
-  d_rate_area_id := get_rate_area_id(destination_address_id,null,v_contract_id);
+  d_rate_area_id := get_rate_area_id(destination_address_id, null, v_contract_id);
   if d_rate_area_id is null then
-    raise exception 'Destination rate area is NULL for address ID %',destination_address_id;
+    raise exception 'Destination rate area is NULL for address ID %', destination_address_id;
   end if;
 
-  -- get the ZIP3s of pickup and destination addresses
-  -- determines if we cost shorthaul or linehaul
+  -- get ZIP3s of pickup and destination addresses
   SELECT LEFT(a.postal_code, 3) INTO pickup_zip3
   FROM addresses a
   WHERE a.id = pickup_address_id;
@@ -121,9 +110,13 @@ begin
   WHERE rcy.contract_id = v_contract_id
     AND move_date BETWEEN rcy.start_date AND rcy.end_date;
 
+  RAISE NOTICE 'weight: %', weight;
+
+  -- check if the pickup and destination ZIP3s match
   IF pickup_zip3 = destination_zip3 THEN
     price_dlh := 0;
-    -- calculate DSH if ZIP3s are the same
+
+    -- DSH if ZIP3s are the same
     service_id := get_service_id('DSH');
     SELECT price_cents
     INTO price_dsh
@@ -137,13 +130,16 @@ begin
     AND dsap.domestic_service_area_id = sa.id
     LIMIT 1;
 
+    -- RAISE NOTICE 'DSH price: %', price_dsh;
     price_dsh := ROUND(price_dsh * escalation_factor, 3);
-    --RAISE NOTICE 'DSH price with escalation factor: %', price_dsh;
+    -- RAISE NOTICE 'DSH price with escalation factor: %', price_dsh;
 
     price_dsh := ROUND(price_dsh * (weight::NUMERIC / 100) * mileage, 0);
-    --RAISE NOTICE 'DSH final price: %', price_dsh;
+    -- RAISE NOTICE 'DSH final price: %', price_dsh;
+
   ELSE
     price_dsh := 0;
+
     -- calculate DLH instead
     service_id := get_service_id('DLH');
     SELECT rdlp.price_millicents
@@ -165,15 +161,14 @@ begin
     cents_per_cwt := ROUND(raw_millicents / 1000.0, 1);
     --RAISE NOTICE 'DLH cents_per_cwt: %', cents_per_cwt;
 
-    cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 3);
-    cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 3);
+    cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 1);
     --RAISE NOTICE 'DLH cents_per_cwt with escalation factor: %', cents_per_cwt;
 
     price_dlh := ROUND(cents_per_cwt * (weight::NUMERIC / 100) * mileage, 0);
     --RAISE NOTICE 'DLH final price: %', price_dlh;
   END IF;
 
-  -- Calculate DOP price
+  -- DOP price
   service_id := get_service_id('DOP');
   price_dop := calculate_escalated_price_domestic(
         o_rate_area_id,
@@ -190,6 +185,7 @@ begin
   price_dop := ROUND(price_dop * 100);
   --RAISE NOTICE 'DOP price (after * 100): %', price_dop;
 
+  -- DUPK price
   service_id := get_service_id('DUPK');
   price_dupk := calculate_escalated_price_domestic(
       null,
@@ -206,7 +202,7 @@ begin
   price_dupk := ROUND(price_dupk * 100);
   --RAISE NOTICE 'DUPK price (after * 100): %', price_dupk;
 
-  -- Calculate DPK price
+  -- DPK price
   service_id := get_service_id('DPK');
   price_dpk := calculate_escalated_price_domestic(
         o_rate_area_id,
@@ -223,7 +219,7 @@ begin
   price_dpk := ROUND(price_dpk * 100);
   --RAISE NOTICE 'DPK price (after * 100): %', price_dpk;
 
-  -- Calculate DDP price
+  -- DDP price
   service_id := get_service_id('DDP');
   price_ddp := calculate_escalated_price_domestic(
         null,
@@ -240,16 +236,17 @@ begin
   price_ddp := ROUND(price_ddp * 100);
   --RAISE NOTICE 'DDP price (after * 100): %', price_ddp;
 
-  -- Calculate FSC price
+  -- FSC price
   estimated_fsc_multiplier := get_fsc_multiplier(weight);
   fuel_price := get_fuel_price(move_date);
   price_difference := calculate_price_difference(fuel_price);
   cents_above_baseline := mileage * estimated_fsc_multiplier;
   price_fsc := ROUND((cents_above_baseline * price_difference) * 100);
 
-  IF grade != 'CIVILIAN_EMPLOYEE' THEN --do not apply multiplier for Cilivilan PPMs
-
-    EXECUTE 'SELECT multiplier, id FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1' INTO gcc_multiplier, v_gcc_multiplier_id USING move_date;
+  -- apply GCC multiplier if not civilian
+  IF grade != 'CIVILIAN_EMPLOYEE' THEN
+    EXECUTE 'SELECT multiplier, id FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1'
+    INTO gcc_multiplier, v_gcc_multiplier_id USING move_date;
     RAISE NOTICE 'GCC Multiplier %', gcc_multiplier;
 
     IF price_dsh > 0 AND gcc_multiplier != 1.00 THEN
@@ -283,15 +280,11 @@ begin
 
   END IF;
 
-  -- Calculate total incentive
   total_incentive := price_dsh + price_dlh + price_dop + price_ddp + price_dpk + price_dupk + price_fsc;
 
   IF update_table THEN
     UPDATE ppm_shipments
-    SET estimated_incentive = CASE WHEN is_estimated THEN total_incentive ELSE estimated_incentive END,
-    final_incentive = CASE WHEN is_actual THEN total_incentive ELSE final_incentive END,
-    max_incentive = CASE WHEN is_max THEN total_incentive ELSE max_incentive END,
-    gcc_multiplier_id = v_gcc_multiplier_id
+    SET max_incentive = total_incentive, gcc_multiplier_id = v_gcc_multiplier_id
     WHERE id = ppm_id;
   END IF;
 
