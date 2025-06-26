@@ -187,69 +187,6 @@ export const PPMReviewWeightsTableColumns = [
   ),
 ];
 
-export const PPMReviewWeightsTableColumnsWithoutGunSafe = [
-  createHeader('', (row) => <ShipmentTypeCell row={row} />, {
-    id: 'shipmentType',
-    isFilterable: false,
-  }),
-  createHeader(
-    'Weight ticket',
-    (row) =>
-      row.ppmShipment.weightTickets.length > 0 ? (
-        <a href={row.ppmShipment.reviewShipmentWeightsURL}> Review Documents </a>
-      ) : (
-        DASH
-      ),
-    {
-      id: 'weightTicket',
-      isFilterable: false,
-    },
-  ),
-  createHeader(
-    'Pro-gear (lbs)',
-    (row) => (row.actualProGearWeight > 0 ? formatWeight(row.actualProGearWeight) : DASH),
-    {
-      id: 'proGear',
-      isFilterable: false,
-    },
-  ),
-  createHeader(
-    'Spouse pro-gear',
-    (row) => (row.actualSpouseProGearWeight > 0 ? formatWeight(row.actualSpouseProGearWeight) : DASH),
-    {
-      id: 'spouseProGear',
-      isFilterable: false,
-    },
-  ),
-  createHeader(
-    'Estimated weight',
-    (row) => (row.ppmShipment.estimatedWeight > 0 ? formatWeight(row.ppmShipment.estimatedWeight) : DASH),
-    {
-      id: 'estimatedWeight',
-      isFilterable: false,
-    },
-  ),
-  createHeader(
-    'Net weight',
-    (row) => {
-      const calculatedNetWeight = getTotalNetWeightForWeightTickets(row.ppmShipment?.weightTickets);
-      return calculatedNetWeight > 0 ? formatWeight(calculatedNetWeight) : DASH;
-    },
-    {
-      id: 'netWeight',
-      isFilterable: false,
-    },
-  ),
-  createHeader(
-    'Actual Departure date',
-    (row) => (row.ppmShipment.actualMoveDate ? formatReviewShipmentWeightsDate(row.ppmShipment.actualMoveDate) : DASH),
-    {
-      id: 'departureDate',
-      isFilterable: false,
-    },
-  ),
-];
-
 export const nonPPMTableColumns = [
   createHeader('', (row) => <ShipmentTypeCell row={row} />, {
     id: 'shipmentType',
@@ -303,12 +240,6 @@ export const nonPPMTableColumns = [
 
 export const PPMReviewWeightsTableConfig = {
   tableColumns: PPMReviewWeightsTableColumns,
-  noRowsMsg: NO_ROWS_MESSAGES.PPM,
-  determineShipmentNumbers: true,
-};
-
-export const PPMReviewWeightsTableConfigWithoutGunSafe = {
-  tableColumns: PPMReviewWeightsTableColumnsWithoutGunSafe,
   noRowsMsg: NO_ROWS_MESSAGES.PPM,
   determineShipmentNumbers: true,
 };

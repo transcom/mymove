@@ -15,7 +15,6 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import ReviewShipmentWeightsTable from 'components/Office/PPM/ReviewShipmentWeightsTable/ReviewShipmentWeightsTable';
 import {
   PPMReviewWeightsTableConfig,
-  PPMReviewWeightsTableConfigWithoutGunSafe,
   nonPPMReviewWeightsTableConfig,
 } from 'components/Office/PPM/ReviewShipmentWeightsTable/helpers';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -54,12 +53,22 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   }, [moveWeightTotal, order.entitlement.totalWeight]);
 
   const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
+  const [PPMTableConfig, setPPMTableConfig] = useState(PPMReviewWeightsTableConfig);
   useEffect(() => {
     const fetchData = async () => {
       setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
     };
     fetchData();
-  }, []);
+    if (!isGunSafeEnabled) {
+      const newTableConfig = { ...PPMReviewWeightsTableConfig };
+      newTableConfig.tableColumns = PPMReviewWeightsTableConfig.tableColumns.filter(
+        (header) => header.id !== 'gunSafe',
+      );
+      setPPMTableConfig(newTableConfig);
+    } else {
+      setPPMTableConfig(PPMReviewWeightsTableConfig);
+    }
+  }, [isGunSafeEnabled]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -102,10 +111,7 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
         {sortedShipments.ppmShipment && (
           <div className={styles.weightMovedContainer} data-testid="ppmShipmentContainer">
             <h2 className={styles.weightMovedHeader}>Weight moved by customer</h2>
-            <ReviewShipmentWeightsTable
-              tableData={sortedShipments.ppmShipment}
-              tableConfig={isGunSafeEnabled ? PPMReviewWeightsTableConfig : PPMReviewWeightsTableConfigWithoutGunSafe}
-            />
+            <ReviewShipmentWeightsTable tableData={sortedShipments.ppmShipment} tableConfig={PPMTableConfig} />
           </div>
         )}
         {showWeightsMoved && (
