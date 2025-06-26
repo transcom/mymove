@@ -3601,41 +3601,6 @@ func init() {
         }
       }
     },
-    "/paygrade/{affiliation}": {
-      "get": {
-        "description": "Get pay grades for specified affiliation",
-        "tags": [
-          "orders"
-        ],
-        "summary": "Get pay grades for specified affiliation",
-        "operationId": "getPayGrades",
-        "parameters": [
-          {
-            "$ref": "#/parameters/AffiliationParam"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "list all ranks for specified affiliation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/OrderPayGrades"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "ranks not found"
-          }
-        }
-      }
-    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -5258,6 +5223,167 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/counselingQueue": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here once they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "operationId": "getCounselingQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "requestedMoveDates",
+              "submittedAt",
+              "originDutyLocation",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's first and last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup dates from shipments on the move",
+            "name": "requestedMoveDates",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to provide services counseling to this move.\n",
+            "name": "SCCounselingAssigned",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/CounselingQueueMovesResult"
             }
           },
           "403": {
@@ -8088,6 +8214,121 @@ func init() {
         "$ref": "#/definitions/CounselingOffice"
       }
     },
+    "CounselingQueueMove": {
+      "type": "object",
+      "properties": {
+        "appearedInTooAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedMoveDate": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "CounselingQueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingQueueMove"
+      }
+    },
+    "CounselingQueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/CounselingQueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -8113,7 +8354,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
@@ -8203,7 +8444,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -8748,7 +8989,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -9775,6 +10016,73 @@ func init() {
       "items": {
         "$ref": "#/definitions/GSRAppeal"
       }
+    },
+    "Grade": {
+      "type": "string",
+      "title": "grade",
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
     },
     "InvalidRequestResponsePayload": {
       "type": "object",
@@ -12232,7 +12540,7 @@ func init() {
           "example": "John"
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -12344,84 +12652,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid"
-        }
-      }
-    },
-    "OrderPayGrade": {
-      "type": "string",
-      "title": "Grade",
-      "enum": [
-        "E-1",
-        "E-2",
-        "E-3",
-        "E-4",
-        "E-5",
-        "E-6",
-        "E-7",
-        "E-8",
-        "E-9",
-        "E-9-SPECIAL-SENIOR-ENLISTED",
-        "O-1",
-        "O-2",
-        "O-3",
-        "O-4",
-        "O-5",
-        "O-6",
-        "O-7",
-        "O-8",
-        "O-9",
-        "O-10",
-        "W-1",
-        "W-2",
-        "W-3",
-        "W-4",
-        "W-5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
-    },
-    "OrderPayGrades": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "grade": {
-          "type": "string"
         }
       }
     },
@@ -14905,8 +15135,6 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
-        "SITRateAreaDest",
-        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -15402,7 +15630,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
@@ -15799,7 +16027,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -16759,23 +16987,6 @@ func init() {
     }
   },
   "parameters": {
-    "AffiliationParam": {
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "SPACE_FORCE",
-        "OTHER"
-      ],
-      "type": "string",
-      "x-nullable": true,
-      "description": "Military branch of service",
-      "name": "affiliation",
-      "in": "path",
-      "required": true
-    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -21373,55 +21584,6 @@ func init() {
         }
       }
     },
-    "/paygrade/{affiliation}": {
-      "get": {
-        "description": "Get pay grades for specified affiliation",
-        "tags": [
-          "orders"
-        ],
-        "summary": "Get pay grades for specified affiliation",
-        "operationId": "getPayGrades",
-        "parameters": [
-          {
-            "enum": [
-              "ARMY",
-              "NAVY",
-              "MARINES",
-              "AIR_FORCE",
-              "COAST_GUARD",
-              "SPACE_FORCE",
-              "OTHER"
-            ],
-            "type": "string",
-            "x-nullable": true,
-            "description": "Military branch of service",
-            "name": "affiliation",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "list all ranks for specified affiliation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/OrderPayGrades"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "ranks not found"
-          }
-        }
-      }
-    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -23578,6 +23740,173 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/counselingQueue": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here once they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "operationId": "getCounselingQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "requestedMoveDates",
+              "submittedAt",
+              "originDutyLocation",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's first and last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup dates from shipments on the move",
+            "name": "requestedMoveDates",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to provide services counseling to this move.\n",
+            "name": "SCCounselingAssigned",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/CounselingQueueMovesResult"
             }
           },
           "403": {
@@ -26844,6 +27173,121 @@ func init() {
         "$ref": "#/definitions/CounselingOffice"
       }
     },
+    "CounselingQueueMove": {
+      "type": "object",
+      "properties": {
+        "appearedInTooAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedMoveDate": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "CounselingQueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingQueueMove"
+      }
+    },
+    "CounselingQueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/CounselingQueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -26869,7 +27313,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
@@ -26964,7 +27408,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -27509,7 +27953,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "hasDependents": {
           "type": "boolean",
@@ -28536,6 +28980,73 @@ func init() {
       "items": {
         "$ref": "#/definitions/GSRAppeal"
       }
+    },
+    "Grade": {
+      "type": "string",
+      "title": "grade",
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
     },
     "InvalidRequestResponsePayload": {
       "type": "object",
@@ -30993,7 +31504,7 @@ func init() {
           "example": "John"
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -31105,84 +31616,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid"
-        }
-      }
-    },
-    "OrderPayGrade": {
-      "type": "string",
-      "title": "Grade",
-      "enum": [
-        "E-1",
-        "E-2",
-        "E-3",
-        "E-4",
-        "E-5",
-        "E-6",
-        "E-7",
-        "E-8",
-        "E-9",
-        "E-9-SPECIAL-SENIOR-ENLISTED",
-        "O-1",
-        "O-2",
-        "O-3",
-        "O-4",
-        "O-5",
-        "O-6",
-        "O-7",
-        "O-8",
-        "O-9",
-        "O-10",
-        "W-1",
-        "W-2",
-        "W-3",
-        "W-4",
-        "W-5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
-    },
-    "OrderPayGrades": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "grade": {
-          "type": "string"
         }
       }
     },
@@ -33792,8 +34225,6 @@ func init() {
         "SITScheduleOrigin",
         "SITServiceAreaDest",
         "SITServiceAreaOrigin",
-        "SITRateAreaDest",
-        "SITRateAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -34291,7 +34722,7 @@ func init() {
           "example": 5
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "gunSafe": {
           "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
@@ -34693,7 +35124,7 @@ func init() {
           "x-nullable": true
         },
         "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -35666,23 +36097,6 @@ func init() {
     }
   },
   "parameters": {
-    "AffiliationParam": {
-      "enum": [
-        "ARMY",
-        "NAVY",
-        "MARINES",
-        "AIR_FORCE",
-        "COAST_GUARD",
-        "SPACE_FORCE",
-        "OTHER"
-      ],
-      "type": "string",
-      "x-nullable": true,
-      "description": "Military branch of service",
-      "name": "affiliation",
-      "in": "path",
-      "required": true
-    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",

@@ -716,6 +716,151 @@ func (h GetServicesCounselingQueueHandler) Handle(
 		})
 }
 
+type GetCounselingQueueHandler struct {
+	handlers.HandlerConfig
+	services.CounselingQueueFetcher
+	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+}
+
+// Handle returns the paginated list of moves for the services counselor
+func (h GetCounselingQueueHandler) Handle(
+	params queues.GetCounselingQueueParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			isOfficeUser := appCtx.Session().IsOfficeUser()
+			activeRoleType := appCtx.Session().ActiveRole.RoleType
+
+			if !isOfficeUser || !(activeRoleType == roles.RoleTypeServicesCounselor || activeRoleType == roles.RoleTypeHQ) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with Services Counselor or HQ office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetCounselingQueueForbidden(), forbiddenErr
+			}
+
+			counselingQueueParams := services.CounselingQueueParams{
+				Branch:                 params.Branch,
+				Locator:                params.Locator,
+				Edipi:                  params.Edipi,
+				Emplid:                 params.Emplid,
+				CustomerName:           params.CustomerName,
+				OriginDutyLocationName: params.OriginDutyLocation,
+				SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+				RequestedMoveDate:      params.RequestedMoveDates,
+				Page:                   params.Page,
+				PerPage:                params.PerPage,
+				Sort:                   params.Sort,
+				Order:                  params.Order,
+				CounselingOffice:       params.CounselingOffice,
+				SCAssignedUser:         params.SCCounselingAssigned,
+				Status:                 params.Status,
+			}
+
+			activeRole := string(appCtx.Session().ActiveRole.RoleType)
+
+			if len(params.Status) == 0 {
+				counselingQueueParams.Status = nil
+			} else {
+				counselingQueueParams.Status = params.Status
+			}
+
+			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetCounselingQueueInternalServerError(), err
+				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				counselingQueueParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+
+			if privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeServicesCounselor,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetCounselingQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetCounselingQueueInternalServerError(), err
+			}
+
+			hasSafetyPrivilege := privileges.HasPrivilege(roles.PrivilegeTypeSafety)
+			counselingQueueParams.HasSafetyPrivilege = &hasSafetyPrivilege
+
+			moves, count, err := h.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetCounselingQueueInternalServerError(), err
+			}
+
+			// if the SC/office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetMovesQueueInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
+			}
+
+			queueMoves := payloads.CounselingQueueMoves(moves, officeUsers, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
+
+			result := &ghcmessages.CounselingQueueMovesResult{
+				Page:       *counselingQueueParams.Page,
+				PerPage:    *counselingQueueParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
+			}
+
+			return queues.NewGetCounselingQueueOK().WithPayload(result), nil
+		})
+}
+
 // GetBulkAssignmentDataHandler returns moves that the supervisor can assign, along with the office users they are able to assign to
 type GetBulkAssignmentDataHandler struct {
 	handlers.HandlerConfig

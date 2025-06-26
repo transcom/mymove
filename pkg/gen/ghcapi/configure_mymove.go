@@ -27,7 +27,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/orders"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -284,6 +283,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
 		})
 	}
+	if api.QueuesGetCounselingQueueHandler == nil {
+		api.QueuesGetCounselingQueueHandler = queues.GetCounselingQueueHandlerFunc(func(params queues.GetCounselingQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetCounselingQueue has not yet been implemented")
+		})
+	}
 	if api.CustomerGetCustomerHandler == nil {
 		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
@@ -387,11 +391,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ApplicationParametersGetParamHandler == nil {
 		api.ApplicationParametersGetParamHandler = application_parameters.GetParamHandlerFunc(func(params application_parameters.GetParamParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.GetParam has not yet been implemented")
-		})
-	}
-	if api.OrdersGetPayGradesHandler == nil {
-		api.OrdersGetPayGradesHandler = orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
-			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsGetPaymentRequestHandler == nil {

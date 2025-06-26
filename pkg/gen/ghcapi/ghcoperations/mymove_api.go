@@ -35,7 +35,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/orders"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
@@ -199,6 +198,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetBulkAssignmentDataHandler: queues.GetBulkAssignmentDataHandlerFunc(func(params queues.GetBulkAssignmentDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
 		}),
+		QueuesGetCounselingQueueHandler: queues.GetCounselingQueueHandlerFunc(func(params queues.GetCounselingQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetCounselingQueue has not yet been implemented")
+		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
 		}),
@@ -261,9 +263,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ApplicationParametersGetParamHandler: application_parameters.GetParamHandlerFunc(func(params application_parameters.GetParamParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.GetParam has not yet been implemented")
-		}),
-		OrdersGetPayGradesHandler: orders.GetPayGradesHandlerFunc(func(params orders.GetPayGradesParams) middleware.Responder {
-			return middleware.NotImplemented("operation orders.GetPayGrades has not yet been implemented")
 		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
@@ -582,6 +581,8 @@ type MymoveAPI struct {
 	ReServiceItemsGetAllReServiceItemsHandler re_service_items.GetAllReServiceItemsHandler
 	// QueuesGetBulkAssignmentDataHandler sets the operation handler for the get bulk assignment data operation
 	QueuesGetBulkAssignmentDataHandler queues.GetBulkAssignmentDataHandler
+	// QueuesGetCounselingQueueHandler sets the operation handler for the get counseling queue operation
+	QueuesGetCounselingQueueHandler queues.GetCounselingQueueHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
@@ -624,8 +625,6 @@ type MymoveAPI struct {
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// ApplicationParametersGetParamHandler sets the operation handler for the get param operation
 	ApplicationParametersGetParamHandler application_parameters.GetParamHandler
-	// OrdersGetPayGradesHandler sets the operation handler for the get pay grades operation
-	OrdersGetPayGradesHandler orders.GetPayGradesHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
@@ -959,6 +958,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.QueuesGetBulkAssignmentDataHandler == nil {
 		unregistered = append(unregistered, "queues.GetBulkAssignmentDataHandler")
 	}
+	if o.QueuesGetCounselingQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetCounselingQueueHandler")
+	}
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
 	}
@@ -1021,9 +1023,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ApplicationParametersGetParamHandler == nil {
 		unregistered = append(unregistered, "application_parameters.GetParamHandler")
-	}
-	if o.OrdersGetPayGradesHandler == nil {
-		unregistered = append(unregistered, "orders.GetPayGradesHandler")
 	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
@@ -1472,6 +1471,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/queues/counselingQueue"] = queues.NewGetCounselingQueue(o.context, o.QueuesGetCounselingQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomer(o.context, o.CustomerGetCustomerHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1553,10 +1556,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/application_parameters/{parameterName}"] = application_parameters.NewGetParam(o.context, o.ApplicationParametersGetParamHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/paygrade/{affiliation}"] = orders.NewGetPayGrades(o.context, o.OrdersGetPayGradesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

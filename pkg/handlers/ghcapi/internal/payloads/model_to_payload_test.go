@@ -2544,6 +2544,372 @@ func (suite *PayloadsSuite) TestPayGrades() {
 	}
 }
 
+func (suite *PayloadsSuite) TestCounselingQueueMovesApprovalRequestTypes() {
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				Roles: []roles.Role{
+					{
+						RoleType: roles.RoleTypeTOO,
+					},
+				},
+				Privileges: []roles.Privilege{
+					{
+						PrivilegeType: roles.PrivilegeTypeSupervisor,
+					},
+				},
+			},
+		},
+	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVALSREQUESTED,
+				Show:   models.BoolPointer(true),
+			},
+		}}, nil)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		},
+	}, nil)
+	approvedServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDCRT,
+			},
+		},
+	}, nil)
+	sitUpdate := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+	}, nil)
+	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ShipmentAddressUpdate{
+				NewAddressID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
+	suite.Run("successfully attaches approvalRequestTypes to move", func() {
+		moves := models.Moves{}
+		thisMove := move
+		thisMove.Orders.OrdersType = "SAFETY"
+		moves = append(moves, thisMove)
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		var empty []string
+		suite.Len(queueMoves, 1)
+		suite.Nil(queueMoves[0].ApprovalRequestTypes)
+		suite.Equal(empty, queueMoves[0].ApprovalRequestTypes)
+
+		// Test that updatedAt is returned in payload
+		suite.NotNil(queueMoves[0].UpdatedAt)
+	})
+	suite.Run("successfully attaches submitted service item request to move", func() {
+		serviceItems := models.MTOServiceItems{}
+		serviceItems = append(serviceItems, originSITServiceItem)
+		move.MTOServiceItems = serviceItems
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("does not attach a service item if it is not in submitted status", func() {
+		serviceItems := models.MTOServiceItems{}
+		serviceItems = append(serviceItems, originSITServiceItem, approvedServiceItem)
+		move.MTOServiceItems = serviceItems
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		suite.Len(moves[0].MTOServiceItems, 2)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+
+	// diversion
+	suite.Run("attaches 'DIVERSION' request type if a shipment is in SUBMITTED status and diversion is true", func() {
+		shipment.Status = models.MTOShipmentStatusSubmitted
+		shipments := models.MTOShipments{}
+		shipments = append(shipments, shipment)
+		move.MTOShipments = shipments
+
+		move.MTOShipments[0].Diversion = true
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestDiversion), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach 'DIVERSION' request type if a shipment is not in SUBMITTED status and diversion is true", func() {
+		shipment.Status = models.MTOShipmentStatusApproved
+		shipments := models.MTOShipments{}
+		shipments = append(shipments, shipment)
+		move.MTOShipments = shipments
+
+		move.MTOShipments[0].Diversion = true
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+
+	// amended orders
+	suite.Run("does not attach 'AMENDED_ORDERS' request type if ID value is nil", func() {
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("attaches 'AMENDED_ORDERS' request type if ID value is present and order are unacknowledged", func() {
+		newOrdersID := uuid.Must(uuid.NewV4())
+		move.Orders.UploadedAmendedOrdersID = &newOrdersID
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestAmendedOrders), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach 'AMENDED_ORDERS' request type if ID value is present but the orders are acknowledged", func() {
+		newOrdersID := uuid.Must(uuid.NewV4())
+		move.Orders.UploadedAmendedOrdersID = &newOrdersID
+		move.Orders.AmendedOrdersAcknowledgedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+
+	// excess weight
+	suite.Run("does not attach 'EXCESS_WEIGHT' request type if ExcessWeightQualifiedAt value is nil", func() {
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("attaches 'EXCESS_WEIGHT' request type if is qualified but unacknowledged", func() {
+		move.ExcessWeightQualifiedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestExcessWeight), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach 'EXCESS_WEIGHT' request type if the excess weight has been acknowledged", func() {
+		move.ExcessWeightQualifiedAt = models.TimePointer(time.Now())
+		move.ExcessWeightAcknowledgedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+
+	// sit extension
+	suite.Run("successfully attaches a SIT extension request to move", func() {
+		sitUpdates := models.SITDurationUpdates{}
+		sitUpdates = append(sitUpdates, sitUpdate)
+
+		move.MTOShipments[0].SITDurationUpdates = sitUpdates
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestSITExtension), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach an approved SIT extension request", func() {
+		sitUpdate.Status = models.SITExtensionStatusApproved
+		sitUpdates := models.SITDurationUpdates{}
+		sitUpdates = append(sitUpdates, sitUpdate)
+
+		move.MTOShipments[0].SITDurationUpdates = sitUpdates
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("does not attach a denied SIT extension request", func() {
+		sitUpdate.Status = models.SITExtensionStatusDenied
+		sitUpdates := models.SITDurationUpdates{}
+		sitUpdates = append(sitUpdates, sitUpdate)
+
+		move.MTOShipments[0].SITDurationUpdates = sitUpdates
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+
+	// destination address update
+	suite.Run("attaches a destination address update request in REQUESTED status", func() {
+		move.MTOShipments[0].DeliveryAddressUpdate = &shipmentAddressUpdate
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestDestinationAddressUpdate), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach a destination address update request in APPROVED status", func() {
+		shipmentAddressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
+		move.MTOShipments[0].DeliveryAddressUpdate = &shipmentAddressUpdate
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("does not attach a destination address update request in REJECTED status", func() {
+		shipmentAddressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
+		move.MTOShipments[0].DeliveryAddressUpdate = &shipmentAddressUpdate
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+
+	// new shipment
+	suite.Run("only attaches 'NEW_SHIPMENT' request type if a shipment is in SUBMITTED status", func() {
+		statuses := [8]models.MTOShipmentStatus{models.MTOShipmentStatusApproved, models.MTOShipmentStatusDraft, models.MTOShipmentStatusApproved, models.MTOShipmentStatusRejected, models.MTOShipmentStatusCancellationRequested, models.MTOShipmentStatusCanceled, models.MTOShipmentStatusDiversionRequested, models.MTOShipmentStatusTerminatedForCause}
+
+		for _, status := range statuses {
+			shipment.Status = status
+			shipments := models.MTOShipments{}
+			shipments = append(shipments, shipment)
+			move.MTOShipments = shipments
+
+			moves := models.Moves{}
+			moves = append(moves, move)
+
+			queueMoves := *CounselingQueueMoves(moves, nil, officeUser, nil, string(roles.RoleTypeServicesCounselor), string(models.QueueTypeCounseling))
+
+			if status == models.MTOShipmentStatusSubmitted {
+				suite.Len(queueMoves, 1)
+				suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+				suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+				suite.Equal(string(models.ApprovalRequestNewShipment), queueMoves[0].ApprovalRequestTypes[1])
+			}
+			if status != models.MTOShipmentStatusSubmitted {
+				suite.Len(queueMoves, 1)
+				suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+				suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+			}
+		}
+	})
+}
+
 func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
@@ -2616,4 +2982,100 @@ func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 	// all dates sorted and joined with ", "
 	suite.Require().NotNil(q.RequestedMoveDates)
 	suite.Equal("Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDates)
+}
+
+func (suite *PayloadsSuite) TestCounselingQueueMoves_RequestedMoveDates() {
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				Roles: []roles.Role{{RoleType: roles.RoleTypeServicesCounselor}},
+			},
+		},
+	}, nil)
+
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name: "JPPO Test Office",
+			},
+		},
+	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Show: models.BoolPointer(true),
+			},
+		},
+		{
+			Model:    transportationOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CounselingOffice,
+		},
+		{
+			Model:    officeUser,
+			LinkOnly: true,
+			Type:     &factory.OfficeUsers.SCCounselingAssignedUser,
+		},
+	}, nil)
+
+	d1 := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
+	d2 := time.Date(2025, time.February, 1, 0, 0, 0, 0, time.UTC)
+	d3 := time.Date(2025, time.March, 1, 0, 0, 0, 0, time.UTC)
+
+	sh3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d3,
+			RequestedDeliveryDate: &d3,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d2,
+			RequestedDeliveryDate: &d2,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	sh1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.MTOShipment{
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &d1,
+			RequestedDeliveryDate: &d1,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+	ppm1 := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{Model: move, LinkOnly: true},
+		{Model: models.PPMShipment{
+			Status:                models.PPMShipmentStatusSubmitted,
+			ExpectedDepartureDate: d1,
+			DeletedAt:             nil,
+		}},
+	}, nil)
+
+	// attach them to the move (in reversed order to prove sorting)
+	move.MTOShipments = models.MTOShipments{sh3, sh2, sh1, ppm1.Shipment}
+
+	queueMoves := *CounselingQueueMoves(
+		models.Moves{move},
+		nil,
+		officeUser,
+		nil,
+		string(roles.RoleTypeServicesCounselor),
+		string(models.QueueTypeCounseling),
+	)
+
+	suite.Require().Len(queueMoves, 1)
+	q := queueMoves[0]
+
+	// all dates sorted and joined with ", "
+	suite.Require().NotNil(q.RequestedMoveDate)
+	suite.Equal("Jan 1 2025, Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDate)
 }
