@@ -105,7 +105,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
-			Roles:           factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor}).User.Roles,
+			ActiveRole:      factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor}).User.Roles[0],
 		})
 
 		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)

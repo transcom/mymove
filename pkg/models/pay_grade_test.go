@@ -21,5 +21,12 @@ func (suite *ModelSuite) TestEmptyPayGradeInstantiation() {
 	expErrors := map[string][]string{
 		"grade": {"Grade can not be blank."},
 	}
-	suite.verifyValidationErrors(&newPayGrade, expErrors)
+	suite.verifyValidationErrors(&newPayGrade, expErrors, nil)
+}
+
+func (suite *ModelSuite) TestGetPayGradesForAffiliation() {
+	payGrades, err := m.GetPayGradesForAffiliation(suite.DB(), m.AffiliationAIRFORCE.String())
+	suite.NoError(err)
+
+	suite.Equal(26, len(payGrades))
 }

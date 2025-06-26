@@ -1,10 +1,11 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useReducer, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@trussworks/react-uswds';
+import { Button, ErrorMessage } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
 
 import ordersFormValidationSchema from '../Orders/ordersFormValidationSchema';
 
@@ -13,17 +14,19 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import {
-  ORDERS_TYPE_DETAILS_OPTIONS,
-  ORDERS_TYPE_OPTIONS,
-  ORDERS_PAY_GRADE_OPTIONS,
-  ORDERS_TYPE,
-} from 'constants/orders';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { getTacValid, getLoa, counselingUpdateOrder, getOrder } from 'services/ghcApi';
-import { formatSwaggerDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
+import {
+  getTacValid,
+  getLoa,
+  counselingUpdateOrder,
+  getOrder,
+  getResponseError,
+  getPayGradeOptions,
+} from 'services/ghcApi';
+import { formatSwaggerDate, dropdownInputOptions, formatYesNoAPIValue, formatPayGradeOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
@@ -32,19 +35,27 @@ import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialT
 import { LOA_TYPE, MOVE_DOCUMENT_TYPE, FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { scrollToViewFormikError } from 'utils/validation';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import retryPageLoading from 'utils/retryPageLoading';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
+const ServicesCounselingOrders = ({
+  files,
+  amendedDocumentId,
+  updateAmendedDocument,
+  onAddFile,
+  setShowLoadingSpinner,
+}) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  const [orderTypeOptions, setOrderTypeOptions] = useState(ORDERS_TYPE_OPTIONS);
+  const [orderTypesOptions, setOrderTypesOptions] = useState(ORDERS_TYPE_OPTIONS);
+  const [serverError, setServerError] = useState(null);
 
   const orderId = move?.ordersId;
   const initialValueOfHasDependents = orders[orderId]?.has_dependents;
@@ -70,6 +81,11 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       handleClose();
     },
     onError: (error) => {
+      const message = getResponseError(
+        error,
+        'Something went wrong, and your changes were not saved. Please refresh the page and try again.',
+      );
+      setServerError(message);
       const errorMsg = error?.response?.body;
       milmoveLogger.error(errorMsg);
     },
@@ -183,6 +199,26 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
 
   const order = Object.values(orders)?.[0];
 
+  const [payGradeDropdownOptions, setPayGradeOptions] = useState([]);
+  useEffect(() => {
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      try {
+        const fetchedRanks = await getPayGradeOptions(order.agency);
+        if (fetchedRanks) {
+          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchGradeOptions();
+  }, [order.agency, setShowLoadingSpinner]);
+
   const counselorCanEdit =
     move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
     move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
@@ -260,17 +296,27 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   ]);
 
   useEffect(() => {
-    const checkAlaskaFeatureFlag = async () => {
+    const checkFeatureFlags = async () => {
       const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
-      if (!isAlaskaEnabled) {
-        const options = orderTypeOptions;
-        delete orderTypeOptions.EARLY_RETURN_OF_DEPENDENTS;
-        delete orderTypeOptions.STUDENT_TRAVEL;
-        setOrderTypeOptions(options);
-      }
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+
+      setOrderTypesOptions((prevOptions) => {
+        const options = { ...prevOptions };
+
+        if (!isAlaskaEnabled) {
+          delete options.EARLY_RETURN_OF_DEPENDENTS;
+          delete options.STUDENT_TRAVEL;
+        }
+        if (!isWoundedWarriorEnabled) {
+          delete options.WOUNDED_WARRIOR;
+        }
+
+        return options;
+      });
     };
-    checkAlaskaFeatureFlag();
-  }, [orderTypeOptions]);
+
+    checkFeatureFlags();
+  }, []);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -322,11 +368,16 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     'Unable to find a LOA based on the provided details. Please ensure a department indicator and TAC are present on this form.';
   const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
 
-  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypeOptions);
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypesOptions);
 
   return (
     <div className={styles.sidebar}>
-      <Formik initialValues={initialValues} validationSchema={ordersFormValidationSchema} onSubmit={onSubmit}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={ordersFormValidationSchema}
+        onSubmit={onSubmit}
+        validateOnChange
+      >
         {(formik) => {
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
           const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
@@ -413,17 +464,18 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
                   />
                 </div>
+                {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
+                    <Button type="button" secondary onClick={handleClose}>
+                      Cancel
+                    </Button>
                     <Button
                       type="submit"
                       disabled={formik.isSubmitting || !counselorCanEdit}
                       onClick={scrollToViewFormikError(formik)}
                     >
                       Save
-                    </Button>
-                    <Button type="button" secondary onClick={handleClose}>
-                      Cancel
                     </Button>
                   </div>
                 </div>
@@ -436,4 +488,8 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   );
 };
 
-export default ServicesCounselingOrders;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => {}, mapDispatchToProps)(ServicesCounselingOrders);

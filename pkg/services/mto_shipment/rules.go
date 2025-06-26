@@ -27,8 +27,11 @@ func checkUBShipmentOCONUSRequirement() validator {
 }
 
 func checkStatus() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
+		if older != nil && IsStatusBannedFromUpdating(older.Status) {
+			verrs.Add("status", "this shipment has been blocked from updating due to its status")
+		}
 		if newer.Status != "" && newer.Status != models.MTOShipmentStatusDraft && newer.Status != models.MTOShipmentStatusSubmitted {
 			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
 		}
@@ -73,14 +76,23 @@ func checkAvailToPrime() validator {
 
 func checkReweighAllowed() validator {
 	return validatorFunc(func(_ appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
-		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusDiversionRequested {
-			return apperror.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", newer.Status))
+		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusApprovalsRequested && newer.Status != models.MTOShipmentStatusDiversionRequested {
+			return apperror.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved, Approvals Requested, or Diversion Requested. The shipment's current status is %s", newer.Status))
 		}
 		if newer.Reweigh.RequestedBy != "" {
 			return apperror.NewConflictError(newer.ID, "Cannot request a reweigh on a shipment that already has one.")
 		}
 		return nil
 	})
+}
+
+func IsStatusBannedFromUpdating(status models.MTOShipmentStatus) bool {
+	for _, banned := range ShipmentStatusesBannedFromUpdating {
+		if status == banned {
+			return true
+		}
+	}
+	return false
 }
 
 // Checks if an office user is able to update a shipment based on shipment status
@@ -90,9 +102,9 @@ func checkUpdateAllowed() validator {
 		err := apperror.NewForbiddenError(msg)
 
 		if appCtx.Session().IsOfficeApp() && appCtx.Session().IsOfficeUser() {
-			isServiceCounselor := appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor)
-			isTOO := appCtx.Session().Roles.HasRole(roles.RoleTypeTOO)
-			isTIO := appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)
+			isServiceCounselor := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor
+			isTOO := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO
+			isTIO := appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTIO
 			switch older.Status {
 			case models.MTOShipmentStatusSubmitted:
 				if isServiceCounselor || isTOO {
@@ -114,6 +126,10 @@ func checkUpdateAllowed() validator {
 				if isTOO {
 					return nil
 				}
+			case models.MTOShipmentStatusApprovalsRequested:
+				if isTOO {
+					return nil
+				}
 			default:
 				return err
 			}
@@ -130,15 +146,15 @@ func checkDeleteAllowed() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
 		move := older.MoveTaskOrder
 
-		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor {
 			if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
 				return apperror.NewForbiddenError("Service Counselor: A shipment can only be deleted if the move is in 'Draft' or 'NeedsServiceCounseling' status")
 			}
 		}
 
-		if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-			if older.Status == models.MTOShipmentStatusApproved {
-				return apperror.NewForbiddenError("TOO: APPROVED shipments cannot be deleted")
+		if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO {
+			if older.Status == models.MTOShipmentStatusApproved || older.Status == models.MTOShipmentStatusApprovalsRequested {
+				return apperror.NewForbiddenError("TOO: A shipment cannot be deleted if it's in Approved or Approvals Requested status")
 			}
 		}
 
@@ -220,6 +236,7 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate() validator {
 		return nil
 	})
 }
+
 func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
@@ -241,29 +258,33 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate() validator {
 func MTOShipmentHasValidRequestedPickupDate() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
-		if newer.IsPPMShipment() {
+
+		if newer == nil || newer.IsPPMShipment() || (older != nil && older.IsPPMShipment()) {
 			return nil
 		}
 
-		newerShipmentType := models.MTOShipmentType("")
-		if newer != nil && newer.ShipmentType != "" {
-			newerShipmentType = newer.ShipmentType
+		shipmentType := newer.ShipmentType
+		if shipmentType == models.MTOShipmentType("") && older != nil {
+			shipmentType = older.ShipmentType
 		}
-		newerHasDate := newer != nil && newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
+
+		newerHasDate := newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
 		olderHasDate := older != nil && older.RequestedPickupDate != nil && !older.RequestedPickupDate.IsZero()
-		isPickupDateRequired := newerShipmentType == models.MTOShipmentTypeBoatHaulAway || newerShipmentType == models.MTOShipmentTypeBoatTowAway ||
-			newerShipmentType == models.MTOShipmentTypeMobileHome || newerShipmentType == models.MTOShipmentTypeHHGOutOfNTS
-		if !newerHasDate && !isPickupDateRequired {
-			verrs.Add("error validating mto shipment", "RequestedPickupDate is required to create a shipment")
+		isPickupDateNotRequired := shipmentType == models.MTOShipmentTypeBoatHaulAway || shipmentType == models.MTOShipmentTypeBoatTowAway ||
+			shipmentType == models.MTOShipmentTypeMobileHome || shipmentType == models.MTOShipmentTypeHHGOutOfNTS
+
+		if !newerHasDate && !olderHasDate && !isPickupDateNotRequired {
+			verrs.Add("error validating mto shipment", "RequestedPickupDate is required to create or modify a shipment")
 			return apperror.NewInvalidInputError(newer.ID, nil, validate.NewErrors(),
-				fmt.Sprintf("RequestedPickupDate is required to create %s %s shipment", GetAorAnByShipmentType(newerShipmentType), newerShipmentType))
+				fmt.Sprintf("RequestedPickupDate is required to create or modify %s %s shipment", GetAorAnByShipmentType(shipmentType), shipmentType))
 		}
+
 		isDateUpdated := olderHasDate && newerHasDate && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate)
 		if (newerHasDate && !olderHasDate) || isDateUpdated {
 			today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
 			requestedDate := newer.RequestedPickupDate.Truncate(24 * time.Hour)
 			if !requestedDate.After(today) {
-				verrs.Add("error validating mto shipment", "Requested pickup must be greater than or equal to tomorrow's date.")
+				verrs.Add("error validating mto shipment", "RequestedPickupDate must be greater than or equal to tomorrow's date.")
 				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
 			}
 		}
@@ -476,6 +497,82 @@ func childDiversionPrimeWeightRule() validator {
 			}
 			newer.PrimeActualWeight = parentShipment.PrimeActualWeight
 		}
+		return nil
+	})
+}
+
+var ShipmentStatusesBannedFromUpdating = []models.MTOShipmentStatus{
+	models.MTOShipmentStatusCanceled,
+	models.MTOShipmentStatusTerminatedForCause,
+	models.MTOShipmentStatusRejected,
+}
+
+var ShipmentStatusesBannedFromAddressUpdating = append(
+	[]models.MTOShipmentStatus{},
+	ShipmentStatusesBannedFromUpdating...,
+)
+
+func checkStatusNotBannedFromAddressUpdates(shipment models.MTOShipment) error {
+	var statusIsBannedFromAddressUpdates bool
+	for _, status := range ShipmentStatusesBannedFromAddressUpdating {
+		if shipment.Status == status {
+			statusIsBannedFromAddressUpdates = true
+		}
+	}
+	if statusIsBannedFromAddressUpdates {
+		return apperror.NewConflictError(shipment.ID, fmt.Sprintf("cannot update address: shipment status %s does not allow address updates for shipment id %s", shipment.Status, shipment.ID))
+	}
+	return nil
+}
+
+func checkShipmentTypeAllowsUpdate(address models.Address, shipment models.MTOShipment) error {
+	switch shipment.ShipmentType {
+	case models.MTOShipmentTypeHHGIntoNTS:
+		if shipment.DestinationAddressID != nil && *shipment.DestinationAddressID == address.ID {
+			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("cannot update the destination address of an NTS shipment directly, please update the storage facility address instead for shipment id %s", shipment.ID))
+		}
+	case models.MTOShipmentTypeHHGOutOfNTS:
+		if shipment.PickupAddressID != nil && *shipment.PickupAddressID == address.ID {
+			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("cannot update the pickup address of an NTS-Release shipment directly, please update the storage facility address instead for shipment id %s", shipment.ID))
+		}
+	}
+
+	return nil
+}
+
+func checkShipmentStatusAllowsUpdate(address models.Address, shipment models.MTOShipment) error {
+	switch shipment.Status {
+	case models.MTOShipmentStatusApproved, models.MTOShipmentStatusApprovalsRequested:
+		if shipment.DestinationAddressID != nil && *shipment.DestinationAddressID == address.ID {
+			// The updateShipmentDestinationAddress handler bypasses these rules by use of the ShipmentAddressUpdateRequester service.
+			// ReviewShipmentAddressChange utilizes special logic for updating SIT service items, etc. as well
+			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("This shipment has already been approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address of an approved shipment for shipment id %s", shipment.ID))
+		}
+	}
+	return nil
+}
+
+// Main check function for if a shipment's address is allowed to be updated.
+// This is primarily restrictive as this service is used to prevent the Prime
+// from using this service as a shipment address updater.
+// Instead, the Prime should be going through the ShipmentAddressUpdateRequester service.
+// This is to prevent immediate updating of an address, and to prompt for office user approval
+// as needed
+func checkAddressUpdateAllowed() addressUpdateValidator {
+	return addressUpdateValidatorFunc(func(ac appcontext.AppContext, address *models.Address, shipment *models.MTOShipment) error {
+		if shipment == nil || address == nil {
+			return apperror.NewInternalServerError("shipment address updater is not passing needed validator values on construction")
+		}
+		if err := checkStatusNotBannedFromAddressUpdates(*shipment); err != nil {
+			return err
+		}
+		if err := checkShipmentStatusAllowsUpdate(*address, *shipment); err != nil {
+			return err
+		}
+		if err := checkShipmentTypeAllowsUpdate(*address, *shipment); err != nil {
+			return err
+		}
+
 		return nil
 	})
 }
