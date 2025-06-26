@@ -30,6 +30,7 @@ import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { sortRankOptions } from 'shared/utils';
+import RankField from 'components/form/RankField/RankField';
 
 let originMeta;
 let newDutyMeta = '';
@@ -548,19 +549,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 }}
               />
 
-              {grade !== '' ? (
-                <DropdownInput
-                  label="Rank"
-                  name="rank"
-                  id="rank"
-                  required
-                  options={rankOptions}
-                  showRequiredAsterisk
-                  onChange={(e) => {
-                    handleChange(e);
-                  }}
-                />
-              ) : null}
+              {grade !== '' ? <RankField rankOptions={rankOptions} handleChange={handleChange} /> : null}
 
               {isCivilianTDYMove && (
                 <FormGroup>
