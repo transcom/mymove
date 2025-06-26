@@ -265,7 +265,7 @@ const MovePaymentRequests = ({
             )}
           </Grid>
           <div className={styles.tioPaymentRequestsHeadingFlexbox}>
-            <h1>Payment Requests</h1>
+            <h2>Payment Requests</h2>
             <Restricted to={permissionTypes.updateFinancialReviewFlag}>
               <FinancialReviewButton
                 onClick={handleShowFinancialReviewModal}

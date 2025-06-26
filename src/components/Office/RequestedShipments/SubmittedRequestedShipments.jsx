@@ -417,6 +417,7 @@ const SubmittedRequestedShipments = ({
               );
             })}
         </div>
+
         <Restricted to={permissionTypes.updateShipment}>
           <div className={styles.serviceItems}>
             {!hideAddServiceItemsForm && (
