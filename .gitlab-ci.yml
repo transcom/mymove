@@ -766,6 +766,8 @@ prep_integration_microservice:
       --build-arg "LOGIN_GOV_SECRET_KEY=${LOGIN_GOV_SECRET_KEY}"
       --build-arg "HERE_MAPS_APP_ID=${HERE_MAPS_APP_ID}"
       --build-arg "HERE_MAPS_APP_CODE=${HERE_MAPS_APP_CODE}"
+      --build-arg "CSRF_AUTH_KEY=${CSRF_AUTH_KEY}"
+      --build-arg "IWS_RBS_HOST=${IWS_RBS_HOST}"
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile_gitlabtests_dp3"
       --destination "${CI_REGISTRY_IMAGE}:e2e-${CI_COMMIT_SHORT_SHA}"
   allow_failure: true
