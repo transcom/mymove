@@ -154,8 +154,10 @@ test.describe('Services counselor user', () => {
       await expect(page.getByRole('button', { name: 'Save and Continue' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save and Continue' }).click();
 
-      await expect(page.getByText('Incentive & advance')).toBeVisible();
-      await expect(page.getByText('Estimated incentive')).toBeVisible();
+      let selector = page.getByText('Incentive & advance');
+      await selector.waitFor({ state: 'visible' });
+      selector = page.getByText('Estimated incentive');
+      await selector.waitFor({ state: 'visible' });
 
       await page.getByTestId('counselor-remarks').fill('remarks');
 
