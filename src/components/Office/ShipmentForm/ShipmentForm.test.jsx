@@ -7,7 +7,7 @@ import moment from 'moment';
 import ShipmentForm from './ShipmentForm';
 
 import { PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 import { ADDRESS_UPDATE_STATUS, boatShipmentTypes, ppmShipmentStatuses } from 'constants/shipments';
 import { tooRoutes } from 'constants/routes';
@@ -243,7 +243,7 @@ const defaultProps = {
       unaccompaniedBaggageAllowance: 400,
     },
     agency: '',
-    grade: ORDERS_PAY_GRADE_OPTIONS.E_7,
+    grade: ORDERS_PAY_GRADE_TYPE.E_7,
   },
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
@@ -1954,7 +1954,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Amount requested *')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Approve')).toBeChecked();
-      expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+      expect(screen.getByLabelText('Counselor remarks *')).toHaveValue('mock counselor remarks');
 
       await act(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
@@ -2012,7 +2012,7 @@ describe('ShipmentForm component', () => {
       expect(screen.queryByLabelText('Amount requested *')).not.toBeInTheDocument();
 
       await act(async () => {
-        screen.getByLabelText('Counselor remarks').focus();
+        screen.getByLabelText('Counselor remarks *').focus();
         await userEvent.paste('retirees are not given advances');
         await userEvent.tab();
       });
@@ -2367,18 +2367,20 @@ describe('ShipmentForm component', () => {
   });
 
   describe('creating a new Boat shipment', () => {
-    it('renders the Boat shipment form correctly', async () => {
+    it('renders the Boat shipment form correctly with asterisks for required fields', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.BOAT_HAUL_AWAY} isCreatePage />);
+
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('Boat');
       expect(await screen.findByText('Boat')).toBeInTheDocument();
-      expect(screen.getByLabelText('Year')).toBeInTheDocument();
-      expect(screen.getByLabelText('Make')).toBeInTheDocument();
-      expect(screen.getByLabelText('Model')).toBeInTheDocument();
+      expect(screen.getByLabelText('Year *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Make *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Model *')).toBeInTheDocument();
       expect(await screen.findByText('Length')).toBeInTheDocument();
       expect(await screen.findByText('Width')).toBeInTheDocument();
       expect(await screen.findByText('Height')).toBeInTheDocument();
-      expect(await screen.findByText('Does the boat have a trailer?')).toBeInTheDocument();
+      expect(await screen.getByLabelText(/Does the boat have a trailer? */)).toBeInTheDocument();
       expect(await screen.findByText('What is the method of shipment?')).toBeInTheDocument();
       expect(await screen.findByText('Pickup details')).toBeInTheDocument();
       expect(await screen.findByText('Delivery details')).toBeInTheDocument();
@@ -2475,12 +2477,14 @@ describe('ShipmentForm component', () => {
   });
 
   describe('creating a new Mobile Home shipment', () => {
-    it('renders the Mobile Home shipment form correctly', async () => {
+    it('renders the Mobile Home shipment form correctly with asterisks for required fields', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} isCreatePage />);
 
-      expect(screen.getByLabelText('Year')).toBeInTheDocument();
-      expect(screen.getByLabelText('Make')).toBeInTheDocument();
-      expect(screen.getByLabelText('Model')).toBeInTheDocument();
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('Year *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Make *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Model *')).toBeInTheDocument();
       expect(await screen.findByText('Length')).toBeInTheDocument();
       expect(await screen.findByText('Width')).toBeInTheDocument();
       expect(await screen.findByText('Height')).toBeInTheDocument();

@@ -143,7 +143,13 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
           generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
             customerId,
           }),
-          { state: { isSafetyMoveSelected: isSafetyMove, isBluebarkMoveSelected: isBluebarkMove } },
+          {
+            state: {
+              isSafetyMoveSelected: isSafetyMove,
+              isBluebarkMoveSelected: isBluebarkMove,
+              affiliation: values.affiliation,
+            },
+          },
         );
       })
       .catch((e) => {

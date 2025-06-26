@@ -95,14 +95,15 @@ const PrimeUIUpdateOriginSITForm = ({ initialValues, onSubmit, serviceItem }) =>
                   </>
                 )}
               </SectionWrapper>
-              <WizardNavigation
-                editMode
-                className={formStyles.formActions}
-                aria-label="Update SIT Service Item"
-                type="submit"
-                onCancelClick={handleClose}
-                onNextClick={handleSubmit}
-              />
+              <div className={formStyles.formActions}>
+                <WizardNavigation
+                  editMode
+                  aria-label="Update SIT Service Item"
+                  type="submit"
+                  onCancelClick={handleClose}
+                  onNextClick={handleSubmit}
+                />
+              </div>
             </div>
           </FormGroup>
         </Form>
