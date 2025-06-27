@@ -2118,7 +2118,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.Run("Successful Office/TOO UpdateShipment - CONUS Pickup, OCONUS Destination - mileage is recalculated and pricing estimates refreshed for International FSC SIT service items", func() {
-
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -2307,7 +2306,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.Run("Successful Office/TOO UpdateShipment - OCONUS Pickup, CONUS Destination - mileage is recalculated and pricing estimates refreshed for International FSC SIT service items", func() {
-
+		setupAllAddressData()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -2495,7 +2494,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.Run("Successful Office/TOO UpdateShipment - Pricing estimates calculated for Intl First Day SIT Service Items (IOFSIT, IDFSIT)", func() {
-
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
