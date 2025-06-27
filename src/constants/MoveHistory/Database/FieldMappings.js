@@ -142,8 +142,8 @@ export default {
   sit_customer_contacted: 'SIT customer contacted',
   sit_location: 'SIT location',
   sit_estimated_cost: 'SIT estimated cost',
-  estimated_incentive: 'PPM estimated incentive',
-  max_incentive: 'PPM max incentive',
+  estimated_incentive: 'Estimated incentive',
+  max_incentive: 'Max incentive',
   ppm_type: 'PPM type',
   actual_move_date: 'Departure date',
   actual_pickup_postal_code: 'Starting ZIP',
@@ -179,4 +179,7 @@ export default {
   terminated_at: 'Terminated at',
   termination_comments: 'Comments',
   required_delivery_date: 'Required delivery date',
+  pricing_estimate: 'Estimated price',
+  sit_delivery_miles: 'SIT delivery miles',
+  shipment_seq_num: 'Shipment count',
 };
