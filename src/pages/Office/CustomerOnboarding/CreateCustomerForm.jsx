@@ -511,7 +511,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       type="tel"
                       minimum="12"
                       mask="000{-}000{-}0000"
-                      // showRequiredAsterisk
+                      showRequiredAsterisk
                       required
                     />
                   </SectionWrapper>
