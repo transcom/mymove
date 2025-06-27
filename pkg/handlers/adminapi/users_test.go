@@ -10,18 +10,23 @@
 package adminapi
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -42,7 +47,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			userservice.NewUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -67,7 +72,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.Anything,
 		).Return(models.User{}, expectedError).Once()
 		handler := GetUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			userFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -95,7 +100,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
+			HandlerConfig:  suite.NewHandlerConfig(),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -132,7 +137,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
+			HandlerConfig:  suite.NewHandlerConfig(),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    userListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -175,7 +180,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	setupHandler := func() UpdateUserHandler {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		return UpdateUserHandler{
 			handlerConfig,
@@ -487,4 +492,187 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		suite.Equal(officeSessionID, foundUser.CurrentOfficeSessionID)
 		suite.Equal(true, foundUser.Active)
 	})
+}
+
+func (suite *HandlerSuite) TestDeleteUsersHandler() {
+	suite.Run("deleted requested users results in no content (successful) response", func() {
+		status := models.OfficeUserStatusAPPROVED
+		userRole := roles.Role{
+			RoleType: roles.RoleTypeTOO,
+		}
+		testOfficeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					Status: &status,
+				},
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{userRole},
+				},
+			},
+		}, nil)
+		testUser := testOfficeUser.User
+
+		params := userop.DeleteUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/users/%s", testUser.ID)),
+			UserID:      *handlers.FmtUUID(testUser.ID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteUserHandler{
+			HandlerConfig: suite.NewHandlerConfig(),
+			UserDeleter:   userservice.NewUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&userop.DeleteUserNoContent{}, response)
+
+		var dbUser models.User
+		err := suite.DB().Where("id = ?", testUser.ID).First(&dbUser)
+		suite.Error(err)
+		suite.Equal(sql.ErrNoRows, err, "sql: no rows in result set")
+
+		var dbOfficeUser models.OfficeUser
+		err = suite.DB().Where("user_id = ?", testUser.ID).First(&dbOfficeUser)
+		suite.Error(err)
+		suite.Equal(sql.ErrNoRows, err, "sql: no rows in result set")
+
+		// .All does not return a sql no rows error, so we will verify that the struct is empty
+		var userRoles []models.UsersRoles
+		err = suite.DB().Where("user_id = ?", testUser.ID).All(&userRoles)
+		suite.NoError(err)
+		suite.Empty(userRoles, "Expected no roles to remain for the user")
+
+		var userPrivileges []models.UsersPrivileges
+		err = suite.DB().Where("user_id = ?", testUser.ID).All(&userPrivileges)
+		suite.NoError(err)
+		suite.Empty(userPrivileges, "Expected no privileges to remain for the user")
+	})
+
+	suite.Run("get an error when the user does not exist", func() {
+		userID := uuid.Must(uuid.NewV4())
+
+		params := userop.DeleteUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/users/%s", userID)),
+			UserID:      *handlers.FmtUUID(userID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteUserHandler{
+			HandlerConfig: suite.NewHandlerConfig(),
+			UserDeleter:   userservice.NewUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&userop.DeleteUserNotFound{}, response)
+	})
+
+	suite.Run("error response when a user is not in the admin application", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+		userID := officeUser.ID
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/users/%s", userID), nil)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          userID,
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
+		params := userop.DeleteUserParams{
+			HTTPRequest: req.WithContext(ctx),
+			UserID:      *handlers.FmtUUID(userID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteUserHandler{
+			HandlerConfig: suite.NewHandlerConfig(),
+			UserDeleter:   userservice.NewUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&userop.DeleteUserUnauthorized{}, response)
+	})
+
+	suite.Run("get an error when the user has a move", func() {
+		userRole := roles.Role{
+			RoleType: roles.RoleTypeCustomer,
+		}
+		testUser := factory.BuildUserAndUsersRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.User{
+					Roles: []roles.Role{userRole},
+				},
+			},
+		}, nil)
+		_ = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    testUser,
+				LinkOnly: true,
+			},
+		}, nil)
+		userID := testUser.ID
+
+		params := userop.DeleteUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/users/%s", userID)),
+			UserID:      *handlers.FmtUUID(userID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteUserHandler{
+			HandlerConfig: suite.NewHandlerConfig(),
+			UserDeleter:   userservice.NewUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&userop.DeleteUserConflict{}, response)
+	})
+
+	suite.Run("get an error when the user is an Admin", func() {
+		userRole := roles.Role{
+			RoleType: roles.RoleTypeHQ,
+		}
+		testUser := factory.BuildUserAndUsersRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.User{
+					Roles: []roles.Role{userRole},
+				},
+			},
+		}, nil)
+		_ = factory.BuildAdminUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.AdminUser{
+					Active: true,
+					UserID: &testUser.ID,
+					Email:  testUser.OktaEmail,
+				},
+			},
+			{
+				Model:    testUser,
+				LinkOnly: true,
+			},
+		}, nil)
+		userID := testUser.ID
+
+		params := userop.DeleteUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/users/%s", userID)),
+			UserID:      *handlers.FmtUUID(userID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteUserHandler{
+			HandlerConfig: suite.NewHandlerConfig(),
+			UserDeleter:   userservice.NewUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&userop.DeleteUserForbidden{}, response)
+	})
+
 }

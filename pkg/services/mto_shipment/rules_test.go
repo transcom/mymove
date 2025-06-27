@@ -25,13 +25,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			models.MTOShipmentStatusCancellationRequested: false,
 			models.MTOShipmentStatusCanceled:              false,
 			models.MTOShipmentStatusDiversionRequested:    false,
+			models.MTOShipmentStatusTerminatedForCause:    false,
 		}
 		for status, allowed := range testCases {
 			suite.Run("status "+string(status), func() {
 				err := checkStatus().Validate(
 					suite.AppContextForTest(),
 					&models.MTOShipment{Status: status},
-					nil,
+					&models.MTOShipment{Status: status},
 				)
 				if allowed {
 					suite.Empty(err.Error())
@@ -239,24 +240,24 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *servicesCounselor.UserID,
 			OfficeUserID:    servicesCounselor.ID,
+			ActiveRole:      servicesCounselor.User.Roles[0],
 		}
-		servicesCounselorSession.Roles = append(servicesCounselorSession.Roles, servicesCounselor.User.Roles...)
 
 		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		tooSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
-		tooSession.Roles = append(tooSession.Roles, too.User.Roles...)
 
 		tio := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 		tioSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *tio.UserID,
 			OfficeUserID:    tio.ID,
+			ActiveRole:      tio.User.Roles[0],
 		}
-		tioSession.Roles = append(tioSession.Roles, tio.User.Roles...)
 
 		testCases := map[string]struct {
 			session auth.Session
@@ -277,6 +278,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				map[models.MTOShipmentStatus]bool{
 					models.MTOShipmentStatusSubmitted:             true,
 					models.MTOShipmentStatusApproved:              true,
+					models.MTOShipmentStatusApprovalsRequested:    true,
 					models.MTOShipmentStatusCancellationRequested: true,
 					models.MTOShipmentStatusCanceled:              true,
 					models.MTOShipmentStatusDiversionRequested:    true,
@@ -316,7 +318,144 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			}
 		}
 	})
+}
 
+func (suite *MTOShipmentServiceSuite) TestCheckAddressUpdateAllowed() {
+	suite.Run("checkStatusAllowsAddressUpdates", func() {
+		v4ID := uuid.Must(uuid.NewV4())
+		bannedErrMsgPartial := "does not allow address updates"
+		hhgIntoNtsErrMsgPartial := "cannot update the destination address of an NTS shipment directly"
+		hhgOutOfNtsErrMsgPartial := "cannot update the pickup address of an NTS-Release shipment directly"
+		approvedDestinationAddressErrMsgPartial := "please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service"
+		testCases := map[string]struct {
+			status           models.MTOShipmentStatus
+			sType            models.MTOShipmentType
+			canUpdate        bool
+			applyIds         bool
+			errorMsgIncludes string
+		}{
+			"Draft is not banned": {
+				status:    models.MTOShipmentStatusDraft,
+				canUpdate: true,
+			},
+			"Submitted is not banned": {
+				status:    models.MTOShipmentStatusSubmitted,
+				canUpdate: true,
+			},
+			"CancellationRequested is not banned": {
+				status:    models.MTOShipmentStatusCancellationRequested,
+				canUpdate: true,
+			},
+			"DiversionRequested is not banned": {
+				status:    models.MTOShipmentStatusDiversionRequested,
+				canUpdate: true,
+			},
+			"Approved is not banned": {
+				status:    models.MTOShipmentStatusApproved,
+				canUpdate: true,
+			},
+			"ApprovalsRequested is not banned": {
+				status:    models.MTOShipmentStatusApprovalsRequested,
+				canUpdate: true,
+			},
+			"Rejected is banned": {
+				status:           models.MTOShipmentStatusRejected,
+				canUpdate:        false,
+				errorMsgIncludes: bannedErrMsgPartial,
+			},
+			"Canceled is banned": {
+				status:           models.MTOShipmentStatusCanceled,
+				canUpdate:        false,
+				errorMsgIncludes: bannedErrMsgPartial,
+			},
+			"TerminatedForCause is banned": {
+				status:           models.MTOShipmentStatusTerminatedForCause,
+				canUpdate:        false,
+				errorMsgIncludes: bannedErrMsgPartial,
+			},
+			"HHG into NTS can't update dest address directly": {
+				sType:            models.MTOShipmentTypeHHGIntoNTS,
+				canUpdate:        false,
+				applyIds:         true,
+				errorMsgIncludes: hhgIntoNtsErrMsgPartial,
+			},
+			"HHG out of NTS can't update pickup address directly": {
+				sType:            models.MTOShipmentTypeHHGOutOfNTS,
+				canUpdate:        false,
+				applyIds:         true,
+				errorMsgIncludes: hhgOutOfNtsErrMsgPartial,
+			},
+			"Approved cannot have its destination address changed from this service, it must use the ShipmentAddressUpdateRequester service": {
+				status:           models.MTOShipmentStatusApproved,
+				canUpdate:        false,
+				applyIds:         true,
+				errorMsgIncludes: approvedDestinationAddressErrMsgPartial,
+			},
+		}
+		// !IMPORANT!
+		// Update this count on every new test case that isn't related to the status check of checkStatusNotBannedFromAddressUpdates
+		var countOfNonStatusTestCases = 3
+
+		appCtx := suite.AppContextForTest()
+
+		// Check that we have a test case for all counts of possible shipment statuses
+		type statusRow struct {
+			Status string `db:"status"`
+		}
+		var rows []statusRow
+		err := appCtx.DB().
+			RawQuery(`SELECT unnest(enum_range(NULL::public.mto_shipment_status)) AS status`).
+			All(&rows)
+		suite.FatalNoError(err)
+		suite.Require().Equal(len(testCases)-countOfNonStatusTestCases, len(rows), "The count of shipment status test cases do not match the amount pulled from the database enum")
+
+		checker := checkAddressUpdateAllowed()
+
+		for name, tc := range testCases {
+			suite.Run(name, func() {
+				address := models.Address{}
+				shipment := models.MTOShipment{
+					Status:       tc.status,
+					ShipmentType: tc.sType,
+				}
+				if tc.applyIds {
+					address.ID = v4ID
+					shipment.PickupAddressID = &v4ID
+					shipment.DestinationAddressID = &v4ID
+				}
+				err := checker.Validate(appCtx, &address, &shipment)
+				if tc.canUpdate {
+					suite.NoError(err, "expected no error for status %s", tc.status)
+				} else {
+					suite.Error(err, "expected error for status %s", tc.status)
+					suite.ErrorContains(err, tc.errorMsgIncludes, "expected error to match the test case partial err msg case")
+				}
+			})
+		}
+	})
+
+	suite.Run("Check error if shipment or address is nil", func() {
+		testCases := map[string]struct {
+			address  *models.Address
+			shipment *models.MTOShipment
+		}{
+			"shipment should error if nil": {
+				address: &models.Address{},
+			},
+			"address should error if nil": {
+				shipment: &models.MTOShipment{},
+			},
+		}
+		appCtx := suite.AppContextForTest()
+		checker := checkAddressUpdateAllowed()
+		for name, tc := range testCases {
+			suite.Run(name, func() {
+				err := checker.Validate(appCtx, tc.address, tc.shipment)
+				suite.Error(err)
+				suite.ErrorContains(err, "shipment address updater is not passing needed validator values")
+			})
+		}
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
@@ -343,7 +482,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 				officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 				appContext := suite.AppContextWithSessionForTest(&auth.Session{
-					Roles:           officeUser.User.Roles,
+					ActiveRole:      officeUser.User.Roles[0],
 					ApplicationName: auth.OfficeApp,
 				})
 
@@ -374,7 +513,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		appContext := suite.AppContextWithSessionForTest(&auth.Session{
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			ApplicationName: auth.OfficeApp,
 		})
 
@@ -415,7 +554,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 				officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 				appContext := suite.AppContextWithSessionForTest(&auth.Session{
-					Roles:           officeUser.User.Roles,
+					ActiveRole:      officeUser.User.Roles[0],
 					ApplicationName: auth.OfficeApp,
 				})
 
@@ -546,16 +685,17 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate() {
+
 	uuidTest, _ := uuid.NewV4()
 	today := time.Now().Truncate(24 * time.Hour)
 	tomorrow := today.Add(24 * time.Hour)
 	futureDate := models.TimePointer(tomorrow)
 	pastDate := models.TimePointer(today.Add(-24 * time.Hour))
 	zeroTime := time.Time{}
-	requiredDateError := "RequestedPickupDate is required to create an HHG shipment"
+	requiredDateError := "RequestedPickupDate is required to create or modify an HHG shipment"
 	invalidDateError := "RequestedPickupDate must be greater than or equal to tomorrow's date"
 
-	testCases := []struct {
+	edgeTestCases := []struct {
 		name          string
 		newer         *models.MTOShipment
 		older         *models.MTOShipment
@@ -571,6 +711,15 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			},
 			expectedError: true,
 			errorMessage:  requiredDateError,
+		},
+		{
+			name: "RequestedPickupDate in past",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: pastDate,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
 		},
 		{
 			name: "RequestedPickupDate today",
@@ -601,146 +750,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			errorMessage:  requiredDateError,
 		},
 		{
-			name: "PPM shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypePPM,
-			},
-			expectedError: false,
-		},
-		{
-			name: "HHG shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				RequestedPickupDate: pastDate,
-				ShipmentType:        models.MTOShipmentTypeHHG,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "Boat shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypeBoatHaulAway,
-			},
-			expectedError: false,
-		},
-		{
-			name: "Boat shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeBoatHaulAway,
-				RequestedPickupDate: pastDate,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "Boat shipment with todays date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeBoatHaulAway,
-				RequestedPickupDate: &today,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "Mobile home shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypeMobileHome,
-			},
-			expectedError: false,
-		},
-		{
-			name: "Mobile home shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeMobileHome,
-				RequestedPickupDate: pastDate,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "Mobile home shipment with todays date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeMobileHome,
-				RequestedPickupDate: &today,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Out of NTS shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
-			},
-			expectedError: false,
-		},
-		{
-			name: "HHG Out of NTS shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
-				RequestedPickupDate: pastDate,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Out of NTS shipment with todays date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
-				RequestedPickupDate: &today,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Into NTS shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
-			},
-			expectedError: true,
-			errorMessage:  "RequestedPickupDate is required to create an HHG_INTO_NTS shipment",
-		},
-		{
-			name: "HHG Into NTS shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
-				RequestedPickupDate: pastDate,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Into NTS shipment with todays date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
-				RequestedPickupDate: &today,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Into NTS shipment with future date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
-				RequestedPickupDate: futureDate,
-			},
-			expectedError: false,
-		},
-		{
 			name: "Update from valid date to nil",
 			newer: &models.MTOShipment{
 				ID:           uuidTest,
@@ -751,7 +760,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 				RequestedPickupDate: &tomorrow,
 				ShipmentType:        models.MTOShipmentTypeHHG,
 			},
-			expectedError: true,
+			expectedError: false,
 			errorMessage:  requiredDateError,
 		},
 		{
@@ -770,13 +779,162 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range edgeTestCases {
 		suite.Run(tc.name, func() {
 			validator := MTOShipmentHasValidRequestedPickupDate()
 			err := validator.Validate(suite.AppContextForTest(), tc.newer, tc.older)
 			if tc.expectedError {
 				suite.Error(err)
 				suite.Contains(err.Error(), tc.errorMessage)
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+
+	// TEST - requestedPickupDate required
+
+	requiredTestCases := []struct {
+		shipmentType models.MTOShipmentType
+		shouldError  bool
+	}{
+		// HHG
+		{models.MTOShipmentTypeHHG, true},
+		// NTS
+		{models.MTOShipmentTypeHHGIntoNTS, true},
+		// NTSR
+		{models.MTOShipmentTypeHHGOutOfNTS, false},
+		// BOAT HAUL AWAY
+		{models.MTOShipmentTypeBoatHaulAway, false},
+		// BOAT TOW AWAY
+		{models.MTOShipmentTypeBoatTowAway, false},
+		// MOBILE HOME
+		{models.MTOShipmentTypeMobileHome, false},
+		// UB
+		{models.MTOShipmentTypeUnaccompaniedBaggage, true},
+		// PPM - should always pass validation
+		{models.MTOShipmentTypePPM, false},
+	}
+
+	checker := MTOShipmentHasValidRequestedPickupDate()
+	for _, testCase := range requiredTestCases {
+		suite.Run(fmt.Sprintf("requestedPickupDate required | %s", string(testCase.shipmentType)), func() {
+			mtoShipment := models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        testCase.shipmentType,
+				RequestedPickupDate: nil,
+			}
+			err := checker.Validate(suite.AppContextForTest(), &mtoShipment, nil)
+			if testCase.shouldError {
+				suite.ErrorContains(err, fmt.Sprintf("RequestedPickupDate is required to create or modify %s %s shipment", GetAorAnByShipmentType(testCase.shipmentType), testCase.shipmentType))
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+
+	// TEST - requestedPickupDate must be in the future
+
+	now := time.Now()
+	yesterday := now.AddDate(0, 0, -1)
+
+	futureTestCases := []struct {
+		input        *time.Time
+		shipmentType models.MTOShipmentType
+		shouldError  bool
+	}{
+		// HHG
+		{&yesterday, models.MTOShipmentTypeHHG, true},
+		{&now, models.MTOShipmentTypeHHG, true},
+		{&tomorrow, models.MTOShipmentTypeHHG, false},
+		// NTS
+		{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+		{&now, models.MTOShipmentTypeHHGIntoNTS, true},
+		{&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
+		// NTSR
+		{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+		{&now, models.MTOShipmentTypeHHGOutOfNTS, true},
+		{&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
+		// BOAT HAUL AWAY
+		{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+		{&now, models.MTOShipmentTypeBoatHaulAway, true},
+		{&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
+		// BOAT TOW AWAY
+		{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+		{&now, models.MTOShipmentTypeBoatTowAway, true},
+		{&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
+		// MOBILE HOME
+		{&yesterday, models.MTOShipmentTypeMobileHome, true},
+		{&now, models.MTOShipmentTypeMobileHome, true},
+		{&tomorrow, models.MTOShipmentTypeMobileHome, false},
+		// UB
+		{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+		{&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+		{&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+		// PPM - should always pass validation
+		{&yesterday, models.MTOShipmentTypePPM, false},
+		{&now, models.MTOShipmentTypePPM, false},
+		{&tomorrow, models.MTOShipmentTypePPM, false},
+	}
+
+	checker = MTOShipmentHasValidRequestedPickupDate()
+	for _, testCase := range futureTestCases {
+		suite.Run(fmt.Sprintf("requestedPickupDate must be in the future | %s", string(testCase.shipmentType)), func() {
+			mtoShipment := models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        testCase.shipmentType,
+				RequestedPickupDate: testCase.input,
+			}
+			err := checker.Validate(suite.AppContextForTest(), &mtoShipment, nil)
+			if testCase.shouldError {
+				suite.ErrorContains(err, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+
+	// TEST - requestedPickupDate must be in the future (UPDATE)
+	updateTestCases := []struct {
+		input        *time.Time
+		shipmentType models.MTOShipmentType
+		shouldError  bool
+	}{
+		// HHG
+		{&yesterday, models.MTOShipmentTypeHHG, true},
+		// NTS
+		{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+		// NTSR
+		{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+		// BOAT HAUL AWAY
+		{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+		// BOAT TOW AWAY
+		{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+		// MOBILE HOME
+		{&yesterday, models.MTOShipmentTypeMobileHome, true},
+		// UB
+		{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+		// PPM - should always pass validation
+		{&yesterday, models.MTOShipmentTypePPM, false},
+	}
+
+	checker = MTOShipmentHasValidRequestedPickupDate()
+	for _, testCase := range updateTestCases {
+		suite.Run(fmt.Sprintf("requestedPickupDate must be in the future (UPDATE) | %s", string(testCase.shipmentType)), func() {
+			mtoShipment := models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        testCase.shipmentType,
+				RequestedPickupDate: &tomorrow,
+			}
+
+			updatedMtoShipment := models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        testCase.shipmentType,
+				RequestedPickupDate: testCase.input,
+			}
+			err := checker.Validate(suite.AppContextForTest(), &updatedMtoShipment, &mtoShipment)
+			if testCase.shouldError {
+				suite.ErrorContains(err, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
 			} else {
 				suite.NoError(err)
 			}

@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
@@ -61,18 +60,20 @@ func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
 	suite.NotEmpty(availableRoles, "FetchRoleTypes should return values")
 
 	for _, rp := range rolesPrivileges {
-		// Assert that all roles are covered by the supervisor privilege
-		if rp.Privilege.PrivilegeType == models.PrivilegeTypeSupervisor {
-			index := slices.Index(availableRoles, rp.Role.RoleType)
-			suite.NotEqual(-1, index, "RoleType %s not found in availableRoles.", rp.Role.RoleType)
-			availableRoles = slices.Delete(availableRoles, index, index+1) // unique role->privilege, so remove role after check for supervisor
-		}
+		for _, privs := range rp.RolePrivileges {
+			// Assert that all roles are covered by the supervisor privilege
+			if privs.Privilege.PrivilegeType == roles.PrivilegeTypeSupervisor {
+				index := slices.Index(availableRoles, rp.RoleType)
+				suite.NotEqual(-1, index, "RoleType %s not found in availableRoles.", rp.RoleType)
+				availableRoles = slices.Delete(availableRoles, index, index+1) // unique role->privilege, so remove role after check for supervisor
+			}
 
-		// Assert that all 6 specified roles are covered by the safety privilege
-		if rp.Privilege.PrivilegeType == models.PrivilegeTypeSafety {
-			index := slices.Index(availableRolesSafety, rp.Role.RoleType)
-			suite.NotEqual(-1, index, "RoleType %s not found in availableRolesSafety.", rp.Role.RoleType)
-			availableRolesSafety = slices.Delete(availableRolesSafety, index, index+1) // unique role->privilege, so remove role after check for safety
+			// Assert that all 6 specified roles are covered by the safety privilege
+			if privs.Privilege.PrivilegeType == roles.PrivilegeTypeSafety {
+				index := slices.Index(availableRolesSafety, rp.RoleType)
+				suite.NotEqual(-1, index, "RoleType %s not found in availableRolesSafety.", rp.RoleType)
+				availableRolesSafety = slices.Delete(availableRolesSafety, index, index+1) // unique role->privilege, so remove role after check for safety
+			}
 		}
 	}
 
@@ -118,4 +119,66 @@ func (suite *RolesServiceSuite) TestFetchRoleTypes() {
 	}
 
 	suite.Empty(rolesToMatch, "roleTypes should be 1->1 with rolesToMatch")
+}
+
+func (suite *RolesServiceSuite) TestFetchRoleTypesSortedBySortColumn() {
+	// Fetch role_privileges
+	rf := NewRolesFetcher()
+	fetched, err := rf.FetchRolesPrivileges(suite.AppContextForTest())
+	suite.NoError(err)
+	suite.NotEmpty(fetched, "Expected at least one role returned")
+
+	// Create an array of the ordered role types
+	actualRoleOrder := make([]roles.RoleType, len(fetched))
+	for i, r := range fetched {
+		actualRoleOrder[i] = r.RoleType
+	}
+
+	// Query the DB to get the expected sorted order of roles
+	var dbRoles []roles.Role
+	err = suite.DB().
+		Order("sort ASC").
+		All(&dbRoles)
+	suite.NoError(err, "Direct DB query should not error")
+	suite.Len(dbRoles, len(fetched), "service and DB should return the same number of roles")
+
+	// Create an array of the expected ordered role types
+	expectedRoleOrder := make([]roles.RoleType, len(dbRoles))
+	for i, r := range dbRoles {
+		expectedRoleOrder[i] = r.RoleType
+	}
+
+	// Assert that the expected role order matches the actual
+	suite.Equal(expectedRoleOrder, actualRoleOrder, "FetchRolesPrivileges must return roles in the same order as `ORDER BY sort ASC`")
+
+	// For each role, verify its privileges are sorted
+	for _, roleWithPrivs := range fetched {
+		// Create an array of the ordered privilege types
+		actualPrivOrder := make([]roles.PrivilegeType, len(roleWithPrivs.RolePrivileges))
+		for i, rp := range roleWithPrivs.RolePrivileges {
+			actualPrivOrder[i] = rp.Privilege.PrivilegeType
+		}
+
+		// Query the DB to get the expected sorted order of privileges
+		type row struct {
+			PrivilegeType roles.PrivilegeType `db:"privilege_type"`
+		}
+		var rows []row
+		sql := `
+			SELECT p.privilege_type
+			FROM privileges p
+			JOIN roles_privileges rp ON p.id = rp.privilege_id
+			WHERE rp.role_id = ?
+			ORDER BY p.sort ASC
+		`
+		suite.NoError(suite.DB().RawQuery(sql, roleWithPrivs.ID).All(&rows))
+
+		// Create an array of the expected ordered privilege types
+		expectedPrivOrder := make([]roles.PrivilegeType, len(rows))
+		for i, r := range rows {
+			expectedPrivOrder[i] = r.PrivilegeType
+		}
+		// Assert that the expected privilege order matches the actual
+		suite.Equal(expectedPrivOrder, actualPrivOrder, "Privileges for role %s should be ordered by privileges.sort", roleWithPrivs.RoleType)
+	}
 }

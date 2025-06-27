@@ -80,6 +80,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
 		})
 	}
+	if api.UsersDeleteUserHandler == nil {
+		api.UsersDeleteUserHandler = users.DeleteUserHandlerFunc(func(params users.DeleteUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.DeleteUser has not yet been implemented")
+		})
+	}
 	if api.EdiErrorsFetchEdiErrorsHandler == nil {
 		api.EdiErrorsFetchEdiErrorsHandler = e_d_i_errors.FetchEdiErrorsHandlerFunc(func(params e_d_i_errors.FetchEdiErrorsParams) middleware.Responder {
 			return middleware.NotImplemented("operation e_d_i_errors.FetchEdiErrors has not yet been implemented")

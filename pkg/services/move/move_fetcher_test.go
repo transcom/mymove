@@ -6,11 +6,14 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
+	order "github.com/transcom/mymove/pkg/services/order"
 )
 
 func (suite *MoveServiceSuite) TestMoveFetcher() {
@@ -276,7 +279,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 		// move is NEEDS SERVICE COUNSELING STATUS
 		suite.Equal(moveWithWaitingOnCustomerPPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithWaitingOnCustomerPPM.SCAssignedID)
+		suite.Nil(moveWithWaitingOnCustomerPPM.SCCounselingAssignedID)
 		// GBLOC is the same
 		suite.Equal(*moveWithWaitingOnCustomerPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
@@ -322,7 +325,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 		// move is NEEDS SERVICE COUNSELING STATUS
 		suite.Equal(moveWithNeedsCloseoutPPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithNeedsCloseoutPPM.SCAssignedID)
+		suite.Nil(moveWithNeedsCloseoutPPM.SCCounselingAssignedID)
 		// GBLOC is the same
 		suite.Equal(*moveWithNeedsCloseoutPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
@@ -373,7 +376,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 		// move is NEEDS SERVICE COUNSELING STATUS
 		suite.Equal(moveWithCloseoutCompletePPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithCloseoutCompletePPM.SCAssignedID)
+		suite.Nil(moveWithCloseoutCompletePPM.SCCounselingAssignedID)
 		// GBLOC is the same
 		suite.Equal(*moveWithCloseoutCompletePPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
@@ -411,7 +414,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.SCAssignedUser,
+				Type:     &factory.OfficeUsers.SCCounselingAssignedUser,
 			},
 		}, nil)
 
@@ -661,7 +664,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 		moveFetcher, _, officeUser := setupTestData()
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(3, len(moves))
+		// should not return the destination move created by setupTestData
+		suite.Equal(2, len(moves))
 	})
 
 	suite.Run("DESTINATION_REQUEST: Returns moves that fulfill the query's criteria", func() {
@@ -727,7 +731,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(3, len(moves))
+		// should not return the destination move created by setupTestData
+		suite.Equal(2, len(moves))
 	})
 
 	suite.Run("TOO: Does not return moves that are already assigned", func() {
@@ -896,7 +901,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(3, len(moves))
+		// should not return the destination move created by setupTestData
+		suite.Equal(2, len(moves))
 	})
 
 	suite.Run("TOO: Only return payment requests with Marines if GBLOC is USMC", func() {
@@ -924,6 +930,40 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "USMC", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
+	})
+
+	suite.Run("TOO: Returns same number of moves the origin queue shows", func() {
+		// wanting to test that both DB functions return the same number of moves
+		// DB functions that should return the same number of moves:
+		// get_moves_for_bulk_assignment
+		// get_origin_queue
+		moveFetcher, _, officeUser := setupTestData()
+		// FetchMovesForBulkAssignmentTaskOrder calls db function get_moves_for_bulk_assignment
+		bulkAssignmentMoves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(
+			suite.AppContextForTest(),
+			"KKFA",
+			officeUser.TransportationOffice.ID,
+		)
+		suite.FatalNoError(err)
+		bulkAssignmentMoveCount := len(bulkAssignmentMoves)
+		waf := entitlements.NewWeightAllotmentFetcher()
+		orderFetcher := order.NewOrderFetcher(waf)
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+		// ListOriginRequestsOrders calls db function get_origin_queue
+		originMoves, originMoveCount, err := orderFetcher.ListOriginRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			&services.ListOrderParams{},
+		)
+		suite.FatalNoError(err)
+		suite.NotNil(originMoves)
+		// compare move counts, should be the same
+		suite.Equal(bulkAssignmentMoveCount, originMoveCount, "mismatch in move counts between db funcs get_origin_queue and get_moves_for_bulk_assignment")
 	})
 
 }

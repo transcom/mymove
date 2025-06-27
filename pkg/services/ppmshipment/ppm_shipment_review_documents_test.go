@@ -174,12 +174,12 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.SCAssignedUser,
+				Type:     &factory.OfficeUsers.SCCloseoutAssignedUser,
 			},
 		}, nil)
 
 		existingPPMShipment.Shipment.MoveTaskOrder = move
-		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
+		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID)
 
 		router := setUpPPMShipperRouterMock(
 			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
@@ -189,7 +189,14 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			})
 
 		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
+		ppmEstimator := &mocks.PPMEstimator{}
+		maxIncentive := 987654
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(maxIncentive)), nil)
+		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 		submitter := NewPPMShipmentReviewDocuments(
 			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), SSWPPMComputer,
@@ -203,7 +210,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			)
 
 			//check removal of the SC Assigned User
-			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
+			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID)
 
 			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
 				suite.Equal(models.PPMShipmentStatusCloseoutComplete, updatedPPMShipment.Status)
@@ -340,12 +347,12 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.SCAssignedUser,
+				Type:     &factory.OfficeUsers.SCCloseoutAssignedUser,
 			},
 		}, nil)
 
 		existingPPMShipment.Shipment.MoveTaskOrder = move
-		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
+		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID)
 
 		router := setUpPPMShipperRouterMock(
 			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
@@ -355,7 +362,14 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			})
 
 		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
+		ppmEstimator := &mocks.PPMEstimator{}
+		maxIncentive := 987654
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(maxIncentive)), nil)
+		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher, ppmEstimator)
 		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 		submitter := NewPPMShipmentReviewDocuments(
 			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), SSWPPMComputer,
@@ -369,7 +383,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			)
 
 			//check removal of the SC Assigned User
-			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
+			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID)
 
 			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
 				suite.Equal(models.PPMShipmentStatusCloseoutComplete, updatedPPMShipment.Status)
@@ -433,5 +447,23 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		suite.NotNil(certs)
 		suite.Nil(err)
 		suite.True(len(certs) == 1)
+	})
+
+	suite.Run("Dollar input handled properly", func() {
+		dollarInput := "$245.78"
+		expected := 24578
+
+		result, err := priceToCents(dollarInput)
+		suite.Nil(err)
+		suite.Equal(expected, result)
+	})
+
+	suite.Run("Non-dollar input handled properly, returns 0", func() {
+		nonDollarInput := ""
+		expected := 0
+
+		result, err := priceToCents(nonDollarInput)
+		suite.Nil(err)
+		suite.Equal(expected, result)
 	})
 }

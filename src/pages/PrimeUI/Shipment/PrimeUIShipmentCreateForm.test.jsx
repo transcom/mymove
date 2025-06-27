@@ -226,7 +226,6 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
       initialValues.ppmShipment.pickupAddress.streetAddress1,
     );
-
     expect(screen.getAllByText('City')[0]).toBeInTheDocument();
     expect(screen.getAllByText('State')[0]).toBeInTheDocument();
     expect(screen.getAllByText('County')[0]).toBeInTheDocument();
@@ -239,6 +238,8 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(screen.getAllByText('State')[1]).toBeInTheDocument();
     expect(screen.getAllByText('County')[1]).toBeInTheDocument();
     expect(screen.getAllByText('ZIP')[1]).toBeInTheDocument();
+
+    expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
 
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
     const sitExpectedInput = await screen.findByLabelText('SIT Expected');

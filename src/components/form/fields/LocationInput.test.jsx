@@ -54,7 +54,7 @@ describe('LocationInput', () => {
       const component = container.find(LocationSearchBoxComponent).dive();
       const select = component.find(AsyncSelect);
       await select.simulate('change', { city: cityName });
-      expect(mockSetValue).toHaveBeenCalledWith({ city: cityName });
+      expect(handleLocationChange).toHaveBeenCalledWith({ city: cityName });
     });
   });
 

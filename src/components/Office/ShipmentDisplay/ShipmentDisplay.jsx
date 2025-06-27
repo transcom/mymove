@@ -54,6 +54,7 @@ const ShipmentDisplay = ({
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
   const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
   const [ppmSprFF, setPpmSprFF] = useState(false);
+  const isDisabled = isMoveLocked || displayInfo.shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE;
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -107,7 +108,7 @@ const ShipmentDisplay = ({
                 label="&nbsp;"
                 value={shipmentId}
                 aria-labelledby={`shipment-display-label-${shipmentId}`}
-                disabled={disableApproval || isMoveLocked}
+                disabled={disableApproval || isDisabled}
               />
             )}
           </Restricted>
@@ -188,58 +189,60 @@ const ShipmentDisplay = ({
           />
         )}
         <Restricted to={permissionTypes.updateShipment}>
-          {editURL && (
-            <EditButton
-              onClick={() => {
-                navigate(editURL);
-              }}
-              className={styles.editButton}
-              data-testid={editURL}
-              label="Edit shipment"
-              secondary
-              disabled={isMoveLocked}
-            />
-          )}
-          {reviewURL && (
-            <ReviewButton
-              onClick={() => {
-                navigate(reviewURL);
-              }}
-              className={styles.editButton}
-              data-testid={reviewURL}
-              label="Review documents"
-              secondary
-              disabled={isMoveLocked}
-            />
-          )}
-          {completePpmForCustomerURL && enableCompletePPMCloseoutForCustomer && (
-            <Button
-              onClick={() => {
-                navigate(completePpmForCustomerURL);
-              }}
-              className={styles.editButton}
-              data-testid="completePpmForCustomerBtn"
-              secondary
-              disabled={isMoveLocked}
-            >
-              Complete PPM on behalf of the Customer
-            </Button>
-          )}
-          {sendPpmToCustomer &&
-            displayInfo.ppmShipment?.status === ppmShipmentStatuses.SUBMITTED &&
-            !counselorCanEdit && (
-              <Button
+          <div className={styles.flexRight}>
+            {editURL && (
+              <EditButton
                 onClick={() => {
-                  handleShowSubmitPPMShipmentModal();
+                  navigate(editURL);
                 }}
                 className={styles.editButton}
-                data-testid="sendPpmToCustomerButton"
+                data-testid={editURL}
+                label="Edit shipment"
                 secondary
-                disabled={isMoveLocked}
+                disabled={isDisabled}
+              />
+            )}
+            {reviewURL && (
+              <ReviewButton
+                onClick={() => {
+                  navigate(reviewURL);
+                }}
+                className={styles.editButton}
+                data-testid={reviewURL}
+                label="Review documents"
+                secondary
+                disabled={isDisabled}
+              />
+            )}
+            {completePpmForCustomerURL && enableCompletePPMCloseoutForCustomer && (
+              <Button
+                onClick={() => {
+                  navigate(completePpmForCustomerURL);
+                }}
+                className={styles.editButton}
+                data-testid="completePpmForCustomerBtn"
+                secondary
+                disabled={isDisabled}
               >
-                Send PPM to the Customer
+                Complete PPM on behalf of the Customer
               </Button>
             )}
+            {sendPpmToCustomer &&
+              displayInfo.ppmShipment?.status === ppmShipmentStatuses.SUBMITTED &&
+              !counselorCanEdit && (
+                <Button
+                  onClick={() => {
+                    handleShowSubmitPPMShipmentModal();
+                  }}
+                  className={styles.editButton}
+                  data-testid="sendPpmToCustomerButton"
+                  secondary
+                  disabled={isMoveLocked}
+                >
+                  Send PPM to the Customer
+                </Button>
+              )}
+          </div>
         </Restricted>
         {viewURL && (
           <ReviewButton
@@ -250,7 +253,7 @@ const ShipmentDisplay = ({
             data-testid={viewURL}
             label="View documents"
             secondary
-            disabled={isMoveLocked}
+            disabled={isDisabled}
           />
         )}
       </ShipmentContainer>

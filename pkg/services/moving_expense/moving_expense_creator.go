@@ -29,16 +29,18 @@ func (f *movingExpenseCreator) CreateMovingExpense(appCtx appcontext.AppContext,
 
 	// This serves as a way of ensuring that the PPM shipment exists. It also ensures a shipment belongs to the logged
 	//  in user, for customer app requests.
-	ppmShipment, ppmShipmentErr := ppmShipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, nil, nil)
+	ppmShipment, ppmShipmentErr := ppmShipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, []string{ppmshipment.EagerPreloadAssociationServiceMember}, nil)
 
 	if ppmShipmentErr != nil {
 		return nil, ppmShipmentErr
 	}
 
+	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+
 	newMovingExpense := &models.MovingExpense{
 		PPMShipmentID: ppmShipment.ID,
 		Document: models.Document{
-			ServiceMemberID: appCtx.Session().ServiceMemberID,
+			ServiceMemberID: serviceMemberID,
 		},
 	}
 

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { FormGroup } from '@material-ui/core';
 import classnames from 'classnames';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ResidentialAddressShape } from 'types/address';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { primeSimulatorRoutes } from 'constants/routes';
@@ -35,17 +35,18 @@ const PrimeUIShipmentUpdateAddressForm = ({
             <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
               <SectionWrapper className={formStyles.formSection}>
                 <h2>{addressLocation}</h2>
-                <AddressFields name={name} locationLookup formikProps={formikProps} />
+                <AddressFields name={name} formikProps={formikProps} />
               </SectionWrapper>
-              <WizardNavigation
-                editMode
-                className={formStyles.formActions}
-                aria-label="Update Shipment Address"
-                type="submit"
-                disableNext={isSubmitting || !isValid}
-                onCancelClick={handleClose}
-                onNextClick={handleSubmit}
-              />
+              <div className={formStyles.formActions}>
+                <WizardNavigation
+                  editMode
+                  aria-label="Update Shipment Address"
+                  type="submit"
+                  disableNext={isSubmitting || !isValid}
+                  onCancelClick={handleClose}
+                  onNextClick={handleSubmit}
+                />
+              </div>
             </FormGroup>
           </Form>
         );

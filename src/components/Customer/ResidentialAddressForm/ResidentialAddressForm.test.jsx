@@ -69,6 +69,8 @@ describe('ResidentialAddressForm component', () => {
 
       expect(getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
 
+      expect(getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
+
       expect(getByText('Must be a physical address.')).toBeInTheDocument();
     });
   });

@@ -110,6 +110,14 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
+   * Use devlocal auth to sign in as office user with multirole
+   */
+  async signInAsNewMultiroleUser() {
+    const user = await this.testHarness.buildOfficeUserWithMultirole();
+    await this.signInAsExistingOfficeUser(user.okta_email);
+  }
+
+  /**
    * Use devlocal auth to sign in as office user with both TOO and TIO roles
    */
   async signInAsNewTIOAndTOOUser() {
@@ -243,7 +251,7 @@ export class OfficePage extends BaseTestPage {
   async tooNavigateToMove(moveLocator) {
     await this.page.goto(`/moves/${moveLocator}/details/`);
     await this.page.waitForLoadState('networkidle', { timeout: 30000 });
-    await this.page.getByRole('heading', { name: 'Move details' }).waitFor();
+    await this.page.getByRole('heading', { name: 'Move Details' }).waitFor();
   }
 }
 

@@ -11,6 +11,8 @@ import (
 type userQueryBuilder interface {
 	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
 	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
+	DeleteOne(appCtx appcontext.AppContext, model interface{}) error
+	DeleteMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
 }
 
 type userFetcher struct {

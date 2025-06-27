@@ -1,8 +1,12 @@
-import { handleQueueAssignment, getQueue } from './queues';
+import { handleQueueAssignment, getQueue, formatApprovalRequestTypes } from './queues';
 
 import { deleteAssignedOfficeUserForMove, updateAssignedOfficeUserForMove } from 'services/ghcApi';
 import { QUEUE_TYPES } from 'constants/queues';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
+import {
+  APPROVAL_REQUEST_TYPES_DESTINATION_REQUESTS_DISPLAY,
+  APPROVAL_REQUEST_TYPES_TASK_ORDER_DISPLAY,
+} from 'constants/approvalRequestTypes';
 
 jest.mock('services/ghcApi', () => ({
   deleteAssignedOfficeUserForMove: jest.fn(),
@@ -57,5 +61,26 @@ describe('getQueue', () => {
     expect(() => getQueue(null)).toThrow('Invalid queue name: null');
     expect(() => getQueue(undefined)).toThrow('Invalid queue name: undefined');
     expect(() => getQueue('invalid-queue')).toThrow('Invalid queue name: invalid-queue');
+  });
+});
+
+describe('formatApprovalRequestTypes', () => {
+  it('properly maps Task Order approvalRequestTypes to their front end display', () => {
+    const approvalRequestTypeStrings = Object.keys(APPROVAL_REQUEST_TYPES_TASK_ORDER_DISPLAY);
+
+    approvalRequestTypeStrings.forEach((request) => {
+      expect(formatApprovalRequestTypes('move-queue', [request])).toBe(
+        APPROVAL_REQUEST_TYPES_TASK_ORDER_DISPLAY[request],
+      );
+    });
+  });
+  it('properly maps Destination Request approvalRequestTypes to their front end display', () => {
+    const approvalRequestTypeStrings = Object.keys(APPROVAL_REQUEST_TYPES_DESTINATION_REQUESTS_DISPLAY);
+
+    approvalRequestTypeStrings.forEach((request) => {
+      expect(formatApprovalRequestTypes('destination-requests', [request])).toBe(
+        APPROVAL_REQUEST_TYPES_DESTINATION_REQUESTS_DISPLAY[request],
+      );
+    });
   });
 });

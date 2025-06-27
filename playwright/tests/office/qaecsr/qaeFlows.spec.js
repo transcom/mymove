@@ -32,7 +32,7 @@ class QaeFlowPage extends OfficePage {
     await this.qaeSearchForAndNavigateToMove(this.moveLocator);
 
     // Go to quality assurance tab
-    await this.page.getByText('Quality assurance').click();
+    await this.page.getByText('Quality Assurance').click();
     await this.waitForLoading();
     expect(this.page.url()).toContain(`/moves/${this.moveLocator}/evaluation-reports`);
     await expect(this.page.getByTestId('evaluationReportTable').first()).toBeVisible();
@@ -543,5 +543,50 @@ test.describe('Quality Evaluation Report', () => {
       // Verify no delete modal
       await expect(page.locator('.usa-alert__text')).not.toBeVisible();
     });
+  });
+});
+
+test.describe('Quality Evaluation Report', () => {
+  /** @type {QaeFlowPage} */
+  let qaeFlowPage;
+  let move;
+  test.beforeEach(async ({ officePage }) => {
+    move = await officePage.testHarness.buildHHGMoveInTerminatedStatus();
+
+    await officePage.signInAsNewQAEUser();
+    qaeFlowPage = new QaeFlowPage(officePage, move.locator);
+    await qaeFlowPage.searchForAndNavigateToMoveQATab();
+  });
+
+  test('can complete a minimal shipment evaluation report from creation through submission on the terminated shipment', async ({
+    page,
+  }) => {
+    // Create a new shipment report
+    await qaeFlowPage.createShipmentReport();
+
+    // Fill in the eval report form with minimal info required to submit
+    await qaeFlowPage.fillInForm();
+
+    // Review report for submission
+    await qaeFlowPage.openSubmissionPreview();
+
+    // Verify preview has correct sections/headers
+    const previewPage = page.getByTestId('EvaluationReportPreview');
+    await expect(previewPage.locator('h1')).toContainText('Shipment report');
+    await expect(previewPage.locator('h2').getByText('Move information', { exact: true })).toBeVisible();
+    await expect(previewPage.locator('h2').getByText('Evaluation report', { exact: true })).toBeVisible();
+    await expect(previewPage.locator('h3').getByText('Violations', { exact: true })).toBeVisible();
+    await expect(previewPage.locator('h3').getByText('QAE remarks', { exact: true })).toBeVisible();
+
+    // Verify preview displays saved report data
+    const evalReportPage = previewPage.locator('h2').getByText('Evaluation report', { exact: true }).locator('..');
+    await expect(evalReportPage.locator('td').getByText('01 Oct 2022')).toBeVisible();
+    await expect(evalReportPage.locator('dd').getByText('Data review')).toBeVisible();
+    await expect(evalReportPage.locator('dd').getByText('Origin')).toBeVisible();
+    await expect(evalReportPage.locator('dd').getByText('No')).toBeVisible();
+    await expect(evalReportPage.locator('dd').getByText('This is a test evaluation report')).toBeVisible();
+
+    // Submit report
+    await qaeFlowPage.submitReportFromPreviewAndVerify();
   });
 });

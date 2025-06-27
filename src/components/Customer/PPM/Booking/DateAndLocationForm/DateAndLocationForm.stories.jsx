@@ -45,6 +45,7 @@ BlankDatesAndLocation.args = {
       city: 'Beverly Hills',
       state: 'CA',
       postalCode: '90210',
+      county: 'Los Angeles',
     },
   },
   destinationDutyLocation: {
@@ -54,6 +55,7 @@ BlankDatesAndLocation.args = {
       city: 'Oakland',
       state: 'CA',
       postalCode: '94611',
+      county: 'Alameda',
     },
   },
   postalCodeValidator: () => {},
@@ -66,12 +68,22 @@ MTOShipmentDatesAndLocation.args = {
   serviceMember: {
     id: '123',
     residential_address: {
+      streetAddress1: '123 Any St',
+      streetAddress2: '',
+      city: 'Beverly Hills',
+      state: 'CA',
       postalCode: '90210',
+      county: 'Los Angeles',
     },
   },
   destinationDutyLocation: {
     address: {
+      streetAddress1: '234 Any Dr',
+      streetAddress2: '',
+      city: 'Oakland',
+      state: 'CA',
       postalCode: '94611',
+      county: 'Alameda',
     },
   },
   postalCodeValidator: () => {},
@@ -92,12 +104,22 @@ ErrorDatesAndLocation.args = {
   serviceMember: {
     id: '123',
     residential_address: {
-      postalCode: '99021',
+      streetAddress1: '123 Any St',
+      streetAddress2: '',
+      city: 'Beverly Hills',
+      state: 'CA',
+      postalCode: '90210',
+      county: 'Los Angeles',
     },
   },
   destinationDutyLocation: {
     address: {
+      streetAddress1: '234 Any Dr',
+      streetAddress2: '',
+      city: 'Oakland',
+      state: 'CA',
       postalCode: '94611',
+      county: 'Alameda',
     },
   },
   postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,

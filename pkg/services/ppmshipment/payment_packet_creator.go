@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/gofrs/uuid"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -57,7 +56,7 @@ func NewPaymentPacketCreator(
 	}
 }
 
-func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (mergedPdf afero.File, dirPath string, returnErr error) {
+func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addWatermarks bool) (mergedPdf afero.File, dirPath string, returnErr error) {
 	err := verifyPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
 		return nil, "", err
@@ -116,8 +115,8 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		pdfFileName, perr := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload, dirName)
 		if perr != nil {
 			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate pdf for upload")
-			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(perr))
+			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, perr)
 		}
 		pdfFileNamesToMerge = append(pdfFileNamesToMerge, pdfFileName)
 	}
@@ -140,44 +139,21 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	// Start building bookmarks and watermarks
-	bookmarks, err := buildBookMarks(pdfFileNamesToMerge, sortedPaymentPacketItemsMap, aoaPacketFile, p.pdfGenerator)
-	if err != nil {
-		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate bookmarks for PDF")
-		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	}
-
-	// It was discovered during implementation of B-21938 that watermarks were not functional.
-	// This is because the watermark func was using bookmarks, not watermarks.
-	// See https://github.com/transcom/mymove/pull/14496 for removal
+	// See https://github.com/transcom/mymove/pull/14496 for removal of bookmarks and watermarks
 
 	defer func() {
 		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
 		if r := recover(); r != nil {
-			appCtx.Logger().Error("payment packet files panic", zap.Error(err))
+			appCtx.Logger().Error("payment packet files panic", zap.Error(err), zap.Error(perr))
 			returnErr = fmt.Errorf("%s: panic", errMsgPrefix)
 		}
 	}()
 
-	if addBookmarks {
-		outputFile, err := p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks, dirName)
-
-		if err != nil {
-			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to add bookmarks for PDF")
-			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
-		}
-
-		return outputFile, dirPath, nil
-	}
-
-	// bookmark and watermark both disabled
 	return finalMergePdf, dirPath, nil
 }
 
 func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, string, error) {
-	return p.Generate(appCtx, ppmShipmentID, true, true)
+	return p.Generate(appCtx, ppmShipmentID, true)
 }
 
 // remove all of the packet files from the temp directory associated with creating the payment packet
@@ -216,41 +192,6 @@ func (p *paymentPacketCreator) CleanupPaymentPacketFile(packetFile afero.File, c
 func (p *paymentPacketCreator) CleanupPaymentPacketDir(dirPath string) error {
 	// RemoveAll does not return an error if the directory doesn't exist it will just do nothing and return nil
 	return p.pdfGenerator.FileSystem().RemoveAll(dirPath)
-}
-
-func buildBookMarks(fileNamesToMerge []string, sortedPaymentPacketItems map[int]paymentPacketItem, aoaPacketFile io.ReadSeeker, pdfGenerator paperwork.Generator) ([]pdfcpu.Bookmark, error) {
-	// go out and retrieve PDF file info for each file name
-	for i := 0; i < len(fileNamesToMerge); i++ {
-		pdfFileInfo, err := pdfGenerator.GetPdfFileInfo(fileNamesToMerge[i])
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", fmt.Sprintf("failed to retrieve PDF file info for: %s", fileNamesToMerge[i]), err)
-		}
-		item := sortedPaymentPacketItems[i]
-		// we just want the pagesize. update sortedPaymentPacketItems
-		item.PageSize = pdfFileInfo.PageCount
-		sortedPaymentPacketItems[i] = item
-	}
-
-	var bookmarks []pdfcpu.Bookmark
-
-	// retrieve file info for AOA packet file
-	aoaPacketFileInfo, err := pdfGenerator.GetPdfFileInfoForReadSeeker(aoaPacketFile)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "failed to retrieve PDF file info for AOA packet file", err)
-	}
-	// add first bookmark for AOA content
-	bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: 1, PageThru: aoaPacketFileInfo.PageCount, Title: "Shipment Summary Worksheet and Orders"})
-
-	// build bookmarks for all file names
-	var pageFrom int
-	var pageThru int
-	for i := 0; i < len(fileNamesToMerge); i++ {
-		item := sortedPaymentPacketItems[i]
-		pageFrom = bookmarks[i].PageThru + 1
-		pageThru = bookmarks[i].PageThru + item.PageSize
-		bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: pageFrom, PageThru: pageThru, Title: item.Label})
-	}
-	return bookmarks, nil
 }
 
 func buildPaymentPacketItemsMap(ppmShipment *models.PPMShipment) map[int]paymentPacketItem {

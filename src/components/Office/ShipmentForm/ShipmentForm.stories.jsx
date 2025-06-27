@@ -17,16 +17,19 @@ const defaultProps = {
     city: 'Washington',
     state: 'DC',
     postalCode: '20001',
+    county: 'District Of Columbia',
   },
   newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
+    county: 'Muscogee',
   },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
+    county: 'Muscogee',
     streetAddress1: '123 Main',
   },
   useCurrentResidence: false,
@@ -71,12 +74,14 @@ const mockMtoShipment = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    county: 'El Paso',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    county: 'Pierce',
   },
 };
 
@@ -91,6 +96,7 @@ const mockDeliveryAddressUpdate = {
       id: '6b57ce91-cabd-4e3b-9f48-ed4627d4878f',
       postalCode: '90210',
       state: 'CA',
+      county: 'Los Angeles',
       streetAddress1: '123 Any Street',
       streetAddress2: 'P.O. Box 12345',
       streetAddress3: 'c/o Some Person',
@@ -102,6 +108,7 @@ const mockDeliveryAddressUpdate = {
       id: '92509013-aafc-4892-a476-2e3b97e6933d',
       postalCode: '94535',
       state: 'CA',
+      county: 'Solano',
       streetAddress1: '987 Any Avenue',
       streetAddress2: 'P.O. Box 9876',
       streetAddress3: 'c/o Some Person',
@@ -124,12 +131,14 @@ const mockPPMShipment = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    county: 'El Paso',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    county: 'Pierce',
   },
 };
 

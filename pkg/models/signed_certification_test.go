@@ -62,7 +62,7 @@ func (suite *ModelSuite) TestSignedCertificationValidations() {
 		tc := tc
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&tc.signedCertification, tc.expectedErrs)
+			suite.verifyValidationErrors(&tc.signedCertification, tc.expectedErrs, nil)
 		})
 	}
 }

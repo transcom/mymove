@@ -68,9 +68,11 @@ const CustomerSupportRemarkForm = ({ officeUser, isMoveLocked }) => {
               error={!isValid && !isEmpty}
             />
 
-            <Button type="submit" disabled={!isValid || isMoveLocked}>
-              Save
-            </Button>
+            <div className={customerSupportRemarkFormStyles.saveBtn}>
+              <Button type="submit" disabled={!isValid || isMoveLocked}>
+                Save
+              </Button>
+            </div>
           </Form>
         );
       }}

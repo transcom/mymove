@@ -51,6 +51,7 @@ func (f *ppmDocumentFetcher) GetPPMDocuments(appCtx appcontext.AppContext, mtoSh
 		).
 		InnerJoin("ppm_shipments ppm", "ppm.id = progear_weight_tickets.ppm_shipment_id").
 		Where("ppm.shipment_id = ? AND ppm.deleted_at IS NULL", mtoShipmentID).
+		Order("created_at asc").
 		All(&documents.ProgearWeightTickets)
 
 	if err != nil {
@@ -68,6 +69,7 @@ func (f *ppmDocumentFetcher) GetPPMDocuments(appCtx appcontext.AppContext, mtoSh
 		).
 		InnerJoin("ppm_shipments ppm", "ppm.id = moving_expenses.ppm_shipment_id").
 		Where("ppm.shipment_id = ? AND ppm.deleted_at IS NULL", mtoShipmentID).
+		Order("created_at asc").
 		All(&documents.MovingExpenses)
 
 	if err != nil {

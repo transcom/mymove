@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 import editContactInfoFormStyle from './EditContactInfoForm.module.scss';
 
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -54,12 +54,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <SectionWrapper className={sectionStyles}>
               <h2>Current address</h2>
 
-              <AddressFields
-                name={residentialAddressName}
-                labelHint="Required"
-                locationLookup
-                formikProps={formikProps}
-              />
+              <AddressFields name={residentialAddressName} labelHint="Required" formikProps={formikProps} />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
@@ -69,7 +64,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 transit during your move.
               </p>
 
-              <AddressFields name={backupAddressName} labelHint="Required" locationLookup formikProps={formikProps} />
+              <AddressFields name={backupAddressName} labelHint="Required" formikProps={formikProps} />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>

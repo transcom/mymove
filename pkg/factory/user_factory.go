@@ -144,7 +144,7 @@ func BuildUserAndUsersRolesAndUsersPrivileges(db *pop.Connection, customs []Cust
 
 		for _, userPrivilege := range user.Privileges {
 			// make sure privilege exists
-			privilege := FetchOrBuildPrivilegeByPrivilegeType(db, models.PrivilegeType(userPrivilege.PrivilegeType))
+			privilege := FetchOrBuildPrivilegeByPrivilegeType(db, roles.PrivilegeType(userPrivilege.PrivilegeType))
 			BuildUsersPrivileges(db, []Customization{
 				{
 					Model: models.UsersPrivileges{

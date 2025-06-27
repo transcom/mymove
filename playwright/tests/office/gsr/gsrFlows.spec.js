@@ -23,7 +23,7 @@ class GsrFlowPage extends OfficePage {
    */
   async searchForAndNavigateToMoveQATab() {
     await this.qaeSearchForAndNavigateToMove(this.moveLocator);
-    await this.page.getByText('Quality assurance').click();
+    await this.page.getByText('Quality Assurance').click();
     await this.waitForLoading();
     expect(this.page.url()).toContain(`/moves/${this.moveLocator}/evaluation-reports`);
     await expect(this.page.getByTestId('evaluationReportTable').first()).toBeVisible();

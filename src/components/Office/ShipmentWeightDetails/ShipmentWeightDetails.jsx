@@ -14,6 +14,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { shipmentStatuses } from 'constants/shipments';
 
 const ShipmentWeightDetails = ({
   estimatedWeight,
@@ -25,6 +26,7 @@ const ShipmentWeightDetails = ({
   const emDash = '\u2014';
   const lowestWeight = returnLowestValue(initialWeight, shipmentInfo.reweighWeight);
   const shipmentIsPPM = shipmentInfo.shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isDisabled = isMoveLocked || shipmentInfo.status === shipmentStatuses.TERMINATED_FOR_CAUSE;
 
   const reweighHeader = (
     <div className={styles.shipmentWeight}>
@@ -37,7 +39,7 @@ const ShipmentWeightDetails = ({
                 type="button"
                 onClick={() => handleRequestReweighModal(shipmentInfo)}
                 unstyled
-                disabled={isMoveLocked}
+                disabled={isDisabled}
               >
                 Request reweigh
               </Button>
@@ -62,13 +64,20 @@ const ShipmentWeightDetails = ({
             initialWeight ? formatWeight(initialWeight) : emDash,
           ]}
         />
-        <DataTable
-          columnHeaders={[reweighHeader, 'Actual shipment weight']}
-          dataRow={[
-            shipmentInfo.reweighWeight ? formatWeight(shipmentInfo.reweighWeight) : emDash,
-            lowestWeight ? formatWeight(lowestWeight) : emDash,
-          ]}
-        />
+        {shipmentIsPPM ? (
+          <DataTable
+            columnHeaders={['', 'Actual shipment weight']}
+            dataRow={['', lowestWeight ? formatWeight(lowestWeight) : emDash]}
+          />
+        ) : (
+          <DataTable
+            columnHeaders={[reweighHeader, 'Actual shipment weight']}
+            dataRow={[
+              shipmentInfo.reweighWeight ? formatWeight(shipmentInfo.reweighWeight) : emDash,
+              lowestWeight ? formatWeight(lowestWeight) : emDash,
+            ]}
+          />
+        )}
         {!shipmentIsPPM && (
           <DataTable
             columnHeaders={['Actual pro gear weight', 'Actual spouse pro gear weight']}

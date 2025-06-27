@@ -1,7 +1,6 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import EditOrders from './EditOrders';
 
@@ -305,7 +304,6 @@ describe('EditOrders Page', () => {
     setFlashMessage: jest.fn(),
     updateOrders: jest.fn(),
     updateAllMoves: jest.fn(),
-    context: { flags: { allOrdersTypes: true } },
   };
   selectServiceMemberFromLoggedInUser.mockImplementation(() => testProps.serviceMember);
   selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
@@ -431,19 +429,22 @@ describe('EditOrders Page', () => {
         origin_duty_location: 'Fort Gregg-Adams, VA 23801',
       });
     });
-    await userEvent.click(screen.getByTestId('hasDependentsYes'));
-    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
-    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    waitFor(() => {
+      userEvent.click(screen.getByTestId('hasDependentsYes'));
+      userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+      userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+      userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+    });
 
-    await act(async () => {
+    waitFor(() => {
+      const submitButton = screen.findByRole('button', { name: 'Save' });
+
+      expect(submitButton).toBeEnabled();
       userEvent.click(submitButton);
     });
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(patchOrders).toHaveBeenCalledWith(
         expect.objectContaining({
           accompanied_tour: true,
@@ -470,6 +471,68 @@ describe('EditOrders Page', () => {
 
     const editOrdersHeader = await screen.findByRole('heading', { name: 'Edit Orders:', level: 2 });
     expect(editOrdersHeader).toBeInTheDocument();
+  });
+
+  it('wounded warrior FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(false);
+    });
+  });
+  it('wounded warrior FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(true);
+    });
+  });
+
+  it('BLUEBARK FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(false);
+    });
+  });
+  it('BLUEBARK FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(true);
+    });
   });
 
   afterEach(jest.clearAllMocks);

@@ -4,7 +4,6 @@ import * as formatters from './formatters';
 import { formatQAReportID } from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
-import { MOVE_STATUSES } from 'shared/constants';
 import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 describe('formatters', () => {
@@ -355,11 +354,10 @@ describe('formatAssignedOfficeUserFromContext', () => {
   it(`properly formats a Services Counselor's name for assignment`, () => {
     const values = {
       changedValues: {
-        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        sc_counseling_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        sc_assigned_id: null,
-        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+        sc_counseling_assigned_id: null,
       },
       context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
     };
@@ -367,17 +365,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      assigned_sc: 'Daniels, Jayden',
+      assigned_sc_counseling: 'Daniels, Jayden',
     });
   });
   it(`properly formats a Services Counselor's name for reassignment`, () => {
     const values = {
       changedValues: {
-        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        sc_counseling_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        sc_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
-        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+        sc_counseling_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
     };
@@ -385,17 +382,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      re_assigned_sc: 'Daniels, Jayden',
+      re_assigned_sc_counseling: 'Daniels, Jayden',
     });
   });
   it(`properly formats a Closeout Counselor's name for assignment`, () => {
     const values = {
       changedValues: {
-        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        sc_closeout_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        sc_assigned_id: null,
-        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+        sc_closeout_assigned_id: null,
       },
       context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
     };
@@ -403,17 +399,16 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      assigned_sc_ppm: 'Daniels, Jayden',
+      assigned_sc_closeout: 'Daniels, Jayden',
     });
   });
   it(`properly formats a Closeout Counselor's name for reassignment`, () => {
     const values = {
       changedValues: {
-        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+        sc_closeout_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
       },
       oldValues: {
-        sc_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
-        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+        sc_closeout_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
     };
@@ -421,7 +416,7 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      re_assigned_sc_ppm: 'Daniels, Jayden',
+      re_assigned_sc_closeout: 'Daniels, Jayden',
     });
   });
   it('properly formats a TOOs name for assignment', () => {
@@ -448,6 +443,40 @@ describe('formatAssignedOfficeUserFromContext', () => {
       },
       oldValues: {
         too_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TOOs name for assignment', () => {
+    const values = {
+      changedValues: {
+        too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_destination_assigned_id: null,
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TOOs name for reassignment', () => {
+    const values = {
+      changedValues: {
+        too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_destination_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
       },
       context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
     };
@@ -710,5 +739,99 @@ describe('formatFullName', () => {
 
   it('returns an empty string if all names are empty', () => {
     expect(formatFullName('', '', '')).toBe('');
+  });
+});
+
+describe('formatMoveHistoryGunSafe', () => {
+  const { formatMoveHistoryGunSafe } = formatters;
+
+  it('should convert gun_safe and gun_safe_weight to their corresponding authorized fields', () => {
+    const input = {
+      changedValues: {
+        gun_safe: true,
+        gun_safe_weight: 300,
+        some_other_field: 'value',
+      },
+    };
+
+    const result = formatMoveHistoryGunSafe(input);
+
+    expect(result.changedValues).toEqual({
+      gun_safe_authorized: true,
+      gun_safe_weight_allowance: 300,
+      some_other_field: 'value',
+    });
+
+    expect(result.changedValues.gun_safe).toBeUndefined();
+    expect(result.changedValues.gun_safe_weight).toBeUndefined();
+  });
+
+  it('should leave fields unchanged if gun_safe and gun_safe_weight are not present', () => {
+    const input = {
+      changedValues: {
+        some_field: 'test',
+      },
+    };
+
+    const result = formatMoveHistoryGunSafe(input);
+
+    expect(result.changedValues).toEqual({
+      some_field: 'test',
+    });
+  });
+
+  it('should not mutate the original input object', () => {
+    const input = {
+      changedValues: {
+        gun_safe: false,
+        gun_safe_weight: 150,
+      },
+    };
+
+    const cloned = JSON.parse(JSON.stringify(input));
+    formatMoveHistoryGunSafe(input);
+    expect(input).toEqual(cloned);
+  });
+});
+
+describe('calculateTotal', () => {
+  it('should calculate total with all available prices', () => {
+    const sectionInfo = {
+      haulPrice: 100,
+      haulFSC: 50,
+      packPrice: 150,
+      unpackPrice: 80,
+      dop: 200,
+      ddp: 300,
+      intlPackingPrice: 120,
+      intlUnpackPrice: 90,
+      intlLinehaulPrice: 100,
+      sitReimbursement: 250,
+    };
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('14.40');
+  });
+
+  it('should calculate total when some values are missing', () => {
+    const sectionInfo = {
+      haulPrice: 100,
+      haulFSC: 50,
+      packPrice: 150,
+      // Missing unpackPrice
+      dop: 200,
+      ddp: 300,
+      // Missing intlPackingPrice
+      intlUnpackPrice: 90,
+      intlLinehaulPrice: 100,
+      sitReimbursement: 250,
+    };
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('12.40');
+  });
+
+  it('should return $0.00 when no values are provided', () => {
+    const sectionInfo = {};
+    const result = formatters.calculateTotal(sectionInfo);
+    expect(result).toEqual('0.00');
   });
 });

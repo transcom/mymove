@@ -77,10 +77,10 @@ type Move struct {
 	PrimeCounselingCompletedAt                     *time.Time            `db:"prime_counseling_completed_at"`
 	ExcessUnaccompaniedBaggageWeightQualifiedAt    *time.Time            `db:"excess_unaccompanied_baggage_weight_qualified_at"` // UB specific excess tracking
 	ExcessUnaccompaniedBaggageWeightAcknowledgedAt *time.Time            `db:"excess_unaccompanied_baggage_weight_acknowledged_at"`
-	ExcessWeightQualifiedAt                        *time.Time            `db:"excess_weight_qualified_at"` // Overall excess weight tracking (Includes UB in the sum if it violates excess)
+	ExcessWeightQualifiedAt                        *time.Time            `json:"excess_weight_qualified_at" db:"excess_weight_qualified_at"` // Overall excess weight tracking (Includes UB in the sum if it violates excess)
 	ExcessWeightUploadID                           *uuid.UUID            `db:"excess_weight_upload_id"`
 	ExcessWeightUpload                             *Upload               `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
-	ExcessWeightAcknowledgedAt                     *time.Time            `db:"excess_weight_acknowledged_at"`
+	ExcessWeightAcknowledgedAt                     *time.Time            `json:"excess_weight_acknowledged_at" db:"excess_weight_acknowledged_at"`
 	BillableWeightsReviewedAt                      *time.Time            `db:"billable_weights_reviewed_at"`
 	FinancialReviewFlag                            bool                  `db:"financial_review_flag"`
 	FinancialReviewFlagSetAt                       *time.Time            `db:"financial_review_flag_set_at"`
@@ -95,8 +95,12 @@ type Move struct {
 	LockExpiresAt                                  *time.Time            `json:"lock_expires_at" db:"lock_expires_at"`
 	AdditionalDocumentsID                          *uuid.UUID            `json:"additional_documents_id" db:"additional_documents_id"`
 	AdditionalDocuments                            *Document             `belongs_to:"documents" fk_id:"additional_documents_id"`
-	SCAssignedID                                   *uuid.UUID            `json:"sc_assigned_id" db:"sc_assigned_id"`
-	SCAssignedUser                                 *OfficeUser           `belongs_to:"office_users" fk_id:"sc_assigned_id"`
+	SCAssignedID                                   *uuid.UUID            `json:"sc_assigned_id" db:"sc_assigned_id"`        // old column
+	SCAssignedUser                                 *OfficeUser           `belongs_to:"office_users" fk_id:"sc_assigned_id"` // old column
+	SCCounselingAssignedID                         *uuid.UUID            `json:"sc_counseling_assigned_id" db:"sc_counseling_assigned_id"`
+	SCCounselingAssignedUser                       *OfficeUser           `belongs_to:"office_users" fk_id:"sc_counseling_assigned_id"`
+	SCCloseoutAssignedID                           *uuid.UUID            `json:"sc_closeout_assigned_id" db:"sc_closeout_assigned_id"`
+	SCCloseoutAssignedUser                         *OfficeUser           `belongs_to:"office_users" fk_id:"sc_closeout_assigned_id"`
 	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`
 	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"`
 	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
@@ -666,6 +670,7 @@ func FetchMoveByMoveIDWithOrders(db *pop.Connection, moveID uuid.UUID) (Move, er
 	var move Move
 	err := db.Q().Eager(
 		"Orders",
+		"Orders.Entitlement",
 	).Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {
@@ -734,4 +739,135 @@ func (m Move) HasPPM() bool {
 		}
 	}
 	return hasPpmMove
+}
+
+/*
+Clears TOO assignments for origin/destination TOO queues if there are no more action items for the assigned user to take
+this DOES NOT UPDATE, but only returns the provided move back with updated assigned TOO values
+TOO origin queue action items
+- submitted shipments
+- SIT extension requests with origin SIT service items on a shipment
+- unacknowledged order amendments
+- unacknowledged excess weight (move & UB)
+- submitted non-destination service items
+
+TOO destination queue action items
+- submitted destination address requests
+- submitted destination SIT & shuttle service items
+- SIT extension requests with destination SIT service items on a shipment
+*/
+func ClearTOOAssignments(move *Move) (*Move, error) {
+	if move == nil {
+		return nil, fmt.Errorf("move is required when clearing TOO assignment, received empty move object")
+	}
+	originPending := false
+	destinationPending := false
+	hasOriginSIT := false
+	hasDestinationSIT := false
+
+	// unacknowledged amended orders -> origin queue
+	if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
+		originPending = true
+	}
+
+	// pending excess weight -> origin queue
+	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+		originPending = true
+	}
+
+	// pending UB excess weight -> origin queue
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
+		originPending = true
+	}
+
+	for _, si := range move.MTOServiceItems {
+		code := si.ReService.Code
+		if code != "" {
+			// checking if the shipment has origin SIT to be used later
+			if ContainsReServiceCode(ValidOriginSITReServiceCodes, code) {
+				hasOriginSIT = true
+			}
+			// checking if the shipment has destination SIT to be used later
+			if ContainsReServiceCode(ValidDestinationSITReServiceCodes, code) {
+				hasDestinationSIT = true
+			}
+			if si.Status != MTOServiceItemStatusSubmitted {
+				continue
+			}
+			if si.ReService == (ReService{}) {
+				continue
+			}
+			// submitted origin service items -> origin queue
+			if _, isOrigin := OriginServiceItemCodesMap[code]; isOrigin {
+				originPending = true
+			}
+			// submitted destination service items -> dest queue
+			if _, isDest := DestinationServiceItemCodesMap[code]; isDest {
+				destinationPending = true
+			}
+			// early break
+			if originPending && destinationPending {
+				break
+			}
+		} else {
+			return nil, fmt.Errorf("ReService.Code is required when clearing TOO assignment, received empty string for service item id; %s", si.ID)
+		}
+	}
+
+	// checking destination requests
+	if !destinationPending {
+		// pending destination address requests
+		for _, shipment := range move.MTOShipments {
+			if shipment.DeliveryAddressUpdate != nil && shipment.DeliveryAddressUpdate.Status == ShipmentAddressUpdateStatusRequested {
+				destinationPending = true
+				break
+			}
+			// SIT extension requests with destination SIT service items on the shipment
+			for _, sitExt := range shipment.SITDurationUpdates {
+				if sitExt.Status == SITExtensionStatusPending && hasDestinationSIT {
+					destinationPending = true
+					break
+				}
+			}
+			if destinationPending {
+				break
+			}
+		}
+	}
+
+	// checking shipment origin requests
+	if !originPending {
+		for _, shipment := range move.MTOShipments {
+			// submitted shipments needing approval
+			if shipment.Status == MTOShipmentStatusSubmitted && shipment.DeletedAt == nil {
+				originPending = true
+				break
+			}
+
+			// SIT extension requests with origin SIT service items on the shipment
+			for _, sitExt := range shipment.SITDurationUpdates {
+				if sitExt.Status == SITExtensionStatusPending && hasOriginSIT {
+					originPending = true
+					break
+				}
+			}
+			if originPending {
+				break
+			}
+		}
+	}
+
+	// clear out the origin-TOO assignment if nothing origin-type is still pending
+	if !originPending {
+		move.TOOAssignedID = nil
+		move.TOOAssignedUser = nil
+	}
+
+	// clear out the destination-TOO assignment if nothing destination-type is still pending
+	if !destinationPending {
+		move.TOODestinationAssignedID = nil
+		move.TOODestinationAssignedUser = nil
+	}
+
+	return move, nil
 }

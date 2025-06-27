@@ -67,12 +67,7 @@ BEGIN
                 )
             )
         )
-        AND v_gbloc = CASE
-            WHEN service_members.affiliation != 'MARINES'
-                 AND mto_shipments.shipment_type = 'HHG_OUTOF_NTS'
-            THEN orders.gbloc
-            ELSE move_to_gbloc.gbloc
-        END
+        AND move_to_dest_gbloc.gbloc  = v_gbloc
     GROUP BY moves.id
     ORDER BY earliest_date;
 END

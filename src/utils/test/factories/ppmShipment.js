@@ -44,8 +44,6 @@ const createBasePPMShipment = (fieldOverrides = {}) => {
       hasRequestedAdvance: null,
       advanceAmountRequested: null,
       actualMoveDate: null,
-      actualPickupPostalCode: null,
-      actualDestinationPostalCode: null,
       hasReceivedAdvance: null,
       advanceAmountReceived: null,
       finalIncentive: null,
@@ -167,8 +165,6 @@ const createPPMShipmentWithActualShipmentInfo = (fieldOverrides = {}) => {
     ppmShipment: {
       ...shipment.ppmShipment,
       actualMoveDate: shipment.ppmShipment.expectedDepartureDate,
-      actualPickupPostalCode: shipment.ppmShipment.pickupPostalCode,
-      actualDestinationPostalCode: shipment.ppmShipment.destinationPostalCode,
       hasReceivedAdvance: shipment.ppmShipment.hasRequestedAdvance,
       advanceAmountReceived: shipment.ppmShipment.advanceAmountRequested,
       updatedAt,

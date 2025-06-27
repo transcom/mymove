@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
@@ -237,7 +238,11 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 
 	// Process 824s
 	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, lastReadTime, invoice.NewEDI824Processor())
+	notificationSender, notificationErr := notifications.InitEmail(v, appCtx.Logger())
+	if notificationErr != nil {
+		logger.Error("Error initializing email notification", zap.Error(notificationErr))
+	}
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, lastReadTime, invoice.NewEDI824Processor(notificationSender))
 	if err != nil {
 		logger.Error("Error reading EDI824 application advice responses", zap.Error(err))
 	} else {

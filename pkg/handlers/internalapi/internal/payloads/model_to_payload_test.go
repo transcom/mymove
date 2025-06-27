@@ -40,6 +40,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	}
 
 	isActualExpenseReimbursement := true
+	hasGunSafe := models.BoolPointer(true)
+	gunSafeWeight := models.PoundPointer(333)
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
@@ -47,6 +49,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
+		HasGunSafe:                   hasGunSafe,
+		GunSafeWeight:                gunSafeWeight,
 	}
 
 	suite.Run("Success -", func() {
@@ -73,6 +77,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 
 		suite.Equal(internalmessages.PPMType(models.PPMTypeActualExpense), returnedPPMShipment.PpmType)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(handlers.FmtBool(*hasGunSafe), returnedPPMShipment.HasGunSafe)
+		suite.Equal(handlers.FmtPoundPtr(gunSafeWeight), returnedPPMShipment.GunSafeWeight)
 	})
 }
 
@@ -334,6 +340,26 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 		suite.Equal(expense.ProGearBelongsToSelf, result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
 		suite.Equal(proGearDescription, result.ProGearDescription, "ProGearDescription should match")
 	})
+}
+
+func (suite *PayloadsSuite) TestPayGrades() {
+	payGrades := models.PayGrades{
+		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
+		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
+		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+	}
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
+
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
 }
 
 func (suite *PayloadsSuite) TestCountriesPayload() {

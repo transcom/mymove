@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
@@ -150,6 +151,15 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.SubmittedWeight)
 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.SubmittedBelongsToSelf)
 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.SubmittedHasWeightTickets)
+
+		var ppm models.PPMShipment
+		err := suite.DB().
+			Q().
+			EagerPreload("Shipment").
+			Find(&ppm, originalProgearWeightTicket.PPMShipmentID)
+		suite.NoError(err)
+		suite.Equal(int(*desiredProgearWeightTicket.Weight), ppm.Shipment.ActualProGearWeight.Int())
+		suite.Nil(ppm.Shipment.ActualSpouseProGearWeight)
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {
@@ -462,4 +472,59 @@ func (suite *ProgearWeightTicketSuite) TestFetchProgearWeightTicketByIDExcludeDe
 		suite.Nil(progear)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
+}
+
+func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicketTotalSumsCorrectly() {
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{Model: serviceMember, LinkOnly: true},
+	}, nil)
+	document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+
+	factoryTickets := []struct {
+		weight        unit.Pound
+		belongsToSelf bool
+	}{
+		{weight: 100, belongsToSelf: true},
+		{weight: 200, belongsToSelf: true},
+		{weight: 50, belongsToSelf: false},
+		{weight: 25, belongsToSelf: false},
+	}
+
+	var tickets []models.ProgearWeightTicket
+	for _, ft := range factoryTickets {
+		t := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{Model: serviceMember, LinkOnly: true},
+			{Model: ppmShipment, LinkOnly: true},
+			{Model: document, LinkOnly: true},
+			{
+				Model: models.ProgearWeightTicket{
+					Weight:        models.PoundPointer(ft.weight),
+					BelongsToSelf: models.BoolPointer(ft.belongsToSelf),
+				},
+			},
+		}, nil)
+		tickets = append(tickets, t)
+	}
+
+	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: serviceMember.ID,
+	})
+
+	updater := NewCustomerProgearWeightTicketUpdater()
+	for _, t := range tickets {
+		et := etag.GenerateEtag(t.UpdatedAt)
+		updated, err := updater.UpdateProgearWeightTicket(appCtx, t, et)
+		suite.NoError(err, "updating ticket %s", t.ID)
+		suite.NotNil(updated)
+	}
+
+	var shipment models.MTOShipment
+	suite.NoError(suite.DB().
+		Q().
+		Find(&shipment, ppmShipment.ShipmentID))
+
+	suite.Equal(300, shipment.ActualProGearWeight.Int())
+	suite.Equal(75, shipment.ActualSpouseProGearWeight.Int())
 }

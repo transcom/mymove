@@ -52,12 +52,6 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT or SUBMITTED status associated with MTO shipment")
 		}
 
-		if ppmShipment.Status == "" {
-			ppmShipment.Status = models.PPMShipmentStatusDraft
-		} else if ppmShipment.Status != models.PPMShipmentStatusDraft && ppmShipment.Status != models.PPMShipmentStatusSubmitted {
-			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT or SUBMITTED status associated with PPM shipment")
-		}
-
 		// default PPM type is incentive based
 		if ppmShipment.PPMType == "" {
 			ppmShipment.PPMType = models.PPMType(models.PPMTypeIncentiveBased)
@@ -147,6 +141,58 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return err
 		}
 
+		var mtoShipment models.MTOShipment
+		if err := txnAppCtx.DB().EagerPreload("MoveTaskOrder").Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
+			return err
+		}
+
+		// if we have all the PPM address data we need to set the market code for the parent shipment
+		if ppmShipment.PickupAddress != nil && ppmShipment.DestinationAddress != nil &&
+			ppmShipment.PickupAddress.IsOconus != nil && ppmShipment.DestinationAddress.IsOconus != nil {
+			marketCode, err := models.DetermineMarketCode(ppmShipment.PickupAddress, ppmShipment.DestinationAddress)
+			if err != nil {
+				return err
+			}
+			mtoShipment.MarketCode = marketCode
+			if err := txnAppCtx.DB().Update(&mtoShipment); err != nil {
+				return err
+			}
+			ppmShipment.Shipment = mtoShipment
+		}
+
+		moveStatus := mtoShipment.MoveTaskOrder.Status
+		switch moveStatus {
+		case models.MoveStatusDRAFT:
+			ppmShipment.Status = models.PPMShipmentStatusDraft
+		case models.MoveStatusNeedsServiceCounseling:
+			ppmShipment.Status = models.PPMShipmentStatusSubmitted
+		case models.MoveStatusSUBMITTED,
+			models.MoveStatusAPPROVALSREQUESTED,
+			models.MoveStatusServiceCounselingCompleted:
+			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+		default:
+			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+		}
+
+		// if the expected departure date falls within a multiplier window, we need to apply that here
+		gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *ppmShipment)
+		if err != nil {
+			return err
+		}
+		// apply the GCC multiplier if there is one
+		if gccMultiplier.ID != uuid.Nil {
+			ppmShipment.GCCMultiplierID = &gccMultiplier.ID
+			ppmShipment.GCCMultiplier = &gccMultiplier
+		}
+
+		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the PPM shipment.")
+		} else if err != nil {
+			return apperror.NewQueryError("PPM Shipment", err, "")
+		}
+
+		// now that the PPM has been created and market code is set, we can calculate incentives
 		estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, models.PPMShipment{}, ppmShipment)
 		if err != nil {
 			return err
@@ -160,43 +206,39 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		}
 		ppmShipment.MaxIncentive = maxIncentive
 
-		var mtoShipment models.MTOShipment
-		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
-			return err
-		}
-
-		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor {
 			mtoShipment.Status = models.MTOShipmentStatusApproved
-			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 			now := time.Now()
 			ppmShipment.ApprovedAt = &now
 		}
 
-		// Validate ppm shipment model object and save it to DB
-		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
-		// Check validation errors
-		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the PPM shipment.")
-		} else if err != nil {
-			// If the error is something else (this is unexpected), we create a QueryError
-			return apperror.NewQueryError("PPM Shipment", err, "")
+		// save the updated incentives back to the PPM
+		if err := txnAppCtx.DB().Update(ppmShipment); err != nil {
+			return apperror.NewQueryError("Update PPM incentives", err, "")
 		}
 
-		// updating the shipment after PPM creation due to addresses not being created until PPM shipment is created
-		// when populating the market_code column, it is considered domestic if both pickup & dest on the PPM are CONUS addresses
-		if ppmShipment.PickupAddress != nil && ppmShipment.DestinationAddress != nil &&
-			ppmShipment.PickupAddress.IsOconus != nil && ppmShipment.DestinationAddress.IsOconus != nil {
-			pickupAddress := ppmShipment.PickupAddress
-			destAddress := ppmShipment.DestinationAddress
-			marketCode, err := models.DetermineMarketCode(pickupAddress, destAddress)
+		// authorize gunsafe in orders.Entitlement if customer has selected that they have gun safe when creating a ppm shipment
+		if ppmShipment.HasGunSafe != nil && *ppmShipment.HasGunSafe {
+			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), mtoShipment.MoveTaskOrderID)
 			if err != nil {
 				return err
 			}
-			mtoShipment.MarketCode = marketCode
-			if err := txnAppCtx.DB().Update(&mtoShipment); err != nil {
-				return err
+
+			entitlement := move.Orders.Entitlement
+			if entitlement == nil {
+				return apperror.NewQueryError("Entitlement", fmt.Errorf("entitlement is nil after fetching move with ID %s", move.ID), "Move is missing an associated entitlement.")
 			}
-			ppmShipment.Shipment = mtoShipment
+
+			entitlement.GunSafe = *ppmShipment.HasGunSafe
+
+			verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the gun safe entitlement.")
+			}
+			if err != nil {
+				return apperror.NewQueryError("Entitlement", err, "")
+			}
+
 		}
 
 		return err

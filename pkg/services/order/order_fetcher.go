@@ -49,7 +49,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
@@ -121,14 +121,13 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
-	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
-	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
+	assignedToQuery := assignedUserFilter(params.AssignedTo)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	secondarySortOrderQuery := secondarySortOrder(params.Sort)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
-	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
+	tooFilterOutDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [22]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, secondarySortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
+	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, secondarySortOrderQuery, assignedToQuery, counselingQuery, tooFilterOutDestinationRequestsQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -140,7 +139,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.OrdersType",
 			"MTOShipments.PPMShipment",
 			"LockedByOfficeUser",
-			"SCAssignedUser",
+			"SCCounselingAssignedUser",
+			"SCCloseoutAssignedUser",
 			"CounselingOffice",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
@@ -149,11 +149,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
-			LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id").
+			LeftJoin("office_users as assigned_user", "moves.sc_closeout_assigned_id  = assigned_user.id").
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
 	} else {
@@ -175,7 +175,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"CloseoutOffice",
 			"LockedByOfficeUser",
 			"CounselingOffice",
-			"SCAssignedUser",
+			"SCCounselingAssignedUser",
+			"SCCloseoutAssignedUser",
 			"TOOAssignedUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
@@ -191,11 +192,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
-		}
-		if role == roles.RoleTypeServicesCounselor {
-			query.LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id")
 		}
 		if role == roles.RoleTypeTOO {
 			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
@@ -205,14 +203,16 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
+					LeftJoin("office_users as assigned_user", "moves.sc_closeout_assigned_id  = assigned_user.id").
 					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					LeftJoin("office_users as assigned_user", "moves.sc_counseling_assigned_id  = assigned_user.id").
 					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete)
 			}
 		} else {
-			if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO {
 				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = 'PARTIAL' or (moves.ppm_type = 'FULL' and origin_dl.provides_services_counseling = 'false')))")
 			}
 			// TODO  not sure we'll need this once we're in a situation where closeout param is always passed
@@ -315,7 +315,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
-// this is a custom/temporary struct used in the below service object to get destination queue moves
+// this is a custom/temporary struct used in the below service object to convert moves consumed from the db into Go structs
 type MoveWithCount struct {
 	models.Move
 	OrdersRaw                     json.RawMessage              `json:"orders" db:"orders"`
@@ -324,8 +324,12 @@ type MoveWithCount struct {
 	MTOShipments                  *models.MTOShipments         `json:"-"`
 	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
 	CounselingOffice              *models.TransportationOffice `json:"-"`
+	TOOAssignedUserRaw            json.RawMessage              `json:"too_assigned" db:"too_assigned"`
+	TOOAssignedUser               *models.OfficeUser           `json:"-"`
 	TOODestinationAssignedUserRaw json.RawMessage              `json:"too_destination_assigned" db:"too_destination_assigned"`
 	TOODestinationAssignedUser    *models.OfficeUser           `json:"-"`
+	MTOServiceItemsRaw            json.RawMessage              `json:"mto_service_items" db:"mto_service_items"`
+	MTOServiceItems               *models.MTOServiceItems      `json:"-"`
 	TotalCount                    int64                        `json:"total_count" db:"total_count"`
 }
 
@@ -334,6 +338,109 @@ type JSONB []byte
 func (j *JSONB) UnmarshalJSON(data []byte) error {
 	*j = data
 	return nil
+}
+
+func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
+	var moves []models.Move
+	var movesWithCount []MoveWithCount
+
+	var officeUserGbloc string
+	hasSafetyPrivilege := false
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return []models.Move{}, 0, gblocErr
+		}
+	}
+
+	privileges, privErr := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if privErr == nil && privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+		hasSafetyPrivilege = true
+	} else if privErr != nil {
+		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(privErr))
+	}
+
+	err := appCtx.DB().RawQuery("SELECT * FROM get_origin_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
+		officeUserGbloc,
+		params.CustomerName,
+		params.Edipi,
+		params.Emplid,
+		pq.Array(params.Status),
+		params.Locator,
+		params.RequestedMoveDate,
+		params.AppearedInTOOAt,
+		params.Branch,
+		strings.Join(params.OriginDutyLocation, " "),
+		params.CounselingOffice,
+		params.AssignedTo,
+		hasSafetyPrivilege,
+		params.Page,
+		params.PerPage,
+		params.Sort,
+		params.Order).
+		All(&movesWithCount)
+
+	if err != nil {
+		return []models.Move{}, 0, err
+	}
+
+	var count int64
+	if len(movesWithCount) > 0 {
+		count = movesWithCount[0].TotalCount
+	} else {
+		count = 0
+	}
+
+	for i := range movesWithCount {
+		var order models.Order
+		if err := json.Unmarshal(movesWithCount[i].OrdersRaw, &order); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling orders JSON: %w", err)
+		}
+		movesWithCount[i].OrdersRaw = nil
+		movesWithCount[i].Orders = &order
+
+		var shipments models.MTOShipments
+		if err := json.Unmarshal(movesWithCount[i].MTOShipmentsRaw, &shipments); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling shipments JSON: %w", err)
+		}
+		movesWithCount[i].MTOShipmentsRaw = nil
+		movesWithCount[i].MTOShipments = &shipments
+
+		var serviceItems models.MTOServiceItems
+		if err := json.Unmarshal(movesWithCount[i].MTOServiceItemsRaw, &serviceItems); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling service items JSON: %w", err)
+		}
+		movesWithCount[i].MTOServiceItemsRaw = nil
+		movesWithCount[i].MTOServiceItems = &serviceItems
+
+		var counselingTransportationOffice models.TransportationOffice
+		if err := json.Unmarshal(movesWithCount[i].CounselingOfficeRaw, &counselingTransportationOffice); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling counseling_transportation_office JSON: %w", err)
+		}
+		movesWithCount[i].CounselingOfficeRaw = nil
+		movesWithCount[i].CounselingOffice = &counselingTransportationOffice
+
+		var tooAssigned models.OfficeUser
+		if err := json.Unmarshal(movesWithCount[i].TOOAssignedUserRaw, &tooAssigned); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling too_assigned JSON: %w", err)
+		}
+		movesWithCount[i].TOOAssignedUserRaw = nil
+		movesWithCount[i].TOOAssignedUser = &tooAssigned
+	}
+
+	for _, moveWithCount := range movesWithCount {
+		var move models.Move
+		if err := copier.Copy(&move, &moveWithCount); err != nil {
+			return nil, 0, fmt.Errorf("error copying movesWithCount into Moves struct: %w", err)
+		}
+		moves = append(moves, move)
+	}
+
+	return moves, int(count), nil
 }
 
 func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
@@ -353,8 +460,8 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 			return []models.Move{}, 0, gblocErr
 		}
 	}
-	privileges, privErr := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
-	if privErr == nil && privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+	privileges, privErr := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if privErr == nil && privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 		hasSafetyPrivilege = true
 	} else if privErr != nil {
 		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(privErr))
@@ -370,9 +477,9 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		params.RequestedMoveDate,
 		params.AppearedInTOOAt,
 		params.Branch,
-		strings.Join(params.OriginDutyLocation, " "),
+		params.DestinationDutyLocation,
 		params.CounselingOffice,
-		params.TOODestinationAssignedUser,
+		params.AssignedTo,
 		hasSafetyPrivilege,
 		params.Page,
 		params.PerPage,
@@ -425,6 +532,16 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		}
 		movesWithCount[i].TOODestinationAssignedUserRaw = nil
 		movesWithCount[i].TOODestinationAssignedUser = &tooAssigned
+
+		// populating Moves.MTOServiceItems struct
+		var serviceItems models.MTOServiceItems
+		if movesWithCount[i].MTOServiceItemsRaw != nil {
+			if err := json.Unmarshal(movesWithCount[i].MTOServiceItemsRaw, &serviceItems); err != nil {
+				return nil, 0, fmt.Errorf("error unmarshaling mto_service_items JSON: %w", err)
+			}
+		}
+		movesWithCount[i].MTOServiceItemsRaw = nil
+		movesWithCount[i].MTOServiceItems = &serviceItems
 	}
 
 	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func
@@ -456,7 +573,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		return []models.Move{}, err
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
@@ -528,8 +645,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", roles.PrivilegeSearchTypeSafety)
 		}
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
@@ -558,8 +675,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", roles.PrivilegeSearchTypeSafety)
 		}
 
 		if params.NeedsPPMCloseout != nil {
@@ -572,7 +689,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete)
 			}
 		} else {
-			if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO {
 				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = (?) or (moves.ppm_type = (?) and origin_dl.provides_services_counseling = 'false')))", models.MovePPMTypePARTIAL, models.MovePPMTypeFULL)
 			}
 			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
@@ -787,19 +904,10 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 	}
 }
 
-func scAssignedUserFilter(scAssigned *string) QueryOption {
+func assignedUserFilter(user *string) QueryOption {
 	return func(query *pop.Query) {
-		if scAssigned != nil {
-			nameSearch := fmt.Sprintf("%s%%", *scAssigned)
-			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
-		}
-	}
-}
-
-func tooAssignedUserFilter(tooAssigned *string) QueryOption {
-	return func(query *pop.Query) {
-		if tooAssigned != nil {
-			nameSearch := fmt.Sprintf("%s%%", *tooAssigned)
+		if user != nil {
+			nameSearch := fmt.Sprintf("%s%%", *user)
 			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
 		}
 	}
@@ -931,6 +1039,21 @@ func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
 			baseQuery := `
+			(mto_shipments.status IN ('SUBMITTED','APPROVALS_REQUESTED')
+				-- keep moves in the TOO queue if they have an unacknowledged excess weight risk
+        		OR (mto_shipments.status = 'APPROVED'
+        			AND
+                		(
+                        	moves.excess_weight_qualified_at IS NOT NULL
+                        	AND moves.excess_weight_acknowledged_at IS NULL
+		                )
+        		        OR (
+                	        moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
+                    	    AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
+                		)
+        		)
+    		)
+			AND
 			-- check for moves with destination requests and NOT origin requests, then return the inverse for the TOO queue with the NOT wrapped around the query
 			NOT (
 					-- check for moves with destination requests
@@ -995,17 +1118,6 @@ func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
 											'FSC', 'DMHF', 'DBTF', 'DBHF', 'IBTF', 'IBHF', 'DCRTSA',
 											'DLH', 'DOP', 'DPK', 'DSH', 'DNPK', 'INPK', 'UBP',
 											'ISLH', 'POEFSC', 'PODFSC', 'IHPK')
-						)
-						-- keep moves in the TOO queue if they have an unacknowledged excess weight risk
-						OR (
-							(
-								moves.excess_weight_qualified_at IS NOT NULL
-								AND moves.excess_weight_acknowledged_at IS NULL
-							)
-							OR (
-								moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
-								AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
-							)
 						)
 					)
 				)

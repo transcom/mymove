@@ -37,6 +37,9 @@ type Privilege struct {
 	// Example: supervisor
 	PrivilegeType string `json:"privilegeType,omitempty"`
 
+	// sort
+	Sort int32 `json:"sort,omitempty"`
+
 	// updated at
 	// Read Only: true
 	// Format: date-time

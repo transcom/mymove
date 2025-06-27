@@ -4,20 +4,23 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
+	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivileges() {
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
-	privilege := models.Privilege{
+	privilege := roles.Privilege{
 		ID:            id1,
 		PrivilegeType: "supervisor1",
 	}
 
-	privileges := models.Privileges{privilege}
+	privileges := roles.Privileges{privilege}
 	err := suite.DB().Create(privileges)
-	var privilegeTypes []models.PrivilegeType
+	var privilegeTypes []roles.PrivilegeType
 	for _, p := range privileges {
 		privilegeTypes = append(privilegeTypes, p.PrivilegeType)
 	}
@@ -41,13 +44,13 @@ func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivileges() {
 func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesTwice() {
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
-	privilege := models.Privilege{
+	privilege := roles.Privilege{
 		ID:            id1,
 		PrivilegeType: "privilege1",
 	}
-	privileges := models.Privileges{privilege}
+	privileges := roles.Privileges{privilege}
 	err := suite.DB().Create(privileges)
-	var privilegeTypes []models.PrivilegeType
+	var privilegeTypes []roles.PrivilegeType
 	for _, p := range privileges {
 		privilegeTypes = append(privilegeTypes, p.PrivilegeType)
 	}
@@ -75,14 +78,14 @@ func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesTwice() {
 func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesRemove() {
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
-	privilege := models.Privilege{
+	privilege := roles.Privilege{
 		ID:            id1,
 		PrivilegeType: "privilege1",
 	}
 
-	privileges := models.Privileges{privilege}
+	privileges := roles.Privileges{privilege}
 	err := suite.DB().Create(privileges)
-	origPrivilegeTypes := []models.PrivilegeType{privilege.PrivilegeType}
+	origPrivilegeTypes := []roles.PrivilegeType{privilege.PrivilegeType}
 	suite.NoError(err)
 	usersPrivilegesCreator := NewUsersPrivilegesCreator()
 
@@ -90,7 +93,7 @@ func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesRemove() {
 	suite.NoError(err)
 
 	// soft delete privilege1
-	newPrivilegeTypes := []models.PrivilegeType{privilege.PrivilegeType}
+	newPrivilegeTypes := []roles.PrivilegeType{privilege.PrivilegeType}
 	_, err = usersPrivilegesCreator.UpdateUserPrivileges(suite.AppContextForTest(), *officeUser.UserID, newPrivilegeTypes)
 	suite.NoError(err)
 
@@ -98,4 +101,50 @@ func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesRemove() {
 	getAllErr := suite.DB().All(&userPrivileges)
 	suite.NoError(getAllErr)
 	suite.Nil(userPrivileges[0].DeletedAt)
+}
+
+func (suite *UsersPrivilegesServiceSuite) TestUserPrivilegesAllowed() {
+	supervisorPrivilege := "supervisor"
+	supervisorName := "Supervisor"
+	safetyPrivilegeType := "safety"
+	safetyPrivilegeName := "Safety Moves"
+	scRoleType := "services_counselor"
+	scRoleName := "Services Counselor"
+	tooRoleType := "task_ordering_officer"
+	tooRoleName := "Task Ordering Officer"
+
+	params := officeuserop.CreateOfficeUserParams{
+		OfficeUser: &adminmessages.OfficeUserCreate{
+			FirstName: "Sam",
+			LastName:  "Cook",
+			Telephone: "555-555-5555",
+			Email:     "fakeemail5@gmail.com",
+			Privileges: []*adminmessages.OfficeUserPrivilege{
+				{
+					PrivilegeType: &supervisorPrivilege,
+					Name:          &supervisorName,
+				},
+				{
+					PrivilegeType: &safetyPrivilegeType,
+					Name:          &safetyPrivilegeName,
+				},
+			},
+
+			Roles: []*adminmessages.OfficeUserRole{
+				{
+					RoleType: &scRoleType,
+					Name:     &scRoleName,
+				},
+				{
+					RoleType: &tooRoleType,
+					Name:     &tooRoleName,
+				},
+			},
+		},
+	}
+
+	usersPrivilegesCreator := NewUsersPrivilegesCreator()
+	verrs, err := usersPrivilegesCreator.VerifyUserPrivilegeAllowed(suite.AppContextForTest(), params.OfficeUser.Roles, params.OfficeUser.Privileges)
+	suite.NoError(err)
+	suite.NoVerrs(verrs)
 }

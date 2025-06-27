@@ -20,6 +20,7 @@ import {
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import { APP_NAME } from 'constants/apps';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -27,6 +28,16 @@ const WeightTickets = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode, shipmentId, weightTicketId } = useParams();
+
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
+  };
+
+  const displayHelpDeskLink = false;
+
+  const errorModalMessage =
+    'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.';
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const appName = APP_NAME.OFFICE;
@@ -58,8 +69,8 @@ const WeightTickets = () => {
   });
 
   const { mutate: mutatePatchWeightTicket } = useMutation(patchWeightTicket, {
-    onSuccess: () => {
-      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
       navigate(reviewPath);
     },
     onError: () => {
@@ -95,8 +106,16 @@ const WeightTickets = () => {
         setFieldTouched(fieldName, true);
         return upload;
       })
-      .catch(() => {
-        setErrorMessage('Failed to save the file upload');
+      .catch((err) => {
+        if (
+          err.response.obj.message ===
+          'The uploaded .xlsx file does not match the expected weight estimator file format.'
+        ) {
+          setIsErrorModalVisible(true);
+          setErrorMessage('Failed to save the file upload');
+        } else {
+          setIsErrorModalVisible(true);
+        }
       });
   };
 
@@ -189,6 +208,12 @@ const WeightTickets = () => {
                   onBack={handleBack}
                   isSubmitted={isSubmitted}
                   appName={appName}
+                />
+                <ErrorModal
+                  isOpen={isErrorModalVisible}
+                  closeModal={toggleErrorModal}
+                  errorMessage={errorModalMessage}
+                  displayHelpDeskLink={displayHelpDeskLink}
                 />
               </div>
             </Grid>

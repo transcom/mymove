@@ -178,7 +178,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.WeightTicket":                             WeightTicket,
 	"roles.Role":                                      Role,
 	"models.UsersPrivileges":                          UsersPrivileges,
-	"models.Privilege":                                Privilege,
+	"roles.Privilege":                                 Privilege,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -280,14 +280,16 @@ var TransportationOffices = transportationOfficeGroup{
 }
 
 type officeUserGroup struct {
-	SCAssignedUser             CustomType
+	SCCounselingAssignedUser   CustomType
+	SCCloseoutAssignedUser     CustomType
 	TIOAssignedUser            CustomType
 	TOOAssignedUser            CustomType
 	TOODestinationAssignedUser CustomType
 }
 
 var OfficeUsers = officeUserGroup{
-	SCAssignedUser:             "SCAssignedUser",
+	SCCounselingAssignedUser:   "SCCounselingAssignedUser",
+	SCCloseoutAssignedUser:     "SCCloseoutAssignedUser",
 	TIOAssignedUser:            "TIOAssignedUser",
 	TOOAssignedUser:            "TOOAssignedUser",
 	TOODestinationAssignedUser: "TOODestinationAssignedUser",

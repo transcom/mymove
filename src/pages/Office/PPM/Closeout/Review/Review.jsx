@@ -12,7 +12,7 @@ import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { servicesCounselingRoutes } from 'constants/routes';
 import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 import {
@@ -38,8 +38,9 @@ import {
 } from 'utils/shipments';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { deleteWeightTicket, deleteProGearWeightTicket } from 'services/ghcApi';
+import { deleteMovingExpense, deleteWeightTicket, deleteProGearWeightTicket } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
+import { PPM_TYPES } from 'shared/constants';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -78,6 +79,8 @@ const Review = () => {
   const [alert, setAlert] = useState(null);
   const { moveCode, shipmentId } = useParams();
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const ppmShipment = mtoShipment?.ppmShipment || {};
+  const { ppmType } = ppmShipment;
 
   const weightTickets = documents?.WeightTickets ?? [];
   const proGear = documents?.ProGearWeightTickets ?? [];
@@ -86,6 +89,14 @@ const Review = () => {
   const queryClient = useQueryClient();
 
   const { mutate: mutateWeightTicket } = useMutation(deleteWeightTicket, {
+    onSuccess: () => {
+      setIsDeleteModalVisible(false);
+      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+      setIsDeleting(false);
+    },
+  });
+
+  const { mutate: mutateDeleteMovingExpense } = useMutation(deleteMovingExpense, {
     onSuccess: () => {
       setIsDeleteModalVisible(false);
       queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
@@ -168,8 +179,19 @@ const Review = () => {
       );
     }
     if (itemType === 'expense') {
-      // TODO
-      if (ppmShipmentId && itemId) setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }); // remove this line and add in the logic for deleting expense
+      setIsDeleting(true);
+      mutateDeleteMovingExpense(
+        { ppmShipmentId, movingExpenseId: itemId },
+        {
+          onSuccess: () => {
+            setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` });
+          },
+          onError: () => {
+            setIsDeleting(false);
+            setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` });
+          },
+        },
+      );
     }
   };
 
@@ -192,7 +214,12 @@ const Review = () => {
   const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
 
   const canAdvance =
-    hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses) && hasCompletedAllProGear(proGear);
+    hasCompletedAllWeightTickets(weightTickets, ppmType) &&
+    hasCompletedAllExpenses(expenses) &&
+    hasCompletedAllProGear(proGear);
+
+  // PPM-SPRs must have at least one moving expense to advance
+  const ppmSmalLPackageCanAdvance = ppmType === PPM_TYPES.SMALL_PACKAGE && expenses && expenses.length < 1;
 
   const showIncompleteError =
     hasIncompleteWeightTicket(weightTickets) || !hasCompletedAllExpenses(expenses) || !hasCompletedAllProGear(proGear);
@@ -263,39 +290,43 @@ const Review = () => {
                   <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
                 </SectionWrapper>
                 <SectionWrapper>
-                  <h2>Documents</h2>
-                  <ReviewItems
-                    className={classnames(styles.reviewItems, 'reviewWeightTickets')}
-                    heading={
-                      <>
-                        <h3>Weight moved</h3>
-                        <span>({formatWeight(weightTicketsTotal)})</span>
-                      </>
-                    }
-                    contents={weightTicketContents}
-                    renderAddButton={() => (
-                      <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
-                        Add More Weight
-                      </Link>
-                    )}
-                    emptyMessage="No weight moved documented. At least one trip is required to continue."
-                  />
-                  <ReviewItems
-                    className={classnames(styles.reviewItems, 'progearSection')}
-                    heading={
-                      <>
-                        <h3>Pro-gear</h3>
-                        <span>({formatWeight(proGearTotal)})</span>
-                      </>
-                    }
-                    contents={proGearContents}
-                    renderAddButton={() => (
-                      <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
-                        Add Pro-gear Weight
-                      </Link>
-                    )}
-                    emptyMessage="No pro-gear weight documented."
-                  />
+                  <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Small Package Expenses' : 'Documents'}</h2>
+                  {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                    <ReviewItems
+                      className={classnames(styles.reviewItems, 'reviewWeightTickets')}
+                      heading={
+                        <>
+                          <h3>Weight moved</h3>
+                          <span>({formatWeight(weightTicketsTotal)})</span>
+                        </>
+                      }
+                      contents={weightTicketContents}
+                      renderAddButton={() => (
+                        <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
+                          Add More Weight
+                        </Link>
+                      )}
+                      emptyMessage="No weight moved documented. At least one trip is required to continue."
+                    />
+                  )}
+                  {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                    <ReviewItems
+                      className={classnames(styles.reviewItems, 'progearSection')}
+                      heading={
+                        <>
+                          <h3>Pro-gear</h3>
+                          <span>({formatWeight(proGearTotal)})</span>
+                        </>
+                      }
+                      contents={proGearContents}
+                      renderAddButton={() => (
+                        <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
+                          Add Pro-gear Weight
+                        </Link>
+                      )}
+                      emptyMessage="No pro-gear weight documented."
+                    />
+                  )}
                   <ReviewItems
                     className={classnames(styles.reviewItems, 'reviewExpenses')}
                     heading={
@@ -329,7 +360,7 @@ const Review = () => {
                     className={ppmStyles.saveButton}
                     type="button"
                     onClick={handleSubmit}
-                    disabled={!canAdvance}
+                    disabled={!canAdvance || ppmSmalLPackageCanAdvance}
                   >
                     Save & Continue
                   </Button>

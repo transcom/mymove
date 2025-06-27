@@ -2014,6 +2014,34 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/moving-expenses:
+    post:
+      summary: Creates moving expense document
+      description: Creates a moving expense document for the PPM shipment
+      operationId: createMovingExpense
+      tags:
+        - ppm
+      parameters:
+        - $ref: '#/parameters/ppmShipmentId'
+      responses:
+        '201':
+          description: returns new moving expense object
+          schema:
+            $ref: '#/definitions/MovingExpense'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
@@ -2055,6 +2083,37 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a moving expense by ID
+      description: >
+        Removes a single moving expense receipt from the closeout line items for
+        a PPM shipment. Soft deleted
+
+        records are not visible in milmove, but are kept in the database.
+      operationId: deleteMovingExpense
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ppmShipmentId'
+      responses:
+        '204':
+          description: Successfully soft deleted the moving expense
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -2492,6 +2551,40 @@ paths:
           description: ppm not found
         '500':
           description: internal server error
+  /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    post:
+      summary: Saves signature and routes PPM shipment to service counselor
+      description: |
+        Routes the PPM shipment to the service
+        counselor PPM Closeout queue for review.
+      operationId: submitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: '#/definitions/PPMShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
@@ -5291,6 +5384,28 @@ paths:
         - move
       description: Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
+  /paygrade/{affiliation}:
+    get:
+      summary: Get pay grades for specified affiliation
+      description: Get pay grades for specified affiliation
+      operationId: getPayGrades
+      tags:
+        - orders
+      parameters:
+        - $ref: '#/parameters/AffiliationParam'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OrderPayGrades'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 definitions:
   ApplicationParameters:
     type: object
@@ -5917,6 +6032,10 @@ definitions:
         example: 500
         type: integer
         x-formatting: weight
+      gunSafeWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
       storageInTransit:
         example: 90
         type: integer
@@ -5974,70 +6093,6 @@ definitions:
     required:
       - message
     type: object
-  Grade:
-    type: string
-    x-nullable: true
-    title: grade
-    enum:
-      - E_1
-      - E_2
-      - E_3
-      - E_4
-      - E_5
-      - E_6
-      - E_7
-      - E_8
-      - E_9
-      - E_9_SPECIAL_SENIOR_ENLISTED
-      - O_1_ACADEMY_GRADUATE
-      - O_2
-      - O_3
-      - O_4
-      - O_5
-      - O_6
-      - O_7
-      - O_8
-      - O_9
-      - O_10
-      - W_1
-      - W_2
-      - W_3
-      - W_4
-      - W_5
-      - AVIATION_CADET
-      - CIVILIAN_EMPLOYEE
-      - ACADEMY_CADET
-      - MIDSHIPMAN
-    x-display-value:
-      E_1: E-1
-      E_2: E-2
-      E_3: E-3
-      E_4: E-4
-      E_5: E-5
-      E_6: E-6
-      E_7: E-7
-      E_8: E-8
-      E_9: E-9
-      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
-      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
-      O_2: O-2
-      O_3: O-3
-      O_4: O-4
-      O_5: O-5
-      O_6: O-6
-      O_7: O-7
-      O_8: O-8
-      O_9: O-9
-      O_10: O-10
-      W_1: W-1
-      W_2: W-2
-      W_3: W-3
-      W_4: W-4
-      W_5: W-5
-      AVIATION_CADET: Aviation Cadet
-      CIVILIAN_EMPLOYEE: Civilian Employee
-      ACADEMY_CADET: Service Academy Cadet
-      MIDSHIPMAN: Midshipman
   Move:
     properties:
       id:
@@ -6179,7 +6234,9 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: '#/definitions/Document'
-      SCAssignedUser:
+      SCCounselingAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
@@ -6430,7 +6487,7 @@ definitions:
         example: Doe
         readOnly: true
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       entitlement:
@@ -6601,7 +6658,7 @@ definitions:
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       originDutyLocationId:
         type: string
         format: uuid
@@ -6701,7 +6758,7 @@ definitions:
         example: N002214CSW32Y9
         $ref: '#/definitions/NullableString'
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6786,7 +6843,7 @@ definitions:
         type: boolean
         x-nullable: true
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       dependentsAuthorized:
         type: boolean
         x-nullable: true
@@ -6808,7 +6865,7 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -6820,6 +6877,14 @@ definitions:
         x-formatting: weight
         x-nullable: true
       proGearWeightSpouse:
+        description: unit is in lbs
+        example: 500
+        type: integer
+        minimum: 0
+        maximum: 500
+        x-formatting: weight
+        x-nullable: true
+      gunSafeWeight:
         description: unit is in lbs
         example: 500
         type: integer
@@ -6922,7 +6987,7 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: '#/definitions/Grade'
+        $ref: '#/definitions/OrderPayGrade'
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -6934,6 +6999,14 @@ definitions:
         x-formatting: weight
         x-nullable: true
       proGearWeightSpouse:
+        minimum: 0
+        maximum: 500
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      gunSafeWeight:
         minimum: 0
         maximum: 500
         description: unit is in lbs
@@ -7395,32 +7468,12 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
           - $ref: '#/definitions/PPMDestinationAddress'
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -7487,6 +7540,17 @@ definitions:
         type: integer
         x-nullable: true
       spouseProGearWeight:
+        type: integer
+        x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
       hasRequestedAdvance:
@@ -7692,6 +7756,18 @@ definitions:
         description: The amount of SIT that will be reimbursed
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      paidWithGTCC:
+        description: >-
+          Indicates if the service member used their government issued card to
+          pay for the expense
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      missingReceipt:
+        description: Indicates if the customer is missing the receipt for their expense.
+        type: boolean
         x-nullable: true
         x-omitempty: false
       weightShipped:
@@ -7973,6 +8049,13 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+      gunSafeWeight:
+        type: integer
+        x-nullable: true
       isActualExpenseReimbursement:
         description: >-
           Used for PPM shipments only. Denotes if this shipment uses the Actual
@@ -7992,6 +8075,7 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+      - hasGunSafe
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -8302,6 +8386,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -8310,7 +8398,10 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+        x-nullable: true
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
@@ -9357,6 +9448,70 @@ definitions:
       - officeUserId
       - transportationOfficeId
       - primaryOffice
+  OrderPayGrade:
+    type: string
+    x-nullable: true
+    title: Grade
+    enum:
+      - E-1
+      - E-2
+      - E-3
+      - E-4
+      - E-5
+      - E-6
+      - E-7
+      - E-8
+      - E-9
+      - E-9-SPECIAL-SENIOR-ENLISTED
+      - O-1
+      - O-2
+      - O-3
+      - O-4
+      - O-5
+      - O-6
+      - O-7
+      - O-8
+      - O-9
+      - O-10
+      - W-1
+      - W-2
+      - W-3
+      - W-4
+      - W-5
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET
+      - MIDSHIPMAN
+    x-display-value:
+      E_1: E-1
+      E_2: E-2
+      E_3: E-3
+      E_4: E-4
+      E_5: E-5
+      E_6: E-6
+      E_7: E-7
+      E_8: E-8
+      E_9: E-9
+      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
+      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
+      O_6: O-6
+      O_7: O-7
+      O_8: O-8
+      O_9: O-9
+      O_10: O-10
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman
   DutyLocation:
     type: object
     properties:
@@ -10053,6 +10208,7 @@ definitions:
       - CANCELED
       - DIVERSION_REQUESTED
       - TERMINATED_FOR_CAUSE
+      - APPROVALS_REQUESTED
   ReweighRequester:
     type: string
     enum:
@@ -10302,7 +10458,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   OmittablePPMDocumentStatus:
@@ -11011,17 +11166,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       destinationAddress:
         $ref: '#/definitions/Address'
       secondaryDestinationAddress:
@@ -11042,17 +11186,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require
@@ -11095,6 +11228,19 @@ definitions:
         description: >-
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
         x-omitempty: false
@@ -11972,6 +12118,13 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      gccMultiplier:
+        description: Multiplier applied to incentives
+        type: number
+        format: float
+        example: 1.3
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
   PPMActualWeight:
@@ -12221,6 +12374,8 @@ definitions:
       - SITScheduleOrigin
       - SITServiceAreaDest
       - SITServiceAreaOrigin
+      - SITRateAreaDest
+      - SITRateAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated
@@ -13390,6 +13545,13 @@ definitions:
       isAutoApproved:
         type: boolean
         example: true
+  OrderPayGrades:
+    type: object
+    properties:
+      grade:
+        type: string
+      description:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid
@@ -13457,3 +13619,18 @@ parameters:
     format: uuid
     required: true
     description: UUID of the pro-gear weight ticket
+  AffiliationParam:
+    name: affiliation
+    in: path
+    required: true
+    type: string
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-nullable: true
+    description: Military branch of service

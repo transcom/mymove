@@ -69,6 +69,8 @@ describe('BackupAddressForm component', () => {
       expect(getByTestId('State')).toBeInstanceOf(HTMLLabelElement);
 
       expect(getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
+
+      expect(getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
     });
   });
 

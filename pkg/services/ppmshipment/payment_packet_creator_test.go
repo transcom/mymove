@@ -1,16 +1,10 @@
 package ppmshipment
 
 import (
-	// 	"fmt"
-	// 	"io"
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/gofrs/uuid"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -432,27 +426,8 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
 
 		//nolint:staticcheck
-		pdf, dirPath, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
+		_, dirPath, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
 		suite.FatalNil(err)
-
-		suite.T().Skip(`Skipping test at this point - after HDT 2617 patched negative seeking
-		this now errors due to the context not having outlines which is likely from the
-		test PDFs not following standard PDF guidelines (Corrupted in terms of proper PDF formatting)`)
-
-		pdfBookmarks := extractBookmarks(suite, *generator, pdf)
-		suite.True(len(pdfBookmarks.Bookmarks) == 19)
-
-		// this is a way to verify doc order via bookmark title
-		expectedLabels := [19]string{"Shipment Summary Worksheet and Orders", "Weight Moved: Trip #1: Empty Weight Document #1", "Weight Moved: Trip #1: Empty Weight Document #2",
-			"Weight Moved: Trip #1: Full Weight Document #1", "Weight Moved: Trip #1: Full Weight Document #2", "Weight Moved: Trip #2: Empty Weight Document #1",
-			"Weight Moved: Trip #2: Full Weight Document #1", "Pro-gear: Set #1:(Me) Weight Ticket Document #1", "Weight Moved: Trip #1: POV/Registration Document #1",
-			"Weight Moved: Trip #2: POV/Registration Document #1", "Expenses: Receipt #1: Weighing Fee Document #1", "Expenses: Receipt #2: Rental Equipment Document #1",
-			"Expenses: Receipt #3: Contracted Expense Document #1", "Expenses: Receipt #4: Oil Document #1", "Expenses: Receipt #5: Packing Materials Document #1", "Expenses: Receipt #6: Tolls Document #1",
-			"Expenses: Receipt #7: Storage Document #1", "Expenses: Receipt #8: Other Document #1", "Expenses: Receipt #9: Other Document #1"}
-
-		for i := 0; i < len(pdfBookmarks.Bookmarks); i++ {
-			suite.Equal(expectedLabels[i], pdfBookmarks.Bookmarks[i].Title)
-		}
 
 		err = paymentPacketCreator.CleanupPaymentPacketDir(dirPath)
 		suite.NoError(err)
@@ -550,119 +525,4 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		err = paymentPacketCreator.CleanupPaymentPacketDir(dirPath)
 		suite.NoError(err)
 	})
-
-	suite.Run("generate with disabled bookmark and watermark", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
-		suite.NotNil(ppmShipment)
-		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			ServiceMemberID: notOwnerServiceMemberID,
-			ApplicationName: auth.OfficeApp,
-		})
-
-		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
-
-		// disable bookmark and watermark
-		// TODO -- figure out how to determine if watermark was generated
-		pdf, dirPath, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, false, false)
-		suite.FatalNil(err)
-
-		mergedBytes, err := io.ReadAll(pdf)
-		suite.FatalNil(err)
-		suite.True(len(mergedBytes) > 0)
-		err = paymentPacketCreator.CleanupPaymentPacketDir(dirPath)
-		suite.NoError(err)
-	})
-
-	suite.Run("generate with enable bookmark, disable watermark", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
-		suite.NotNil(ppmShipment)
-		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			ServiceMemberID: notOwnerServiceMemberID,
-			ApplicationName: auth.OfficeApp,
-		})
-
-		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
-
-		// enable bookmark, disable watermark
-		// nolint:staticcheck
-		pdf, dirPath, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, true, false)
-		suite.FatalNil(err)
-		// nolint:staticcheck
-		bookmarks := extractBookmarks(suite, *generator, pdf)
-		suite.T().Skip(`Skipping test - after HDT 2617 patched negative seeking
-		this now errors due to the context not having outlines which is likely from the
-		test PDFs not following standard PDF guidelines (Corrupted in terms of proper PDF formatting)`)
-
-		suite.True(len(bookmarks.Bookmarks) > 0)
-		err = paymentPacketCreator.CleanupPaymentPacketDir(dirPath)
-		suite.NoError(err)
-	})
-
-	suite.Run("generate with disable bookmark, enable watermark", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
-		suite.NotNil(ppmShipment)
-		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			ServiceMemberID: notOwnerServiceMemberID,
-			ApplicationName: auth.OfficeApp,
-		})
-
-		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
-
-		// disable bookmark, enable watermark
-		// TODO -- figure out how to determine if watermark was generated
-		pdf, dirPath, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, false, true)
-		suite.FatalNil(err)
-
-		bookmarks := extractBookmarks(suite, *generator, pdf)
-		suite.True(bookmarks == nil)
-		err = paymentPacketCreator.CleanupPaymentPacketDir(dirPath)
-		suite.NoError(err)
-	})
-}
-
-func extractBookmarks(suite *PPMShipmentSuite, generator paperworkgenerator.Generator, pdf io.ReadCloser) *pdfBookmarks {
-	mergedBytes, err := io.ReadAll(pdf)
-	suite.FatalNil(err)
-	suite.True(len(mergedBytes) > 0)
-
-	memorybasedFs := afero.NewMemMapFs()
-
-	outFile, err := memorybasedFs.Create("test")
-	suite.FatalNil(err)
-	defer outFile.Close()
-
-	buf := new(bytes.Buffer)
-	buf.Write(mergedBytes)
-
-	_, err = io.Copy(outFile, buf)
-	suite.FatalNil(err)
-
-	info, err := generator.GetPdfFileInfoForReadSeeker(outFile)
-	suite.FatalNil(err)
-	suite.True(info.PageCount > 0)
-
-	buf = new(bytes.Buffer)
-	err = api.ExportBookmarksJSON(outFile, buf, "", nil)
-	if err != nil {
-		// no bookmarks
-		return nil
-	}
-
-	pb := pdfBookmarks{}
-
-	err = json.Unmarshal(buf.Bytes(), &pb)
-	suite.FatalNil(err)
-
-	return &pb
-}
-
-type pdfBookmarks struct {
-	Bookmarks []bookmarks
-}
-type bookmarks struct {
-	Title string `json:"title"`
-	Page  int    `json:"page"`
 }

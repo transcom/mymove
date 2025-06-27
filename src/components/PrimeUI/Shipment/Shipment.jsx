@@ -60,6 +60,17 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
         {moveId && (
           <>
+            <Link
+              to={`../shipments/${shipment.id}/acknowledge`}
+              relative="path"
+              aria-label="Acknowledge Shipment"
+              className="usa-button usa-button-secondary"
+            >
+              Acknowledge Shipment
+            </Link>
+            <Link to={`../shipments/${shipment.id}`} relative="path" className="usa-button usa-button-secondary">
+              Update Shipment
+            </Link>
             {!shipment.ppmShipment && hasSITServiceItem() && (
               <Link
                 to={`../shipments/${shipment.id}/sit-extension-requests/new`}
@@ -69,9 +80,6 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
                 Request SIT Extension
               </Link>
             )}
-            <Link to={`../shipments/${shipment.id}`} relative="path" className="usa-button usa-button-secondary">
-              Update Shipment
-            </Link>
             {shipment.shipmentType !== SHIPMENT_OPTIONS.PPM && (
               <Link
                 to={`../shipments/${shipment.id}/updateDestinationAddress`}
@@ -86,21 +94,6 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
               shipment.ppmShipment.status !== ppmShipmentStatuses.WAITING_ON_CUSTOMER && (
                 <Button onClick={showDeleteModal}>Delete Shipment</Button>
               )}
-            <Link
-              to={`../shipments/${shipment.id}/service-items/new`}
-              relative="path"
-              className="usa-button usa-button-secondary"
-            >
-              Add Service Item
-            </Link>
-            <Link
-              to={`../shipments/${shipment.id}/acknowledge`}
-              relative="path"
-              aria-label="Acknowledge Shipment"
-              className="usa-button usa-button-secondary"
-            >
-              Acknowledge Shipment
-            </Link>
           </>
         )}
       </div>
@@ -133,6 +126,10 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
       <div className={descriptionListStyles.row}>
         <dt>Actual Pickup Date:</dt>
         <dd>{shipment.actualPickupDate}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Required Delivery Date:</dt>
+        <dd>{shipment.requiredDeliveryDate}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Scheduled Delivery Date:</dt>
@@ -450,11 +447,11 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM Actual Pickup Postal Code:</dt>
-            <dd>{shipment.ppmShipment.actualPickupPostalCode}</dd>
+            <dd>{shipment.ppmShipment.pickupAddress?.postalCode}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM Actual Destination Postal Code:</dt>
-            <dd>{shipment.ppmShipment.actualDestinationPostalCode}</dd>
+            <dd>{shipment.ppmShipment.destinationAddress?.postalCode}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM Has Requested Advance:</dt>

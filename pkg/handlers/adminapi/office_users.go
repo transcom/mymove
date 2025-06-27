@@ -28,35 +28,52 @@ import (
 func payloadForRole(r roles.Role) *adminmessages.Role {
 	roleType := string(r.RoleType)
 	roleName := string(r.RoleName)
+	sort := int32(r.Sort)
 	return &adminmessages.Role{
 		ID:        handlers.FmtUUID(r.ID),
 		RoleType:  &roleType,
 		RoleName:  &roleName,
+		Sort:      sort,
 		CreatedAt: *handlers.FmtDateTime(r.CreatedAt),
 		UpdatedAt: *handlers.FmtDateTime(r.UpdatedAt),
 	}
 }
 
-func payloadForPrivilege(p models.Privilege) *adminmessages.Privilege {
+func payloadForPrivilege(p roles.Privilege) *adminmessages.Privilege {
+	sort := int32(p.Sort)
 	return &adminmessages.Privilege{
 		ID:            *handlers.FmtUUID(p.ID),
 		PrivilegeType: *handlers.FmtString(string(p.PrivilegeType)),
 		PrivilegeName: *handlers.FmtString(string(p.PrivilegeName)),
+		Sort:          sort,
 		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
 		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
 	}
 }
 
-func payloadForRolePrivilege(p models.RolePrivilege) *adminmessages.RolePrivilege {
-	return &adminmessages.RolePrivilege{
-		ID:            *handlers.FmtUUID(p.ID),
-		RoleID:        *handlers.FmtUUID(p.RoleID),
-		RoleType:      *handlers.FmtString(string(p.Role.RoleType)),
-		PrivilegeID:   *handlers.FmtUUID(p.PrivilegeID),
-		PrivilegeType: *handlers.FmtString(string(p.Privilege.PrivilegeType)),
-		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
-		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
+func payloadForRolePrivilege(role roles.Role) *adminmessages.Role {
+	sort := int32(role.Sort)
+	r := &adminmessages.Role{
+		ID:        handlers.FmtUUID(role.ID),
+		RoleType:  handlers.FmtString(string(role.RoleType)),
+		RoleName:  handlers.FmtString(string(role.RoleName)),
+		Sort:      sort,
+		CreatedAt: *handlers.FmtDateTime(role.CreatedAt),
+		UpdatedAt: *handlers.FmtDateTime(role.UpdatedAt),
 	}
+
+	for _, rp := range role.RolePrivileges {
+		privSort := int32(rp.Privilege.Sort)
+		r.Privileges = append(r.Privileges, &adminmessages.Privilege{
+			ID:            *handlers.FmtUUID(rp.PrivilegeID),
+			PrivilegeType: *handlers.FmtString(string(rp.Privilege.PrivilegeType)),
+			PrivilegeName: *handlers.FmtString(string(rp.Privilege.PrivilegeName)),
+			Sort:          privSort,
+			CreatedAt:     *handlers.FmtDateTime(rp.Privilege.CreatedAt),
+			UpdatedAt:     *handlers.FmtDateTime(rp.Privilege.UpdatedAt),
+		})
+	}
+	return r
 }
 
 func payloadForTransportationOfficeAssignment(toa models.TransportationOfficeAssignment) *adminmessages.TransportationOfficeAssignment {
@@ -273,7 +290,7 @@ type CreateOfficeUserHandler struct {
 	services.UserRoleAssociator
 	services.RoleAssociater
 	services.UserPrivilegeAssociator
-	services.TransportaionOfficeAssignmentUpdater
+	services.TransportationOfficeAssignmentUpdater
 }
 
 // Handle creates an office user
@@ -307,6 +324,26 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				err = apperror.NewBadDataError("No roles were matched from payload")
 				appCtx.Logger().Error(err.Error())
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
+
+			if err != nil {
+				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			if verrs.HasAny() {
+				validationError := &adminmessages.ValidationError{
+					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
+						Title:    handlers.FmtString(handlers.ValidationErrMessage),
+						Detail:   handlers.FmtString("Selected office user role is not authorized for supplied privilege"),
+						Instance: handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest)),
+					},
+				}
+
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
 			}
 
 			// if the user is being manually created, then we know they will already be approved
@@ -376,6 +413,15 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
 
+			privileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
+
+			createdOfficeUser.User.Privileges = privileges
+
 			updatedTransportationOfficeAssignments, err := transportationOfficeAssignmentsPayloadToModel(payload.TransportationOfficeAssignments)
 			if err != nil {
 				appCtx.Logger().Error("UUID parsing error for transportation office assignments", zap.Error(err))
@@ -383,7 +429,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 			}
 
 			transportationOfficeAssignments, err :=
-				h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, createdOfficeUser.ID, updatedTransportationOfficeAssignments)
+				h.TransportationOfficeAssignmentUpdater.UpdateTransportationOfficeAssignments(appCtx, createdOfficeUser.ID, updatedTransportationOfficeAssignments)
 			if err != nil {
 				appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
@@ -409,7 +455,8 @@ type UpdateOfficeUserHandler struct {
 	services.UserRoleAssociator
 	services.UserPrivilegeAssociator
 	services.UserSessionRevocation
-	services.TransportaionOfficeAssignmentUpdater
+	services.TransportationOfficeAssignmentUpdater
+	services.RoleAssociater
 }
 
 // Handle updates an office user
@@ -432,6 +479,25 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
+			verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
+
+			if err != nil {
+				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			if verrs.HasAny() {
+				validationError := &adminmessages.ValidationError{
+					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
+						Title:    handlers.FmtString(handlers.ValidationErrMessage),
+						Detail:   handlers.FmtString("Selected office user role is not authorized for supplied privilege"),
+						Instance: handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest)),
+					},
+				}
+
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+			}
 			officeUserDB, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
 
 			if err != nil {
@@ -490,6 +556,15 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
 					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
+
+				roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *updatedOfficeUser.UserID)
+
+				if err != nil {
+					appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+				}
+
+				updatedOfficeUser.User.Roles = roles
 			}
 
 			if updatedOfficeUser.UserID != nil && payload.Privileges != nil {
@@ -523,6 +598,15 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
 					return userop.NewUpdateUserInternalServerError(), validationErrors
 				}
+
+				privileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *updatedOfficeUser.UserID)
+
+				if err != nil {
+					appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
+					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+				}
+
+				updatedOfficeUser.User.Privileges = privileges
 			}
 
 			if len(payload.TransportationOfficeAssignments) > 0 {
@@ -534,7 +618,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 
 				updatedTransportationOfficeAssignments, err :=
-					h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, updatedOfficeUser.ID, transportationOfficeAssignmentsFromPayload)
+					h.TransportationOfficeAssignmentUpdater.UpdateTransportationOfficeAssignments(appCtx, updatedOfficeUser.ID, transportationOfficeAssignmentsFromPayload)
 				if err != nil {
 					appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
 					return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
@@ -596,11 +680,11 @@ func rolesPayloadToModel(payload []*adminmessages.OfficeUserRole) []roles.RoleTy
 	return rt
 }
 
-func privilegesPayloadToModel(payload []*adminmessages.OfficeUserPrivilege) []models.PrivilegeType {
-	var rt []models.PrivilegeType
+func privilegesPayloadToModel(payload []*adminmessages.OfficeUserPrivilege) []roles.PrivilegeType {
+	var rt []roles.PrivilegeType
 	for _, privilege := range payload {
 		if privilege.PrivilegeType != nil {
-			rt = append(rt, models.PrivilegeType(*privilege.PrivilegeType))
+			rt = append(rt, roles.PrivilegeType(*privilege.PrivilegeType))
 		}
 	}
 	return rt
@@ -693,8 +777,7 @@ func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivileges
 				return officeuserop.NewGetRolesPrivilegesUnauthorized(), nil
 			}
 
-			rolesPrivileges, err := h.RoleAssociater.FetchRolesPrivileges(appCtx)
-
+			rolesWithRolePrivs, err := h.RoleAssociater.FetchRolesPrivileges(appCtx)
 			if err != nil && errors.Is(err, sql.ErrNoRows) {
 				return officeuserop.NewGetRolesPrivilegesNotFound(), err
 			} else if err != nil {
@@ -702,9 +785,9 @@ func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivileges
 				return officeuserop.NewGetRolesPrivilegesInternalServerError(), err
 			}
 
-			var payload []*adminmessages.RolePrivilege
-			for _, rolePriv := range rolesPrivileges {
-				payload = append(payload, payloadForRolePrivilege(rolePriv))
+			payload := make([]*adminmessages.Role, len(rolesWithRolePrivs))
+			for i, rwrp := range rolesWithRolePrivs {
+				payload[i] = payloadForRolePrivilege(rwrp)
 			}
 
 			return officeuserop.NewGetRolesPrivilegesOK().WithPayload(payload), nil

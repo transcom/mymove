@@ -50,6 +50,7 @@ export const WithInitialValues = (argTypes) => (
           city: 'El Paso',
           state: 'TX',
           postalCode: '79912',
+          county: 'El Paso',
         },
       }}
       onBack={argTypes.onBack}

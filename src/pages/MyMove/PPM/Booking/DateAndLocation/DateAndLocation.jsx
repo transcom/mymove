@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { generatePath, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, getAllMoves, patchMove, patchMTOShipment } from 'services/internalApi';
@@ -26,7 +24,6 @@ import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [errorCode, setErrorCode] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
   const navigate = useNavigate();
   const { moveId } = useParams();
   const dispatch = useDispatch();
@@ -42,26 +39,15 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const isNewShipment = !mtoShipment?.id;
   const isCivilian = move.orders?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
 
-  useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
-  }, []);
-
   const handleBack = () => {
     if (isNewShipment) {
       navigate(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
-    } else if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     } else {
-      navigate(generalRoutes.HOME_PATH);
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     }
   };
 
   const onShipmentSaveSuccess = (response, setSubmitting) => {
-    // Update submitting state
-    setSubmitting(false);
-
     // Update the shipment in the store
     dispatch(updateMTOShipment(response));
 
@@ -72,6 +58,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
         mtoShipmentId: response.id,
       }),
     );
+
+    // Update submitting state
+    setSubmitting(false);
   };
 
   const handleSetError = (error, defaultError) => {
@@ -85,7 +74,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     }
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting }) => {
     setErrorMessage(null);
 
     const hasSecondaryPickupAddress = values.hasSecondaryPickupAddress === 'true';
@@ -146,18 +135,18 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
                 onShipmentSaveSuccess(shipmentResponse, setSubmitting);
               })
               .catch(() => {
-                setSubmitting(false);
                 // Still need to update the shipment in the store since it had a successful create
                 dispatch(updateMTOShipment(shipmentResponse));
                 setErrorMessage('There was an error attempting to create the move closeout office.');
+                setSubmitting(false);
               });
           } else {
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
         .catch((error) => {
-          setSubmitting(false);
           handleSetError(error, 'There was an error attempting to create your shipment.');
+          setSubmitting(false);
         });
     } else {
       createOrUpdateShipment.id = mtoShipment.id;
@@ -177,18 +166,18 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
                 dispatch(updateAllMoves(allMoves));
               })
               .catch(() => {
-                setSubmitting(false);
                 // Still need to update the shipment in the store since it had a successful update
                 dispatch(updateMTOShipment(shipmentResponse));
                 setErrorMessage('There was an error attempting to update the move closeout office.');
+                setSubmitting(false);
               });
           } else {
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
         .catch((error) => {
-          setSubmitting(false);
           handleSetError(error, 'There was an error attempting to update your shipment.');
+          setSubmitting(false);
         });
     }
   };
