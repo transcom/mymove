@@ -111,6 +111,7 @@ export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/update
 export { default as updateMTOShipmentUpdateAllowance } from './UpdateMTOShipment/updateMTOShipmentUpdateAllowance';
 export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';
 export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';
+export { default as updateOrdersUpdateEntitlements } from './UpdateOrders/updateOrdersUpdateEntitlements';
 export { default as patchMTOShipment } from './UpdateMTOShipment/patchMTOShipment';
 export { default as uploadAdditionalDocuments } from './UploadAdditionalDocuments/uploadAdditionalDocuments';
 export { default as createOrder } from './CreateOrder/createOrder';
