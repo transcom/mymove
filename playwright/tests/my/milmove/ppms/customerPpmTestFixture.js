@@ -534,7 +534,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.selectDutyLocation('Fort Bragg', 'closeoutOffice');
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
 
-    await expect(this.page.getByRole('heading', { name: /Estimated weight/})).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: /Estimated weight/ })).toBeVisible();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/estimated-weight/);
   }
