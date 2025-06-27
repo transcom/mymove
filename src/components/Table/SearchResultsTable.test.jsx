@@ -13,11 +13,6 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
-
 jest.mock('store/general/actions', () => ({
   ...jest.requireActual('store/general/actions'),
   setCanAddOrders: jest.fn().mockImplementation(() => ({
