@@ -29,7 +29,7 @@ func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUs
 	mockRoleAssociator := &mocks.RoleAssociater{}
 	mockTransportationOfficeAssignmentUpdater := &mocks.TransportationOfficeAssignmentUpdater{}
 	handler := &RequestOfficeUserHandler{
-		HandlerConfig:                         suite.HandlerConfig(),
+		HandlerConfig:                         suite.NewHandlerConfig(),
 		OfficeUserCreator:                     mockCreator,
 		NewQueryFilter:                        query.NewQueryFilter,
 		UserRoleAssociator:                    mockUserRoleAssociator,
@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	setupHandler := func(updater services.OfficeUserUpdater) UpdateOfficeUserHandler {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		return UpdateOfficeUserHandler{
 			handlerConfig,
 			updater,

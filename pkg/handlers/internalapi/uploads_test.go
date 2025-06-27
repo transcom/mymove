@@ -115,7 +115,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := CreateUploadHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -129,7 +129,7 @@ func makePPMRequest(suite *HandlerSuite, params ppmop.CreatePPMUploadParams, ser
 
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	suite.FatalNoError(err)
@@ -303,7 +303,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 		req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 		params.HTTPRequest = req
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()
 		fmt.Print(uploadInformationFetcher)
@@ -335,7 +335,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 		req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 		params.HTTPRequest = req
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()
 		fmt.Print(uploadInformationFetcher)
@@ -381,7 +381,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := DeleteUploadsHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -434,7 +434,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 
 	fakeS3Failure := storageTest.NewFakeS3Storage(false)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3Failure)
 	uploadInformationFetcher := upload.NewUploadInformationFetcher()
 	handler := DeleteUploadHandler{handlerConfig, uploadInformationFetcher}

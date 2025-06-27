@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 		HTTPRequest:     request,
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := GetMoveTaskOrderHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(waf),
@@ -177,7 +177,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			IfMatch:          etag.GenerateEtag(move.UpdatedAt),
 			ServiceItemCodes: &serviceItemCodes,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -251,7 +251,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(time.Now()),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 
 	// Stale ETags are already unit tested in the move_task_order_updater_test,
 	// so we can mock this here to speed up the test and avoid hitting the DB
@@ -299,7 +299,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	ppmEstimator := &mocks.PPMEstimator{}
@@ -388,7 +388,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	}
 
 	setupTestData := func() UpdateMTOStatusServiceCounselingCompletedHandlerFunc {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -607,7 +607,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			},
 		}, nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}

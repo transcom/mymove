@@ -607,7 +607,7 @@ func (suite *PayloadsSuite) TestMoveWithGBLOC() {
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
 	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
-	defaultGrade := "E_1"
+	defaultGrade := "E-1"
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
 	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -2107,56 +2107,6 @@ func (suite *PayloadsSuite) TestCounselingOffices() {
 	})
 }
 
-func (suite *PayloadsSuite) TestGetAssignedUserAndID() {
-	// Create mock users and IDs
-	userTOO := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userTOODestination := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userSC := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	idTOO := uuid.Must(uuid.NewV4())
-	idTOODestination := uuid.Must(uuid.NewV4())
-	idSC := uuid.Must(uuid.NewV4())
-
-	// Create a mock move with assigned users
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				ID:                         uuid.Must(uuid.NewV4()),
-				TOOAssignedUser:            userTOO,
-				TOOAssignedID:              &idTOO,
-				TOODestinationAssignedUser: userTOODestination,
-				TOODestinationAssignedID:   &idTOODestination,
-				SCAssignedUser:             userSC,
-				SCAssignedID:               &idSC,
-			},
-			LinkOnly: true,
-		},
-	}, nil)
-
-	// Define test cases
-	testCases := []struct {
-		name         string
-		role         string
-		queueType    string
-		officeUser   *models.OfficeUser
-		officeUserID *uuid.UUID
-	}{
-		{"TOO assigned user for TaskOrder queue", string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), userTOO, &idTOO},
-		{"TOO assigned user for DestinationRequest queue", string(roles.RoleTypeTOO), string(models.QueueTypeDestinationRequest), userTOODestination, &idTOODestination},
-		{"SC assigned user", string(roles.RoleTypeServicesCounselor), "", userSC, &idSC},
-		{"Unknown role should return nil", "UnknownRole", "", nil, nil},
-		{"TOO with unknown queue should return nil", string(roles.RoleTypeTOO), "UnknownQueue", nil, nil},
-	}
-
-	// Run test cases
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			expectedOfficeUser, expectedOfficeUserID := getAssignedUserAndID(tc.role, tc.queueType, move)
-			suite.Equal(tc.officeUser, expectedOfficeUser)
-			suite.Equal(tc.officeUserID, expectedOfficeUserID)
-		})
-	}
-}
-
 func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
@@ -2385,6 +2335,39 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
 	})
+	suite.Run("does not attach 'EXCESS_WEIGHT' request type if ExcessUnaccompaniedBaggageWeightQualifiedAt value is nil", func() {
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("attaches UB 'EXCESS_WEIGHT' request type if is qualified but unacknowledged", func() {
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+		suite.Equal(string(models.ApprovalRequestExcessWeight), queueMoves[0].ApprovalRequestTypes[1])
+	})
+	suite.Run("does not attach UB 'EXCESS_WEIGHT' request type if the excess weight has been acknowledged", func() {
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = models.TimePointer(time.Now())
+		move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt = models.TimePointer(time.Now())
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
 
 	// sit extension
 	suite.Run("successfully attaches a SIT extension request to move", func() {
@@ -2498,6 +2481,27 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 			}
 		}
 	})
+}
+
+func (suite *PayloadsSuite) TestPayGrades() {
+	payGrades := models.PayGrades{
+		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
+		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
+		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+	}
+
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
+
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
+		})
+	}
 }
 
 func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {

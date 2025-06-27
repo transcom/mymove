@@ -121,14 +121,13 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
-	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
-	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
+	assignedToQuery := assignedUserFilter(params.AssignedTo)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	secondarySortOrderQuery := secondarySortOrder(params.Sort)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	tooFilterOutDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [22]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, secondarySortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooFilterOutDestinationRequestsQuery}
+	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, secondarySortOrderQuery, assignedToQuery, counselingQuery, tooFilterOutDestinationRequestsQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -140,7 +139,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.OrdersType",
 			"MTOShipments.PPMShipment",
 			"LockedByOfficeUser",
-			"SCAssignedUser",
+			"SCCounselingAssignedUser",
+			"SCCloseoutAssignedUser",
 			"CounselingOffice",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
@@ -149,7 +149,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
-			LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id").
+			LeftJoin("office_users as assigned_user", "moves.sc_closeout_assigned_id  = assigned_user.id").
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 			Where("show = ?", models.BoolPointer(true))
 
@@ -175,7 +175,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"CloseoutOffice",
 			"LockedByOfficeUser",
 			"CounselingOffice",
-			"SCAssignedUser",
+			"SCCounselingAssignedUser",
+			"SCCloseoutAssignedUser",
 			"TOOAssignedUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
@@ -194,9 +195,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
-		if role == roles.RoleTypeServicesCounselor {
-			query.LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id")
-		}
 		if role == roles.RoleTypeTOO {
 			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
 		}
@@ -205,14 +203,16 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
+					LeftJoin("office_users as assigned_user", "moves.sc_closeout_assigned_id  = assigned_user.id").
 					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					LeftJoin("office_users as assigned_user", "moves.sc_counseling_assigned_id  = assigned_user.id").
 					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete)
 			}
 		} else {
-			if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO {
 				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = 'PARTIAL' or (moves.ppm_type = 'FULL' and origin_dl.provides_services_counseling = 'false')))")
 			}
 			// TODO  not sure we'll need this once we're in a situation where closeout param is always passed
@@ -376,7 +376,7 @@ func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, off
 		params.Branch,
 		strings.Join(params.OriginDutyLocation, " "),
 		params.CounselingOffice,
-		params.TOOAssignedUser,
+		params.AssignedTo,
 		hasSafetyPrivilege,
 		params.Page,
 		params.PerPage,
@@ -479,7 +479,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		params.Branch,
 		params.DestinationDutyLocation,
 		params.CounselingOffice,
-		params.TOODestinationAssignedUser,
+		params.AssignedTo,
 		hasSafetyPrivilege,
 		params.Page,
 		params.PerPage,
@@ -689,7 +689,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete)
 			}
 		} else {
-			if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO {
 				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = (?) or (moves.ppm_type = (?) and origin_dl.provides_services_counseling = 'false')))", models.MovePPMTypePARTIAL, models.MovePPMTypeFULL)
 			}
 			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
@@ -904,19 +904,10 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 	}
 }
 
-func scAssignedUserFilter(scAssigned *string) QueryOption {
+func assignedUserFilter(user *string) QueryOption {
 	return func(query *pop.Query) {
-		if scAssigned != nil {
-			nameSearch := fmt.Sprintf("%s%%", *scAssigned)
-			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
-		}
-	}
-}
-
-func tooAssignedUserFilter(tooAssigned *string) QueryOption {
-	return func(query *pop.Query) {
-		if tooAssigned != nil {
-			nameSearch := fmt.Sprintf("%s%%", *tooAssigned)
+		if user != nil {
+			nameSearch := fmt.Sprintf("%s%%", *user)
 			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
 		}
 	}
