@@ -576,7 +576,7 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 			}
 
 			if errTransaction != nil {
-				o.appCtx.Logger().Error(err.Error())
+				o.appCtx.Logger().Error(errTransaction.Error())
 				return
 			}
 		}
