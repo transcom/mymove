@@ -153,7 +153,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit, isMoveLocked })
                     name="model"
                     label="Model"
                     id="model"
-                    ia-label="Model of the mobile home"
+                    aria-label="Model of the mobile home"
                     showRequiredAsterisk
                     required
                   />

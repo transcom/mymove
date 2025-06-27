@@ -54,6 +54,7 @@ const OrdersDetailForm = ({
         displayAddress={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
+        required
       />
       <DutyLocationInput
         name="newDutyLocation"
@@ -62,6 +63,7 @@ const OrdersDetailForm = ({
         placeholder={isRetirementOrSeparation ? 'Enter a city or ZIP' : 'Start typing a duty location...'}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
+        required
       />
       <DropdownInput
         data-testid="payGradeInput"
@@ -72,14 +74,22 @@ const OrdersDetailForm = ({
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
+        required
       />
-      <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk disabled={formIsDisabled} />
-      <DatePickerInput name="reportByDate" label={reportDateRowLabel} showRequiredAsterisk disabled={formIsDisabled} />
+      <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk required disabled={formIsDisabled} />
+      <DatePickerInput
+        name="reportByDate"
+        label={reportDateRowLabel}
+        showRequiredAsterisk
+        required
+        disabled={formIsDisabled}
+      />
       {showDepartmentIndicator && (
         <DropdownInput
           name="departmentIndicator"
           label="Department indicator"
           showRequiredAsterisk
+          required
           options={deptIndicatorOptions}
           isDisabled={formIsDisabled}
         />
@@ -90,6 +100,7 @@ const OrdersDetailForm = ({
           label="Orders number"
           id="ordersNumberInput"
           showRequiredAsterisk
+          required
           isDisabled={formIsDisabled}
         />
       )}
@@ -97,6 +108,7 @@ const OrdersDetailForm = ({
         name="ordersType"
         label="Orders type"
         showRequiredAsterisk
+        required
         options={
           formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY_NON_LABEL || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
             ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
@@ -118,6 +130,7 @@ const OrdersDetailForm = ({
           label="Orders type detail"
           options={ordersTypeDetailOptions}
           showRequiredAsterisk
+          required
           isDisabled={formIsDisabled}
         />
       )}
@@ -141,6 +154,7 @@ const OrdersDetailForm = ({
           warning={hhgTacWarning}
           validate={validateHHGTac}
           showRequiredAsterisk
+          required
           isDisabled={formIsDisabled}
         />
       )}
@@ -155,7 +169,6 @@ const OrdersDetailForm = ({
           isDisabled={formIsDisabled}
           maxLength="80"
           validate={noStarOrQuote}
-          optional
         />
       )}
       {showHHGTac && showHHGLoa && (

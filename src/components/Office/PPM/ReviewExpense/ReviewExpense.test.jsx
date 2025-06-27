@@ -451,7 +451,7 @@ const documentSetIndex = 0;
 
 describe('ReviewExpenseForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load with defaults', async () => {
+    it('renders blank form on load with defaults and asterisks for required fields', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
@@ -472,9 +472,11 @@ describe('ReviewExpenseForm component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'Receipt 1' })).toBeInTheDocument();
       });
 
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       expect(screen.getAllByText('Expense Type')).toHaveLength(2);
-      expect(screen.getByText('Description')).toBeInTheDocument();
-      expect(screen.getByLabelText('Amount Requested')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Description *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Amount Requested *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByRole('heading', { level: 3, name: `Review Packing Materials #1` })).toBeInTheDocument();
 
@@ -507,7 +509,7 @@ describe('ReviewExpenseForm component', () => {
       });
       expect(screen.getByText('Packing materials')).toBeInTheDocument();
       expect(screen.getByDisplayValue('boxes, tape, bubble wrap'));
-      expect(screen.getByLabelText('Amount Requested')).toHaveDisplayValue('1,234.56');
+      expect(screen.getByLabelText('Amount Requested *')).toHaveDisplayValue('1,234.56');
     });
 
     it('shows SIT fields when expense type is Storage', async () => {
@@ -536,7 +538,7 @@ describe('ReviewExpenseForm component', () => {
       await waitFor(() => {
         expect(screen.getByTestId('actual-sit-reimbursement')).toHaveTextContent('$4.56');
       });
-      expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('2,000');
+      expect(screen.getByLabelText('Weight Stored *')).toHaveDisplayValue('2,000');
 
       await waitFor(() => {
         expect(screen.getByTestId('costAmountSuccess')).toBeInTheDocument();
@@ -544,9 +546,9 @@ describe('ReviewExpenseForm component', () => {
 
       expect(screen.getByTestId('costAmountSuccess')).toHaveTextContent('$50.00');
       await waitFor(() => {
-        expect(screen.getByLabelText('Start date')).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText('Start date *')).toBeInstanceOf(HTMLInputElement);
       });
-      expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('End date *')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Total days in SIT')).toBeInTheDocument();
       await waitFor(() => {
         expect(screen.getByTestId('days-in-sit')).toHaveTextContent('11');
@@ -638,7 +640,7 @@ describe('ReviewExpenseForm component', () => {
           wrapper: MockProviders,
         },
       );
-      const startDateInput = screen.getByLabelText('Start date');
+      const startDateInput = screen.getByLabelText('Start date *');
       // clearing a date input throws an error about `children` being set to NaN
       // this replaces the '5' in '15 Dec 2022' with a '7' -> '17 Dec 2022'
       await userEvent.type(startDateInput, '7', {
@@ -693,7 +695,7 @@ describe('ReviewExpenseForm component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'Receipt 1' })).toBeInTheDocument();
       });
 
-      expect(screen.getByLabelText('Amount Requested')).toBeDisabled();
+      expect(screen.getByLabelText('Amount Requested *')).toBeDisabled();
 
       expect(screen.getByRole('heading', { level: 3, name: `Review Packing Materials #1` })).toBeInTheDocument();
 
@@ -723,8 +725,8 @@ describe('ReviewExpenseForm component', () => {
       });
       expect(screen.getByText('Packing materials')).toBeDisabled();
       expect(screen.getByDisplayValue('boxes, tape, bubble wrap'));
-      expect(screen.getByLabelText('Amount Requested')).toHaveDisplayValue('1,234.56');
-      expect(screen.getByLabelText('Amount Requested')).toBeDisabled();
+      expect(screen.getByLabelText('Amount Requested *')).toHaveDisplayValue('1,234.56');
+      expect(screen.getByLabelText('Amount Requested *')).toBeDisabled();
     });
 
     it('populates disabled edit form with existing storage values', async () => {
@@ -741,11 +743,11 @@ describe('ReviewExpenseForm component', () => {
         },
       );
       await waitFor(() => {
-        expect(screen.getByLabelText('Start date')).toHaveDisplayValue('15 Dec 2022');
-        expect(screen.getByLabelText('Start date')).toBeDisabled();
+        expect(screen.getByLabelText('Start date *')).toHaveDisplayValue('15 Dec 2022');
+        expect(screen.getByLabelText('Start date *')).toBeDisabled();
       });
-      expect(screen.getByLabelText('End date')).toHaveDisplayValue('25 Dec 2022');
-      expect(screen.getByLabelText('End date')).toBeDisabled();
+      expect(screen.getByLabelText('End date *')).toHaveDisplayValue('25 Dec 2022');
+      expect(screen.getByLabelText('End date *')).toBeDisabled();
     });
 
     it('populates disabled edit form with existing status and reason', async () => {

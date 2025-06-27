@@ -3,7 +3,7 @@ import { func, array } from 'prop-types';
 import { ErrorMessage, Fieldset, Label } from '@trussworks/react-uswds';
 import { useFormikContext } from 'formik';
 
-import RequiredAsterisk from '../RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from '../RequiredAsterisk';
 
 import styles from './OfficeAccountRequestFields.module.scss';
 
@@ -104,6 +104,7 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
     <Fieldset>
       {render(
         <>
+          {requiredAsteriskMessage}
           <TextField
             label="First Name"
             name={firstNameFieldName}
@@ -117,7 +118,6 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
             name={middleInitialFieldName}
             id="officeAccountRequestMiddleInitial"
             data-testid="officeAccountRequestMiddleInitial"
-            labelHint="optional"
           />
           <TextField
             label="Last Name"
@@ -159,6 +159,7 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
             <div className={styles.inputContainer}>
               <TextField
                 label="DODID#"
+                aria-label="D O D I D # is required if not using other unique identifier"
                 labelHint="10 digit number"
                 name={edipiFieldName}
                 id="officeAccountRequestEdipi"
@@ -170,6 +171,7 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
             <div className={styles.inputContainer}>
               <TextField
                 label="Confirm DODID#"
+                aria-label="Confirm D O D I D # is required if D O D I D # is being used"
                 name="edipiConfirmation"
                 id="edipiConfirmation"
                 data-testid="edipiConfirmation"
@@ -184,6 +186,7 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
               <TextField
                 label="Other Unique ID"
                 labelHint="If not using DODID#"
+                aria-label="Other Unique ID is required if not using D O D I D #"
                 name={otherUniqueIdName}
                 id="officeAccountRequestOtherUniqueId"
                 data-testid="officeAccountRequestOtherUniqueId"
@@ -193,6 +196,7 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
               <TextField
                 label="Confirm Other Unique ID"
                 name="otherUniqueIdConfirmation"
+                aria-label="Confirm Other Unique ID is required if using Other Unique ID"
                 id="otherUniqueIdConfirmation"
                 data-testid="otherUniqueIdConfirmation"
                 disablePaste
@@ -208,67 +212,70 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
             showRequiredAsterisk
             required
           />
-          <Label data-testid="requestedRolesHeading">
-            <span>
-              Requested Role(s)
-              <RequiredAsterisk />
-            </span>
-          </Label>
-          {showRequestedRolesError && (
-            <ErrorMessage
-              id="requestedRolesGroupError"
-              className={styles.errorText}
-              data-testid="requestedRolesGroupError"
-            >
-              {errors.requestedRolesGroup}
-            </ErrorMessage>
-          )}
+          <div className="margin-top-2">
+            <fieldset>
+              <legend className="usa-label" aria-label="At least one requested role is required.">
+                <span data-testid="requestedRolesHeadingSpan">
+                  Requested Role(s) <RequiredAsterisk />
+                </span>
+              </legend>
+              {showRequestedRolesError && (
+                <ErrorMessage
+                  id="requestedRolesGroupError"
+                  className={styles.errorText}
+                  data-testid="requestedRolesGroupError"
+                >
+                  {errors.requestedRolesGroup}
+                </ErrorMessage>
+              )}
 
-          {showTransportConflictError && (
-            <ErrorMessage
-              id="transportationOfficerRoleConflictError"
-              className={styles.errorText}
-              data-testid="transportationOfficerRoleConflictError"
-            >
-              {errors.transportationOfficerRoleConflict}
-            </ErrorMessage>
-          )}
-          {availableRoles.map(({ roleType, roleName }) => {
-            const fieldName = `${roleType}Checkbox`;
-            const isTransportRole = roleType === roleTypes.TOO || roleType === roleTypes.TIO;
+              {showTransportConflictError && (
+                <ErrorMessage
+                  id="transportationOfficerRoleConflictError"
+                  className={styles.errorText}
+                  data-testid="transportationOfficerRoleConflictError"
+                >
+                  {errors.transportationOfficerRoleConflict}
+                </ErrorMessage>
+              )}
+              {availableRoles.map(({ roleType, roleName }) => {
+                const fieldName = `${roleType}Checkbox`;
+                const isTransportRole = roleType === roleTypes.TOO || roleType === roleTypes.TIO;
 
-            const describedBy = [
-              showRequestedRolesError && 'requestedRolesGroupError',
-              isTransportRole && showTransportConflictError && 'transportationOfficerRoleConflictError',
-            ]
-              .filter(Boolean)
-              .join(' ');
+                const describedBy = [
+                  showRequestedRolesError && 'requestedRolesGroupError',
+                  isTransportRole && showTransportConflictError && 'transportationOfficerRoleConflictError',
+                ]
+                  .filter(Boolean)
+                  .join(' ');
 
-            return (
-              <CheckboxField
-                key={fieldName}
-                id={fieldName}
-                data-testid={fieldName}
-                name={fieldName}
-                label={roleName}
-                aria-describedby={describedBy || undefined}
-                aria-invalid={showRequestedRolesError || (isTransportRole && showTransportConflictError)}
-              />
-            );
-          })}
-          {enableRequestAccountPrivileges && (
-            <>
-              <Label data-testid="requestedPrivilegesHeading">Privilege(s)</Label>
-              {filteredPrivileges.map(({ privilegeType, privilegeName }) => (
-                <CheckboxField
-                  id={`${privilegeType}PrivilegeCheckbox`}
-                  data-testid={`${privilegeType}PrivilegeCheckbox`}
-                  name={`${privilegeType}PrivilegeCheckbox`}
-                  label={privilegeName}
-                />
-              ))}
-            </>
-          )}
+                return (
+                  <CheckboxField
+                    key={fieldName}
+                    id={fieldName}
+                    data-testid={fieldName}
+                    name={fieldName}
+                    label={roleName}
+                    aria-describedby={describedBy || undefined}
+                    aria-invalid={showRequestedRolesError || (isTransportRole && showTransportConflictError)}
+                  />
+                );
+              })}
+              {enableRequestAccountPrivileges && (
+                <>
+                  <Label data-testid="requestedPrivilegesHeading">Privilege(s)</Label>
+                  {filteredPrivileges.map(({ privilegeType, privilegeName }) => (
+                    <CheckboxField
+                      id={`${privilegeType}PrivilegeCheckbox`}
+                      data-testid={`${privilegeType}PrivilegeCheckbox`}
+                      name={`${privilegeType}PrivilegeCheckbox`}
+                      label={privilegeName}
+                    />
+                  ))}
+                </>
+              )}
+            </fieldset>
+          </div>
         </>,
       )}
     </Fieldset>
