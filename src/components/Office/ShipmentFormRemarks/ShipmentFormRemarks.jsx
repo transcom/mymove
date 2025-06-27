@@ -10,8 +10,17 @@ import DataTable from 'components/DataTable';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint/index';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
-const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselorRemarks, error, showHint }) => {
+const ShipmentFormRemarks = ({
+  userRole,
+  shipmentType,
+  customerRemarks,
+  counselorRemarks,
+  error,
+  showHint,
+  isAdvancePage,
+}) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset>
@@ -42,6 +51,7 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
               </Hint>
             )}
             <FormGroup className={styles.remarksField}>
+              {isAdvancePage && requiredAsteriskMessage}
               <TextField
                 display="textarea"
                 label="Counselor remarks"
@@ -52,6 +62,8 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
                 id="counselorRemarks"
                 maxLength={500}
                 error={error}
+                showRequiredAsterisk={isAdvancePage}
+                required={isAdvancePage}
               />
             </FormGroup>
           </>
@@ -78,6 +90,7 @@ ShipmentFormRemarks.propTypes = {
   counselorRemarks: PropTypes.string,
   showHint: PropTypes.bool,
   error: PropTypes.bool,
+  isAdvancePage: PropTypes.bool,
 };
 
 ShipmentFormRemarks.defaultProps = {
@@ -85,6 +98,7 @@ ShipmentFormRemarks.defaultProps = {
   counselorRemarks: '—',
   showHint: true,
   error: undefined,
+  isAdvancePage: false,
 };
 
 export default ShipmentFormRemarks;
