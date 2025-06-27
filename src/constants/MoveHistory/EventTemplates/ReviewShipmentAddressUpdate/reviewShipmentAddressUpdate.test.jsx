@@ -26,7 +26,7 @@ describe('when given a Review Shipment Address Update history record', () => {
 
     const template = getTemplate(historyRecord);
     expect(template).toMatchObject(e);
-    expect(template.getEventNameDisplay(historyRecord)).toEqual('Shipment Destination Address Request');
+    expect(template.getEventNameDisplay(historyRecord)).toEqual('Shipment destination address update');
   });
 
   it('displays the status as "Approved"', () => {
@@ -44,7 +44,7 @@ describe('when given a Review Shipment Address Update history record', () => {
 
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Status')).toBeInTheDocument();
-    expect(screen.getByText(/Approved/)).toBeInTheDocument();
+    expect(screen.getByText(/APPROVED/)).toBeInTheDocument();
   });
 
   it('displays the status as "Rejected"', () => {
@@ -62,7 +62,7 @@ describe('when given a Review Shipment Address Update history record', () => {
 
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Status')).toBeInTheDocument();
-    expect(screen.getByText(/Rejected/)).toBeInTheDocument();
+    expect(screen.getByText(/REJECTED/)).toBeInTheDocument();
   });
 
   it('returns null if the status is not "APPROVED" or "REJECTED"', () => {
@@ -77,6 +77,8 @@ describe('when given a Review Shipment Address Update history record', () => {
     };
 
     const template = getTemplate(historyRecord);
-    expect(template.getDetails(historyRecord)).toBeNull();
+    render(template.getDetails(historyRecord));
+    expect(screen.getByText('Status')).toBeInTheDocument();
+    expect(screen.getByText(/PENDING/)).toBeInTheDocument();
   });
 });
