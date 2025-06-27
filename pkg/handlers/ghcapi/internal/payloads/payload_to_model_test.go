@@ -678,7 +678,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 
 		pickupAddress = ghcmessages.Address{
 			City:           &address.City,
-			Country:        &address.Country.Country,
+			Country:        &ghcmessages.Country{Code: address.Country.Country, Name: address.Country.CountryName},
 			PostalCode:     &address.PostalCode,
 			State:          &address.State,
 			StreetAddress1: &address.StreetAddress1,
@@ -687,7 +687,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		}
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &address.City,
-			Country:        &address.Country.Country,
+			Country:        &ghcmessages.Country{Code: address.Country.Country, Name: address.Country.CountryName},
 			PostalCode:     &address.PostalCode,
 			State:          &address.State,
 			StreetAddress1: &address.StreetAddress1,
@@ -696,7 +696,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		}
 		secondaryPickupAddress = ghcmessages.Address{
 			City:           &address2.City,
-			Country:        &address.Country.Country,
+			Country:        &ghcmessages.Country{Code: address.Country.Country, Name: address.Country.CountryName},
 			PostalCode:     &address2.PostalCode,
 			State:          &address2.State,
 			StreetAddress1: &address2.StreetAddress1,
@@ -705,7 +705,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		}
 		secondaryDestinationAddress = ghcmessages.Address{
 			City:           &address2.City,
-			Country:        &address.Country.Country,
+			Country:        &ghcmessages.Country{Code: address.Country.Country, Name: address.Country.CountryName},
 			PostalCode:     &address2.PostalCode,
 			State:          &address2.State,
 			StreetAddress1: &address2.StreetAddress1,
@@ -714,7 +714,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		}
 		tertiaryPickupAddress = ghcmessages.Address{
 			City:           &address3.City,
-			Country:        &address.Country.Country,
+			Country:        &ghcmessages.Country{Code: address.Country.Country, Name: address.Country.CountryName},
 			PostalCode:     &address3.PostalCode,
 			State:          &address3.State,
 			StreetAddress1: &address3.StreetAddress1,
@@ -723,7 +723,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		}
 		tertiaryDestinationAddress = ghcmessages.Address{
 			City:           &address3.City,
-			Country:        &address.Country.Country,
+			Country:        &ghcmessages.Country{Code: address.Country.Country, Name: address.Country.CountryName},
 			PostalCode:     &address3.PostalCode,
 			State:          &address3.State,
 			StreetAddress1: &address3.StreetAddress1,

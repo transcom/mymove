@@ -131,6 +131,127 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				}
 				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
 			}
+
+			// Cannot EagerPreload the ppm shipment addresses and country so do that here
+			if shipments[i].PPMShipment.PickupAddressID != nil {
+				if shipments[i].PPMShipment.PickupAddress == nil {
+					address := models.FetchAddressByID(appCtx.DB(), shipments[i].PPMShipment.PickupAddressID)
+
+					if address != nil {
+						shipments[i].PPMShipment.PickupAddress = address
+					}
+				}
+
+				country, err := models.FetchCountryByID(appCtx.DB(), *shipments[i].PPMShipment.PickupAddress.CountryId)
+
+				if err != nil {
+					return nil, err
+				}
+
+				shipments[i].PPMShipment.PickupAddress.Country = &country
+			}
+			if shipments[i].PPMShipment.SecondaryPickupAddressID != nil {
+				if shipments[i].PPMShipment.SecondaryPickupAddress == nil {
+					address := models.FetchAddressByID(appCtx.DB(), shipments[i].PPMShipment.SecondaryPickupAddressID)
+
+					if address != nil {
+						shipments[i].PPMShipment.SecondaryPickupAddress = address
+					}
+				}
+
+				country, err := models.FetchCountryByID(appCtx.DB(), *shipments[i].PPMShipment.SecondaryPickupAddress.CountryId)
+
+				if err != nil {
+					return nil, err
+				}
+
+				shipments[i].PPMShipment.SecondaryPickupAddress.Country = &country
+			}
+			if shipments[i].PPMShipment.TertiaryPickupAddressID != nil {
+				if shipments[i].PPMShipment.TertiaryPickupAddress == nil {
+					address := models.FetchAddressByID(appCtx.DB(), shipments[i].PPMShipment.TertiaryPickupAddressID)
+
+					if address != nil {
+						shipments[i].PPMShipment.TertiaryPickupAddress = address
+					}
+				}
+
+				country, err := models.FetchCountryByID(appCtx.DB(), *shipments[i].PPMShipment.TertiaryPickupAddress.CountryId)
+
+				if err != nil {
+					return nil, err
+				}
+
+				shipments[i].PPMShipment.TertiaryPickupAddress.Country = &country
+			}
+			if shipments[i].PPMShipment.DestinationAddressID != nil {
+				if shipments[i].PPMShipment.DestinationAddress == nil {
+					address := models.FetchAddressByID(appCtx.DB(), shipments[i].PPMShipment.DestinationAddressID)
+
+					if address != nil {
+						shipments[i].PPMShipment.DestinationAddress = address
+					}
+				}
+
+				country, err := models.FetchCountryByID(appCtx.DB(), *shipments[i].PPMShipment.DestinationAddress.CountryId)
+
+				if err != nil {
+					return nil, err
+				}
+
+				shipments[i].PPMShipment.DestinationAddress.Country = &country
+			}
+			if shipments[i].PPMShipment.SecondaryDestinationAddressID != nil {
+				if shipments[i].PPMShipment.SecondaryDestinationAddress == nil {
+					address := models.FetchAddressByID(appCtx.DB(), shipments[i].PPMShipment.SecondaryDestinationAddressID)
+
+					if address != nil {
+						shipments[i].PPMShipment.SecondaryDestinationAddress = address
+					}
+				}
+
+				country, err := models.FetchCountryByID(appCtx.DB(), *shipments[i].PPMShipment.SecondaryDestinationAddress.CountryId)
+
+				if err != nil {
+					return nil, err
+				}
+
+				shipments[i].PPMShipment.SecondaryDestinationAddress.Country = &country
+			}
+			if shipments[i].PPMShipment.TertiaryDestinationAddressID != nil {
+				if shipments[i].PPMShipment.TertiaryDestinationAddress == nil {
+					address := models.FetchAddressByID(appCtx.DB(), shipments[i].PPMShipment.TertiaryDestinationAddressID)
+
+					if address != nil {
+						shipments[i].PPMShipment.TertiaryDestinationAddress = address
+					}
+				}
+
+				country, err := models.FetchCountryByID(appCtx.DB(), *shipments[i].PPMShipment.TertiaryDestinationAddress.CountryId)
+
+				if err != nil {
+					return nil, err
+				}
+
+				shipments[i].PPMShipment.TertiaryDestinationAddress.Country = &country
+			}
+			if shipments[i].PPMShipment.W2AddressID != nil {
+				if shipments[i].PPMShipment.W2Address == nil {
+					address := models.FetchAddressByID(appCtx.DB(), shipments[i].PPMShipment.W2AddressID)
+
+					if address != nil {
+						shipments[i].PPMShipment.W2Address = address
+					}
+				}
+
+				country, err := models.FetchCountryByID(appCtx.DB(), *shipments[i].PPMShipment.W2Address.CountryId)
+
+				if err != nil {
+					return nil, err
+				}
+
+				shipments[i].PPMShipment.W2Address.Country = &country
+			}
 		}
 
 		if shipments[i].DeliveryAddressUpdate != nil {
@@ -163,6 +284,17 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 					return nil, loadErr
 				}
 			}
+		}
+
+		// Pop cannot handle multi layer model populations so we have to get the Country ourselves
+		if shipments[i].StorageFacility != nil && shipments[i].StorageFacility.Address.CountryId != nil {
+			storageCountry, err := models.FetchCountryByID(appCtx.DB(), *shipments[i].StorageFacility.Address.CountryId)
+
+			if err != nil {
+				return nil, err
+			}
+
+			shipments[i].StorageFacility.Address.Country = &storageCountry
 		}
 	}
 
@@ -213,6 +345,17 @@ func (f mtoShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipmentID
 		default:
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
 		}
+	}
+
+	// Pop cannot handle multi layer model populations so we have to get the Country ourselves
+	if shipment.StorageFacility != nil && shipment.StorageFacility.Address.CountryId != nil {
+		storageCountry, err := models.FetchCountryByID(appCtx.DB(), *shipment.StorageFacility.Address.CountryId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		shipment.StorageFacility.Address.Country = &storageCountry
 	}
 
 	return &shipment, nil

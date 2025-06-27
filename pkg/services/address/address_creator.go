@@ -1,8 +1,6 @@
 package address
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -38,25 +36,20 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.County = county
 	}
 
-	// until international moves are supported, we will default the country for created addresses to "US"
-	if address.Country != nil && address.Country.Country != "US" {
-		return nil, fmt.Errorf("- the country %s is not supported at this time - only US is allowed", address.Country.Country)
-	}
-
-	if address.Country != nil && address.Country.Country != "" {
-		country, err := models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
+	if address.CountryId != nil {
+		country, err := models.FetchCountryByID(appCtx.DB(), *address.CountryId)
 		if err != nil {
 			return nil, err
 		}
-		transformedAddress.Country = &country
-		transformedAddress.CountryId = &country.ID
+		address.Country = &country
 	} else {
 		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
 		if err != nil {
 			return nil, err
 		}
-		transformedAddress.Country = &country
-		transformedAddress.CountryId = &country.ID
+
+		address.Country = &country
+		address.CountryId = &country.ID
 	}
 
 	// Evaluate address and populate addresses isOconus value

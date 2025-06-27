@@ -805,11 +805,19 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 }
 
 // Country payload
-func Country(country *models.Country) *string {
+func Country(country *models.Country) *ghcmessages.Country {
 	if country == nil {
 		return nil
 	}
-	return &country.Country
+	if *country == (models.Country{}) {
+		return nil
+	}
+	payloadCountry := &ghcmessages.Country{
+		ID:   strfmt.UUID(country.ID.String()),
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+	return payloadCountry
 }
 
 // Address payload
@@ -834,6 +842,10 @@ func Address(address *models.Address) *ghcmessages.Address {
 
 	if address.UsPostRegionCityID != nil {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	if address.CountryId != nil {
+		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
 	}
 
 	return payloadAddress
@@ -2985,4 +2997,63 @@ func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
 	}
 
 	return payloadPayGrades
+}
+
+func CountryCodeName(country *models.Country) *ghcmessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &ghcmessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+		ID:   *handlers.FmtUUID(country.ID),
+	}
+}
+
+func Countries(countries models.Countries) ghcmessages.Countries {
+	payload := make(ghcmessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
+	}
+	return payload
+}
+
+func SetMTOShipmentModelWithDefaultCountry(mtoShipment *models.MTOShipment, country models.Country) {
+	setCountryID := func(a *models.Address, countryID uuid.UUID) {
+		if a != nil && (a.CountryId.IsNil() || a.CountryId == &uuid.Nil) {
+			a.CountryId = &countryID
+		}
+	}
+	setCountryID(mtoShipment.PickupAddress, country.ID)
+	setCountryID(mtoShipment.SecondaryPickupAddress, country.ID)
+	setCountryID(mtoShipment.TertiaryPickupAddress, country.ID)
+
+	setCountryID(mtoShipment.DestinationAddress, country.ID)
+	setCountryID(mtoShipment.SecondaryDeliveryAddress, country.ID)
+	setCountryID(mtoShipment.TertiaryDeliveryAddress, country.ID)
+
+	if mtoShipment.PPMShipment != nil {
+		setCountryID(mtoShipment.PPMShipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.SecondaryDestinationAddress, country.ID)
+		setCountryID(mtoShipment.PPMShipment.TertiaryDestinationAddress, country.ID)
+	} else if mtoShipment.BoatShipment != nil {
+		setCountryID(mtoShipment.BoatShipment.Shipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.SecondaryDeliveryAddress, country.ID)
+		setCountryID(mtoShipment.BoatShipment.Shipment.TertiaryDeliveryAddress, country.ID)
+	} else if mtoShipment.MobileHome != nil {
+		setCountryID(mtoShipment.MobileHome.Shipment.PickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.SecondaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.TertiaryPickupAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.DestinationAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.SecondaryDeliveryAddress, country.ID)
+		setCountryID(mtoShipment.MobileHome.Shipment.TertiaryDeliveryAddress, country.ID)
+	}
 }

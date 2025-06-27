@@ -453,7 +453,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
 		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
-		suite.Equal(&country.Country, returnedPPMShipment.PickupAddress.Country)
+		suite.Equal(country.Country, returnedPPMShipment.PickupAddress.Country.Code)
 		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
 
 		suite.Equal(&streetAddress1, returnedPPMShipment.DestinationAddress.StreetAddress1)
@@ -462,7 +462,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
-		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
+		suite.Equal(country.Country, returnedPPMShipment.DestinationAddress.Country.Code)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 		suite.Equal(len(returnedPPMShipment.WeightTickets), 2)
@@ -2492,6 +2492,28 @@ func (suite *PayloadsSuite) TestPayGrades() {
 			suite.Equal(*payGrade.GradeDescription, actual.Description)
 		})
 	}
+}
+
+func (suite *PayloadsSuite) TestCountriesPayload() {
+	suite.Run("Correctly transform array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		countries = append(countries, models.Country{Country: "US", CountryName: "UNITED STATES"})
+		payload := Countries(countries)
+		suite.True(len(payload) == 1)
+		suite.Equal(payload[0].Code, "US")
+		suite.Equal(payload[0].Name, "UNITED STATES")
+	})
+
+	suite.Run("empty array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		payload := Countries(countries)
+		suite.True(len(payload) == 0)
+	})
+
+	suite.Run("nil countries into payload", func() {
+		payload := Countries(nil)
+		suite.True(len(payload) == 0)
+	})
 }
 
 func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {

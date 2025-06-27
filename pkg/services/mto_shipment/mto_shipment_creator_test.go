@@ -90,7 +90,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -122,7 +122,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -162,51 +162,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(createdShipment.MarketCode, models.MarketCodeInternational)
 	})
 
-	suite.Run("If the shipment has an international address it should be returned", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
-
-		internationalAddress := factory.BuildAddress(nil, []factory.Customization{
-			{
-				Model: models.Country{
-					Country:     "GB",
-					CountryName: "UNITED KINGDOM",
-				},
-			},
-		}, nil)
-		// stubbed countries need an ID
-		internationalAddress.ID = uuid.Must(uuid.NewV4())
-
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    subtestData.move,
-				LinkOnly: true,
-			},
-			{
-				Model:    internationalAddress,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: futureDate,
-				},
-			},
-		}, nil)
-
-		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
-
-		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-
-		suite.Error(err)
-		suite.Equal("failed to create pickup address - the country GB is not supported at this time - only US is allowed", err.Error())
-	})
-
 	suite.Run("If the shipment is created successfully it should return ShipmentLocator", func() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -217,7 +177,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				},
 			},
 		}, nil)
-		mtoShipment2 := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -246,17 +206,18 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		// checks for proper structure of shipmentLocator
 		suite.Equal(subtestData.move.Locator, (*createdShipment.ShipmentLocator)[0:6])
 		suite.Equal("-", (*createdShipment.ShipmentLocator)[6:7])
-		suite.Equal("01", (*createdShipment.ShipmentLocator)[7:9])
+		// setup factory.BuildMTOShipment will generate 1 and 2
+		suite.Equal("03", (*createdShipment.ShipmentLocator)[7:9])
 
 		// check if seq number is increased by 1
-		suite.Equal("02", (*createdShipment2.ShipmentLocator)[7:9])
+		suite.Equal("04", (*createdShipment2.ShipmentLocator)[7:9])
 	})
 
 	suite.Run("If the shipment is created successfully with a destination address type it should be returned", func() {
 		destinationType := models.DestinationTypeHomeOfRecord
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -307,7 +268,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{models.MTOShipmentTypePPM, false},
 		}
 		for _, testCase := range testCases {
-			mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 				{
 					Model:    subtestData.move,
 					LinkOnly: true,
@@ -359,7 +320,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -386,11 +347,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
 
-		storageFacility := factory.BuildStorageFacility(nil, nil, nil)
-		// stubbed storage facility needs an ID to be LinkOnly below
-		storageFacility.ID = uuid.Must(uuid.NewV4())
+		storageFacility := factory.BuildStorageFacility(suite.AppContextForTest().DB(), nil, nil)
 
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -422,7 +381,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		ntsRecordedWeight := unit.Pound(980)
 		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, time.April, 5, 0, 0, 0, 0, time.UTC)
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -536,7 +495,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 		}
 
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -667,7 +626,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		agents = append(agents, agent1)
 
-		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		shipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -701,7 +660,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 		creator := subtestData.shipmentCreator
 		move := subtestData.move
-		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		shipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    move,
 				LinkOnly: true,
@@ -754,7 +713,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 			var mtoShipment models.MTOShipment
 			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+				mtoShipment = factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 					{
 						Model:    subtestData.move,
 						LinkOnly: true,
@@ -766,7 +725,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					},
 				}, nil)
 			} else {
-				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+				mtoShipment = factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 					{
 						Model:    subtestData.move,
 						LinkOnly: true,
@@ -826,7 +785,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					},
 				}, nil)
 			} else {
-				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+				parentShipment = factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 					{
 						Model:    subtestData.move,
 						LinkOnly: true,
@@ -862,7 +821,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					},
 				}, nil)
 			} else {
-				childShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+				childShipment = factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 					{
 						Model:    subtestData.move,
 						LinkOnly: true,
@@ -922,7 +881,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					},
 				}, nil)
 			} else {
-				unDivertedParentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+				unDivertedParentShipment = factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 					{
 						Model:    subtestData.move,
 						LinkOnly: true,
@@ -958,7 +917,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					},
 				}, nil)
 			} else {
-				childFromParentDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+				childFromParentDivertedShipment = factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 					{
 						Model:    subtestData.move,
 						LinkOnly: true,
@@ -997,7 +956,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					},
 				}, nil)
 			} else {
-				childOfDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+				childOfDivertedShipment = factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 					{
 						Model:    subtestData.move,
 						LinkOnly: true,
@@ -1219,7 +1178,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		}, nil)
 		subtestData := suite.createSubtestDataV2(nil)
 		creator := subtestData.shipmentCreator
-		childShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		childShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -1365,7 +1324,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
 
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		mtoShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    subtestData.move,
 				LinkOnly: true,
@@ -1473,7 +1432,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					},
 				}, nil)
 			} else {
-				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+				mtoShipment = factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 					{
 						Model:    subtestData.move,
 						LinkOnly: true,

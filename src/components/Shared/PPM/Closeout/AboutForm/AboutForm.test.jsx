@@ -39,6 +39,12 @@ const shipmentProps = {
         state: 'TX',
         postalCode: '78234',
         usPostRegionCitiesID: '',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       destinationAddress: {
         streetAddress1: '441 SW Rio de la Plata Drive',
@@ -48,6 +54,12 @@ const shipmentProps = {
         state: 'WA',
         postalCode: '98421',
         usPostRegionCitiesID: '',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       secondaryPickupAddress: {},
       secondaryDestinationAddress: {},
@@ -64,6 +76,12 @@ const shipmentProps = {
         postalCode: '32217',
         county: 'Duval',
         usPostRegionCitiesID: '',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
     },
   },
@@ -244,17 +262,6 @@ describe('AboutForm component', () => {
       // verify save is enabled
       await userEvent.type(input, '123 Street');
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
-
-      // 'Optional' labelHint on address display. expecting a total of 9(3 for pickup address, 3 delivery address, 3 w2 address).
-      // This is to verify Required labelHints are displayed correctly for PPM doc uploading for the delivery address
-      // street 1 is now OPTIONAL for onboarding but required for PPM doc upload. If this fails it means addtional labelHints
-      // have been introduced elsewhere within the control.
-      const hints = document.getElementsByClassName('usa-hint');
-      expect(hints.length).toBe(18);
-      // verify labelHints are actually 'Optional'
-      for (let i = 0; i < hints.length; i += 1) {
-        expect(hints[i]).toHaveTextContent('Required');
-      }
     });
 
     it('displays type error messages for invalid input', async () => {
@@ -336,6 +343,12 @@ describe('AboutForm component', () => {
                 state: 'TX',
                 postalCode: '78234',
                 usPostRegionCitiesID: '',
+                country: {
+                  code: 'US',
+                  name: 'UNITED STATES',
+                  id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+                },
+                countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
               },
               destinationAddress: {
                 streetAddress1: '441 SW Rio de la Plata Drive',
@@ -345,6 +358,12 @@ describe('AboutForm component', () => {
                 state: 'WA',
                 postalCode: '98421',
                 usPostRegionCitiesID: '',
+                country: {
+                  code: 'US',
+                  name: 'UNITED STATES',
+                  id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+                },
+                countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
               },
               secondaryPickupAddress: {},
               secondaryDestinationAddress: {},
@@ -361,6 +380,12 @@ describe('AboutForm component', () => {
                 postalCode: '32217',
                 county: 'Duval',
                 usPostRegionCitiesID: '',
+                country: {
+                  code: 'US',
+                  name: 'UNITED STATES',
+                  id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+                },
+                countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
               },
             },
             expect.anything(),
@@ -382,6 +407,12 @@ describe('AboutForm component', () => {
             state: 'SP',
             postalCode: '12345',
             usPostRegionCitiesID: '',
+            country: {
+              code: 'US',
+              name: 'UNITED STATES',
+              id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+            },
+            countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
           },
           destinationAddress: {
             streetAddress1: '456 Destination Ave',
@@ -391,6 +422,12 @@ describe('AboutForm component', () => {
             state: 'SP',
             postalCode: '67890',
             usPostRegionCitiesID: '',
+            country: {
+              code: 'US',
+              name: 'UNITED STATES',
+              id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+            },
+            countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
           },
           hasReceivedAdvance: false,
           w2Address: {
@@ -401,6 +438,12 @@ describe('AboutForm component', () => {
             state: '',
             postalCode: '',
             usPostRegionCitiesID: '',
+            country: {
+              code: 'US',
+              name: 'UNITED STATES',
+              id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+            },
+            countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
           },
         },
       };

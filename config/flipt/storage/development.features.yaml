@@ -243,6 +243,14 @@ flags:
       - segment:
           key: mil-app
           value: false
+  - key: oconus_city_finder
+    name: Oconus city finder feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
   - key: gun_safe
     name: Gun safe feature flag
     type: BOOLEAN_FLAG_TYPE

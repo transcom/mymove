@@ -58,7 +58,8 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       // Basic info
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.getByText('Use pickup address').click();
 
       // Storage facility info
@@ -73,11 +74,18 @@ test.describe('TOO user', () => {
 
       // Storage facility address
       const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
+      const countrySearch = 'UNITED STATES';
       await page.locator('input[name="storageFacility.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.locator('input[id="storageFacility.address-input"]').fill('30301');
+      await page.locator('input[id="storageFacility.address-country-input"]').fill(countrySearch);
+      const spanLocator = page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+      await expect(spanLocator).toBeVisible();
+      await page.keyboard.press('Enter');
+      const storageLocator = page.locator('input[id="storageFacility.address-input"]');
+      await storageLocator.click({ timeout: 5000 });
+      await storageLocator.fill('30301');
       await expect(page.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('#facilityLotNumber').fill('1111111');
@@ -85,7 +93,8 @@ test.describe('TOO user', () => {
 
       // Delivery info
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+      const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
 
       // TAC and SAC
       await page.locator('[data-testid="radio"] [for="tacType-NTS"]').click();
@@ -106,9 +115,7 @@ test.describe('TOO user', () => {
 
       // edit the NTS shipment back to being handled by the GHC Prime contractor
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
-      await expect(page.locator('[data-testid="alert"]')).toContainText(
-        'The GHC prime contractor is not handling the shipment.',
-      );
+      await expect(page.getByText(/The GHC prime contractor is not handling the shipment./)).toBeVisible();
 
       await page.locator('label[for="vendorPrime"]').click();
       await page.locator('[data-testid="submitForm"]').click();
@@ -191,6 +198,7 @@ test.describe('TOO user', () => {
 
       // Fill out the HHG and NTS accounting codes
       await page.getByTestId('hhgTacInput').fill(tac.tac);
+      await page.getByTestId('ntsTacInput').fill(tac.tac);
       const today = new Date();
       const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(today);
       const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(today);
@@ -280,6 +288,7 @@ test.describe('TOO user', () => {
       // Storage facility address
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').clear();
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').fill('265 S East St');
+      await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await modal.locator('#facilityLotNumber').clear();
       await modal.locator('#facilityLotNumber').fill('1111111');
 

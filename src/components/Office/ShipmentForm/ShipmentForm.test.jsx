@@ -57,6 +57,12 @@ const mockMtoShipment = {
     state: 'TX',
     postalCode: '78234',
     county: 'BEXAR',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
@@ -64,6 +70,12 @@ const mockMtoShipment = {
     state: 'WA',
     postalCode: '98421',
     county: 'PIERCE',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   mtoAgents: [
     {
@@ -189,6 +201,12 @@ const mockUBShipment = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
 };
@@ -201,6 +219,12 @@ const mockHHGWithSecondaryAddresses = {
     state: 'TX',
     postalCode: '78234',
     county: 'BEXAR',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   secondaryDeliveryAddress: {
     streetAddress1: '123 N Main',
@@ -208,6 +232,12 @@ const mockHHGWithSecondaryAddresses = {
     state: 'WA',
     postalCode: '98421',
     county: 'PIERCE',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   hasSecondaryPickupAddress: true,
   hasSecondaryDeliveryAddress: true,
@@ -228,6 +258,12 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
     county: 'MUSCOGEE',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   originDutyLocationAddress: {
     city: 'Fort Benning',
@@ -236,6 +272,12 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
     county: 'MUSCOGEE',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   serviceMember: {
     weightAllotment: {
@@ -277,6 +319,12 @@ const mockPPMShipment = {
       state: 'KY',
       postalCode: '42701',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     secondaryPickupAddress: {
       streetAddress1: '777 Test Street',
@@ -286,6 +334,12 @@ const mockPPMShipment = {
       state: 'KY',
       postalCode: '42702',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -295,6 +349,12 @@ const mockPPMShipment = {
       state: 'KY',
       postalCode: '42712',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     secondaryDestinationAddress: {
       streetAddress1: '444 Test Street',
@@ -304,6 +364,12 @@ const mockPPMShipment = {
       state: 'KY',
       postalCode: '42701',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     sitExpected: false,
     estimatedWeight: 4999,
@@ -334,6 +400,12 @@ const mockPPMShipmentSmallPackage = {
       state: 'KY',
       postalCode: '42701',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     secondaryPickupAddress: {
       streetAddress1: '777 Test Street',
@@ -343,6 +415,12 @@ const mockPPMShipmentSmallPackage = {
       state: 'KY',
       postalCode: '42702',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -352,6 +430,12 @@ const mockPPMShipmentSmallPackage = {
       state: 'KY',
       postalCode: '42712',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     secondaryDestinationAddress: {
       streetAddress1: '444 Test Street',
@@ -361,6 +445,12 @@ const mockPPMShipmentSmallPackage = {
       state: 'KY',
       postalCode: '42701',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     sitExpected: false,
     estimatedWeight: 4999,
@@ -391,6 +481,12 @@ const mockRejectedPPMShipment = {
       state: 'KY',
       postalCode: '42701',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     secondaryPickupAddress: {
       streetAddress1: '777 Test Street',
@@ -400,6 +496,12 @@ const mockRejectedPPMShipment = {
       state: 'KY',
       postalCode: '42702',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -409,6 +511,12 @@ const mockRejectedPPMShipment = {
       state: 'KY',
       postalCode: '42703',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     secondaryDestinationAddress: {
       streetAddress1: '444 Test Street',
@@ -418,6 +526,12 @@ const mockRejectedPPMShipment = {
       state: 'KY',
       postalCode: '42701',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     sitExpected: false,
     estimatedWeight: 4999,
@@ -435,7 +549,6 @@ const mockDeliveryAddressUpdate = {
     id: 'c49f7921-5a6e-46b4-bb39-022583574453',
     newAddress: {
       city: 'Beverly Hills',
-      country: 'US',
       eTag: 'MjAyMy0wNy0xN1QxODowODowNi42NTU5MTVa',
       id: '6b57ce91-cabd-4e3b-9f48-ed4627d4878f',
       postalCode: '90210',
@@ -444,10 +557,15 @@ const mockDeliveryAddressUpdate = {
       streetAddress2: 'P.O. Box 12345',
       streetAddress3: 'c/o Some Person',
       county: 'LOS ANGELES',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     originalAddress: {
       city: 'Fairfield',
-      country: 'US',
       eTag: 'MjAyMy0wNy0xN1QxODowODowNi42NDkyNTha',
       id: '92509013-aafc-4892-a476-2e3b97e6933d',
       postalCode: '94535',
@@ -456,6 +574,12 @@ const mockDeliveryAddressUpdate = {
       streetAddress2: 'P.O. Box 9876',
       streetAddress3: 'c/o Some Person',
       county: 'SOLANO',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     shipmentID: '5c84bcf3-92f7-448f-b0e1-e5378b6806df',
     status: 'REQUESTED',
@@ -1363,6 +1487,12 @@ describe('ShipmentForm component', () => {
             postalCode: '98421',
             streetAddress2: '',
             county: 'PIERCE',
+            country: {
+              code: 'US',
+              name: 'UNITED STATES',
+              id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+            },
+            countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
           },
           pickupAddress: {
             streetAddress1: '812 S 129th St',
@@ -1371,6 +1501,12 @@ describe('ShipmentForm component', () => {
             postalCode: '78234',
             streetAddress2: '',
             county: 'BEXAR',
+            country: {
+              code: 'US',
+              name: 'UNITED STATES',
+              id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+            },
+            countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
           },
           agents: [
             {
@@ -2293,6 +2429,12 @@ describe('ShipmentForm component', () => {
       state: 'KY',
       postalCode: '42701',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -2302,6 +2444,12 @@ describe('ShipmentForm component', () => {
       state: 'KY',
       postalCode: '42703',
       county: 'HARDIN',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
   };
 
@@ -2563,22 +2711,32 @@ describe('ShipmentForm component', () => {
       ...mockHHGShipment,
       pickupAddress: {
         city: 'Beverly Hills',
-        country: 'US',
         postalCode: '90210',
         state: 'CA',
         streetAddress1: '123 Any Street',
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       storageFacility: {
         facilityName: 'Storage Facility',
         address: {
           city: 'Anytown',
-          country: 'USA',
           postalCode: '90210',
           state: 'OK',
           streetAddress1: '555 Main Ave',
           streetAddress2: 'Apartment 900',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       },
       tacType: 'HHG',

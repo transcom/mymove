@@ -36,6 +36,12 @@ describe('CustomerContactInfoForm Component', () => {
       city: 'Missoula',
       state: 'MT',
       postalCode: '59802',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     name: '',
     telephone: '',
@@ -57,19 +63,21 @@ describe('CustomerContactInfoForm Component', () => {
     customerEmail: 'joebob@gmail.com',
     customerAddress: {
       streetAddress1: '123 Happy St',
-      streetAddress2: 'Unit 4',
-      city: 'Missoula',
-      state: 'MT',
-      postalCode: '59802',
-      county: 'MISSOULA',
+      country: {
+        code: 'US',
+        name: 'UNITED STATES',
+        id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+      },
+      countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
     },
     name: 'joe bob',
     telephone: '855-222-1111',
     email: 'joebob@gmail.com',
     cacUser: null,
   };
+
   const testPropsCacValidated = {
-    initialValuesCacValidated,
+    initialValues: initialValuesCacValidated,
     onSubmit: jest.fn(),
     onBack: jest.fn(),
   };

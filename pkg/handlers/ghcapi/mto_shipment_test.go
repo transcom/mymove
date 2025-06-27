@@ -19,6 +19,7 @@ import (
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	roles "github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
@@ -4406,6 +4407,9 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 		},
 	}, nil)
 
+	country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NoError(err)
+
 	mtoShipment.MoveTaskOrderID = mto.ID
 
 	subtestData.builder = query.NewQueryBuilder()
@@ -4437,6 +4441,8 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 		StreetAddress1: &destinationAddress.StreetAddress1,
 		StreetAddress2: destinationAddress.StreetAddress2,
 		StreetAddress3: destinationAddress.StreetAddress3,
+		CountryID:      strfmt.UUID(country.ID.String()),
+		Country:        payloads.Country(&country),
 	}
 	subtestData.params.Body.PickupAddress.Address = ghcmessages.Address{
 		City:           &pickupAddress.City,
@@ -4445,6 +4451,8 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 		StreetAddress1: &pickupAddress.StreetAddress1,
 		StreetAddress2: pickupAddress.StreetAddress2,
 		StreetAddress3: pickupAddress.StreetAddress3,
+		CountryID:      strfmt.UUID(country.ID.String()),
+		Country:        payloads.Country(&country),
 	}
 
 	return subtestData
@@ -4922,6 +4930,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		var destinationAddress ghcmessages.PPMDestinationAddress
 		var secondaryDestinationAddress ghcmessages.Address
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		expectedPickupAddress := factory.BuildAddress(nil, []factory.Customization{
 			{
 				Model: models.Address{
@@ -4936,6 +4947,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedSecondaryPickupAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -4952,6 +4965,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedSecondaryPickupAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryPickupAddress.StreetAddress2,
 			StreetAddress3: expectedSecondaryPickupAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedDestinationAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -4968,6 +4983,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedSecondaryDestinationAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -4984,6 +5001,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedSecondaryDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedSecondaryDestinationAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		// Need a logged in user
@@ -5169,6 +5188,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		hasGunSafe := false
 		estimatedIncentive := 123456
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		var pickupAddress ghcmessages.Address
 		var destinationAddress ghcmessages.PPMDestinationAddress
 
@@ -5186,6 +5208,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedDestinationAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -5202,6 +5226,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
@@ -5367,6 +5393,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		gunSafeWeight := unit.Pound(400)
 		estimatedIncentive := 123456
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		var pickupAddress ghcmessages.Address
 		var destinationAddress ghcmessages.PPMDestinationAddress
 
@@ -5384,6 +5413,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedDestinationAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -5400,6 +5431,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
@@ -5529,6 +5562,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		hasGunSafe := false
 		estimatedIncentive := 123456
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		var pickupAddress ghcmessages.Address
 		var destinationAddress ghcmessages.PPMDestinationAddress
 
@@ -5546,6 +5582,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedDestinationAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -5562,6 +5600,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
@@ -5677,6 +5717,9 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		AgentType: string(mtoAgent.MTOAgentType),
 	}}
 
+	country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NoError(err)
+
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
 	req = suite.AuthenticateOfficeRequest(req, servicesCounselor)
 
@@ -5702,6 +5745,8 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		StreetAddress1: &destinationAddress.StreetAddress1,
 		StreetAddress2: destinationAddress.StreetAddress2,
 		StreetAddress3: destinationAddress.StreetAddress3,
+		CountryID:      strfmt.UUID(country.ID.String()),
+		Country:        payloads.Country(&country),
 	}
 	payload.PickupAddress.Address = ghcmessages.Address{
 		City:           &pickupAddress.City,
@@ -5710,6 +5755,8 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		StreetAddress1: &pickupAddress.StreetAddress1,
 		StreetAddress2: pickupAddress.StreetAddress2,
 		StreetAddress3: pickupAddress.StreetAddress3,
+		CountryID:      strfmt.UUID(country.ID.String()),
+		Country:        payloads.Country(&country),
 	}
 
 	params := mtoshipmentops.UpdateMTOShipmentParams{
@@ -5864,6 +5911,10 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 				},
 			},
 		}, nil)
+
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		year, month, day := time.Now().Date()
 		actualMoveDate := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
 		expectedDepartureDate := actualMoveDate.Add(time.Hour * 24 * 2)
@@ -5890,6 +5941,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: &expectedPickupAddressStreet3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedSecondaryPickupAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -5906,6 +5959,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			StreetAddress1: &expectedSecondaryPickupAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryPickupAddress.StreetAddress2,
 			StreetAddress3: &expectedSecondaryPickupAddressStreet3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedDestinationAddress := ppmShipment.DestinationAddress
@@ -5916,6 +5971,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: &expectedDestinationAddressStreet3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		expectedSecondaryDestinationAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -5932,6 +5989,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			StreetAddress1: &expectedSecondaryDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryDestinationAddress.StreetAddress2,
 			StreetAddress3: &expectedSecondaryDestinationAddressStreet3,
+			CountryID:      strfmt.UUID(country.ID.String()),
+			Country:        payloads.Country(&country),
 		}
 
 		sitExpected := true

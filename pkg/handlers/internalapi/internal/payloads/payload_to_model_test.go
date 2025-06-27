@@ -235,7 +235,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 
 	pickupAddress = internalmessages.Address{
 		City:           &address.City,
-		Country:        &address.Country.Country,
+		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: &address.StreetAddress1,
@@ -244,7 +244,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	destinationAddress = internalmessages.PPMDestinationAddress{
 		City:           &address.City,
-		Country:        &address.Country.Country,
+		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: &address.StreetAddress1,
@@ -253,7 +253,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	secondaryPickupAddress = internalmessages.Address{
 		City:           &address2.City,
-		Country:        &address.Country.Country,
+		Country:        Country(address.Country),
 		PostalCode:     &address2.PostalCode,
 		State:          &address2.State,
 		StreetAddress1: &address2.StreetAddress1,
@@ -262,7 +262,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	secondaryDestinationAddress = internalmessages.Address{
 		City:           &address2.City,
-		Country:        &address.Country.Country,
+		Country:        Country(address.Country),
 		PostalCode:     &address2.PostalCode,
 		State:          &address2.State,
 		StreetAddress1: &address2.StreetAddress1,
@@ -271,7 +271,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	tertiaryPickupAddress = internalmessages.Address{
 		City:           &address3.City,
-		Country:        &address.Country.Country,
+		Country:        Country(address.Country),
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,
@@ -280,7 +280,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	tertiaryDestinationAddress = internalmessages.Address{
 		City:           &address3.City,
-		Country:        &address.Country.Country,
+		Country:        Country(address.Country),
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,

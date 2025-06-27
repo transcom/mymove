@@ -84,6 +84,9 @@ export const requiredAddressSchema = Yup.object().shape({
     .length(2, 'Must use state abbreviation')
     .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
+  countryID: Yup.string().when('[streetAddress1, city]', ([street1, city], schema) =>
+    street1 || city ? schema.required('Required') : schema,
+  ),
 });
 
 // city, state, postalCode only required
@@ -96,6 +99,9 @@ export const partialRequiredAddressSchema = Yup.object().shape({
     .length(2, 'Must use state abbreviation')
     .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
+  countryID: Yup.string().when('[streetAddress1, city]', ([street1, city], schema) =>
+    street1 || city ? schema.required('Required') : schema,
+  ),
 });
 
 export const requiredW2AddressSchema = Yup.object().shape({
@@ -104,6 +110,9 @@ export const requiredW2AddressSchema = Yup.object().shape({
   city: Yup.string().required('Required'),
   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
   postalCode: Yup.string().matches(ZIP5_CODE_REGEX, 'Must be valid zip code').required('Required'),
+  countryID: Yup.string().when('[streetAddress1, city]', ([street1, city], schema) =>
+    street1 || city ? schema.required('Required') : schema,
+  ),
 });
 
 export const addressSchema = Yup.object().shape({
@@ -114,6 +123,9 @@ export const addressSchema = Yup.object().shape({
   county: Yup.string(),
   state: Yup.string().length(2, 'Must use state abbreviation'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
+  countryID: Yup.string().when('[streetAddress1, city]', ([street1, city], schema) =>
+    street1 || city ? schema.required('Required') : schema,
+  ),
 });
 
 export const phoneSchema = Yup.string().matches(

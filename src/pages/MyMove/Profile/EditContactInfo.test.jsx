@@ -60,6 +60,12 @@ describe('EditContactInfo page', () => {
         postalCode: '79936',
         county: 'EL PASO',
         usPostRegionCitiesID: '',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       backup_mailing_address: {
         streetAddress1: '10642 N Second Ave',
@@ -70,6 +76,12 @@ describe('EditContactInfo page', () => {
         postalCode: '79936',
         county: 'EL PASO',
         usPostRegionCitiesID: '',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
     },
     setFlashMessage: jest.fn(),

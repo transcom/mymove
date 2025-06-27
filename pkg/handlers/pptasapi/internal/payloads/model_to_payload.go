@@ -132,11 +132,19 @@ func PPTASReports(appCtx appcontext.AppContext, pptasReports *models.PPTASReport
 }
 
 // Country payload
-func Country(country *models.Country) *string {
+func Country(country *models.Country) *pptasmessages.Country {
 	if country == nil {
 		return nil
 	}
-	return &country.Country
+	if *country == (models.Country{}) {
+		return nil
+	}
+	payloadCountry := &pptasmessages.Country{
+		ID:   strfmt.UUID(country.ID.String()),
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+	return payloadCountry
 }
 
 func Address(address *models.Address) *pptasmessages.Address {
@@ -159,6 +167,10 @@ func Address(address *models.Address) *pptasmessages.Address {
 
 	if address.UsPostRegionCityID != nil {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	if address.CountryId != nil {
+		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
 	}
 
 	return payloadAddress

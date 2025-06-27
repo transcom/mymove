@@ -25,9 +25,13 @@ type PPMDestinationAddress struct {
 	// Required: true
 	City *string `json:"city"`
 
-	// Country
-	// Example: USA
-	Country *string `json:"country,omitempty"`
+	// country
+	Country *Country `json:"country,omitempty"`
+
+	// country ID
+	// Example: a56a4180-65aa-42ec-a945-5fd21dec0573
+	// Format: uuid
+	CountryID strfmt.UUID `json:"countryID,omitempty"`
 
 	// County
 	// Example: LOS ANGELES
@@ -79,6 +83,14 @@ func (m *PPMDestinationAddress) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCountry(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCountryID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -104,6 +116,37 @@ func (m *PPMDestinationAddress) Validate(formats strfmt.Registry) error {
 func (m *PPMDestinationAddress) validateCity(formats strfmt.Registry) error {
 
 	if err := validate.Required("city", "body", m.City); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMDestinationAddress) validateCountry(formats strfmt.Registry) error {
+	if swag.IsZero(m.Country) { // not required
+		return nil
+	}
+
+	if m.Country != nil {
+		if err := m.Country.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("country")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("country")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *PPMDestinationAddress) validateCountryID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CountryID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("countryID", "body", "uuid", m.CountryID.String(), formats); err != nil {
 		return err
 	}
 
@@ -341,6 +384,10 @@ func (m *PPMDestinationAddress) validateUsPostRegionCitiesID(formats strfmt.Regi
 func (m *PPMDestinationAddress) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCountry(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -348,6 +395,27 @@ func (m *PPMDestinationAddress) ContextValidate(ctx context.Context, formats str
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PPMDestinationAddress) contextValidateCountry(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Country != nil {
+
+		if swag.IsZero(m.Country) { // not required
+			return nil
+		}
+
+		if err := m.Country.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("country")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("country")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
