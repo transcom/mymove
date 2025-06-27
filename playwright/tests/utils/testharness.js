@@ -634,6 +634,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build Use testharness to build submitted move with ppm and gun safe
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMGunSafeWeightTicketOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMGunSafeWeightTicketOffice');
+  }
+
+  /**
    * Use testharness to build submitted move with ppm and weight ticket
    * @returns {Promise<Object>}
    */
