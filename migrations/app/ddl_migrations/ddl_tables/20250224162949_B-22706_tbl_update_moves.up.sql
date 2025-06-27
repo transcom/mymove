@@ -19,6 +19,7 @@ ALTER TABLE moves
         CONSTRAINT moves_tio_payment_request_assigned_id_fkey
             REFERENCES office_users;
 
+
 -- adding the below add column to address any issues that might arise as a result of previous migration renaming column
 ALTER TABLE moves
     ADD COLUMN IF NOT EXISTS sc_assigned_id uuid
