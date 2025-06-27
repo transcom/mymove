@@ -270,10 +270,10 @@ const ServiceItemCard = ({
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
                 </dl>
                 {toggleCalculations}
-                {requiredAsteriskMessage}
+                <div className="margin-bottom-2">{requiredAsteriskMessage}</div>
                 <Fieldset>
                   <legend className="usa-label" aria-label="Required: Approve or reject the service item">
-                    Approve or reject the service item <RequiredAsterisk />
+                    Please select one <RequiredAsterisk />
                   </legend>
                   <div
                     className={classnames(approveRejectStyles.statusOption, {

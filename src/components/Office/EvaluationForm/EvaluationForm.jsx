@@ -382,7 +382,7 @@ const EvaluationForm = ({
                   <Grid col>
                     <h2>Evaluation form</h2>
                     <h3>Evaluation information</h3>
-                    {requiredAsteriskMessage}
+                    <div className="margin-bottom-2">{requiredAsteriskMessage}</div>
                     <DatePickerInput
                       label="Date of inspection"
                       name="inspectionDate"

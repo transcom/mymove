@@ -20,7 +20,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
-import RequiredAsterisk from 'components/form/RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   belongsToSelf: Yup.bool().required('Required'),
@@ -205,6 +205,7 @@ export default function ReviewProGear({
                   disabled={readOnly}
                 />
                 <h3 className={styles.reviewHeader}>Review pro-gear {tripNumber}</h3>
+                {requiredAsteriskMessage}
                 <p>
                   <RequiredAsterisk /> Add a review for this pro-gear
                 </p>

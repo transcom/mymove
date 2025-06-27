@@ -57,7 +57,7 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('First Name *').nth(1).fill('Backup');
       await page.getByLabel('Last Name *').nth(1).fill('Friend');
       await page.getByLabel('Email *').nth(1).fill('backupFriend@mail.mil');
-      await page.getByLabel('Phone', { exact: true }).nth(1).fill('555-867-5309');
+      await page.getByLabel('Phone *').nth(1).fill('555-867-5309');
       await page.locator('label[for="noCreateOktaAccount"]').click();
       await page.locator('label[for="yesCacUser"]').click();
       await page.keyboard.press('Tab');
