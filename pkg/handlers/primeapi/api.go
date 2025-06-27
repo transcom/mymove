@@ -77,6 +77,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		ghcrateengine.NewDomesticOriginSITPickupPricer(),
 		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
 		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	countrySearcher := address.NewCountrySearcher()
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -229,6 +230,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler = AcknowledgeMovesAndShipmentsHandler{
 		handlerConfig,
 		acknowledgemovesshipments.NewMoveAndShipmentAcknowledgementUpdater(),
+	}
+
+	primeAPI.AddressesSearchCountriesHandler = SearchCountriesHandler{
+		handlerConfig,
+		countrySearcher,
 	}
 
 	return primeAPI
