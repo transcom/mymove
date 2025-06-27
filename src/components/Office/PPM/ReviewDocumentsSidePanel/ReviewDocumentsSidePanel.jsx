@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -14,11 +14,19 @@ import styles from './ReviewDocumentsSidePanel.module.scss';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { OrderShape } from 'types/order';
 import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
-import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
+import {
+  ExpenseShape,
+  PPMShipmentShape,
+  ProGearTicketShape,
+  WeightTicketShape,
+  GunSafeTicketShape,
+} from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import PPMDocumentsStatus from 'constants/ppms';
 import { formatDate, formatCents } from 'utils/formatters';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 export default function ReviewDocumentsSidePanel({
   ppmShipment,
@@ -29,6 +37,7 @@ export default function ReviewDocumentsSidePanel({
   onError,
   expenseTickets,
   proGearTickets,
+  gunSafeTickets,
   weightTickets,
   readOnly,
   showAllFields,
@@ -37,6 +46,15 @@ export default function ReviewDocumentsSidePanel({
   let status;
   let showReason;
   const showAllFieldsBool = showAllFields;
+
+  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const { mutate: patchDocumentsSetStatusMutation } = useMutation(patchPPMDocumentsSetStatus, {
     onSuccess,
@@ -121,7 +139,10 @@ export default function ReviewDocumentsSidePanel({
             readOnly={readOnly}
           />
         </div>
-        <Form style={{ maxWidth: 'none' }} className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
+        <Form
+          style={{ maxWidth: 'none' }}
+          className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel, styles.SendToCustomer)}
+        >
           <hr />
           <h3 className={styles.send}>{readOnly ? 'Sent to customer' : 'Send to customer?'}</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
@@ -181,11 +202,35 @@ export default function ReviewDocumentsSidePanel({
                           </span>
                           <span>
                             <dt>Missing Weight Ticket (Constructed)?</dt>
-                            <dl>{gear.missingWeightTicket ? `Yes` : `No`}</dl>
+                            <dl>{gear.hasWeightTickets ? `No` : `Yes`}</dl>
                           </span>
                           <span>
                             <dt>Pro-gear Weight:</dt>
                             <dl>{gear.weight} lbs</dl>
+                          </span>
+                        </dl>
+                      </li>
+                    );
+                  })
+                : null}
+              {isGunSafeEnabled && gunSafeTickets.length > 0
+                ? gunSafeTickets.map((gunSafe, index) => {
+                    return (
+                      <li className={styles.rowContainer} key={index}>
+                        <div data-testid="gunSafeStatus" className={styles.row}>
+                          <h3 className={styles.tripNumber}>Gun Safe {index + 1}</h3>
+                          {statusWithIcon(gunSafe)}
+                        </div>
+                        {showReason ? <p>{gunSafe.reason}</p> : null}
+
+                        <dl className={classnames(styles.ItemDetails)}>
+                          <span>
+                            <dt>Missing Weight Ticket (Constructed)?</dt>
+                            <dl data-testid="gunSafeHasWeightTickets">{gunSafe.hasWeightTickets ? `No` : `Yes`}</dl>
+                          </span>
+                          <span>
+                            <dt>Gun Safe Weight:</dt>
+                            <dl data-testid="gunSafeWeight">{gunSafe.weight} lbs</dl>
                           </span>
                         </dl>
                       </li>
@@ -279,6 +324,7 @@ ReviewDocumentsSidePanel.propTypes = {
   onError: func,
   expenseTickets: arrayOf(ExpenseShape),
   proGearTickets: arrayOf(ProGearTicketShape),
+  gunSafeTickets: arrayOf(GunSafeTicketShape),
   weightTickets: arrayOf(WeightTicketShape),
   showAllFields: bool,
   order: OrderShape.isRequired,
@@ -292,6 +338,7 @@ ReviewDocumentsSidePanel.defaultProps = {
   onError: () => {},
   expenseTickets: [],
   proGearTickets: [],
+  gunSafeTickets: [],
   weightTickets: [],
   showAllFields: true,
 };

@@ -34,7 +34,7 @@ describe('components/Office/ShipmentWeight', () => {
     expect(screen.queryByLabelText('Estimated gun safe weight')).not.toBeInTheDocument();
     expect(
       screen.queryByText(
-        'The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.',
+        `The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer's overall entitlement is already at the 18,000 lbs maximum.`,
       ),
     ).not.toBeInTheDocument();
   });
@@ -84,7 +84,7 @@ describe('components/Office/ShipmentWeight', () => {
       expect(screen.queryByLabelText('Estimated gun safe weight *')).toBeInTheDocument();
       expect(
         screen.queryByText(
-          'The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.',
+          `The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer's overall entitlement is already at the 18,000 lbs maximum.`,
         ),
       ).toBeInTheDocument();
     });
