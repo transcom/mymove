@@ -524,6 +524,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
 		})
 	}
+	if api.AddressesSearchCountriesHandler == nil {
+		api.AddressesSearchCountriesHandler = addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
+		})
+	}
 	if api.CustomerSearchCustomersHandler == nil {
 		api.CustomerSearchCustomersHandler = customer.SearchCustomersHandlerFunc(func(params customer.SearchCustomersParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.SearchCustomers has not yet been implemented")
