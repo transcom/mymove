@@ -14,7 +14,7 @@ import { adminEntitiesReducer, entitiesReducer } from 'shared/Entities/reducer';
 const authPersistConfig = {
   key: 'auth',
   storage,
-  whitelist: ['activeRole'],
+  whitelist: ['activeRole', 'activeOffice'],
 };
 
 const defaultReducers = {

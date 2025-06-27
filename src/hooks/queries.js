@@ -605,13 +605,14 @@ export const useMovesQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
   activeRole,
+  activeOfficeID,
 }) => {
   const {
     refetch,
     data = {},
     ...movesQueueQuery
   } = useQuery(
-    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole, activeOfficeID }],
     ({ queryKey }) => getMovesQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
@@ -633,13 +634,14 @@ export const useDestinationRequestsQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
   activeRole,
+  activeOfficeID,
 }) => {
   const {
     refetch,
     data = {},
     ...movesQueueQuery
   } = useQuery(
-    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole, activeOfficeID }],
     ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
@@ -661,6 +663,7 @@ export const useServicesCounselingQueuePPMQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
   activeRole,
+  activeOfficeID,
 }) => {
   const {
     refetch,
@@ -669,7 +672,17 @@ export const useServicesCounselingQueuePPMQueries = ({
   } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
-      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC, activeRole },
+      {
+        sort,
+        order,
+        filters,
+        currentPage,
+        currentPageSize,
+        needsPPMCloseout: true,
+        viewAsGBLOC,
+        activeRole,
+        activeOfficeID,
+      },
     ],
     ({ queryKey }) => getServicesCounselingPPMQueue(...queryKey),
   );
@@ -693,6 +706,7 @@ export const useServicesCounselingQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
   activeRole,
+  activeOfficeID,
 }) => {
   const {
     refetch,
@@ -701,7 +715,17 @@ export const useServicesCounselingQueueQueries = ({
   } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
-      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC, activeRole },
+      {
+        sort,
+        order,
+        filters,
+        currentPage,
+        currentPageSize,
+        needsPPMCloseout: false,
+        viewAsGBLOC,
+        activeRole,
+        activeOfficeID,
+      },
     ],
     ({ queryKey }) => getServicesCounselingQueue(...queryKey),
   );
@@ -725,13 +749,17 @@ export const usePaymentRequestQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
   activeRole,
+  activeOfficeID,
 }) => {
   const {
     refetch,
     data = {},
     ...paymentRequestsQueueQuery
   } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
+    [
+      PAYMENT_REQUESTS_QUEUE,
+      { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole, activeOfficeID },
+    ],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
 
