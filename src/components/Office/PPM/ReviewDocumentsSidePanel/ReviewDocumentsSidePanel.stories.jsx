@@ -9,6 +9,7 @@ import PPMDocumentsStatus from 'constants/ppms';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createBaseGunSafeWeightTicket } from 'utils/test/factories/gunSafeWeightTicket';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { MockProviders } from 'testUtils';
 
@@ -61,6 +62,10 @@ FilledIn.args = {
   proGearTickets: [
     createBaseProGearWeightTicket({}, { status: PPMDocumentsStatus.EXCLUDED, reason: 'Objects not applicable' }),
     createBaseProGearWeightTicket({}, { status: PPMDocumentsStatus.APPROVED, reason: null }),
+  ],
+  gunSafeTickets: [
+    createBaseGunSafeWeightTicket({}, { status: PPMDocumentsStatus.REJECTED, reason: 'Objects not applicable' }),
+    createBaseGunSafeWeightTicket({}, { status: PPMDocumentsStatus.APPROVED, reason: null }),
   ],
   weightTickets: [
     createCompleteWeightTicket(
