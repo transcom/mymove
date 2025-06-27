@@ -17,11 +17,6 @@ jest.mock('react-router-dom', () => ({
 }));
 jest.setTimeout(60000);
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
-
 jest.mock('hooks/queries', () => ({
   useUserQueries: () => {
     return {
