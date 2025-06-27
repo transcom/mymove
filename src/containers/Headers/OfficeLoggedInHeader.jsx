@@ -11,8 +11,9 @@ import { LogoutUser } from 'utils/api';
 import { logOut as logOutAction } from 'store/auth/actions';
 import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
-import { roleTypes } from 'constants/userRoles';
+import { officeRoles, roleTypes } from 'constants/userRoles';
 import { checkForLockedMovesAndUnlock } from 'services/ghcApi';
+import { generalRoutes } from 'constants/routes';
 
 const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const navigate = useNavigate();
@@ -34,18 +35,14 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   };
 
   let queueText = '';
-  const location = useLocation();
-  const validUnlockingOfficers = [
-    roleTypes.QAE,
-    roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-    roleTypes.GSR,
-    roleTypes.HQ,
-  ];
   if (activeRole === roleTypes.TOO) {
     queueText = 'moves';
   } else if (activeRole === roleTypes.TIO) {
     queueText = 'payment requests';
-  } else if (validUnlockingOfficers.includes(activeRole) && location.pathname === '/') {
+  }
+
+  const location = useLocation();
+  if (officeRoles.includes(activeRole) && location.pathname === generalRoutes.HOME_PATH) {
     checkForLockedMovesAndUnlock(officeUser.id);
   }
 
