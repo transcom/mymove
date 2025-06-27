@@ -96,6 +96,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
 	vLocation := address.NewVLocation()
+	countrySearcher := address.NewCountrySearcher()
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
@@ -315,6 +316,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
 	internalAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
+
+	internalAPI.AddressesSearchCountriesHandler = SearchCountriesHandler{
+		handlerConfig,
+		countrySearcher,
+	}
 
 	return internalAPI
 }

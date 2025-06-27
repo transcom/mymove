@@ -195,6 +195,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmResubmitPPMShipmentDocumentationHandler: ppm.ResubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.ResubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ResubmitPPMShipmentDocumentation has not yet been implemented")
 		}),
+		AddressesSearchCountriesHandler: addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
+		}),
 		DutyLocationsSearchDutyLocationsHandler: duty_locations.SearchDutyLocationsHandlerFunc(func(params duty_locations.SearchDutyLocationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation duty_locations.SearchDutyLocations has not yet been implemented")
 		}),
@@ -431,6 +434,8 @@ type MymoveAPI struct {
 	ServiceMembersPatchServiceMemberHandler service_members.PatchServiceMemberHandler
 	// PpmResubmitPPMShipmentDocumentationHandler sets the operation handler for the resubmit p p m shipment documentation operation
 	PpmResubmitPPMShipmentDocumentationHandler ppm.ResubmitPPMShipmentDocumentationHandler
+	// AddressesSearchCountriesHandler sets the operation handler for the search countries operation
+	AddressesSearchCountriesHandler addresses.SearchCountriesHandler
 	// DutyLocationsSearchDutyLocationsHandler sets the operation handler for the search duty locations operation
 	DutyLocationsSearchDutyLocationsHandler duty_locations.SearchDutyLocationsHandler
 	// PpmShowAOAPacketHandler sets the operation handler for the show a o a packet operation
@@ -709,6 +714,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmResubmitPPMShipmentDocumentationHandler == nil {
 		unregistered = append(unregistered, "ppm.ResubmitPPMShipmentDocumentationHandler")
+	}
+	if o.AddressesSearchCountriesHandler == nil {
+		unregistered = append(unregistered, "addresses.SearchCountriesHandler")
 	}
 	if o.DutyLocationsSearchDutyLocationsHandler == nil {
 		unregistered = append(unregistered, "duty_locations.SearchDutyLocationsHandler")
@@ -1075,6 +1083,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}"] = ppm.NewResubmitPPMShipmentDocumentation(o.context, o.PpmResubmitPPMShipmentDocumentationHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/countries"] = addresses.NewSearchCountries(o.context, o.AddressesSearchCountriesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

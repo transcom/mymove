@@ -804,3 +804,23 @@ func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
 
 	return payloadPayGrades
 }
+
+func CountryCodeName(country *models.Country) *internalmessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &internalmessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+}
+
+func Countries(countries models.Countries) internalmessages.Countries {
+	payload := make(internalmessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
+	}
+	return payload
+}
