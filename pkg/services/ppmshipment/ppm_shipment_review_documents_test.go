@@ -174,12 +174,12 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.SCAssignedUser,
+				Type:     &factory.OfficeUsers.SCCloseoutAssignedUser,
 			},
 		}, nil)
 
 		existingPPMShipment.Shipment.MoveTaskOrder = move
-		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
+		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID)
 
 		router := setUpPPMShipperRouterMock(
 			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
@@ -210,7 +210,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			)
 
 			//check removal of the SC Assigned User
-			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
+			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID)
 
 			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
 				suite.Equal(models.PPMShipmentStatusCloseoutComplete, updatedPPMShipment.Status)
@@ -347,12 +347,12 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.SCAssignedUser,
+				Type:     &factory.OfficeUsers.SCCloseoutAssignedUser,
 			},
 		}, nil)
 
 		existingPPMShipment.Shipment.MoveTaskOrder = move
-		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
+		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID)
 
 		router := setUpPPMShipperRouterMock(
 			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
@@ -383,7 +383,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			)
 
 			//check removal of the SC Assigned User
-			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
+			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID)
 
 			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
 				suite.Equal(models.PPMShipmentStatusCloseoutComplete, updatedPPMShipment.Status)
