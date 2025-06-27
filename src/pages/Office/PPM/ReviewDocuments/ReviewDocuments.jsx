@@ -20,14 +20,16 @@ import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewW
 import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
+import ReviewGunSafe from 'components/Office/PPM/ReviewGunSafe/ReviewGunSafe';
 import { roleTypes } from 'constants/userRoles';
 import { calculateWeightRequested } from 'hooks/custom';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
-import { PPM_TYPES, PPM_DOCUMENT_TYPES } from 'shared/constants';
+import { PPM_TYPES, PPM_DOCUMENT_TYPES, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { PPM_DOCUMENT_STATUS } from 'constants/ppms';
 import { fetchPaymentPacketBlob } from 'services/ghcApi';
 import CompletePPMCloseoutConfirmationModal from 'components/Office/PPM/CompletePPMCloseoutConfirmationModal/CompletePPMCloseoutConfirmationModal';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
   const { shipmentId, moveCode } = useParams();
@@ -53,10 +55,15 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
 
   const [allWeightTicketsRejected, setAllWeightTicketsRejected] = useState(false);
   const [allMovingExpensesRejected, setAllMovingExpensesRejected] = useState(false);
+
+  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
+
   let documentSets = useMemo(() => [], []);
   const weightTickets = useMemo(() => documents?.WeightTickets ?? [], [documents?.WeightTickets]);
   const movingExpenses = useMemo(() => documents?.MovingExpenses ?? [], [documents?.MovingExpenses]);
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
+  const gunSafeWeightTickets = documents?.GunSafeWeightTickets ?? [];
+
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
@@ -72,6 +79,13 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
     return {};
   }, [mtoShipment, ppmActualWeight, currentTotalWeight]);
   const isPPMSPR = ppmShipmentInfo?.ppmType === PPM_TYPES.SMALL_PACKAGE;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (weightTickets.length > 0) {
@@ -139,6 +153,19 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
     proGearWeightTickets.sort(compareChronologically);
 
     documentSets = documentSets.concat(proGearWeightTickets.map(constructProGearWeightTicket));
+  }
+
+  const constructGunSafeWeightTicket = (weightTicket, tripNumber) => ({
+    documentSetType: PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET,
+    documentSet: weightTicket,
+    uploads: weightTicket.document.uploads,
+    tripNumber,
+  });
+
+  if (gunSafeWeightTickets.length > 0) {
+    gunSafeWeightTickets.sort(compareChronologically);
+
+    documentSets = documentSets.concat(gunSafeWeightTickets.map(constructGunSafeWeightTicket));
   }
 
   if (movingExpenses.length > 0) {
@@ -422,6 +449,23 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
                   useChevron
                 />
               )}
+            {isGunSafeEnabled &&
+              !readOnly &&
+              !showOverview &&
+              currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET && (
+                <DocumentViewerFileManager
+                  title="Gun Safe Documents"
+                  orderId={order.orderId}
+                  documentId={currentDocumentSet.documentSet.documentId}
+                  files={currentDocumentSet.documentSet.document.uploads}
+                  documentType={PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET}
+                  onAddFile={() => {
+                    setFileUploading(true);
+                  }}
+                  mtoShipment={mtoShipment}
+                  useChevron
+                />
+              )}
             {!readOnly &&
               showOverview &&
               documentSets.map((documentSet) => {
@@ -471,6 +515,22 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
                     />
                   );
                 }
+                if (isGunSafeEnabled && documentSet.documentSetType === PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET) {
+                  return (
+                    <DocumentViewerFileManager
+                      title="Gun Safe Documents"
+                      orderId={order.orderId}
+                      documentId={documentSet.documentSet.documentId}
+                      files={documentSet.documentSet.document.uploads}
+                      documentType={PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET}
+                      onAddFile={() => {
+                        setFileUploading(true);
+                      }}
+                      mtoShipment={mtoShipment}
+                      useChevron
+                    />
+                  );
+                }
                 return (
                   <DocumentViewerFileManager
                     title="Moving Expense Documents"
@@ -498,6 +558,7 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
                 ppmShipmentInfo={ppmShipmentInfo}
                 weightTickets={weightTickets}
                 proGearTickets={proGearWeightTickets}
+                gunSafeTickets={gunSafeWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
@@ -542,6 +603,21 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
                     order={order}
                   />
                 )}
+                {isGunSafeEnabled &&
+                  currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET && (
+                    <ReviewGunSafe
+                      gunSafe={currentDocumentSet.documentSet}
+                      ppmShipmentInfo={ppmShipmentInfo}
+                      ppmNumber="1"
+                      tripNumber={currentTripNumber}
+                      mtoShipment={mtoShipment}
+                      onError={onError}
+                      onSuccess={onSuccess}
+                      formRef={formRef}
+                      readOnly={readOnly}
+                      order={order}
+                    />
+                  )}
                 {currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     key={documentSetIndex}
