@@ -32,17 +32,13 @@ func (h PPTASReportsHandler) Handle(params pptasop.PptasReportsParams) middlewar
 			clientCert := authentication.ClientCertFromContext(appCtx.HTTPRequest().Context())
 
 			if clientCert.PPTASAffiliation != nil {
-				params.Affiliation = (*string)(clientCert.PPTASAffiliation)
-			}
-
-			if params.Affiliation != nil {
-				if *params.Affiliation == models.AffiliationNAVY.String() || *params.Affiliation == models.AffiliationMARINES.String() {
-					searchParams.Affiliation = params.Affiliation
-				} else {
-					appCtx.Logger().Error("Invalid branch provided for filtering reports", zap.String("branch", *params.Affiliation))
-					return pptasop.NewPptasReportsBadRequest().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), nil
+				if *searchParams.Affiliation != models.AffiliationNAVY.String() && *searchParams.Affiliation != models.AffiliationMARINES.String() {
+					appCtx.Logger().Error("Invalid branch provided for filtering reports", zap.String("branch", *searchParams.Affiliation))
+					return pptasop.NewPptasReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), nil
 				}
 			}
+
+			searchParams.Affiliation = (*string)(clientCert.PPTASAffiliation)
 
 			movesForReport, err := h.GetMovesForReportBuilder(appCtx, &searchParams)
 			if err != nil {

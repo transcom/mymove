@@ -61,51 +61,6 @@ func (o *PptasReportsOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
-// PptasReportsBadRequestCode is the HTTP code returned for type PptasReportsBadRequest
-const PptasReportsBadRequestCode int = 400
-
-/*
-PptasReportsBadRequest The request payload is invalid
-
-swagger:response pptasReportsBadRequest
-*/
-type PptasReportsBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *pptasmessages.ClientError `json:"body,omitempty"`
-}
-
-// NewPptasReportsBadRequest creates PptasReportsBadRequest with default headers values
-func NewPptasReportsBadRequest() *PptasReportsBadRequest {
-
-	return &PptasReportsBadRequest{}
-}
-
-// WithPayload adds the payload to the pptas reports bad request response
-func (o *PptasReportsBadRequest) WithPayload(payload *pptasmessages.ClientError) *PptasReportsBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the pptas reports bad request response
-func (o *PptasReportsBadRequest) SetPayload(payload *pptasmessages.ClientError) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *PptasReportsBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // PptasReportsUnauthorizedCode is the HTTP code returned for type PptasReportsUnauthorized
 const PptasReportsUnauthorizedCode int = 401
 
