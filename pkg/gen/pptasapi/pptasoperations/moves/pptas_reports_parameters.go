@@ -32,6 +32,10 @@ type PptasReportsParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*Return moves for this affiliation, defaults to NAVY.
+	  In: query
+	*/
+	Affiliation *string
 	/*Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
 	  In: query
 	*/
@@ -49,6 +53,11 @@ func (o *PptasReportsParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	qs := runtime.Values(r.URL.Query())
 
+	qAffiliation, qhkAffiliation, _ := qs.GetOK("affiliation")
+	if err := o.bindAffiliation(qAffiliation, qhkAffiliation, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qSince, qhkSince, _ := qs.GetOK("since")
 	if err := o.bindSince(qSince, qhkSince, route.Formats); err != nil {
 		res = append(res, err)
@@ -56,6 +65,24 @@ func (o *PptasReportsParams) BindRequest(r *http.Request, route *middleware.Matc
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindAffiliation binds and validates parameter Affiliation from query.
+func (o *PptasReportsParams) bindAffiliation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.Affiliation = &raw
+
 	return nil
 }
 
