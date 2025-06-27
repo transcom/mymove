@@ -11807,7 +11807,7 @@ func init() {
         "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TIOAssignedUser": {
+        "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOOAssignedUser": {
@@ -31194,7 +31194,7 @@ func init() {
         "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TIOAssignedUser": {
+        "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOOAssignedUser": {

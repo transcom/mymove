@@ -14,7 +14,7 @@ export default {
     if (changedValues.sc_closeout_assigned_id === null) return <>Closeout counselor unassigned</>;
     if (changedValues.too_assigned_id === null) return <>Task ordering officer unassigned</>;
     if (changedValues.too_destination_assigned_id === null) return <>Task ordering officer unassigned</>;
-    if (changedValues.tio_assigned_id === null) return <>Task invoicing officer unassigned</>;
+    if (changedValues.tio_payment_request_assigned_id === null) return <>Task invoicing officer unassigned</>;
     return <>Unassigned</>;
   },
 };

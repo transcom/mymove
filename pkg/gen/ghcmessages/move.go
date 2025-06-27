@@ -25,8 +25,8 @@ type Move struct {
 	// s c counseling assigned user
 	SCCounselingAssignedUser *AssignedOfficeUser `json:"SCCounselingAssignedUser,omitempty"`
 
-	// t i o assigned user
-	TIOAssignedUser *AssignedOfficeUser `json:"TIOAssignedUser,omitempty"`
+	// t i o payment request assigned user
+	TIOPaymentRequestAssignedUser *AssignedOfficeUser `json:"TIOPaymentRequestAssignedUser,omitempty"`
 
 	// t o o assigned user
 	TOOAssignedUser *AssignedOfficeUser `json:"TOOAssignedUser,omitempty"`
@@ -170,11 +170,12 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+
 	if err := m.validateSCCounselingAssignedUser(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateTIOAssignedUser(formats); err != nil {
+	if err := m.validateTIOPaymentRequestAssignedUser(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -338,17 +339,17 @@ func (m *Move) validateSCCounselingAssignedUser(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Move) validateTIOAssignedUser(formats strfmt.Registry) error {
-	if swag.IsZero(m.TIOAssignedUser) { // not required
+func (m *Move) validateTIOPaymentRequestAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.TIOPaymentRequestAssignedUser) { // not required
 		return nil
 	}
 
-	if m.TIOAssignedUser != nil {
-		if err := m.TIOAssignedUser.Validate(formats); err != nil {
+	if m.TIOPaymentRequestAssignedUser != nil {
+		if err := m.TIOPaymentRequestAssignedUser.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("TIOAssignedUser")
+				return ve.ValidateName("TIOPaymentRequestAssignedUser")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("TIOAssignedUser")
+				return ce.ValidateName("TIOPaymentRequestAssignedUser")
 			}
 			return err
 		}
@@ -783,7 +784,7 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTIOAssignedUser(ctx, formats); err != nil {
+	if err := m.contextValidateTIOPaymentRequestAssignedUser(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -883,19 +884,19 @@ func (m *Move) contextValidateSCCounselingAssignedUser(ctx context.Context, form
 	return nil
 }
 
-func (m *Move) contextValidateTIOAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+func (m *Move) contextValidateTIOPaymentRequestAssignedUser(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.TIOAssignedUser != nil {
+	if m.TIOPaymentRequestAssignedUser != nil {
 
-		if swag.IsZero(m.TIOAssignedUser) { // not required
+		if swag.IsZero(m.TIOPaymentRequestAssignedUser) { // not required
 			return nil
 		}
 
-		if err := m.TIOAssignedUser.ContextValidate(ctx, formats); err != nil {
+		if err := m.TIOPaymentRequestAssignedUser.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("TIOAssignedUser")
+				return ve.ValidateName("TIOPaymentRequestAssignedUser")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("TIOAssignedUser")
+				return ce.ValidateName("TIOPaymentRequestAssignedUser")
 			}
 			return err
 		}

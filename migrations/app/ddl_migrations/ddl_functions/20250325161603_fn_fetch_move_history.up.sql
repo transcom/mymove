@@ -82,9 +82,9 @@ BEGIN
                 ''counseling_office_name'',
                 (SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.counseling_transportation_office_id)),
                 ''assigned_office_user_first_name'',
-                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.sc_closeout_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
+                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.sc_closeout_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_payment_request_assigned_id), uuid(c.too_destination_assigned_id))),
                 ''assigned_office_user_last_name'',
-                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.sc_closeout_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
+                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.sc_closeout_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_payment_request_assigned_id), uuid(c.too_destination_assigned_id)))
             ))
         )::TEXT AS context,
         NULL AS context_id,
@@ -99,7 +99,7 @@ BEGIN
         sc_closeout_assigned_id TEXT,
         too_assigned_id TEXT,
         too_destination_assigned_id TEXT,
-        tio_assigned_id TEXT
+        tio_payment_request_assigned_id TEXT
     ) ON TRUE
     WHERE audit_history.table_name = ''moves''
         AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE ''%shipment_seq_num%'' AND LENGTH(audit_history.changed_data::TEXT) < 25)
