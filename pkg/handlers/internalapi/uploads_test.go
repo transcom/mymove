@@ -40,6 +40,7 @@ const FixtureTXT = "test.txt"
 const FixtureXLS = "Weight Estimator.xls"
 const FixtureXLSX = "Weight Estimator.xlsx"
 const WeightEstimatorFullXLSX = "Weight Estimator Full.xlsx"
+const WeightEstimatorXlsxFail = "Weight Estimator Expect Failed Upload.xlsx"
 const WeightEstimatorPrefix = "Weight Estimator Full"
 const FixtureEmpty = "empty.pdf"
 const FixtureScreenshot = "Screenshot 2024-10-10 at 10.46.48 AM.png"
@@ -115,7 +116,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := CreateUploadHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -129,7 +130,7 @@ func makePPMRequest(suite *HandlerSuite, params ppmop.CreatePPMUploadParams, ser
 
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	suite.FatalNoError(err)
@@ -303,7 +304,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 		req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 		params.HTTPRequest = req
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()
 		fmt.Print(uploadInformationFetcher)
@@ -335,7 +336,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 		req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 		params.HTTPRequest = req
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()
 		fmt.Print(uploadInformationFetcher)
@@ -381,7 +382,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := DeleteUploadsHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -434,7 +435,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 
 	fakeS3Failure := storageTest.NewFakeS3Storage(false)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3Failure)
 	uploadInformationFetcher := upload.NewUploadInformationFetcher()
 	handler := DeleteUploadHandler{handlerConfig, uploadInformationFetcher}
@@ -708,6 +709,18 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		badResponseErr := response.(*handlers.ErrResponse)
 		suite.Equal("File has length of 0", badResponseErr.Err.Error())
 	})
+
+	suite.Run("Non-weight Estimator File submitted for upload", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, WeightEstimatorXlsxFail, true)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&ppmop.CreatePPMUploadForbidden{}, response)
+		incorrectXlsxResponse, _ := response.(*ppmop.CreatePPMUploadForbidden)
+		suite.Equal("The uploaded .xlsx file does not match the expected weight estimator file format. Please visit https://www.ustranscom.mil/dp3/weightestimator.cfm to download the weight estimator template file.", *incorrectXlsxResponse.Payload.Detail)
+
+	})
 }
 
 func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
@@ -740,7 +753,7 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handlerConfig.SetNotificationReceiver(localReceiver)
 	uploadInformationFetcher := upload.NewUploadInformationFetcher()
@@ -771,7 +784,7 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		localReceiver := notifications.StubNotificationReceiver{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		handlerConfig.SetNotificationReceiver(localReceiver)
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()
@@ -818,7 +831,7 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
 		req = suite.AuthenticateRequest(req, otherServiceMember)
 		params.HTTPRequest = req
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		handlerConfig.SetNotificationReceiver(localReceiver)
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()

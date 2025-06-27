@@ -29,7 +29,7 @@ func (suite *InternalAPISuite) TestUploads() {
 			},
 		}, nil)
 		file := suite.Fixture("test.pdf")
-		_, err := suite.HandlerConfig().FileStorer().Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
+		_, err := suite.NewHandlerConfig().FileStorer().Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
 		suite.NoError(err)
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
@@ -60,7 +60,7 @@ func (suite *InternalAPISuite) TestUploads() {
 			},
 		}, nil)
 		file := suite.Fixture("test.pdf")
-		_, err := suite.HandlerConfig().FileStorer().Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
+		_, err := suite.NewHandlerConfig().FileStorer().Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
 		suite.NoError(err)
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
@@ -68,7 +68,7 @@ func (suite *InternalAPISuite) TestUploads() {
 		req := suite.NewAuthenticatedOfficeRequest("GET", "/internal/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, officeUser)
 		rr := httptest.NewRecorder()
 
-		fakeS3, ok := suite.HandlerConfig().FileStorer().(*storageTest.FakeS3Storage)
+		fakeS3, ok := suite.NewHandlerConfig().FileStorer().(*storageTest.FakeS3Storage)
 		suite.True(ok)
 		suite.NotNil(fakeS3, "FileStorer should be fakeS3")
 
