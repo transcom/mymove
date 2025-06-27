@@ -94,9 +94,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Email
 	cli.InitEmailFlags(flag)
 
-	// IWS
-	cli.InitIWSFlags(flag)
-
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
@@ -188,10 +185,6 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if err := cli.CheckEmail(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckIWS(v); err != nil {
 		return err
 	}
 
