@@ -43,7 +43,8 @@ begin
   end if;
 
   select
-    ppms.id
+    ppms.id,
+    ppms.max_incentive
   into
     ppm
   from
@@ -243,7 +244,7 @@ begin
   cents_above_baseline := mileage * estimated_fsc_multiplier;
   price_fsc := ROUND((cents_above_baseline * price_difference) * 100);
 
-  IF grade != 'CIVILIAN_EMPLOYEE' THEN --do not apply multiplier for Cilivilan PPMs
+  IF grade != 'CIVILIAN_EMPLOYEE' THEN --do not apply multiplier for civilians
 
     EXECUTE 'SELECT multiplier, id FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1' INTO gcc_multiplier, v_gcc_multiplier_id USING move_date;
     --RAISE NOTICE 'GCC Multiplier %', gcc_multiplier;
@@ -280,10 +281,17 @@ begin
   END IF;
 
   -- Calculate total incentive
-  total_incentive := price_dsh + price_dlh + price_dop + price_ddp + price_dpk + price_dupk + price_fsc;
+  total_incentive :=
+      COALESCE(price_dsh, 0) +
+      COALESCE(price_dlh, 0) +
+      COALESCE(price_dop, 0) +
+      COALESCE(price_ddp, 0) +
+      COALESCE(price_dpk, 0) +
+      COALESCE(price_dupk, 0) +
+      COALESCE(price_fsc, 0);
 
   -- we want to cap the final incentive to not be greater than the max incentive
-  IF total_incentive > COALESCE(ppm.max_incentive, 0) THEN
+  IF total_incentive > COALESCE(ppm.max_incentive, 0) AND is_actual THEN
     total_incentive := COALESCE(ppm.max_incentive, 0);
   END IF;
 
