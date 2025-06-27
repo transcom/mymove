@@ -32,7 +32,7 @@ const createCompleteGunSafeWeightTicket = ({ serviceMemberId, creationDate } = {
   const fullFieldOverrides = {
     description: 'Gun safe',
     hasWeightTickets: true,
-    weight: 1500,
+    weight: 400,
     ...fieldOverrides,
   };
 

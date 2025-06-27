@@ -8,8 +8,15 @@ import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import PPMDocumentsStatus from 'constants/ppms';
 import { MockProviders } from 'testUtils';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createCompleteGunSafeWeightTicket } from 'utils/test/factories/gunSafeWeightTicket';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const serviceMemberId = v4();
 const mockWeightTickets = [
@@ -51,9 +58,18 @@ describe('ReviewDocumentsSidePanel', () => {
   });
 
   it('shows the appropriate statuses when multiple documents have been reviewed', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const progearWeightTickets = [
       createCompleteProGearWeightTicket({ serviceMemberId }, { status: PPMDocumentsStatus.APPROVED }),
       createCompleteProGearWeightTicket(
+        { serviceMemberId },
+        { status: PPMDocumentsStatus.REJECTED, reason: 'Invalid weight ticket' },
+      ),
+    ];
+
+    const gunSafeWeightTickets = [
+      createCompleteGunSafeWeightTicket({ serviceMemberId }, { status: PPMDocumentsStatus.APPROVED }),
+      createCompleteGunSafeWeightTicket(
         { serviceMemberId },
         { status: PPMDocumentsStatus.REJECTED, reason: 'Invalid weight ticket' },
       ),
@@ -75,19 +91,20 @@ describe('ReviewDocumentsSidePanel', () => {
       ),
     ];
 
-    render(
+    await render(
       <MockProviders>
         <ReviewDocumentsSidePanel
           ppmShipmentInfo={mockPPMShipment}
           weightTickets={mockWeightTickets}
           proGearTickets={progearWeightTickets}
+          gunSafeTickets={gunSafeWeightTickets}
           expenseTickets={movingExpenses}
         />
       </MockProviders>,
     );
 
     const listItems = await screen.getAllByRole('listitem');
-    expect(listItems).toHaveLength(9);
+    expect(listItems).toHaveLength(11);
 
     // weight ticket 1
     expect(listItems[0]).toHaveTextContent(/Trip 1/);
@@ -107,23 +124,72 @@ describe('ReviewDocumentsSidePanel', () => {
     expect(listItems[1]).toHaveTextContent(/Reject/);
     expect(listItems[3]).toHaveTextContent(/Invalid weight ticket/);
 
-    // moving expense 1 - non-storage 1
-    expect(listItems[4]).toHaveTextContent(/Receipt 1/);
+    // gun safe ticket 1
+    expect(listItems[4]).toHaveTextContent(/Gun Safe 1/);
     expect(listItems[4]).toHaveTextContent(/Accept/);
 
-    // moving expense 2 - non-storage 2
-    expect(listItems[5]).toHaveTextContent(/Receipt 2/);
+    // gun safe ticket 2
+    expect(listItems[5]).toHaveTextContent(/Gun Safe 2/);
     expect(listItems[1]).toHaveTextContent(/Reject/);
-    expect(listItems[5]).toHaveTextContent(/We don't cover that expense./);
+    expect(listItems[5]).toHaveTextContent(/Invalid weight ticket/);
 
-    // moving expense 3 - storage 1
-    expect(listItems[6]).toHaveTextContent(/Storage #1/);
+    // moving expense 1 - non-storage 1
+    expect(listItems[6]).toHaveTextContent(/Receipt 1/);
     expect(listItems[6]).toHaveTextContent(/Accept/);
 
-    // moving expense 4 - storage 2
-    expect(listItems[7]).toHaveTextContent(/Storage #2/);
+    // moving expense 2 - non-storage 2
+    expect(listItems[7]).toHaveTextContent(/Receipt 2/);
     expect(listItems[1]).toHaveTextContent(/Reject/);
-    expect(listItems[7]).toHaveTextContent(/Invalid storage/);
+    expect(listItems[7]).toHaveTextContent(/We don't cover that expense./);
+
+    // moving expense 3 - storage 1
+    expect(listItems[8]).toHaveTextContent(/Storage #1/);
+    expect(listItems[8]).toHaveTextContent(/Accept/);
+
+    // moving expense 4 - storage 2
+    expect(listItems[9]).toHaveTextContent(/Storage #2/);
+    expect(listItems[1]).toHaveTextContent(/Reject/);
+    expect(listItems[9]).toHaveTextContent(/Invalid storage/);
+  });
+
+  it('does not show gun safe if FF is off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+    const gunSafeWeightTickets = [
+      createCompleteGunSafeWeightTicket({ serviceMemberId }, { status: PPMDocumentsStatus.APPROVED }),
+      createCompleteGunSafeWeightTicket(
+        { serviceMemberId },
+        { status: PPMDocumentsStatus.REJECTED, reason: 'Invalid weight ticket' },
+      ),
+    ];
+
+    await render(
+      <MockProviders>
+        <ReviewDocumentsSidePanel
+          ppmShipmentInfo={mockPPMShipment}
+          weightTickets={mockWeightTickets}
+          gunSafeTickets={gunSafeWeightTickets}
+        />
+      </MockProviders>,
+    );
+
+    const listItems = await screen.getAllByRole('listitem');
+    expect(listItems).toHaveLength(2);
+
+    // weight ticket 1
+    expect(listItems[0]).toHaveTextContent(/Trip 1/);
+    expect(listItems[0]).toHaveTextContent(/Accept/);
+
+    // weight ticket 2
+    expect(listItems[1]).toHaveTextContent(/Trip 2/);
+    expect(listItems[1]).toHaveTextContent(/Reject/);
+    expect(listItems[1]).toHaveTextContent(/No weight ticket/);
+
+    // gun safe ticket 1
+    expect(listItems[0]).not.toHaveTextContent(/Gun Safe/);
+
+    // gun safe ticket 2
+    expect(listItems[1]).not.toHaveTextContent(/Gun Safe/);
   });
 
   it('renders read only view text', async () => {
