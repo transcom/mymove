@@ -22,7 +22,7 @@ import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 // Helper to filter only SUPERVISOR privileges from a privileges array
-export function getFilteredPrivileges(privileges) {
+export function getSupervisorPrivilege(privileges) {
   return (privileges || []).filter((priv) => priv.privilegeType === elevatedPrivilegeTypes.SUPERVISOR);
 }
 
@@ -44,7 +44,7 @@ const RequestedOfficeUserShowRolesPrivileges = ({ recordSource, recordLabel, rec
   if (!record?.[recordSource]) return <p>{`This user has not requested any ${sourceLabel}.`}</p>;
   let items = record[recordSource] || [];
   if (recordSource === 'privileges') {
-    items = getFilteredPrivileges(items);
+    items = getSupervisorPrivilege(items);
   }
   if (!items.length) return <p>{`This user has not requested any ${sourceLabel}.`}</p>;
 
@@ -68,7 +68,7 @@ const RequestedOfficeUserActionButtons = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectionReasonCheck, setRejectionReasonCheck] = useState('');
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
-  const [checkedPrivileges, setCheckedPrivileges] = useState([]);
+  const [privilegesSelected, setPrivilegesSelected] = useState([]);
   const navigate = useNavigate();
   const record = useRecordContext();
   const [isRequestAccountPrivilegesFF, setRequestAccountPrivilegesFF] = useState(false);
@@ -134,17 +134,16 @@ const RequestedOfficeUserActionButtons = () => {
   // Handler for privilege confirmation dialog
   const handlePrivilegeConfirm = async () => {
     setApproveDialogOpen(false);
-    // Only include checked privileges in approval, and only SUPERVISOR privilege
-    const filteredPrivileges = getFilteredPrivileges(record.privileges);
-    const approvedPrivileges = filteredPrivileges.filter((priv) => checkedPrivileges.includes(priv.id)) || [];
+    const filteredPrivileges = getSupervisorPrivilege(record.privileges);
+    const approvedPrivileges = filteredPrivileges.filter((priv) => privilegesSelected.includes(priv.id)) || [];
     await approve({ ...record, privileges: approvedPrivileges });
   };
 
   // Handler for Approve button click
   const handleOnClickApprove = () => {
-    const filteredPrivileges = getFilteredPrivileges(record.privileges);
+    const filteredPrivileges = getSupervisorPrivilege(record.privileges);
     if (isRequestAccountPrivilegesFF && filteredPrivileges.length) {
-      setCheckedPrivileges(filteredPrivileges.map((priv) => priv.id));
+      setPrivilegesSelected(filteredPrivileges.map((priv) => priv.id));
       setApproveDialogOpen(true);
       return;
     }
@@ -195,8 +194,8 @@ const RequestedOfficeUserActionButtons = () => {
         dialogId="show-approve-privilege-dialog"
         isOpen={approveDialogOpen}
         privileges={record?.privileges || []}
-        checkedPrivileges={checkedPrivileges}
-        setCheckedPrivileges={setCheckedPrivileges}
+        privilegesSelected={privilegesSelected}
+        setPrivilegesSelected={setPrivilegesSelected}
         onConfirm={handlePrivilegeConfirm}
         onClose={() => setApproveDialogOpen(false)}
       />

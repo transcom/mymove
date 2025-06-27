@@ -106,7 +106,7 @@ const theme = deepmerge(defaultTheme, {
             opacity: '0.8',
           },
           '&:visited': {
-            color: '#2491ff !important',
+            color: '#FFFFF',
           },
         },
       },
@@ -142,8 +142,8 @@ const theme = deepmerge(defaultTheme, {
             backgroundColor: '#005ea2',
             color: '#fff',
             '&:hover': {
+              backgroundColor: '#005ea2',
               opacity: '0.8',
-              backgroundColor: '#1a4480',
             },
           },
           '& .MuiDialogActions-root > button:nth-of-type(1)': {
