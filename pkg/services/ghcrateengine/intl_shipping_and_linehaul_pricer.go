@@ -32,9 +32,6 @@ func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contr
 	if weight < islhPricerMinimumWeight {
 		return 0, nil, fmt.Errorf("weight must be at least %d", islhPricerMinimumWeight)
 	}
-	if perUnitCents == 0 {
-		return 0, nil, errors.New("PerUnitCents is required")
-	}
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 

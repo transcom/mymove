@@ -72,11 +72,13 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 			EagerPreloadAssociationServiceMember,
 			EagerPreloadAssociationWeightTickets,
 			EagerPreloadAssociationProgearWeightTickets,
+			EagerPreloadAssociationGunSafeWeightTickets,
 			EagerPreloadAssociationMovingExpenses,
 		},
 		[]string{
 			PostLoadAssociationWeightTicketUploads,
 			PostLoadAssociationProgearWeightTicketUploads,
+			PostLoadAssociationGunSafeWeightTicketUploads,
 			PostLoadAssociationMovingExpenseUploads,
 		},
 	)
@@ -244,6 +246,20 @@ func buildPaymentPacketItemsMap(ppmShipment *models.PPMShipment) map[int]payment
 			proGearWeightTicketSetCnt++
 		}
 		proGearWeightTicketCnt++
+	}
+
+	// process gun safe
+	ppmShipment.GunSafeWeightTickets = ppmShipment.GunSafeWeightTickets.FilterRejected()
+	gunSafeWeightTicketCnt := 1
+	for _, gunSafeWeightTicket := range ppmShipment.GunSafeWeightTickets {
+		sectionLabel := fmt.Sprintf("Pro-gear: Set #%s:", fmt.Sprint(gunSafeWeightTicketCnt))
+		gunSafeWeightTicketSetCnt := 1
+		for _, uu := range gunSafeWeightTicket.Document.UserUploads {
+			sortedPaymentPacketItems[sortedPaymentPacketItemsIndex] = newPaymentPacketItem(fmt.Sprintf("%s Weight Ticket Document #%s", sectionLabel, fmt.Sprint(gunSafeWeightTicketSetCnt)), uu.Upload)
+			sortedPaymentPacketItemsIndex++
+			gunSafeWeightTicketSetCnt++
+		}
+		gunSafeWeightTicketCnt++
 	}
 
 	// place povRegistration after the weight items
