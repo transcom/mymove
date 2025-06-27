@@ -30,6 +30,7 @@ const emptyWeightTicketUploadGunSafeWeightTicket = {
 describe('WeightTicketUpload', () => {
   it('populates form when the full weight ticket is missing', async () => {
     render(<WeightTicketUpload {...fullWeightTicketUploadMissingWeightTicket} />, { wrapper: MockProviders });
+
     expect(
       screen.getByText('If you do not upload legible certified weight tickets, your PPM incentive could be affected.'),
     ).toBeInTheDocument();

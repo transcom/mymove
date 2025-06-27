@@ -246,10 +246,10 @@ export class CustomerPpmPage extends CustomerPage {
       // first one for Empty Weight. Not sure why getByLabel does not work
       await this.page.locator('label').getByText("I don't have this weight ticket").first().click();
 
-      const emptyRental = this.page.locator('label').getByText(
-        `Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used
-      during the PPM`,
-      );
+      const emptyRental = this.page.locator('label', {
+        hasText: `Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used
+      during the PPM *`,
+      });
 
       await expect(emptyRental).toBeVisible();
       let filepond = emptyRental.locator('../..').locator('.filepond--wrapper');
@@ -272,9 +272,9 @@ export class CustomerPpmPage extends CustomerPage {
       // second one for Full Weight. Not sure why getByLabel does not work
       await this.page.locator('label').getByText("I don't have this weight ticket").nth(1).click();
 
-      const fullConstructed = this.page
-        .locator('label')
-        .getByText('Upload your completed constructed weight spreadsheet');
+      const fullConstructed = this.page.locator('label', {
+        hasText: 'Upload your completed constructed weight spreadsheet *',
+      });
 
       await expect(fullConstructed).toBeVisible();
       filepond = fullConstructed.locator('../..').locator('.filepond--wrapper');
@@ -290,7 +290,7 @@ export class CustomerPpmPage extends CustomerPage {
     } else {
       // find the label, then find the filepond wrapper. Not sure why
       // getByLabel doesn't work
-      const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
+      const emptyWeightLabel = this.page.locator('label', { hasText: 'Upload empty weight ticket *' });
       await expect(emptyWeightLabel).toBeVisible();
       const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
       await expect(emptyFilepond).toBeVisible();
@@ -310,7 +310,7 @@ export class CustomerPpmPage extends CustomerPage {
 
       // find the label, then find the filepond wrapper. Not sure why
       // getByLabel doesn't work
-      const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
+      const fullWeightLabel = this.page.locator('label', { hasText: 'Upload full weight ticket *' });
       await expect(fullWeightLabel).toBeVisible();
       const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
       await expect(fullFilepond).toBeVisible();
@@ -336,7 +336,7 @@ export class CustomerPpmPage extends CustomerPage {
 
         // find the label, then find the filepond wrapper, not sure
         // why getByLabel does not work
-        const ownershipLabel = this.page.locator('label').getByText('Upload proof of ownership', { exact: true });
+        const ownershipLabel = this.page.locator('label', { hasText: 'Upload proof of ownership *' });
         await expect(ownershipLabel).toBeVisible();
         const ownershipFilepond = ownershipLabel.locator('../..').locator('.filepond--wrapper');
         await expect(ownershipFilepond).toBeVisible();
@@ -1006,7 +1006,7 @@ export class CustomerPpmPage extends CustomerPage {
       uploadFilename = 'constructedWeight.xls';
       upload = this.page.locator('label').getByText('Upload constructed weight spreadsheet');
     } else {
-      upload = this.page.locator('label').getByText("Upload your pro-gear's weight tickets");
+      upload = this.page.locator('label', { hasText: "Upload your pro-gear's weight tickets *" });
     }
 
     await expect(upload).toBeVisible();
@@ -1071,7 +1071,7 @@ export class CustomerPpmPage extends CustomerPage {
 
     // find the label, then find the filepond wrapper. Not sure why
     // getByLabel doesn't work
-    const fullWeightLabel = this.page.locator('label').getByText('Upload receipt', { exact: true });
+    const fullWeightLabel = this.page.locator('label', { hasText: 'Upload receipt *' });
     await expect(fullWeightLabel).toBeVisible();
     const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
     await expect(fullFilepond).toBeVisible();

@@ -12,6 +12,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import TextField from 'components/form/fields/TextField/TextField';
 import { ErrorMessage } from 'components/form/index';
 import { boatShipmentTypes } from 'constants/shipments';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const BoatShipmentForm = ({
   lengthHasError,
@@ -26,7 +27,8 @@ const BoatShipmentForm = ({
   return (
     <div className={styles.formContainer}>
       <SectionWrapper className={formStyles.formSection}>
-        <h2>Boat Information</h2>
+        <h2 aria-label="Boat Information">Boat Information</h2>
+        {requiredAsteriskMessage}
         <div className="grid-row grid-gap">
           <div className="mobile-lg:grid-col-3">
             <MaskedTextField
@@ -34,6 +36,9 @@ const BoatShipmentForm = ({
               name="year"
               label="Year"
               id="year"
+              aria-label="Year of the boat"
+              showRequiredAsterisk
+              required
               maxLength={4}
               mask={Number}
               scale={0}
@@ -47,13 +52,28 @@ const BoatShipmentForm = ({
                 setFieldError('year', null);
                 validateForm();
               }}
-              required
             />
           </div>
         </div>
         <div className={classnames(styles.formFieldContainer, 'mobile-lg:grid-col-7')}>
-          <TextField data-testid="make" name="make" label="Make" id="make" required />
-          <TextField data-testid="model" name="model" label="Model" id="model" required />
+          <TextField
+            data-testid="make"
+            name="make"
+            label="Make"
+            id="make"
+            aria-label="Make of the boat"
+            showRequiredAsterisk
+            required
+          />
+          <TextField
+            data-testid="model"
+            name="model"
+            label="Model"
+            id="model"
+            aria-label="Model of the boat"
+            showRequiredAsterisk
+            required
+          />
         </div>
       </SectionWrapper>
       <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
@@ -62,6 +82,7 @@ const BoatShipmentForm = ({
           Enter the total outside dimensions of the boat and the trailer (if a trailer is included) with the boat
           sitting on the trailer. If there is no trailer, then enter the outside dimensions of the boat itself.
         </p>
+        {requiredAsteriskMessage}
         <div>
           <ErrorMessage display={dimensionError}>
             The dimensions do not meet the requirements for a boat shipment. Please cancel and select a different
@@ -69,7 +90,15 @@ const BoatShipmentForm = ({
           </ErrorMessage>
           <Fieldset className={styles.formFieldContainer}>
             <div className="labelWrapper">
-              <legend className="usa-label">Length</legend>
+              <legend
+                className="usa-label"
+                data-testid="boatLength"
+                aria-label="Required: What is the length of the boat?"
+              >
+                <span required>
+                  Length <RequiredAsterisk />
+                </span>
+              </legend>
               <ErrorMessage display={lengthHasError}>Required</ErrorMessage>
             </div>
             <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -84,7 +113,7 @@ const BoatShipmentForm = ({
                   lazy={false} // immediate masking evaluation
                   suffix="Feet"
                   errorClassName={styles.hide}
-                  title="Length in feet"
+                  title="Boat length in feet"
                   onChange={() => {
                     setFieldError('heightFeet', null);
                     setFieldError('widthFeet', null);
@@ -104,14 +133,22 @@ const BoatShipmentForm = ({
                   suffix="Inches"
                   max={11}
                   errorClassName={styles.hide}
-                  title="Length in inches"
+                  title="Boat length in inches"
                 />
               </div>
             </div>
           </Fieldset>
           <Fieldset className={styles.formFieldContainer}>
             <div className="labelWrapper">
-              <legend className="usa-label">Width</legend>
+              <legend
+                className="usa-label"
+                data-testid="boatWidth"
+                aria-label="Required: What is the width of the boat?"
+              >
+                <span required>
+                  Width <RequiredAsterisk />
+                </span>
+              </legend>
               <ErrorMessage display={widthHasError}>Required</ErrorMessage>
             </div>
             <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -126,7 +163,7 @@ const BoatShipmentForm = ({
                   lazy={false} // immediate masking evaluation
                   suffix="Feet"
                   errorClassName={styles.hide}
-                  title="Width in feet"
+                  title="Boat width in feet"
                   onChange={() => {
                     setFieldError('heightFeet', null);
                     setFieldError('widthFeet', null);
@@ -146,14 +183,22 @@ const BoatShipmentForm = ({
                   suffix="Inches"
                   max={11}
                   errorClassName={styles.hide}
-                  title="Width in inches"
+                  title="Boat width in inches"
                 />
               </div>
             </div>
           </Fieldset>
           <Fieldset className={styles.formFieldContainer}>
             <div className="labelWrapper">
-              <legend className="usa-label">Height</legend>
+              <legend
+                className="usa-label"
+                data-testid="boatHeight"
+                aria-label="Required: What is the height of the boat?"
+              >
+                <span required>
+                  Height <RequiredAsterisk />
+                </span>
+              </legend>
               <ErrorMessage display={heightHasError}>Required</ErrorMessage>
             </div>
             <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -168,7 +213,7 @@ const BoatShipmentForm = ({
                   lazy={false} // immediate masking evaluation
                   suffix="Feet"
                   errorClassName={styles.hide}
-                  title="Height in feet"
+                  title="Boat height in feet"
                   onChange={() => {
                     setFieldError('heightFeet', null);
                     setFieldError('widthFeet', null);
@@ -188,7 +233,7 @@ const BoatShipmentForm = ({
                   suffix="Inches"
                   max={11}
                   errorClassName={styles.hide}
-                  title="Height in inches"
+                  title="Boat height in inches"
                 />
               </div>
             </div>
@@ -197,8 +242,17 @@ const BoatShipmentForm = ({
       </SectionWrapper>
       <SectionWrapper className={formStyles.formSection}>
         <h2>Trailer Status</h2>
+        {requiredAsteriskMessage}
         <Fieldset>
-          <legend className="usa-label">Does the boat have a trailer?</legend>
+          <legend
+            className="usa-label"
+            data-testid="doesBoatHaveTrailer"
+            aria-label="Required: Does the boat have a trailer?"
+          >
+            <span required>
+              Does the boat have a trailer <RequiredAsterisk />
+            </span>
+          </legend>
           <Field
             as={Radio}
             id="hasTrailerYes"
@@ -219,7 +273,15 @@ const BoatShipmentForm = ({
           />
           {values.hasTrailer === 'true' && (
             <Fieldset className={styles.formFieldContainer}>
-              <legend className="usa-label">Is the trailer roadworthy?</legend>
+              <legend
+                className="usa-label"
+                data-testid="isTrailerRoadworthy"
+                aria-label="Required: Is the trailer roadworthy?"
+              >
+                <span required>
+                  Is the trailer roadworthy <RequiredAsterisk />
+                </span>
+              </legend>
               <Field
                 as={Radio}
                 id="isRoadworthyYes"
@@ -245,7 +307,11 @@ const BoatShipmentForm = ({
       <SectionWrapper className={formStyles.formSection}>
         <h2>Shipment Method</h2>
         <Fieldset>
-          <legend className="usa-label">What is the method of shipment?</legend>
+          <legend className="usa-label" aria-label="Required: What is the method of shipment?">
+            <span required>
+              What is the method of shipment? <RequiredAsterisk />
+            </span>
+          </legend>
           <Field
             as={Radio}
             id="typeTowAway"
