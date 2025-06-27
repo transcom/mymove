@@ -106,6 +106,9 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         if (paramsDiff.transportationOfficeAssignments) {
           paramsDiff.transportationOfficeAssignments = params.data.transportationOfficeAssignments;
         }
+        if (params.previousData?.pptasAffiliation) {
+          paramsDiff.pptasAffiliation = params.data.pptasAffiliation;
+        }
         options.body = JSON.stringify(paramsDiff);
         break;
       }
