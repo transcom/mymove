@@ -11,11 +11,6 @@ import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
-
 const mockMTOShipmentId = v4();
 const mockPPMShipmentId = v4();
 

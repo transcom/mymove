@@ -10,8 +10,15 @@ describe('When given a move with an updated ppm type', () => {
     action: a.UPDATE,
     changedValues: {
       ppm_type: 'FULL',
+      closeout_office_name: 'PPPO Scott AFB - USAF',
     },
-    context: null,
+    context: [
+      {
+        shipment_id_abbr: '125d1',
+        shipment_locator: 'RQ38D4-01',
+        shipment_type: 'PPM',
+      },
+    ],
     eventName: o.createMTOShipment,
     tableName: t.moves,
   };

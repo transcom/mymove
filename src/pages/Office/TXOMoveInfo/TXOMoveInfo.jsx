@@ -12,6 +12,7 @@ import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
 import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import Inaccessible, { INACCESSIBLE_API_RESPONSE } from 'shared/Inaccessible';
+import { checkIfMoveIsLockedById } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import EvaluationReportView from 'components/Office/EvaluationReportView/EvaluationReportView';
@@ -51,13 +52,7 @@ const TXOMoveInfo = () => {
   const officeUserID = data?.office_user?.id;
 
   useEffect(() => {
-    const fetchData = async () => {
-      const now = new Date();
-      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt)) {
-        setIsMoveLocked(true);
-      }
-    };
-    fetchData();
+    checkIfMoveIsLockedById(move, officeUserID).then(setIsMoveLocked);
   }, [move, officeUserID]);
 
   const hideNav =

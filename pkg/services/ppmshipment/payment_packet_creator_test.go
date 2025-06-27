@@ -42,11 +42,13 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 				EagerPreloadAssociationServiceMember,
 				EagerPreloadAssociationWeightTickets,
 				EagerPreloadAssociationProgearWeightTickets,
+				EagerPreloadAssociationGunSafeWeightTickets,
 				EagerPreloadAssociationMovingExpenses,
 			},
 			[]string{
 				PostLoadAssociationWeightTicketUploads,
 				PostLoadAssociationProgearWeightTicketUploads,
+				PostLoadAssociationGunSafeWeightTicketUploads,
 				PostLoadAssociationMovingExpenseUploads,
 			},
 			returnValue...,
@@ -163,10 +165,35 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 			}, nil),
 		)
 
+		// append 1 gun safe set for ME
+		// it will have:
+		// 1 gun safe weight with 1 doc
+		// updated: total = 10  (9 + 1)
+		ppmShipment.GunSafeWeightTickets = append(
+			ppmShipment.GunSafeWeightTickets,
+			factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 10  (9 + 1)
+		// updated: total = 11  (10 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -195,7 +222,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 11  (10 + 1)
+		// updated: total = 12  (11 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -224,7 +251,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 12  (11 + 1)
+		// updated: total = 13  (12 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -253,7 +280,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 13  (12 + 1)
+		// updated: total = 14  (13 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -282,7 +309,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 14  (13 + 1)
+		// updated: total = 15  (14 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -311,7 +338,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 15  (14 + 1)
+		// updated: total = 16  (15 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -340,7 +367,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 16  (15 + 1)
+		// updated: total = 17  (6 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -369,7 +396,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 17  (16 + 1)
+		// updated: total = 18  (17 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -398,7 +425,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// append 1 expense
 		// it will have:
 		// 1 expense with 1 doc
-		// updated: total = 18  (17 + 1)
+		// updated: total = 19  (18 + 1)
 		ppmShipment.MovingExpenses = append(
 			ppmShipment.MovingExpenses,
 			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
