@@ -8,17 +8,16 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 const formatChangedValues = (historyRecord) => {
   const { changedValues } = historyRecord;
   const newChangedValues = {
-    status: changedValues.status,
-    office_remarks: changedValues.office_remarks,
+    contractor_remarks: changedValues.contractor_remarks,
   };
   return { changedValues: newChangedValues };
 };
 
 export default {
   action: a.UPDATE,
-  eventName: o.reviewShipmentAddressUpdate,
+  eventName: o.updateShipmentDestinationAddress,
   tableName: t.shipment_address_updates,
-  getEventNameDisplay: () => 'Shipment destination address update',
+  getEventNameDisplay: () => 'Shipment destination address request',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
   },

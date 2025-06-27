@@ -72,6 +72,7 @@ export default {
   addAppealToSeriousIncident: 'addAppealToSeriousIncident', // ghc.yaml
   cancelMove: 'cancelMove', // internal.yaml
   reviewShipmentAddressUpdate: 'reviewShipmentAddressUpdate', // ghc.yaml
+  updateShipmentDestinationAddress: 'updateShipmentDestinationAddress', // prime.yaml
   updateAssignedOfficeUser: 'updateAssignedOfficeUser', // ghc.yaml
   deleteAssignedOfficeUser: 'deleteAssignedOfficeUser', // ghc.yaml
   saveBulkAssignmentData: 'saveBulkAssignmentData', // ghc.yaml
