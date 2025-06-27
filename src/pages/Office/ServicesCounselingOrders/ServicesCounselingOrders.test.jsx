@@ -306,6 +306,9 @@ describe('Orders page', () => {
 
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.WOUNDED_WARRIOR);
       expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.WOUNDED_WARRIOR);
+
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
     });
 
     it('populates initial field values', async () => {
@@ -1112,6 +1115,45 @@ describe('Orders page', () => {
         const options = within(ordersTypeDropdown).queryAllByRole('option');
         const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
         expect(hasWoundedWarrior).toBe(false);
+      });
+    });
+  });
+
+  describe('Order type: BLUEBARK', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('BLUEBARK FF turned on', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.BLUEBARK);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.BLUEBARK);
+    });
+
+    it('BLUEBARK FF turned off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+        const options = within(ordersTypeDropdown).queryAllByRole('option');
+        const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+        expect(hasBluebark).toBe(false);
       });
     });
   });
