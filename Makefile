@@ -403,7 +403,6 @@ build_tools: bin/gin \
 	bin/ghc-pricing-parser \
 	bin/ghc-transit-time-parser \
 	bin/health-checker \
-	bin/iws \
 	bin/milmove-tasks \
 	bin/model-vet \
 	bin/prime-api-client \
