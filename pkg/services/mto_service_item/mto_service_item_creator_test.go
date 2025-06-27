@@ -97,6 +97,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		},
 		{
 			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusApprovalsRequested,
 				PrimeEstimatedWeight: models.PoundPointer(1500),
 			},
 		},

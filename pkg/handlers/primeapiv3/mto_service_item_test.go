@@ -1271,6 +1271,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
