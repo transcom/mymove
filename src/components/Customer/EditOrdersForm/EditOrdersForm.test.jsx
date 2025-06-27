@@ -209,6 +209,8 @@ const testProps = {
     { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
     { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
+    { key: ORDERS_TYPE.WOUNDED_WARRIOR, value: ORDERS_TYPE_OPTIONS.WOUNDED_WARRIOR },
+    { key: ORDERS_TYPE.BLUEBARK, value: ORDERS_TYPE_OPTIONS.BLUEBARK },
   ],
   currentDutyLocation: {},
   grade: '',
@@ -299,6 +301,7 @@ const civilianTDYTestProps = {
     { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
     { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
+    { key: ORDERS_TYPE.BLUEBARK, value: ORDERS_TYPE_OPTIONS.BLUEBARK },
   ],
   currentDutyLocation: { name: 'Luke AFB', address: { isOconus: false } },
   grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
@@ -378,6 +381,8 @@ describe('EditOrdersForm component', () => {
       ['TEMPORARY_DUTY', 'TEMPORARY_DUTY'],
       [ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS],
       [ORDERS_TYPE.STUDENT_TRAVEL, ORDERS_TYPE.STUDENT_TRAVEL],
+      [ORDERS_TYPE.WOUNDED_WARRIOR, ORDERS_TYPE.WOUNDED_WARRIOR],
+      [ORDERS_TYPE.BLUEBARK, ORDERS_TYPE.BLUEBARK],
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
@@ -733,6 +738,7 @@ describe('EditOrdersForm component', () => {
           { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
           { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
           { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
+          { key: ORDERS_TYPE.BLUEBARK, value: ORDERS_TYPE_OPTIONS.BLUEBARK },
         ],
         currentDutyLocation: {},
       };
