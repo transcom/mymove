@@ -151,8 +151,10 @@ const constructedWeightTrailerProps = {
 
 describe('WeightTicketForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load with defaults - Customer page', async () => {
+    it('renders blank form on load with defaults and asterisks for required fields - Customer page', async () => {
       render(<WeightTicketForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
+
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Trip 2' })).toBeInTheDocument();
@@ -204,8 +206,10 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
-    it('renders blank form on load with defaults - Office Page', async () => {
+    it('renders blank form on load with defaults and asterisks for required fields - Office Page', async () => {
       render(<WeightTicketForm {...defaultProps} appName={APP_NAME.OFFICE} />);
+
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Trip 2' })).toBeInTheDocument();

@@ -61,7 +61,7 @@ describe('components/Office/ShipmentWeight', () => {
     });
   });
 
-  it('displays gun safe data', async () => {
+  it('displays gun safe data and asterisks for required fields', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     await act(async () => {
       render(
@@ -80,7 +80,8 @@ describe('components/Office/ShipmentWeight', () => {
       expect(screen.getByTestId('hasGunSafeYes')).toBeInTheDocument();
       expect(screen.getByTestId('hasGunSafeYes')).toBeChecked();
 
-      expect(screen.queryByLabelText('Estimated gun safe weight')).toBeInTheDocument();
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+      expect(screen.queryByLabelText('Estimated gun safe weight *')).toBeInTheDocument();
       expect(
         screen.queryByText(
           `The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer's overall entitlement is already at the 18,000 lbs maximum.`,

@@ -1,18 +1,16 @@
 import React from 'react';
 
-import a from 'constants/MoveHistory/Database/Actions';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
+import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
-import { formatDataForPPM } from 'utils/formatPPMData';
 
 const formatChangedValues = (historyRecord) => {
   const { changedValues } = historyRecord;
   const newChangedValues = {
     ...changedValues,
     ...getMtoShipmentLabel(historyRecord),
-    ...formatDataForPPM(historyRecord),
   };
 
   return { ...historyRecord, changedValues: newChangedValues };
@@ -20,8 +18,10 @@ const formatChangedValues = (historyRecord) => {
 
 export default {
   action: a.UPDATE,
-  eventName: o.createMTOShipment,
-  tableName: t.moves,
-  getEventNameDisplay: () => 'Updated move',
-  getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
+  eventName: o.reviewShipmentAddressUpdate,
+  tableName: t.mto_shipments,
+  getEventNameDisplay: () => 'Shipment destination address updated',
+  getDetails: (historyRecord) => {
+    return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
+  },
 };
