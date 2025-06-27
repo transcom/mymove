@@ -170,11 +170,11 @@ func FindOconusLocations(appCtx appcontext.AppContext, country string, search st
 	sqlQuery := fmt.Sprintf(`
 	    SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id
 	    FROM v_intl_locations vil
-	    WHERE upper(vil.country) = upper(?)
+	    WHERE upper(vil.country) %s upper(?)
 	    AND upper(vil.city_name) %s upper(?)
 	    AND upper(vil.country_prn_dv_nm) %s upper(?)
 	    ORDER BY vil.country_prn_dv_nm`,
-		queryCondition, queryCondition,
+		queryCondition, queryCondition, queryCondition,
 	)
 
 	sqlQuery += ` limit 30`
