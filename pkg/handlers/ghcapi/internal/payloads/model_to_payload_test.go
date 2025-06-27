@@ -2097,56 +2097,6 @@ func (suite *PayloadsSuite) TestCounselingOffices() {
 	})
 }
 
-func (suite *PayloadsSuite) TestGetAssignedUserAndID() {
-	// Create mock users and IDs
-	userTOO := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userTOODestination := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userSC := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	idTOO := uuid.Must(uuid.NewV4())
-	idTOODestination := uuid.Must(uuid.NewV4())
-	idSC := uuid.Must(uuid.NewV4())
-
-	// Create a mock move with assigned users
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				ID:                         uuid.Must(uuid.NewV4()),
-				TOOAssignedUser:            userTOO,
-				TOOAssignedID:              &idTOO,
-				TOODestinationAssignedUser: userTOODestination,
-				TOODestinationAssignedID:   &idTOODestination,
-				SCAssignedUser:             userSC,
-				SCAssignedID:               &idSC,
-			},
-			LinkOnly: true,
-		},
-	}, nil)
-
-	// Define test cases
-	testCases := []struct {
-		name         string
-		role         string
-		queueType    string
-		officeUser   *models.OfficeUser
-		officeUserID *uuid.UUID
-	}{
-		{"TOO assigned user for TaskOrder queue", string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), userTOO, &idTOO},
-		{"TOO assigned user for DestinationRequest queue", string(roles.RoleTypeTOO), string(models.QueueTypeDestinationRequest), userTOODestination, &idTOODestination},
-		{"SC assigned user", string(roles.RoleTypeServicesCounselor), "", userSC, &idSC},
-		{"Unknown role should return nil", "UnknownRole", "", nil, nil},
-		{"TOO with unknown queue should return nil", string(roles.RoleTypeTOO), "UnknownQueue", nil, nil},
-	}
-
-	// Run test cases
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			expectedOfficeUser, expectedOfficeUserID := getAssignedUserAndID(tc.role, tc.queueType, move)
-			suite.Equal(tc.officeUser, expectedOfficeUser)
-			suite.Equal(tc.officeUserID, expectedOfficeUserID)
-		})
-	}
-}
-
 func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
@@ -2616,4 +2566,26 @@ func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 	// all dates sorted and joined with ", "
 	suite.Require().NotNil(q.RequestedMoveDates)
 	suite.Equal("Jan 1 2025, Feb 1 2025, Mar 1 2025", *q.RequestedMoveDates)
+}
+
+func (suite *PayloadsSuite) TestCountriesPayload() {
+	suite.Run("Correctly transform array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		countries = append(countries, models.Country{Country: "US", CountryName: "UNITED STATES"})
+		payload := Countries(countries)
+		suite.True(len(payload) == 1)
+		suite.Equal(payload[0].Code, "US")
+		suite.Equal(payload[0].Name, "UNITED STATES")
+	})
+
+	suite.Run("empty array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		payload := Countries(countries)
+		suite.True(len(payload) == 0)
+	})
+
+	suite.Run("nil countries into payload", func() {
+		payload := Countries(nil)
+		suite.True(len(payload) == 0)
+	})
 }
