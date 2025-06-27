@@ -316,9 +316,11 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			/** Feature Flag - Gun Safe **/
 			if !isGunSafeFeatureOn {
 				for i := range shipments {
-					shipments[i].PPMShipment.GunSafeWeightTickets = nil
-					shipments[i].PPMShipment.HasGunSafe = nil
-					shipments[i].PPMShipment.GunSafeWeight = nil
+					if shipments[i].PPMShipment != nil {
+						shipments[i].PPMShipment.GunSafeWeightTickets = nil
+						shipments[i].PPMShipment.HasGunSafe = nil
+						shipments[i].PPMShipment.GunSafeWeight = nil
+					}
 				}
 			}
 
