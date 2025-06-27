@@ -320,9 +320,12 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		payloadShipment4 := okResponse.Payload[3]
 		suite.NotNil(payloadShipment4.PpmShipment)
+
+		// Check that gun safe related fields have been converted to nil
 		suite.Nil(payloadShipment4.PpmShipment.HasGunSafe)
 		suite.Nil(payloadShipment4.PpmShipment.GunSafeWeight)
 		suite.Empty(payloadShipment4.PpmShipment.GunSafeWeightTickets)
+
 		suite.Equal(shipments[3].ID.String(), payloadShipment4.PpmShipment.ShipmentID.String())
 		suite.Equal(shipments[3].PPMShipment.ID.String(), payloadShipment4.PpmShipment.ID.String())
 	})
