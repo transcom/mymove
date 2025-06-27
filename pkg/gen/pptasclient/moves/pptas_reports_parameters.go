@@ -61,12 +61,6 @@ PptasReportsParams contains all the parameters to send to the API endpoint
 */
 type PptasReportsParams struct {
 
-	/* Affiliation.
-
-	   Return moves for this affiliation, defaults to NAVY.
-	*/
-	Affiliation *string
-
 	/* Since.
 
 	   Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
@@ -128,17 +122,6 @@ func (o *PptasReportsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithAffiliation adds the affiliation to the pptas reports params
-func (o *PptasReportsParams) WithAffiliation(affiliation *string) *PptasReportsParams {
-	o.SetAffiliation(affiliation)
-	return o
-}
-
-// SetAffiliation adds the affiliation to the pptas reports params
-func (o *PptasReportsParams) SetAffiliation(affiliation *string) {
-	o.Affiliation = affiliation
-}
-
 // WithSince adds the since to the pptas reports params
 func (o *PptasReportsParams) WithSince(since *strfmt.DateTime) *PptasReportsParams {
 	o.SetSince(since)
@@ -157,23 +140,6 @@ func (o *PptasReportsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
-	if o.Affiliation != nil {
-
-		// query param affiliation
-		var qrAffiliation string
-
-		if o.Affiliation != nil {
-			qrAffiliation = *o.Affiliation
-		}
-		qAffiliation := qrAffiliation
-		if qAffiliation != "" {
-
-			if err := r.SetQueryParam("affiliation", qAffiliation); err != nil {
-				return err
-			}
-		}
-	}
 
 	if o.Since != nil {
 

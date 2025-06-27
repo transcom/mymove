@@ -9,6 +9,6 @@ import (
 //
 //go:generate mockery --name PPTASReportListFetcher
 type PPTASReportListFetcher interface {
-	GetMovesForReportBuilder(appCtx appcontext.AppContext, params *MovesForPPTASFetcherParams) (models.Moves, error)
+	GetMovesForReportBuilder(appCtx appcontext.AppContext, params *MovesForPPTASFetcherParams, searchAffiliation *models.ServiceMemberAffiliation) (models.Moves, error)
 	BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, moves models.Moves) (models.PPTASReports, error)
 }
