@@ -707,12 +707,11 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		}
 	})
 
-	suite.Run("has audit history records for service item dimensions", func() {
+	suite.Run("has audit history records for service item customer contacts", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
 
 				move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-
 				shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 					{
 						Model:    move,
@@ -727,7 +726,126 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 					mock.Anything,
 					mock.Anything,
 				).Return(400, nil)
-				creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+				creator := mtoserviceitem.NewMTOServiceItemCreator(
+					planner,
+					builder,
+					moveRouter,
+					ghcrateengine.NewDomesticUnpackPricer(),
+					ghcrateengine.NewDomesticPackPricer(),
+					ghcrateengine.NewDomesticLinehaulPricer(),
+					ghcrateengine.NewDomesticShorthaulPricer(),
+					ghcrateengine.NewDomesticOriginPricer(),
+					ghcrateengine.NewDomesticDestinationPricer(),
+					ghcrateengine.NewFuelSurchargePricer(),
+					ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+					ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+					ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+					ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+					ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+					ghcrateengine.NewDomesticOriginSITPickupPricer(),
+					ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+					ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
+				reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+
+				sitEntryDate := time.Now()
+				attemptedContact := time.Now()
+				contact1 := models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeFirst,
+					DateOfContact:              attemptedContact,
+					FirstAvailableDeliveryDate: sitEntryDate,
+					TimeMilitary:               "0815Z",
+				}
+				contact2 := models.MTOServiceItemCustomerContact{
+					Type:                       models.CustomerContactTypeSecond,
+					DateOfContact:              attemptedContact,
+					FirstAvailableDeliveryDate: sitEntryDate,
+					TimeMilitary:               "0815Z",
+				}
+				var contacts models.MTOServiceItemCustomerContacts
+				contacts = append(contacts, contact1, contact2)
+
+				serviceItem := models.MTOServiceItem{
+					MoveTaskOrderID:  move.ID,
+					MoveTaskOrder:    move,
+					MTOShipmentID:    &shipment.ID,
+					MTOShipment:      shipment,
+					CustomerContacts: contacts,
+					ReService:        reService,
+					Status:           models.MTOServiceItemStatusSubmitted,
+				}
+
+				createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
+				suite.NotNil(createdServiceItems)
+				suite.NoError(err)
+
+				params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+				moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
+				suite.NotNil(moveHistoryData)
+				suite.NoError(err)
+
+				verifyServiceItemDimensionsHistoryFound := false
+
+				for _, h := range moveHistoryData.AuditHistories {
+					if h.AuditedTable == "mto_service_item_customer_contacts" {
+						if h.ChangedData != nil {
+							changedData := removeEscapeJSONtoObject(h.ChangedData)
+							if changedData["time_military"] == "0815Z" {
+								verifyServiceItemDimensionsHistoryFound = true
+								break
+							}
+						}
+					}
+				}
+				suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item customer contacts creation")
+			})
+		}
+	})
+
+	suite.Run("has audit history records for service item dimensions", func() {
+		for _, tc := range procFeatureFlagCases {
+			suite.Run(tc.testScenario, func() {
+
+				move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+				shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							PrimeEstimatedWeight: models.PoundPointer(1000),
+						},
+					},
+				}, nil)
+				builder := query.NewQueryBuilder()
+				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+				planner := &routemocks.Planner{}
+				planner.On("ZipTransitDistance",
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.Anything,
+					mock.Anything,
+				).Return(400, nil)
+				creator := mtoserviceitem.NewMTOServiceItemCreator(
+					planner,
+					builder,
+					moveRouter,
+					ghcrateengine.NewDomesticUnpackPricer(),
+					ghcrateengine.NewDomesticPackPricer(),
+					ghcrateengine.NewDomesticLinehaulPricer(),
+					ghcrateengine.NewDomesticShorthaulPricer(),
+					ghcrateengine.NewDomesticOriginPricer(),
+					ghcrateengine.NewDomesticDestinationPricer(),
+					ghcrateengine.NewFuelSurchargePricer(),
+					ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+					ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+					ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+					ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+					ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+					ghcrateengine.NewDomesticOriginSITPickupPricer(),
+					ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+					ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 				dimension := models.MTOServiceItemDimension{
 					Type:      models.DimensionTypeItem,
@@ -805,7 +923,25 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 					mock.Anything,
 					mock.Anything,
 				).Return(400, nil)
-				creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+				creator := mtoserviceitem.NewMTOServiceItemCreator(
+					planner,
+					builder,
+					moveRouter,
+					ghcrateengine.NewDomesticUnpackPricer(),
+					ghcrateengine.NewDomesticPackPricer(),
+					ghcrateengine.NewDomesticLinehaulPricer(),
+					ghcrateengine.NewDomesticShorthaulPricer(),
+					ghcrateengine.NewDomesticOriginPricer(),
+					ghcrateengine.NewDomesticDestinationPricer(),
+					ghcrateengine.NewFuelSurchargePricer(),
+					ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+					ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+					ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+					ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+					ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+					ghcrateengine.NewDomesticOriginSITPickupPricer(),
+					ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+					ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 				reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
