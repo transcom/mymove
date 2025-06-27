@@ -3717,6 +3717,41 @@ func init() {
         }
       }
     },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrades"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
