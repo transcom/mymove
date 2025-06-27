@@ -467,10 +467,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
 	suite.DB().All(&addresses)
-	suite.Equal(42307, len(addresses))
-	// This number is very large now because addresses are no longer being truncated in the database.
-	//Leaving it here because anything that causes the number to change, outside of adding addresses to the database, could be an issue
-}
+	suite.Equal(6, len(addresses))
+	// Why 6?
+	// Make duty locations +2 addresses each DL => 4
+	// Patch service member +2 addresses added to service member => 2
+	// Total => 6
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	// Given: a logged in user
