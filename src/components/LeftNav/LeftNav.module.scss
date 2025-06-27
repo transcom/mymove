@@ -11,8 +11,8 @@
   width: 230px;
   position: sticky;
   align-self: flex-start;
-  margin-top: 26px;
-  top: 26px;
+  top: 210px;
+  scroll-margin: 200px;
 
   > a {
     @include u-text('base');
