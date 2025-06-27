@@ -46,9 +46,9 @@ func (_m *PPTASReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.A
 	return r0, r1
 }
 
-// GetMovesForReportBuilder provides a mock function with given fields: appCtx, params
-func (_m *PPTASReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MovesForPPTASFetcherParams) (models.Moves, error) {
-	ret := _m.Called(appCtx, params)
+// GetMovesForReportBuilder provides a mock function with given fields: appCtx, params, searchAffiliation
+func (_m *PPTASReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MovesForPPTASFetcherParams, searchAffiliation *models.ServiceMemberAffiliation) (models.Moves, error) {
+	ret := _m.Called(appCtx, params, searchAffiliation)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetMovesForReportBuilder")
@@ -56,19 +56,19 @@ func (_m *PPTASReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.App
 
 	var r0 models.Moves
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams) (models.Moves, error)); ok {
-		return rf(appCtx, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams, *models.ServiceMemberAffiliation) (models.Moves, error)); ok {
+		return rf(appCtx, params, searchAffiliation)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams) models.Moves); ok {
-		r0 = rf(appCtx, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams, *models.ServiceMemberAffiliation) models.Moves); ok {
+		r0 = rf(appCtx, params, searchAffiliation)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.Moves)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams) error); ok {
-		r1 = rf(appCtx, params)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams, *models.ServiceMemberAffiliation) error); ok {
+		r1 = rf(appCtx, params, searchAffiliation)
 	} else {
 		r1 = ret.Error(1)
 	}

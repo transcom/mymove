@@ -24,6 +24,7 @@ func (h PPTASReportsHandler) Handle(params pptasop.PptasReportsParams) middlewar
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			var searchParams services.MovesForPPTASFetcherParams
+			var searchAffiliation *models.ServiceMemberAffiliation
 			if params.Since != nil {
 				since := handlers.FmtDateTimePtrToPop(params.Since)
 				searchParams.Since = &since
@@ -32,19 +33,17 @@ func (h PPTASReportsHandler) Handle(params pptasop.PptasReportsParams) middlewar
 			clientCert := authentication.ClientCertFromContext(appCtx.HTTPRequest().Context())
 
 			if clientCert.PPTASAffiliation != nil {
-				params.Affiliation = (*string)(clientCert.PPTASAffiliation)
+				searchAffiliation = clientCert.PPTASAffiliation
 			}
 
-			if params.Affiliation != nil {
-				if *params.Affiliation == models.AffiliationNAVY.String() || *params.Affiliation == models.AffiliationMARINES.String() {
-					searchParams.Affiliation = params.Affiliation
-				} else {
-					appCtx.Logger().Error("Invalid branch provided for filtering reports", zap.String("branch", *params.Affiliation))
-					return pptasop.NewPptasReportsBadRequest().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), nil
+			if searchAffiliation != nil {
+				if *searchAffiliation != models.AffiliationNAVY && *searchAffiliation != models.AffiliationMARINES {
+					appCtx.Logger().Error("Invalid branch provided for filtering reports", zap.String("branch", searchAffiliation.String()))
+					return pptasop.NewPptasReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), nil
 				}
 			}
 
-			movesForReport, err := h.GetMovesForReportBuilder(appCtx, &searchParams)
+			movesForReport, err := h.GetMovesForReportBuilder(appCtx, &searchParams, searchAffiliation)
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
 				return pptasop.NewPptasReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
