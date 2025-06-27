@@ -147,25 +147,21 @@ begin
     -- calculate DLH instead
     service_id := get_service_id('DLH');
     SELECT rdlp.price_millicents
-    INTO raw_millicents
-    FROM re_domestic_linehaul_prices AS rdlp
-    WHERE rdlp.contract_id = v_contract_id
-        AND rdlp.is_peak_period = peak_period
-        AND weight BETWEEN rdlp.weight_lower AND rdlp.weight_upper
-        AND mileage BETWEEN rdlp.miles_lower AND rdlp.miles_upper
-        AND EXISTS (
-            SELECT 1
-            FROM re_domestic_service_areas AS sa
-            JOIN re_zip3s AS rzs ON sa.id = rzs.domestic_service_area_id
-            JOIN addresses AS a ON LEFT(a.postal_code, 3) = rzs.zip3
-            WHERE sa.id = rdlp.domestic_service_area_id
-              AND a.id = pickup_address_id
-        );
+      INTO raw_millicents
+      FROM re_domestic_linehaul_prices AS rdlp
+      JOIN re_domestic_service_areas AS sa on rdlp.domestic_service_area_id = sa.id
+      JOIN re_zip3s AS rzs ON sa.id = rzs.domestic_service_area_id
+      JOIN addresses AS a ON LEFT(a.postal_code, 3) = rzs.zip3
+     WHERE rdlp.contract_id = v_contract_id
+       AND rdlp.is_peak_period = peak_period
+       AND weight BETWEEN rdlp.weight_lower AND rdlp.weight_upper
+       AND mileage BETWEEN rdlp.miles_lower AND rdlp.miles_upper
+       AND a.id = pickup_address_id;
 
+    --RAISE NOTICE 'DLH raw_millicents: %', raw_millicents;
     cents_per_cwt := ROUND(raw_millicents / 1000.0, 1);
     --RAISE NOTICE 'DLH cents_per_cwt: %', cents_per_cwt;
 
-    cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 3);
     cents_per_cwt := ROUND(cents_per_cwt * escalation_factor, 3);
     --RAISE NOTICE 'DLH cents_per_cwt with escalation factor: %', cents_per_cwt;
 
@@ -250,7 +246,7 @@ begin
   IF grade != 'CIVILIAN_EMPLOYEE' THEN --do not apply multiplier for Cilivilan PPMs
 
     EXECUTE 'SELECT multiplier, id FROM gcc_multipliers WHERE $1 BETWEEN start_date AND end_date LIMIT 1' INTO gcc_multiplier, v_gcc_multiplier_id USING move_date;
-    RAISE NOTICE 'GCC Multiplier %', gcc_multiplier;
+    --RAISE NOTICE 'GCC Multiplier %', gcc_multiplier;
 
     IF price_dsh > 0 AND gcc_multiplier != 1.00 THEN
       price_dsh := ROUND(price_dsh * gcc_multiplier);
@@ -263,7 +259,7 @@ begin
     IF price_dop > 0 AND gcc_multiplier != 1.00 THEN
       price_dop := ROUND(price_dop * gcc_multiplier);
     END IF;
-    raise notice 'DOP price after multiplier: %', price_dop;
+    --raise notice 'DOP price after multiplier: %', price_dop;
 
     IF price_ddp > 0 AND gcc_multiplier != 1.00 THEN
       price_ddp := ROUND(price_ddp * gcc_multiplier);
