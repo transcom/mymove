@@ -10,7 +10,7 @@ import styles from './FinancialReviewModal.module.scss';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
-import RequiredAsterisk from 'components/form/RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const financialReviewSchema = Yup.object().shape({
   remarks: Yup.string().when('flagForReview', {
@@ -71,6 +71,9 @@ function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelect
                         />
                       </div>
                     </FormGroup>
+                    <div className="margin-top-2">
+                      <span>{requiredAsteriskMessage}</span>
+                    </div>
                     <Label
                       className={classnames({
                         [styles.RemarksLabelDisabled]: flagForReview !== 'yes',
