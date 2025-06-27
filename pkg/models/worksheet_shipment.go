@@ -34,6 +34,7 @@ type SSWMaxWeightEntitlement struct {
 	Entitlement   unit.Pound
 	ProGear       unit.Pound
 	SpouseProGear unit.Pound
+	GunSafe       unit.Pound
 	TotalWeight   unit.Pound
 }
 

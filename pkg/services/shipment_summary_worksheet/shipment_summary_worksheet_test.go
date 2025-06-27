@@ -100,7 +100,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 
 	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
 
-	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
+	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID, false)
 
 	suite.NoError(err)
 	suite.Equal(ppmShipment.Shipment.MoveTaskOrder.Orders.ID, ssd.Order.ID)
@@ -120,7 +120,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	weightAllotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(*ssd.Order.Grade), ssd.Order.OrdersType)
 	suite.NoError(err)
 	// E_9 rank, no dependents, with spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
+	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse + gradeWtgAllotment.GunSafeWeight
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
@@ -166,7 +166,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		ApplicationName: auth.MilApp,
 	}
 
-	emptySSD, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, PPMShipmentID)
+	emptySSD, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, PPMShipmentID, false)
 
 	suite.Error(err)
 	suite.Nil(emptySSD)
@@ -277,7 +277,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		ApplicationName: auth.MilApp,
 	}
 	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
-	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
+	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID, false)
 
 	suite.NoError(err)
 	suite.Equal(ppmShipment.Shipment.MoveTaskOrder.Orders.ID, ssd.Order.ID)
@@ -297,7 +297,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	weightAllotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(*ssd.Order.Grade), ssd.Order.OrdersType)
 	suite.NoError(err)
 	// E_9 rank, no dependents, with spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
+	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse + weightAllotment.GunSafeWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
@@ -312,7 +312,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Entitlement:   15000,
 		ProGear:       2000,
 		SpouseProGear: 500,
-		TotalWeight:   17500,
+		GunSafe:       500,
+		TotalWeight:   18000,
 	}
 
 	serviceMemberID, _ := uuid.NewV4()
@@ -411,14 +412,15 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("15,000", sswPage1.WeightAllotment)
 		suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
 		suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
-		suite.Equal("17,500", sswPage1.TotalWeightAllotment)
+		suite.Equal("500", sswPage1.WeightAllotmentGunSafe)
+		suite.Equal("18,000", sswPage1.TotalWeightAllotment)
 
 		suite.Equal(locator+" PPM", sswPage1.ShipmentNumberAndTypes)
 		suite.Equal("02-Jun-2025", sswPage1.ShipmentPickUpDates)
 		suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 		suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
-		suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
-		suite.Equal("17,500 lbs; $86,753.09", sswPage1.MaxObligationGCC100)
+		suite.Equal("18,000", sswPage1.TotalWeightAllotmentRepeat)
+		suite.Equal("18,000 lbs; $86,753.09", sswPage1.MaxObligationGCC100)
 		suite.False(sswPage1.IsActualExpenseReimbursement)
 		suite.False(sswPage1.IsSmallPackageReimbursement)
 		suite.Equal("(with 1.3x multiplier)", sswPage1.GCCMultiplierAdvance)
@@ -505,14 +507,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("15,000", sswPage1.WeightAllotment)
 		suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
 		suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
-		suite.Equal("17,500", sswPage1.TotalWeightAllotment)
+		suite.Equal("18,000", sswPage1.TotalWeightAllotment)
 
 		suite.Equal(locator+" PPM", sswPage1.ShipmentNumberAndTypes)
 		suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
 		suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 		suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
-		suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
-		suite.Equal("17,500 lbs; $86,753.09", sswPage1.MaxObligationGCC100)
+		suite.Equal("18,000", sswPage1.TotalWeightAllotmentRepeat)
+		suite.Equal("18,000 lbs; $86,753.09", sswPage1.MaxObligationGCC100)
 		suite.True(sswPage1.IsActualExpenseReimbursement)
 		suite.False(sswPage1.IsSmallPackageReimbursement)
 		suite.Equal("AER", sswPage1.GCCExpenseReimbursementType)
@@ -600,14 +602,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("15,000", sswPage1.WeightAllotment)
 		suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
 		suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
-		suite.Equal("17,500", sswPage1.TotalWeightAllotment)
+		suite.Equal("18,000", sswPage1.TotalWeightAllotment)
 
 		suite.Equal(locator+" PPM", sswPage1.ShipmentNumberAndTypes)
 		suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
 		suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 		suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
-		suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
-		suite.Equal("17,500 lbs; $86,753.09", sswPage1.MaxObligationGCC100)
+		suite.Equal("18,000", sswPage1.TotalWeightAllotmentRepeat)
+		suite.Equal("18,000 lbs; $86,753.09", sswPage1.MaxObligationGCC100)
 		suite.False(sswPage1.IsActualExpenseReimbursement)
 		suite.True(sswPage1.IsSmallPackageReimbursement)
 		suite.Equal("SPR", sswPage1.GCCExpenseReimbursementType)
@@ -691,7 +693,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 
 		// note the $86,753.09 here - this is the MAX incentive returned and not what's existing on the PPM ($12,345.67)
-		suite.Equal("17,500 lbs; $86,753.09", sswPage1.MaxObligationGCC100)
+		suite.Equal("18,000 lbs; $86,753.09", sswPage1.MaxObligationGCC100)
 
 		suite.Equal("(with 1.3x multiplier)", sswPage1.GCCMultiplierAdvance)
 		suite.Equal("(with 1.3x multiplier)", sswPage1.GCCMultiplierMaxAdvance)
@@ -760,7 +762,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		suite.Equal("14-May-2025", sswPage1.ShipmentPickUpDates)
 
 		// note the $86,753.09 here - this is the MAX incentive returned and not what's existing on the PPM ($12,345.67)
-		suite.Equal("17,500 lbs; $12,345.67", sswPage1.MaxObligationGCC100)
+		suite.Equal("18,000 lbs; $12,345.67", sswPage1.MaxObligationGCC100)
 
 		suite.Equal("(with 1.3x multiplier)", sswPage1.GCCMultiplierAdvance)
 		suite.Equal("(with 1.3x multiplier)", sswPage1.GCCMultiplierMaxAdvance)
@@ -1460,33 +1462,37 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
+	includeGunSafe := true
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	waf := entitlements.NewWeightAllotmentFetcher()
 	allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE1), ordersType)
 	suite.NoError(err)
-	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement, err := SSWGetEntitlement(suite.AppContextForTest(), models.ServiceMemberGradeE1, factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil), spouseHasProGear, ordersType)
+	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse + allotment.GunSafeWeight
+	sswEntitlement, err := SSWGetEntitlement(suite.AppContextForTest(), models.ServiceMemberGradeE1, factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil), spouseHasProGear, ordersType, includeGunSafe)
 	suite.NoError(err)
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
 	suite.Equal(unit.Pound(allotment.ProGearWeightSpouse), sswEntitlement.SpouseProGear)
 	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
+	suite.Equal(unit.Pound(allotment.GunSafeWeight), sswEntitlement.GunSafe)
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNoDependants() {
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNoDependantsNoGunSafe() {
 	spouseHasProGear := false
+	includeGunSafe := false
 	waf := entitlements.NewWeightAllotmentFetcher()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE1), ordersType)
 	suite.NoError(err)
 	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement, err := SSWGetEntitlement(suite.AppContextForTest(), models.ServiceMemberGradeE1, factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil), spouseHasProGear, ordersType)
+	sswEntitlement, err := SSWGetEntitlement(suite.AppContextForTest(), models.ServiceMemberGradeE1, factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil), spouseHasProGear, ordersType, includeGunSafe)
 	suite.NoError(err)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
 	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
 	suite.Equal(unit.Pound(500), sswEntitlement.SpouseProGear)
+	suite.Equal(unit.Pound(0), sswEntitlement.GunSafe)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberFullName() {
@@ -1895,7 +1901,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 
 	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
 
-	ssd, err := sswPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
+	ssd, err := sswPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID, false)
 	suite.NoError(err)
 	page1Data, page2Data, Page3Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(suite.AppContextForTest(), *ssd, false)
 	suite.NoError(err)

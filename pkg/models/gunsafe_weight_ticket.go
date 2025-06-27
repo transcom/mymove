@@ -66,6 +66,22 @@ func (e GunSafeWeightTickets) FilterRejected() GunSafeWeightTickets {
 	return validGunSafeTicket
 }
 
+func (e GunSafeWeightTickets) GetApprovedTickets() GunSafeWeightTickets {
+	if len(e) == 0 {
+		return e
+	}
+
+	deletedTickets := e.FilterDeleted()
+	approvedTickets := GunSafeWeightTickets{}
+	for _, ticket := range deletedTickets {
+		if ticket.Status != nil && *ticket.Status == PPMDocumentStatusApproved {
+			approvedTickets = append(approvedTickets, ticket)
+		}
+	}
+
+	return approvedTickets
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
 // pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should
 // occur in service objects.
