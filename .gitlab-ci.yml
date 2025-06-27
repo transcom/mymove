@@ -1266,6 +1266,13 @@ integration_test_mtls:
     - echo "MOVE_MIL_DOD_TLS_CERT is- $MOVE_MIL_DOD_TLS_CERT"
     - echo "MOVE_MIL_DOD_TLS_KEY is- $MOVE_MIL_DOD_TLS_KEY"
     - echo "NO_TLS_ENABLED is- $NO_TLS_ENABLED"
+
+    - make db_dev_create
+    - /bin/milmove migrate
+            # mtls tests do not need client
+    - mkdir -p build
+    - touch build/index.html
+
     - /bin/milmove serve & #attempt to start in backgroud??
     # - *setup_env_intergration_mtls
     # - export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
@@ -1297,12 +1304,6 @@ integration_test_mtls:
     - echo "MOVE_MIL_DOD_TLS_CERT is- $MOVE_MIL_DOD_TLS_CERT"
     - echo "MOVE_MIL_DOD_TLS_KEY is- $MOVE_MIL_DOD_TLS_KEY"
     - echo "NO_TLS_ENABLED is- $NO_TLS_ENABLED"
-
-    - make db_dev_create
-    - /bin/milmove migrate
-            # mtls tests do not need client
-    - mkdir -p build
-    - touch build/index.html
     # - /bin/milmove serve 2>&1 | fmt
     - ./scripts/run-e2e-mtls-test
     # - curl http://milmovelocal:4000
