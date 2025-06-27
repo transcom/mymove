@@ -39,7 +39,7 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotment() {
 
 		fetcher := NewWeightAllotmentFetcher()
 
-		_, err = fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		_, err = fetcher.GetWeightAllotment(suite.AppContextForTest(), "E-1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "error fetching max gun safe allowance")
@@ -68,7 +68,7 @@ func (suite *EntitlementsServiceSuite) TestGetAllWeightAllotments() {
 		fetcher := NewWeightAllotmentFetcher()
 		_, err = fetcher.GetWeightAllotment(
 			suite.AppContextForTest(),
-			"E_1",
+			"E-1",
 			internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
 		)
 
@@ -78,25 +78,7 @@ func (suite *EntitlementsServiceSuite) TestGetAllWeightAllotments() {
 }
 
 func (suite *EntitlementsServiceSuite) TestGetWeightAllotmentByOrdersType() {
-	setupHhgStudentAllowanceParameter := func() {
-		paramJSON := `{
-            "TotalWeightSelf": 350,
-            "TotalWeightSelfPlusDependents": 350,
-            "ProGearWeight": 0,
-            "ProGearWeightSpouse": 0,
-            "UnaccompaniedBaggageAllowance": 100
-        }`
-		rawMessage := json.RawMessage(paramJSON)
-
-		parameter := models.ApplicationParameters{
-			ParameterName: models.StringPointer("studentTravelHhgAllowance"),
-			ParameterJson: &rawMessage,
-		}
-		suite.MustCreate(&parameter)
-	}
-
 	suite.Run("Successfully fetch student travel allotment from application_parameters", func() {
-		setupHhgStudentAllowanceParameter()
 		fetcher := NewWeightAllotmentFetcher()
 
 		allotment, err := fetcher.GetWeightAllotment(
@@ -110,7 +92,6 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotmentByOrdersType() {
 		suite.Equal(350, allotment.TotalWeightSelfPlusDependents)
 		suite.Equal(0, allotment.ProGearWeight)
 		suite.Equal(0, allotment.ProGearWeightSpouse)
-		suite.Equal(0, allotment.UnaccompaniedBaggageAllowance)
 	})
 
 	suite.Run("Returns an error if json does not match allotment from db", func() {
