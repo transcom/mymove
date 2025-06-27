@@ -735,7 +735,7 @@ prep_integration_microservice:
     - $EKS_CLUSTER_RUNNER_TAG
   variables:
     CSRF_AUTH_KEY: d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
-    IWS_RBS_HOST: 'pkict.dmdc.osd.mil'
+    IWS_RBS_HOST: "pkict.dmdc.osd.mil"
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
