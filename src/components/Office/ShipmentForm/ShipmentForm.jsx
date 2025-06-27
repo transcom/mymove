@@ -1467,7 +1467,7 @@ const ShipmentForm = (props) => {
                         <h3>PPM Type</h3>
                         <FormGroup>
                           <div>
-                            <Label htmlFor="ppmType">
+                            <Label className={styles.Label} htmlFor="ppmType">
                               <span>Indicate the PPM Type</span>
                             </Label>
                             <Field
