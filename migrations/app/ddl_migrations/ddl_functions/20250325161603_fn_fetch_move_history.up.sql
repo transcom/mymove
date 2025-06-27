@@ -99,7 +99,7 @@ BEGIN
         sc_closeout_assigned_id TEXT,
         too_task_order_assigned_id TEXT,
         too_destination_assigned_id TEXT,
-        tio_assigned_id TEXT
+        tio_payment_request_assigned_id TEXT
     ) ON TRUE
     WHERE audit_history.table_name = ''moves''
         AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE ''%shipment_seq_num%'' AND LENGTH(audit_history.changed_data::TEXT) < 25)
