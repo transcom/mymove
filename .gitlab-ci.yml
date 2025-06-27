@@ -1150,7 +1150,7 @@ integration_test_mtls:
     KUBERNETES_SERVICE_MEMORY_LIMIT: "4Gi"
     KUBERNETES_SERVICE_EPHEMERAL_STORAGE_REQUEST: "2Gi"
     CI_DEBUG_SERVICES: "true"
-    CI_DEBUG_TRACE: "true"
+    # CI_DEBUG_TRACE: "true"
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "12Gi"
     KUBERNETES_MEMORY_LIMIT: "12Gi"
@@ -1294,6 +1294,7 @@ integration_test_mtls:
     # - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
     # - source server_env
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
+    - curl http://primelocal:8080
     - curl http://milmovelocal:4000
     - pwd
     # - git config --global --add safe.directory /builds/milmove/mymove
