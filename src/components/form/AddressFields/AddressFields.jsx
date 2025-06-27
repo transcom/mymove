@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
+import { useFormikContext } from 'formik';
 
 import { requiredAsteriskMessage } from '../RequiredAsterisk';
 
@@ -10,6 +11,7 @@ import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
 import LocationInput from 'components/form/fields/LocationInput';
+import CountryInput from 'components/form/fields/CountryInput';
 
 /**
  * @param legend
@@ -38,6 +40,36 @@ export const AddressFields = ({
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
+
+  const { values } = useFormikContext();
+
+  // some 'name' are passed in like pickupAddress.address and we cannot use values to get pickupAddress.address, so we
+  // remove the .address and get pickupAddress then get the country code from that. If there is not a .address we just
+  // use the 'name' passed in as is
+  const separator = '.';
+  const separatorIndex = name.indexOf(separator);
+
+  let addressName;
+  if (separatorIndex !== -1) {
+    addressName = name.substring(0, separatorIndex);
+  } else {
+    addressName = name;
+  }
+
+  const nameValue = values[addressName];
+  let nameCountryCode = '';
+
+  if (name.includes('.address') && nameValue?.address !== undefined && nameValue?.address.city !== '') {
+    nameCountryCode = nameValue.address.country ? nameValue.address.country.code : '';
+  } else if (!name.includes('.address') && nameValue?.country !== undefined) {
+    nameCountryCode = nameValue.country.code;
+  }
+
+  const [currentCountryCode, setCurrentCountryCode] = useState(nameCountryCode);
+
+  useEffect(() => {
+    setCurrentCountryCode(nameCountryCode);
+  }, [nameCountryCode]);
 
   const handleOnLocationChange = (value) => {
     const city = value ? value.city : null;
@@ -69,6 +101,29 @@ export const AddressFields = ({
 
   // For some cases (such as some pages of the  prime UI) the location lookup field is also optional
   const showRequiredAsteriskForLocationLookup = !optionalLocationLookup;
+  const handleOnCountryChange = (value) => {
+    const countryID = value ? value.id : null;
+    const countryName = value ? value.name : null;
+    const countryCode = value ? value.code : null;
+
+    if (countryID == null) {
+      handleOnLocationChange(null);
+    }
+
+    setCurrentCountryCode(countryCode);
+    setFieldValue(`${name}.country.id`, countryID).then(() => {
+      setFieldTouched(`${name}.country.id`, false);
+    });
+    setFieldValue(`${name}.country.code`, countryCode).then(() => {
+      setFieldTouched(`${name}.country.code`, false);
+    });
+    setFieldValue(`${name}.country.name`, countryName).then(() => {
+      setFieldTouched(`${name}.country.name`, false);
+    });
+    setFieldValue(`${name}.countryID`, countryID).then(() => {
+      setFieldTouched(`${name}.countryID`, true);
+    });
+  };
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -98,6 +153,14 @@ export const AddressFields = ({
             data-testid={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
+
+          <CountryInput
+            name={`${name}`}
+            placeholder="Start typing a country name, code"
+            label="Country Lookup"
+            handleCountryChange={handleOnCountryChange}
+          />
+
           <LocationInput
             name={`${name}`}
             placeholder="Start typing a Zip or City, State Zip"
@@ -105,6 +168,7 @@ export const AddressFields = ({
             handleLocationChange={handleOnLocationChange}
             includePOBoxes={includePOBoxes}
             showRequiredAsteriskForLocationLookup={showRequiredAsteriskForLocationLookup}
+            isDisabled={currentCountryCode === null || currentCountryCode === '' || currentCountryCode !== 'US'}
           />
 
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
@@ -173,6 +237,7 @@ AddressFields.propTypes = {
     postalCode: PropTypes.func,
     county: PropTypes.func,
     usPostRegionCitiesID: PropTypes.func,
+    countryID: PropTypes.func,
   }),
   optionalAddress1: PropTypes.bool,
   formikProps: shape({

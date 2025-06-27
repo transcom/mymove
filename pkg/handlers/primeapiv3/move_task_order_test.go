@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(address.PostalCode, *payload.PostalCode)
 		// Handle the possibility that address.Country is nil
 		if address.Country != nil && payload.Country != nil {
-			suite.Equal(address.Country.Country, *payload.Country)
+			suite.Equal(address.Country.Country, payload.Country.Code)
 		}
 		suite.NotNil(payload.ETag)
 	}

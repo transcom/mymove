@@ -7966,13 +7966,12 @@ func init() {
           "example": "Anytown"
         },
         "country": {
-          "description": "Two-letter country code",
+          "$ref": "#/definitions/Country"
+        },
+        "countryID": {
           "type": "string",
-          "title": "Country",
-          "default": "US",
-          "pattern": "^[A-Z]{2}$",
-          "x-nullable": true,
-          "example": "US"
+          "format": "uuid",
+          "example": "a56a4180-65aa-42ec-a945-5fd21dec0573"
         },
         "county": {
           "type": "string",
@@ -9314,6 +9313,11 @@ func init() {
             "ZM": "ZM",
             "ZW": "ZW"
           }
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "name": {
           "type": "string",
@@ -13889,11 +13893,12 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "$ref": "#/definitions/Country"
+        },
+        "countryID": {
           "type": "string",
-          "title": "Country",
-          "default": "USA",
-          "x-nullable": true,
-          "example": "USA"
+          "format": "uuid",
+          "example": "a56a4180-65aa-42ec-a945-5fd21dec0573"
         },
         "county": {
           "type": "string",
@@ -28099,13 +28104,12 @@ func init() {
           "example": "Anytown"
         },
         "country": {
-          "description": "Two-letter country code",
+          "$ref": "#/definitions/Country"
+        },
+        "countryID": {
           "type": "string",
-          "title": "Country",
-          "default": "US",
-          "pattern": "^[A-Z]{2}$",
-          "x-nullable": true,
-          "example": "US"
+          "format": "uuid",
+          "example": "a56a4180-65aa-42ec-a945-5fd21dec0573"
         },
         "county": {
           "type": "string",
@@ -29455,6 +29459,11 @@ func init() {
             "ZM": "ZM",
             "ZW": "ZW"
           }
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "name": {
           "type": "string",
@@ -34033,11 +34042,12 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "$ref": "#/definitions/Country"
+        },
+        "countryID": {
           "type": "string",
-          "title": "Country",
-          "default": "USA",
-          "x-nullable": true,
-          "example": "USA"
+          "format": "uuid",
+          "example": "a56a4180-65aa-42ec-a945-5fd21dec0573"
         },
         "county": {
           "type": "string",

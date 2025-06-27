@@ -1234,6 +1234,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		state := "NC"
 		postalCode := "28314"
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		newPPM := models.PPMShipment{
 			W2Address: &models.Address{
 				StreetAddress1: streetAddress1,
@@ -1242,6 +1245,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           city,
 				State:          state,
 				PostalCode:     postalCode,
+				CountryId:      &country.ID,
+				Country:        &country,
 			},
 		}
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)

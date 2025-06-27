@@ -130,6 +130,9 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// Given: A logged-in user
 	user := factory.BuildDefaultUser(suite.DB())
 
+	country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NoError(err)
+
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
 		UserID:               strfmt.UUID(user.ID.String()),
@@ -143,8 +146,8 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		PersonalEmail:        models.StringPointer("wml@example.com"),
 		PhoneIsPreferred:     models.BoolPointer(false),
 		EmailIsPreferred:     models.BoolPointer(true),
-		ResidentialAddress:   fakeAddressPayload(),
-		BackupMailingAddress: fakeAddressPayload(),
+		ResidentialAddress:   fakeAddressPayload(&country),
+		BackupMailingAddress: fakeAddressPayload(&country),
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
@@ -238,8 +241,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	}, nil)
 
-	resAddress := fakeAddressPayload()
-	backupAddress := fakeAddressPayload()
+	country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NoError(err)
+
+	resAddress := fakeAddressPayload(&country)
+	backupAddress := fakeAddressPayload(&country)
 	patchPayload := internalmessages.PatchServiceMemberPayload{
 		Edipi:                &newEdipi,
 		Emplid:               &newEmplid,
@@ -405,8 +411,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	suite.NoError(err)
 	suite.MustSave(&move)
 
-	resAddress := fakeAddressPayload()
-	backupAddress := fakeAddressPayload()
+	country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NoError(err)
+
+	resAddress := fakeAddressPayload(&country)
+	backupAddress := fakeAddressPayload(&country)
 	patchPayload := internalmessages.PatchServiceMemberPayload{
 		Edipi:                &edipi,
 		BackupMailingAddress: backupAddress,

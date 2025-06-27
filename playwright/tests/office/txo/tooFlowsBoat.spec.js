@@ -39,7 +39,8 @@ test.describe('TOO user', () => {
     await page.locator('#requestedPickupDate').fill(getFutureDate());
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDate);
     await page.locator('#requestedDeliveryDate').blur();
 
     // Save the shipment
@@ -104,7 +105,8 @@ test.describe('TOO user', () => {
     await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('19 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDate);
     await page.locator('#requestedDeliveryDate').blur();
     await page.getByRole('button', { name: 'Save' }).click();
 
@@ -136,7 +138,7 @@ test.describe('TOO user', () => {
     await expect(page.getByTestId('tag')).toHaveText('Boat');
     await page.getByRole('button', { name: 'Delete shipment' }).click();
 
-    await expect(page.getByRole('heading', { level: 3 })).toHaveText('Are you sure?');
+    await expect(page.getByText('Are you sure?')).toBeVisible();
     await page.getByTestId('modal').getByTestId('button').click();
     await officePage.waitForPage.moveDetails();
 

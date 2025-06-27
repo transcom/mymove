@@ -57,6 +57,12 @@ const defaultProps = {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   currentResidence: {
     city: 'Fort Benning',
@@ -64,6 +70,12 @@ const defaultProps = {
     postalCode: '31905',
     streetAddress1: '123 Main',
     streetAddress2: '',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   orders: {
     orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
@@ -85,6 +97,12 @@ const ubProps = {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   currentResidence: {
     city: 'Fort Benning',
@@ -92,6 +110,12 @@ const ubProps = {
     postalCode: '31905',
     streetAddress1: '123 Main',
     streetAddress2: '',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   orders: {
     orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
@@ -121,6 +145,12 @@ const mockMtoShipmentHHGWithDest = {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   pickupAddress: {
     id: uuidv4(),
@@ -129,6 +159,12 @@ const mockMtoShipmentHHGWithDest = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   destinationAddress: {
     id: uuidv4(),
@@ -136,6 +172,12 @@ const mockMtoShipmentHHGWithDest = {
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   secondaryDeliveryAddress: {
     id: uuidv4(),
@@ -143,6 +185,12 @@ const mockMtoShipmentHHGWithDest = {
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   shipmentType: SHIPMENT_OPTIONS.HHG,
   hasSecondaryPickupAddress: false,
@@ -166,6 +214,12 @@ const mockMtoShipmentUB = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   destinationAddress: {
     id: uuidv4(),
@@ -173,6 +227,12 @@ const mockMtoShipmentUB = {
     city: 'Auburn',
     state: 'WA',
     postalCode: '98001',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
 };
@@ -194,6 +254,12 @@ const mockMtoShipmentSecondaryAddress = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   destinationAddress: {
     id: uuidv4(),
@@ -201,6 +267,12 @@ const mockMtoShipmentSecondaryAddress = {
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   secondaryDeliveryAddress: {
     id: uuidv4(),
@@ -208,6 +280,12 @@ const mockMtoShipmentSecondaryAddress = {
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   },
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
 };
@@ -520,6 +598,12 @@ describe('MtoShipmentForm component', () => {
           city: 'San Antonio',
           state: 'TX',
           postalCode: '78234',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         shipmentType: SHIPMENT_OPTIONS.HHG,
         hasSecondaryPickupAddress: false,
@@ -622,6 +706,12 @@ describe('MtoShipmentForm component', () => {
           city: 'San Antonio',
           state: 'TX',
           postalCode: '78234',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         requestedDeliveryDate: '14 Jun 2021',
       };
@@ -674,6 +764,12 @@ describe('MtoShipmentForm component', () => {
         city: 'San Antonio',
         state: 'TX',
         postalCode: '78234',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       destinationAddress: {
         id: uuidv4(),
@@ -681,6 +777,12 @@ describe('MtoShipmentForm component', () => {
         city: 'Tacoma',
         state: 'WA',
         postalCode: '98421',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
     };
 
@@ -733,6 +835,12 @@ describe('MtoShipmentForm component', () => {
           city: 'Corpus Christi',
           state: 'TX',
           postalCode: '78412',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         secondaryDeliveryAddress: {
           streetAddress1: '3373 NW Martin Luther King Jr Blvd',
@@ -740,6 +848,12 @@ describe('MtoShipmentForm component', () => {
           city: 'Auburn',
           state: 'WA',
           postalCode: '98002',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
       const expectedDateSelectionIsWeekendHolidayResponse = {
@@ -784,6 +898,12 @@ describe('MtoShipmentForm component', () => {
           city: 'Corpus Christi',
           state: 'TX',
           postalCode: '78412',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         secondaryDeliveryAddress: {
           streetAddress1: '3373 NW Martin Luther King Jr Blvd',
@@ -791,6 +911,8 @@ describe('MtoShipmentForm component', () => {
           city: mockMtoShipment.destinationAddress.city,
           state: mockMtoShipment.destinationAddress.state,
           postalCode: mockMtoShipment.destinationAddress.postalCode,
+          country: mockMtoShipment.country,
+          countryID: mockMtoShipment.countryID,
         },
       };
       const expectedDateSelectionIsWeekendHolidayResponse = {
@@ -865,6 +987,12 @@ describe('MtoShipmentForm component', () => {
           city: 'Corpus Christi',
           state: 'TX',
           postalCode: '78412',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         secondaryDeliveryAddress: {
           streetAddress1: '3373 NW Martin Luther King Jr Blvd',
@@ -872,6 +1000,8 @@ describe('MtoShipmentForm component', () => {
           city: mockMtoShipment.destinationAddress.city,
           state: mockMtoShipment.destinationAddress.state,
           postalCode: mockMtoShipment.destinationAddress.postalCode,
+          country: mockMtoShipment.country,
+          countryID: mockMtoShipment.countryID,
         },
       };
 
@@ -923,12 +1053,24 @@ describe('MtoShipmentForm component', () => {
           city: 'Corpus Christi',
           state: 'TX',
           postalCode: '78412',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         tertiaryPickupAddress: {
           streetAddress1: '789 S Elm',
           city: 'Corpus Christi',
           state: 'TX',
           postalCode: '78412',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         secondaryDeliveryAddress: {
           streetAddress1: '3373 NW Martin Luther King Jr Blvd',
@@ -936,12 +1078,16 @@ describe('MtoShipmentForm component', () => {
           city: mockMtoShipment.destinationAddress.city,
           state: mockMtoShipment.destinationAddress.state,
           postalCode: mockMtoShipment.destinationAddress.postalCode,
+          country: mockMtoShipment.destinationAddress.country,
+          countryID: mockMtoShipment.destinationAddress.countryID,
         },
         tertiaryDeliveryAddress: {
           streetAddress1: '453 N Main Blvd',
           city: mockMtoShipment.destinationAddress.city,
           state: mockMtoShipment.destinationAddress.state,
           postalCode: mockMtoShipment.destinationAddress.postalCode,
+          country: mockMtoShipment.destinationAddress.country,
+          countryID: mockMtoShipment.destinationAddress.countryID,
         },
       };
 
@@ -1014,13 +1160,30 @@ describe('MtoShipmentForm component', () => {
           city: 'San Marcos',
           state: 'TX',
           postalCode: '78666',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
 
       const expectedPayload = {
         moveTaskOrderID: moveId,
         shipmentType: SHIPMENT_OPTIONS.HHG,
-        pickupAddress: { ...shipmentInfo.pickupAddress, city: 'San Antonio', state: 'TX', postalCode: '78234' },
+        pickupAddress: {
+          ...shipmentInfo.pickupAddress,
+          city: 'San Antonio',
+          state: 'TX',
+          postalCode: '78234',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
         customerRemarks: mockMtoShipmentUB.customerRemarks,
         requestedPickupDate: mockMtoShipmentUB.requestedPickupDate,
         requestedDeliveryDate: mockMtoShipmentUB.requestedDeliveryDate,
@@ -1030,6 +1193,12 @@ describe('MtoShipmentForm component', () => {
           state: 'WA',
           postalCode: '98421',
           streetAddress2: '',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         secondaryDeliveryAddress: undefined,
         hasSecondaryDeliveryAddress: false,
@@ -1097,6 +1266,12 @@ describe('MtoShipmentForm component', () => {
           city: '',
           state: '',
           postalCode: '',
+          country: {
+            code: '',
+            name: '',
+            id: '',
+          },
+          countryID: '',
         },
       };
 
@@ -1719,6 +1894,12 @@ describe('MtoShipmentForm component', () => {
           city: 'Corpus Christi',
           state: 'TX',
           postalCode: '78412',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         secondaryDeliveryAddress: {
           streetAddress1: '3373 NW Martin Luther King Jr Blvd',
@@ -1726,6 +1907,12 @@ describe('MtoShipmentForm component', () => {
           city: 'Auburn',
           state: 'WA',
           postalCode: '98002',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
       const expectedDateSelectionIsWeekendHolidayResponse = {
@@ -1822,13 +2009,30 @@ describe('MtoShipmentForm component', () => {
           city: 'San Marcos',
           state: 'TX',
           postalCode: '78666',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
 
       const expectedPayload = {
         moveTaskOrderID: moveId,
         shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
-        pickupAddress: { ...shipmentInfo.pickupAddress, city: 'San Antonio', state: 'TX', postalCode: '78234' },
+        pickupAddress: {
+          ...shipmentInfo.pickupAddress,
+          city: 'San Antonio',
+          state: 'TX',
+          postalCode: '78234',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
         customerRemarks: mockMtoShipmentUB.customerRemarks,
         requestedPickupDate: mockMtoShipmentUB.requestedPickupDate,
         requestedDeliveryDate: mockMtoShipmentUB.requestedDeliveryDate,
@@ -1899,6 +2103,12 @@ describe('MtoShipmentForm component', () => {
           city: 'San Marcos',
           state: 'TX',
           postalCode: '78666',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
 
@@ -2174,6 +2384,12 @@ describe('MtoShipmentForm component', () => {
           city: 'San Antonio',
           state: 'TX',
           postalCode: '78234',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         destinationAddress: {
           id: uuidv4(),
@@ -2181,6 +2397,12 @@ describe('MtoShipmentForm component', () => {
           city: 'Tacoma',
           state: 'WA',
           postalCode: '98421',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
       const expectedDateSelectionIsWeekendHolidayResponse = {
@@ -2286,6 +2508,12 @@ describe('MtoShipmentForm component', () => {
           city: 'San Antonio',
           state: 'TX',
           postalCode: '78234',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
         destinationAddress: {
           id: uuidv4(),
@@ -2293,6 +2521,12 @@ describe('MtoShipmentForm component', () => {
           city: 'Tacoma',
           state: 'WA',
           postalCode: '98421',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       };
       const expectedDateSelectionIsWeekendHolidayResponse = {
@@ -2331,22 +2565,32 @@ describe('MtoShipmentForm component', () => {
       ...mockHHGShipment,
       pickupAddress: {
         city: 'Beverly Hills',
-        country: 'US',
         postalCode: '90210',
         state: 'CA',
         streetAddress1: '123 Any Street',
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
+        country: {
+          code: 'US',
+          name: 'UNITED STATES',
+          id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+        },
+        countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
       },
       storageFacility: {
         facilityName: 'Storage Facility',
         address: {
           city: 'Anytown',
-          country: 'USA',
           postalCode: '90210',
           state: 'OK',
           streetAddress1: '555 Main Ave',
           streetAddress2: 'Apartment 900',
+          country: {
+            code: 'US',
+            name: 'UNITED STATES',
+            id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+          },
+          countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
         },
       },
       tacType: 'HHG',

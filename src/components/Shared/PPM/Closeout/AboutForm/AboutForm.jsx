@@ -81,6 +81,12 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
       county: mtoShipment?.ppmShipment?.w2Address?.county || '',
       usPostRegionCitiesID: mtoShipment?.ppmShipment?.w2Address?.usPostRegionCitiesID || '',
+      countryID: mtoShipment?.ppmShipment?.w2Address?.countryID || '',
+      country: {
+        id: mtoShipment?.ppmShipment?.w2Address?.country?.id || '',
+        name: mtoShipment?.ppmShipment?.w2Address?.country?.name || '',
+        code: mtoShipment?.ppmShipment?.w2Address?.country?.code || '',
+      },
     },
   };
 
@@ -297,7 +303,14 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
                   }`}
                 >
-                  <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                  <Button
+                    data-testid="returnToHomePage"
+                    className={ppmStyles.backButton}
+                    type="button"
+                    onClick={onBack}
+                    secondary
+                    outline
+                  >
                     {`${isCustomerPage ? 'Return To Homepage' : 'Cancel'}`}
                   </Button>
                   <Button

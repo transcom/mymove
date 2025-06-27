@@ -16,11 +16,19 @@ import (
 )
 
 // Country payload
-func Country(country *models.Country) *string {
+func Country(country *models.Country) *internalmessages.Country {
 	if country == nil {
 		return nil
 	}
-	return &country.Country
+	if *country == (models.Country{}) {
+		return nil
+	}
+	payloadCountry := &internalmessages.Country{
+		ID:   strfmt.UUID(country.ID.String()),
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+	return payloadCountry
 }
 
 // Address payload
@@ -48,6 +56,10 @@ func Address(address *models.Address) *internalmessages.Address {
 	if address.UsPostRegionCityID != nil {
 		usPostRegionCitiesID := *address.UsPostRegionCityID
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(usPostRegionCitiesID.String())
+	}
+
+	if address.CountryId != nil {
+		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
 	}
 
 	return payloadAddress
@@ -790,26 +802,6 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 	return payload
 }
 
-func CountryCodeName(country *models.Country) *internalmessages.Country {
-	if country == nil || *country == (models.Country{}) {
-		return nil
-	}
-
-	return &internalmessages.Country{
-		Code: country.Country,
-		Name: country.CountryName,
-	}
-}
-
-func Countries(countries models.Countries) internalmessages.Countries {
-	payload := make(internalmessages.Countries, len(countries))
-	for i, country := range countries {
-		copyOfCountry := country
-		payload[i] = CountryCodeName(&copyOfCountry)
-	}
-	return payload
-}
-
 // PayGrades payload
 func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
 	var payloadPayGrades []*internalmessages.OrderPayGrades
@@ -823,4 +815,25 @@ func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
 	}
 
 	return payloadPayGrades
+}
+
+func CountryCodeName(country *models.Country) *internalmessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &internalmessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+		ID:   *handlers.FmtUUID(country.ID),
+	}
+}
+
+func Countries(countries models.Countries) internalmessages.Countries {
+	payload := make(internalmessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
+	}
+	return payload
 }

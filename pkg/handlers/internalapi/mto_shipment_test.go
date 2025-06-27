@@ -16,6 +16,7 @@ import (
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
@@ -190,6 +191,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 
 		shipmentType := internalmessages.MTOShipmentTypeHHG
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		subtestData.params = mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &internalmessages.CreateShipment{
@@ -203,6 +207,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &subtestData.pickupAddress.StreetAddress1,
 					StreetAddress2: subtestData.pickupAddress.StreetAddress2,
 					StreetAddress3: subtestData.pickupAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 				SecondaryPickupAddress: &internalmessages.Address{
 					City:           &secondaryPickupAddress.City,
@@ -211,6 +217,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &secondaryPickupAddress.StreetAddress1,
 					StreetAddress2: secondaryPickupAddress.StreetAddress2,
 					StreetAddress3: secondaryPickupAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 				DestinationAddress: &internalmessages.Address{
 					City:           &destinationAddress.City,
@@ -219,6 +227,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &destinationAddress.StreetAddress1,
 					StreetAddress2: destinationAddress.StreetAddress2,
 					StreetAddress3: destinationAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 				SecondaryDeliveryAddress: &internalmessages.Address{
 					City:           &secondaryDeliveryAddress.City,
@@ -227,6 +237,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
 					StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
 					StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 				RequestedPickupDate:   strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate),
 				RequestedDeliveryDate: strfmt.Date(*subtestData.mtoShipment.RequestedDeliveryDate),
@@ -375,6 +387,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		// pointers
 		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
 		sitExpected := false
@@ -391,6 +406,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &pickupAddress.StreetAddress1,
 					StreetAddress2: pickupAddress.StreetAddress2,
 					StreetAddress3: pickupAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 				DestinationAddress: &internalmessages.PPMDestinationAddress{
 					City:           &destinationAddress.City,
@@ -399,6 +416,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &destinationAddress.StreetAddress1,
 					StreetAddress2: destinationAddress.StreetAddress2,
 					StreetAddress3: destinationAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 			},
 			ShipmentType: &ppmShipmentType,
@@ -451,6 +470,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		// reset Body params to have PPM fields
 		params.Body = &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
@@ -464,6 +486,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &pickupAddress.StreetAddress1,
 					StreetAddress2: pickupAddress.StreetAddress2,
 					StreetAddress3: pickupAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 				DestinationAddress: &internalmessages.PPMDestinationAddress{
 					City:           &destinationAddress.City,
@@ -472,6 +496,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &destinationAddress.StreetAddress1,
 					StreetAddress2: destinationAddress.StreetAddress2,
 					StreetAddress3: destinationAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 				SecondaryPickupAddress: &internalmessages.Address{
 					City:           &secondaryPickupAddress.City,
@@ -480,6 +506,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &secondaryPickupAddress.StreetAddress1,
 					StreetAddress2: secondaryPickupAddress.StreetAddress2,
 					StreetAddress3: secondaryPickupAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 				SecondaryDestinationAddress: &internalmessages.Address{
 					City:           &secondaryDestinationAddress.City,
@@ -488,6 +516,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &secondaryDestinationAddress.StreetAddress1,
 					StreetAddress2: secondaryDestinationAddress.StreetAddress2,
 					StreetAddress3: secondaryDestinationAddress.StreetAddress3,
+					CountryID:      strfmt.UUID(country.ID.String()),
+					Country:        payloads.Country(&country),
 				},
 			},
 			ShipmentType: &ppmShipmentType,
@@ -1000,6 +1030,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		state := "CA"
 		zipcode := "90210"
 
+		country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NoError(err)
+
 		ppmUpdateTestCases := map[string]struct {
 			setUpOriginalPPM   setUpOriginalPPMFunc
 			desiredShipment    internalmessages.UpdatePPMShipment
@@ -1261,6 +1294,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						City:           &city,
 						State:          &state,
 						PostalCode:     &zipcode,
+						CountryID:      strfmt.UUID(country.ID.String()),
+						Country:        payloads.Country(&country),
 					},
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
@@ -1295,6 +1330,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						City:           &city,
 						State:          &state,
 						PostalCode:     &zipcode,
+						CountryID:      strfmt.UUID(country.ID.String()),
+						Country:        payloads.Country(&country),
 					},
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
@@ -1323,6 +1360,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						City:           &city,
 						State:          &state,
 						PostalCode:     &zipcode,
+						CountryID:      strfmt.UUID(country.ID.String()),
+						Country:        payloads.Country(&country),
 					},
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),

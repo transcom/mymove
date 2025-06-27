@@ -15,15 +15,27 @@ import (
 )
 
 // CountryModel model
-func CountryModel(country *string) *models.Country {
+func CountryModel(countryCode *string) *models.Country {
 	// The prime doesn't know the uuids of our countries, so for now we are going to just populate the name so we can query that
 	// when creating the address IF it is provided - else this will be nil and a US country will be created
+	if countryCode == nil {
+		return nil
+	}
+
+	modelCountry := &models.Country{
+		Country: *countryCode,
+	}
+	return modelCountry
+}
+
+func CountryFullModel(country *primev3messages.Country) *models.Country {
 	if country == nil {
 		return nil
 	}
 
 	modelCountry := &models.Country{
-		Country: *country,
+		Country:     country.Code,
+		CountryName: country.Name,
 	}
 	return modelCountry
 }
@@ -34,6 +46,7 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 	// We should always have ID if the user intends to update an Address,
 	// and StreetAddress1 is a required field on creation. If both are blank, it should be treated as nil.
 	var blankSwaggerID strfmt.UUID
+	var countryID uuid.UUID
 	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
@@ -56,7 +69,12 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 		modelAddress.PostalCode = *address.PostalCode
 	}
 	if address.Country != nil {
-		modelAddress.Country = CountryModel(address.Country)
+		//modelAddress.Country = CountryModel(&address.Country.Code)
+		modelAddress.Country = CountryFullModel(address.Country)
+		countryID = uuid.FromStringOrNil(address.Country.ID.String())
+	}
+	if countryID != uuid.Nil {
+		modelAddress.CountryId = &countryID
 	}
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 	if usPostRegionCitiesID != uuid.Nil {
@@ -70,6 +88,7 @@ func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) 
 	// We should always have ID if the user intends to update an Address,
 	// and City, State, PostalCode is a required field on creation. If both are blank, it should be treated as nil.
 	var blankSwaggerID strfmt.UUID
+	var countryID uuid.UUID
 	// unlike other addresses PPM destination address can be created without StreetAddress1
 	if address == nil || (address.ID == blankSwaggerID && address.City == nil && address.State == nil && address.PostalCode == nil) {
 		return nil
@@ -97,7 +116,12 @@ func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) 
 		modelAddress.PostalCode = *address.PostalCode
 	}
 	if address.Country != nil {
-		modelAddress.Country = CountryModel(address.Country)
+		//modelAddress.Country = CountryModel(&address.Country.Code)
+		modelAddress.Country = CountryFullModel(address.Country)
+		countryID = uuid.FromStringOrNil(address.Country.ID.String())
+	}
+	if countryID != uuid.Nil {
+		modelAddress.CountryId = &countryID
 	}
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 	if usPostRegionCitiesID != uuid.Nil {

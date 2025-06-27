@@ -164,7 +164,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeDLH,
-			priceCents:     unit.Cents(18648178),
+			priceCents:     unit.Cents(19436828),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
@@ -182,7 +182,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeDOASIT,
-			priceCents:     unit.Cents(44554),
+			priceCents:     unit.Cents(51128),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
@@ -208,7 +208,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeDLH,
-			priceCents:          unit.Cents(17422668),
+			priceCents:          unit.Cents(18159490),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
@@ -228,7 +228,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeDOASIT,
-			priceCents:          unit.Cents(41626), // Price same as before since new weight still in same weight bracket
+			priceCents:          unit.Cents(47768), // Price same as before since new weight still in same weight bracket
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},

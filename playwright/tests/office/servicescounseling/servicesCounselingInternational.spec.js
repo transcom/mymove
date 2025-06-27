@@ -100,9 +100,9 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
       await page.getByLabel('Orders number').fill('123456');
       await page.getByLabel('Orders type detail').selectOption('Shipment of HHG Permitted');
-      await page.getByTestId('hhgTacInput').fill('TEST');
-      await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByLabel('TAC').nth(0).fill('TEST');
+      await expect(page.getByTestId('submit_button')).toBeEnabled();
+      await page.getByTestId('submit_button').click();
 
       // adding an HHG shipment
       await page.getByLabel('Add a new shipment').selectOption('HHG');
@@ -146,7 +146,7 @@ test.describe('Services counselor user', () => {
       const deliveryLocation = 'FAIRBANKS, AK 99702 (FAIRBANKS NORTH STAR)';
       const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
       await deliveryAddress.getByLabel('Address 1').nth(0).fill('123 Cold St.');
-      await page.locator('input[id="destination.address-location-input"]').fill('99702');
+      await page.locator('input[id="destination.address-input"]').fill('99702');
       await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 

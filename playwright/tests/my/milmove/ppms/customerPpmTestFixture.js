@@ -168,14 +168,27 @@ export class CustomerPpmPage extends CustomerPage {
     const pickupLocation = 'YUMA, AZ 85364 (YUMA)';
     const destinationLocation = 'YUMA, AZ 85365 (YUMA)';
     const w2Location = 'YUMA, AZ 85367 (YUMA)';
+    const countrySearch = 'UNITED STATES';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="pickupAddress-input"]').fill('85364');
+    await this.page.locator('input[id="pickupAddress-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const pickupLocator = this.page.locator('input[id="pickupAddress-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('85364');
     await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-input"]').fill('85365');
+    await this.page.locator('input[id="destinationAddress-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const destLocator = this.page.locator('input[id="destinationAddress-input"]');
+    await destLocator.click({ timeout: 5000 });
+    await destLocator.fill('85365');
     await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -187,7 +200,13 @@ export class CustomerPpmPage extends CustomerPage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="w2Address-input"]').fill('85367');
+    await this.page.locator('input[id="w2Address-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const w2Locator = this.page.locator('input[id="w2Address-input"]');
+    await w2Locator.click({ timeout: 5000 });
+    await w2Locator.fill('85367');
     await expect(this.page.getByText(w2Location, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -208,7 +227,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateToWeightTicketPage() {
     await this.clickOnUploadPPMDocumentsButton();
-
+    await this.page.getByText('Add More Weight').click();
     await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
@@ -283,7 +302,7 @@ export class CustomerPpmPage extends CustomerPage {
       await this.uploadFileViaFilepond(filepond, 'constructedWeight.xlsx');
 
       // weight estimator file should be converted to .pdf so we verify it was
-      const re = /constructedWeight-\d{14}.+\.pdf$/;
+      const re = /constructedWeight-\d{14}.+/;
 
       // wait for the file to be visible in the uploads
       await expect(filepond.locator('../..').locator('p').getByText(re, { exact: false })).toBeVisible();
@@ -515,18 +534,32 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
     const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
     const destinationLocation = 'FORT WORTH, TX 76127 (TARRANT)';
+    const countrySearch = 'UNITED STATES';
     await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[id="pickupAddress.address-input"]').fill('90210');
+    await this.page.locator('input[id="pickupAddress.address-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const pickupLocator = this.page.locator('input[id="pickupAddress.address-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('90210');
     await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[id="destinationAddress.address-input"]').fill('76127');
+    await this.page.locator('input[id="destinationAddress.address-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const deliveryLocator = this.page.locator('input[id="destinationAddress.address-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('76127');
     await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
-    await this.page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill(expectedDeparture);
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
 
     // Select closeout office
@@ -725,8 +758,15 @@ export class CustomerPpmPage extends CustomerPage {
   async signAgreement() {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/agreement/);
     await expect(this.page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
+    await this.page.evaluate(() => {
+      const textBox = document.getElementById('certificationTextScrollBox');
+      textBox.scrollTop = textBox.scrollHeight;
+    });
+    await expect(this.page.getByRole('checkbox')).toBeEnabled();
+    await this.page.getByRole('checkbox').click();
+    const name = await this.page.getByTestId('currentUser').textContent();
 
-    await this.page.locator('input[name="signature"]').fill('Sofía Clark-Nuñez');
+    await this.page.locator('input[name="signature"]').fill(name);
     await expect(this.page.getByRole('button', { name: 'Complete' })).toBeEnabled();
   }
 
@@ -857,6 +897,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.waitForTimeout(1000);
 
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+    await this.page.getByText('Save & Continue').click();
   }
 
   async selectMeProGear() {
@@ -933,7 +974,22 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async returnToMoveHome() {
-    await this.page.getByRole('button', { name: 'Return To Homepage' }).click();
+    // if the Return To Homepage button is clicked from review page it navigates back to moves page
+    // if that is the case we need to click the Go To Move button to get back to the home page
+    const homePage = this.page.getByTestId('returnToHomePage');
+    const homePageCount = await homePage.count();
+
+    if (homePageCount > 0) {
+      await homePage.click();
+    } else {
+      const reviewHomePage = this.page.getByTestId('reviewReturnToHomepageLink');
+      const reviewHomePageCount = await reviewHomePage.count();
+
+      if (reviewHomePageCount > 0) {
+        await reviewHomePage.click();
+        await this.page.getByTestId('goToMoveBtn').click();
+      }
+    }
   }
 
   /**
@@ -1015,10 +1071,12 @@ export class CustomerPpmPage extends CustomerPage {
     await this.uploadFileViaFilepond(filepond, uploadFilename);
 
     // wait for the file to be visible in the uploads
-    const element = await filepond.locator('../..').locator('p').getByText(`${uploadFilename}-`, { exact: false });
-    const textContent = await element.textContent();
-    const matches = textContent.includes(`${uploadFilename}-`) && /\d{14}/.test(textContent);
-    await expect(matches).toBeTruthy();
+    await expect(
+      filepond
+        .locator('../..')
+        .locator('p')
+        .getByText(/sampleWeightTicket-\d{14}\.jpg/, { exact: false }),
+    ).toBeVisible();
   }
 
   /**

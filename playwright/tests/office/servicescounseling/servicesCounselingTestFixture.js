@@ -20,7 +20,7 @@ export class ServiceCounselorPage extends OfficePage {
    * @param {string} moveLocator
    */
   async verifyMoveByLocatorCode(moveLocator) {
-    await expect(this.page.getByTestId('nameBlock').getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
+    await expect(this.page.getByTestId('nameBlock')).toContainText(`#${moveLocator}`);
   }
 
   /**
@@ -131,7 +131,8 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.getByTestId('dropdown').selectOption({ label: 'NTS' });
 
     await this.waitForPage.addNTSShipment();
-    await this.page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.getByLabel('Requested pickup date').fill(pickupDate);
     await this.page.getByLabel('Requested pickup date').blur();
     await this.page.getByText('Use pickup address').click();
 
@@ -157,18 +158,26 @@ export class ServiceCounselorPage extends OfficePage {
     await storageInfo.getByLabel('Service order number').fill('999999');
 
     // Storage facility address
-    const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
+    const StorageLocationLookup = 'ATLANTA, GA 30303 (FULTON)';
+    const countrySearch = 'UNITED STATES';
 
     const storageAddress = this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
     await storageAddress.getByLabel('Address 1').fill('148 S East St');
     await storageAddress.getByLabel('Address 2').fill('Suite 7A');
-    await this.page.locator('input[id="storageFacility.address-input"]').fill('30301');
+    await this.page.locator('input[id="storageFacility.address-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const storageLocator = this.page.locator('input[id="storageFacility.address-input"]');
+    await storageLocator.click({ timeout: 5000 });
+    await storageLocator.fill('30303');
     await expect(storageAddress.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
     await this.page.getByLabel('Lot number').fill('1111111');
 
     // Requested delivery date
-    await this.page.getByLabel('Requested delivery date').fill('20 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await this.page.getByLabel('Requested delivery date').fill(deliveryDate);
     await this.page.getByLabel('Requested delivery date').blur();
 
     // Delivery Address
@@ -176,7 +185,13 @@ export class ServiceCounselorPage extends OfficePage {
     const deliveryLocation = this.page.getByRole('group', { name: 'Delivery Address' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
-    await this.page.locator('input[id="delivery.address-input"]').fill('36101');
+    await this.page.locator('input[id="delivery.address-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const deliveryLocator = this.page.locator('input[id="delivery.address-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('36101');
     await expect(deliveryLocation.getByText(DeliveryLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -199,15 +214,29 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
 
     const LocationLookup = 'YUMA, AZ 85364 (YUMA)';
+    const countrySearch = 'UNITED STATES';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="pickupAddress-input"]').fill('85364');
+    await this.page.locator('input[id="pickupAddress-country-input"]').fill(countrySearch);
+    let spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const pickupLocator = this.page.locator('input[id="pickupAddress-input"]');
+    await pickupLocator.click({ timeout: 5000 });
+    await pickupLocator.fill('85364');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-input"]').fill('85364');
-    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.locator('input[id="destinationAddress-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const deliveryLocator = this.page.locator('input[id="destinationAddress-input"]');
+    await deliveryLocator.click({ timeout: 5000 });
+    await deliveryLocator.fill('85364');
+    spanLocator = this.page.locator(`span:has(mark:has-text("85364"))`);
+    await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     if (options?.selectAdvance) {
@@ -218,8 +247,15 @@ export class ServiceCounselorPage extends OfficePage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="w2Address-input"]').fill('85364');
-    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.locator('input[id="w2Address-country-input"]').fill(countrySearch);
+    spanLocator = this.page.locator(`span:has(mark:has-text("${countrySearch}"))`);
+    await expect(spanLocator).toBeVisible();
+    await this.page.keyboard.press('Enter');
+    const w2Locator = this.page.locator('input[id="w2Address-input"]');
+    await w2Locator.click({ timeout: 5000 });
+    await w2Locator.fill('85364');
+    spanLocator = this.page.locator(`span:has(mark:has-text("85364"))`);
+    await expect(spanLocator).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();

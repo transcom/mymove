@@ -40,6 +40,12 @@ describe('ResidentialAddress page', () => {
     postalCode: '79912',
     county: 'El Paso',
     usPostRegionCitiesID: '',
+    country: {
+      code: 'US',
+      name: 'UNITED STATES',
+      id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+    },
+    countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
@@ -287,9 +293,21 @@ describe('requireCustomerState ResidentialAddress', () => {
             },
             residential_address: {
               street: '123 Main St',
+              country: {
+                code: 'US',
+                name: 'UNITED STATES',
+                id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+              },
+              countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
             },
             backup_mailing_address: {
               street: '456 Main St',
+              country: {
+                code: 'US',
+                name: 'UNITED STATES',
+                id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+              },
+              countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
             },
           },
         },
@@ -335,9 +353,21 @@ describe('requireCustomerState ResidentialAddress', () => {
             },
             residential_address: {
               street: '123 Main St',
+              country: {
+                code: 'US',
+                name: 'UNITED STATES',
+                id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+              },
+              countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
             },
             backup_mailing_address: {
               street: '456 Main St',
+              country: {
+                code: 'US',
+                name: 'UNITED STATES',
+                id: '791899e6-cd77-46f2-981b-176ecb8d7098',
+              },
+              countryID: '791899e6-cd77-46f2-981b-176ecb8d7098',
             },
             backup_contacts: [
               {

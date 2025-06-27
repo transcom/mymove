@@ -30,6 +30,9 @@ export const OptionalAddressSchema = Yup.object().shape(
       .when(['streetAddress1', 'streetAddress2', 'city', 'state'], ([street1, street2, city, state], schema) =>
         street1 || street2 || city || state ? schema.required('Required') : schema,
       ),
+    countryID: Yup.string().when('[streetAddress1, city]', ([street1, city], schema) =>
+      street1 || city ? schema.required('Required') : schema,
+    ),
   },
   [
     ['streetAddress1', 'streetAddress2'],

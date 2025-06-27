@@ -110,7 +110,8 @@ test.describe('TOO user', () => {
     await page.locator('#requestedPickupDate').fill(pickupDate);
     await page.locator('#requestedPickupDate').blur();
     await page.getByText('Use pickup address').click();
-    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    const deliveryDate = new Date(Date.now() + 240 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.locator('#requestedDeliveryDate').fill(deliveryDate);
     await page.locator('#requestedDeliveryDate').blur();
 
     // Save the shipment
