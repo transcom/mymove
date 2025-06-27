@@ -35,7 +35,9 @@ export const LoggedOutHeader = () => (
 export const LoggedInOfficeHeader = () => (
   <div className="officeApp">
     <MilMoveHeader>
-      <OfficeUserInfo {...props} />
+      <ul className="usa-nav__primary">
+        <OfficeUserInfo {...props} />
+      </ul>
     </MilMoveHeader>
   </div>
 );
@@ -53,8 +55,8 @@ export const LoggedInOfficeHeaderWithNavigation = () => (
         <li className="usa-nav__primary-item">
           <a href="#">Navigation Link</a>
         </li>
+        <OfficeUserInfo {...props} />
       </ul>
-      <OfficeUserInfo {...props} />
     </MilMoveHeader>
   </div>
 );

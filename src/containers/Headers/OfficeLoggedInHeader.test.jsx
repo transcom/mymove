@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ConnectedOfficeLoggedInHeader from './OfficeLoggedInHeader';
@@ -8,9 +8,12 @@ import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
 import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
+import { configureStore } from 'shared/store';
+import { gblocDropdownTestId } from 'components/Office/GblocSwitcher/GblocDropdown';
 
 jest.mock('store/auth/actions', () => ({
-  ...jest.requireActual('store/auth/actions'),
+  loadUser: jest.fn(() => async () => {}),
+  setActiveRole: jest.fn().mockImplementation(() => ({ type: '' })),
   logOut: jest.fn().mockImplementation(() => ({ type: '' })),
 }));
 
@@ -187,8 +190,8 @@ describe('OfficeLoggedInHeader', () => {
         user: {
           userId123: {
             id: 'userId123',
-            roles: [{ roleType: roleTypes.HQ }],
             office_user: {
+              id: 'userId123',
               first_name: 'Amanda',
               last_name: 'Gorman',
               transportation_office: {
@@ -196,19 +199,19 @@ describe('OfficeLoggedInHeader', () => {
               },
             },
           },
+          roles: [{ roleType: roleTypes.HQ }],
         },
       },
     };
 
+    const mockStore = configureStore({ ...testState });
     render(
-      <MockProviders initialState={testState}>
+      <MockProviders store={mockStore} initialState={testState}>
         <ConnectedOfficeLoggedInHeader />
       </MockProviders>,
     );
-
-    const gblocSwitcher = screen.getByTestId('gbloc_switcher');
-    expect(gblocSwitcher).toBeInstanceOf(HTMLDivElement);
-    expect(gblocSwitcher.firstChild).toBeInstanceOf(HTMLSelectElement);
-    expect(gblocSwitcher.firstChild.firstChild).toBeInstanceOf(HTMLOptionElement);
+    const gblocSwitcher = await screen.findByTestId(gblocDropdownTestId);
+    expect(gblocSwitcher).toBeInstanceOf(HTMLSelectElement);
+    expect((await within(gblocSwitcher).findAllByRole('option')).length).toBeGreaterThan(0);
   });
 });

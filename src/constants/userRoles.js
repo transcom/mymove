@@ -13,16 +13,16 @@ export const roleTypes = {
 };
 
 export const adminOfficeRoles = [
-  { roleType: 'customer', name: 'Customer' },
-  { roleType: 'task_ordering_officer', name: 'Task Ordering Officer' },
-  { roleType: 'task_invoicing_officer', name: 'Task Invoicing Officer' },
-  { roleType: 'contracting_officer', name: 'Contracting Officer' },
-  { roleType: 'services_counselor', name: 'Services Counselor' },
-  { roleType: 'prime_simulator', name: 'Prime Simulator' },
-  { roleType: 'qae', name: 'Quality Assurance Evaluator' },
-  { roleType: 'customer_service_representative', name: 'Customer Service Representative' },
-  { roleType: 'gsr', name: 'Government Surveillance Representative' },
-  { roleType: 'headquarters', name: 'Headquarters' },
+  { roleType: roleTypes.CUSTOMER, name: 'Customer', abbv: '' },
+  { roleType: roleTypes.TOO, name: 'Task Ordering Officer', abbv: 'TOO' },
+  { roleType: roleTypes.TIO, name: 'Task Invoicing Officer', abbv: 'TIO' },
+  { roleType: roleTypes.CONTRACTING_OFFICER, name: 'Contracting Officer', abbv: 'KO' },
+  { roleType: roleTypes.SERVICES_COUNSELOR, name: 'Services Counselor', abbv: 'SC' },
+  { roleType: roleTypes.PRIME_SIMULATOR, name: 'Prime Simulator', abbv: 'PRIME' },
+  { roleType: roleTypes.QAE, name: 'Quality Assurance Evaluator', abbv: 'QAE' },
+  { roleType: roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE, name: 'Customer Service Representative', abbv: 'CSR' },
+  { roleType: roleTypes.GSR, name: 'Government Surveillance Representative', abbv: 'GSR' },
+  { roleType: roleTypes.HQ, name: 'Headquarters', abbv: 'HQ' },
 ];
 
 export const officeRoles = [

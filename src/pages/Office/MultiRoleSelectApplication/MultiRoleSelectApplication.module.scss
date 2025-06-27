@@ -1,0 +1,62 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/mixins';
+
+
+// hoist this mixins to a standard module later on
+@mixin mix-mm-row-container{
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+// using :scope to maintain specificity precedence over any uswds selector properties.
+.dropdown-wrapper-style{
+
+    @include mix-mm-row-container;
+    @include mix-mm-header-font-properties;
+
+    --top-color: #{$link-light};
+
+    color: var(--top-color, inherit);
+
+    height: 100%;
+
+    @scope (&) {
+        @at-root :global(.usa-nav__primary.usa-nav__primary) {
+           a {
+                padding: 0 0rem 0 1rem;
+            }
+        }
+
+        a {
+            color: var(--top-color, inherit) !important;
+
+            height: 100%;
+            line-height: 1.15;
+            align-content: center;
+
+            &:hover{
+                background: unset !important;
+            }
+        }
+    }
+    select {
+        @include mix-mm-header-font-properties;
+        @include mix-mm-dropdown($top-color: white, $background-color: transparent, $chevron-offset: -0.2rem){
+            background-color: var(--bg-color, inherit);
+            color: var(--top-color, inherit);
+            height: 100%;
+            border-radius: 0;
+            text-align: center;
+
+            box-sizing: content-box;
+            padding: 0rem 1.8rem 0rem 0.5rem;
+            width: min-content;
+        }
+    }
+}
+
+.dropdown-ul-container-style{
+    list-style-type: none;
+}

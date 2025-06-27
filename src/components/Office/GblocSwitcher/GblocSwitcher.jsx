@@ -2,15 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import styles from './GblocSwitcher.module.scss';
+import GblocDropdown from './GblocDropdown';
 
-import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { useListGBLOCsQueries } from 'hooks/queries';
 import { selectLoggedInUser } from 'store/entities/selectors';
+import { roleTypes } from 'constants/userRoles';
 import SelectedGblocContext, {
   SELECTED_GBLOC_SESSION_STORAGE_KEY,
 } from 'components/Office/GblocSwitcher/SelectedGblocContext';
-import { roleTypes } from 'constants/userRoles';
 
 const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
   const [isInitialPageLoad, setIsInitialPageLoad] = useState(true);
@@ -39,21 +38,12 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
   }, [selectedGbloc, officeUsersDefaultGbloc, isInitialPageLoad, handleGblocChange]);
 
   return (
-    <ButtonDropdown
-      onChange={(e) => {
-        handleGblocChange(e.target.value);
-      }}
-      value={selectedGbloc || officeUsersDefaultGbloc}
+    <GblocDropdown
       ariaLabel={ariaLabel}
-      divClassName={styles.switchGblocButton}
-      testId="gbloc_switcher"
-    >
-      {gblocs?.map((gbloc) => (
-        <option value={gbloc} key={`filterOption_${gbloc}`}>
-          {gbloc}
-        </option>
-      ))}
-    </ButtonDropdown>
+      handleChange={handleGblocChange}
+      defaultValue={selectedGbloc || officeUsersDefaultGbloc}
+      gblocs={gblocs}
+    />
   );
 };
 
