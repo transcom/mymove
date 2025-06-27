@@ -129,6 +129,14 @@ flags:
       - segment:
           key: mil-app
           value: true
+  - key: wounded_warrior_move
+    name: Wounded Warrior feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
   - key: bulk_assignment
     name: bulk assignment feature flag
     type: BOOLEAN_FLAG_TYPE
@@ -237,6 +245,22 @@ flags:
           value: false
   - key: gun_safe
     name: Gun safe feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: bluebark_move
+    name: Bluebark Move feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: approval_request_type_column
+    name: Approval request type UI column feature flag
     type: BOOLEAN_FLAG_TYPE
     enabled: false
     rollouts:

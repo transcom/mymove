@@ -89,7 +89,7 @@ const WeightTicketUpload = ({
       return "Upload your pro-gear's weight tickets";
     }
 
-    if (name === 'gunSafe') {
+    if (name === 'gunSafeDocument') {
       return "Upload your gun safe's weight tickets";
     }
 
