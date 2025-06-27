@@ -22,6 +22,7 @@ const MoveShow = () => {
         <TextField source="serviceMember.lastName" label="Service member last name" />
         <DateField source="createdAt" showTime />
         <DateField source="updatedAt" showTime />
+        <DateField source="availableToPrimeAt" showTime label="Available to Prime at" />
       </SimpleShowLayout>
     </Show>
   );

@@ -44,10 +44,11 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 			MiddleName: move.Orders.ServiceMember.MiddleName,
 			LastName:   move.Orders.ServiceMember.LastName,
 		},
-		Status:    adminmessages.MoveStatus(move.Status),
-		Show:      &showMove,
-		CreatedAt: *handlers.FmtDateTime(move.CreatedAt),
-		UpdatedAt: *handlers.FmtDateTime(move.UpdatedAt),
+		Status:             adminmessages.MoveStatus(move.Status),
+		Show:               &showMove,
+		CreatedAt:          *handlers.FmtDateTime(move.CreatedAt),
+		UpdatedAt:          *handlers.FmtDateTime(move.UpdatedAt),
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
 	}
 }
 

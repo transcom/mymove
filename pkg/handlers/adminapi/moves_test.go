@@ -190,6 +190,42 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	})
 }
 
+func (suite *HandlerSuite) TestMovePayload() {
+	suite.Run("Verify available to Prime date nil", func() {
+		defaultMove := factory.BuildMove(suite.DB(), nil, nil)
+		params := moveop.GetMoveParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID)),
+			MoveID:      *handlers.FmtUUID(defaultMove.ID),
+		}
+		handler := GetMoveHandler{
+			HandlerConfig: suite.NewHandlerConfig(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&moveop.GetMoveOK{}, response)
+		okResponse := response.(*moveop.GetMoveOK)
+		suite.Nil(okResponse.Payload.AvailableToPrimeAt)
+	})
+
+	suite.Run("Verify available to Prime is returned with the payload", func() {
+		defaultMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		params := moveop.GetMoveParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID)),
+			MoveID:      *handlers.FmtUUID(defaultMove.ID),
+		}
+		handler := GetMoveHandler{
+			HandlerConfig: suite.NewHandlerConfig(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&moveop.GetMoveOK{}, response)
+		okResponse := response.(*moveop.GetMoveOK)
+		suite.Equal(strfmt.DateTime(*defaultMove.AvailableToPrimeAt).String(), (*okResponse.Payload.AvailableToPrimeAt).String())
+	})
+}
+
 func (suite *HandlerSuite) TestGetMoveHandler() {
 	suite.Run("200 - OK response", func() {
 		defaultMove := factory.BuildMove(suite.DB(), nil, nil)

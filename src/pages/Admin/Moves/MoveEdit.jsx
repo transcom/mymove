@@ -31,6 +31,7 @@ const MoveEdit = () => (
       <TextInput source="serviceMember.lastName" label="Service member last name" disabled />
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />
+      <TextInput source="availableToPrimeAt" label="Available to Prime at" disabled />
     </SimpleForm>
   </Edit>
 );
