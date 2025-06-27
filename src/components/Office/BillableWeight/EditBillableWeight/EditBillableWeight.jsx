@@ -136,7 +136,6 @@ export default function EditBillableWeight({
         <Formik enableReinitialize initialValues={initialValues} validationSchema={validationSchema}>
           {({ handleChange, values, isValid, errors, touched, setTouched }) => (
             <div className={styles.container}>
-              {requiredAsteriskMessage}
               {billableWeight ? (
                 <BillableWeightHintText
                   billableWeight={billableWeight}
@@ -149,6 +148,7 @@ export default function EditBillableWeight({
               ) : (
                 <MaxBillableWeightHintText estimatedWeight={estimatedWeight} isNTSRShipment={isNTSRShipment} />
               )}
+              {requiredAsteriskMessage}
               <Fieldset className={styles.fieldset}>
                 <MaskedTextField
                   defaultValue="0"

@@ -314,6 +314,14 @@ const QAEViolationsForm = ({
             }
           };
 
+          const showRequiredAsteriskMessageForViolations =
+            values.kpiViolations.includes('observedClaimsReponseDate') ||
+            values.kpiViolations.includes('observedPickupDate') ||
+            values.kpiViolations.includes('observedPickupSpreadDates') ||
+            values.kpiViolations.includes('observedClaimsResponseDate') ||
+            values.kpiViolations.includes('observedDeliveryDate') ||
+            values.kpiViolations.includes('observedDeliveryDate');
+
           return (
             <>
               <GridContainer className={styles.cardContainer} data-testid="evaluationViolationsForm">
@@ -357,7 +365,9 @@ const QAEViolationsForm = ({
 
                 <Grid row>
                   <Grid col className={styles.claimDatePicker}>
-                    {requiredAsteriskMessage}
+                    <div className="usa-label">
+                      {showRequiredAsteriskMessageForViolations && requiredAsteriskMessage}
+                    </div>
                     <div>
                       {values.kpiViolations.includes('observedClaimsReponseDate') && (
                         <DatePickerInput
@@ -421,6 +431,7 @@ const QAEViolationsForm = ({
                       <hr className={styles.divider} />
                       <h3 className={styles.siHeading}>Serious incident</h3>
                       <FormGroup>
+                        <div className="usa-label">{requiredAsteriskMessage}</div>
                         <Fieldset>
                           <div className={styles.serious}>
                             <legend
