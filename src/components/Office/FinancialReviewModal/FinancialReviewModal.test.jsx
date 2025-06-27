@@ -9,7 +9,7 @@ describe('FinancialReviewModal', () => {
     const mockOnSubmit = jest.fn();
     render(<FinancialReviewModal onSubmit={mockOnSubmit} onClose={() => {}} />);
     const flagForReview = screen.getByLabelText('Yes');
-    const remarksInput = screen.getByLabelText('Remarks for financial office');
+    const remarksInput = screen.getByLabelText('Remarks for financial office *');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     await userEvent.click(flagForReview);

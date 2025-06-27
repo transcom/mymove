@@ -19,7 +19,7 @@ describe('components/Office/ShipmentCustomerSIT', () => {
     expect(screen.queryByLabelText('Destination')).not.toBeInTheDocument();
   });
 
-  it('defaults to customer using SIT at destination', async () => {
+  it('defaults to customer using SIT at destination and shows asterisks for required fields', async () => {
     render(
       <Formik initialValues={{}}>
         <ShipmentCustomerSIT />
@@ -31,5 +31,11 @@ describe('components/Office/ShipmentCustomerSIT', () => {
     });
 
     expect(await screen.findByLabelText('Destination')).toBeChecked();
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+    expect(screen.getByLabelText('Estimated storage start *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Estimated storage end *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Estimated SIT weight *')).toBeInTheDocument();
   });
 });

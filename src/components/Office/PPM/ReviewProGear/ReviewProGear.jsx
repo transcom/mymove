@@ -20,6 +20,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   belongsToSelf: Yup.bool().required('Required'),
@@ -193,6 +194,8 @@ export default function ReviewProGear({
                     values.missingWeightTicket === 'true' ? 'Constructed pro-gear weight' : "Shipment's pro-gear weight"
                   }
                   id="proGearWeight"
+                  showRequiredAsterisk
+                  required
                   mask={Number}
                   scale={0} // digits after point, 0 for integers
                   signed={false} // disallow negative
@@ -202,7 +205,10 @@ export default function ReviewProGear({
                   disabled={readOnly}
                 />
                 <h3 className={styles.reviewHeader}>Review pro-gear {tripNumber}</h3>
-                <p>Add a review for this pro-gear</p>
+                {requiredAsteriskMessage}
+                <p>
+                  <RequiredAsterisk /> Add a review for this pro-gear
+                </p>
                 <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
                 <Fieldset>
                   <div
@@ -241,7 +247,11 @@ export default function ReviewProGear({
 
                     {values.status === ppmDocumentStatus.REJECTED && (
                       <FormGroup className={styles.rejectionReason}>
-                        <Label htmlFor={`rejectReason-${proGear?.id}`}>Reason</Label>
+                        <Label htmlFor={`rejectReason-${proGear?.id}`}>
+                          <span required>
+                            Reason <RequiredAsterisk />
+                          </span>
+                        </Label>
                         {!canEditRejection && (
                           <>
                             <p data-testid="rejectionReasonReadOnly">{proGear?.reason || values.rejectionReason}</p>
@@ -275,6 +285,7 @@ export default function ReviewProGear({
                               value={values.rejectionReason}
                               placeholder="Type something"
                               disabled={readOnly}
+                              required
                             />
                             <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                           </>

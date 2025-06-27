@@ -9,7 +9,7 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
-import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
@@ -95,6 +95,11 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
             </FormGroup>
             {hasProGear && (
               <>
+                <span className="usa-label">
+                  <span>
+                    <RequiredAsterisk /> Enter a weight into at least one pro-gear field.
+                  </span>
+                </span>
                 <MaskedTextField
                   defaultValue="0"
                   name="proGearWeight"
@@ -158,6 +163,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                      showRequiredAsterisk
                       required
                     />
                     <Hint>

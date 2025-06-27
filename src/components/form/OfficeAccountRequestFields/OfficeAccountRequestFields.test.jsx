@@ -183,4 +183,22 @@ describe('OfficeAccountRequestFields component', () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it('renders asterisks for required fields', async () => {
+    render(
+      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+        <OfficeAccountRequestFields />
+      </Formik>,
+    );
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+    expect(screen.getByLabelText('First Name *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Last Name *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Confirm Email *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Telephone *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Transportation Office *')).toBeInTheDocument();
+    expect(screen.getByTestId('requestedRolesHeadingSpan')).toBeInTheDocument();
+    expect(screen.getByTestId('requestedRolesHeadingSpan')).toHaveTextContent('*');
+  });
 });

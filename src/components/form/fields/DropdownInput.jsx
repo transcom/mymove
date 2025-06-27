@@ -9,7 +9,6 @@ import RequiredAsterisk from '../RequiredAsterisk';
 import styles from './DropdownInput.module.scss';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
-// import { OptionalTag } from 'components/form/OptionalTag';
 import { DropdownArrayOf } from 'types/form';
 
 export const DropdownInput = (props) => {
