@@ -4292,6 +4292,7 @@ func createHHGWithOriginSITServiceItems(
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	handlerConfig := handlers.Config{}
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
@@ -4370,7 +4371,7 @@ func createHHGWithOriginSITServiceItems(
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4630,7 +4631,8 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -5127,7 +5129,8 @@ func createHHGWithPaymentServiceItems(
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem

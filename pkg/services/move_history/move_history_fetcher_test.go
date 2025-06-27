@@ -533,6 +533,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 
 				builder := query.NewQueryBuilder()
 				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+				shipmentRouter := mtoshipment.NewShipmentRouter()
 				shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 				addressCreator := address.NewAddressCreator()
 				portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -542,7 +543,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 					mock.Anything,
 					mock.Anything,
 				).Return(400, nil)
-				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 				move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 				serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 					{
