@@ -86,7 +86,7 @@ begin
     INTO weight
     FROM weight_tickets wt
     WHERE wt.ppm_shipment_id = ppm_id
-      AND wt.status NOT IN ('REJECTED', 'EXCLUDED');
+      AND (wt.status NOT IN ('REJECTED', 'EXCLUDED') OR wt.status IS NULL);
   END IF;
 
   peak_period := is_peak_period(move_date);
@@ -285,6 +285,11 @@ begin
 
   -- Calculate total incentive
   total_incentive := price_dsh + price_dlh + price_dop + price_ddp + price_dpk + price_dupk + price_fsc;
+
+  -- we want to cap the final incentive to not be greater than the max incentive
+  IF total_incentive > COALESCE(ppm.max_incentive, 0) THEN
+    total_incentive := COALESCE(ppm.max_incentive, 0);
+  END IF;
 
   IF update_table THEN
     UPDATE ppm_shipments
