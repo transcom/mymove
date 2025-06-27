@@ -365,7 +365,7 @@ const QAEViolationsForm = ({
 
                 <Grid row>
                   <Grid col className={styles.claimDatePicker}>
-                    <div className="usa-label">
+                    <div className="margin-top-2">
                       {showRequiredAsteriskMessageForViolations && requiredAsteriskMessage}
                     </div>
                     <div>
@@ -431,7 +431,7 @@ const QAEViolationsForm = ({
                       <hr className={styles.divider} />
                       <h3 className={styles.siHeading}>Serious incident</h3>
                       <FormGroup>
-                        <div className="usa-label">{requiredAsteriskMessage}</div>
+                        <div>{requiredAsteriskMessage}</div>
                         <Fieldset>
                           <div className={styles.serious}>
                             <legend
