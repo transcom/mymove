@@ -21,7 +21,7 @@ import Alert from 'shared/Alert';
 import { hasRotationChanged, toRotatedDegrees, toRotatedPosition } from 'shared/utils';
 import { waitForAvScan } from 'services/internalApi';
 
-const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
+const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploading }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
   const [menuIsOpen, setMenuOpen] = useState(false);
@@ -37,6 +37,21 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   const lastScannedId = useRef(null);
 
   const queryClient = useQueryClient();
+
+  // If the parent provides is file uploading status, we can tell that it is uploading
+  // and adjust accordingly. If not, FilePond's uploading status will be used instead
+  // from the FileUpload component. Also if not, there will be no uploading banner,
+  // it'll just go straight to scanning.
+  // We can't automatically assume uploading because if you switch files, it isn't
+  // an upload just a fetch.
+  useEffect(() => {
+    if (isFileUploading) {
+      setIsJustUploadedFile(true);
+      setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
+    } else {
+      setIsJustUploadedFile(false);
+    }
+  }, [isFileUploading]);
 
   const { mutate: mutateUploads } = useMutation(updateUpload, {
     onSuccess: async (data, variables) => {
