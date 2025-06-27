@@ -42,7 +42,7 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 			},
 			{
 				Model: models.ClientCert{
-					AllowPrime:       true,
+					AllowPrime:       false,
 					AllowPPTAS:       true,
 					PPTASAffiliation: (*models.ServiceMemberAffiliation)(models.StringPointer("MARINES")),
 				},
@@ -55,8 +55,9 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 		associator := usersroles.NewUsersRolesCreator()
 		updater := NewClientCertUpdater(queryBuilder, associator, mockSender)
 
-		allowPrime := false
-		allowPPTAS := false
+		// Update the client cert to allow prime and PPTAS, and change PPTAS affiliation to Navy
+		allowPrime := true
+		allowPPTAS := true
 		pptasAffiliation := (*models.ServiceMemberAffiliation)(models.StringPointer("NAVY"))
 		payload := &adminmessages.ClientCertificateUpdate{
 			Subject:          "new-subject",
@@ -74,8 +75,28 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 		suite.Equal(payload.Subject, updatedClientCert.Subject)
 		suite.Equal(payload.Sha256Digest, updatedClientCert.Sha256Digest)
 		suite.Equal(*payload.AllowPrime, updatedClientCert.AllowPrime)
-		suite.Equal(*payload.AllowPPTAS, updatedClientCert.AllowPrime)
+		suite.Equal(*payload.AllowPPTAS, updatedClientCert.AllowPPTAS)
 		suite.Equal((*models.ServiceMemberAffiliation)(payload.PptasAffiliation), updatedClientCert.PPTASAffiliation)
+
+		// Update the client cert to remove PPTAS and reset the PPTAS affiliation to nil
+		allowPPTAS = false
+		pptasAffiliation = nil
+		payload = &adminmessages.ClientCertificateUpdate{
+			Subject:          "new-subject",
+			Sha256Digest:     digest,
+			AllowPPTAS:       &allowPPTAS,
+			PptasAffiliation: (*adminmessages.Affiliation)(pptasAffiliation),
+		}
+		updatedClientCert, verrs, err = updater.UpdateClientCert(
+			suite.AppContextWithSessionForTest(&auth.Session{}),
+			clientCert.ID, payload)
+		suite.NoError(err)
+		suite.Nil(verrs)
+
+		suite.Equal(payload.Subject, updatedClientCert.Subject)
+		suite.Equal(payload.Sha256Digest, updatedClientCert.Sha256Digest)
+		suite.Equal(*payload.AllowPPTAS, updatedClientCert.AllowPPTAS)
+		suite.Nil(updatedClientCert.PPTASAffiliation)
 
 		userRoles, err = roles.FetchRolesForUser(suite.DB(), clientCert.UserID)
 		suite.NoError(err)
