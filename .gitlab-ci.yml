@@ -1137,9 +1137,11 @@ integration_test_mtls:
   image: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
   services:
     - name: $postgres
+      depends_on: $redis
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
       alias: milmovelocal,officelocal,adminlocal,primelocal
+      depends_on: $postgres
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
   needs:
@@ -1249,6 +1251,7 @@ integration_test_mtls:
     DTOD_USE_MOCK: true
   before_script:
     - *setup_milmove_env
+    - /bin/milmove serve & #attempt to start in backgroud??
     # - *setup_env_intergration_mtls
     # - export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
     # - export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
