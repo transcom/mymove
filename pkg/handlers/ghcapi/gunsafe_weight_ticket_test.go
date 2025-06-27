@@ -301,7 +301,7 @@ func (suite *HandlerSuite) TestUpdateGunSafeWeightTicketHandler() {
 		}
 
 		// Overwrite handler config in order to return false for FF
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		gunSafeFF := services.FeatureFlag{
 			Key:   "gun_safe",
 			Match: false,
@@ -444,7 +444,7 @@ func (suite *HandlerSuite) TestDeleteGunSafeWeightTicketHandler() {
 		params := subtestData.params
 
 		// Overwrite handler config in order to return false for FF
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		gunSafeFF := services.FeatureFlag{
 			Key:   "gun_safe",
 			Match: false,
