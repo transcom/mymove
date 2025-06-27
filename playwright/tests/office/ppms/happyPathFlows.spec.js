@@ -147,7 +147,7 @@ test.describe('Services counselor user', () => {
 
     const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="gunSafeWeight"]')).toContainText('No');
+    await expect(shipmentContainer.locator('[data-testid="gunSafeWeight"]')).toContainText('Yes, 450 lbs');
     // View existing shipment
     await page.locator('[data-testid="ShipmentContainer"] .usa-button').click();
 
@@ -155,7 +155,7 @@ test.describe('Services counselor user', () => {
     await page.locator('input[name="gunSafeWeight"]').fill('200');
     await expect(
       page.getByText(
-        'The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.',
+        `The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer's overall entitlement is already at the 18,000 lbs maximum.`,
       ),
     ).toBeVisible();
     await ppmPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');

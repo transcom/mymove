@@ -74,8 +74,11 @@ import {
   PPMSIT_ESTIMATED_COST,
   GBLOCS,
   ROLE_PRIVILEGES,
+  FEATURE_FLAG,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 /**
  * Function that fetches and attaches weight tickets to corresponding ppmShipment objects on
@@ -285,11 +288,22 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     staleTime: 0,
   });
 
+  const { data: isGunSafeEnabled = false, isFetched } = useQuery([FEATURE_FLAG, FEATURE_FLAG_KEYS.GUN_SAFE], () =>
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE),
+  );
+
   const { data: documents, ...documentsQuery } = useQuery(
-    [DOCUMENTS, shipmentId],
-    ({ queryKey }) => getPPMDocuments(...queryKey),
+    [DOCUMENTS, shipmentId, isGunSafeEnabled],
+    async () => {
+      const data = await getPPMDocuments(DOCUMENTS, shipmentId);
+      if (!isGunSafeEnabled && data) {
+        const { GunSafeWeightTickets, ...rest } = data;
+        return rest;
+      }
+      return data;
+    },
     {
-      enabled: !!shipmentId,
+      enabled: !!shipmentId && isFetched,
     },
   );
 
