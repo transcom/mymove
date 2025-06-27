@@ -60,7 +60,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Sort:                    params.Sort,
 				Order:                   params.Order,
 				OrderType:               params.OrderType,
-				TOOAssignedUser:         params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 				CounselingOffice:        params.CounselingOffice,
 			}
 
@@ -203,23 +203,23 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			}
 
 			ListOrderParams := services.ListOrderParams{
-				Branch:                     params.Branch,
-				Locator:                    params.Locator,
-				Edipi:                      params.Edipi,
-				Emplid:                     params.Emplid,
-				CustomerName:               params.CustomerName,
-				DestinationDutyLocation:    params.DestinationDutyLocation,
-				OriginDutyLocation:         params.OriginDutyLocation,
-				AppearedInTOOAt:            handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
-				RequestedMoveDate:          params.RequestedMoveDate,
-				Status:                     params.Status,
-				Page:                       params.Page,
-				PerPage:                    params.PerPage,
-				Sort:                       params.Sort,
-				Order:                      params.Order,
-				OrderType:                  params.OrderType,
-				TOODestinationAssignedUser: params.AssignedTo,
-				CounselingOffice:           params.CounselingOffice,
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				Edipi:                   params.Edipi,
+				Emplid:                  params.Emplid,
+				CustomerName:            params.CustomerName,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				OriginDutyLocation:      params.OriginDutyLocation,
+				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
+				RequestedMoveDate:       params.RequestedMoveDate,
+				Status:                  params.Status,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				OrderType:               params.OrderType,
+				AssignedTo:              params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			var activeRole string
@@ -587,7 +587,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,
 				CounselingOffice:        params.CounselingOffice,
-				SCAssignedUser:          params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 			}
 
 			var activeRole string
@@ -703,7 +703,12 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
+			queueType := string(models.QueueTypeCounseling)
+			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				queueType = string(models.QueueTypeCloseout)
+			}
+
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, queueType)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,

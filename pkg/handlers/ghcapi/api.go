@@ -146,6 +146,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 	assignedOfficeUserUpdater := move.NewAssignedOfficeUserUpdater(move.NewMoveFetcher())
 	vLocation := address.NewVLocation()
+	countrySearcher := address.NewCountrySearcher()
 
 	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
@@ -861,6 +862,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmSubmitPPMShipmentDocumentationHandler = SubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentNewSubmitter}
 
 	ghcAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
+
+	ghcAPI.AddressesSearchCountriesHandler = SearchCountriesHandler{
+		handlerConfig,
+		countrySearcher,
+	}
 
 	return ghcAPI
 }
