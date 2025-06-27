@@ -275,7 +275,6 @@ flags:
       - segment:
           key: mil-app
           value: false
-
 segments:
   - key: mil-app
     name: Mil App
