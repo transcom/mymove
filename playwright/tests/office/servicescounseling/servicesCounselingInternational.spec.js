@@ -1,5 +1,5 @@
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
-import { appendTimestampToFilenamePrefix, formatDate } from '../../utils/playwrightUtility';
+import { formatDate } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -54,8 +54,7 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Location Lookup').nth(1).fill('90212');
       await expect(page.getByText(LocationLookup2, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
-      await page.getByLabel('First Name').nth(1).fill('Backup');
-      await page.getByLabel('Last Name').nth(1).fill('Friend');
+      await page.getByLabel('Name', { exact: true }).fill('Backup Friend');
       await page.getByLabel('Email', { exact: true }).nth(1).fill('backupFriend@mail.mil');
       await page.getByLabel('Phone', { exact: true }).nth(1).fill('555-867-5309');
       await page.locator('label[for="noCreateOktaAccount"]').click();
@@ -93,16 +92,14 @@ test.describe('Services counselor user', () => {
       await expect(page.getByTestId('documentAlertMessage')).toContainText('Uploading');
       await expect(page.getByTestId('documentAlertMessage')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(
-        page.getByTestId('uploads-table').getByText(appendTimestampToFilenamePrefix('AF Orders Sample')),
-      ).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
       await page.getByRole('button', { name: 'Done' }).click();
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
       await page.getByLabel('Orders number').fill('123456');
       await page.getByLabel('Orders type detail').selectOption('Shipment of HHG Permitted');
-      await page.getByTestId('hhgTacInput').fill('TEST');
-      await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
-      await page.getByRole('button', { name: 'Save' }).click();
+      await page.getByLabel('TAC').nth(0).fill('TEST');
+      await expect(page.getByTestId('submit_button')).toBeEnabled();
+      await page.getByTestId('submit_button').click();
 
       // adding an HHG shipment
       await page.getByLabel('Add a new shipment').selectOption('HHG');
@@ -146,7 +143,7 @@ test.describe('Services counselor user', () => {
       const deliveryLocation = 'FAIRBANKS, AK 99702 (FAIRBANKS NORTH STAR)';
       const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
       await deliveryAddress.getByLabel('Address 1').nth(0).fill('123 Cold St.');
-      await page.locator('input[id="destination.address-location-input"]').fill('99702');
+      await page.locator('input[id="destination.address-input"]').fill('99702');
       await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
@@ -157,8 +154,10 @@ test.describe('Services counselor user', () => {
       await expect(page.getByRole('button', { name: 'Save and Continue' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save and Continue' }).click();
 
-      await expect(page.getByText('Incentive & advance')).toBeVisible();
-      await expect(page.getByText('Estimated incentive')).toBeVisible();
+      let selector = page.getByText('Incentive & advance');
+      await selector.waitFor({ state: 'visible' });
+      selector = page.getByText('Estimated incentive');
+      await selector.waitFor({ state: 'visible' });
 
       await page.getByTestId('counselor-remarks').fill('remarks');
 

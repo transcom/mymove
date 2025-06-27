@@ -142,7 +142,7 @@ const SubmitMoveForm = (props) => {
                     </Grid>
                   </Grid>
                   <Grid row>
-                    <Grid tablet={{ col: 'fill' }}>
+                    <Grid tablet={{ col: 'fill' }} data-testid="currentUser">
                       <p>{currentUser}</p>
                     </Grid>
                   </Grid>

@@ -115,7 +115,7 @@ test.describe('Services counselor user', () => {
     await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
 
     // Fill out the HHG and NTS accounting codes
-    await page.getByTestId('hhgTacInput').fill(tac.tac);
+    await page.getByTestId('ntsTacInput').fill(tac.tac);
     const today = new Date();
     const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(today);
     const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(today);
@@ -127,10 +127,13 @@ test.describe('Services counselor user', () => {
     await page.getByTestId('hhgSacInput').fill('4K988AS098F');
     // Today's date will fall valid under the TAC and LOA and the NTS LOA should then populate
     await page.getByTestId('ntsTacInput').fill(tac.tac);
-    const ntsLoaTextField = await page.getByTestId('ntsLoaTextField');
+    const ntsLoaTextField = page.getByTestId('ntsLoaTextField');
+    await page.getByTestId('ntsTacInput').blur();
     await expect(ntsLoaTextField).toHaveValue('1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1');
 
-    const loaMissingErrorMessage = page.getByText('Unable to find a LOA based on the provided details');
+    const loaMissingErrorMessage = page.getByText(
+      'Unable to find a LOA based on the provided details. Please ensure a department indicator and TAC are present on this form.',
+    );
     const loaInvalidErrorMessage = page.getByText(
       'The LOA identified based on the provided details appears to be invalid',
     );

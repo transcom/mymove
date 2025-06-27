@@ -24,7 +24,8 @@ test.describe('NTS', () => {
 
     // Fill in form to create NTS shipment
     await customerPage.waitForPage.ntsShipment();
-    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    const pickupDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    await page.getByLabel('Preferred pickup date').fill(pickupDate);
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
     await page.getByTestId('remarks').fill('Grandfather antique clock');

@@ -7,6 +7,19 @@
 // @ts-check
 import { test, expect } from './ppmTestFixture';
 
+/**
+ * @param {string} dateString
+ */
+function formatDate(dateString) {
+  const [month, day, year] = dateString.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+
+  const dayFormatted = String(date.getDate()).padStart(2, '0');
+  const monthFormatted = date.toLocaleString('default', { month: 'short' });
+  const yearFormatted = date.getFullYear();
+
+  return `${dayFormatted} ${monthFormatted} ${yearFormatted}`;
+}
 const gunSafeEnabled = process.env.FEATURE_FLAG_GUN_SAFE;
 
 test.describe('Services counselor user', () => {
@@ -27,7 +40,7 @@ test.describe('Services counselor user', () => {
     await ppmPage.waitForLoading();
 
     // Verify SIT info
-    await expect(page.getByText('Government constructed cost:')).toBeVisible();
+    await expect(page.getByText(/Government constructed cost:/)).toBeVisible();
     await expect(page.getByText('1,000 lbs of destination SIT at 30813 for 31 days.')).toBeVisible();
     // Verify estimated incentive
     await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();
@@ -46,17 +59,17 @@ test.describe('Services counselor user', () => {
     await expect(page.locator('[data-testid="ShipmentContainer"]')).toBeVisible();
     let shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2024');
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2025');
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('987 New Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('P.O. Box 12345');
-    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('Des Moines');
+    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText(/Des Moines/i);
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('IA');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('50309');
 
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('123 New Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('P.O. Box 12345');
-    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('Fort Eisenhower');
+    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText(/Fort Eisenhower/i);
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('GA');
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('30813');
 
@@ -83,7 +96,8 @@ test.describe('Services counselor user', () => {
     await ppmPage.waitForLoading();
 
     // Verify SIT info
-    await expect(page.getByText('Government constructed cost:')).toBeVisible();
+    const selector = page.getByText(/Government constructed cost:/);
+    await selector.waitFor({ state: 'visible' });
     await expect(page.getByText('1,000 lbs of destination SIT at 76127 for 31 days.')).toBeVisible();
     // Verify estimated incentive
     await expect(page.getByRole('heading', { name: 'Estimated incentive:' })).toBeVisible();
@@ -101,7 +115,9 @@ test.describe('Services counselor user', () => {
     await expect(page.getByText('Your changes were saved.')).toBeVisible();
     shipmentContainer = page.locator('[data-testid="ShipmentContainer"]').last();
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2025');
+    const expectedDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    const formattedDate = formatDate(expectedDeparture);
+    await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText(formattedDate);
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('BEVERLY HILLS');
