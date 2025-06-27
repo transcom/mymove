@@ -3780,7 +3780,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("An APPROVALS_REQUESTED shipment CANNOT change to CANCELED - ERROR", func() {
-
 		testShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
@@ -4794,7 +4793,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.Equal(expectedRequiredDeiliveryDate.Year(), updatedMTOShipment.RequiredDeliveryDate.Year())
 	})
 
-	suite.Run("errors when rate area for the pickup address is not found", func() {
+	suite.Run("AK -> AK - should update requiredDeliveryDate when scheduledPickupDate is updated", func() {
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -4817,6 +4816,87 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		appCtx := suite.AppContextForTest()
 
+		zone1Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "24850 Gratiot Dr,",
+					City:           "JBER",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+		zone4Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+		estimatedWeight := unit.Pound(400)
+
+		oldUbShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
+					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					PrimeEstimatedWeight: &estimatedWeight,
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeActualWeight:    &estimatedWeight,
+				},
+			},
+			{
+				Model:    zone1Address,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    zone4Address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.Nil(oldUbShipment.RequiredDeliveryDate)
+
+		pickUpDate := time.Now()
+		expectedRequiredDeiliveryDateUB := pickUpDate.AddDate(0, 0, 30)
+		newUbShipment := models.MTOShipment{
+			ID:                  oldUbShipment.ID,
+			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+			ScheduledPickupDate: &pickUpDate,
+		}
+
+		eTag := etag.GenerateEtag(oldUbShipment.UpdatedAt)
+		updatedUBMTOShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(appCtx, &newUbShipment, eTag, "test")
+
+		suite.Nil(err)
+		suite.NotNil(updatedUBMTOShipment)
+		suite.NotNil(updatedUBMTOShipment.RequiredDeliveryDate)
+		suite.False(updatedUBMTOShipment.RequiredDeliveryDate.IsZero())
+		suite.Equal(expectedRequiredDeiliveryDateUB.Day(), updatedUBMTOShipment.RequiredDeliveryDate.Day())
+		suite.Equal(expectedRequiredDeiliveryDateUB.Month(), updatedUBMTOShipment.RequiredDeliveryDate.Month())
+		suite.Equal(expectedRequiredDeiliveryDateUB.Year(), updatedUBMTOShipment.RequiredDeliveryDate.Year())
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestCalculateRequiredDeliveryDate() {
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
+	).Return(500, nil)
+
+	suite.Run("CONUS -> AK - errors when rate area for the pickup address is not found", func() {
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 			MaxDaysTransitTime: 12,
 			WeightLbsLower:     0,
@@ -4828,16 +4908,28 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.Assert().False(verrs.HasAny())
 		suite.NoError(err)
 
-		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "1 some street",
-					City:           "Charlotte",
-					State:          "NC",
-					PostalCode:     "282903443",
-					IsOconus:       models.BoolPointer(false),
-				},
-			}}, nil)
+		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             reContract,
+				ContractID:           reContract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().AddDate(1, 0, 0),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		conusAddressId := uuid.Must(uuid.NewV4())
+		conusAddress := models.Address{
+			ID:             conusAddressId,
+			StreetAddress1: "1 some street",
+			City:           "Charlotte",
+			State:          "NC",
+			PostalCode:     "28290",
+			IsOconus:       models.BoolPointer(false),
+		}
+
 		zone5Address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -4850,62 +4942,26 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 					IsOconus:       models.BoolPointer(true),
 				},
 			}}, nil)
-		estimatedWeight := unit.Pound(4000)
-		oldUbShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
-					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-					PrimeEstimatedWeight: &estimatedWeight,
-					Status:               models.MTOShipmentStatusApproved,
-					PrimeActualWeight:    &estimatedWeight,
-				},
-			},
-			{
-				Model:    pickupAddress,
-				Type:     &factory.Addresses.PickupAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    zone5Address,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
-			},
-		}, nil)
 
-		suite.Nil(oldUbShipment.RequiredDeliveryDate)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		pickUpDate := time.Now()
-		newUbShipment := models.MTOShipment{
-			ID:                  oldUbShipment.ID,
-			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
-			ScheduledPickupDate: &pickUpDate,
-		}
-
-		eTag := etag.GenerateEtag(oldUbShipment.UpdatedAt)
-		updatedMTOShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(appCtx, &newUbShipment, eTag, "test")
-
-		suite.Error(err)
-		suite.Nil(updatedMTOShipment)
-		suite.Equal("Could not complete query related to object of type: mtoShipment.", err.Error())
-		suite.IsType(apperror.QueryError{}, err)
-		queryErr := err.(apperror.QueryError)
-		wrappedErr := queryErr.Unwrap()
-		suite.Equal(fmt.Sprintf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID), wrappedErr.Error())
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, conusAddress, zone5Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.NotNil(err)
+		suite.Nil(RDD)
+		suite.Equal(fmt.Sprintf("error fetching pickup rate area id for address ID: %s", conusAddress.ID), err.Error())
 	})
 
-	suite.Run("errors when rate area for the destination address is not found", func() {
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("string"),
-			mock.AnythingOfType("string"),
-		).Return(500, nil)
-		mtoShipmentUpdaterPrime := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
+	suite.Run("CONUS -> AK - errors when rate area for the destination address is not found", func() {
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.Assert().False(verrs.HasAny())
+		suite.NoError(err)
 
 		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
@@ -4918,21 +4974,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 				EscalationCompounded: 1.0,
 			},
 		})
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		appCtx := suite.AppContextForTest()
 
-		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-			MaxDaysTransitTime: 12,
-			WeightLbsLower:     0,
-			WeightLbsUpper:     10000,
-			DistanceMilesLower: 0,
-			DistanceMilesUpper: 10000,
-		}
-		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-		suite.Assert().False(verrs.HasAny())
-		suite.NoError(err)
-
-		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		conusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: "1 some street",
@@ -4942,64 +4985,235 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 					IsOconus:       models.BoolPointer(false),
 				},
 			}}, nil)
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+
+		zone5AddressId := uuid.Must(uuid.NewV4())
+		zone5Address := models.Address{
+			ID:             zone5AddressId,
+			StreetAddress1: "1 some street",
+			StreetAddress2: models.StringPointer("P.O. Box 1234"),
+			StreetAddress3: models.StringPointer("c/o Another Person"),
+			City:           "Cordova",
+			State:          "AK",
+			PostalCode:     "99677",
+			IsOconus:       models.BoolPointer(true),
+		}
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, conusAddress, zone5Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.NotNil(err)
+		suite.Nil(RDD)
+		suite.Equal(fmt.Sprintf("error fetching destination rate area id for address ID: %s", zone5Address.ID), err.Error())
+	})
+
+	suite.Run("AK -> CONUS - correctly errors when weight is missing for HHG with one CONUS address", func() {
+		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             reContract,
+				ContractID:           reContract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().AddDate(1, 0, 0),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		conusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: "1 some street",
-					StreetAddress2: models.StringPointer("P.O. Box 1234"),
-					StreetAddress3: models.StringPointer("c/o Another Person"),
-					City:           "Cordova",
+					City:           "Charlotte",
+					State:          "NC",
+					PostalCode:     "28290",
+				},
+			}}, nil)
+
+		zone2Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "200 Sitka Spruce St",
+					City:           "Eielson AFB",
 					State:          "AK",
-					PostalCode:     "99677898",
+					PostalCode:     "99702",
 					IsOconus:       models.BoolPointer(true),
 				},
 			}}, nil)
-		estimatedWeight := unit.Pound(4000)
-		oldUbShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone2Address, conusAddress, time.Now(), nil, move.ID, models.MTOShipmentTypeHHG)
+		suite.NotNil(err)
+		suite.Nil(RDD)
+		suite.Equal(fmt.Sprintf("unable to calculate domestic transit time due to missing weight for move ID: %s", move.ID), err.Error())
+	})
+
+	suite.Run("AK -> AK - successfully calculates RDD for intra-Alaska shipments", func() {
+		pickupDate := time.Now()
+		IntraAlaskaUBTransitTime := 30
+		AlaskaZone1ToZone4HHGTransitTime := 15
+		AlaskaZone2ToZone4HHGTransitTime := 60
+
+		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             reContract,
+				ContractID:           reContract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().AddDate(1, 0, 0),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
 			},
+		})
+
+		zone1Address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
-					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-					PrimeEstimatedWeight: &estimatedWeight,
-					Status:               models.MTOShipmentStatusApproved,
-					PrimeActualWeight:    &estimatedWeight,
+				Model: models.Address{
+					StreetAddress1: "100 Mountain Hemlock St",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99504",
+					IsOconus:       models.BoolPointer(true),
 				},
-			},
-			{
-				Model:    pickupAddress,
-				Type:     &factory.Addresses.PickupAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
-			},
-		}, nil)
+			}}, nil)
 
-		suite.Nil(oldUbShipment.RequiredDeliveryDate)
+		zone2Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "200 Sitka Spruce St",
+					City:           "FORT WAINWRIGHT",
+					State:          "AK",
+					PostalCode:     "99703",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
 
-		pickUpDate := time.Now()
-		newUbShipment := models.MTOShipment{
-			ID:                  oldUbShipment.ID,
-			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
-			ScheduledPickupDate: &pickUpDate,
+		zone4Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "400 Tamarack St",
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		// Zone 1 -> Zone 4 UB
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.Nil(err)
+		suite.NotNil(RDD)
+		suite.Equal(pickupDate.AddDate(0, 0, IntraAlaskaUBTransitTime).Day(), RDD.Day())
+
+		// Zone 1 -> Zone 4 HHG
+		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeHHG)
+		suite.Nil(err)
+		suite.NotNil(RDD)
+		suite.Equal(pickupDate.AddDate(0, 0, AlaskaZone1ToZone4HHGTransitTime).Day(), RDD.Day())
+
+		// Zone 1 -> Zone 4 NTS-Release
+		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeHHGOutOfNTS)
+		suite.Nil(err)
+		suite.NotNil(RDD)
+		suite.Equal(pickupDate.AddDate(0, 0, AlaskaZone1ToZone4HHGTransitTime).Day(), RDD.Day())
+
+		// Zone 2 -> Zone 4 UB - Also tests that a nil weight is accepted for UBs
+		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone2Address, zone4Address, time.Now(), nil, move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.Nil(err)
+		suite.NotNil(RDD)
+		suite.Equal(pickupDate.AddDate(0, 0, IntraAlaskaUBTransitTime).Day(), RDD.Day())
+
+		// Zone 2 -> Zone 4 HHG - Also tests that a nil weight is accepted for Intra-Alaska HHG
+		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone2Address, zone4Address, time.Now(), nil, move.ID, models.MTOShipmentTypeHHG)
+		suite.Nil(err)
+		suite.NotNil(RDD)
+		suite.Equal(pickupDate.AddDate(0, 0, AlaskaZone2ToZone4HHGTransitTime).Day(), RDD.Day())
+	})
+
+	suite.Run("AK -> AK - correctly errors when rate area for pickup address is not found", func() {
+		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             reContract,
+				ContractID:           reContract.ID,
+				StartDate:            time.Now().AddDate(0, 0, -1),
+				EndDate:              time.Now().AddDate(1, 0, 0),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		unsavedZone1AddressId := uuid.Must(uuid.NewV4())
+		unsavedZone1Address := models.Address{
+			ID:             unsavedZone1AddressId,
+			StreetAddress1: "101 Mountain Hemlock St",
+			City:           "JB Elmendorf-Richardson",
+			State:          "AK",
+			PostalCode:     "99506",
+			IsOconus:       models.BoolPointer(true),
 		}
 
-		eTag := etag.GenerateEtag(oldUbShipment.UpdatedAt)
-		updatedMTOShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(appCtx, &newUbShipment, eTag, "test")
+		savedZone2Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "200 Sitka Spruce St",
+					City:           "Eielson AFB",
+					State:          "AK",
+					PostalCode:     "99702",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
 
-		suite.Error(err)
-		suite.Nil(updatedMTOShipment)
-		suite.Equal("Could not complete query related to object of type: mtoShipment.", err.Error())
-		suite.IsType(apperror.QueryError{}, err)
-		queryErr := err.(apperror.QueryError)
-		wrappedErr := queryErr.Unwrap()
-		suite.Equal(fmt.Sprintf("error fetching destination rate area id for address ID: %s", destinationAddress.ID), wrappedErr.Error())
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, unsavedZone1Address, savedZone2Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.NotNil(err)
+		suite.Nil(RDD)
+		suite.Equal(fmt.Sprintf("error fetching pickup rate area id for address ID: %s", unsavedZone1Address.ID), err.Error())
+	})
+
+	suite.Run("AK -> AK - correctly errors when rate area for destination address is not found", func() {
+		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             reContract,
+				ContractID:           reContract.ID,
+				StartDate:            time.Now().AddDate(0, 0, -1),
+				EndDate:              time.Now().AddDate(1, 0, 0),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		unsavedZone1AddressId := uuid.Must(uuid.NewV4())
+		unsavedZone1Address := models.Address{
+			ID:             unsavedZone1AddressId,
+			StreetAddress1: "101 Mountain Hemlock St",
+			City:           "JB Elmendorf-Richardson",
+			State:          "AK",
+			PostalCode:     "99506",
+			IsOconus:       models.BoolPointer(true),
+		}
+
+		savedZone2Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "200 Sitka Spruce St",
+					City:           "Eielson AFB",
+					State:          "AK",
+					PostalCode:     "99702",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, savedZone2Address, unsavedZone1Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.NotNil(err)
+		suite.Nil(RDD)
+		suite.Equal(fmt.Sprintf("error fetching destination rate area id for address ID: %s", unsavedZone1Address.ID), err.Error())
 	})
 }
 

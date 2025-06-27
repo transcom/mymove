@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingAddOrders from './ServicesCounselingAddOrders';
@@ -9,7 +9,7 @@ import { counselingCreateOrder } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
+import { ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -448,6 +448,29 @@ describe('ServicesCounselingAddOrders component', () => {
     });
   });
 
+  it('wounded warrior FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(false);
+    });
+  });
+  it('wounded warrior FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasWoundedWarrior = options.some((option) => option.value === ORDERS_TYPE.WOUNDED_WARRIOR);
+      expect(hasWoundedWarrior).toBe(true);
+    });
+  });
+
   it('routes to the move details page when the next button is clicked for OCONUS orders', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     renderWithMocks();
@@ -495,6 +518,30 @@ describe('ServicesCounselingAddOrders component', () => {
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(-1);
+    });
+  });
+
+  it('BLUEBARK FF turned off', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(false);
+    });
+  });
+
+  it('BLUEBARK FF turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderWithMocks();
+
+    await waitFor(() => {
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
+      const options = within(ordersTypeDropdown).queryAllByRole('option');
+      const hasBluebark = options.some((option) => option.value === ORDERS_TYPE.BLUEBARK);
+      expect(hasBluebark).toBe(true);
     });
   });
 });

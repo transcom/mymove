@@ -42,6 +42,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	sitStatusService := sitstatus.NewShipmentSITStatus()
@@ -53,7 +54,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -377,18 +378,39 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		year, month, day := now.Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		departureDate := contactDatePlusGracePeriod.Add(time.Hour * 24)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 		shipmentSITAllowance := int(90)
 		estimatedWeight := unit.Pound(1400)
+
+		requestedDays := 90
+		officeRemarks := "TESTING REMARKS"
+		sitExtension := models.SITDurationUpdate{
+			RequestedDays: requestedDays,
+			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+			Status:        models.SITExtensionStatusPending,
+			OfficeRemarks: &officeRemarks,
+		}
+
+		populatesitExtensions := []models.SITDurationUpdate{sitExtension}
+
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
+					Status:                    models.MTOShipmentStatusApproved,
+					SITDaysAllowance:          &shipmentSITAllowance,
+					PrimeEstimatedWeight:      &estimatedWeight,
+					RequiredDeliveryDate:      &aMonthAgo,
+					UpdatedAt:                 aMonthAgo,
+					SITDurationUpdates:        populatesitExtensions,
+					DestinationSITAuthEndDate: &departureDate,
 				},
 			},
 			{
@@ -396,6 +418,15 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 				LinkOnly: true,
 			},
 		}, nil)
+
+		// Link sitExtension for existing shipment
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
 		// We need to create a destination first day sit in order to properly calculate authorized end date
 		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -433,7 +464,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
+					Code: models.ReServiceCodeDDASIT,
 				},
 			},
 			{
@@ -477,11 +508,38 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 
+		// Confirm sitExtension exists for the shipment
+		var sitExtensions []models.SITDurationUpdate
+		suite.DB().Q().All(&sitExtensions)
+		suite.Equal(1, len(sitExtensions))
+		suite.Equal(models.SITExtensionStatusPending, sitExtensions[0].Status)
+		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, shipment.MoveTaskOrder.Status)
+
+		// Confirm move status is APPROVALS REQUESTED before sit extension removal
+		var moves []models.Move
+		suite.DB().Q().All(&moves)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moves[0].Status)
+
 		// Update MTO service item
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipmentWithCalculatedStatus, eTag)
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+
+		// Confirm sitExtension status was updated for the shipment
+		suite.DB().Q().All(&sitExtensions)
+		suite.Equal(1, len(sitExtensions))
+		suite.Equal(models.SITExtensionStatusRemoved, sitExtensions[0].Status)
+		// Confirm decision date is set to today
+		suite.Equal(time.Now().Truncate(time.Hour*24), sitExtensions[0].DecisionDate.Truncate(time.Hour*24).Local())
+		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
+
+		// Confirm move status is APPROVED after sit extension removal
+		suite.DB().Q().All(&moves)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.MoveStatusAPPROVED, moves[0].Status)
 
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date
@@ -493,7 +551,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		// Verify the updated shipment authorized end date is equal to the departure date
 		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
 		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
-
 	})
 
 	// Test that if a SITDepartureDate is provided successfully and it is a date before the shipments
@@ -2260,6 +2317,7 @@ func (suite *MTOServiceItemServiceSuite) setupAssignmentTestData() (models.MTOSe
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -2269,7 +2327,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	rejectionReason := models.StringPointer("")
 
@@ -3335,6 +3393,7 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	planner := &mocks.Planner{}
@@ -3343,7 +3402,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
