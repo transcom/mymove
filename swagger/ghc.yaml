@@ -6322,7 +6322,9 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: '#/definitions/Document'
-      SCAssignedUser:
+      SCCounselingAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
