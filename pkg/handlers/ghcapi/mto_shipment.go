@@ -65,6 +65,18 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 			shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			gunSafeFlag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = gunSafeFlag.Match
+			}
+			/** End of Feature Flag **/
+
 			/** Feature Flag - Boat Shipment **/
 			featureFlagName := "boat"
 			isBoatFeatureOn := false
@@ -118,6 +130,18 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 					filteredShipments = append(filteredShipments, shipments[i])
 				}
 				shipments = filteredShipments
+			}
+			/** End of Feature Flag **/
+
+			/** Feature Flag - Gun Safe **/
+			if !isGunSafeFeatureOn {
+				for i := range shipments {
+					if shipments[i].PPMShipment != nil {
+						shipments[i].PPMShipment.GunSafeWeightTickets = nil
+						shipments[i].PPMShipment.HasGunSafe = nil
+						shipments[i].PPMShipment.GunSafeWeight = nil
+					}
+				}
 			}
 			/** End of Feature Flag **/
 

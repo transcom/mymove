@@ -127,10 +127,18 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
+	hasGunSafe := true
+	gunSafeWeight := unit.Pound(500)
 	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    mto,
 			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				HasGunSafe:    &hasGunSafe,
+				GunSafeWeight: &gunSafeWeight,
+			},
 		},
 	}, nil)
 
@@ -266,6 +274,89 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		payloadShipment4 := okResponse.Payload[3]
 		suite.NotNil(payloadShipment4.PpmShipment)
+		suite.Equal(*shipments[3].PPMShipment.HasGunSafe, *payloadShipment4.PpmShipment.HasGunSafe)
+		suite.Equal(shipments[3].PPMShipment.GunSafeWeight.Int64(), *payloadShipment4.PpmShipment.GunSafeWeight)
+		suite.Equal(shipments[3].ID.String(), payloadShipment4.PpmShipment.ShipmentID.String())
+		suite.Equal(shipments[3].PPMShipment.ID.String(), payloadShipment4.PpmShipment.ID.String())
+	})
+
+	suite.Run("Successful list fetch - Integration Test with Gun Safe FF OFF - test for nil checks", func() {
+		subtestData := suite.makeListMTOShipmentsSubtestData()
+		params := subtestData.params
+		shipments := subtestData.shipments
+		mtoAgent := subtestData.mtoAgent
+		mtoServiceItem := subtestData.mtoServiceItem
+		sitExtension := subtestData.sitExtension
+
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		handlerConfig := suite.NewHandlerConfig()
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		handler := ListMTOShipmentsHandler{
+			handlerConfig,
+			mtoshipment.NewMTOShipmentFetcher(),
+			sitstatus.NewShipmentSITStatus(),
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
+		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		suite.Len(okResponse.Payload, 4)
+
+		payloadShipment := okResponse.Payload[0]
+		suite.Equal(shipments[0].ID.String(), payloadShipment.ID.String())
+		suite.Equal(*shipments[0].CounselorRemarks, *payloadShipment.CounselorRemarks)
+		suite.Equal(mtoAgent.ID.String(), payloadShipment.MtoAgents[0].ID.String())
+		suite.Equal(mtoServiceItem.ID.String(), payloadShipment.MtoServiceItems[0].ID.String())
+		suite.Equal(sitExtension.ID.String(), payloadShipment.SitExtensions[0].ID.String())
+		suite.Equal(shipments[0].StorageFacility.ID.String(), payloadShipment.StorageFacility.ID.String())
+		suite.Equal(shipments[0].StorageFacility.Address.ID.String(), payloadShipment.StorageFacility.Address.ID.String())
+
+		payloadShipment2 := okResponse.Payload[1]
+		suite.Equal(shipments[1].ID.String(), payloadShipment2.ID.String())
+		suite.Nil(payloadShipment2.StorageFacility)
+
+		suite.Equal(int64(190), *payloadShipment.SitDaysAllowance)
+		suite.Equal(sitstatus.OriginSITLocation, payloadShipment.SitStatus.CurrentSIT.Location)
+		suite.Equal(int64(8), *payloadShipment.SitStatus.CurrentSIT.DaysInSIT)
+		suite.Equal(int64(174), *payloadShipment.SitStatus.TotalDaysRemaining)
+		suite.Equal(int64(16), *payloadShipment.SitStatus.TotalSITDaysUsed) // 7 from the previous SIT and 7 from the current (+2 for including last days)
+		suite.Equal(int64(16), *payloadShipment.SitStatus.CalculatedTotalDaysInSIT)
+		suite.Equal(subtestData.sit.SITEntryDate.Format("2006-01-02"), payloadShipment.SitStatus.CurrentSIT.SitEntryDate.String())
+		suite.Equal(subtestData.sit.SITDepartureDate.Format("2006-01-02"), payloadShipment.SitStatus.CurrentSIT.SitDepartureDate.String())
+
+		suite.Len(payloadShipment.SitStatus.PastSITServiceItemGroupings, 1)
+		year, month, day := time.Now().Date()
+		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
+		suite.Equal(lastMonthEntry.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.PastSITServiceItemGroupings[0].Summary.SitEntryDate.String())
+
+		// This one has a destination shipment type
+		payloadShipment3 := okResponse.Payload[2]
+		suite.Equal(string(models.DestinationTypeHomeOfRecord), string(*payloadShipment3.DestinationType))
+
+		payloadShipment4 := okResponse.Payload[3]
+		suite.NotNil(payloadShipment4.PpmShipment)
+		suite.Nil(payloadShipment4.PpmShipment.HasGunSafe)
+		suite.Nil(payloadShipment4.PpmShipment.GunSafeWeight)
+		suite.Empty(payloadShipment4.PpmShipment.GunSafeWeightTickets)
 		suite.Equal(shipments[3].ID.String(), payloadShipment4.PpmShipment.ShipmentID.String())
 		suite.Equal(shipments[3].PPMShipment.ID.String(), payloadShipment4.PpmShipment.ID.String())
 	})
