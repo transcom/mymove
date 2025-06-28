@@ -49,14 +49,13 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
-import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { handleQueueAssignment, getQueue } from 'utils/queues';
 import retryPageLoading from 'utils/retryPageLoading';
 
 export const counselingColumns = (
-  moveLockFlag,
   originLocationList,
   supervisor,
   queueType,
@@ -69,7 +68,7 @@ export const counselingColumns = (
       (row) => {
         const now = new Date();
         // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
           return (
             <div data-testid="lock-icon">
               <FontAwesomeIcon icon="lock" />
@@ -247,7 +246,6 @@ export const counselingColumns = (
   return cols;
 };
 export const closeoutColumns = (
-  moveLockFlag,
   ppmCloseoutGBLOC,
   ppmCloseoutOriginLocationList,
   supervisor,
@@ -261,7 +259,7 @@ export const closeoutColumns = (
       (row) => {
         const now = new Date();
         // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
           return (
             <div id={row.id}>
               <FontAwesomeIcon icon="lock" />
@@ -466,7 +464,6 @@ const ServicesCounselingQueue = ({
   const navigate = useNavigate();
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
-  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const [originLocationList, setOriginLocationList] = useState([]);
   const [ppmCloseoutOriginLocationList, setPpmCloseoutOriginLocationList] = useState([]);
@@ -501,8 +498,6 @@ const ServicesCounselingQueue = ({
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
         setisCounselorMoveCreateFFEnabled(isEnabled);
-        const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-        setMoveLockFlag(lockedMoveFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -678,7 +673,6 @@ const ServicesCounselingQueue = ({
           disableMultiSort
           disableSortBy={false}
           columns={closeoutColumns(
-            moveLockFlag,
             inPPMCloseoutGBLOC,
             ppmCloseoutOriginLocationList,
             supervisor,
@@ -717,7 +711,6 @@ const ServicesCounselingQueue = ({
           disableMultiSort
           disableSortBy={false}
           columns={counselingColumns(
-            moveLockFlag,
             originLocationList,
             supervisor,
             queueType,
