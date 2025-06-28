@@ -10,7 +10,7 @@ import { configureStore } from 'shared/store';
 describe('AddressFields component', () => {
   const mockStore = configureStore({});
 
-  it('renders a legend and all address inputs', () => {
+  it('renders a legend and all address inputs and asterisks for required fields', () => {
     const { getByText, getByLabelText, getByTestId } = render(
       <Provider store={mockStore.store}>
         <Formik>
@@ -18,13 +18,17 @@ describe('AddressFields component', () => {
         </Formik>
       </Provider>,
     );
+    expect(getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
     expect(getByText('Address Form')).toBeInstanceOf(HTMLLegendElement);
     expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
+    expect(getByLabelText(/Address 1 */)).toBeInTheDocument();
     expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
     expect(getByTestId('City')).toBeInstanceOf(HTMLLabelElement);
     expect(getByTestId('State')).toBeInstanceOf(HTMLLabelElement);
     expect(getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
     expect(getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
+    expect(getByLabelText(/Location Lookup */)).toBeInTheDocument();
   });
 
   describe('with pre-filled values', () => {
@@ -82,7 +86,7 @@ describe('AddressFields component', () => {
           </Formik>
         </Provider>,
       );
-      expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
+      expect(getByLabelText(/Address 1/)).toHaveValue(initialValues.address.streetAddress1);
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
       expect(getByTestId('City')).toHaveTextContent(initialValues.address.city);
       expect(getByTestId('State')).toHaveTextContent(initialValues.address.state);

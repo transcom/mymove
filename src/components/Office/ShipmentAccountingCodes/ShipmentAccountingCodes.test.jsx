@@ -14,7 +14,6 @@ describe('components/Office/ShipmentAccountingCodes', () => {
         </Formik>,
       );
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(/Accounting codes/);
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(/Optional/);
       expect(screen.getByText('No TAC code entered.')).toBeInTheDocument();
       expect(screen.getByText('No SAC code entered.')).toBeInTheDocument();
 
@@ -60,16 +59,6 @@ describe('components/Office/ShipmentAccountingCodes', () => {
 
       expect(screen.getByLabelText('1234 (HHG)')).not.toBeChecked();
       expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
-    });
-
-    it('does not render the "optional" text when the appropriate param is passed in', () => {
-      render(
-        <Formik initialValues={{}}>
-          <ShipmentAccountingCodes optional={false} />
-        </Formik>,
-      );
-
-      expect(screen.getByRole('heading', { level: 2 })).not.toHaveTextContent(/Optional/);
     });
   });
 

@@ -20,6 +20,7 @@ import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import { DatePickerInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField/TextField';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const CreatePaymentRequestForm = ({
   initialValues,
@@ -189,7 +190,8 @@ const CreatePaymentRequestForm = ({
                 </Button>
               </div>
               <Hint>
-                At least one basic service item or shipment service item is required to create a payment request
+                <RequiredAsterisk /> At least one basic service item or shipment service item is required to create a
+                payment request
               </Hint>
             </SectionWrapper>
           </FormGroup>
