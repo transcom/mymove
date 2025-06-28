@@ -40,6 +40,7 @@ import {
   SITHistoryItemHeaderDays,
   SITHistoryItemHeaderDate,
 } from 'utils/sitFormatters';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const { totalSITDaysUsed } = sitStatus;
@@ -88,7 +89,11 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
           custClass={styles.totalDaysTable}
           columnHeaders={[
             <SITHistoryItemHeaderDays
-              title="Total days of SIT proposed"
+              title={
+                <span>
+                  Total days of SIT proposed <RequiredAsterisk />
+                </span>
+              }
               approved={shipment.sitDaysAllowance}
               requested={sitExtension.requestedDays}
               value={approvedAndRequestedDaysCombined}
@@ -109,7 +114,11 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
           columnHeaders={[
             `SIT start date`,
             <SITHistoryItemHeaderDate
-              title="Proposed SIT authorized end date"
+              title={
+                <span>
+                  Proposed SIT authorized end date <RequiredAsterisk />
+                </span>
+              }
               endDate={sitStatus.currentSIT.sitAuthorizedEndDate}
               requested={sitExtension.requestedDays}
               value={approvedAndRequestedDatesCombined}
@@ -243,8 +252,14 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                           <dd>{sitExtension.contractorRemarks}</dd>
                         </div>
                       </dl>
+                      {requiredAsteriskMessage}
                       <FormGroup>
-                        <Fieldset legend="Accept request for extension?">
+                        <Fieldset>
+                          <legend>
+                            <span className="usa-label" aria-label="Required: Accept request for extension?">
+                              Accept request for extension? <RequiredAsterisk />
+                            </span>
+                          </legend>
                           <Field
                             as={Radio}
                             label="Yes"
@@ -274,6 +289,8 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                             name="requestReason"
                             data-testid="reasonDropdown"
                             options={dropdownInputOptions(sitExtensionReasons)}
+                            showRequiredAsterisk
+                            required
                           />
                         </div>
                       )}
@@ -287,13 +304,21 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                           />
                         </div>
                       )}
-                      <Label htmlFor="officeRemarks">Office remarks</Label>
+                      <Label htmlFor="officeRemarks">
+                        <span>
+                          Office remarks
+                          {values.acceptExtension === 'no' && <RequiredAsterisk />}
+                        </span>
+                      </Label>
+
                       <Field
                         as={Textarea}
                         data-testid="officeRemarks"
                         label="No"
                         name="officeRemarks"
                         id="officeRemarks"
+                        showRequiredAsterisk={values.acceptExtension === 'no'}
+                        required={values.acceptExtension === 'no'}
                       />
                       <ModalActions>
                         <Button

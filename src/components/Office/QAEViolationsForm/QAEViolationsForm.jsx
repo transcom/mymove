@@ -17,6 +17,7 @@ import { DatePickerInput } from 'components/form/fields';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { EvaluationReportShape, ReportViolationShape, PWSViolationShape, CustomerShape, ShipmentShape } from 'types';
 import { formatDateForSwagger } from 'shared/dates';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const QAEViolationsForm = ({
   violations,
@@ -313,6 +314,14 @@ const QAEViolationsForm = ({
             }
           };
 
+          const showRequiredAsteriskMessageForViolations =
+            values.kpiViolations.includes('observedClaimsReponseDate') ||
+            values.kpiViolations.includes('observedPickupDate') ||
+            values.kpiViolations.includes('observedPickupSpreadDates') ||
+            values.kpiViolations.includes('observedClaimsResponseDate') ||
+            values.kpiViolations.includes('observedDeliveryDate') ||
+            values.kpiViolations.includes('observedDeliveryDate');
+
           return (
             <>
               <GridContainer className={styles.cardContainer} data-testid="evaluationViolationsForm">
@@ -356,6 +365,9 @@ const QAEViolationsForm = ({
 
                 <Grid row>
                   <Grid col className={styles.claimDatePicker}>
+                    <div className="margin-top-4">
+                      {showRequiredAsteriskMessageForViolations && requiredAsteriskMessage}
+                    </div>
                     <div>
                       {values.kpiViolations.includes('observedClaimsReponseDate') && (
                         <DatePickerInput
@@ -371,16 +383,25 @@ const QAEViolationsForm = ({
                           label="Observed pickup date"
                           name="observedPickupDate"
                           hint="Enter the date you witnessed the pickup."
+                          showRequiredAsterisk
+                          required
                         />
                       )}
                       {values.kpiViolations.includes('observedPickupSpreadDates') && (
                         <DatePickerInput
                           label="Observed pickup spread start date"
                           name="observedPickupSpreadStartDate"
+                          showRequiredAsterisk
+                          required
                         />
                       )}
                       {values.kpiViolations.includes('observedPickupSpreadDates') && (
-                        <DatePickerInput label="Observed pickup spread end date" name="observedPickupSpreadEndDate" />
+                        <DatePickerInput
+                          label="Observed pickup spread end date"
+                          name="observedPickupSpreadEndDate"
+                          showRequiredAsterisk
+                          required
+                        />
                       )}
                       {values.kpiViolations.includes('observedClaimsResponseDate') && (
                         <DatePickerInput
@@ -388,7 +409,6 @@ const QAEViolationsForm = ({
                           label="Observed claims response date"
                           name="observedClaimsResponseDate"
                           hint="Only enter a date here if the claim has a response."
-                          showOptional
                         />
                       )}
                       {values.kpiViolations.includes('observedDeliveryDate') && (
@@ -396,6 +416,8 @@ const QAEViolationsForm = ({
                           className={styles.datePicker}
                           label="Observed delivery date"
                           name="observedDeliveryDate"
+                          showRequiredAsterisk
+                          required
                         />
                       )}
                     </div>
@@ -409,10 +431,17 @@ const QAEViolationsForm = ({
                       <hr className={styles.divider} />
                       <h3 className={styles.siHeading}>Serious incident</h3>
                       <FormGroup>
+                        <div className="margin-bottom-1">{requiredAsteriskMessage}</div>
                         <Fieldset>
                           <div className={styles.serious}>
-                            <legend data-testid="seriousIncidentLegend" className="usa-label">
-                              Serious incident
+                            <legend
+                              data-testid="seriousIncidentLegend"
+                              className="usa-label"
+                              aria-label="Required: Serious incident"
+                            >
+                              <span required>
+                                Serious incident <RequiredAsterisk />
+                              </span>
                             </legend>
                           </div>
                           <div className={styles.seriousIncident}>
@@ -438,8 +467,15 @@ const QAEViolationsForm = ({
                             />
                             {values.seriousIncident === 'yes' && (
                               <>
-                                <p className={styles.incidentTextAreaLabel}>Serious incident description</p>
-                                <Field as={Textarea} name="seriousIncidentDesc" />
+                                <p className={styles.incidentTextAreaLabel}>
+                                  Serious incident description <RequiredAsterisk />
+                                </p>
+                                <Field
+                                  as={Textarea}
+                                  name="seriousIncidentDesc"
+                                  required
+                                  aria-label="Serious incident description"
+                                />
                               </>
                             )}
                           </div>

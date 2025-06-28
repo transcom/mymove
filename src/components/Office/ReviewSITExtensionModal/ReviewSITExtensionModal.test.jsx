@@ -81,7 +81,7 @@ describe('ReviewSITExtensionModal', () => {
     const acceptExtensionField = screen.getByLabelText('Yes');
     await userEvent.click(acceptExtensionField);
 
-    const reasonDropdown = screen.getByLabelText('Reason for edit');
+    const reasonDropdown = screen.getByLabelText('Reason for edit *');
     await userEvent.selectOptions(reasonDropdown, ['SERIOUS_ILLNESS_MEMBER']);
 
     const officeRemarksInput = screen.getByLabelText('Office remarks');
@@ -150,7 +150,7 @@ describe('ReviewSITExtensionModal', () => {
     const acceptExtensionField = screen.getByLabelText('Yes');
     await userEvent.click(acceptExtensionField);
     const denyExtensionField = screen.getByLabelText('No');
-    const reasonInput = screen.getByLabelText('Reason for edit');
+    const reasonInput = screen.getByLabelText('Reason for edit *');
     await waitFor(() => {
       expect(reasonInput).toBeInTheDocument();
     });
@@ -206,7 +206,7 @@ describe('ReviewSITExtensionModal', () => {
     });
   });
 
-  it('renders the summary SIT component', async () => {
+  it('renders the summary SIT component and asterisks for required fields', async () => {
     render(
       <ReviewSITExtensionModal
         sitExtension={sitExt}
@@ -220,10 +220,18 @@ describe('ReviewSITExtensionModal', () => {
     await waitFor(() => {
       expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
     });
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
     expect(sitStartAndEndTable).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('Calculated total SIT days')).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('15')).toBeInTheDocument();
+
+    const totalDaysSITProposed = screen.getByRole('columnheader', { name: /Total days of SIT proposed/ });
+    expect(within(totalDaysSITProposed).getByText('*')).toBeInTheDocument();
+
+    const sitProposedEndDate = screen.getByRole('columnheader', { name: /Proposed SIT authorized end date/ });
+    expect(within(sitProposedEndDate).getByText('*')).toBeInTheDocument();
   });
 
   it('calculates SIT end date based on changed daysApproved', async () => {

@@ -111,12 +111,17 @@ describe('ServiceItemCard component', () => {
   });
 
   describe('when Reject is selected', () => {
-    it('the component displays correctly', async () => {
+    it('the component displays correctly and shows asterisks for required fields', async () => {
       render(<ServiceItemCard {...basicServiceItemCard} />);
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 3, name: 'BASIC SERVICE ITEMS' })).toBeInTheDocument();
       });
+
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+      const approveButtonLabel = screen.getByLabelText(/Approve or reject the service item */);
+      expect(approveButtonLabel).toBeInTheDocument();
+
       const approveButton = screen.getByLabelText('Approve');
       const rejectButton = screen.getByLabelText('Reject');
       expect(screen.getByLabelText('Reject')).toBeInTheDocument();
@@ -125,7 +130,7 @@ describe('ServiceItemCard component', () => {
       await userEvent.click(rejectButton);
       expect(rejectButton).toBeChecked();
       expect(screen.queryByText('Add a reason why this service item is rejected')).not.toBeInTheDocument();
-      expect(screen.getByLabelText('Reason for rejection')).toBeInTheDocument();
+      expect(screen.getByLabelText('Reason for rejection *')).toBeInTheDocument();
     });
     describe('when a reason is added', () => {
       it('Approve is selected, and Reject is reselected, the reason is cleared, and no error appears', async () => {

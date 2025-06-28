@@ -16,6 +16,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { ShipmentShape } from 'types';
 import Fieldset from 'shared/Fieldset';
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const formSchema = Yup.object().shape({
   addressUpdateReviewStatus: Yup.string().required('Required'),
@@ -61,10 +62,18 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
             <Form className={formStyles.form}>
               <div className={styles.modalbody}>
                 <AddressUpdatePreview deliveryAddressUpdate={shipment.deliveryAddressUpdate} shipment={shipment} />
+                <h4>Review Request</h4>
+                {requiredAsteriskMessage}
                 <FormGroup className={styles.formGroup}>
-                  <h4>Review Request</h4>
                   <Fieldset>
-                    <legend className={classnames('usa-label', styles.approveLabel)}>Approve address change?</legend>
+                    <legend
+                      className={classnames('usa-label', styles.approveLabel)}
+                      aria-label="Required: Approve address change?"
+                    >
+                      <span>
+                        Approve address change? <RequiredAsterisk />
+                      </span>
+                    </legend>
                     <Field
                       as={Radio}
                       label="Yes"
@@ -83,7 +92,11 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
                     />
                   </Fieldset>
                 </FormGroup>
-                <Label htmlFor="officeRemarks">Office remarks</Label>
+                <Label htmlFor="officeRemarks">
+                  <span required>
+                    Office remarks <RequiredAsterisk />
+                  </span>
+                </Label>
                 <p className={styles.subLabel}>Office remarks will be sent to the contractor.</p>
                 <Field
                   as={Textarea}
@@ -92,6 +105,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
                   name="officeRemarks"
                   id="officeRemarks"
                   className={styles.officeRemarks}
+                  required
                 />
               </div>
               <ModalActions>

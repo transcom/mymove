@@ -57,6 +57,8 @@ describe('EditBillableWeight', () => {
 
     render(<EditBillableWeight {...defaultProps} />);
     await userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
     expect(await screen.findByText(formatWeight(defaultProps.originalWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     expect(
@@ -67,6 +69,8 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText('| original weight')).toBeInTheDocument();
     expect(screen.getByText('| 110% of total estimated weight')).toBeInTheDocument();
     expect(screen.getByText('| to fit within max billable weight')).toBeInTheDocument();
+    expect(screen.getByTestId('remarks-label')).toHaveTextContent('Remarks *');
+    expect(screen.getByTestId('billable-weight-label')).toHaveTextContent('lbs *');
   });
 
   describe('hint text for max billable weight', () => {

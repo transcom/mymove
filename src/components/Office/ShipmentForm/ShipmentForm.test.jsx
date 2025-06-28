@@ -948,9 +948,10 @@ describe('ShipmentForm component', () => {
         expect(modal).toBeInTheDocument();
 
         // Fill and submit
-        const approvalQuestion = within(modal).getByRole('group', { name: 'Approve address change?' });
+        // const approvalQuestion = within(modal).getByRole('group', { name: 'Approve address change?' });
+        const approvalQuestion = screen.getByRole('group', { name: /Approve address change\?/i });
         const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
-        const officeRemarks = within(modal).getByLabelText('Office remarks');
+        const officeRemarks = within(modal).getByLabelText('Office remarks *');
         const save = within(modal).getByRole('button', { name: 'Save' });
 
         const officeRemarksAnswer = 'Here are my remarks from the office';

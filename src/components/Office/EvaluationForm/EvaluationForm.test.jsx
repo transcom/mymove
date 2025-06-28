@@ -110,8 +110,10 @@ const renderForm = (props) => {
 };
 
 describe('EvaluationForm', () => {
-  it('renders the form components', async () => {
+  it('renders the form components and asterisks for required fields', async () => {
     renderForm();
+
+    expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
     // Headers
     await waitFor(() => {
@@ -127,15 +129,15 @@ describe('EvaluationForm', () => {
       expect(screen.getByTestId('evaluationReportForm')).toBeInTheDocument();
 
       expect(screen.getByText('Date of inspection')).toBeInTheDocument();
-      expect(screen.getByText('Evaluation type')).toBeInTheDocument();
-      expect(screen.getByText('Evaluation location')).toBeInTheDocument();
-      expect(screen.getByText('Violations observed')).toBeInTheDocument();
-      expect(screen.getByText('Evaluation remarks')).toBeInTheDocument();
-      expect(screen.getByText('Time evaluation started')).toBeInTheDocument();
-      expect(screen.getByText('Time evaluation ended')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Evaluation type */)).toBeInTheDocument();
+      expect(screen.getByText(/Evaluation location */)).toBeInTheDocument();
+      expect(screen.getByText(/Violations observed */)).toBeInTheDocument();
+      expect(screen.getByText(/Evaluation remarks */)).toBeInTheDocument();
+      expect(screen.getByText(/Time evaluation started */)).toBeInTheDocument();
+      expect(screen.getByText(/Time evaluation ended */)).toBeInTheDocument();
 
       // Conditionally shown fields should not be displayed initially
-      expect(screen.queryByText('Time departed for evaluation')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Time departed for evaluation */)).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
 

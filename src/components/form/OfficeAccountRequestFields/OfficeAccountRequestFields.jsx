@@ -219,6 +219,7 @@ export const OfficeAccountRequestFields = ({ render, rolesWithPrivs = [], privil
                   Requested Role(s) <RequiredAsterisk />
                 </span>
               </legend>
+
               {showRequestedRolesError && (
                 <ErrorMessage
                   id="requestedRolesGroupError"

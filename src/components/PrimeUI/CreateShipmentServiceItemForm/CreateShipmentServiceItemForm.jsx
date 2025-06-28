@@ -18,9 +18,9 @@ import { ShipmentShape } from 'types/shipment';
 import { createServiceItemModelTypes } from 'constants/prime';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { primeSimulatorRoutes } from 'constants/routes';
-import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) => {
   const { moveCodeOrID } = useParams();

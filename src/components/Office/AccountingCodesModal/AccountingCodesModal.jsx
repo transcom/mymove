@@ -11,7 +11,6 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { Form } from 'components/form';
 import { shipmentTypes } from 'constants/shipments';
 import { AccountingCodesShape } from 'types/accountingCodes';
-import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentType, TACs, SACs, tacType, sacType }) => {
   const handleFormSubmit = (values) => onSubmit(values);
@@ -27,7 +26,6 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
 
       <Formik initialValues={{ tacType, sacType }} onSubmit={handleFormSubmit}>
         <Form>
-          {requiredAsteriskMessage}
           <AccountingCodeSection
             label="TAC"
             emptyMessage="No TAC code entered."

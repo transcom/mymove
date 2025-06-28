@@ -22,6 +22,7 @@ import { allowedServiceItemCalculations, SERVICE_ITEM_CODES } from 'constants/se
 import DaysInSITAllowance from 'components/Office/DaysInSITAllowance/DaysInSITAllowance';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import { ErrorMessage } from 'components/form';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const isAdditionalDaySIT = (mtoServiceItemCode) => {
   return (
@@ -269,7 +270,11 @@ const ServiceItemCard = ({
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
                 </dl>
                 {toggleCalculations}
+                <div className="margin-bottom-2">{requiredAsteriskMessage}</div>
                 <Fieldset>
+                  <legend className="usa-label" aria-label="Required: Approve or reject the service item">
+                    Please select one <RequiredAsterisk />
+                  </legend>
                   <div
                     className={classnames(approveRejectStyles.statusOption, {
                       [approveRejectStyles.selected]: values.status === APPROVED,
@@ -302,7 +307,9 @@ const ServiceItemCard = ({
 
                     {values.status === DENIED && (
                       <FormGroup className={styles.rejectionGroup}>
-                        <Label htmlFor={`rejectReason-${id}`}>Reason for rejection</Label>
+                        <Label htmlFor={`rejectReason-${id}`}>
+                          <span>Reason for rejection {values.status === DENIED && <RequiredAsterisk />}</span>
+                        </Label>
                         {!canEditRejection && (
                           <>
                             <p data-testid="rejectionReasonReadOnly">{values.rejectionReason}</p>
@@ -335,6 +342,7 @@ const ServiceItemCard = ({
                               value={values.rejectionReason}
                               className={errors.rejectionReason && touched?.rejectionReason && styles.error}
                               data-testid="rejectionReason"
+                              required
                             />
                           </>
                         )}
