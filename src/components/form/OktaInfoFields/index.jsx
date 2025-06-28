@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { func, node, string } from 'prop-types';
 import { Fieldset } from '@trussworks/react-uswds';
 
+import { requiredAsteriskMessage } from '../RequiredAsterisk';
+
 import TextField from 'components/form/fields/TextField/TextField';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
@@ -25,12 +27,20 @@ export const OktaInfoFields = ({ legend, className, render }) => {
 
   return (
     <Fieldset legend={legend} className={className}>
+      {requiredAsteriskMessage}
       {render(
         <>
-          <TextField isDisabled label="Okta Username" name={usernameFieldName} id="oktaUsername" required />
-          <TextField label="Okta Email" name={emailFieldName} id="oktaEmail" required />
-          <TextField label="First Name" name={firstNameFieldName} id="oktaFirstName" required />
-          <TextField label="Last Name" name={lastNameFieldName} id="oktaLastName" required />
+          <TextField
+            isDisabled
+            label="Okta Username"
+            name={usernameFieldName}
+            id="oktaUsername"
+            showRequiredAsterisk
+            required
+          />
+          <TextField label="Okta Email" name={emailFieldName} id="oktaEmail" showRequiredAsterisk required />
+          <TextField label="First Name" name={firstNameFieldName} id="oktaFirstName" showRequiredAsterisk required />
+          <TextField label="Last Name" name={lastNameFieldName} id="oktaLastName" showRequiredAsterisk required />
           <TextField
             label="DoD ID number"
             name={edipiFieldName}
@@ -38,6 +48,8 @@ export const OktaInfoFields = ({ legend, className, render }) => {
             maxLength="10"
             inputMode="numeric"
             isDisabled={isDodidDisabled}
+            showRequiredAsterisk
+            required
           />
         </>,
       )}
