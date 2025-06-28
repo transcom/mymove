@@ -127,10 +127,18 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 	}, nil)
 
+	hasGunSafe := true
+	gunSafeWeight := unit.Pound(500)
 	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    mto,
 			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				HasGunSafe:    &hasGunSafe,
+				GunSafeWeight: &gunSafeWeight,
+			},
 		},
 	}, nil)
 
@@ -266,6 +274,58 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		payloadShipment4 := okResponse.Payload[3]
 		suite.NotNil(payloadShipment4.PpmShipment)
+		suite.Equal(*shipments[3].PPMShipment.HasGunSafe, *payloadShipment4.PpmShipment.HasGunSafe)
+		suite.Equal(shipments[3].PPMShipment.GunSafeWeight.Int64(), *payloadShipment4.PpmShipment.GunSafeWeight)
+		suite.Equal(shipments[3].ID.String(), payloadShipment4.PpmShipment.ShipmentID.String())
+		suite.Equal(shipments[3].PPMShipment.ID.String(), payloadShipment4.PpmShipment.ID.String())
+	})
+
+	suite.Run("Successful list fetch - Integration Test with Gun Safe FF OFF - test for nil checks", func() {
+		subtestData := suite.makeListMTOShipmentsSubtestData()
+		params := subtestData.params
+		shipments := subtestData.shipments
+
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		handlerConfig := suite.NewHandlerConfig()
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		handler := ListMTOShipmentsHandler{
+			handlerConfig,
+			mtoshipment.NewMTOShipmentFetcher(),
+			sitstatus.NewShipmentSITStatus(),
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
+		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		suite.Len(okResponse.Payload, 4)
+
+		payloadShipment4 := okResponse.Payload[3]
+		suite.NotNil(payloadShipment4.PpmShipment)
+
+		// Check that gun safe related fields have been converted to nil
+		suite.Nil(payloadShipment4.PpmShipment.HasGunSafe)
+		suite.Nil(payloadShipment4.PpmShipment.GunSafeWeight)
+		suite.Empty(payloadShipment4.PpmShipment.GunSafeWeightTickets)
+
 		suite.Equal(shipments[3].ID.String(), payloadShipment4.PpmShipment.ShipmentID.String())
 		suite.Equal(shipments[3].PPMShipment.ID.String(), payloadShipment4.PpmShipment.ID.String())
 	})

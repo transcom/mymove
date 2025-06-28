@@ -1897,6 +1897,54 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		}
 	})
 
+	suite.Run("Successful list fetch - 200 - Integration Test with Gun Safe FF OFF, test for nil checks", func() {
+		subtestData := suite.makeListSubtestData()
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		handlerConfig := suite.NewHandlerConfig()
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		handler := ListMTOShipmentsHandler{
+			handlerConfig,
+			mtoshipment.NewMTOShipmentFetcher(),
+		}
+
+		response := handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
+		suite.Len(okResponse.Payload, 5)
+
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		for i, returnedShipment := range okResponse.Payload {
+			expectedShipment := subtestData.shipments[i]
+
+			// we expect the shipment that was created first to come first in the response
+			suite.EqualUUID(expectedShipment.ID, returnedShipment.ID)
+
+			suite.Equal(expectedShipment.Status, models.MTOShipmentStatus(returnedShipment.Status))
+
+			if expectedShipment.ShipmentType == models.MTOShipmentTypePPM { // Make sure FF related fields were actually converted to nil
+				suite.Nil(returnedShipment.PpmShipment.HasGunSafe)
+				suite.Nil(returnedShipment.PpmShipment.GunSafeWeight)
+				suite.Empty(returnedShipment.PpmShipment.GunSafeWeightTickets)
+				continue // PPM Shipments won't have the rest of the fields below.
+			}
+		}
+	})
+
 	suite.Run("POST failure - 400 - Bad Request", func() {
 		subtestData := suite.makeListSubtestData()
 		emtpyMTOID := mtoshipmentops.ListMTOShipmentsParams{

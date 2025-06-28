@@ -296,6 +296,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			} else {
 				isGunSafeFeatureOn = gunSafeFlag.Match
 			}
+			/** End of Feature Flag **/
 
 			if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
 				noSessionErr := apperror.NewSessionError("No session or service member ID")
@@ -316,11 +317,14 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			/** Feature Flag - Gun Safe **/
 			if !isGunSafeFeatureOn {
 				for i := range shipments {
-					shipments[i].PPMShipment.GunSafeWeightTickets = nil
-					shipments[i].PPMShipment.HasGunSafe = nil
-					shipments[i].PPMShipment.GunSafeWeight = nil
+					if shipments[i].PPMShipment != nil {
+						shipments[i].PPMShipment.GunSafeWeightTickets = nil
+						shipments[i].PPMShipment.HasGunSafe = nil
+						shipments[i].PPMShipment.GunSafeWeight = nil
+					}
 				}
 			}
+			/** End of Feature Flag **/
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.ListMTOShipmentsHandler", zap.Error(err))
