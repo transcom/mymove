@@ -12,18 +12,13 @@ func (suite *NotificationSuite) TestPaymentRequestFailedEmails() {
 			Status: models.PaymentRequestStatusReviewed,
 		},
 	})
-	err := suite.DB().Create(&models.ApplicationParameters{
-		ParameterName:  stringPointer("src_email"),
-		ParameterValue: stringPointer("src@example.com"),
-	})
-	suite.NoError(err)
 
 	ediError := models.EdiError{
 		PaymentRequestID: paymentRequest.ID,
 		Code:             stringPointer("123"),
 		Description:      stringPointer("Test error"),
 	}
-	err = suite.DB().Create(&ediError)
+	err := suite.DB().Create(&ediError)
 	suite.NoError(err)
 	notification := NewPaymentRequestFailed(paymentRequest)
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{}))
@@ -42,6 +37,23 @@ func (suite *NotificationSuite) TestPaymentRequestFailedEmailsNoEmails() {
 			Status: models.PaymentRequestStatusReviewed,
 		},
 	})
+	parameterNames := []string{
+		"src_email",
+		"transcom_distro_email",
+		"milmove_ops_email",
+	}
+
+	for _, name := range parameterNames {
+		param := models.ApplicationParameters{}
+		err := suite.DB().
+			Where("parameter_name = ?", name).
+			First(&param)
+		suite.NoError(err)
+
+		err = suite.DB().Destroy(&param)
+		suite.NoError(err)
+	}
+
 	ediError := models.EdiError{
 		PaymentRequestID: paymentRequest.ID,
 		Code:             stringPointer("123"),
@@ -62,11 +74,6 @@ func (suite *NotificationSuite) TestPaymentRequestFailedEmailsNoEDIError() {
 			Status: models.PaymentRequestStatusReviewed,
 		},
 	})
-	err := suite.DB().Create(&models.ApplicationParameters{
-		ParameterName:  stringPointer("src_email"),
-		ParameterValue: stringPointer("source@test.com"),
-	})
-	suite.NoError(err)
 
 	notification := PaymentRequestFailed{paymentRequest: paymentRequest}
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{}))

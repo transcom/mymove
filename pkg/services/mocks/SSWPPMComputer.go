@@ -50,9 +50,9 @@ func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 mode
 	return r0, r1
 }
 
-// FetchDataShipmentSummaryWorksheetFormData provides a mock function with given fields: appCtx, _a1, ppmShipmentID
-func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _a1 *auth.Session, ppmShipmentID uuid.UUID) (*models.ShipmentSummaryFormData, error) {
-	ret := _m.Called(appCtx, _a1, ppmShipmentID)
+// FetchDataShipmentSummaryWorksheetFormData provides a mock function with given fields: appCtx, _a1, ppmShipmentID, isPaymentPacket
+func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _a1 *auth.Session, ppmShipmentID uuid.UUID, isPaymentPacket bool) (*models.ShipmentSummaryFormData, error) {
+	ret := _m.Called(appCtx, _a1, ppmShipmentID, isPaymentPacket)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchDataShipmentSummaryWorksheetFormData")
@@ -60,19 +60,19 @@ func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appco
 
 	var r0 *models.ShipmentSummaryFormData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) (*models.ShipmentSummaryFormData, error)); ok {
-		return rf(appCtx, _a1, ppmShipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID, bool) (*models.ShipmentSummaryFormData, error)); ok {
+		return rf(appCtx, _a1, ppmShipmentID, isPaymentPacket)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) *models.ShipmentSummaryFormData); ok {
-		r0 = rf(appCtx, _a1, ppmShipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID, bool) *models.ShipmentSummaryFormData); ok {
+		r0 = rf(appCtx, _a1, ppmShipmentID, isPaymentPacket)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.ShipmentSummaryFormData)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *auth.Session, uuid.UUID) error); ok {
-		r1 = rf(appCtx, _a1, ppmShipmentID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *auth.Session, uuid.UUID, bool) error); ok {
+		r1 = rf(appCtx, _a1, ppmShipmentID, isPaymentPacket)
 	} else {
 		r1 = ret.Error(1)
 	}

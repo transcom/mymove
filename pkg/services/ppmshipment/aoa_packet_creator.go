@@ -79,7 +79,7 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	dirPath = a.pdfGenerator.GetWorkDir() + "/" + dirName
 
 	// First we begin by fetching SSW Data, computing obligations, formatting, and filling the SSWPDF
-	ssfd, err := a.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
+	ssfd, err := a.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID, isPaymentPacket)
 	if err != nil {
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}

@@ -124,14 +124,15 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 // Fetch SSW Data and populate the data into the PPM Closeout table
 func (p *ppmShipmentReviewDocuments) convertSSWValuesToPPMCloseoutSummary(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseoutSummary, error) {
 	var ppmCloseoutSummary models.PPMCloseoutSummary
-	ssfd, err := p.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
+	isPaymentPacket := true
+	ssfd, err := p.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID, isPaymentPacket)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// we currently only need data from pages 1 and 2 and not page 3
-	page1Data, page2Data, _, err := p.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(appCtx, *ssfd, true)
+	page1Data, page2Data, _, err := p.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(appCtx, *ssfd, isPaymentPacket)
 
 	if err != nil {
 		return nil, err

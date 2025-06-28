@@ -37,14 +37,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		},
 	}, nil)
 
-	parameterName := "maxGunSafeAllowance"
-	parameterValue := "500"
-	param := models.ApplicationParameters{
-		ParameterName:  &parameterName,
-		ParameterValue: &parameterValue,
-	}
-	suite.MustSave(&param)
-
 	suite.Run("can create conus orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
