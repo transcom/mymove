@@ -6238,7 +6238,7 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TOOAssignedUser:
+      TOOTaskOrderAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TIOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
