@@ -19,6 +19,7 @@ import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketD
 import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { hasRotationChanged, toRotatedDegrees, toRotatedPosition } from 'shared/utils';
+import { waitForAvScan } from 'services/internalApi';
 
 const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploading }) => {
   const [selectedFileIndex, selectFile] = useState(0);
@@ -33,9 +34,16 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   const [rotationValue, setRotationValue] = useState(selectedFile?.rotation || 0);
 
   const mountedRef = useRef(true);
+  const lastScannedId = useRef(null);
 
   const queryClient = useQueryClient();
 
+  // If the parent provides is file uploading status, we can tell that it is uploading
+  // and adjust accordingly. If not, FilePond's uploading status will be used instead
+  // from the FileUpload component. Also if not, there will be no uploading banner,
+  // it'll just go straight to scanning.
+  // We can't automatically assume uploading because if you switch files, it isn't
+  // an upload just a fetch.
   useEffect(() => {
     if (isFileUploading) {
       setIsJustUploadedFile(true);
@@ -98,43 +106,39 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         case UPLOAD_SCAN_STATUS.PROCESSING:
           setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
           break;
-        case UPLOAD_SCAN_STATUS.CLEAN:
+        case UPLOAD_SCAN_STATUS.NO_THREATS_FOUND:
+        case UPLOAD_SCAN_STATUS.LEGACY_CLEAN:
           setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
           break;
-        case UPLOAD_SCAN_STATUS.INFECTED:
-          setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+        case UPLOAD_SCAN_STATUS.LEGACY_INFECTED:
+        case UPLOAD_SCAN_STATUS.THREATS_FOUND:
+          setFileStatus(UPLOAD_SCAN_STATUS.LEGACY_INFECTED);
           break;
         default:
           throw new Error(`unrecognized file status`);
       }
     };
-    if (!isFileUploading && isJustUploadedFile) {
-      setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
+    if (isJustUploadedFile) {
+      setIsJustUploadedFile(false);
     }
 
-    let sse;
-    if (selectedFile) {
-      sse = new EventSource(`/ghc/v1/uploads/${selectedFile.id}/status`, { withCredentials: true });
-      sse.onmessage = (event) => {
-        handleFileProcessing(event.data);
-        if (
-          event.data === UPLOAD_SCAN_STATUS.CLEAN ||
-          event.data === UPLOAD_SCAN_STATUS.INFECTED ||
-          event.data === 'Connection closed'
-        ) {
-          sse.close();
-        }
-      };
-      sse.onerror = () => {
-        sse.close();
-        setFileStatus(null);
-      };
+    if (selectedFile && lastScannedId.current !== selectedFile.id) {
+      // Begin scanning
+      lastScannedId.current = selectedFile.id;
+      handleFileProcessing(UPLOAD_SCAN_STATUS.PROCESSING); // Adjust label
+      waitForAvScan(selectedFile.id)
+        .then((status) => {
+          handleFileProcessing(status);
+        })
+        .catch((err) => {
+          if (err.message === UPLOAD_SCAN_STATUS.LEGACY_INFECTED || err.message === UPLOAD_SCAN_STATUS.THREATS_FOUND) {
+            handleFileProcessing(UPLOAD_SCAN_STATUS.THREATS_FOUND);
+          } else {
+            handleFileProcessing(UPLOAD_SCAN_STATUS.CONNECTION_CLOSED);
+          }
+        });
     }
-
-    return () => {
-      sse?.close();
-    };
-  }, [selectedFile, isFileUploading, isJustUploadedFile, fileTypeMap]);
+  }, [selectedFile, isJustUploadedFile, fileTypeMap]);
   useEffect(() => {
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
       setTimeout(() => {
@@ -151,7 +155,8 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING;
       case UPLOAD_DOC_STATUS.ESTABLISHING:
         return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEWING;
-      case UPLOAD_DOC_STATUS.INFECTED:
+      case UPLOAD_SCAN_STATUS.LEGACY_INFECTED:
+      case UPLOAD_SCAN_STATUS.THREATS_FOUND:
         return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE;
       default:
         if (!currentSelectedFile) {
@@ -162,8 +167,12 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   };
 
   const alertMessage = getStatusMessage(fileStatus, selectedFile);
-  const alertType = fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'error' : 'info';
-  const alertHeading = fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'Ask for a new file' : 'Document Status';
+  const alertType = [UPLOAD_SCAN_STATUS.LEGACY_INFECTED, UPLOAD_SCAN_STATUS.THREATS_FOUND].includes(fileStatus)
+    ? 'error'
+    : 'info';
+  const alertHeading = [UPLOAD_SCAN_STATUS.LEGACY_INFECTED, UPLOAD_SCAN_STATUS.THREATS_FOUND].includes(fileStatus)
+    ? 'Ask for a new file'
+    : 'Document Status';
   if (alertMessage) {
     return (
       <Alert type={alertType} className="usa-width-one-whole" heading={alertHeading} data-testid="documentAlertHeading">

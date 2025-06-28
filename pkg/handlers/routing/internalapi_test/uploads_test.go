@@ -1,4 +1,4 @@
-package ghcapi_test
+package internalapi_test
 
 import (
 	"net/http"
@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func (suite *GhcAPISuite) TestUploads() {
+func (suite *InternalAPISuite) TestUploads() {
 
 	suite.Run("Received status for upload, read tag without event queue", func() {
 		orders := factory.BuildOrder(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
@@ -34,14 +34,14 @@ func (suite *GhcAPISuite) TestUploads() {
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 			[]roles.RoleType{roles.RoleTypeTOO})
-		req := suite.NewAuthenticatedOfficeRequest("GET", "/ghc/v1/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, officeUser)
+		req := suite.NewAuthenticatedOfficeRequest("GET", "/internal/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, officeUser)
 		rr := httptest.NewRecorder()
 
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
 		suite.Equal(http.StatusOK, rr.Code)
 		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
-		suite.Equal("id: 0\nevent: message\ndata: CLEAN\n\nid: 1\nevent: close\ndata: Connection closed\n\n", rr.Body.String())
+		suite.Equal("id: 0\nevent: message\ndata: NO_THREATS_FOUND\n\nid: 1\nevent: close\ndata: Connection closed\n\n", rr.Body.String())
 	})
 
 	suite.Run("Received statuses for upload, receiving multiple statuses with event queue", func() {
@@ -65,7 +65,7 @@ func (suite *GhcAPISuite) TestUploads() {
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 			[]roles.RoleType{roles.RoleTypeTOO})
-		req := suite.NewAuthenticatedOfficeRequest("GET", "/ghc/v1/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, officeUser)
+		req := suite.NewAuthenticatedOfficeRequest("GET", "/internal/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, officeUser)
 		rr := httptest.NewRecorder()
 
 		fakeS3, ok := suite.NewHandlerConfig().FileStorer().(*storageTest.FakeS3Storage)
@@ -79,7 +79,7 @@ func (suite *GhcAPISuite) TestUploads() {
 		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
 
 		suite.Contains(rr.Body.String(), "PROCESSING")
-		suite.Contains(rr.Body.String(), "CLEAN")
+		suite.Contains(rr.Body.String(), "NO_THREATS_FOUND")
 		suite.Contains(rr.Body.String(), "Connection closed")
 	})
 }

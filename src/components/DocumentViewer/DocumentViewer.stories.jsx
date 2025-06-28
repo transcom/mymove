@@ -65,6 +65,25 @@ const testImageFiles = [
   },
 ];
 
+const WaitForAvScanStub = ({ children }) => {
+  React.useEffect(() => {
+    const originalFetch = window.fetch;
+
+    window.fetch = (url, options) => {
+      if (url.includes('/internal/uploads/') && url.endsWith('/scan_status')) {
+        return Promise.resolve(new Response('NO_THREATS_FOUND', { status: 200 }));
+      }
+      return originalFetch(url, options);
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
+
+  return children;
+};
+
 export const PDFViewer = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
     <QueryClientProvider client={new QueryClient()}>
@@ -72,6 +91,14 @@ export const PDFViewer = () => (
     </QueryClientProvider>
   </div>
 );
+
+PDFViewer.decorators = [
+  (Story) => (
+    <WaitForAvScanStub>
+      <Story />
+    </WaitForAvScanStub>
+  ),
+];
 
 export const ImageViewer = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
