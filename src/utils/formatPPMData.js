@@ -11,9 +11,11 @@ const formatDisplayName = (uploadType) => {
   return '';
 };
 
-export const formatCloseoutOfficeFor = ({ changedValues = {}, context: [{ closeout_office_name }] = [{}] }) =>
+export const formatCloseoutOfficeFor = ({ changedValues = {}, context = [{}] }) =>
   'closeout_office_id' in changedValues &&
-  closeout_office_name && { closeout_office_name: changedValues.closeout_office_id && closeout_office_name };
+  context[0]?.closeout_office_name && {
+    closeout_office_name: changedValues.closeout_office_id && context[0].closeout_office_name,
+  };
 
 export const formatUploadTypeFor = ({ context: [{ upload_type }] = [{}] }) =>
   upload_type && { upload_type: formatDisplayName(upload_type) };

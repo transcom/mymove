@@ -65,9 +65,11 @@ export { default as updateCustomer } from './UpdateCustomer/updateCustomer';
 export { default as updateServiceItemSitEntryDate } from './UpdateSITEntryDate/updateSitEntryDate';
 export { default as updateMTOShipmentPPMDetails } from './UpdateMTOShipment/UpdateMTOShipmentPPMDetails';
 export { default as updateWeightTicket } from './UpdateWeightTicket/UpdateWeightTicket';
+export { default as updateWeightTicketShipment } from './UpdateWeightTicket/updateWeightTicketShipment';
 export { default as updateMovingExpense } from './UpdateMovingExpense/UpdateMovingExpense';
 export { default as updateWeightTicketProGear } from './UpdateWeightTicket/updateWeightTicketProGear';
 export { default as createMTOShipmentPPMDetails } from './CreateMTOShipment/createMTOShipmentPPMDetails';
+export { default as createMTOShipmentPPMUpdate } from './CreateMTOShipment/createMTOShipmentPPMUpdate';
 export { default as deleteShipmentPPM } from './DeleteShipment/DeleteShipmentPPM';
 export { default as updateCloseoutOffice } from './UpdateCloseoutOffice/updateCloseoutOffice';
 export { default as createMTOShipmentUpdateMoves } from './CreateMTOShipment/CreateMTOShipmentUpdateMoves';
@@ -109,6 +111,7 @@ export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/update
 export { default as updateMTOShipmentUpdateAllowance } from './UpdateMTOShipment/updateMTOShipmentUpdateAllowance';
 export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';
 export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';
+export { default as updateOrdersUpdateEntitlements } from './UpdateOrders/updateOrdersUpdateEntitlements';
 export { default as patchMTOShipment } from './UpdateMTOShipment/patchMTOShipment';
 export { default as uploadAdditionalDocuments } from './UploadAdditionalDocuments/uploadAdditionalDocuments';
 export { default as createOrder } from './CreateOrder/createOrder';
@@ -139,3 +142,7 @@ export { default as createTermination } from './CreateTermination/createTerminat
 export { default as acknowledgMove } from './AcknowledgeMovesAndShipments/acknowledgeMove';
 export { default as acknowledgeShipment } from './AcknowledgeMovesAndShipments/acknowledgeShipment';
 export { default as createMTOServiceItemUpdateShipmentStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateShipmentStatus';
+export { default as updateShipmentAddressUpdate } from './UpdateShipmentDestinationAddress/updateShipmentAddressUpdate';
+export { default as requestShipmentAddressUpdate } from './UpdateShipmentDestinationAddress/requestShipmentAddressUpdate';
+export { default as reviewShipmentAddressUpdateServiceItem } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdateServiceItem';
+export { default as reviewShipmentAddressUpdateShipment } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdateShipment';
