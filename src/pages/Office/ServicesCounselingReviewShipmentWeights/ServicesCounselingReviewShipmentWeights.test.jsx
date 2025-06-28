@@ -9,10 +9,16 @@ import {
 
 import ServicesCounselingReviewShipmentWeights from './ServicesCounselingReviewShipmentWeights';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { useReviewShipmentWeightsQuery } from 'hooks/queries';
 
 jest.mock('hooks/queries', () => ({
   useReviewShipmentWeightsQuery: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 describe('Services Counseling Review Shipment Weights', () => {
@@ -62,12 +68,26 @@ describe('Services Counseling Review Shipment Weights', () => {
 
     it('displays PPM shipments weights list', async () => {
       useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       render(<ServicesCounselingReviewShipmentWeights moveCode="XSWT05" />);
       const container = await screen.findByTestId('ppmShipmentContainer');
       expect(container).toBeInTheDocument();
       const table = await within(container).getByRole('table');
       expect(table).toBeInTheDocument();
       expect(screen.getByText('Weight moved by customer')).toBeInTheDocument();
+      expect(screen.getByText('Gun safe')).toBeInTheDocument();
+    });
+
+    it('displays PPM shipments weights list without gun safe column if FF is off', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
+      render(<ServicesCounselingReviewShipmentWeights moveCode="XSWT05" />);
+      const container = await screen.findByTestId('ppmShipmentContainer');
+      expect(container).toBeInTheDocument();
+      const table = await within(container).getByRole('table');
+      expect(table).toBeInTheDocument();
+      expect(screen.getByText('Weight moved by customer')).toBeInTheDocument();
+      expect(screen.queryByText('Gun safe')).not.toBeInTheDocument();
     });
 
     it('displays non-PPM shipments weights list', async () => {

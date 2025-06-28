@@ -124,6 +124,10 @@ properties:
     type: integer
     x-nullable: true
     x-omitempty: false
+  actualGunSafeWeight:
+    type: integer
+    x-nullable: true
+    x-omitempty: false
   customerRemarks:
     type: string
     example: handle with care

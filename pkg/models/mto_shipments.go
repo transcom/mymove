@@ -172,6 +172,7 @@ type MTOShipment struct {
 	DivertedFromShipmentID           *uuid.UUID             `json:"diverted_from_shipment_id" db:"diverted_from_shipment_id"`
 	ActualProGearWeight              *unit.Pound            `json:"actual_pro_gear_weight" db:"actual_pro_gear_weight"`
 	ActualSpouseProGearWeight        *unit.Pound            `json:"actual_spouse_pro_gear_weight" db:"actual_spouse_pro_gear_weight"`
+	ActualGunSafeWeight              *unit.Pound            `json:"actual_gun_safe_weight" db:"actual_gun_safe_weight" rw:"r"`
 	RejectionReason                  *string                `json:"rejection_reason" db:"rejection_reason"`
 	Distance                         *unit.Miles            `json:"distance" db:"distance"`
 	Reweigh                          *Reweigh               `json:"reweigh" has_one:"reweighs" fk_id:"shipment_id"`

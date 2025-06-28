@@ -19,7 +19,8 @@ import {
 } from 'components/Office/PPM/ReviewShipmentWeightsTable/helpers';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const sortShipments = (shipments) => {
   const ppmShipment = [];
@@ -50,6 +51,24 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
   useEffect(() => {
     setShowExcessWeightAlert(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
+
+  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
+  const [PPMTableConfig, setPPMTableConfig] = useState(PPMReviewWeightsTableConfig);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+    if (!isGunSafeEnabled) {
+      const newTableConfig = { ...PPMReviewWeightsTableConfig };
+      newTableConfig.tableColumns = PPMReviewWeightsTableConfig.tableColumns.filter(
+        (header) => header.id !== 'gunSafe',
+      );
+      setPPMTableConfig(newTableConfig);
+    } else {
+      setPPMTableConfig(PPMReviewWeightsTableConfig);
+    }
+  }, [isGunSafeEnabled]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -92,10 +111,7 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
         {sortedShipments.ppmShipment && (
           <div className={styles.weightMovedContainer} data-testid="ppmShipmentContainer">
             <h2 className={styles.weightMovedHeader}>Weight moved by customer</h2>
-            <ReviewShipmentWeightsTable
-              tableData={sortedShipments.ppmShipment}
-              tableConfig={PPMReviewWeightsTableConfig}
-            />
+            <ReviewShipmentWeightsTable tableData={sortedShipments.ppmShipment} tableConfig={PPMTableConfig} />
           </div>
         )}
         {showWeightsMoved && (
