@@ -1,0 +1,96 @@
+# FROM harbor.csde.caci.com/docker.io/debian:stable AS build-env
+
+# # # hadolint ignore=DL3007
+# # FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455
+
+# #AWS GovCloud RDS cert
+# COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
+
+# COPY bin/milmove /bin/milmove
+
+# # # Demo Environment certs
+# # COPY config/tls/api.demo.dp3.us.chain.der.p7b /config/tls/api.demo.dp3.us.chain.der.p7b
+# # COPY config/tls/api.demo.dp3.us.crt /config/tls/api.demo.dp3.us.crt
+
+# # # Loadtesting Environment Certs
+# # COPY config/tls/api.loadtest.dp3.us.chain.der.p7b /config/tls/api.loadtest.dp3.us.chain.der.p7b
+# # COPY config/tls/api.loadtest.dp3.us.crt /config/tls/api.loadtest.dp3.us.crt
+
+# # # Exp Environment Certs
+# # COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
+# # COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
+
+# COPY swagger/* /swagger/
+# COPY public/static/react-file-viewer /public/static/react-file-viewer
+
+# # Mount mutable tmp for app packages like pdfcpu
+# # hadolint ignore=DL3007
+# VOLUME ["/tmp"]
+
+# ENTRYPOINT ["/bin/milmove"]
+
+# CMD ["serve", "--logging-level=debug"]
+
+# EXPOSE 4000
+
+FROM milmove01/transcom-docker:milmove-app-ubuntu
+#FROM alpine:3.20.3
+
+# hadolint ignore=DL3017
+#RUN apk upgrade --no-cache busybox
+
+COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
+COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
+
+COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
+COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY bin/milmove /bin/milmove
+COPY bin/generate-test-data /bin/generate-test-data
+COPY bin/prime-api-client /bin/prime-api-client
+
+COPY migrations/app/schema /migrate/schema
+COPY migrations/app/secure /migrate/secure
+COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
+
+# COPY build /build
+# COPY config /config
+COPY swagger /swagger
+COPY pkg/testdatagen/testdata /pkg/testdatagen/testdata
+COPY scripts /scripts
+COPY public/static/react-file-viewer /public/static/react-file-viewer
+
+# Install tools needed in container
+# hadolint ignore=DL3018
+#RUN apk update && apk add ca-certificates --no-cache && apk add jq bash --no-cache
+#RUN apt-get install ca-certificates jq
+#RUN update-ca-certificates
+
+
+USER transcom
+
+# Create GOPATH, needed for swagger, needs to be owned by debian user
+RUN mkdir -p /home/transcom/go
+
+#Set Cert env variables for service
+ARG MOVE_MIL_DOD_CA_CERT
+ENV MOVE_MIL_DOD_CA_CERT=$MOVE_MIL_DOD_CA_CERT
+ARG MOVE_MIL_DOD_TLS_CERT
+ENV MOVE_MIL_DOD_TLS_CERT=$MOVE_MIL_DOD_TLS_CERT
+ARG MOVE_MIL_DOD_TLS_KEY
+ENV MOVE_MIL_DOD_TLS_KEY=$MOVE_MIL_DOD_TLS_KEY
+ARG CLIENT_AUTH_SECRET_KEY
+ENV CLIENT_AUTH_SECRET_KEY=$CLIENT_AUTH_SECRET_KEY
+ARG LOGIN_GOV_SECRET_KEY
+ENV LOGIN_GOV_SECRET_KEY=$LOGIN_GOV_SECRET_KEY
+ARG HERE_MAPS_APP_ID
+ENV HERE_MAPS_APP_ID=$HERE_MAPS_APP_ID
+ARG HERE_MAPS_APP_CODE
+ENV HERE_MAPS_APP_CODE=$HERE_MAPS_APP_CODE
+ARG CSRF_AUTH_KEY
+ENV CSRF_AUTH_KEY=$CSRF_AUTH_KEY
+ARG IWS_RBS_HOST
+ENV IWS_RBS_HOST=$IWS_RBS_HOST
+
+# Set environment variables for Go
+ENV GOPATH=/home/transcom/go
+ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
