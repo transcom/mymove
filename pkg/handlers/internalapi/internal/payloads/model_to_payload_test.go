@@ -342,6 +342,159 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 	})
 }
 
+func (suite *PayloadsSuite) TestGunSafe() {
+	mockStorer := &mocks.FileStorer{}
+
+	suite.Run("successfully converts a fully populated GunSafeWeightTicket", func() {
+		document := factory.BuildDocument(suite.DB(), nil, nil)
+		id := uuid.Must(uuid.NewV4())
+		ppmShipmentID := uuid.Must(uuid.NewV4())
+		documentID := document.ID
+		now := time.Now()
+		description := "Test description"
+		status := models.PPMDocumentStatusApproved
+		reason := "Some reason"
+		weight := unit.Pound(150)
+		submittedWeight := unit.Pound(200)
+
+		gunSafe := &models.GunSafeWeightTicket{
+			ID:              id,
+			PPMShipmentID:   ppmShipmentID,
+			Document:        document,
+			DocumentID:      documentID,
+			CreatedAt:       now,
+			UpdatedAt:       now,
+			Description:     &description,
+			Status:          &status,
+			Weight:          &weight,
+			SubmittedWeight: &submittedWeight,
+			Reason:          &reason,
+		}
+
+		result := GunSafeWeightTicket(mockStorer, gunSafe)
+		suite.NotNil(result, "Expected non-nil payload for valid input")
+
+		// Check required fields.
+		suite.Equal(*handlers.FmtUUID(id), result.ID, "ID should match")
+		suite.Equal(*handlers.FmtUUID(ppmShipmentID), result.PpmShipmentID, "PPMShipmentID should match")
+		suite.Equal(*handlers.FmtUUID(documentID), result.DocumentID, "DocumentID should match")
+		suite.NotNil(result.Document)
+		suite.Equal(strfmt.DateTime(now), result.CreatedAt, "CreatedAt should match")
+		suite.Equal(strfmt.DateTime(now), result.UpdatedAt, "UpdatedAt should match")
+		suite.Equal(description, *result.Description, "Description should match")
+		suite.Equal(etag.GenerateEtag(now), result.ETag, "ETag should be generated from UpdatedAt")
+
+		// Check optional fields.
+		suite.Equal(handlers.FmtPoundPtr(&weight), result.Weight, "Weight should match")
+		suite.Equal(handlers.FmtPoundPtr(&submittedWeight), result.SubmittedWeight, "SubmittedWeight should match")
+		if gunSafe.Status != nil {
+			expectedStatus := internalmessages.OmittablePPMDocumentStatus(*gunSafe.Status)
+			suite.Equal(&expectedStatus, result.Status, "Status should match")
+		}
+		if gunSafe.Reason != nil {
+			expectedReason := internalmessages.PPMDocumentStatusReason(*gunSafe.Reason)
+			suite.Equal(&expectedReason, result.Reason, "Reason should match")
+		}
+	})
+
+	suite.Run("successfully converts an array of fully populated GunSafeWeightTickets", func() {
+		document := factory.BuildDocument(suite.DB(), nil, nil)
+		id := uuid.Must(uuid.NewV4())
+		ppmShipmentID := uuid.Must(uuid.NewV4())
+		documentID := document.ID
+		now := time.Now()
+		description := "Test description"
+		status := models.PPMDocumentStatusApproved
+		reason := "Some reason"
+		weight := unit.Pound(150)
+		submittedWeight := unit.Pound(200)
+
+		secondDocument := factory.BuildDocument(suite.DB(), nil, nil)
+		secondID := uuid.Must(uuid.NewV4())
+		secondDocumentID := document.ID
+		secondDescription := "Another Test description"
+		secondStatus := models.PPMDocumentStatusRejected
+		secondReason := "Some other reason"
+		secondWeight := unit.Pound(225)
+		secondSubmittedWeight := unit.Pound(190)
+
+		gunSafeWeightTickets := &models.GunSafeWeightTickets{
+			models.GunSafeWeightTicket{
+				ID:              id,
+				PPMShipmentID:   ppmShipmentID,
+				Document:        document,
+				DocumentID:      documentID,
+				CreatedAt:       now,
+				UpdatedAt:       now,
+				Description:     &description,
+				Status:          &status,
+				Weight:          &weight,
+				SubmittedWeight: &submittedWeight,
+				Reason:          &reason,
+			},
+			models.GunSafeWeightTicket{
+				ID:              secondID,
+				PPMShipmentID:   ppmShipmentID,
+				Document:        secondDocument,
+				DocumentID:      secondDocumentID,
+				CreatedAt:       now,
+				UpdatedAt:       now,
+				Description:     &secondDescription,
+				Status:          &secondStatus,
+				Weight:          &secondWeight,
+				SubmittedWeight: &secondSubmittedWeight,
+				Reason:          &secondReason,
+			},
+		}
+
+		result := GunSafeWeightTickets(mockStorer, *gunSafeWeightTickets)
+		suite.NotNil(result, "Expected non-nil payload for valid input")
+
+		// Check required fields.
+		suite.Equal(*handlers.FmtUUID(id), result[0].ID, "ID should match")
+		suite.Equal(*handlers.FmtUUID(ppmShipmentID), result[0].PpmShipmentID, "PPMShipmentID should match")
+		suite.Equal(*handlers.FmtUUID(documentID), result[0].DocumentID, "DocumentID should match")
+		suite.NotNil(result[0].Document)
+		suite.Equal(strfmt.DateTime(now), result[0].CreatedAt, "CreatedAt should match")
+		suite.Equal(strfmt.DateTime(now), result[0].UpdatedAt, "UpdatedAt should match")
+		suite.Equal(description, *result[0].Description, "Description should match")
+		suite.Equal(etag.GenerateEtag(now), result[0].ETag, "ETag should be generated from UpdatedAt")
+
+		// Check optional fields.
+		suite.Equal(handlers.FmtPoundPtr(&weight), result[0].Weight, "Weight should match")
+		suite.Equal(handlers.FmtPoundPtr(&submittedWeight), result[0].SubmittedWeight, "SubmittedWeight should match")
+		if result[0].Status != nil {
+			expectedStatus := internalmessages.OmittablePPMDocumentStatus(*result[0].Status)
+			suite.Equal(&expectedStatus, result[0].Status, "Status should match")
+		}
+		if result[0].Reason != nil {
+			expectedReason := internalmessages.PPMDocumentStatusReason(*result[0].Reason)
+			suite.Equal(&expectedReason, result[0].Reason, "Reason should match")
+		}
+
+		// Second gun safe ticket
+		suite.Equal(*handlers.FmtUUID(secondID), result[1].ID, "ID should match")
+		suite.Equal(*handlers.FmtUUID(ppmShipmentID), result[1].PpmShipmentID, "PPMShipmentID should match")
+		suite.Equal(*handlers.FmtUUID(secondDocumentID), result[1].DocumentID, "DocumentID should match")
+		suite.NotNil(result[1].Document)
+		suite.Equal(strfmt.DateTime(now), result[1].CreatedAt, "CreatedAt should match")
+		suite.Equal(strfmt.DateTime(now), result[1].UpdatedAt, "UpdatedAt should match")
+		suite.Equal(secondDescription, *result[1].Description, "Description should match")
+		suite.Equal(etag.GenerateEtag(now), result[1].ETag, "ETag should be generated from UpdatedAt")
+
+		suite.Equal(handlers.FmtPoundPtr(&secondWeight), result[1].Weight, "Weight should match")
+		suite.Equal(handlers.FmtPoundPtr(&secondSubmittedWeight), result[1].SubmittedWeight, "SubmittedWeight should match")
+		if result[1].Status != nil {
+			expectedStatus := internalmessages.OmittablePPMDocumentStatus(*result[1].Status)
+			suite.Equal(&expectedStatus, result[1].Status, "Status should match")
+		}
+		if result[1].Reason != nil {
+			expectedReason := internalmessages.PPMDocumentStatusReason(*result[1].Reason)
+			suite.Equal(&expectedReason, result[1].Reason, "Reason should match")
+		}
+	})
+}
+
 func (suite *PayloadsSuite) TestPayGrades() {
 	payGrades := models.PayGrades{
 		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},

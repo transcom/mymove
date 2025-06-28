@@ -111,6 +111,18 @@ export function hasCompletedAllProGear(proGear) {
   return !!proGear?.every(isProGearComplete);
 }
 
+export function isGunSafeComplete(gunSafe) {
+  const hasADocumentUpload = gunSafe?.document?.uploads?.length > 0;
+  return !!(gunSafe.weight && gunSafe.description && hasADocumentUpload);
+}
+
+export function hasCompletedAllGunSafe(gunSafe) {
+  if (!gunSafe?.length) {
+    return true;
+  }
+  return !!gunSafe?.every(isGunSafeComplete);
+}
+
 export function isPPM(shipment) {
   return shipment?.shipmentType === SHIPMENT_OPTIONS.PPM;
 }

@@ -640,6 +640,32 @@ func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
 	})
 }
 
+func (suite *PayloadsSuite) TestGunSafeWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		description := "test description"
+		hasWeightTickets := true
+
+		input := &ghcmessages.UpdateGunSafeWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			Status:           status,
+			Reason:           reason,
+			Description:      description,
+		}
+
+		result := GunSafeWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.GunSafeWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
+		suite.Equal(reason, *result.Reason)
+		suite.Equal(description, *result.Description)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+	})
+}
 func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	suite.Run("Success - Complete input", func() {
 		time := time.Now()
