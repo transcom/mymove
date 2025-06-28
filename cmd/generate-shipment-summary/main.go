@@ -157,7 +157,8 @@ func main() {
 
 	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher, ppmEstimator)
 
-	ssfd, err := ppmComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
+	isPaymentPacket := false
+	ssfd, err := ppmComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID, isPaymentPacket)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
@@ -176,7 +177,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	page1Data, page2Data, page3Data, err := ppmComputer.FormatValuesShipmentSummaryWorksheet(appCtx, *ssfd, false)
+	page1Data, page2Data, page3Data, err := ppmComputer.FormatValuesShipmentSummaryWorksheet(appCtx, *ssfd, isPaymentPacket)
 	noErr(err)
 	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	noErr(err)

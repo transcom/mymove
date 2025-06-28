@@ -45,12 +45,18 @@ func (waf *weightAllotmentFetcher) GetWeightAllotment(appCtx appcontext.AppConte
 		return models.WeightAllotment{}, apperror.NewQueryError("HHGAllowance", err, fmt.Sprintf("Error retrieving HHG allowance for grade: %s", grade))
 	}
 
+	maxGunSafeWeightAllowance, err := models.GetMaxGunSafeAllowance(appCtx)
+	if err != nil {
+		return models.WeightAllotment{}, err
+	}
+
 	// Convert HHGAllowance to WeightAllotment
 	weightAllotment := models.WeightAllotment{
 		TotalWeightSelf:               hhgAllowance.TotalWeightSelf,
 		TotalWeightSelfPlusDependents: hhgAllowance.TotalWeightSelfPlusDependents,
 		ProGearWeight:                 hhgAllowance.ProGearWeight,
 		ProGearWeightSpouse:           hhgAllowance.ProGearWeightSpouse,
+		GunSafeWeight:                 maxGunSafeWeightAllowance,
 	}
 
 	return weightAllotment, nil
@@ -104,6 +110,11 @@ func (waf *weightAllotmentFetcher) GetAllWeightAllotments(appCtx appcontext.AppC
 		return nil, apperror.NewQueryError("HHGAllowances", err, "Error retrieving all HHG allowances")
 	}
 
+	maxGunSafeWeightAllowance, err := models.GetMaxGunSafeAllowance(appCtx)
+	if err != nil {
+		return nil, err
+	}
+
 	weightAllotments := make(map[internalmessages.OrderPayGrade]models.WeightAllotment)
 
 	for _, hhgAllowance := range hhgAllowances {
@@ -113,6 +124,7 @@ func (waf *weightAllotmentFetcher) GetAllWeightAllotments(appCtx appcontext.AppC
 			TotalWeightSelfPlusDependents: hhgAllowance.TotalWeightSelfPlusDependents,
 			ProGearWeight:                 hhgAllowance.ProGearWeight,
 			ProGearWeightSpouse:           hhgAllowance.ProGearWeightSpouse,
+			GunSafeWeight:                 maxGunSafeWeightAllowance,
 		}
 
 		grade := internalmessages.OrderPayGrade(hhgAllowance.PayGrade.Grade)

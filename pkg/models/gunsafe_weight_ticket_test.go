@@ -147,3 +147,64 @@ func (suite *ModelSuite) TestGunSafeWeightTickets_FilterRejected() {
 		}
 	})
 }
+
+func (suite *ModelSuite) TestGunSafeWeightTickets_GetApprovedTickets() {
+	suite.Run("returns empty slice when input is empty", func() {
+		emptyTickets := models.GunSafeWeightTickets{}
+		filtered := emptyTickets.GetApprovedTickets()
+		suite.Equal(0, len(filtered))
+	})
+
+	suite.Run("returns all tickets when all are approved and not deleted", func() {
+		status := models.PPMDocumentStatusApproved
+		tickets := models.GunSafeWeightTickets{
+			{Status: &status, DeletedAt: nil},
+			{Status: &status, DeletedAt: nil},
+		}
+		filtered := tickets.GetApprovedTickets()
+		suite.Equal(2, len(filtered))
+	})
+
+	suite.Run("filters out non-approved tickets", func() {
+		approved := models.PPMDocumentStatusApproved
+		rejected := models.PPMDocumentStatusRejected
+		tickets := models.GunSafeWeightTickets{
+			{Status: &approved},
+			{Status: &rejected},
+			{Status: nil},
+		}
+		filtered := tickets.GetApprovedTickets()
+		suite.Equal(1, len(filtered))
+
+		for _, ticket := range filtered {
+			suite.NotNil(ticket.Status)
+			suite.Equal(models.PPMDocumentStatusApproved, *ticket.Status)
+		}
+	})
+
+	suite.Run("excludes deleted tickets even if approved", func() {
+		approved := models.PPMDocumentStatusApproved
+		now := time.Now()
+		tickets := models.GunSafeWeightTickets{
+			{Status: &approved, DeletedAt: &now}, // deleted
+			{Status: &approved, DeletedAt: nil},  // not deleted
+		}
+		filtered := tickets.GetApprovedTickets()
+		suite.Equal(1, len(filtered))
+
+		for _, ticket := range filtered {
+			suite.Nil(ticket.DeletedAt)
+		}
+	})
+
+	suite.Run("returns empty slice if no approved tickets remain after filtering", func() {
+		rejected := models.PPMDocumentStatusRejected
+		now := time.Now()
+		tickets := models.GunSafeWeightTickets{
+			{Status: &rejected, DeletedAt: nil},
+			{Status: nil, DeletedAt: &now},
+		}
+		filtered := tickets.GetApprovedTickets()
+		suite.Equal(0, len(filtered))
+	})
+}

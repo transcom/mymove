@@ -9,16 +9,7 @@ import (
 )
 
 func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
-	setupHhgAllowanceParameter := func() {
-		parameter := models.ApplicationParameters{
-			ParameterName:  models.StringPointer("maxHhgAllowance"),
-			ParameterValue: models.StringPointer("18000"),
-		}
-		suite.MustCreate(&parameter)
-	}
-
 	suite.Run("Successfully apply a weight restriction within max allowance", func() {
-		setupHhgAllowanceParameter()
 		// Create a blank entitlement db entry, nothing fancy we just want to update columns
 		entitlement := models.Entitlement{
 			ID: uuid.Must(uuid.NewV4()),
@@ -35,7 +26,6 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 	})
 
 	suite.Run("Attempt to apply restriction above max allowance, expect an error", func() {
-		setupHhgAllowanceParameter()
 		// Create a blank entitlement db entry, nothing fancy we just want to update columns
 		entitlement := models.Entitlement{
 			ID: uuid.Must(uuid.NewV4()),
@@ -51,6 +41,15 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 	})
 
 	suite.Run("No maxHhgAllowance parameter found returns error", func() {
+		param := models.ApplicationParameters{}
+		err := suite.DB().
+			Where("parameter_name = ?", "maxHhgAllowance").
+			First(&param)
+		suite.NoError(err)
+
+		err = suite.DB().Destroy(&param)
+		suite.NoError(err)
+
 		entitlement := models.Entitlement{
 			ID: uuid.Must(uuid.NewV4()),
 		}
@@ -64,7 +63,6 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 	})
 
 	suite.Run("Successfully remove a weight restriction", func() {
-		setupHhgAllowanceParameter()
 
 		// Create an entitlement with a restriction already applied
 		weightRestriction := 5000
@@ -82,7 +80,6 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 	})
 
 	suite.Run("Fails on removing a weight restriction for an entitlement that does not exist", func() {
-		setupHhgAllowanceParameter()
 
 		entitlement := models.Entitlement{
 			ID: uuid.Must(uuid.NewV4()),

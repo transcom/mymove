@@ -54,14 +54,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
 
-	parameterName := "maxGunSafeAllowance"
-	parameterValue := "500"
-	param := models.ApplicationParameters{
-		ParameterName:  &parameterName,
-		ParameterValue: &parameterValue,
-	}
-	suite.MustSave(&param)
-
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
