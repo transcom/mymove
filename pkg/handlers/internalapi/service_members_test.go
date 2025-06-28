@@ -472,6 +472,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// Make duty locations +2 addresses each DL => 4
 	// Patch service member +2 addresses added to service member => 2
 	// Total => 6
+}
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	// Given: a logged in user
