@@ -22,7 +22,7 @@ func NewIntlShippingAndLinehaulPricer() services.IntlShippingAndLinehaulPricer {
 	return &intlShippingAndLinehaulPricer{}
 }
 
-func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, distance unit.Miles, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
+func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
 	}
@@ -31,9 +31,6 @@ func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contr
 	}
 	if weight < islhPricerMinimumWeight {
 		return 0, nil, fmt.Errorf("weight must be at least %d", islhPricerMinimumWeight)
-	}
-	if perUnitCents == 0 {
-		return 0, nil, errors.New("PerUnitCents is required")
 	}
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
@@ -82,11 +79,6 @@ func (p intlShippingAndLinehaulPricer) PriceUsingParams(appCtx appcontext.AppCon
 		return unit.Cents(0), nil, err
 	}
 
-	distance, err := getParamInt(params, models.ServiceItemParamNameDistanceZip)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
 	referenceDate, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -102,5 +94,5 @@ func (p intlShippingAndLinehaulPricer) PriceUsingParams(appCtx appcontext.AppCon
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distance), unit.Pound(weightBilled), perUnitCents)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), perUnitCents)
 }
