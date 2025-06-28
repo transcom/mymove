@@ -521,22 +521,41 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		},
 	}
 
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	shipmentRouter := mtoshipment.NewShipmentRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	suite.Run("has audit history records for service item", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
-
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-				shipmentRouter := mtoshipment.NewShipmentRouter()
 				shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 				addressCreator := address.NewAddressCreator()
 				portLocationFetcher := portlocation.NewPortLocationFetcher()
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
 				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 				move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 				serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -710,6 +729,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	suite.Run("has audit history records for service item dimensions", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
+				testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 				move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -719,15 +739,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 						LinkOnly: true,
 					},
 				}, nil)
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
-				creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 				dimension := models.MTOServiceItemDimension{
 					Type:      models.DimensionTypeItem,
@@ -797,15 +808,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 						LinkOnly: true,
 					},
 				}, nil)
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
-				creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 				reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
