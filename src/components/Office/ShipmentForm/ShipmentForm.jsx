@@ -82,6 +82,7 @@ import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationCo
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 import { getResponseError } from 'services/internalApi';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentForm = (props) => {
   const {
@@ -304,6 +305,7 @@ const ShipmentForm = (props) => {
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
+
   let initialValues = {};
   if (isPPM) {
     initialValues = formatPpmShipmentForDisplay(
@@ -362,8 +364,6 @@ const ShipmentForm = (props) => {
     showPickupFields = shipmentOptions.showPickupFields;
     schema = shipmentOptions.schema;
   }
-
-  const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
   const moveDetailsPath = isTOO
     ? generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode })
@@ -951,6 +951,7 @@ const ShipmentForm = (props) => {
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
+                    {requiredAsteriskMessage}
                     <Fieldset data-testid="requestedPickupDateFieldSet">
                       {isRequestedPickupDateAlertVisible && !isRequestedPickupDateInvalid && (
                         <Alert
@@ -966,6 +967,8 @@ const ShipmentForm = (props) => {
                         name="pickup.requestedDate"
                         label="Requested pickup date"
                         id="requestedPickupDate"
+                        showRequiredAsterisk
+                        requried
                         validate={validatePickupDate}
                         onChange={handlePickupDateChange}
                       />
@@ -1079,7 +1082,7 @@ const ShipmentForm = (props) => {
 
                         <ContactInfoFields
                           name="pickup.agent"
-                          legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                          legend={<div className={formStyles.legendContent}>Releasing agent</div>}
                           render={(fields) => {
                             return fields;
                           }}
@@ -1106,6 +1109,7 @@ const ShipmentForm = (props) => {
                 {showDeliveryFields && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h3 className={styles.SectionHeaderExtraSpacing}>Delivery details</h3>
+                    {requiredAsteriskMessage}
                     <Fieldset>
                       {isRequestedDeliveryDateAlertVisible && (
                         <Alert type="warning" aria-live="polite" headingLevel="h4">
@@ -1116,6 +1120,8 @@ const ShipmentForm = (props) => {
                         name="delivery.requestedDate"
                         label="Requested delivery date"
                         id="requestedDeliveryDate"
+                        showRequiredAsterisk
+                        required
                         validate={validateDate}
                         onChange={handleDeliveryDateChange}
                       />
@@ -1247,7 +1253,7 @@ const ShipmentForm = (props) => {
 
                         <ContactInfoFields
                           name="delivery.agent"
-                          legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                          legend={<div className={formStyles.legendContent}>Receiving agent</div>}
                           render={(fields) => {
                             return fields;
                           }}
@@ -1441,7 +1447,7 @@ const ShipmentForm = (props) => {
 
                         <ContactInfoFields
                           name="delivery.agent"
-                          legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                          legend={<div className={formStyles.legendContent}>Receiving agent</div>}
                           render={(fields) => {
                             return fields;
                           }}
@@ -1461,8 +1467,8 @@ const ShipmentForm = (props) => {
                         <h3>PPM Type</h3>
                         <FormGroup>
                           <div>
-                            <Label className={styles.Label} htmlFor="ppmType">
-                              Indicate the PPM Type
+                            <Label htmlFor="ppmType">
+                              <span>Indicate the PPM Type</span>
                             </Label>
                             <Field
                               as={Radio}
@@ -1503,6 +1509,7 @@ const ShipmentForm = (props) => {
                     )}
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                       <h3>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped Date' : 'Departure Date'}</h3>
+                      {requiredAsteriskMessage}
                       <DatePickerInput
                         name="expectedDepartureDate"
                         label={
@@ -1510,6 +1517,8 @@ const ShipmentForm = (props) => {
                             ? 'When did the customer ship their package?'
                             : 'Planned Departure Date'
                         }
+                        showRequiredAsterisk
+                        required
                       />
                       <Hint className={ppmStyles.hint}>
                         Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We
@@ -1631,7 +1640,7 @@ const ShipmentForm = (props) => {
                         name="destination.address"
                         legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                         formikProps={formikProps}
-                        address1LabelHint="Optional"
+                        optionalAddress1
                         render={(fields) => (
                           <>
                             {fields}
@@ -1744,12 +1753,15 @@ const ShipmentForm = (props) => {
                     {showCloseoutOffice && (
                       <SectionWrapper>
                         <h3>Closeout office</h3>
+                        {requiredAsteriskMessage}
                         <CloseoutOfficeInput
                           hint="If there is more than one PPM for this move, the closeout office will be the same for all your PPMs."
                           name="closeoutOffice"
                           placeholder="Start typing a closeout location..."
                           label="Closeout location"
                           displayAddress
+                          showRequiredAsterisk
+                          required
                         />
                       </SectionWrapper>
                     )}
@@ -1799,6 +1811,7 @@ const ShipmentForm = (props) => {
                       (values.advanceRequested !== mtoShipment.ppmShipment?.hasRequestedAdvance ||
                         values.advance !== mtoShipment.ppmShipment?.advanceAmountRequested)
                     }
+                    isAdvancePage={isAdvancePage}
                   />
                 )}
 

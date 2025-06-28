@@ -63,9 +63,9 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Location Lookup').nth(1).fill('90212');
       await expect(page.getByText(LocationLookup2, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
-      await page.getByLabel('Name', { exact: true }).fill('Backup Friend');
-      await page.getByLabel('Email', { exact: true }).nth(1).fill('backupFriend@mail.mil');
-      await page.getByLabel('Phone', { exact: true }).nth(1).fill('555-867-5309');
+      await page.getByLabel('Name *').fill('Backup Friend');
+      await page.getByLabel('Email *').nth(1).fill('backupFriend@mail.mil');
+      await page.getByLabel('Phone *').nth(1).fill('555-867-5309');
       await page.locator('label[for="noCreateOktaAccount"]').click();
       await page.locator('label[for="yesCacUser"]').click();
       await page.keyboard.press('Tab');

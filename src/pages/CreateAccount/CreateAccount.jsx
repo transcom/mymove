@@ -28,6 +28,7 @@ import Hint from 'components/Hint';
 import { technicalHelpDeskURL } from 'shared/constants';
 import ValidationCode from 'pages/MyMove/Profile/ValidationCode';
 import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 export const CreateAccount = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
@@ -275,6 +276,7 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
                           )}
                         </div>
                         <div className={styles.formSection}>
+                          {requiredAsteriskMessage}
                           <DropdownInput
                             label="Branch of service"
                             name="affiliation"

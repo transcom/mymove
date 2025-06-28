@@ -506,12 +506,14 @@ describe('ShipmentForm component', () => {
   });
 
   describe('when creating a new HHG shipment', () => {
-    it('renders the HHG shipment form', async () => {
+    it('renders the HHG shipment form and asterisks for required fields', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
-      expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use pickup address')).toBeInstanceOf(HTMLInputElement);
@@ -529,7 +531,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[0]).toHaveAttribute('name', 'pickup.agent.phone');
       expect(screen.getAllByLabelText('Email')[0]).toHaveAttribute('name', 'pickup.agent.email');
 
-      expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInstanceOf(HTMLInputElement);
 
       const deliveryLocationSectionHeadings = screen.getAllByText('Delivery Address');
       expect(deliveryLocationSectionHeadings).toHaveLength(2);
@@ -559,7 +561,7 @@ describe('ShipmentForm component', () => {
         await user.click(screen.getByLabelText('Use pickup address'));
       });
 
-      expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
+      expect((await screen.findAllByLabelText(/Address 1/))[0]).toHaveValue(
         defaultProps.currentResidence.streetAddress1,
       );
 
@@ -605,7 +607,7 @@ describe('ShipmentForm component', () => {
         await user.click(screen.getByTitle('Yes, I know my delivery address'));
       });
 
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
       expect(screen.getAllByTestId('City')[1]).toHaveAttribute('aria-label', 'delivery.address.city');
@@ -643,7 +645,7 @@ describe('ShipmentForm component', () => {
           />,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
           mockMtoShipment.destinationAddress.streetAddress1,
         );
         expect(
@@ -659,7 +661,7 @@ describe('ShipmentForm component', () => {
         const locationLookup = screen.getAllByLabelText(/Location Lookup/);
 
         await act(async () => {
-          expect(screen.getAllByLabelText('Address 1')[2]).toBeInstanceOf(HTMLInputElement);
+          expect(screen.getAllByLabelText(/Address 1/)[2]).toBeInstanceOf(HTMLInputElement);
           expect(locationLookup[2]).toBeInstanceOf(HTMLInputElement);
         });
       });
@@ -724,9 +726,9 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
+      expect(await screen.findByLabelText('Requested pickup date *')).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText('Address 1 *')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByTestId('City')[0]).toHaveTextContent('San Antonio');
       expect(screen.getAllByTestId('State')[0]).toHaveTextContent('TX');
@@ -736,10 +738,10 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Requested delivery date *')).toHaveValue('30 Mar 2020');
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText('Address 1 *')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByTestId('City')[1]).toHaveTextContent('Tacoma');
       expect(screen.getAllByTestId('State')[1]).toHaveTextContent('WA');
@@ -808,9 +810,9 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
+      expect(await screen.findByLabelText('Requested pickup date *')).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getByTestId('pickup.address.streetAddress1')).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByTestId('City')[0]).toHaveTextContent('San Antonio');
       expect(screen.getAllByTestId('State')[0]).toHaveTextContent('TX');
@@ -820,9 +822,9 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Requested delivery date *')).toHaveValue('30 Mar 2020');
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByTestId('City')[1]).toHaveTextContent('Tacoma');
       expect(screen.getAllByTestId('State')[1]).toHaveTextContent('WA');
@@ -988,7 +990,7 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
 
-      expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use pickup address')).toBeInstanceOf(HTMLInputElement);
@@ -1115,7 +1117,7 @@ describe('ShipmentForm component', () => {
       );
 
       await act(async () => {
-        await userEvent.clear(screen.getByLabelText('Requested pickup date'));
+        await userEvent.clear(screen.getByLabelText('Requested pickup date *'));
         await userEvent.paste(tomorrow);
         await userEvent.click(screen.getByTestId('useCurrentResidence'));
       });
@@ -1149,7 +1151,7 @@ describe('ShipmentForm component', () => {
       expect(screen.queryByText('Pickup Address')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
-      expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Delivery Address')).toBeInstanceOf(HTMLLegendElement);
 
@@ -1185,9 +1187,9 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
-      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInTheDocument();
       expect(screen.getByText('Pickup Address')).toBeInTheDocument();
-      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInTheDocument();
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInTheDocument();
       expect(screen.getByText('Customer remarks')).toBeInTheDocument();
       expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
@@ -1197,8 +1199,8 @@ describe('ShipmentForm component', () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
-      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
-      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility address' })).toBeInTheDocument();
@@ -1212,8 +1214,8 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
-      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date *')).toBeInTheDocument();
     });
   });
 
@@ -1552,6 +1554,7 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           isCreatePage
           userRole={roleTypes.SERVICES_COUNSELOR}
+          optionalAddress1
         />,
       );
 
@@ -1621,7 +1624,7 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(screen.getByLabelText('When did the customer ship their package?')).toBeInTheDocument();
+      expect(screen.getByLabelText('When did the customer ship their package? *')).toBeInTheDocument();
 
       await waitFor(() => {
         const smallPackageRadio = screen.getByTestId('isSmallPackage');
@@ -1650,12 +1653,13 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           mtoShipment={mockPPMShipment}
           userRole={roleTypes.TOO}
+          optionalAddress1
         />,
       );
 
-      expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
+      expect(await screen.getByLabelText('Planned Departure Date *')).toHaveValue('01 Apr 2022');
 
-      expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
@@ -1674,7 +1678,7 @@ describe('ShipmentForm component', () => {
         ),
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
@@ -1739,7 +1743,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
-      expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
+      expect(screen.getByLabelText('Estimated PPM weight *')).toHaveValue('4,999');
       expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
       expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
     });
@@ -1760,7 +1764,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
       expect(screen.findByText('Estimated incentive: $12,345').toBeInTheDocument);
-      expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
+      expect(screen.getByLabelText('Amount requested *')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Approve')).toBeChecked();
 
@@ -1796,12 +1800,13 @@ describe('ShipmentForm component', () => {
             shipmentType={SHIPMENT_OPTIONS.PPM}
             mtoShipment={mockPPMShipment}
             userRole={roleTypes.SERVICES_COUNSELOR}
+            optionalAddress1
           />,
         );
 
-        expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
+        expect(await screen.getByLabelText('Planned Departure Date *')).toHaveValue('01 Apr 2022');
 
-        expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[0]).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
@@ -1822,7 +1827,7 @@ describe('ShipmentForm component', () => {
           ),
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
@@ -1890,7 +1895,7 @@ describe('ShipmentForm component', () => {
         await waitFor(() => {
           expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).not.toBeChecked();
         });
-        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
+        expect(screen.getByLabelText('Estimated PPM weight *')).toHaveValue('4,999');
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('No')[1]).toBeChecked();
       });
@@ -1926,14 +1931,6 @@ describe('ShipmentForm component', () => {
         await waitFor(() => {
           // verify required alert was not raised
           expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-
-          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 delivery address, 4 for secondary addrs).
-          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the delivery address
-          // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
-          const elements = Array.from(document.querySelectorAll('.usa-hint')).filter((element) =>
-            element.textContent.includes('Optional'),
-          );
-          expect(elements).toHaveLength(9);
         });
       });
     });
@@ -1953,10 +1950,10 @@ describe('ShipmentForm component', () => {
       expect(await screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
       expect(screen.findByText('Estimated incentive: $12,345').toBeInTheDocument);
-      expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
+      expect(screen.getByLabelText('Amount requested *')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Approve')).toBeChecked();
-      expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+      expect(screen.getByLabelText('Counselor remarks *')).toHaveValue('mock counselor remarks');
 
       await act(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
@@ -2011,10 +2008,10 @@ describe('ShipmentForm component', () => {
       const requiredAlerts = screen.getAllByRole('alert');
       expect(requiredAlerts[0]).toHaveTextContent('Required');
 
-      expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Amount requested *')).not.toBeInTheDocument();
 
       await act(async () => {
-        screen.getByLabelText('Counselor remarks').focus();
+        screen.getByLabelText('Counselor remarks *').focus();
         await userEvent.paste('retirees are not given advances');
         await userEvent.tab();
       });
@@ -2059,7 +2056,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
-      const advanceAmountInput = screen.getByLabelText('Amount requested');
+      const advanceAmountInput = screen.getByLabelText('Amount requested *');
 
       expect(advanceAmountInput).toHaveValue('4,875');
       // Edit a requested advance amount
@@ -2087,7 +2084,7 @@ describe('ShipmentForm component', () => {
       await act(async () => {
         await userEvent.click(inputHasRequestedAdvance);
       });
-      const advanceAmountRequested = screen.getByLabelText('Amount requested');
+      const advanceAmountRequested = screen.getByLabelText('Amount requested *');
       await act(async () => {
         advanceAmountRequested.focus();
         await userEvent.paste('0');
@@ -2100,7 +2097,7 @@ describe('ShipmentForm component', () => {
       });
     });
 
-    it('sets `Counselor Remarks` as required when an advance request is rejected', async () => {
+    it('sets `Counselor Remarks` as required when an advance request is rejected and shows a required asterisk', async () => {
       const ppmShipmentWithoutRemarks = {
         ...mockPPMShipment,
         counselorRemarks: '',
@@ -2121,7 +2118,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Approve')).toBeChecked();
       expect(screen.getByLabelText('Reject')).not.toBeChecked();
 
-      const advanceAmountInput = screen.getByLabelText('Amount requested');
+      const advanceAmountInput = screen.getByLabelText('Amount requested *');
       expect(advanceAmountInput).toHaveValue('4,875');
 
       await act(async () => {
@@ -2137,16 +2134,18 @@ describe('ShipmentForm component', () => {
         expect(screen.getByLabelText('Approve')).not.toBeChecked();
         expect(screen.getByLabelText('Reject')).toBeChecked();
 
+        expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
         // Verify original value was reset back 2000 to 4875. This only
         // happens when REJECT is selected.
-        const advanceAmountInput2 = screen.getByLabelText('Amount requested');
+        const advanceAmountInput2 = screen.getByLabelText('Amount requested *');
         expect(advanceAmountInput2).toHaveValue('4,875');
       });
       const requiredAlert = screen.getAllByRole('alert');
       expect(requiredAlert[0]).toHaveTextContent('Required');
 
       await act(async () => {
-        screen.getByLabelText('Counselor remarks').focus();
+        screen.getByLabelText('Counselor remarks *').focus();
         await userEvent.paste('I, a service counselor, have rejected your advance request');
         await userEvent.tab();
       });
@@ -2195,7 +2194,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Reject')).toBeChecked();
       expect(screen.getByLabelText('Approve')).not.toBeChecked();
 
-      const advanceAmountInput = screen.getByLabelText('Amount requested');
+      const advanceAmountInput = screen.getByLabelText('Amount requested *');
       expect(advanceAmountInput).toHaveValue('4,875');
 
       await act(async () => {
@@ -2367,18 +2366,20 @@ describe('ShipmentForm component', () => {
   });
 
   describe('creating a new Boat shipment', () => {
-    it('renders the Boat shipment form correctly', async () => {
+    it('renders the Boat shipment form correctly with asterisks for required fields', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.BOAT_HAUL_AWAY} isCreatePage />);
+
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('Boat');
       expect(await screen.findByText('Boat')).toBeInTheDocument();
-      expect(screen.getByLabelText('Year')).toBeInTheDocument();
-      expect(screen.getByLabelText('Make')).toBeInTheDocument();
-      expect(screen.getByLabelText('Model')).toBeInTheDocument();
+      expect(screen.getByLabelText('Year *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Make *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Model *')).toBeInTheDocument();
       expect(await screen.findByText('Length')).toBeInTheDocument();
       expect(await screen.findByText('Width')).toBeInTheDocument();
       expect(await screen.findByText('Height')).toBeInTheDocument();
-      expect(await screen.findByText('Does the boat have a trailer?')).toBeInTheDocument();
+      expect(await screen.getByLabelText(/Does the boat have a trailer? */)).toBeInTheDocument();
       expect(await screen.findByText('What is the method of shipment?')).toBeInTheDocument();
       expect(await screen.findByText('Pickup details')).toBeInTheDocument();
       expect(await screen.findByText('Delivery details')).toBeInTheDocument();
@@ -2475,12 +2476,14 @@ describe('ShipmentForm component', () => {
   });
 
   describe('creating a new Mobile Home shipment', () => {
-    it('renders the Mobile Home shipment form correctly', async () => {
+    it('renders the Mobile Home shipment form correctly with asterisks for required fields', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} isCreatePage />);
 
-      expect(screen.getByLabelText('Year')).toBeInTheDocument();
-      expect(screen.getByLabelText('Make')).toBeInTheDocument();
-      expect(screen.getByLabelText('Model')).toBeInTheDocument();
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('Year *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Make *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Model *')).toBeInTheDocument();
       expect(await screen.findByText('Length')).toBeInTheDocument();
       expect(await screen.findByText('Width')).toBeInTheDocument();
       expect(await screen.findByText('Height')).toBeInTheDocument();
@@ -2729,12 +2732,12 @@ describe('ShipmentForm component', () => {
 
         // Trigger invalid date error - must be in the future
         await act(async () => {
-          const node = screen.getByLabelText('Requested pickup date');
+          const node = screen.getByLabelText('Requested pickup date *');
           await userEvent.clear(node);
           await userEvent.paste('26 Mar 2022');
           node.blur();
         });
-        expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
+        expect(await screen.findByLabelText('Requested pickup date *')).toHaveValue('26 Mar 2022');
         const dateRequiredParent = within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId(
           'formGroup',
         );
@@ -2748,12 +2751,12 @@ describe('ShipmentForm component', () => {
 
         // Valid date, hides errors
         await act(async () => {
-          const node = screen.getByLabelText('Requested pickup date');
+          const node = screen.getByLabelText('Requested pickup date *');
           await userEvent.clear(node);
           await userEvent.paste(tomorrowDatePicker);
           node.blur();
         });
-        expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
+        expect(await screen.findByLabelText('Requested pickup date *')).toHaveValue(tomorrowDatePicker);
         await waitFor(() => {
           expect(screen.queryByTestId('requestedPickupDateErrorAlert')).not.toBeInTheDocument();
           expect(

@@ -10,6 +10,7 @@ import { RadioField } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
@@ -113,6 +114,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
 
             {advanceRequested && (
               <>
+                {requiredAsteriskMessage}
                 <FormGroup>
                   <MaskedTextField
                     defaultValue="0"
@@ -127,6 +129,8 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                     prefix="$"
                     onKeyUp={onKeyUpAdvanceHandler}
                     onPaste={onPasteAdvanceHandler}
+                    showRequiredAsterisk
+                    required
                   />
                 </FormGroup>
 
@@ -134,9 +138,14 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                   <div className={styles.AdvanceText}>Maximum advance: ${formattedMaxAdvance}</div>
                 </FormGroup>
 
-                <FormGroup>
-                  <h3 className={styles.NoSpacing}>Review the advance (AOA) request:</h3>
-                  <Label className={styles.Label}>Advance request status:</Label>
+                <h3>Review the advance (AOA) request:</h3>
+
+                <Fieldset className={styles.Fieldset}>
+                  <legend className="usa-label" required>
+                    <span>
+                      Advance request status: <RequiredAsterisk />
+                    </span>
+                  </legend>
                   <RadioField
                     id="approveAdvanceRequest"
                     label="Approve"
@@ -145,7 +154,9 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                     title="Approve"
                     checked={!!statusInput.value && advanceRequestStatus} // defaults to false if advanceStatus has a null value
                     onChange={handleAdvanceRequestStatusChange}
+                    required
                   />
+
                   <RadioField
                     id="rejectAdvanceRequest"
                     label="Reject"
@@ -154,8 +165,9 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                     title="Reject"
                     checked={!!statusInput.value && !advanceRequestStatus} // defaults to false if advanceStatus has a null value
                     onChange={handleAdvanceRequestStatusChange}
+                    required
                   />
-                </FormGroup>
+                </Fieldset>
               </>
             )}
           </Grid>

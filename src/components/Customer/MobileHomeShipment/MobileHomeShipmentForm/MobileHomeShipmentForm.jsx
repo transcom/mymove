@@ -17,7 +17,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
-import RequiredTag from 'components/form/RequiredTag';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const currentYear = new Date().getFullYear();
 const maxYear = currentYear + 2;
@@ -111,6 +111,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
             <Form className={formStyles.form}>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Mobile Home Information</h2>
+                {requiredAsteriskMessage}
                 <div className="grid-row grid-gap">
                   <div className="mobile-lg:grid-col-3">
                     <MaskedTextField
@@ -118,6 +119,9 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                       name="year"
                       label="Year"
                       id="year"
+                      aria-label="Year of the mobile home"
+                      showRequiredAsterisk
+                      required
                       maxLength={4}
                       mask={Number}
                       scale={0}
@@ -131,23 +135,46 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                         setFieldError('year', null);
                         validateForm();
                       }}
-                      required
                     />
                   </div>
                 </div>
                 <div className={classnames(styles.formFieldContainer, 'mobile-lg:grid-col-7')}>
-                  <TextField data-testid="make" name="make" label="Make" id="make" required />
-                  <TextField data-testid="model" name="model" label="Model" id="model" required />
+                  <TextField
+                    data-testid="make"
+                    name="make"
+                    label="Make"
+                    id="make"
+                    aria-label="Make of the mobile home"
+                    showRequiredAsterisk
+                    required
+                  />
+                  <TextField
+                    data-testid="model"
+                    name="model"
+                    label="Model"
+                    id="model"
+                    aria-label="Model of the mobile home"
+                    showRequiredAsterisk
+                    required
+                  />
                 </div>
               </SectionWrapper>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Mobile Home Dimensions</h2>
                 <p>Enter the total outside dimensions (in Feet and Inches) of the Mobile Home.</p>
+                {requiredAsteriskMessage}
                 <div>
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
-                      <legend className="usa-label">Length</legend>
-                      <RequiredTag />
+                      <legend
+                        className="usa-label"
+                        data-testid="mobileHomeLength"
+                        aria-label="Required: What is the length of the mobile home?"
+                      >
+                        <span required>
+                          Length <RequiredAsterisk />
+                        </span>
+                      </legend>
                       <ErrorMessage display={lengthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -184,8 +211,15 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   </Fieldset>
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
-                      <legend className="usa-label">Width</legend>
-                      <RequiredTag />
+                      <legend
+                        className="usa-label"
+                        data-testid="mobileHomeWidth"
+                        aria-label="Required: What is the width of the mobile home?"
+                      >
+                        <span required>
+                          Width <RequiredAsterisk />
+                        </span>
+                      </legend>
                       <ErrorMessage display={widthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -222,8 +256,15 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   </Fieldset>
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
-                      <legend className="usa-label">Height</legend>
-                      <RequiredTag />
+                      <legend
+                        className="usa-label"
+                        data-testid="mobileHomeHeight"
+                        aria-label="Required: What is the height of the mobile home?"
+                      >
+                        <span required>
+                          Height <RequiredAsterisk />
+                        </span>
+                      </legend>
                       <ErrorMessage display={heightHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
