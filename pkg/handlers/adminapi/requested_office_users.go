@@ -21,11 +21,13 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// payloadForRequestedOfficeUserModel converts an OfficeUser model to an OfficeUser payload
 func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	var user models.User
 	if o.UserID != nil {
@@ -54,6 +56,9 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 		if userIDFmt != nil {
 			payload.UserID = *userIDFmt
 		}
+	}
+	for _, privilege := range user.Privileges {
+		payload.Privileges = append(payload.Privileges, payloadForPrivilege(privilege))
 	}
 	for _, role := range user.Roles {
 		payload.Roles = append(payload.Roles, payloadForRole(role))
@@ -251,6 +256,7 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 type GetRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserFetcher
+	services.UserPrivilegeAssociator
 	services.RoleFetcher
 	services.NewQueryFilter
 }
@@ -268,6 +274,10 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *requestedOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving user privileges", zap.Error(err))
+			}
 
 			roles, err := h.RoleFetcher.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
 			if err != nil {
@@ -276,6 +286,7 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 			}
 
 			requestedOfficeUser.User.Roles = roles
+			requestedOfficeUser.User.Privileges = privileges
 
 			payload := payloadForRequestedOfficeUserModel(requestedOfficeUser)
 
@@ -287,6 +298,7 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 type UpdateRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserUpdater
+	services.UserPrivilegeAssociator
 	services.UserRoleAssociator
 	services.RoleFetcher
 }
@@ -349,12 +361,26 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 					}
 				}
 
+				if requestedOfficeUser.UserID != nil && body.Privileges != nil {
+					updatedPrivileges := privilegesPayloadToModel(body.Privileges)
+					if _, err := h.UserPrivilegeAssociator.UpdateUserPrivileges(txAppCtx, *requestedOfficeUser.UserID, updatedPrivileges); err != nil {
+						txAppCtx.Logger().Error("Error updating user privileges", zap.Error(err))
+						return err
+					}
+				}
+				privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), *requestedOfficeUser.UserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving user privileges", zap.Error(err))
+				}
+
 				roles, err := h.RoleFetcher.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
 				if err != nil {
 					txAppCtx.Logger().Error("Error fetching user roles", zap.Error(err))
 					return err
 				}
+
 				requestedOfficeUser.User.Roles = roles
+				requestedOfficeUser.User.Privileges = privileges
 
 				// send email notification if request was rejected
 				if params.Body.Status == "REJECTED" {
