@@ -11810,10 +11810,10 @@ func init() {
         "TIOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -31197,10 +31197,10 @@ func init() {
         "TIOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOOAssignedUser": {
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TOODestinationAssignedUser": {
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {

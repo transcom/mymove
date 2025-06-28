@@ -559,8 +559,8 @@ func (suite *ModelSuite) TestClearTOOAssignments() {
 					ExcessUnaccompaniedBaggageWeightQualifiedAt: tt.ubExcessWeight,
 					MTOServiceItems:            tt.serviceItems,
 					MTOShipments:               tt.shipments,
-					TOOAssignedID:              tt.initialAssignedOrigin,
-					TOOAssignedUser:            &m.OfficeUser{ID: *tt.initialAssignedOrigin},
+					TOOTaskOrderAssignedID:     tt.initialAssignedOrigin,
+					TOOTaskOrderAssignedUser:   &m.OfficeUser{ID: *tt.initialAssignedOrigin},
 					TOODestinationAssignedID:   tt.initialAssignedDest,
 					TOODestinationAssignedUser: &m.OfficeUser{ID: *tt.initialAssignedDest},
 				}
@@ -568,9 +568,9 @@ func (suite *ModelSuite) TestClearTOOAssignments() {
 				result, err := m.ClearTOOAssignments(&mv)
 				suite.NoError(err)
 				if tt.wantOriginStillAssigned {
-					suite.NotNil(result.TOOAssignedID)
+					suite.NotNil(result.TOOTaskOrderAssignedID)
 				} else {
-					suite.Nil(result.TOOAssignedID)
+					suite.Nil(result.TOOTaskOrderAssignedID)
 				}
 				if tt.wantDestStillAssigned {
 					suite.NotNil(result.TOODestinationAssignedID)
@@ -594,7 +594,7 @@ func (suite *ModelSuite) TestClearTOOAssignments() {
 		}
 
 		mv := m.Move{
-			TOOAssignedID:            &one,
+			TOOTaskOrderAssignedID:   &one,
 			TOODestinationAssignedID: &two,
 			MTOServiceItems:          []m.MTOServiceItem{badSI},
 		}

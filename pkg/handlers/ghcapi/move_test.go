@@ -1155,7 +1155,7 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Equal(officeUserID, payload.TOOAssignedUser.OfficeUserID)
+		suite.Equal(officeUserID, payload.TOOTaskOrderAssignedUser.OfficeUserID)
 	})
 	suite.Run("Successful update of a move's TIO", func() {
 		req, handler, move, officeUser := setupTestData()
