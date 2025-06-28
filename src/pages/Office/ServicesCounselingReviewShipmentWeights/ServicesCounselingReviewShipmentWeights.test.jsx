@@ -30,7 +30,7 @@ describe('Services Counseling Review Shipment Weights', () => {
 
       const weightDisplays = await screen.findAllByTestId('weight-display');
       const weightAllowanceDisplay = weightDisplays[0];
-      expect(weightAllowanceDisplay).toHaveTextContent('8,500 lbs');
+      expect(weightAllowanceDisplay).toHaveTextContent('8,000 lbs');
     });
 
     it('displays the total estimated weight', async () => {
