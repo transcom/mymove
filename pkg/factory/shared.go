@@ -81,6 +81,7 @@ var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var PrimeUpload CustomType = "PrimeUpload"
 var ProgearWeightTicket CustomType = "ProgearWeightTicket"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
+var Rank CustomType = "Rank"
 var ReService CustomType = "ReService"
 var ReDomesticAccessorialPrice CustomType = "ReDomesticAccessorialPrice"
 var ReDomesticOtherPrice CustomType = "ReDomesticOtherPrice"
@@ -152,6 +153,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PrimeUpload":                              PrimeUpload,
 	"models.ProgearWeightTicket":                      ProgearWeightTicket,
 	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
+	"models.Rank":                                     Rank,
 	"models.ReService":                                ReService,
 	"models.ReDomesticAccessorialPrice":               ReDomesticAccessorialPrice,
 	"models.ReDomesticOtherPrice":                     ReDomesticOtherPrice,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import * as ReactRouterDom from 'react-router-dom';
 
 import MoveDetails from './MoveDetails';
 
@@ -9,6 +10,10 @@ import { MockProviders } from 'testUtils';
 import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { formatWeight } from 'utils/formatters';
+
+// Labels
+const payGradeLabelText = 'Pay Grade:';
+const rankLabelText = 'Rank:';
 
 const mockRequestedMoveCode = 'LN4T89';
 
@@ -21,6 +26,10 @@ jest.mock('services/primeApi', () => ({
   deleteShipment: jest.fn(),
   downloadMoveOrder: jest.fn(),
 }));
+
+const mockRankValue = 'E-5';
+const mockPayGradeValue = 'SGT';
+const undefinedValue = 'undefined';
 
 const moveTaskOrder = {
   id: '1',
@@ -198,6 +207,8 @@ const moveTaskOrder = {
       weightRestriction: 500,
       ubWeightRestriction: 350,
     },
+    rank: mockRankValue,
+    grade: mockPayGradeValue,
   },
 };
 
@@ -216,6 +227,22 @@ const moveCounselingCompletedReturnValue = {
   moveTaskOrder: moveTaskOrderCounselingCompleted,
   isLoading: false,
   isError: false,
+};
+
+const PayGradeTestEvaluate = (expectedValue) => {
+  const payGradeLabel = screen.getByText(payGradeLabelText);
+  const payGradeValue = payGradeLabel.nextElementSibling;
+  expect(payGradeLabel).toBeInTheDocument();
+  expect(payGradeValue).toBeInTheDocument();
+  expect(payGradeValue.textContent).toBe(expectedValue);
+};
+
+const RankTestEvaluate = (expectedValue) => {
+  const rankLabel = screen.getByText(rankLabelText);
+  const rankValue = rankLabel.nextElementSibling;
+  expect(rankLabel).toBeInTheDocument();
+  expect(rankValue).toBeInTheDocument();
+  expect(rankValue.textContent).toBe(expectedValue);
 };
 
 const renderWithProviders = (component) => {
@@ -238,6 +265,8 @@ describe('PrimeUI MoveDetails page', () => {
         const gunSafe = screen.getByText('Gun Safe:');
         expect(gunSafe).toBeInTheDocument();
         expect(gunSafe.nextElementSibling.textContent).toBe('yes');
+        PayGradeTestEvaluate(mockPayGradeValue);
+        RankTestEvaluate(mockRankValue);
         const adminRestrictedWeight = screen.getByText('Admin Restricted Weight:');
         expect(adminRestrictedWeight).toBeInTheDocument();
         expect(adminRestrictedWeight.nextElementSibling.textContent).toBe(
@@ -431,6 +460,70 @@ describe('PrimeUI MoveDetails page', () => {
       // Check for Edit buttons
       const editButtons = screen.getAllByRole('link', { name: 'Edit' });
       expect(editButtons).toHaveLength(5);
+    });
+  });
+  describe('MoveDetails component - Rank and Pay Grade', () => {
+    usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+    let useParamsSpy;
+
+    beforeEach(() => {
+      useParamsSpy = jest.spyOn(ReactRouterDom, 'useParams').mockReturnValue({ moveCodeOrID: 'MOCK123' });
+    });
+
+    afterEach(() => {
+      useParamsSpy.mockRestore();
+    });
+
+    it('renders Rank information correctly', () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      renderWithProviders(<MoveDetails />);
+
+      RankTestEvaluate(mockRankValue);
+    });
+
+    it('renders Pay Grade information correctly', () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      renderWithProviders(<MoveDetails />);
+
+      PayGradeTestEvaluate(mockPayGradeValue);
+    });
+
+    it('handles missing Rank information', () => {
+      usePrimeSimulatorGetMove.mockReturnValue({
+        moveTaskOrder: {
+          order: {
+            grade: mockPayGradeValue,
+            entitlement: {
+              gunSafe: true,
+            },
+          },
+        },
+        isLoading: false,
+        isError: false,
+      });
+
+      renderWithProviders(<MoveDetails />);
+
+      RankTestEvaluate(undefinedValue);
+    });
+
+    it('handles missing Pay Grade information', () => {
+      usePrimeSimulatorGetMove.mockReturnValue({
+        moveTaskOrder: {
+          order: {
+            rank: mockRankValue,
+            entitlement: {
+              gunSafe: true,
+            },
+          },
+        },
+        isLoading: false,
+        isError: false,
+      });
+
+      renderWithProviders(<MoveDetails />);
+
+      PayGradeTestEvaluate(undefinedValue);
     });
   });
 });

@@ -44,6 +44,8 @@
 20250520182947_B-23635_update_ub_allowances.up.sql
 20250522135232_B-22466_v2_add_distance_lookup_service_params.up.sql
 20250528155401_B-23736_add_multipliers.up.sql
+20250520150656_B-23635_update_pay_grades.up.sql
+20250520182947_B-23635_update_ub_allowances.up.sql
 20250605155517_B-23748_fix_re_intl_cities00.up.sql
 20250605155518_B-23748_fix_re_intl_cities01.up.sql
 20250605155519_B-23748_fix_re_intl_cities02.up.sql
