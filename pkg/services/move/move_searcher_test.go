@@ -360,6 +360,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MTOShipment) {
 	armyAffiliation := models.AffiliationARMY
 	navyAffiliation := models.AffiliationNAVY
+
 	firstMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{PostalCode: "89523"},
@@ -367,7 +368,7 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MT
 	}, nil)
 	firstMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "11111"},
+			Model: models.Address{PostalCode: "11101"},
 		},
 	}, nil)
 

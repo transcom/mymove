@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -566,6 +567,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				return nil, nil, err
 			}
 			serviceItem.SITOriginHHGActualAddress.IsOconus = &isOconus
+
+			if (serviceItem.SITOriginHHGActualAddress.UsPostRegionCityID == nil || serviceItem.SITOriginHHGActualAddress.UsPostRegionCityID.IsNil() || serviceItem.SITOriginHHGActualAddress.UsPostRegionCity == nil) && strings.TrimSpace(serviceItem.SITOriginHHGActualAddress.City) != "" && strings.TrimSpace(serviceItem.SITOriginHHGActualAddress.PostalCode) != "" {
+				usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.City)
+				if err != nil {
+					return nil, nil, err
+				}
+
+				serviceItem.SITOriginHHGActualAddress.UsPostRegionCity = usprc
+				serviceItem.SITOriginHHGActualAddress.UsPostRegionCityID = &usprc.ID
+			}
 
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment

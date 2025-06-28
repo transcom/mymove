@@ -22,7 +22,7 @@ func fakeAddressPayload() *internalmessages.Address {
 		StreetAddress1: models.StringPointer("An address"),
 		StreetAddress2: models.StringPointer("Apt. 2"),
 		StreetAddress3: models.StringPointer("address line 3"),
-		City:           models.StringPointer("Happytown"),
+		City:           models.StringPointer("NICHOLASVILLE"),
 		State:          models.StringPointer("AL"),
 		PostalCode:     models.StringPointer("40356"),
 		County:         models.StringPointer("JESSAMINE"),
@@ -33,13 +33,16 @@ func fakeAddressPayload() *internalmessages.Address {
 func (suite *HandlerSuite) TestShowAddressHandler() {
 
 	suite.Run("successful lookup", func() {
+		fetchedUsPostRegionCity, err := models.FindByZipCodeAndCity(suite.DB(), "12345", "SCHENECTADY")
+		suite.NoError(err)
 		address := models.Address{
-			StreetAddress1: "some address",
-			City:           "city",
-			State:          "state",
-			PostalCode:     "12345",
-			County:         models.StringPointer("JESSAMINE"),
-			IsOconus:       models.BoolPointer(false),
+			StreetAddress1:     "some address",
+			City:               fetchedUsPostRegionCity.USPostRegionCityNm,
+			State:              "NY",
+			PostalCode:         fetchedUsPostRegionCity.UsprZipID,
+			County:             models.StringPointer("JESSAMINE"),
+			IsOconus:           models.BoolPointer(false),
+			UsPostRegionCityID: &fetchedUsPostRegionCity.ID,
 		}
 		suite.MustSave(&address)
 
@@ -74,6 +77,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 			if ts.hasResult {
 				suite.NotNil(payload, "Should have address record")
 				suite.Equal(payload.ID.String(), ts.resultID, "Address ID doest match")
+				suite.Equal(payload.UsPostRegionCitiesID.String(), fetchedUsPostRegionCity.ID.String())
 			} else {
 				suite.Nil(payload, "Should not have address record")
 			}

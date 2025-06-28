@@ -202,10 +202,13 @@ func makePaymentRequestForShipment(appCtx appcontext.AppContext, move models.Mov
 	}, nil)
 
 	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
+	mtoServiceItemDCRT, err := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: shipment,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
 		{

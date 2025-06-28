@@ -6,48 +6,82 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
+
+	usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "BEVERLY HILLS")
+	suite.NoError(err)
+
 	newAddress := &m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         m.StringPointer("County"),
+		StreetAddress1:     "street 1",
+		StreetAddress2:     m.StringPointer("street 2"),
+		StreetAddress3:     m.StringPointer("street 3"),
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("County"),
+		UsPostRegionCityID: &usprc.ID,
 	}
 
-	verrs, err := newAddress.Validate(nil)
+	verrs, err := newAddress.Validate(suite.DB())
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
 }
 
-func (suite *ModelSuite) TestEmptyAddressInstantiation() {
-	newAddress := m.Address{}
+func (suite *ModelSuite) TestAddressInstantiationWithIncorrectUsPostRegionCityID() {
+
+	usPostRegionCityID := uuid.Must(uuid.NewV4())
+	newAddress := &m.Address{
+		StreetAddress1:     "street 1",
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("County"),
+		UsPostRegionCityID: &usPostRegionCityID,
+	}
 
 	expErrors := map[string][]string{
-		"street_address1": {"StreetAddress1 can not be blank."},
-		"city":            {"City can not be blank."},
-		"state":           {"State can not be blank."},
-		"postal_code":     {"PostalCode can not be blank."},
+		"us_post_region_city_id": {"UsPostRegionCityID is invalid."},
+	}
+
+	suite.verifyValidationErrors(newAddress, expErrors, suite.AppContextForTest())
+}
+
+func (suite *ModelSuite) TestEmptyAddressInstantiation() {
+
+	var usprc models.UsPostRegionCity
+	newAddress := m.Address{
+		UsPostRegionCityID: &usprc.ID,
+	}
+
+	expErrors := map[string][]string{
+		"street_address1":        {"StreetAddress1 can not be blank."},
+		"city":                   {"City can not be blank."},
+		"state":                  {"State can not be blank."},
+		"postal_code":            {"PostalCode can not be blank."},
+		"us_post_region_city_id": {"UsPostRegionCityID can not be blank."},
 	}
 	suite.verifyValidationErrors(&newAddress, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestAddressCountryCode() {
+	usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "BEVERLY HILLS")
+	suite.NoError(err)
+
 	noCountry := m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         m.StringPointer("county"),
+		StreetAddress1:     "street 1",
+		StreetAddress2:     m.StringPointer("street 2"),
+		StreetAddress3:     m.StringPointer("street 3"),
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("county"),
+		UsPostRegionCityID: &usprc.ID,
 	}
 
 	var expected *string
@@ -60,8 +94,8 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
+		City:           "BEVERLY HILLS",
+		State:          "CA",
 		PostalCode:     "90210",
 		Country:        &country,
 	}
@@ -134,66 +168,76 @@ func (suite *ModelSuite) TestAddressIsEmpty() {
 
 func (suite *ModelSuite) TestAddressFormat() {
 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
 	newAddress := &m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         m.StringPointer("County"),
-		Country:        &country,
-		CountryId:      &country.ID,
+		StreetAddress1:     "street 1",
+		StreetAddress2:     m.StringPointer("street 2"),
+		StreetAddress3:     m.StringPointer("street 3"),
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("County"),
+		Country:            &country,
+		CountryId:          &country.ID,
+		UsPostRegionCityID: &usprc.ID,
+		UsPostRegionCity:   usprc,
 	}
 
-	verrs, err := newAddress.Validate(nil)
+	verrs, err := newAddress.Validate(suite.DB())
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
 
 	formattedAddress := newAddress.Format()
 
-	suite.Equal("street 1\nstreet 2\nstreet 3\ncity, state 90210", formattedAddress)
+	suite.Equal("street 1\nstreet 2\nstreet 3\nBEVERLY HILLS, CA 90210", formattedAddress)
 
 	formattedAddress = newAddress.LineFormat()
 
-	suite.Equal("street 1, street 2, street 3, city, state, 90210, UNITED STATES", formattedAddress)
+	suite.Equal("street 1, street 2, street 3, BEVERLY HILLS, CA, 90210, UNITED STATES", formattedAddress)
 
 	formattedAddress = newAddress.LineDisplayFormat()
 
-	suite.Equal("street 1 street 2 street 3, city, state 90210", formattedAddress)
+	suite.Equal("street 1 street 2 street 3, BEVERLY HILLS, CA 90210", formattedAddress)
 }
 
 func (suite *ModelSuite) TestPartialAddressFormat() {
 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
 	newAddress := &m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: nil,
-		StreetAddress3: nil,
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         m.StringPointer("County"),
-		Country:        &country,
-		CountryId:      &country.ID,
+		StreetAddress1:     "street 1",
+		StreetAddress2:     nil,
+		StreetAddress3:     nil,
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("County"),
+		Country:            &country,
+		CountryId:          &country.ID,
+		UsPostRegionCityID: &usprc.ID,
+		UsPostRegionCity:   usprc,
 	}
 
-	verrs, err := newAddress.Validate(nil)
+	verrs, err := newAddress.Validate(suite.DB())
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
 
 	formattedAddress := newAddress.Format()
 
-	suite.Equal("street 1\ncity, state 90210", formattedAddress)
+	suite.Equal("street 1\nBEVERLY HILLS, CA 90210", formattedAddress)
 
 	formattedAddress = newAddress.LineFormat()
 
-	suite.Equal("street 1, city, state, 90210, UNITED STATES", formattedAddress)
+	suite.Equal("street 1, BEVERLY HILLS, CA, 90210, UNITED STATES", formattedAddress)
 
 	formattedAddress = newAddress.LineDisplayFormat()
 
-	suite.Equal("street 1, city, state 90210", formattedAddress)
+	suite.Equal("street 1, BEVERLY HILLS, CA 90210", formattedAddress)
 }
 
 func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
@@ -207,6 +251,8 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 				Model: m.Address{
 					IsOconus:           m.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -305,6 +351,8 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 				Model: m.Address{
 					IsOconus:           m.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					PostalCode:         usprc.UsprZipID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)
@@ -397,7 +445,7 @@ func (suite *ModelSuite) TestIsAddressAlaska() {
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
+		City:           "BEVERLY HILLS",
 		PostalCode:     "90210",
 		County:         m.StringPointer("County"),
 	}
@@ -415,4 +463,97 @@ func (suite *ModelSuite) TestIsAddressAlaska() {
 	bool4, err := address.IsAddressAlaska()
 	suite.NoError(err)
 	suite.Equal(m.BoolPointer(true), &bool4)
+}
+
+func (suite *ModelSuite) TestValidateUSPRCAssignment() {
+
+	suite.Run("returns false for invalid assignment", func() {
+		incorrectUSPRCID := uuid.Must(uuid.NewV4())
+
+		newAddress := &m.Address{
+			StreetAddress1:     "street 1",
+			StreetAddress2:     m.StringPointer("street 2"),
+			StreetAddress3:     m.StringPointer("street 3"),
+			City:               "BEVERLY HILLS",
+			State:              "CA",
+			PostalCode:         "90210",
+			County:             m.StringPointer("County"),
+			UsPostRegionCityID: &incorrectUSPRCID,
+		}
+
+		valid, err := m.ValidateUsPostRegionCityID(suite.DB(), *newAddress)
+		suite.NoError(err)
+		suite.Equal(false, valid)
+	})
+
+	suite.Run("returns true for valid assignment", func() {
+
+		newAddress := &m.Address{
+			StreetAddress1: "street 1",
+			StreetAddress2: m.StringPointer("street 2"),
+			StreetAddress3: m.StringPointer("street 3"),
+			City:           "BEVERLY HILLS",
+			State:          "CA",
+			PostalCode:     "90210",
+			County:         m.StringPointer("County"),
+		}
+
+		expectedUSPRC, err := m.FindByZipCodeAndCity(suite.DB(), newAddress.PostalCode, newAddress.City)
+		suite.NoError(err)
+
+		newAddress.UsPostRegionCityID = &expectedUSPRC.ID
+
+		valid, err := m.ValidateUsPostRegionCityID(suite.DB(), *newAddress)
+		suite.NoError(err)
+		suite.Equal(true, valid)
+	})
+
+	suite.Run("returns error when fails to lookup USPRC", func() {
+
+		uuid := uuid.Must(uuid.NewV4())
+		newAddress := &m.Address{
+			StreetAddress1:     "street 1",
+			StreetAddress2:     m.StringPointer("street 2"),
+			StreetAddress3:     m.StringPointer("street 3"),
+			City:               "BEVERLY HILLS",
+			State:              "CA",
+			PostalCode:         "29229",
+			County:             m.StringPointer("County"),
+			UsPostRegionCityID: &uuid,
+		}
+
+		valid, err := m.ValidateUsPostRegionCityID(suite.DB(), *newAddress)
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BEVERLY HILLS.")
+		suite.Equal(false, valid)
+	})
+}
+
+func (suite *ModelSuite) TestValidPostalCode() {
+
+	suite.Run("returns true or false if a postal code is valid or not", func() {
+
+		testCases := []struct {
+			name        string
+			input       string
+			expected    bool
+			expectedErr bool
+		}{
+			{"5 digit postal code", "90201", true, false},
+			{"5 digit postal code not in the UsPostRegionCity table", "76334", false, false},
+			{"Not a 5 digit postal code", "33", false, false},
+		}
+
+		for _, tc := range testCases {
+			suite.Run(tc.name, func() {
+				isValid, err := m.ValidPostalCode(suite.DB(), tc.input)
+				if tc.expectedErr {
+					suite.Error(err)
+				} else {
+					suite.NoError(err)
+				}
+
+				suite.Equal(tc.expected, isValid)
+			})
+		}
+	})
 }

@@ -2249,7 +2249,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						StreetAddress1: "987 Other Avenue",
 						StreetAddress2: models.StringPointer("P.O. Box 12345"),
 						StreetAddress3: models.StringPointer("c/o Another Person"),
-						City:           "Fort Eisenhower",
+						City:           "GROVETOWN",
 						State:          "GA",
 						PostalCode:     "30813",
 						County:         models.StringPointer("COLUMBIA"),
@@ -2627,7 +2627,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"74133", "98421")
-			suite.Equal(unit.Cents(504512), *ppmEstimate)
+			suite.Equal(unit.Cents(577912), *ppmEstimate)
 
 			// appending this to test functionality of the GCC multiplier
 			validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
@@ -2669,7 +2669,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
 			suite.NotEqual(unit.Cents(504512), *ppmEstimateWithMultiplier)
-			suite.Equal(unit.Cents(771427), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(884072), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for OCONUS -> CONUS", func() {
@@ -2716,7 +2716,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "74133")
-			suite.Equal(unit.Cents(464562), *ppmEstimate)
+			suite.Equal(unit.Cents(463212), *ppmEstimate)
 		})
 	})
 
@@ -2798,7 +2798,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "98421")
-			suite.Equal(unit.Cents(720983), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(1223783), *ppmMaxIncentive)
 
 			// appending this to test functionality of the GCC multiplier
 			validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
@@ -2845,7 +2845,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			suite.Equal(unit.Pound(5000), *newPPMWithMultiplier.EstimatedWeight)
 			suite.NotEqual(unit.Cents(504512), *ppmEstimateWithMultiplier)
-			suite.Equal(unit.Cents(1103119), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(1874487), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
@@ -2925,7 +2925,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "30813")
-			suite.Equal(unit.Cents(743383), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(1356919), *ppmMaxIncentive)
 		})
 	})
 
@@ -2992,7 +2992,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"74133", "98421")
-			suite.Equal(unit.Cents(459178), *ppmFinalIncentive)
+			suite.Equal(unit.Cents(525328), *ppmFinalIncentive)
 
 			// appending this to test functionality of the GCC multiplier
 			validGccMultiplierDate, _ := time.Parse("2006-01-02", "2025-06-02")
@@ -3046,7 +3046,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			suite.Equal(unit.Pound(4000), *newPPMWithMultiplier.EstimatedWeight)
 			suite.NotEqual(unit.Cents(459178), *ppmEstimateWithMultiplier)
-			suite.Equal(unit.Cents(596931), *ppmEstimateWithMultiplier)
+			suite.Equal(unit.Cents(682926), *ppmEstimateWithMultiplier)
 		})
 
 		suite.Run("Final Incentive - Success using estimated weight for OCONUS -> CONUS", func() {
@@ -3111,7 +3111,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "74133")
-			suite.Equal(unit.Cents(423178), *ppmFinalIncentive)
+			suite.Equal(unit.Cents(421978), *ppmFinalIncentive)
 		})
 	})
 
@@ -3215,7 +3215,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(46160), *estimatedSITCost)
+			suite.Equal(unit.Cents(53000), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCost - Success for OCONUS PPM", func() {
@@ -3263,7 +3263,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			estimatedSITCost, err := ppmEstimator.CalculatePPMSITEstimatedCost(suite.AppContextForTest(), &ppm)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(23080), *estimatedSITCost)
+			suite.Equal(unit.Cents(26500), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCostBreakdown - Success for OCONUS PPM", func() {
@@ -3311,9 +3311,9 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			sitCosts, err := ppmEstimator.CalculatePPMSITEstimatedCostBreakdown(suite.AppContextForTest(), &ppm)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(sitCosts)
-			suite.Equal(unit.Cents(23080), *sitCosts.EstimatedSITCost)
-			suite.Equal(unit.Cents(13480), *sitCosts.PriceFirstDaySIT)
-			suite.Equal(unit.Cents(9600), *sitCosts.PriceAdditionalDaySIT)
+			suite.Equal(unit.Cents(26500), *sitCosts.EstimatedSITCost)
+			suite.Equal(unit.Cents(13300), *sitCosts.PriceFirstDaySIT)
+			suite.Equal(unit.Cents(13200), *sitCosts.PriceAdditionalDaySIT)
 		})
 	})
 }

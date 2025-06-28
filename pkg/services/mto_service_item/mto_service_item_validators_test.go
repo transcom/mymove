@@ -24,7 +24,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	later := now.AddDate(0, 0, 3)
 	setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem) {
 		// Create a service item to serve as the old object
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		oldServiceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		suite.NoError(err)
+
 		oldServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
@@ -1704,7 +1706,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemValidators() {
 
 	setupTestData := func() models.MTOServiceItem {
-		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		serviceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		suite.NoError(err)
 		serviceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
