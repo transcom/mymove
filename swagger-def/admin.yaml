@@ -924,6 +924,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OfficeUserRole'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
       transportationOfficeId:
         type: string
         format: uuid

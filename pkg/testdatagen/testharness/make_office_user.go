@@ -71,7 +71,8 @@ func MakeRequestedOfficeUserWithTOO(appCtx appcontext.AppContext) models.User {
 
 	email := strings.ToLower(fmt.Sprintf("fred_office_%s@example.com",
 		testdatagen.MakeRandomString(5)))
-
+	dodID := testdatagen.MakeRandomNumberString(10)
+	otherUniqueID := testdatagen.MakeRandomNumberString(10)
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
@@ -81,23 +82,37 @@ func MakeRequestedOfficeUserWithTOO(appCtx appcontext.AppContext) models.User {
 			},
 		},
 	}, nil)
+	transportationOffice := factory.BuildTransportationOffice(appCtx.DB(), nil, nil)
 	requestedStatus := models.OfficeUserStatusREQUESTED
 	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.OfficeUser{
-				Email:  email,
-				Active: true,
-				UserID: &user.ID,
-				Status: &requestedStatus,
+				Email:         email,
+				Active:        true,
+				UserID:        &user.ID,
+				Status:        &requestedStatus,
+				EDIPI:         models.StringPointer(dodID),
+				OtherUniqueID: models.StringPointer(otherUniqueID),
 			},
+		},
+		{
+			Model:    transportationOffice,
+			LinkOnly: true,
 		},
 		{
 			Model:    user,
 			LinkOnly: true,
 		},
-	}, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
+	}, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor})
 
 	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
 		{
 			Model:    user,
 			LinkOnly: true,
@@ -391,5 +406,61 @@ func MakeOfficeUserWithGSR(appCtx appcontext.AppContext) models.User {
 		},
 	}, nil)
 
+	return user
+}
+
+func MakeRequestedOfficeUserWithPrivilege(appCtx appcontext.AppContext) models.User {
+	email := strings.ToLower(fmt.Sprintf("leo_spaceman_%s@example.mil", testdatagen.MakeRandomString(5)))
+	dodID := testdatagen.MakeRandomNumberString(10)
+	otherUniqueID := testdatagen.MakeRandomNumberString(10)
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: email,
+				Active:    true,
+				Roles: []roles.Role{{
+					RoleType: roles.RoleTypeServicesCounselor,
+				},
+					{
+						RoleType: roles.RoleTypeTOO,
+					},
+				},
+				Privileges: []roles.Privilege{{
+					PrivilegeType: roles.PrivilegeTypeSupervisor,
+				}},
+			},
+		},
+	}, nil)
+
+	transportationOffice := factory.BuildTransportationOffice(appCtx.DB(), nil, nil)
+	requestedStatus := models.OfficeUserStatusREQUESTED
+	factory.BuildOfficeUserWithPrivileges(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email:         email,
+				Active:        true,
+				UserID:        &user.ID,
+				Status:        &requestedStatus,
+				EDIPI:         models.StringPointer(dodID),
+				OtherUniqueID: models.StringPointer(otherUniqueID),
+			},
+		},
+		{
+			Model:    transportationOffice,
+			LinkOnly: true,
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 	return user
 }

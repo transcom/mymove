@@ -3505,6 +3505,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -7544,6 +7550,12 @@ func init() {
         },
         "otherUniqueId": {
           "type": "string"
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
         },
         "rejectionReason": {
           "type": "string"

@@ -101,6 +101,14 @@ export class TestHarness {
   }
 
   /**
+   * build requested office user with a privilege request
+   * @returns {Promise<User>}
+   */
+  async buildRequestedOfficeUserWithPrivilege() {
+    return this.buildDefault('RequestedOfficeUserWithPrivilege');
+  }
+
+  /**
    * @returns {Promise<User>}
    */
   async buildRejectedOfficeUser() {
