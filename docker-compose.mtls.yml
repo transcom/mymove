@@ -44,8 +44,6 @@ services:
       - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
       - ENVIRONMENT=test
       - HTTP_PRIME_SERVER_NAME=primelocal
-      - IWS_RBS_ENABLED=1
-      - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp
       - LOCAL_STORAGE_WEB_ROOT=storage
       - LOGIN_GOV_ADMIN_CLIENT_ID

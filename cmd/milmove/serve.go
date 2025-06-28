@@ -38,7 +38,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/routing"
-	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -94,9 +93,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Email
 	cli.InitEmailFlags(flag)
-
-	// IWS
-	cli.InitIWSFlags(flag)
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
@@ -189,10 +185,6 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if err := cli.CheckEmail(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckIWS(v); err != nil {
 		return err
 	}
 
@@ -388,10 +380,6 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	routingConfig.ServeClientCollector = v.GetBool(cli.ServeClientCollectorFlag)
 
 	routingConfig.ServeSwaggerUI = v.GetBool(cli.ServeSwaggerUIFlag)
-	routingConfig.ServeOrders = v.GetBool(cli.ServeOrdersFlag)
-	if routingConfig.ServeOrders {
-		routingConfig.OrdersSwaggerPath = v.GetString(cli.OrdersSwaggerFlag)
-	}
 	routingConfig.ServePrime = v.GetBool(cli.ServePrimeFlag)
 	routingConfig.ServePrimeSimulator = v.GetBool(cli.ServePrimeSimulatorFlag)
 	if routingConfig.ServePrime || routingConfig.ServePrimeSimulator {
@@ -443,7 +431,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
 		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
 		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
-		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
 		PrimeServername:  v.GetString(cli.HTTPPrimeServerNameFlag),
 		PPTASServerName:  v.GetString(cli.HTTPPPTASServerNameFlag),
 	}
@@ -543,11 +530,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		icnSequencer = sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 	}
 
-	iwsPersonLookup, err := iws.InitRBSPersonLookup(appCtx, v)
-	if err != nil {
-		appCtx.Logger().Fatal("Could not instantiate IWS RBS", zap.Error(err))
-	}
-
 	storageBackend := v.GetString(cli.StorageBackendFlag)
 	if storageBackend == "local" {
 		routingConfig.LocalStorageRoot = v.GetString(cli.LocalStorageRootFlag)
@@ -576,7 +558,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		fileStorer,
 		notificationSender,
 		notificationReceiver,
-		iwsPersonLookup,
 		sendProductionInvoice,
 		gexSender,
 		icnSequencer,

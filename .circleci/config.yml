@@ -878,7 +878,6 @@ commands:
             export HTTP_ADMIN_SERVER_NAME=adminlocal
             export HTTP_MY_SERVER_NAME=milmovelocal
             export HTTP_OFFICE_SERVER_NAME=officelocal
-            export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
             export FEATURE_FLAG_PPM=true
@@ -1019,7 +1018,6 @@ commands:
             export HTTP_ADMIN_SERVER_NAME=adminlocal
             export HTTP_MY_SERVER_NAME=milmovelocal
             export HTTP_OFFICE_SERVER_NAME=officelocal
-            export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
             export MUTUAL_TLS_ENABLED=true
@@ -1109,7 +1107,6 @@ commands:
             export HTTP_ADMIN_SERVER_NAME=adminlocal
             export HTTP_MY_SERVER_NAME=milmovelocal
             export HTTP_OFFICE_SERVER_NAME=officelocal
-            export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
             # disable for speed, tests can fail otherwise

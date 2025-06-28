@@ -288,9 +288,6 @@ bin/ghc-transit-time-parser: cmd/ghc-transit-time-parser
 bin/health-checker: cmd/health-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
-bin/iws: cmd/iws
-	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
-
 PKG_GOSRC := $(shell find pkg -name '*.go')
 
 bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
@@ -406,7 +403,6 @@ build_tools: bin/gin \
 	bin/ghc-pricing-parser \
 	bin/ghc-transit-time-parser \
 	bin/health-checker \
-	bin/iws \
 	bin/milmove-tasks \
 	bin/model-vet \
 	bin/prime-api-client \
@@ -1012,7 +1008,6 @@ webhook_client_start:
 		--add-host "adminlocal:172.17.0.1" \
 		--add-host "milmovelocal:172.17.0.1" \
 		--add-host "officelocal:172.17.0.1" \
-		--add-host "orderslocal:172.17.0.1" \
 		--add-host "primelocal:172.17.0.1" \
 		-e DB_HOST=172.17.0.1 \
 		-e DB_NAME \

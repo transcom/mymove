@@ -34,9 +34,6 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 	if payload.Subject != "" {
 		foundClientCert.Subject = payload.Subject
 	}
-	if payload.AllowOrdersAPI != nil {
-		foundClientCert.AllowOrdersAPI = *payload.AllowOrdersAPI
-	}
 	if payload.AllowAirForceOrdersRead != nil {
 		foundClientCert.AllowAirForceOrdersRead = *payload.AllowAirForceOrdersRead
 	}

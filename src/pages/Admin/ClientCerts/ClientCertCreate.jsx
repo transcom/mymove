@@ -44,13 +44,6 @@ const ClientCertCreate = (props) => (
         ]}
       />
       <SelectInput
-        source="allowOrdersAPI"
-        choices={[
-          { id: true, name: 'Yes' },
-          { id: false, name: 'No' },
-        ]}
-      />
-      <SelectInput
         source="allowAirForceOrdersRead"
         choices={[
           { id: true, name: 'Yes' },
