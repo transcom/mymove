@@ -3105,3 +3105,77 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 2)
 	})
 }
+
+func (suite *HandlerSuite) TestGetMoveQueuesAssignedToFilter() {
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+	waf := entitlements.NewWeightAllotmentFetcher()
+
+	move := models.Move{
+		Status: models.MoveStatusSUBMITTED,
+	}
+
+	move.TOOTaskOrderAssignedID = &officeUser.ID
+	shipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+
+	// Create an order where the service member has an ARMY affiliation (default)
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: move,
+		},
+		{
+			Model: shipment,
+		},
+	}, nil)
+
+	// Create an order where the service member has an AIR_FORCE affiliation
+	airForce := models.AffiliationAIRFORCE
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: shipment,
+		},
+		{
+			Model: move,
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &airForce,
+			},
+		},
+	}, nil)
+
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetMovesQueueParams{
+		HTTPRequest: request,
+		Branch:      models.StringPointer("AIR_FORCE"),
+	}
+	handlerConfig := suite.NewHandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
+	handler := GetMovesQueueHandler{
+		handlerConfig,
+		order.NewOrderFetcher(waf),
+		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+
+	// Validate incoming payload: no body to validate
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+	suite.IsType(&queues.GetMovesQueueOK{}, response)
+	payload := response.(*queues.GetMovesQueueOK).Payload
+
+	// Validate outgoing payload
+	suite.NoError(payload.Validate(strfmt.Default))
+
+	result := payload.QueueMoves[0]
+
+	suite.Equal(1, len(payload.QueueMoves))
+	suite.Equal("Leo", result.AssignedTo.FirstName)
+	suite.Equal("Spaceman", result.AssignedTo.LastName)
+	suite.Equal(officeUser.ID.String(), result.AssignedTo.OfficeUserID.String())
+}
