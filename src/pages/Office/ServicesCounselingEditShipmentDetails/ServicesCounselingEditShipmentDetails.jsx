@@ -35,6 +35,12 @@ const ServicesCounselingEditShipmentDetails = ({ onUpdate, isAdvancePage }) => {
 
   const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
+  const backupContact = {
+    firstName: customer.backup_contact.firstName,
+    lastName: customer.backup_contact.lastName,
+    email: customer.backup_contact.email,
+    phone: customer.backup_contact.phone,
+  };
 
   const TACs = {
     HHG: order.tac,
@@ -74,6 +80,7 @@ const ServicesCounselingEditShipmentDetails = ({ onUpdate, isAdvancePage }) => {
                 displayDestinationType={isRetirementOrSeparation}
                 isAdvancePage={isAdvancePage}
                 move={move}
+                backupContact={backupContact}
               />
             </Grid>
           </Grid>

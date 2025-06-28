@@ -8,6 +8,7 @@ import {
   hasCompletedAllWeightTickets,
   isPPMOnly,
   isGunSafeComplete,
+  blankContact,
 } from './shipments';
 
 import { ppmShipmentStatuses } from 'constants/shipments';
@@ -272,6 +273,16 @@ describe('shipments utils', () => {
 
     it('returns false when a ticket has a description and weight, but no document uploads', () => {
       expect(!isGunSafeComplete(gunSafeNoUpload));
+    });
+  });
+
+  describe('blankContact', () => {
+    it('returns blank contact', () => {
+      const contact = blankContact;
+      expect(contact.contact.firstName).toBe('');
+      expect(contact.contact.lastName).toBe('');
+      expect(contact.contact.email).toBe('');
+      expect(contact.contact.telephone).toBe('');
     });
   });
 });

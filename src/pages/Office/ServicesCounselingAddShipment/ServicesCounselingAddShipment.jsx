@@ -52,6 +52,12 @@ const ServicesCounselingAddShipment = () => {
 
   const { customer, entitlement: allowances, grade } = order;
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
+  const backupContact = {
+    firstName: customer.backup_contact.firstName,
+    lastName: customer.backup_contact.lastName,
+    email: customer.backup_contact.email,
+    phone: customer.backup_contact.phone,
+  };
 
   const TACs = {
     HHG: order.tac,
@@ -85,6 +91,7 @@ const ServicesCounselingAddShipment = () => {
                 userRole={roleTypes.SERVICES_COUNSELOR}
                 displayDestinationType={isRetirementOrSeparation}
                 move={move}
+                backupContact={backupContact}
               />
             </Grid>
           </Grid>
