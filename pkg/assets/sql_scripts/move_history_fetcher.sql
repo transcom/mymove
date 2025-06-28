@@ -54,16 +54,16 @@ WITH move AS (
 					'counseling_office_name',
 					(SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.counseling_transportation_office_id)),
 					'assigned_office_user_first_name',
-					(SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
+					(SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.too_task_order_assigned_id), uuid(c.tio_payment_request_assigned_id), uuid(c.too_destination_assigned_id))),
 					'assigned_office_user_last_name',
-					(SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
+					(SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.too_task_order_assigned_id), uuid(c.tio_payment_request_assigned_id), uuid(c.too_destination_assigned_id)))
 				))
 			)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN move ON audit_history.object_id = move.id
-		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT, counseling_transportation_office_id TEXT, sc_assigned_id TEXT, too_assigned_id TEXT, tio_assigned_id TEXT, too_destination_assigned_id TEXT) ON TRUE
+		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT, counseling_transportation_office_id TEXT, sc_counseling_assigned_id TEXT, too_task_order_assigned_id TEXT, tio_payment_request_assigned_id TEXT, too_destination_assigned_id TEXT) ON TRUE
 		WHERE audit_history.table_name = 'moves'
 			-- Remove log for when shipment_seq_num updates
 			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_seq_num%' AND LENGTH(audit_history.changed_data::TEXT) < 25)
