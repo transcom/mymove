@@ -38,6 +38,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				since := handlers.FmtDateTimePtrToPop(params.Since)
 				searchParams.Since = &since
 			}
+			searchParams.Before = handlers.FmtDateTimePtrToPopPtr(params.Before)
 			searchParams.Acknowledged = params.Acknowledged
 			searchParams.AcknowledgedAfter = handlers.FmtDateTimePtrToPopPtr(params.AcknowledgedAfter)
 			searchParams.AcknowledgedBefore = handlers.FmtDateTimePtrToPopPtr(params.AcknowledgedBefore)
