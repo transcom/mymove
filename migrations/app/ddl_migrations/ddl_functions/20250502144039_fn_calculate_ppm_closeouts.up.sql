@@ -1,5 +1,6 @@
 -- B-22831  Beth Grohmann  Add calculate_ppm_closeout
 -- B-23586  Alex Lusk  Modify calculate_ppm_closeout to run as a migration, add skip_if_existsm, add zero-fill
+-- B-23514	Alex Lusk	Add small package to total expense calculations
 DROP PROCEDURE IF EXISTS calculate_ppm_closeout;
 
 CREATE OR REPLACE PROCEDURE calculate_ppm_closeout(p_ppm_shipment_id UUID, skip_if_exists bool)
@@ -98,7 +99,8 @@ BEGIN
 		COALESCE(gtcc_paid_packing_materials,0) +
 		COALESCE(gtcc_paid_rental_equipment,0) +
 		COALESCE(gtcc_paid_tolls,0) +
-		COALESCE(gtcc_paid_weighing_fee,0)
+		COALESCE(gtcc_paid_weighing_fee,0) +
+		COALESCE(gtcc_paid_small_package,0)
 	INTO v_total_gtcc_paid_expenses
 	FROM ppm_closeouts
  	WHERE id = v_ppm_closeout_id;
@@ -111,7 +113,8 @@ BEGIN
 		COALESCE(member_paid_packing_materials,0) +
 		COALESCE(member_paid_rental_equipment,0) +
 		COALESCE(member_paid_tolls,0) +
-		COALESCE(member_paid_weighing_fee,0)
+		COALESCE(member_paid_weighing_fee,0) +
+		COALESCE(member_paid_small_package,0)
 	INTO v_total_member_paid_expenses
 	FROM ppm_closeouts
  	WHERE id = v_ppm_closeout_id;
