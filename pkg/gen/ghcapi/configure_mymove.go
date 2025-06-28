@@ -295,6 +295,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
 		})
 	}
+	if api.QueuesGetCounselingQueueHandler == nil {
+		api.QueuesGetCounselingQueueHandler = queues.GetCounselingQueueHandlerFunc(func(params queues.GetCounselingQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetCounselingQueue has not yet been implemented")
+		})
+	}
 	if api.CustomerGetCustomerHandler == nil {
 		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")

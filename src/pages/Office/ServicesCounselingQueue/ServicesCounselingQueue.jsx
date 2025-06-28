@@ -35,10 +35,10 @@ import {
   useCustomerSearchQueries,
   useMoveSearchQueries,
   usePPMQueueQueries,
-  useServicesCounselingQueueQueries,
   useUserQueries,
+  useCounselingQueueQueries,
 } from 'hooks/queries';
-import { getServicesCounselingOriginLocations, getPPMCloseoutQueue, getServicesCounselingQueue } from 'services/ghcApi';
+import { getServicesCounselingOriginLocations, getPPMCloseoutQueue, getCounselingQueue } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -241,6 +241,7 @@ export const counselingColumns = (
 
   return cols;
 };
+
 export const closeoutColumns = (
   ppmCloseoutGBLOC,
   ppmCloseoutOriginLocationList,
@@ -414,6 +415,196 @@ export const closeoutColumns = (
           ) : (
             <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
+                onChange={(e) => {
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
+                  setRefetchQueue(true);
+                }}
+                title="Assigned dropdown"
+              >
+                <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
+                    {`${lastName}, ${firstName}`}
+                  </option>
+                ))}
+              </Dropdown>
+            </div>
+          );
+        },
+        {
+          id: 'assignedTo',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
+        },
+      ),
+    );
+
+  return cols;
+};
+
+export const serviceCounselingColumns = (
+  moveLockFlag,
+  originLocationList,
+  supervisor,
+  queueType,
+  isQueueManagementEnabled,
+  setRefetchQueue,
+) => {
+  const cols = [
+    createHeader(
+      ' ',
+      (row) => {
+        const now = new Date();
+        // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+          return (
+            <div data-testid="lock-icon">
+              <FontAwesomeIcon icon="lock" />
+            </div>
+          );
+        }
+        return null;
+      },
+      { id: 'lock' },
+    ),
+    createHeader('ID', 'id', { id: 'id' }),
+    createHeader(
+      'Customer name',
+      (row) => {
+        return (
+          <div>
+            {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+              <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+            ) : null}
+            {`${row.customer.last_name}, ${row.customer.first_name}`}
+          </div>
+        );
+      },
+      {
+        id: 'customerName',
+        isFilterable: true,
+        exportValue: (row) => {
+          return `${row.customer.last_name}, ${row.customer.first_name}`;
+        },
+      },
+    ),
+    createHeader('DoD ID', 'customer.edipi', {
+      id: 'edipi',
+      isFilterable: true,
+      exportValue: (row) => {
+        return row.customer.edipi;
+      },
+    }),
+    createHeader('EMPLID', 'customer.emplid', {
+      id: 'emplid',
+      isFilterable: true,
+    }),
+    createHeader('Move code', 'locator', {
+      id: 'locator',
+      isFilterable: true,
+    }),
+    createHeader(
+      'Status',
+      (row) => {
+        return SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`];
+      },
+      {
+        id: 'status',
+        disableSortBy: true,
+      },
+    ),
+    createHeader(
+      'Requested move date(s)',
+      (row) => {
+        return row.requestedMoveDate;
+      },
+      {
+        id: 'requestedMoveDates',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter {...props} />,
+      },
+    ),
+    createHeader(
+      'Date submitted',
+      (row) => {
+        return formatDateFromIso(row.submittedAt, DATE_FORMAT_STRING);
+      },
+      {
+        id: 'submittedAt',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter dateTime {...props} />,
+      },
+    ),
+    createHeader(
+      'Branch',
+      (row) => {
+        return serviceMemberAgencyLabel(row.customer.agency);
+      },
+      {
+        id: 'branch',
+        isFilterable: true,
+        Filter: (props) => (
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          <SelectFilter options={BRANCH_OPTIONS} {...props} />
+        ),
+      },
+    ),
+    createHeader('Origin GBLOC', 'originGBLOC', {
+      disableSortBy: true,
+    }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
+    supervisor
+      ? createHeader(
+          'Origin duty location',
+          (row) => {
+            return `${row.originDutyLocation.name}`;
+          },
+          {
+            id: 'originDutyLocation',
+            isFilterable: true,
+            exportValue: (row) => {
+              return row.originDutyLocation?.name;
+            },
+            Filter: (props) => (
+              <MultiSelectTypeAheadCheckBoxFilter
+                options={originLocationList}
+                placeholder="Start typing a duty location..."
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+              />
+            ),
+          },
+        )
+      : createHeader('Origin duty location', 'originDutyLocation.name', {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
+        }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
+  ];
+  if (isQueueManagementEnabled)
+    cols.push(
+      createHeader(
+        'Assigned',
+        (row) => {
+          return !row?.assignable ? (
+            <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
+          ) : (
+            <div data-label="assignedSelect" className={styles.assignedToCol}>
+              <Dropdown
+                key={row.id}
                 onChange={(e) => {
                   handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
@@ -707,7 +898,7 @@ const ServicesCounselingQueue = ({
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(
+          columns={serviceCounselingColumns(
             originLocationList,
             supervisor,
             queueType,
@@ -716,10 +907,10 @@ const ServicesCounselingQueue = ({
           )}
           title="Moves"
           handleClick={handleClick}
-          useQueries={useServicesCounselingQueueQueries}
+          useQueries={useCounselingQueueQueries}
           showCSVExport
           csvExportFileNamePrefix="Services-Counseling-Queue"
-          csvExportQueueFetcher={getServicesCounselingQueue}
+          csvExportQueueFetcher={getCounselingQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}

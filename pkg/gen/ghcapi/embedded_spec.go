@@ -5515,6 +5515,167 @@ func init() {
         }
       }
     },
+    "/queues/counselingQueue": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here once they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "operationId": "getCounselingQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "requestedMoveDates",
+              "submittedAt",
+              "originDutyLocation",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's first and last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup dates from shipments on the move",
+            "name": "requestedMoveDates",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to provide services counseling to this move.\n",
+            "name": "SCCounselingAssigned",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/CounselingQueueMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/destination-requests": {
       "get": {
         "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items, destination shuttle service items and destination address requests that are not yet approved by the TOO.\n",
@@ -8562,6 +8723,121 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/CounselingOffice"
+      }
+    },
+    "CounselingQueueMove": {
+      "type": "object",
+      "properties": {
+        "appearedInTooAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedMoveDate": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "CounselingQueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingQueueMove"
+      }
+    },
+    "CounselingQueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/CounselingQueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
       }
     },
     "CounselingUpdateAllowancePayload": {
@@ -25215,6 +25491,173 @@ func init() {
         }
       }
     },
+    "/queues/counselingQueue": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here once they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "operationId": "getCounselingQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "requestedMoveDates",
+              "submittedAt",
+              "originDutyLocation",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's first and last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup dates from shipments on the move",
+            "name": "requestedMoveDates",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to provide services counseling to this move.\n",
+            "name": "SCCounselingAssigned",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/CounselingQueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/destination-requests": {
       "get": {
         "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items, destination shuttle service items and destination address requests that are not yet approved by the TOO.\n",
@@ -28698,6 +29141,121 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/CounselingOffice"
+      }
+    },
+    "CounselingQueueMove": {
+      "type": "object",
+      "properties": {
+        "appearedInTooAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "originDutyLocation": {
+          "$ref": "#/definitions/DutyLocation"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedMoveDate": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
+    },
+    "CounselingQueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingQueueMove"
+      }
+    },
+    "CounselingQueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/CounselingQueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
       }
     },
     "CounselingUpdateAllowancePayload": {

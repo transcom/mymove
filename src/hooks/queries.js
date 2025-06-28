@@ -36,6 +36,7 @@ import {
   getGBLOCs,
   getDestinationRequestsQueue,
   getBulkAssignmentData,
+  getCounselingQueue,
   getRolesPrivilegesOfficeApp,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
@@ -719,6 +720,38 @@ export const useServicesCounselingQueueQueries = ({
       { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC, activeRole },
     ],
     ({ queryKey }) => getServicesCounselingQueue(...queryKey),
+  );
+
+  const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;
+  const { queueMoves, availableOfficeUsers, ...dataProps } = data;
+  return {
+    queueResult: { data: queueMoves, availableOfficeUsers, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+    refetch,
+  };
+};
+
+export const useCounselingQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
+  activeRole,
+}) => {
+  const {
+    refetch,
+    data = {},
+    ...servicesCounselingQueueQuery
+  } = useQuery(
+    [
+      SERVICES_COUNSELING_QUEUE,
+      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC, activeRole },
+    ],
+    ({ queryKey }) => getCounselingQueue(...queryKey),
   );
 
   const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;

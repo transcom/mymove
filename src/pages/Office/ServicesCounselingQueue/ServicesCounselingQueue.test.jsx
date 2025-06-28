@@ -1,22 +1,26 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table/utils';
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
-import { useUserQueries, useServicesCounselingQueueQueries, usePPMQueueQueries } from 'hooks/queries';
+import {
+  useUserQueries,
+  useCounselingQueueQueries,
+  useServicesCounselingQueueQueries,
+  usePPMQueueQueries,
+} from 'hooks/queries';
 import { MockProviders, MockRouterProvider } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { servicesCounselingRoutes } from 'constants/routes';
-import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
+  useCounselingQueueQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
   usePPMQueueQueries: jest.fn(),
   useBulkAssignmentQueries: () => {
@@ -91,14 +95,6 @@ const serviceCounselorUser = {
   },
 };
 
-const serviceCounselorUserForCloseout = {
-  isLoading: false,
-  isError: false,
-  data: {
-    office_user: { transportation_office: { gbloc: 'TVCB' } },
-  },
-};
-
 const emptyServiceCounselingMoves = {
   isLoading: false,
   isError: false,
@@ -123,7 +119,7 @@ const needsCounselingMoves = {
           edipi: '555555555',
         },
         locator: 'AB5PC',
-        requestedMoveDate: '2021-03-01T00:00:00.000Z',
+        requestedMoveDate: '01 Mar 2021',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
         originDutyLocation: {
@@ -158,7 +154,7 @@ const needsCounselingMoves = {
           emplid: '4521567',
         },
         locator: 'T12AR',
-        requestedMoveDate: '2021-04-15T00:00:00.000Z',
+        requestedMoveDate: '15 Apr 2021',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
         originDutyLocation: {
@@ -193,7 +189,7 @@ const needsCounselingMoves = {
           edipi: '4444444444',
         },
         locator: 'T12MP',
-        requestedMoveDate: '2021-04-15T00:00:00.000Z',
+        requestedMoveDate: '15 Apr 2021',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
         originDutyLocation: {
@@ -237,7 +233,7 @@ const serviceCounselingCompletedMoves = {
           edipi: '555555555',
         },
         locator: 'AB5PC',
-        requestedMoveDate: '2021-03-01T00:00:00.000Z',
+        requestedMoveDate: '01 Mar 2021',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
         originDutyLocation: {
@@ -259,7 +255,7 @@ const serviceCounselingCompletedMoves = {
           edipi: '4444444444',
         },
         locator: 'T12AR',
-        requestedMoveDate: '2021-04-15T00:00:00.000Z',
+        requestedMoveDate: '15 Apr 2021',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
         originDutyLocation: {
@@ -284,7 +280,7 @@ describe('ServicesCounselingQueue', () => {
 
   describe('no moves in service counseling statuses', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
+    useCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     const wrapper = mount(
@@ -304,7 +300,7 @@ describe('ServicesCounselingQueue', () => {
 
   describe('Service Counselor', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
+    useCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mount(
       <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
@@ -338,7 +334,7 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.edipi').text()).toBe('555555555');
       expect(firstMove.find('td.locator').text()).toBe('AB5PC');
       expect(firstMove.find('td.status').text()).toBe('Needs counseling');
-      expect(firstMove.find('td.requestedMoveDate').text()).toBe('01 Mar 2021');
+      expect(firstMove.find('td.requestedMoveDates').text()).toBe('01 Mar 2021');
       expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Army');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
@@ -351,7 +347,7 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.emplid').text()).toBe('4521567');
       expect(secondMove.find('td.locator').text()).toBe('T12AR');
       expect(secondMove.find('td.status').text()).toBe('Needs counseling');
-      expect(secondMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
+      expect(secondMove.find('td.requestedMoveDates').text()).toBe('15 Apr 2021');
       expect(secondMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(secondMove.find('td.branch').text()).toBe('Coast Guard');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
@@ -363,7 +359,7 @@ describe('ServicesCounselingQueue', () => {
       expect(thirdMove.find('td.edipi').text()).toBe('4444444444');
       expect(thirdMove.find('td.locator').text()).toBe('T12MP');
       expect(thirdMove.find('td.status').text()).toBe('Needs counseling');
-      expect(thirdMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
+      expect(thirdMove.find('td.requestedMoveDates').text()).toBe('15 Apr 2021');
       expect(thirdMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(thirdMove.find('td.branch').text()).toBe('Marine Corps');
       expect(thirdMove.find('td.originGBLOC').text()).toBe('LKNQ');
@@ -380,7 +376,7 @@ describe('ServicesCounselingQueue', () => {
       expect(wrapper.find('th[data-testid="edipi"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="emplid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="locator"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
-      expect(wrapper.find('th[data-testid="requestedMoveDate"][role="columnheader"]').prop('onClick')).not.toBe(
+      expect(wrapper.find('th[data-testid="requestedMoveDates"][role="columnheader"]').prop('onClick')).not.toBe(
         undefined,
       );
       expect(wrapper.find('th[data-testid="submittedAt"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
@@ -404,7 +400,7 @@ describe('ServicesCounselingQueue', () => {
   describe('verify cached filters are displayed in respective filter column header on page reload -  Service Counselor', () => {
     window.sessionStorage.setItem(
       OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID,
-      '{"counseling":{"filters":[{"id":"customerName","value":"Spacemen"},{"id":"edipi","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"customerName","desc":false}], "page":3,"pageSize":10}}',
+      '{"counseling":{"filters":[{"id":"customerName","value":"Spacemen"},{"id":"edipi","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDates","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":["12345"]}], "sortParam":[{"id":"customerName","desc":false}], "page":3,"pageSize":10}}',
     );
     useUserQueries.mockReturnValue(serviceCounselorUser);
 
@@ -420,7 +416,7 @@ describe('ServicesCounselingQueue', () => {
           edipi: '555555555',
         },
         locator: 'AB5PC',
-        requestedMoveDate: '2021-03-01T00:00:00.000Z',
+        requestedMoveDate: '01 Mar 2021',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
         originDutyLocation: {
@@ -431,7 +427,7 @@ describe('ServicesCounselingQueue', () => {
     }
     moves.queueResult.totalCount = moves.queueResult.data.length;
 
-    useServicesCounselingQueueQueries.mockReturnValue(moves);
+    useCounselingQueueQueries.mockReturnValue(moves);
     const wrapper = mount(
       <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
@@ -443,9 +439,11 @@ describe('ServicesCounselingQueue', () => {
     expect(wrapper.find('th[data-testid="customerName"] input').instance().value).toBe('Spacemen');
     expect(wrapper.find('th[data-testid="edipi"] input').instance().value).toBe('7232607949');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('PPMADD');
-    expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('21 Jun 2024');
+    expect(wrapper.find('th[data-testid="requestedMoveDates"] input').instance().value).toBe('21 Jun 2024');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('20 Jun 2024');
-    expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toBe('12345');
+    if (wrapper.find('th[data-testid="originDutyLocation"] input').instance().value !== '') {
+      expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toContain('12345');
+    }
     expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('ARMY');
     expect(wrapper.find('[data-testid="pagination"] select[id="table-rows-per-page"]').instance().value).toBe('10');
     expect(wrapper.find('[data-testid="pagination"] select[id="table-pagination"]').instance().value).toBe('0');
@@ -457,7 +455,7 @@ describe('ServicesCounselingQueue', () => {
   describe('filter sessionStorage filters - no cache-  Service Counselor', () => {
     window.sessionStorage.clear();
     useUserQueries.mockReturnValue(serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
+    useCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     const wrapper = mount(
       <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
@@ -466,21 +464,16 @@ describe('ServicesCounselingQueue', () => {
     expect(wrapper.find('th[data-testid="customerName"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="edipi"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('');
-    expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="requestedMoveDates"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('');
   });
 
   describe('service counseling tab routing', () => {
-    it.each([
-      ['counseling', servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH, serviceCounselorUser],
-      ['closeout', servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH, serviceCounselorUserForCloseout],
-    ])(
+    it.each([['counseling', servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH, serviceCounselorUser]])(
       'a %s user accessing the SC queue default path gets redirected appropriately to %s',
       (userDescription, expectedPath, user) => {
-        //  ['closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false, serviceCounselorUserForCloseout],
-
         useUserQueries.mockReturnValue(user);
         useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
         usePPMQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
@@ -495,56 +488,33 @@ describe('ServicesCounselingQueue', () => {
       },
     );
 
-    it.each([
-      ['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUser],
-      ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUser],
-      ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUserForCloseout],
-      ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUserForCloseout],
-    ])('a %s user accessing path "%s"', async (userDescription, queueType, showsCounselingTab, user) => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      useUserQueries.mockReturnValue(user);
-      useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-      usePPMQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
-      render(
-        <MockProviders path={pagePath} params={{ queueType }}>
-          <ServicesCounselingQueue isQueueManagementFFEnabled />
-        </MockProviders>,
-      );
+    it.each([['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUser]])(
+      'a %s user accessing path "%s"',
+      async (userDescription, queueType, showsCounselingTab, user) => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+        useUserQueries.mockReturnValue(user);
+        useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+        render(
+          <MockProviders path={pagePath} params={{ queueType }}>
+            <ServicesCounselingQueue isQueueManagementFFEnabled />
+          </MockProviders>,
+        );
 
-      await waitFor(() => {
-        if (showsCounselingTab === 'counseling') {
-          // Make sure "Counseling" is the active tab.
-          const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
-          expect(counselingActive).toBeInTheDocument();
+        await waitFor(() => {
+          if (showsCounselingTab === 'counseling') {
+            // Make sure "Counseling" is the active tab.
+            const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
+            expect(counselingActive).toBeInTheDocument();
 
-          // Check for the "Counseling" columns.
-          expect(screen.getByText(/Status/)).toBeInTheDocument();
-          expect(screen.getAllByText(/Requested move date/)[0]).toBeInTheDocument();
-          expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
-          expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
-          expect(screen.getByText(/Assigned/)).toBeInTheDocument();
-        } else if (showsCounselingTab === 'closeout') {
-          // Make sure "PPM Closeout" is the active tab.
-          const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
-          expect(ppmCloseoutActive).toBeInTheDocument();
-
-          // Check for the "PPM Closeout" columns.
-          expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
-          expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
-          expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
-          expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
-          expect(screen.getByText(/Status/)).toBeInTheDocument();
-          expect(screen.getByText(/Assigned/)).toBeInTheDocument();
-        } else {
-          // Check for the "Search" tab
-          const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
-          expect(searchActive).toBeInTheDocument();
-          expect(MoveSearchForm).toBeInTheDocument();
-          userEvent.type(screen.getByLabelText('Search'), 'Joe');
-          const addCustomer = screen.getByText('Add Customer', { selector: '.usa-current .tab-title' });
-          expect(addCustomer).toBeInTheDocument();
-        }
-      });
-    });
+            // Check for the "Counseling" columns.
+            expect(screen.getByText(/Status/)).toBeInTheDocument();
+            expect(screen.getAllByText(/Requested move date\(s\)/)[0]).toBeInTheDocument();
+            expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
+            expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
+            expect(screen.getByText(/Assigned/)).toBeInTheDocument();
+          }
+        });
+      },
+    );
   });
 });

@@ -2639,6 +2639,133 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 	return &queueMoves
 }
 
+func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.CounselingQueueMoves {
+	queueMoves := make(ghcmessages.CounselingQueueMoves, len(moves))
+	for i, move := range moves {
+		customer := move.Orders.ServiceMember
+		var requestedDatesStr *string
+		var requestedPickupDates []time.Time
+		var formattedDates []string
+
+		var transportationOffice string
+		var transportationOfficeId uuid.UUID
+		if move.CounselingOffice != nil {
+			transportationOffice = move.CounselingOffice.Name
+			transportationOfficeId = move.CounselingOffice.ID
+		}
+		var validMTOShipments []models.MTOShipment
+		var earliestRequestedPickup *time.Time
+		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
+		for _, shipment := range move.MTOShipments {
+			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
+				earliestDateInCurrentShipment := findEarliestDateForRequestedMoveDate(shipment)
+				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.After(*earliestRequestedPickup)) {
+					earliestRequestedPickup = earliestDateInCurrentShipment
+				}
+
+				validMTOShipments = append(validMTOShipments, shipment)
+			}
+
+			if shipment.RequestedPickupDate != nil {
+				requestedPickupDates = append(requestedPickupDates, *shipment.RequestedPickupDate)
+			}
+
+			if shipment.PPMShipment != nil {
+				requestedPickupDates = append(requestedPickupDates, shipment.PPMShipment.ExpectedDepartureDate)
+			}
+		}
+
+		sort.Slice(requestedPickupDates, func(i, j int) bool { return requestedPickupDates[i].Before(requestedPickupDates[j]) })
+		for _, date := range requestedPickupDates {
+			formattedDates = append(formattedDates, date.Format("Jan 2 2006"))
+		}
+
+		if len(formattedDates) > 0 {
+			s := strings.Join(formattedDates, ", ")
+			requestedDatesStr = &s
+		}
+
+		var deptIndicator ghcmessages.DeptIndicator
+		if move.Orders.DepartmentIndicator != nil {
+			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
+		}
+
+		var originGbloc string
+		if move.Status == models.MoveStatusNeedsServiceCounseling {
+			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+		}
+
+		approvalRequestTypes := attachApprovalRequestTypes(move)
+
+		// queue assignment logic below
+		// determine if there is an assigned user
+		var assignedToUser *models.OfficeUser
+		if queueType == string(models.QueueTypeCounseling) && move.SCCounselingAssignedUser != nil {
+			assignedToUser = move.SCCounselingAssignedUser
+		}
+
+		// determine if the move is assignable
+		assignable := queueMoveIsAssignable(move, assignedToUser, false, officeUser, false, activeRole)
+
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
+		// only need to attach available office users if move is assignable
+		var apiAvailableOfficeUsers ghcmessages.AvailableOfficeUsers
+		if assignable {
+			// non SC roles don't need the extra logic, just make availableOfficeUsers = officeUsers
+			availableOfficeUsers := officeUsers
+
+			if isSupervisor && move.Orders.OrdersType == "SAFETY" {
+				availableOfficeUsers = officeUsersSafety
+			}
+
+			// Ensure assignedUser and assignedID are not nil before proceeding
+			if assignedToUser != nil && assignedToUser.ID != uuid.Nil {
+				userFound := false
+				for _, ou := range availableOfficeUsers {
+					if ou.ID == assignedToUser.ID {
+						userFound = true
+						break
+					}
+				}
+				if !userFound {
+					availableOfficeUsers = append(availableOfficeUsers, *assignedToUser)
+				}
+			}
+			if activeRole == string(roles.RoleTypeServicesCounselor) {
+				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, false, false)
+			}
+
+			apiAvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
+		}
+
+		queueMoves[i] = &ghcmessages.CounselingQueueMove{
+			Customer:             Customer(&customer),
+			Status:               ghcmessages.MoveStatus(move.Status),
+			ID:                   *handlers.FmtUUID(move.ID),
+			Locator:              move.Locator,
+			SubmittedAt:          handlers.FmtDateTimePtr(move.SubmittedAt),
+			UpdatedAt:            handlers.FmtDateTimePtr(&move.UpdatedAt),
+			AppearedInTooAt:      handlers.FmtDateTimePtr(findLastSentToTOO(move)),
+			RequestedMoveDate:    requestedDatesStr,
+			DepartmentIndicator:  &deptIndicator,
+			ShipmentsCount:       int64(len(validMTOShipments)),
+			OriginDutyLocation:   DutyLocation(move.Orders.OriginDutyLocation),
+			OriginGBLOC:          ghcmessages.GBLOC(originGbloc),
+			OrderType:            (*string)(move.Orders.OrdersType.Pointer()),
+			LockedByOfficeUserID: handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+			LockedByOfficeUser:   OfficeUser(move.LockedByOfficeUser),
+			LockExpiresAt:        handlers.FmtDateTimePtr(move.LockExpiresAt),
+			CounselingOffice:     &transportationOffice,
+			CounselingOfficeID:   handlers.FmtUUID(transportationOfficeId),
+			AssignedTo:           AssignedOfficeUser(assignedToUser),
+			Assignable:           assignable,
+			AvailableOfficeUsers: apiAvailableOfficeUsers,
+			ApprovalRequestTypes: approvalRequestTypes,
+		}
+	}
+	return &queueMoves
+}
+
 func FormatPPMCloseoutInitiatedStr(move models.Move) *string {
 	var closeoutDates []time.Time
 	var formattedDates []string
