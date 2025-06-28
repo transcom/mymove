@@ -12,25 +12,26 @@ import (
 
 // ClientCert represents a known x509 Certificate in the database.
 type ClientCert struct {
-	ID                          uuid.UUID `json:"id" db:"id"`
-	Sha256Digest                string    `db:"sha256_digest"`
-	Subject                     string    `db:"subject"`
-	AllowOrdersAPI              bool      `db:"allow_orders_api"`
-	CreatedAt                   time.Time `db:"created_at"`
-	UpdatedAt                   time.Time `db:"updated_at"`
-	AllowAirForceOrdersRead     bool      `db:"allow_air_force_orders_read"`
-	AllowAirForceOrdersWrite    bool      `db:"allow_air_force_orders_write"`
-	AllowArmyOrdersRead         bool      `db:"allow_army_orders_read"`
-	AllowArmyOrdersWrite        bool      `db:"allow_army_orders_write"`
-	AllowCoastGuardOrdersRead   bool      `db:"allow_coast_guard_orders_read"`
-	AllowCoastGuardOrdersWrite  bool      `db:"allow_coast_guard_orders_write"`
-	AllowMarineCorpsOrdersRead  bool      `db:"allow_marine_corps_orders_read"`
-	AllowMarineCorpsOrdersWrite bool      `db:"allow_marine_corps_orders_write"`
-	AllowNavyOrdersRead         bool      `db:"allow_navy_orders_read"`
-	AllowNavyOrdersWrite        bool      `db:"allow_navy_orders_write"`
-	AllowPrime                  bool      `db:"allow_prime"`
-	AllowPPTAS                  bool      `db:"allow_pptas"`
-	UserID                      uuid.UUID `db:"user_id"`
+	ID                          uuid.UUID                 `json:"id" db:"id"`
+	Sha256Digest                string                    `db:"sha256_digest"`
+	Subject                     string                    `db:"subject"`
+	AllowOrdersAPI              bool                      `db:"allow_orders_api"`
+	CreatedAt                   time.Time                 `db:"created_at"`
+	UpdatedAt                   time.Time                 `db:"updated_at"`
+	AllowAirForceOrdersRead     bool                      `db:"allow_air_force_orders_read"`
+	AllowAirForceOrdersWrite    bool                      `db:"allow_air_force_orders_write"`
+	AllowArmyOrdersRead         bool                      `db:"allow_army_orders_read"`
+	AllowArmyOrdersWrite        bool                      `db:"allow_army_orders_write"`
+	AllowCoastGuardOrdersRead   bool                      `db:"allow_coast_guard_orders_read"`
+	AllowCoastGuardOrdersWrite  bool                      `db:"allow_coast_guard_orders_write"`
+	AllowMarineCorpsOrdersRead  bool                      `db:"allow_marine_corps_orders_read"`
+	AllowMarineCorpsOrdersWrite bool                      `db:"allow_marine_corps_orders_write"`
+	AllowNavyOrdersRead         bool                      `db:"allow_navy_orders_read"`
+	AllowNavyOrdersWrite        bool                      `db:"allow_navy_orders_write"`
+	AllowPrime                  bool                      `db:"allow_prime"`
+	AllowPPTAS                  bool                      `db:"allow_pptas"`
+	PPTASAffiliation            *ServiceMemberAffiliation `db:"pptas_affiliation"`
+	UserID                      uuid.UUID                 `db:"user_id"`
 }
 
 // ClientCerts is not required by pop and may be deleted

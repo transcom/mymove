@@ -26,8 +26,14 @@ type MoveListFetcher interface {
 //go:generate mockery --name MoveFetcher
 type MoveFetcher interface {
 	FetchMove(appCtx appcontext.AppContext, locator string, searchParams *MoveFetcherParams) (*models.Move, error)
-	FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Moves, error)
+	FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *MovesForPPTASFetcherParams) (models.Moves, error)
 	FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds []ghcmessages.BulkAssignmentMoveData) (models.Moves, error)
+}
+
+// MovesForPPTASFetcherParams is a struct used to pass filter arguments to FetchMovesForPPTASReports
+type MovesForPPTASFetcherParams struct {
+	Since       *time.Time
+	Affiliation *string
 }
 
 type MoveFetcherBulkAssignment interface {

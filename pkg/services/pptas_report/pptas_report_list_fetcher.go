@@ -33,7 +33,7 @@ func NewPPTASReportListFetcher(estimator services.PPMEstimator, moveFetcher serv
 	}
 }
 
-func (f *pptasReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (f *pptasReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MovesForPPTASFetcherParams) (models.Moves, error) {
 	moves, err := f.moveFetcher.FetchMovesForPPTASReports(appCtx, params)
 
 	if err != nil {

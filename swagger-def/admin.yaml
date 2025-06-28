@@ -377,6 +377,8 @@ definitions:
         type: boolean
       allowPPTAS:
         type: boolean
+      pptasAffiliation:
+        $ref: 'definitions/Affiliation.yaml'
   ClientCertificates:
     type: array
     items:
@@ -423,6 +425,8 @@ definitions:
         type: boolean
       allowPPTAS:
         type: boolean
+      pptasAffiliation:
+        $ref: 'definitions/Affiliation.yaml'
   ClientCertificateUpdate:
     type: object
     properties:
@@ -474,6 +478,8 @@ definitions:
       allowPPTAS:
         type: boolean
         x-nullable: true
+      pptasAffiliation:
+        $ref: 'definitions/Affiliation.yaml'
   ClientError:
     type: object
     properties:

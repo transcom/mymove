@@ -47,7 +47,7 @@ func (_m *PPTASReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.A
 }
 
 // GetMovesForReportBuilder provides a mock function with given fields: appCtx, params
-func (_m *PPTASReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (_m *PPTASReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MovesForPPTASFetcherParams) (models.Moves, error) {
 	ret := _m.Called(appCtx, params)
 
 	if len(ret) == 0 {
@@ -56,10 +56,10 @@ func (_m *PPTASReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.App
 
 	var r0 models.Moves
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Moves, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams) (models.Moves, error)); ok {
 		return rf(appCtx, params)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams) models.Moves); ok {
 		r0 = rf(appCtx, params)
 	} else {
 		if ret.Get(0) != nil {
@@ -67,7 +67,7 @@ func (_m *PPTASReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.App
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MovesForPPTASFetcherParams) error); ok {
 		r1 = rf(appCtx, params)
 	} else {
 		r1 = ret.Error(1)
