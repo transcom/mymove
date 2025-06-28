@@ -98,3 +98,23 @@ func GetAssignedGBLOCs(o OfficeUser) []string {
 	}
 	return assignedGblocs
 }
+
+func (o OfficeUser) PrimaryOffice() TransportationOffice {
+	var office TransportationOffice
+	for _, toa := range o.TransportationOfficeAssignments {
+		if toa.PrimaryOffice != nil && *toa.PrimaryOffice {
+			office = toa.TransportationOffice
+		}
+	}
+	return office
+}
+
+func (o OfficeUser) SecondaryOffice() TransportationOffice {
+	var office TransportationOffice
+	for _, toa := range o.TransportationOfficeAssignments {
+		if toa.PrimaryOffice != nil && !*toa.PrimaryOffice {
+			office = toa.TransportationOffice
+		}
+	}
+	return office
+}
