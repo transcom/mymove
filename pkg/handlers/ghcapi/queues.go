@@ -69,6 +69,10 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				activeRole = *params.ActiveRole
 			}
 
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
+			}
 			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested
 			if params.Status == nil {
 				ListOrderParams.Status = []string{string(models.MoveStatusServiceCounselingCompleted), string(models.MoveStatusAPPROVALSREQUESTED), string(models.MoveStatusSUBMITTED)}
@@ -113,7 +117,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTOO,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -124,7 +128,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -168,7 +172,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeTaskOrder))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeTaskOrder), officeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -231,6 +235,11 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVALSREQUESTED)}
 			}
 
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
+			}
+
 			// default pagination values
 			if params.Page == nil {
 				ListOrderParams.Page = models.Int64Pointer(1)
@@ -280,7 +289,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTOO,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -291,7 +300,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -322,7 +331,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest), officeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -433,6 +442,11 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				activeRole = *params.ActiveRole
 			}
 
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
+			}
+
 			listPaymentRequestParams.Status = []string{string(models.PaymentRequestStatusPending)}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
@@ -476,7 +490,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeTIO,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -487,7 +501,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTIO,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			}
 
@@ -529,7 +543,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				}
 			}
 
-			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
+			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole, officeID)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),
@@ -597,6 +611,11 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 				ListOrderParams.Status = params.Status
 			}
 
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
+			}
+
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
 			if params.Page == nil {
@@ -638,7 +657,7 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeServicesCounselor,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -649,7 +668,7 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -670,7 +689,7 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 			}
 
 			// Convert payload
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, string(appCtx.Session().ActiveRole.RoleType), string(models.QueueTypeCloseout))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, string(appCtx.Session().ActiveRole.RoleType), string(models.QueueTypeCloseout), officeID)
 
 			// if the SC/office user is accessing the queue, we need to unlock move/moves they have locked
 			if appCtx.Session().IsOfficeUser() {
@@ -749,6 +768,11 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				activeRole = *params.ActiveRole
 			}
 
+			var officeID uuid.UUID
+			if params.ActiveOfficeID != nil {
+				officeID = uuid.FromStringOrNil(params.ActiveOfficeID.String())
+			}
+
 			var requestedPpmStatus models.PPMShipmentStatus
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
 				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
@@ -800,7 +824,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
 						appCtx,
 						roles.RoleTypeServicesCounselor,
-						officeUser.TransportationOfficeID,
+						officeID,
 					)
 					if err != nil {
 						appCtx.Logger().
@@ -811,7 +835,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
-					officeUser.TransportationOfficeID,
+					officeID,
 				)
 			} else {
 				officeUsers = models.OfficeUsers{officeUser}
@@ -862,7 +886,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				queueType = string(models.QueueTypeCloseout)
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, queueType)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, queueType, officeID)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,

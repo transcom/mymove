@@ -82,11 +82,13 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 		"User",
 		"User.Roles",
 		"User.Privileges",
+		"TransportationOfficeAssignments",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
 		Join("roles", "users_roles.role_id = roles.id").
-		Where("transportation_office_id = ?", officeID).
+		Join("transportation_office_assignments", "transportation_office_assignments.id = office_users.id").
+		Where("transportation_office_assignments.transportation_office_id = ?", officeID).
 		Where("role_type = ?", role).
 		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").
@@ -108,13 +110,15 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 		"User",
 		"User.Roles",
 		"User.Privileges",
+		"TransportationOfficeAssignments",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
 		Join("roles", "users_roles.role_id = roles.id").
+		Join("transportation_office_assignments", "transportation_office_assignments.id = office_users.id").
 		LeftJoin("users_privileges", "users.id = users_privileges.user_id").
 		LeftJoin("privileges", "privileges.id = users_privileges.privilege_id").
-		Where("transportation_office_id = ?", officeID).
+		Where("transportation_office_assignments.transportation_office_id = ?", officeID).
 		Where("role_type = ?", role).
 		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").

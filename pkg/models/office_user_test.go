@@ -97,3 +97,93 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmailCaseSensitivity() {
 	suite.NotNil(user)
 	suite.Equal(user.Email, userEmail)
 }
+
+func (suite *ModelSuite) TestOfficeGetters() {
+	userEmail := "dad@dad.gov"
+	dad := m.User{
+		OktaID:    "f390a584-3974-47b9-9ab2-05383304d696",
+		OktaEmail: userEmail,
+	}
+	suite.MustSave(&dad)
+	office := CreateTestShippingOffice(suite)
+	fetchedUsPostRegionCity, err := m.FindByZipCodeAndCity(suite.DB(), "59801", "MISSOULA")
+	suite.NoError(err)
+	address := m.Address{
+		ID:                 uuid.Must(uuid.NewV4()),
+		StreetAddress1:     "123 Any Street",
+		City:               fetchedUsPostRegionCity.USPostRegionCityNm,
+		PostalCode:         fetchedUsPostRegionCity.UsprZipID,
+		State:              "MT",
+		County:             m.StringPointer("MISSOULA"),
+		IsOconus:           m.BoolPointer(false),
+		UsPostRegionCityID: &fetchedUsPostRegionCity.ID,
+	}
+
+	suite.MustSave(&address)
+
+	office1 := m.TransportationOffice{
+		ID:        uuid.Must(uuid.NewV4()),
+		Name:      "PPPO BSU Kodiak",
+		Gbloc:     "MAPS",
+		Latitude:  32.6806,
+		Longitude: -117.1779,
+		Address:   address,
+		Note:      m.StringPointer("Accessible to Public"),
+		Hours:     m.StringPointer("9am-9pm"),
+		Services:  m.StringPointer("CAC creation"),
+		AddressID: address.ID,
+	}
+	office2 := m.TransportationOffice{
+		ID:        uuid.Must(uuid.NewV4()),
+		Name:      "PPPO Malmstrom AFB - USAF",
+		Gbloc:     "KKFA",
+		Latitude:  39.6806,
+		Longitude: -101.1779,
+		Address:   address,
+		Note:      m.StringPointer("Accessible to Public"),
+		Hours:     m.StringPointer("9am-9pm"),
+		Services:  m.StringPointer("CAC creation"),
+		AddressID: address.ID,
+	}
+
+	suite.MustSave(&office1)
+	suite.MustSave(&office2)
+
+	officeUser := m.OfficeUser{
+		LastName:               "Dad",
+		FirstName:              "Dad",
+		Email:                  userEmail,
+		Telephone:              "(908) 555-1313",
+		UserID:                 &dad.ID,
+		User:                   dad,
+		TransportationOfficeID: office.ID,
+	}
+
+	assignment1 := m.TransportationOfficeAssignment{
+		ID:                     officeUser.ID,
+		TransportationOffice:   office1,
+		TransportationOfficeID: office1.ID,
+		PrimaryOffice:          m.BoolPointer(true),
+	}
+
+	assignment2 := m.TransportationOfficeAssignment{
+		ID:                     officeUser.ID,
+		TransportationOffice:   office2,
+		TransportationOfficeID: office2.ID,
+		PrimaryOffice:          m.BoolPointer(false),
+	}
+
+	assignments := m.TransportationOfficeAssignments{
+		assignment1,
+		assignment2,
+	}
+
+	officeUser.TransportationOfficeAssignments = assignments
+	suite.MustSave(&assignment1)
+	suite.MustSave(&assignment2)
+	suite.MustSave(&assignments)
+	suite.MustSave(&officeUser)
+
+	suite.Equal(office1.ID, officeUser.PrimaryOffice().ID)
+	suite.Equal(office2.ID, officeUser.SecondaryOffice().ID)
+}

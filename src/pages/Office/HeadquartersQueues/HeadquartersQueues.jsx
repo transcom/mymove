@@ -220,6 +220,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           activeRole={activeRole}
+          activeOfficeID=""
         />
       </div>
     );
@@ -247,6 +248,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           csvExportQueueFetcherKey="queuePaymentRequests"
           sessionStorageKey={queueType}
           activeRole={activeRole}
+          activeOfficeID=""
         />
       </div>
     );
@@ -274,6 +276,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           activeRole={activeRole}
+          activeOfficeID=""
         />
       </div>
     );
@@ -302,6 +305,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           activeRole={activeRole}
+          activeOfficeID=""
         />
       </div>
     );

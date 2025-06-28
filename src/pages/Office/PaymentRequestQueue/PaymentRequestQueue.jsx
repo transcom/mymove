@@ -169,7 +169,7 @@ export const columns = (queueType, isQueueManagementEnabled, setRefetchQueue, sh
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => {
+                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => {
                   return (
                     <option
                       value={officeUserId}
@@ -203,6 +203,7 @@ const PaymentRequestQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
+  activeOfficeID,
 }) => {
   const { queueType } = useParams();
   const navigate = useNavigate();
@@ -338,6 +339,7 @@ const PaymentRequestQueue = ({
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.PAYMENT_REQUEST}
           activeRole={activeRole}
+          activeOfficeID={activeOfficeID}
         />
       </div>
     );
@@ -347,6 +349,7 @@ const PaymentRequestQueue = ({
 
 const mapStateToProps = (state) => {
   return {
+    activeOfficeID: state?.auth?.activeOffice?.id,
     setRefetchQueue: state.generalState.setRefetchQueue,
   };
 };
