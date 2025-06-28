@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	gunsafe "github.com/transcom/mymove/pkg/services/gunsafe_weight_ticket"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -282,6 +283,10 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.PpmCreateProGearWeightTicketHandler = CreateProGearWeightTicketHandler{handlerConfig, progear.NewCustomerProgearWeightTicketCreator()}
 	internalAPI.PpmUpdateProGearWeightTicketHandler = UpdateProGearWeightTicketHandler{handlerConfig, progear.NewCustomerProgearWeightTicketUpdater()}
 	internalAPI.PpmDeleteProGearWeightTicketHandler = DeleteProGearWeightTicketHandler{handlerConfig, progear.NewProgearWeightTicketDeleter()}
+
+	internalAPI.PpmCreateGunSafeWeightTicketHandler = CreateGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewCustomerGunSafeWeightTicketCreator()}
+	internalAPI.PpmUpdateGunSafeWeightTicketHandler = UpdateGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewCustomerGunSafeWeightTicketUpdater()}
+	internalAPI.PpmDeleteGunSafeWeightTicketHandler = DeleteGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewGunSafeWeightTicketDeleter()}
 
 	internalAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
 

@@ -216,6 +216,8 @@ const DocumentViewerFileManager = ({
           queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
         } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
           queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
+        } else if (documentType === PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET) {
+          queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
         } else {
           queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
         }
@@ -244,6 +246,8 @@ const DocumentViewerFileManager = ({
     } else if (documentType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE) {
       handleCreateUpload(file, false);
     } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+      handleCreateUpload(file, false);
+    } else if (documentType === PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET) {
       handleCreateUpload(file, false);
     }
   };
