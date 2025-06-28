@@ -24,11 +24,13 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, formatPayGradeOptions } from 'utils/formatters';
-import { getPayGradeOptions, showCounselingOffices } from 'services/internalApi';
+import { getPayGradeOptions, getRankOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { selectServiceMemberAffiliation } from 'store/entities/selectors';
+import { sortRankOptions } from 'shared/utils';
+import RankField from 'components/form/RankField/RankField';
 
 let originMeta;
 let newDutyMeta = '';
@@ -50,6 +52,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
 
+  const [rankOptions, setRankOptions] = useState([]);
+
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -63,6 +67,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.string().required('Required'),
+    rank: Yup.mixed()
+      .oneOf(rankOptions.map((i) => i.key))
+      .required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
@@ -123,7 +130,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [payGradeOptions, setPayGradeOptions] = useState([]);
   useEffect(() => {
     const fetchGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      setShowLoadingSpinner(true, null);
       try {
         const fetchedRanks = await getPayGradeOptions(affiliation);
         if (fetchedRanks) {
@@ -138,7 +145,27 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     };
 
     fetchGradeOptions();
-  }, [affiliation, setShowLoadingSpinner]);
+  }, [affiliation, setShowLoadingSpinner, grade]);
+
+  useEffect(() => {
+    const fetchRankOptions = async () => {
+      setShowLoadingSpinner(true, null);
+      try {
+        const fetchedRanks = await getRankOptions(affiliation, grade);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankOptions(fetchedRanks);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    if (grade !== '') fetchRankOptions();
+  }, [affiliation, grade, setShowLoadingSpinner]);
 
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
@@ -512,13 +539,16 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 name="grade"
                 id="grade"
                 required
-                showRequiredAsterisk
                 options={payGradeOptions}
+                showRequiredAsterisk
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);
+                  setFieldValue('rank', '');
                 }}
               />
+
+              {grade !== '' ? <RankField rankOptions={rankOptions} handleChange={handleChange} /> : null}
 
               {isCivilianTDYMove && (
                 <FormGroup>

@@ -104,6 +104,13 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
+	var rank internalmessages.Rank
+	if order.Rank != nil {
+		rank.ID = strfmt.UUID(order.Rank.ID.String())
+		rank.PaygradeID = strfmt.UUID(order.Rank.PayGradeID.String())
+		rank.RankAbbv = order.Rank.RankAbbv
+	}
+
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
 		ID:                         handlers.FmtUUID(order.ID),
@@ -131,6 +138,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		AuthorizedWeight:           dBAuthorizedWeight,
 		Entitlement:                &entitlement,
 		ProvidesServicesCounseling: originDutyLocation.ProvidesServicesCounseling,
+		Rank:                       &rank,
 	}
 
 	return payload, nil
@@ -322,6 +330,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				deptIndicator,
 				&originDutyLocation,
 				grade,
+				&payload.Rank,
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
@@ -594,7 +603,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
 				// if not, do the opposite and make the PPM type INCENTIVE_BASED
 				if payload.Grade != nil && *payload.Grade != *order.Grade {
-					moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+					moves, fetchErr := models.FetchMoveByOrderIDWithPreloads(appCtx.DB(), order.ID)
 					if fetchErr != nil {
 						appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(fetchErr))
 					} else {
@@ -641,6 +650,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 			}
 			order.Grade = payload.Grade
+
+			var rank models.Rank
+			err = appCtx.DB().Find(&rank, payload.Rank)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			order.RankID = models.UUIDPointer(rank.ID)
+			order.Rank = &rank
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
@@ -753,5 +770,40 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload), nil
+		})
+}
+
+type GetRanksHandler struct {
+	handlers.HandlerConfig
+}
+
+// Handle retrieves orders in the system belonging to the logged in user given order ID
+func (h GetRanksHandler) Handle(params ordersop.GetRanksParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			var ranks []*internalmessages.Rank
+
+			err := appCtx.DB().Q().RawQuery(`
+		SELECT
+			ranks.rank_name AS RankName,
+			ranks.rank_abbv AS RankAbbv,
+			ranks.id,
+			ranks.pay_grade_id AS PaygradeID,
+			ranks.rank_order AS RankOrder
+		FROM ranks
+		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
+		WHERE affiliation = $1
+		AND grade = $2
+		ORDER BY ranks.rank_order ASC
+	`, params.Affiliation, params.Grade).All(&ranks)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			if len(ranks) < 1 {
+				return ordersop.NewGetRanksNotFound(), nil
+			}
+
+			return ordersop.NewGetRanksOK().WithPayload(ranks), nil
 		})
 }

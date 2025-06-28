@@ -543,8 +543,8 @@ func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 	return move, nil
 }
 
-// FetchMovesByOrderID returns moves for a given id of an order
-func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
+// FetchMoveByOrderIDWithPreloads returns moves for a given id of an order
+func FetchMoveByOrderIDWithPreloads(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 	var moves Moves
 
 	query := db.Where("orders_id = ?", orderID)
@@ -612,6 +612,16 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 	}
 
 	moves[0].Orders.UploadedOrders.UserUploads = userUploads
+
+	// fetch Rank
+	if order.RankID != nil {
+		var rank Rank
+		err = db.Q().Find(&rank, order.RankID)
+		if err != nil {
+			return moves, err
+		}
+		moves[0].Orders.Rank = &rank
+	}
 
 	// Eager loading of nested has_many associations is broken
 	if order.UploadedAmendedOrders != nil {

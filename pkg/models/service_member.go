@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -398,6 +399,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	departmentIndicator *string,
 	originDutyLocation *DutyLocation,
 	grade *internalmessages.OrderPayGrade,
+	pRank *strfmt.UUID,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
 	packingAndShippingInstructions string,
@@ -446,6 +448,17 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			MethodOfPayment:                MethodOfPayment,
 			NAICS:                          NAICS,
 			PackingAndShippingInstructions: packingAndShippingInstructions,
+		}
+
+		var rank Rank
+		if pRank != nil {
+			err = txnAppCtx.DB().Find(&rank, pRank)
+			if err != nil {
+				return err
+			}
+
+			newOrders.RankID = UUIDPointer(rank.ID)
+			newOrders.Rank = &rank
 		}
 
 		verrs, err = txnAppCtx.DB().ValidateAndCreate(&newOrders)

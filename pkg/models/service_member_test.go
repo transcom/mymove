@@ -3,11 +3,13 @@ package models_test
 import (
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -419,4 +421,60 @@ func (suite *ModelSuite) TestFetchServiceMemberByUserID() {
 		suite.Equal(serviceMember.ID, existingServiceMember.ID)
 		suite.Equal(serviceMember.UserID, existingServiceMember.UserID)
 	}
+}
+
+func (suite *ModelSuite) TestCreateOrder() {
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	dutyLocation2 := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hasDependents := true
+	spouseHasProGear := true
+	uploadedOrder := m.Document{
+		ServiceMember:   serviceMember,
+		ServiceMemberID: serviceMember.ID,
+	}
+	deptIndicator := testdatagen.DefaultDepartmentIndicator
+	TAC := testdatagen.DefaultTransportationAccountingCode
+	suite.MustSave(&uploadedOrder)
+	SAC := "N002214CSW32Y9"
+	ordersNumber := "FD4534JFJ"
+	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+	packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
+
+	var oldGBLOC m.PostalCodeToGBLOC
+	var newGBLOC m.PostalCodeToGBLOC
+	oldGBLOC, _ = m.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+	newGBLOC, _ = m.FetchGBLOCForPostalCode(suite.DB(), dutyLocation2.Address.PostalCode)
+	grade := m.ServiceMemberGradeE1
+	var rank models.Rank
+	err := suite.DB().First(&rank)
+	suite.NoError(err)
+
+	order, _, err := serviceMember.CreateOrder(
+		suite.AppContextForTest(),
+		issueDate,
+		reportByDate,
+		ordersType,
+		hasDependents,
+		spouseHasProGear,
+		dutyLocation,
+		&ordersNumber,
+		&TAC,
+		&SAC,
+		&deptIndicator,
+		&dutyLocation2,
+		&grade,
+		(*strfmt.UUID)(models.StringPointer(rank.ID.String())),
+		nil,
+		&oldGBLOC.GBLOC,
+		packingAndShippingInstructions,
+		&newGBLOC.GBLOC,
+	)
+
+	suite.NoError(err)
+	suite.Equal(rank.RankName, order.Rank.RankName)
 }

@@ -2048,7 +2048,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "list all ranks for specified affiliation",
+            "description": "list all pay grades for specified affiliation",
             "schema": {
               "type": "array",
               "items": {
@@ -2063,7 +2063,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "ranks not found"
+            "description": "pay grades not found"
           }
         }
       }
@@ -3052,6 +3052,44 @@ func init() {
           },
           "404": {
             "description": "move queue item is not found"
+          }
+        }
+      }
+    },
+    "/ranks/{affiliation}\u0026{grade}": {
+      "get": {
+        "description": "Get ranks for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get ranks for specified affiliation",
+        "operationId": "getRanks",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          },
+          {
+            "$ref": "#/parameters/OrderPayGradeParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rank"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
           }
         }
       }
@@ -5077,6 +5115,9 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -5287,6 +5328,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -7219,6 +7265,9 @@ func init() {
           "type": "boolean",
           "x-omitempty": false
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -8199,6 +8248,36 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
+        "rankName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Seargent"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -8496,6 +8575,9 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "title": "Residential Address",
@@ -9852,6 +9934,75 @@ func init() {
       "x-nullable": true,
       "description": "Military branch of service",
       "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
+    "OrderPayGradeParam": {
+      "enum": [
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "type": "string",
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E-1": "E-1",
+        "E-2": "E-2",
+        "E-3": "E-3",
+        "E-4": "E-4",
+        "E-5": "E-5",
+        "E-6": "E-6",
+        "E-7": "E-7",
+        "E-8": "E-8",
+        "E-9": "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O-1": "O-1",
+        "O-10": "O-10",
+        "O-2": "O-2",
+        "O-3": "O-3",
+        "O-4": "O-4",
+        "O-5": "O-5",
+        "O-6": "O-6",
+        "O-7": "O-7",
+        "O-8": "O-8",
+        "O-9": "O-9",
+        "W-1": "W-1",
+        "W-2": "W-2",
+        "W-3": "W-3",
+        "W-4": "W-4",
+        "W-5": "W-5"
+      },
+      "x-nullable": true,
+      "name": "grade",
       "in": "path",
       "required": true
     },
@@ -12188,7 +12339,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "list all ranks for specified affiliation",
+            "description": "list all pay grades for specified affiliation",
             "schema": {
               "type": "array",
               "items": {
@@ -12203,7 +12354,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "ranks not found"
+            "description": "pay grades not found"
           }
         }
       }
@@ -13620,6 +13771,124 @@ func init() {
           },
           "404": {
             "description": "move queue item is not found"
+          }
+        }
+      }
+    },
+    "/ranks/{affiliation}\u0026{grade}": {
+      "get": {
+        "description": "Get ranks for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get ranks for specified affiliation",
+        "operationId": "getRanks",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "E-1",
+              "E-2",
+              "E-3",
+              "E-4",
+              "E-5",
+              "E-6",
+              "E-7",
+              "E-8",
+              "E-9",
+              "E-9-SPECIAL-SENIOR-ENLISTED",
+              "O-1",
+              "O-2",
+              "O-3",
+              "O-4",
+              "O-5",
+              "O-6",
+              "O-7",
+              "O-8",
+              "O-9",
+              "O-10",
+              "W-1",
+              "W-2",
+              "W-3",
+              "W-4",
+              "W-5",
+              "AVIATION_CADET",
+              "CIVILIAN_EMPLOYEE",
+              "ACADEMY_CADET",
+              "MIDSHIPMAN"
+            ],
+            "type": "string",
+            "x-display-value": {
+              "ACADEMY_CADET": "Service Academy Cadet",
+              "AVIATION_CADET": "Aviation Cadet",
+              "CIVILIAN_EMPLOYEE": "Civilian Employee",
+              "E-1": "E-1",
+              "E-2": "E-2",
+              "E-3": "E-3",
+              "E-4": "E-4",
+              "E-5": "E-5",
+              "E-6": "E-6",
+              "E-7": "E-7",
+              "E-8": "E-8",
+              "E-9": "E-9",
+              "E-9-SPECIAL-SENIOR-ENLISTED": "E-9 (Special Senior Enlisted)",
+              "MIDSHIPMAN": "Midshipman",
+              "O-1": "O-1",
+              "O-10": "O-10",
+              "O-2": "O-2",
+              "O-3": "O-3",
+              "O-4": "O-4",
+              "O-5": "O-5",
+              "O-6": "O-6",
+              "O-7": "O-7",
+              "O-8": "O-8",
+              "O-9": "O-9",
+              "W-1": "W-1",
+              "W-2": "W-2",
+              "W-3": "W-3",
+              "W-4": "W-4",
+              "W-5": "W-5"
+            },
+            "x-nullable": true,
+            "name": "grade",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rank"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
           }
         }
       }
@@ -15660,6 +15929,9 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -15870,6 +16142,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -17808,6 +18085,9 @@ func init() {
           "type": "boolean",
           "x-omitempty": false
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -18791,6 +19071,36 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
+        "rankName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Seargent"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -19088,6 +19398,9 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "title": "Residential Address",
@@ -20457,6 +20770,75 @@ func init() {
       "x-nullable": true,
       "description": "Military branch of service",
       "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
+    "OrderPayGradeParam": {
+      "enum": [
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4",
+        "E-5",
+        "E-6",
+        "E-7",
+        "E-8",
+        "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED",
+        "O-1",
+        "O-2",
+        "O-3",
+        "O-4",
+        "O-5",
+        "O-6",
+        "O-7",
+        "O-8",
+        "O-9",
+        "O-10",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4",
+        "W-5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "type": "string",
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E-1": "E-1",
+        "E-2": "E-2",
+        "E-3": "E-3",
+        "E-4": "E-4",
+        "E-5": "E-5",
+        "E-6": "E-6",
+        "E-7": "E-7",
+        "E-8": "E-8",
+        "E-9": "E-9",
+        "E-9-SPECIAL-SENIOR-ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O-1": "O-1",
+        "O-10": "O-10",
+        "O-2": "O-2",
+        "O-3": "O-3",
+        "O-4": "O-4",
+        "O-5": "O-5",
+        "O-6": "O-6",
+        "O-7": "O-7",
+        "O-8": "O-8",
+        "O-9": "O-9",
+        "W-1": "W-1",
+        "W-2": "W-2",
+        "W-3": "W-3",
+        "W-4": "W-4",
+        "W-5": "W-5"
+      },
+      "x-nullable": true,
+      "name": "grade",
       "in": "path",
       "required": true
     },

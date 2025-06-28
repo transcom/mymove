@@ -50,6 +50,7 @@ export default {
   ub_weight_restriction: 'UB weight restriction',
   requested_pickup_date: 'Requested pickup date',
   grade: 'Pay grade',
+  rank: 'Rank',
   shipment_type: 'Shipment type',
   pickup_address: 'Pickup Address',
   secondary_pickup_address: 'Second Pickup Address',

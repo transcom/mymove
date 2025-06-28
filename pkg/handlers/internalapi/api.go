@@ -323,6 +323,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
 	internalAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
+	internalAPI.OrdersGetRanksHandler = GetRanksHandler{handlerConfig}
+
 	internalAPI.AddressesSearchCountriesHandler = SearchCountriesHandler{
 		handlerConfig,
 		countrySearcher,
