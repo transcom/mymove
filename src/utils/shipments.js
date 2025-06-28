@@ -149,6 +149,15 @@ export const blankAddress = {
   },
 };
 
+export const blankContact = {
+  contact: {
+    firstName: '',
+    lastName: '',
+    email: '',
+    telephone: '',
+  },
+};
+
 const updateAddressToggle = (setValues, fieldName, value, fieldKey, fieldValue) => {
   if (fieldName === 'hasSecondaryPickup' && value === 'false') {
     // HHG
