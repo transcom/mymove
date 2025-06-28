@@ -1325,7 +1325,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v20-spectral-lint-
+            - v21-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |

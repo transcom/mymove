@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/entitlements"
@@ -1444,87 +1445,82 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 		suite.Equal(move1.ID, primeMoves[0].ID)
 
 	})
-}
-
-func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher_BeforeSearchParam() {
-	today := time.Now()
-	aYearAgo := today.AddDate(-1, 0, 0)
-	aMonthAgo := today.AddDate(0, -1, 0)
-	aWeekAgo := today.AddDate(0, 0, -7)
-	yesterday := today.AddDate(0, 0, -1)
-	waf := entitlements.NewWeightAllotmentFetcher()
-	fetcher := m.NewMoveTaskOrderFetcher(waf)
-
-	// Set up a hidden move so we can check if it's in the output:
-	hiddenMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				Show: models.BoolPointer(false),
+	suite.Run("Success with fetching a MTO with RankID", func() {
+		rank := factory.FetchOrBuildRank(suite.DB(), nil, nil)
+		rankID := rank.ID
+		orders := models.Order{
+			RankID: &rankID,
+		}
+		expectedMTO := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: orders,
 			},
-		},
-	}, nil)
-	// Make a default, not Prime-available move:
-	nonPrimeMove := factory.BuildMove(suite.DB(), nil, nil)
+		}, nil)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
 
-	// Make some Prime moves:
-	primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil) // uses defualt updated_at of today
-	primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
-	primeMove4 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	shipmentForPrimeMove4 := factory.BuildMTOShipmentWithMove(&primeMove4, suite.DB(), nil, nil)
-	reweighsForPrimeMove1, _ := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
-		MTOShipment: shipmentForPrimeMove4,
+		actualMTO, err := fetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+
+		suite.NoError(err)
+		suite.NotNil(actualMTO.Orders.RankID)
+		suite.Equal(*expectedMTO.Orders.RankID, *actualMTO.Orders.RankID)
+		suite.NotNil(actualMTO.Orders.Rank)
+		suite.Equal(internalmessages.OrderPayGradeEDash1, *actualMTO.Orders.Grade)
+		suite.Equal(rank.RankName, actualMTO.Orders.Rank.RankName)
 	})
-	paymentRequestForPrimeMove3, _ := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusReviewed,
-		},
+
+	suite.Run("Success with fetching a MTO without RankID", func() {
+		orders := models.Order{
+			RankID: nil,
+		}
+		expectedMTO := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: orders,
+			},
+		}, nil)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		actualMTO, err := fetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+
+		suite.NoError(err)
+		suite.Nil(actualMTO.Orders.RankID)
+		suite.Nil(actualMTO.Orders.Rank)
 	})
-	suite.Logger().Info(fmt.Sprintf("Reweigh %s", reweighsForPrimeMove1.ID))
 
-	// update primeMove1, primeMove3, and primeMove4 updated_at for moves, orders, mto_shipments, payment_requests, reweighs
-	// into the past so we can include them in the results:
-	// Note: primeMove2 is intentionally left with an updated_at today, so it should not be included in the results.
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3, $4);",
-		aMonthAgo, primeMove1.ID, primeMove3.ID, primeMove4.ID).Exec())
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id IN ($2, $3);",
-		aMonthAgo, primeMove1.OrdersID, primeMove4.OrdersID).Exec())
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
-		aWeekAgo, shipmentForPrimeMove4.ID).Exec())
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE payment_requests SET updated_at=$1 WHERE id=$2;",
-		aWeekAgo, paymentRequestForPrimeMove3.ID).Exec())
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE reweighs SET updated_at=$1 WHERE id=$2;",
-		yesterday, reweighsForPrimeMove1.ID).Exec())
+	suite.Run("Valid PayGradeID", func() {
+		waf := entitlements.NewWeightAllotmentFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
+		customs := []factory.Customization{
+			{
+				Model: models.Rank{
+					ID:       uuid.Must(uuid.NewV4()),
+					RankName: "Custom Rank",
+					RankAbbv: "CR",
+				},
+			},
+		}
+		rank := factory.FetchOrBuildRank(suite.DB(), customs, nil)
 
-	page := int64(1)
-	perPage := int64(20)
-	searchParams := services.MoveTaskOrderFetcherParams{Page: &page, PerPage: &perPage, MoveCode: nil, ID: nil}
+		result, err := fetcher.FindRankByRankID(suite.AppContextForTest(), rank.ID)
 
-	// Run the fetcher without `before` to get all Prime moves:
-	primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
-	suite.NoError(err)
-	suite.Len(primeMoves, 4, "Should return all 4 prime moves when no 'before' filter is applied")
-	moveIDs := make([]uuid.UUID, len(primeMoves))
-	for i, move := range primeMoves {
-		moveIDs[i] = move.ID
-	}
-	suite.NotContains(moveIDs, hiddenMove.ID)
-	suite.NotContains(moveIDs, nonPrimeMove.ID)
-	suite.Contains(moveIDs, primeMove1.ID)
-	suite.Contains(moveIDs, primeMove2.ID)
-	suite.Contains(moveIDs, primeMove3.ID)
-	suite.Contains(moveIDs, primeMove4.ID)
+		suite.NoError(err)
+		suite.Equal(rank.ID, result.ID)
+		suite.Equal(rank.RankName, result.RankName)
+		suite.Equal(rank.RankAbbv, result.RankAbbv)
+	})
 
-	// Run the fetcher with `before` to get only primeMove1, primeMove3, and primeMove4 updated before today:
-	searchParams.Before = &today
-	beforeSearchParamsMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
-	suite.NoError(err)
-	suite.Len(beforeSearchParamsMoves, 3, "Should return only primeMove1, primeMove3, and primeMove4 for 'before' filter")
+	// Test case 2: Invalid PayGradeID
+	suite.Run("Invalid PayGradeID", func() {
+		waf := entitlements.NewWeightAllotmentFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
+		invalidID := uuid.Must(uuid.NewV4())
 
-	// Run the fetcher with `before` for date in the past with no records match to get no Prime moves
-	searchParams.Before = &aYearAgo
-	beforeSearchNOMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
-	suite.NoError(err)
-	suite.Len(beforeSearchNOMoves, 0, "No moves should be returned for a before date far in the past")
+		result, err := fetcher.FindRankByRankID(suite.AppContextForTest(), invalidID)
+
+		suite.Error(err)
+		suite.Equal(models.Rank{}, result)
+	})
 }

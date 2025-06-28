@@ -173,6 +173,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Orders.DestinationGBLOC",
 		"Orders.NewDutyLocation.Address.Country",
 		"Orders.OriginDutyLocation.Address.Country", // this line breaks Eager, but works with EagerPreload
+		"Orders.Rank",
 		"ShipmentGBLOC",
 	)
 
@@ -364,6 +365,14 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		loadedServiceItems = append(loadedServiceItems, mto.MTOServiceItems[i])
 	}
 	mto.MTOServiceItems = loadedServiceItems
+
+	if mto.Orders.RankID != nil {
+		userPayGrade, err := f.FindRankByRankID(appCtx, *mto.Orders.RankID)
+		if err != nil && err != sql.ErrNoRows {
+			return &models.Move{}, apperror.NewQueryError("Rank", err, "")
+		}
+		mto.Orders.Rank = &userPayGrade
+	}
 
 	if mto.Orders.DestinationGBLOC == nil {
 		var newDutyLocationGBLOC *string
@@ -674,6 +683,16 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 	count = query.Paginator.TotalEntriesSize
 
 	return moveTaskOrders, count, nil
+}
+func (f moveTaskOrderFetcher) FindRankByRankID(appCtx appcontext.AppContext, RankID uuid.UUID) (models.Rank, error) {
+	var result models.Rank
+
+	err := appCtx.DB().Find(&result, RankID)
+
+	if err != nil {
+		return models.Rank{}, err
+	}
+	return result, nil
 }
 
 func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFetcherParams) {
