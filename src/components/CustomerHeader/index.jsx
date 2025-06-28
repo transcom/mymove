@@ -34,7 +34,6 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
       ? order.originDutyLocationGBLOC
       : move.shipmentGBLOC;
   const originGBLOCDisplay = order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${originGBLOC} / USMC` : originGBLOC;
-
   return (
     <div className={styles.custHeader}>
       <div>
@@ -56,9 +55,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
             {isCoastGuard && (
               <>
                 <span className={styles.verticalBar}>|</span>
-                <span data-testid="emplid" className={styles.details}>
-                  EMPLID {customer.emplid}
-                </span>
+                <span data-testid="emplid">EMPLID {customer.emplid}</span>
               </>
             )}
           </p>

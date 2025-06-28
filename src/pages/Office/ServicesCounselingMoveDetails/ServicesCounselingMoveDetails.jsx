@@ -706,7 +706,7 @@ const ServicesCounselingMoveDetails = ({
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        <LeftNav sections={sections}>
+        <LeftNav sections={sections} className={styles.leftNav}>
           <LeftNavTag
             associatedSectionName="shipments"
             showTag={shipmentWarnConcernCount !== 0}

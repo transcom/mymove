@@ -65,8 +65,8 @@ export const servicesCounselingRoutes = {
   CUSTOMER_SEARCH_PATH: 'customer-search',
   BASE_CUSTOMER_SEARCH_PATH: '/customer-search',
   BASE_COUNSELING_MOVE_PATH,
-  BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   ALLOWANCES_EDIT_PATH: 'allowances',
+  BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/customer`,
   CUSTOMER_INFO_EDIT_PATH: 'customer',
   BASE_MOVE_VIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/details`,
@@ -135,6 +135,7 @@ export const tioRoutes = {
 };
 
 export const tooRoutes = {
+  BASE_MOVES_PATH,
   BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
   MOVE_QUEUE: `move-queue`,
   BASE_MOVE_QUEUE: `/move-queue`,
@@ -145,6 +146,7 @@ export const tooRoutes = {
   MOVE_VIEW_PATH: 'details',
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
+  BASE_ALLOWANCES_EDIT_PATH: `${BASE_MOVES_PATH}/allowances`,
   SHIPMENT_ADD_PATH: `${BASE_MOVES_PATH}/new-shipment/:shipmentType`,
   BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
   BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
@@ -187,6 +189,7 @@ export const hqRoutes = {
 const BASE_PRIME_SIMULATOR_PATH = '/simulator/moves/:moveCodeOrID';
 
 export const primeSimulatorRoutes = {
+  BASE_PRIME_SIMULATOR_PATH,
   VIEW_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/details`,
   CREATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/new`,
   UPDATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId`,

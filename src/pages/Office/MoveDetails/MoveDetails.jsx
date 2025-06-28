@@ -161,7 +161,7 @@ const MoveDetails = ({
   const errorIfMissing = useErrorIfMissing(isRetirementOrSeparation);
 
   let sections = useMemo(() => {
-    return ['shipments', 'orders', 'allowances', 'customer-info'];
+    return ['orders', 'allowances', 'customer-info'];
   }, []);
 
   // use mutation calls
@@ -539,7 +539,7 @@ const MoveDetails = ({
         <ConnectedFlashMessage />
       </div>
       <div className={styles.container}>
-        <LeftNav sections={sections}>
+        <LeftNav className={styles.leftNav} sections={sections}>
           <LeftNavTag
             background="#e34b11"
             associatedSectionName="orders"
