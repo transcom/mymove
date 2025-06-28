@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/go-openapi/loads"
-	"github.com/go-openapi/runtime"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
@@ -818,8 +817,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
 	ghcAPI.UploadsUpdateUploadHandler = UpdateUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
-	ghcAPI.UploadsGetUploadStatusHandler = GetUploadStatusHandler{handlerConfig, upload.NewUploadInformationFetcher()}
-	ghcAPI.TextEventStreamProducer = runtime.ByteStreamProducer() // GetUploadStatus produces Event Stream
 
 	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
 		HandlerConfig:    handlerConfig,
