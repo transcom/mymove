@@ -123,6 +123,13 @@ paths:
             Only return moves updated since this time. Formatted like
             "2021-07-23T18:30:47.116Z"
         - in: query
+          name: before
+          type: string
+          format: date-time
+          description: >-
+            Only return moves updated before this time. Formatted like
+            "2021-07-23T18:30:47.116Z"
+        - in: query
           name: acknowledged
           type: boolean
           x-nullable: true
@@ -2081,6 +2088,13 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: >-
+            Toggles whether the search results should include postal codes that
+            only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
@@ -3903,9 +3917,12 @@ definitions:
   BackupContact:
     type: object
     properties:
-      name:
+      firstName:
         type: string
-        example: Bob Smith
+        example: Bob
+      lastName:
+        type: string
+        example: Smith
       phone:
         type: string
         format: telephone
@@ -4153,6 +4170,7 @@ definitions:
         enum:
           - INFECTED
           - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
       createdAt:
         type: string
@@ -4209,7 +4227,7 @@ definitions:
       - IsPeak
       - MarketDest
       - MarketOrigin
-      - MTOAvailableToPrimeAt
+      - MTOEarliestRequestedPickup
       - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest
@@ -5331,6 +5349,11 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       terminationComments:
         type: string
         x-nullable: true
@@ -5339,11 +5362,6 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
-      primeAcknowledgedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        readOnly: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

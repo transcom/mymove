@@ -7,7 +7,7 @@ import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
-import { useUserQueries, useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
+import { useUserQueries, useServicesCounselingQueueQueries, usePPMQueueQueries } from 'hooks/queries';
 import { MockProviders, MockRouterProvider } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -18,7 +18,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
-  useServicesCounselingQueuePPMQueries: jest.fn(),
+  usePPMQueueQueries: jest.fn(),
   useBulkAssignmentQueries: () => {
     return {
       availableOfficeUsers: [
@@ -316,6 +316,9 @@ describe('ServicesCounselingQueue', () => {
         <ServicesCounselingQueue isQueueManagementFFEnabled />
       </MockRouterProvider>,
     );
+    it('renders a lock icon', () => {
+      expect(wrapper.find({ 'data-testid': 'lock-0' }).exists()).toBe(true);
+    });
     it('displays move header with needs service counseling count', () => {
       expect(wrapper.find('h1').text()).toBe('Moves (3)');
     });
@@ -480,7 +483,7 @@ describe('ServicesCounselingQueue', () => {
 
         useUserQueries.mockReturnValue(user);
         useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-        useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
+        usePPMQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
         render(
           <MockProviders>
             <ServicesCounselingQueue />
@@ -501,7 +504,7 @@ describe('ServicesCounselingQueue', () => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       useUserQueries.mockReturnValue(user);
       useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-      useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
+      usePPMQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
       render(
         <MockProviders path={pagePath} params={{ queueType }}>
           <ServicesCounselingQueue isQueueManagementFFEnabled />

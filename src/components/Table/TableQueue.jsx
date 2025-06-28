@@ -27,9 +27,9 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
-import { roleTypes } from 'constants/userRoles';
 import { saveBulkAssignmentData, checkForLockedMovesAndUnlock } from 'services/ghcApi';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
+import { roleTypes } from 'constants/userRoles';
 
 const defaultPageSize = 20;
 const defaultPage = 1;

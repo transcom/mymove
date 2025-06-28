@@ -52,6 +52,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
+	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
@@ -71,6 +72,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminAPI.RequestedOfficeUsersGetRequestedOfficeUserHandler = GetRequestedOfficeUserHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
+		userPrivilegesCreator,
 		newRolesFetcher,
 		query.NewQueryFilter,
 	}
@@ -78,6 +80,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminAPI.RequestedOfficeUsersUpdateRequestedOfficeUserHandler = UpdateRequestedOfficeUserHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserUpdater(queryBuilder),
+		userPrivilegesCreator,
 		userRolesCreator,
 		newRolesFetcher,
 	}
@@ -109,7 +112,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
-	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
 	transportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
@@ -245,12 +247,33 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
+
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		handlerConfig.HHGPlanner(),
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	adminAPI.MovesUpdateMoveHandler = UpdateMoveHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			mtoServiceItemCreator,
 			moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 		),
 	}

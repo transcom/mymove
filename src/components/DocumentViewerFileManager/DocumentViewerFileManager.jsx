@@ -21,6 +21,7 @@ import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import DeleteDocumentFileConfirmationModal from 'components/ConfirmationModals/DeleteDocumentFileConfirmationModal';
 import { PPM_DOCUMENT_TYPES, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import appendTimestampToFilename from 'utils/fileUpload';
 import { ShipmentShape } from 'types';
 
 const DocumentViewerFileManager = ({
@@ -50,24 +51,6 @@ const DocumentViewerFileManager = ({
 
   const moveId = move?.id;
   const moveCode = move?.locator;
-
-  function appendTimestampToFilename(file) {
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    return new File([file], newFileName, { type: file.type });
-  }
 
   useEffect(() => {
     if (documentType === MOVE_DOCUMENT_TYPE.ORDERS) {
@@ -216,6 +199,8 @@ const DocumentViewerFileManager = ({
           queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
         } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
           queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
+        } else if (documentType === PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET) {
+          queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
         } else {
           queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
         }
@@ -244,6 +229,8 @@ const DocumentViewerFileManager = ({
     } else if (documentType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE) {
       handleCreateUpload(file, false);
     } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+      handleCreateUpload(file, false);
+    } else if (documentType === PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET) {
       handleCreateUpload(file, false);
     }
   };

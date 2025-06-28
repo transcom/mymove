@@ -220,6 +220,7 @@ const ServicesCounselingOrders = ({
   }, [order.agency, setShowLoadingSpinner]);
 
   const counselorCanEdit =
+    move.status === MOVE_STATUSES.DRAFT ||
     move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
     move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
     (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt); // status is set to 'Approval Requested' if customer uploads amended orders.

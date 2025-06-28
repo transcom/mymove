@@ -10,6 +10,11 @@ import { formatCustomerContactFullAddress } from 'utils/formatters';
 import departmentIndicators from 'constants/departmentIndicators';
 
 const CustomerInfoList = ({ customerInfo }) => {
+  const emDash = '\u2014';
+
+  const fullName = `${customerInfo.backupContact?.firstName} ${customerInfo.backupContact?.lastName}`.trim();
+  const backupContactName = fullName.length > 0 ? fullName : emDash;
+
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
@@ -57,9 +62,7 @@ const CustomerInfoList = ({ customerInfo }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact name</dt>
-          <dd data-testid="backupContactName">
-            {customerInfo.backupContact?.name ? customerInfo.backupContact.name : '—'}
-          </dd>
+          <dd data-testid="backupContactName">{backupContactName}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact email</dt>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { v4 } from 'uuid';
+import { cloneDeep } from 'lodash';
 
 import '@testing-library/jest-dom/extend-expect';
 
@@ -9,6 +10,7 @@ import MultiMovesLandingPage from './MultiMovesLandingPage';
 import { MockProviders } from 'testUtils';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { ORDERS_TYPE } from 'constants/orders';
+import { MOVE_STATUSES, MULTI_MOVE_LOCKED_WARNING } from 'shared/constants';
 
 // Mock external dependencies
 jest.mock('containers/FlashMessage/FlashMessage', () => {
@@ -756,6 +758,15 @@ const defaultPropsMultipleMove = {
   },
 };
 
+const defaultPropsMultipleMoveWithCurrentMoveLock = cloneDeep(defaultPropsMultipleMove);
+defaultPropsMultipleMoveWithCurrentMoveLock.serviceMemberMoves.currentMove[0].lockExpiresAt =
+  '2099-04-07T17:21:30.450Z';
+
+const defaultPropsMultipleMoveWithPreviousMoveLock = cloneDeep(defaultPropsMultipleMove);
+defaultPropsMultipleMoveWithPreviousMoveLock.serviceMemberMoves.previousMoves[0].lockExpiresAt =
+  '2099-04-07T17:21:30.450Z';
+defaultPropsMultipleMoveWithPreviousMoveLock.serviceMemberMoves.previousMoves[0].status = MOVE_STATUSES.DRAFT;
+
 describe('MultiMovesLandingPage', () => {
   it('renders the component with moves', () => {
     render(
@@ -808,6 +819,44 @@ describe('MultiMovesLandingPage', () => {
     expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
     expect(screen.getByText('#ABC123')).toBeInTheDocument();
     expect(screen.getByText('#DEF456')).toBeInTheDocument();
+  });
+
+  it('renders warning message if a current move has been locked by an office user', () => {
+    render(
+      <MockProviders>
+        <MultiMovesLandingPage {...defaultPropsMultipleMoveWithCurrentMoveLock} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Jim Bean')).toBeInTheDocument();
+    expect(screen.getByText('#YJ9M34')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('createMoveBtn')).toBeInTheDocument();
+    expect(screen.getByTestId('currentMoveHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('currentMoveContainer')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
+    expect(screen.getByText('#ABC123')).toBeInTheDocument();
+    expect(screen.getByText('#DEF456')).toBeInTheDocument();
+    expect(screen.getByText(MULTI_MOVE_LOCKED_WARNING)).toBeInTheDocument();
+  });
+
+  it('renders warning message if a previous move has been locked by an office user', () => {
+    render(
+      <MockProviders>
+        <MultiMovesLandingPage {...defaultPropsMultipleMoveWithPreviousMoveLock} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Jim Bean')).toBeInTheDocument();
+    expect(screen.getByText('#YJ9M34')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('createMoveBtn')).toBeInTheDocument();
+    expect(screen.getByTestId('currentMoveHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('currentMoveContainer')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
+    expect(screen.getByText('#ABC123')).toBeInTheDocument();
+    expect(screen.getByText('#DEF456')).toBeInTheDocument();
+    expect(screen.getByText(MULTI_MOVE_LOCKED_WARNING)).toBeInTheDocument();
   });
 
   it('navigates the user when create move button is clicked', () => {

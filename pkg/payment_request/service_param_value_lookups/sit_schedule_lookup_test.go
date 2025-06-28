@@ -29,7 +29,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "45007",
+					PostalCode: "35007",
 				},
 			},
 		}, nil)
@@ -122,7 +122,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: "00000"},
+				Model: models.Address{PostalCode: "00988"},
 			},
 		}, nil)
 
@@ -148,7 +148,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), originKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
-		expected := fmt.Sprintf(" with error unable to find domestic service area for 000 under contract code %s", testdatagen.DefaultContractCode)
+		expected := fmt.Sprintf(" with error unable to find domestic service area for 009 under contract code %s", testdatagen.DefaultContractCode)
 		suite.Contains(err.Error(), expected)
 	})
 
@@ -157,7 +157,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: "00100"},
+				Model: models.Address{
+					PostalCode: "00988",
+				},
 			},
 		}, nil)
 
@@ -188,7 +190,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), destKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
-		expected := fmt.Sprintf(" with error unable to find domestic service area for 001 under contract code %s", testdatagen.DefaultContractCode)
+		expected := fmt.Sprintf(" with error unable to find domestic service area for 009 under contract code %s", testdatagen.DefaultContractCode)
 		suite.Contains(err.Error(), expected)
 	})
 }

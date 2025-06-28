@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http/httptest"
+	"regexp"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -17,10 +18,13 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/trace"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
@@ -964,5 +968,69 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
+	})
+}
+
+func (suite *HandlerSuite) TestPaymentRequestBulkDownloadHandler() {
+	setupTestData := func() (models.ProofOfServiceDoc, models.OfficeUser, *storageTest.FakeS3Storage, *paperworkgenerator.Generator) {
+
+		storer := storageTest.NewFakeS3Storage(true)
+		primeUploader, err := uploader.NewPrimeUploader(storer, 100*uploader.MB)
+		suite.NoError(err)
+
+		upload := factory.BuildPrimeUpload(suite.DB(), []factory.Customization{
+			{
+				Model: models.PrimeUpload{},
+				ExtendedParams: &factory.PrimeUploadExtendedParams{
+					PrimeUploader: primeUploader,
+					AppContext:    suite.AppContextForTest(),
+				},
+			},
+		}, nil)
+
+		userUploader, uploaderErr := uploader.NewUserUploader(storer, uploader.MaxOfficeUploadFileSizeLimit)
+		suite.FatalNoError(uploaderErr)
+
+		generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+		suite.FatalNoError(err)
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeTIO,
+		})
+		return upload.ProofOfServiceDoc, officeUser, storer, generator
+	}
+
+	suite.Run("successful fetch of bulk payment packet", func() {
+		proofOfServiceDoc, officeUser, fakeS3, generator := setupTestData()
+
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s/bulkDownload", proofOfServiceDoc.PaymentRequestID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		params := paymentrequestop.BulkDownloadParams{
+			HTTPRequest:      req,
+			PaymentRequestID: proofOfServiceDoc.PaymentRequestID.String(),
+		}
+
+		handlerConfig := suite.NewHandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+
+		handler := PaymentRequestBulkDownloadHandler{
+			handlerConfig,
+			paymentrequest.NewPaymentRequestBulkDownloadCreator(generator),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.BulkDownloadOK{}, response)
+		okResponse := response.(*paymentrequestop.BulkDownloadOK)
+		payload := okResponse.Payload
+		contentDisposition := okResponse.ContentDisposition
+
+		suite.NotEmpty(payload)
+
+		// Validate filename content disposition formatting
+		found := regexp.MustCompile(`inline; filename=\"PaymentRequestBulkPacket-\d{14}.pdf\"`).FindString(contentDisposition)
+		suite.NotEmpty(found, "filename format invalid: %s", contentDisposition)
 	})
 }

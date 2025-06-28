@@ -9,7 +9,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes } from 'constants/routes';
 import pageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { updateMTOShipment } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
@@ -23,6 +23,7 @@ const MobileHomeShipmentCreate = ({
   destinationDutyLocation,
   move,
   serviceMemberMoves,
+  isMoveLocked,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -134,32 +135,40 @@ const MobileHomeShipmentCreate = ({
   };
 
   return (
-    <div className={pageStyles.ppmPageStyle}>
-      <NotificationScrollToTop dependency={errorMessage} />
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <ShipmentTag shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} shipmentNumber={shipmentNumber} />
-            <h1>Mobile Home details and measurements</h1>
-            {errorMessage && (
-              <Alert headingLevel="h4" slim type="error">
-                {errorMessage}
-              </Alert>
-            )}
-            <MobileHomeShipmentForm
-              mtoShipment={mtoShipment}
-              serviceMember={serviceMember}
-              destinationDutyLocation={destinationDutyLocation}
-              move={move}
-              onSubmit={handleSubmit}
-              onBack={handleBack}
-              postalCodeValidator={validatePostalCode}
-              isEditPage={isEditPage}
-            />
+    <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {MOVE_LOCKED_WARNING}
+        </Alert>
+      )}
+      <div className={pageStyles.ppmPageStyle}>
+        <NotificationScrollToTop dependency={errorMessage} />
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <ShipmentTag shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} shipmentNumber={shipmentNumber} />
+              <h1>Mobile Home details and measurements</h1>
+              {errorMessage && (
+                <Alert headingLevel="h4" slim type="error">
+                  {errorMessage}
+                </Alert>
+              )}
+              <MobileHomeShipmentForm
+                mtoShipment={mtoShipment}
+                serviceMember={serviceMember}
+                destinationDutyLocation={destinationDutyLocation}
+                move={move}
+                onSubmit={handleSubmit}
+                onBack={handleBack}
+                postalCodeValidator={validatePostalCode}
+                isEditPage={isEditPage}
+                isMoveLocked={isMoveLocked}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
-    </div>
+        </GridContainer>
+      </div>
+    </>
   );
 };
 

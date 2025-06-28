@@ -271,6 +271,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 					models.MTOShipmentStatusCancellationRequested: false,
 					models.MTOShipmentStatusCanceled:              false,
 					models.MTOShipmentStatusDiversionRequested:    false,
+					models.MTOShipmentStatusDraft:                 true,
 				},
 			},
 			"TOO": {
@@ -282,6 +283,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 					models.MTOShipmentStatusCancellationRequested: true,
 					models.MTOShipmentStatusCanceled:              true,
 					models.MTOShipmentStatusDiversionRequested:    true,
+					models.MTOShipmentStatusDraft:                 false,
 				},
 			},
 			"TIO": {
@@ -292,6 +294,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 					models.MTOShipmentStatusCancellationRequested: false,
 					models.MTOShipmentStatusCanceled:              false,
 					models.MTOShipmentStatusDiversionRequested:    false,
+					models.MTOShipmentStatusDraft:                 false,
 				},
 			},
 			"Non-office user": {

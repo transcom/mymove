@@ -9,6 +9,7 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
@@ -48,6 +49,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
         <h3 className={styles.SectionHeader}>Weight</h3>
+        {requiredAsteriskMessage}
 
         <Grid row gap>
           <Grid>
@@ -56,6 +58,8 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
               label="Estimated PPM weight"
               data-testid="estimatedWeight"
               id="estimatedWeight"
+              showRequiredAsterisk
+              required
               mask={Number}
               scale={0} // digits after point, 0 for integers
               signed={false} // disallow negative
@@ -64,7 +68,9 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
               suffix="lbs"
               onInput={handleEstimatedWeight}
             />
-            <Label className={styles.radioLabel}>Pro-gear?</Label>
+            <Label className={styles.radioLabel}>
+              <span>Pro-gear?</span>
+            </Label>
             <FormGroup className={styles.radioGroup}>
               <Radio
                 id="hasProGearYes"
@@ -89,6 +95,11 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
             </FormGroup>
             {hasProGear && (
               <>
+                <span className="usa-label">
+                  <span>
+                    <RequiredAsterisk /> Enter a weight into at least one pro-gear field.
+                  </span>
+                </span>
                 <MaskedTextField
                   defaultValue="0"
                   name="proGearWeight"
@@ -152,12 +163,13 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                      showRequiredAsterisk
                       required
                     />
                     <Hint>
                       The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is
-                      charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement
-                      for O-6 and higher ranks.
+                      charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be
+                      applied if a customer&apos;s overall entitlement is already at the 18,000 lbs maximum.
                     </Hint>
                   </>
                 )}

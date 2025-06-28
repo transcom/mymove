@@ -43,6 +43,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/re_service_items"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/role_privileges"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
@@ -130,6 +131,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		EvaluationReportsCreateEvaluationReportHandler: evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
 		}),
+		PpmCreateGunSafeWeightTicketHandler: ppm.CreateGunSafeWeightTicketHandlerFunc(func(params ppm.CreateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateGunSafeWeightTicket has not yet been implemented")
+		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
@@ -165,6 +169,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsDeleteEvaluationReportHandler: evaluation_reports.DeleteEvaluationReportHandlerFunc(func(params evaluation_reports.DeleteEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.DeleteEvaluationReport has not yet been implemented")
+		}),
+		PpmDeleteGunSafeWeightTicketHandler: ppm.DeleteGunSafeWeightTicketHandlerFunc(func(params ppm.DeleteGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteGunSafeWeightTicket has not yet been implemented")
 		}),
 		PpmDeleteMovingExpenseHandler: ppm.DeleteMovingExpenseHandlerFunc(func(params ppm.DeleteMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteMovingExpense has not yet been implemented")
@@ -250,6 +257,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmGetPPMCloseoutHandler: ppm.GetPPMCloseoutHandlerFunc(func(params ppm.GetPPMCloseoutParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		}),
+		QueuesGetPPMCloseoutQueueHandler: queues.GetPPMCloseoutQueueHandlerFunc(func(params queues.GetPPMCloseoutQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetPPMCloseoutQueue has not yet been implemented")
+		}),
 		PpmGetPPMDocumentsHandler: ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
 		}),
@@ -276,6 +286,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ReportViolationsGetReportViolationsByReportIDHandler: report_violations.GetReportViolationsByReportIDHandlerFunc(func(params report_violations.GetReportViolationsByReportIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
+		}),
+		RolePrivilegesGetRolesPrivilegesHandler: role_privileges.GetRolesPrivilegesHandlerFunc(func(params role_privileges.GetRolesPrivilegesParams) middleware.Responder {
+			return middleware.NotImplemented("operation role_privileges.GetRolesPrivileges has not yet been implemented")
 		}),
 		QueuesGetServicesCounselingOriginListHandler: queues.GetServicesCounselingOriginListHandlerFunc(func(params queues.GetServicesCounselingOriginListParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingOriginList has not yet been implemented")
@@ -393,6 +406,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler: customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.UpdateCustomerSupportRemarkForMove has not yet been implemented")
+		}),
+		PpmUpdateGunSafeWeightTicketHandler: ppm.UpdateGunSafeWeightTicketHandlerFunc(func(params ppm.UpdateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateGunSafeWeightTicket has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler: move_task_order.UpdateMTOReviewedBillableWeightsAtHandlerFunc(func(params move_task_order.UpdateMTOReviewedBillableWeightsAtParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMTOReviewedBillableWeightsAt has not yet been implemented")
@@ -539,6 +555,8 @@ type MymoveAPI struct {
 	GhcDocumentsCreateDocumentHandler ghc_documents.CreateDocumentHandler
 	// EvaluationReportsCreateEvaluationReportHandler sets the operation handler for the create evaluation report operation
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
+	// PpmCreateGunSafeWeightTicketHandler sets the operation handler for the create gun safe weight ticket operation
+	PpmCreateGunSafeWeightTicketHandler ppm.CreateGunSafeWeightTicketHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// PpmCreateMovingExpenseHandler sets the operation handler for the create moving expense operation
@@ -563,6 +581,8 @@ type MymoveAPI struct {
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
 	EvaluationReportsDeleteEvaluationReportHandler evaluation_reports.DeleteEvaluationReportHandler
+	// PpmDeleteGunSafeWeightTicketHandler sets the operation handler for the delete gun safe weight ticket operation
+	PpmDeleteGunSafeWeightTicketHandler ppm.DeleteGunSafeWeightTicketHandler
 	// PpmDeleteMovingExpenseHandler sets the operation handler for the delete moving expense operation
 	PpmDeleteMovingExpenseHandler ppm.DeleteMovingExpenseHandler
 	// PpmDeleteProGearWeightTicketHandler sets the operation handler for the delete pro gear weight ticket operation
@@ -619,6 +639,8 @@ type MymoveAPI struct {
 	PpmGetPPMActualWeightHandler ppm.GetPPMActualWeightHandler
 	// PpmGetPPMCloseoutHandler sets the operation handler for the get p p m closeout operation
 	PpmGetPPMCloseoutHandler ppm.GetPPMCloseoutHandler
+	// QueuesGetPPMCloseoutQueueHandler sets the operation handler for the get p p m closeout queue operation
+	QueuesGetPPMCloseoutQueueHandler queues.GetPPMCloseoutQueueHandler
 	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
 	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
 	// PpmGetPPMSITEstimatedCostHandler sets the operation handler for the get p p m s i t estimated cost operation
@@ -637,6 +659,8 @@ type MymoveAPI struct {
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
 	// ReportViolationsGetReportViolationsByReportIDHandler sets the operation handler for the get report violations by report ID operation
 	ReportViolationsGetReportViolationsByReportIDHandler report_violations.GetReportViolationsByReportIDHandler
+	// RolePrivilegesGetRolesPrivilegesHandler sets the operation handler for the get roles privileges operation
+	RolePrivilegesGetRolesPrivilegesHandler role_privileges.GetRolesPrivilegesHandler
 	// QueuesGetServicesCounselingOriginListHandler sets the operation handler for the get services counseling origin list operation
 	QueuesGetServicesCounselingOriginListHandler queues.GetServicesCounselingOriginListHandler
 	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
@@ -715,6 +739,8 @@ type MymoveAPI struct {
 	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
 	// CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler sets the operation handler for the update customer support remark for move operation
 	CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandler
+	// PpmUpdateGunSafeWeightTicketHandler sets the operation handler for the update gun safe weight ticket operation
+	PpmUpdateGunSafeWeightTicketHandler ppm.UpdateGunSafeWeightTicketHandler
 	// MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler sets the operation handler for the update m t o reviewed billable weights at operation
 	MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler move_task_order.UpdateMTOReviewedBillableWeightsAtHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
@@ -895,6 +921,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.EvaluationReportsCreateEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportHandler")
 	}
+	if o.PpmCreateGunSafeWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.CreateGunSafeWeightTicketHandler")
+	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
@@ -930,6 +959,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsDeleteEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.DeleteEvaluationReportHandler")
+	}
+	if o.PpmDeleteGunSafeWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.DeleteGunSafeWeightTicketHandler")
 	}
 	if o.PpmDeleteMovingExpenseHandler == nil {
 		unregistered = append(unregistered, "ppm.DeleteMovingExpenseHandler")
@@ -1015,6 +1047,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmGetPPMCloseoutHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMCloseoutHandler")
 	}
+	if o.QueuesGetPPMCloseoutQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetPPMCloseoutQueueHandler")
+	}
 	if o.PpmGetPPMDocumentsHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMDocumentsHandler")
 	}
@@ -1041,6 +1076,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ReportViolationsGetReportViolationsByReportIDHandler == nil {
 		unregistered = append(unregistered, "report_violations.GetReportViolationsByReportIDHandler")
+	}
+	if o.RolePrivilegesGetRolesPrivilegesHandler == nil {
+		unregistered = append(unregistered, "role_privileges.GetRolesPrivilegesHandler")
 	}
 	if o.QueuesGetServicesCounselingOriginListHandler == nil {
 		unregistered = append(unregistered, "queues.GetServicesCounselingOriginListHandler")
@@ -1158,6 +1196,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandler")
+	}
+	if o.PpmUpdateGunSafeWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdateGunSafeWeightTicketHandler")
 	}
 	if o.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMTOReviewedBillableWeightsAtHandler")
@@ -1388,6 +1429,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets"] = ppm.NewCreateGunSafeWeightTicket(o.context, o.PpmCreateGunSafeWeightTicketHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1433,6 +1478,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewDeleteEvaluationReport(o.context, o.EvaluationReportsDeleteEvaluationReportHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}"] = ppm.NewDeleteGunSafeWeightTicket(o.context, o.PpmDeleteGunSafeWeightTicketHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -1548,6 +1597,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/queues/ppmCloseout"] = queues.NewGetPPMCloseoutQueue(o.context, o.QueuesGetPPMCloseoutQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/shipments/{shipmentID}/ppm-documents"] = ppm.NewGetPPMDocuments(o.context, o.PpmGetPPMDocumentsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1581,6 +1634,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/report-violations/{reportID}"] = report_violations.NewGetReportViolationsByReportID(o.context, o.ReportViolationsGetReportViolationsByReportIDHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/open/roles-privileges"] = role_privileges.NewGetRolesPrivileges(o.context, o.RolePrivilegesGetRolesPrivilegesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1737,6 +1794,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/customer-support-remarks/{customerSupportRemarkID}"] = customer_support_remarks.NewUpdateCustomerSupportRemarkForMove(o.context, o.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}"] = ppm.NewUpdateGunSafeWeightTicket(o.context, o.PpmUpdateGunSafeWeightTicketHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

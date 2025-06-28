@@ -25,28 +25,41 @@ describe('EditOktaInfoForm component', () => {
     onCancel: jest.fn(),
   };
 
+  const testPropsWithLock = {
+    initialValues: {
+      oktaUsername: 'user@okta.mil',
+      oktaEmail: 'user@okta.mil',
+      oktaFirstName: 'Lucky',
+      oktaLastName: 'Shamrock',
+      oktaEdipi: '1112223334',
+    },
+    onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+    onCancel: jest.fn(),
+    isMoveLocked: true,
+  };
+
   it('renders the form inputs', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     renderWithRouter(<EditOktaInfoForm {...testProps} />);
 
-    const oktaUsername = await screen.findByLabelText('Okta Username');
+    const oktaUsername = await screen.findByLabelText('Okta Username *');
     expect(oktaUsername).toBeInstanceOf(HTMLInputElement);
     expect(oktaUsername).toHaveValue(testProps.initialValues.oktaUsername);
 
-    const oktaEmail = await screen.findByLabelText('Okta Email');
+    const oktaEmail = await screen.findByLabelText('Okta Email *');
     expect(oktaEmail).toBeInstanceOf(HTMLInputElement);
     expect(oktaEmail).toHaveValue(testProps.initialValues.oktaEmail);
 
-    const oktaFirstName = await screen.findByLabelText('First Name');
+    const oktaFirstName = await screen.findByLabelText('First Name *');
     expect(oktaFirstName).toBeInstanceOf(HTMLInputElement);
     expect(oktaFirstName).toHaveValue(testProps.initialValues.oktaFirstName);
 
-    const oktaLastName = await screen.findByLabelText('Last Name');
+    const oktaLastName = await screen.findByLabelText('Last Name *');
     expect(oktaLastName).toBeInstanceOf(HTMLInputElement);
     expect(oktaLastName).toHaveValue(testProps.initialValues.oktaLastName);
 
-    const oktaEdipi = await screen.findByLabelText('DoD ID number');
+    const oktaEdipi = await screen.findByLabelText('DoD ID number *');
     expect(oktaEdipi).toHaveValue(testProps.initialValues.oktaEdipi);
     expect(oktaEdipi).toBeDisabled();
   });
@@ -54,7 +67,7 @@ describe('EditOktaInfoForm component', () => {
   it('shows an error message if Okta Email is not in email format', async () => {
     renderWithRouter(<EditOktaInfoForm {...testProps} />);
 
-    const emailInput = await screen.findByLabelText('Okta Email');
+    const emailInput = await screen.findByLabelText('Okta Email *');
     await userEvent.clear(emailInput);
     await userEvent.type(emailInput, 'oktaUserWithoutEmail');
     await userEvent.tab();
@@ -70,7 +83,7 @@ describe('EditOktaInfoForm component', () => {
     const saveButton = await screen.findByRole('button', { name: 'Save' });
     expect(saveButton).toBeEnabled();
 
-    const emailInput = await screen.findByLabelText('Okta Email');
+    const emailInput = await screen.findByLabelText('Okta Email *');
     await userEvent.clear(emailInput);
     await userEvent.tab();
 
@@ -95,6 +108,11 @@ describe('EditOktaInfoForm component', () => {
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(expectedParams, expect.anything());
     });
+  });
+
+  it('converts the "Submit" button into the "Return to Home" button when the move has been locked by an office user', async () => {
+    renderWithRouter(<EditOktaInfoForm {...testPropsWithLock} />);
+    expect(screen.getByRole('button', { name: 'Return home' })).toBeInTheDocument();
   });
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {

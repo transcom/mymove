@@ -57,7 +57,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
-		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		serviceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		suite.NoError(err)
+
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		return serviceItem, eTag
 	}
@@ -198,7 +200,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	// Success for DDDSIT with an existing customer contact
 	suite.Run("Successful update of DDDSIT service item that already has Customer Contacts", func() {
-		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+		customerContact, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
 				DateOfContact:              time.Date(1984, time.March, 24, 0, 0, 0, 0, time.UTC),
@@ -206,6 +208,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 				FirstAvailableDeliveryDate: time.Date(1984, time.March, 20, 0, 0, 0, 0, time.UTC),
 			},
 		})
+		suite.NoError(err)
+
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -1649,7 +1653,9 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test successful Basic validation
 	suite.Run("UpdateMTOServiceItemBasicValidator - success", func() {
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		oldServiceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		suite.NoError(err)
+
 		newServiceItem := models.MTOServiceItem{
 			ID:              oldServiceItem.ID,
 			MTOShipmentID:   oldServiceItem.MTOShipmentID,
@@ -1669,7 +1675,9 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test unsuccessful Basic validation
 	suite.Run("UpdateMTOServiceItemBasicValidator - failure", func() {
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		oldServiceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		suite.NoError(err)
+
 		newServiceItem := models.MTOServiceItem{
 			ID:            oldServiceItem.ID,
 			MTOShipmentID: &oldServiceItem.ID, // bad value
@@ -1924,7 +1932,9 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test unsuccessful Prime validation - Not available to Prime
 	suite.Run("UpdateMTOServiceItemPrimeValidator - not available failure", func() {
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		oldServiceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		suite.NoError(err)
+
 		newServiceItemNotPrime := oldServiceItem // this service item should not be Prime-available
 
 		serviceItemData := updateMTOServiceItemData{
@@ -2007,7 +2017,9 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test with empty string key (successful Base validation)
 	suite.Run("empty validatorKey - success", func() {
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		oldServiceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		suite.NoError(err)
+
 		newServiceItem := oldServiceItem
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: newServiceItem,
@@ -2221,7 +2233,7 @@ func (suite *MTOServiceItemServiceSuite) setupAssignmentTestData() (models.MTOSe
 		{
 			Model:    officeUser1,
 			LinkOnly: true,
-			Type:     &factory.OfficeUsers.TOOAssignedUser,
+			Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 		},
 		{
 			Model:    officeUser2,
@@ -2378,7 +2390,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 		}, nil)
 
@@ -2389,7 +2401,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 			},
 		}, nil)
 
-		suite.NotNil(move.TOOAssignedUser)
+		suite.NotNil(move.TOOTaskOrderAssignedUser)
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
@@ -2398,7 +2410,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 		err = suite.DB().Find(&serviceItem, serviceItem.ID)
 		suite.NoError(err)
-		suite.Nil(move.TOOAssignedID)
+		suite.Nil(move.TOOTaskOrderAssignedID)
 		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
 	})
 
@@ -3294,7 +3306,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		eTag2 := etag.GenerateEtag(originServiceItem2.UpdatedAt)
 
 		// confirm move has origin and destination assignments
-		suite.Equal(officeUser1.ID, *move.TOOAssignedID)
+		suite.Equal(officeUser1.ID, *move.TOOTaskOrderAssignedID)
 		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
 
 		_, err := updater.ApproveOrRejectServiceItem(
@@ -3305,7 +3317,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 
 		// confirm assignments have not changed
-		suite.Equal(officeUser1.ID, *move.TOOAssignedID)
+		suite.Equal(officeUser1.ID, *move.TOOTaskOrderAssignedID)
 		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
 
 		_, err = updater.ApproveOrRejectServiceItem(
@@ -3316,7 +3328,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 
 		// confirm origin TOO is now unassigned and destination TOO remains assigned
-		suite.Nil(move.TOOAssignedID)
+		suite.Nil(move.TOOTaskOrderAssignedID)
 		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
 
 		destinationServiceItem1 := serviceItems[2]
@@ -3396,22 +3408,27 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
-		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		serviceItem, err := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		suite.NoError(err)
+
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		return serviceItem, eTag
 	}
 
 	setupServiceItems := func() models.MTOServiceItems {
-		serviceItems := testdatagen.MakeMTOServiceItems(suite.DB())
+		serviceItems, err := testdatagen.MakeMTOServiceItems(suite.DB())
+		suite.NoError(err)
+
 		return serviceItems
 	}
 

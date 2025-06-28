@@ -57,6 +57,7 @@ var HHGAllowance CustomType = "HHGAllowance"
 var PayGrade CustomType = "PayGrade"
 var UBAllowance CustomType = "UBAllowances"
 var EvaluationReport CustomType = "EvaluationReport"
+var GunSafeWeightTicket CustomType = "GunSafeWeightTicket"
 var LineOfAccounting CustomType = "LineOfAccounting"
 var MobileHome CustomType = "MobileHome"
 var Move CustomType = "Move"
@@ -128,6 +129,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.HHGAllowance":                             HHGAllowance,
 	"models.UBAllowances":                             UBAllowance,
 	"models.EvaluationReport":                         EvaluationReport,
+	"models.GunSafeWeightTicket":                      GunSafeWeightTicket,
 	"models.LineOfAccounting":                         LineOfAccounting,
 	"models.MobileHome":                               MobileHome,
 	"models.Move":                                     Move,
@@ -280,19 +282,19 @@ var TransportationOffices = transportationOfficeGroup{
 }
 
 type officeUserGroup struct {
-	SCCounselingAssignedUser   CustomType
-	SCCloseoutAssignedUser     CustomType
-	TIOAssignedUser            CustomType
-	TOOAssignedUser            CustomType
-	TOODestinationAssignedUser CustomType
+	SCCounselingAssignedUser      CustomType
+	SCCloseoutAssignedUser        CustomType
+	TIOPaymentRequestAssignedUser CustomType
+	TOOTaskOrderAssignedUser      CustomType
+	TOODestinationAssignedUser    CustomType
 }
 
 var OfficeUsers = officeUserGroup{
-	SCCounselingAssignedUser:   "SCCounselingAssignedUser",
-	SCCloseoutAssignedUser:     "SCCloseoutAssignedUser",
-	TIOAssignedUser:            "TIOAssignedUser",
-	TOOAssignedUser:            "TOOAssignedUser",
-	TOODestinationAssignedUser: "TOODestinationAssignedUser",
+	SCCounselingAssignedUser:      "SCCounselingAssignedUser",
+	SCCloseoutAssignedUser:        "SCCloseoutAssignedUser",
+	TIOPaymentRequestAssignedUser: "TIOPaymentRequestAssignedUser",
+	TOOTaskOrderAssignedUser:      "TOOTaskOrderAssignedUser",
+	TOODestinationAssignedUser:    "TOODestinationAssignedUser",
 }
 
 // uploadGroup is a grouping of all the upload related fields

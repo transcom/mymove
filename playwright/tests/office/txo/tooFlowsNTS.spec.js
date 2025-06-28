@@ -6,6 +6,7 @@
 
 // @ts-check
 import { test, expect } from '../../utils/office/officeTest';
+import { getFutureDate } from '../../utils/playwrightUtility';
 
 import { TooFlowPage } from './tooTestFixture';
 
@@ -58,7 +59,7 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       // Basic info
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      await page.locator('#requestedPickupDate').fill(getFutureDate());
       await page.getByText('Use pickup address').click();
 
       // Storage facility info

@@ -15,6 +15,7 @@ import { sitExtensionReasons } from 'constants/sitExtensions';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { dropdownInputOptions } from 'utils/formatters';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const createSITExtensionRequestValidationSchema = Yup.object().shape({
   requestReason: Yup.string().required('Required'),
@@ -53,10 +54,12 @@ const CreateSITExtensionRequestForm = ({ shipment, submission }) => {
         <Form data-testid="CreateSITExtensionRequestForm">
           <div className={styles.container}>
             <input type="hidden" name="mtoShipmentID" />
+            {requiredAsteriskMessage}
             <DropdownInput
               label="Request Reason"
               name="requestReason"
               id="requestReason"
+              showRequiredAsterisk
               required
               options={dropdownInputOptions(sitExtensionReasons)}
             />
@@ -70,9 +73,14 @@ const CreateSITExtensionRequestForm = ({ shipment, submission }) => {
               scale={0}
               thousandsSeparator=","
               lazy={false}
+              showRequiredAsterisk
               required
             />
-            <Label htmlFor="contractorRemarksInput">Contractor Remarks</Label>
+            <Label htmlFor="contractorRemarksInput" required>
+              <span required>
+                Contractor Remarks <RequiredAsterisk />
+              </span>
+            </Label>
             <Field
               id="contractorRemarksInput"
               name="contractorRemarks"

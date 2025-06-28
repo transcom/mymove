@@ -161,7 +161,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 func (suite *ModelSuite) TestCalculatePPMIncentive() {
 	suite.Run("success - receive PPM incentive when all values exist", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "74135")
+		pickupUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "74133", "Tulsa")
 		suite.FatalNoError(err)
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -176,7 +176,7 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 			},
 		}, nil)
 
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99505", "JBER")
 		suite.FatalNoError(err)
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -207,7 +207,7 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 
 	suite.Run("failure - contract doesn't exist", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "74135")
+		pickupUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "74133", "Tulsa")
 		suite.FatalNoError(err)
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -222,7 +222,7 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 			},
 		}, nil)
 
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99505", "JBER")
 		suite.FatalNoError(err)
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -251,7 +251,7 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 func (suite *ModelSuite) TestCalculatePPMSITCost() {
 	suite.Run("success - receive PPM SIT costs when all values exist", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99505", "JBER")
 		suite.FatalNoError(err)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -280,7 +280,7 @@ func (suite *ModelSuite) TestCalculatePPMSITCost() {
 
 	suite.Run("failure - contract doesn't exist", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99505", "JBER")
 		suite.FatalNoError(err)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{

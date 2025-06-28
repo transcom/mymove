@@ -123,8 +123,8 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		AdditionalDocuments:                            additionalDocumentsPayload,
 		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
 		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
-		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
-		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
+		TOOTaskOrderAssignedUser:                       AssignedOfficeUser(move.TOOTaskOrderAssignedUser),
+		TIOPaymentRequestAssignedUser:                  AssignedOfficeUser(move.TIOPaymentRequestAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
 		TOODestinationAssignedUser:                     AssignedOfficeUser(move.TOODestinationAssignedUser),
@@ -595,9 +595,10 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	}
 
 	bc := &ghcmessages.BackupContact{
-		Name:  &backupContact.Name,
-		Email: &backupContact.Email,
-		Phone: &backupContact.Phone,
+		FirstName: &backupContact.FirstName,
+		LastName:  &backupContact.LastName,
+		Email:     &backupContact.Email,
+		Phone:     &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
@@ -880,19 +881,21 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 	if len(contacts) == 0 {
 		return nil
 	}
-	var name, email, phone string
+	var firstName, lastName, email, phone string
 
 	if len(contacts) != 0 {
 		contact := contacts[0]
-		name = contact.Name
+		firstName = contact.FirstName
+		lastName = contact.LastName
 		email = contact.Email
 		phone = contact.Phone
 	}
 
 	return &ghcmessages.BackupContact{
-		Name:  &name,
-		Email: &email,
-		Phone: &phone,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Email:     &email,
+		Phone:     &phone,
 	}
 }
 
@@ -1019,6 +1022,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		HasGunSafe:                     ppmShipment.HasGunSafe,
 		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
+		GunSafeWeightTickets:           GunSafeWeightTickets(storer, ppmShipment.GunSafeWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
@@ -1174,6 +1178,52 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 		payload.Reason = &reason
 	}
 
+	return payload
+}
+
+// GunSafeWeightTicket payload
+func GunSafeWeightTicket(storer storage.FileStorer, gunsafe *models.GunSafeWeightTicket) *ghcmessages.GunSafeWeightTicket {
+	ppmShipmentID := strfmt.UUID(gunsafe.PPMShipmentID.String())
+
+	document, err := PayloadForDocumentModel(storer, gunsafe.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &ghcmessages.GunSafeWeightTicket{
+		ID:               strfmt.UUID(gunsafe.ID.String()),
+		PpmShipmentID:    ppmShipmentID,
+		CreatedAt:        *handlers.FmtDateTime(gunsafe.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(gunsafe.UpdatedAt),
+		DocumentID:       *handlers.FmtUUID(gunsafe.DocumentID),
+		Document:         document,
+		Weight:           handlers.FmtPoundPtr(gunsafe.Weight),
+		HasWeightTickets: gunsafe.HasWeightTickets,
+		Description:      gunsafe.Description,
+		ETag:             etag.GenerateEtag(gunsafe.UpdatedAt),
+	}
+
+	if gunsafe.Status != nil {
+		status := ghcmessages.OmittablePPMDocumentStatus(*gunsafe.Status)
+		payload.Status = &status
+	}
+
+	if gunsafe.Reason != nil {
+		reason := ghcmessages.PPMDocumentStatusReason(*gunsafe.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
+// GunSafeWeightTickets sets up a GunSafeWeightTicket slice for the api using model data.
+func GunSafeWeightTickets(storer storage.FileStorer, gunSafeWeightTickets models.GunSafeWeightTickets) []*ghcmessages.GunSafeWeightTicket {
+	payload := make([]*ghcmessages.GunSafeWeightTicket, len(gunSafeWeightTickets))
+	for i, gunSafeWeightTicket := range gunSafeWeightTickets {
+		copyOfGunSafeWeightTicket := gunSafeWeightTicket
+		gunSafeWeightTicketPayload := GunSafeWeightTicket(storer, &copyOfGunSafeWeightTicket)
+		payload[i] = gunSafeWeightTicketPayload
+	}
 	return payload
 }
 
@@ -1343,6 +1393,7 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
 		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
 		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearWeightTickets),
+		GunSafeWeightTickets: GunSafeWeightTickets(storer, ppmDocuments.GunSafeWeightTickets),
 	}
 
 	return payload
@@ -2447,6 +2498,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			requestedDatesStr = &s
 		}
 
+		closeoutInitiatedStr := FormatPPMCloseoutInitiatedStr(move)
+
 		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
@@ -2502,8 +2555,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if queueType == string(models.QueueTypeCloseout) && move.SCCloseoutAssignedUser != nil {
 			assignedToUser = move.SCCloseoutAssignedUser
 		}
-		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
-			assignedToUser = move.TOOAssignedUser
+		if queueType == string(models.QueueTypeTaskOrder) && move.TOOTaskOrderAssignedUser != nil {
+			assignedToUser = move.TOOTaskOrderAssignedUser
 		}
 		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
 			assignedToUser = move.TOODestinationAssignedUser
@@ -2568,6 +2621,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
+			CloseoutInitiatedDates:  closeoutInitiatedStr,
 			CloseoutLocation:        &closeoutLocation,
 			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
@@ -2583,6 +2637,28 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		}
 	}
 	return &queueMoves
+}
+
+func FormatPPMCloseoutInitiatedStr(move models.Move) *string {
+	var closeoutDates []time.Time
+	var formattedDates []string
+	for _, shipment := range move.MTOShipments {
+		if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
+			// This shipment has a closed out PPM for us to format
+			closeoutDates = append(closeoutDates, *shipment.PPMShipment.SubmittedAt)
+		}
+	}
+	// Sort chronologically
+	sort.Slice(closeoutDates, func(i, j int) bool { return closeoutDates[i].Before(closeoutDates[j]) })
+	for _, closeoutDate := range closeoutDates {
+		formattedDates = append(formattedDates, closeoutDate.Format("Jan 2 2006"))
+	}
+	var requestedDatesStr *string
+	if len(formattedDates) > 0 {
+		s := strings.Join(formattedDates, ", ")
+		requestedDatesStr = &s
+	}
+	return requestedDatesStr
 }
 
 func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
@@ -2675,8 +2751,8 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
 		}
 
-		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
-			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		if paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 		}
 
 		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
@@ -2707,16 +2783,16 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			}
 
 			// if the assigned user is not in the returned list of available users append them to the end
-			if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			if paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser != nil {
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOAssignedUser.ID {
+					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser.ID {
 						userFound = true
 						break
 					}
 				}
 				if !userFound {
-					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOAssignedUser)
+					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 				}
 			}
 
@@ -2890,6 +2966,30 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 	return &searchCustomers
 }
 
+// ReServiceItem payload
+func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
+	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
+		return nil
+	}
+	return &ghcmessages.ReServiceItem{
+		IsAutoApproved: reServiceItem.IsAutoApproved,
+		MarketCode:     string(reServiceItem.MarketCode),
+		ServiceCode:    string(reServiceItem.ReService.Code),
+		ShipmentType:   string(reServiceItem.ShipmentType),
+		ServiceName:    reServiceItem.ReService.Name,
+	}
+}
+
+// ReServiceItems payload
+func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
+	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
+	for i, reServiceItem := range reServiceItems {
+		copyOfReServiceItem := reServiceItem
+		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
+}
+
 // VLocation payload
 func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
 	if vLocation == nil {
@@ -2914,30 +3014,6 @@ func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
 	for i, vLocation := range vLocations {
 		copyOfVLocation := vLocation
 		payload[i] = VLocation(&copyOfVLocation)
-	}
-	return payload
-}
-
-// ReServiceItem payload
-func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
-	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
-		return nil
-	}
-	return &ghcmessages.ReServiceItem{
-		IsAutoApproved: reServiceItem.IsAutoApproved,
-		MarketCode:     string(reServiceItem.MarketCode),
-		ServiceCode:    string(reServiceItem.ReService.Code),
-		ShipmentType:   string(reServiceItem.ShipmentType),
-		ServiceName:    reServiceItem.ReService.Name,
-	}
-}
-
-// ReServiceItems payload
-func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
-	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
-	for i, reServiceItem := range reServiceItems {
-		copyOfReServiceItem := reServiceItem
-		payload[i] = ReServiceItem(&copyOfReServiceItem)
 	}
 	return payload
 }
@@ -2972,21 +3048,6 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 	return nil
 }
 
-// PayGrades payload
-func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
-	var payloadPayGrades []*ghcmessages.OrderPayGrades
-
-	for _, payGrade := range payGrades {
-		tempPayGrade := ghcmessages.OrderPayGrades{
-			Grade:       payGrade.Grade,
-			Description: *payGrade.GradeDescription,
-		}
-		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
-	}
-
-	return payloadPayGrades
-}
-
 func CountryCodeName(country *models.Country) *ghcmessages.Country {
 	if country == nil || *country == (models.Country{}) {
 		return nil
@@ -3005,4 +3066,19 @@ func Countries(countries models.Countries) ghcmessages.Countries {
 		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
+}
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrades {
+	var payloadPayGrades []*ghcmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := ghcmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
 }

@@ -318,6 +318,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 			txAppCtx.Session()
 
 			scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+			suite.Len(scUser.User.Roles, 1)
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ApplicationName: auth.OfficeApp,
 				ActiveRole:      scUser.User.Roles[0],

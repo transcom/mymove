@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"fmt"
 	"net/http/httptest"
+	"regexp"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -972,9 +973,13 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 
 		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportOK{}, response)
 		payload := response.(*evaluationReportop.DownloadEvaluationReportOK).Payload
+		contentDisposition := response.(*evaluationReportop.DownloadEvaluationReportOK).ContentDisposition
 
 		// Validate outgoing payload: payload should be an instance of a ReadCloser interface
 		suite.NotNil(payload)
+		// Validate filename content disposition formatting
+		found := regexp.MustCompile(`inline; filename=\".+\sQA-.{5}-\d{14}.pdf\"`).FindString(contentDisposition)
+		suite.NotEmpty(found, "filename format invalid: %s", contentDisposition)
 	})
 
 	suite.Run("Not found error", func() {

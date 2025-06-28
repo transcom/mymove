@@ -27,7 +27,7 @@ import {
   getPWSViolations,
   getReportViolationsByReportID,
   getMTOShipmentByID,
-  getServicesCounselingPPMQueue,
+  getPPMCloseoutQueue,
   getPrimeSimulatorAvailableMoves,
   getPPMCloseout,
   getPPMSITEstimatedCost,
@@ -36,6 +36,7 @@ import {
   getGBLOCs,
   getDestinationRequestsQueue,
   getBulkAssignmentData,
+  getRolesPrivilegesOfficeApp,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -73,8 +74,11 @@ import {
   PPMSIT_ESTIMATED_COST,
   GBLOCS,
   ROLE_PRIVILEGES,
+  FEATURE_FLAG,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 /**
  * Function that fetches and attaches weight tickets to corresponding ppmShipment objects on
@@ -284,11 +288,22 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     staleTime: 0,
   });
 
+  const { data: isGunSafeEnabled = false, isFetched } = useQuery([FEATURE_FLAG, FEATURE_FLAG_KEYS.GUN_SAFE], () =>
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE),
+  );
+
   const { data: documents, ...documentsQuery } = useQuery(
-    [DOCUMENTS, shipmentId],
-    ({ queryKey }) => getPPMDocuments(...queryKey),
+    [DOCUMENTS, shipmentId, isGunSafeEnabled],
+    async () => {
+      const data = await getPPMDocuments(DOCUMENTS, shipmentId);
+      if (!isGunSafeEnabled && data) {
+        const { GunSafeWeightTickets, ...rest } = data;
+        return rest;
+      }
+      return data;
+    },
     {
-      enabled: !!shipmentId,
+      enabled: !!shipmentId && isFetched,
     },
   );
 
@@ -653,7 +668,7 @@ export const useDestinationRequestsQueueQueries = ({
   };
 };
 
-export const useServicesCounselingQueuePPMQueries = ({
+export const usePPMQueueQueries = ({
   sort,
   order,
   filters = [],
@@ -671,7 +686,7 @@ export const useServicesCounselingQueuePPMQueries = ({
       SERVICES_COUNSELING_QUEUE,
       { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC, activeRole },
     ],
-    ({ queryKey }) => getServicesCounselingPPMQueue(...queryKey),
+    ({ queryKey }) => getPPMCloseoutQueue(...queryKey),
   );
 
   const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;
@@ -1142,6 +1157,56 @@ export const useListGBLOCsQueries = () => {
 export const useRolesPrivilegesQueries = () => {
   const { data = [], ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES], ({ queryKey }) =>
     getRolesPrivileges(...queryKey),
+  );
+  const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
+  const mappings = data;
+  const privilegesMap = new Map();
+  const rolesWithPrivsMap = new Map();
+
+  mappings.forEach((mapping) => {
+    // Create a map of roles with their types, names, and allowed privileges.
+    if (mapping.roleType) {
+      if (!rolesWithPrivsMap.has(mapping.roleType)) {
+        rolesWithPrivsMap.set(mapping.roleType, {
+          roleType: mapping.roleType,
+          roleName: mapping.roleName,
+          allowedPrivileges: new Set(),
+        });
+      }
+      // Create a map of privileges with their types and names. Add their allowed privilege types.
+      if (mapping.privileges) {
+        mapping.privileges.forEach((privilege) => {
+          if (!privilegesMap.has(privilege.privilegeType)) {
+            privilegesMap.set(privilege.privilegeType, {
+              privilegeType: privilege.privilegeType,
+              privilegeName: privilege.privilegeName,
+            });
+          }
+          rolesWithPrivsMap.get(mapping.roleType).allowedPrivileges.add(privilege.privilegeType);
+        });
+      }
+    }
+  });
+
+  const rolesWithPrivs = Array.from(rolesWithPrivsMap.values()).map((roleObj) => ({
+    roleType: roleObj.roleType,
+    roleName: roleObj.roleName,
+    allowedPrivileges: Array.from(roleObj.allowedPrivileges),
+  }));
+
+  const privileges = Array.from(privilegesMap.values());
+
+  return {
+    result: { privileges, rolesWithPrivs },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useRolesPrivilegesQueriesOfficeApp = () => {
+  const { data = [], ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES], ({ queryKey }) =>
+    getRolesPrivilegesOfficeApp(...queryKey),
   );
   const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
   const mappings = data;

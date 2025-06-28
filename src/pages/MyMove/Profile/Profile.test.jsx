@@ -109,9 +109,9 @@ describe('Profile component', () => {
 
     expect(serviceInfoHeader).toBeInTheDocument();
 
-    const editLinks = screen.getAllByText('Edit');
+    const editLinks = screen.getAllByRole('link', { name: 'Edit' });
 
-    expect(editLinks.length).toBe(4);
+    expect(editLinks.length).toBe(3);
 
     const homeLink = screen.getByText('Return to Move');
 
@@ -199,9 +199,9 @@ describe('Profile component', () => {
 
     expect(serviceInfoHeader).toBeInTheDocument();
 
-    const editLinks = screen.getAllByText('Edit');
+    const editLinks = screen.getAllByRole('link', { name: 'Edit' });
 
-    expect(editLinks.length).toBe(3);
+    expect(editLinks.length).toBe(2);
 
     const homeLink = screen.getByText('Return to Move');
 
@@ -303,9 +303,9 @@ describe('Profile component', () => {
 
     expect(whoToContact).toBeInTheDocument();
 
-    const editLinks = screen.getAllByText('Edit');
+    const editLinks = screen.getAllByRole('link', { name: 'Edit' });
 
-    expect(editLinks.length).toBe(3);
+    expect(editLinks.length).toBe(2);
 
     const homeLink = screen.getByText('Return to Move');
 

@@ -19,6 +19,7 @@ import (
 	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	gunsafe "github.com/transcom/mymove/pkg/services/gunsafe_weight_ticket"
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	mobileHomeShipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -54,6 +55,7 @@ import (
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	"github.com/transcom/mymove/pkg/services/upload"
+	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
@@ -83,6 +85,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	newQueryFilter := query.NewQueryFilter
 	newUserRolesCreator := usersroles.NewUsersRolesCreator()
 	newRolesFetcher := roles.NewRolesFetcher()
+	newUserPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
 	newTransportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
@@ -98,7 +101,15 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ghcrateengine.NewDomesticShorthaulPricer(),
 		ghcrateengine.NewDomesticOriginPricer(),
 		ghcrateengine.NewDomesticDestinationPricer(),
-		ghcrateengine.NewFuelSurchargePricer())
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
@@ -111,6 +122,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	serviceItemFetcher := serviceitem.NewServiceItemFetcher()
+
+	ghcAPI.RolePrivilegesGetRolesPrivilegesHandler = GetRolesPrivilegesHandler{
+		handlerConfig,
+		roles.NewRolesFetcher(),
+	}
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -444,7 +460,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewShipmentApprover(
 			shipmentRouter,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			mtoServiceItemCreator,
 			handlerConfig.HHGPlanner(),
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(handlerConfig.NotificationSender()), waf),
 			moveTaskOrderUpdater,
@@ -638,6 +654,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		officeuser.NewOfficeUserFetcherPop(),
 	}
 
+	ghcAPI.QueuesGetPPMCloseoutQueueHandler = GetPPMCloseoutQueueHandler{
+		handlerConfig,
+		order.NewOrderFetcher(waf),
+		movelocker.NewMoveUnlocker(),
+		officeuser.NewOfficeUserFetcherPop(),
+	}
+
 	ghcAPI.QueuesGetServicesCounselingOriginListHandler = GetServicesCounselingOriginListHandler{
 		handlerConfig,
 		order.NewOrderFetcher(waf),
@@ -660,6 +683,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		progear.NewOfficeProgearWeightTicketUpdater(),
 	}
+
+	ghcAPI.PpmCreateGunSafeWeightTicketHandler = CreateGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewOfficeGunSafeWeightTicketCreator()}
+	ghcAPI.PpmUpdateGunSafeWeightTicketHandler = UpdateGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewOfficeGunSafeWeightTicketUpdater()}
+	ghcAPI.PpmDeleteGunSafeWeightTicketHandler = DeleteGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewGunSafeWeightTicketDeleter()}
 
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 	if err != nil {
@@ -778,6 +805,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		newQueryFilter,
 		newUserRolesCreator,
 		newRolesFetcher,
+		newUserPrivilegesCreator,
 		newTransportationOfficeAssignmentUpdater,
 	}
 	ghcAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
@@ -853,12 +881,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ppmShipmentNewSubmitter := ppmshipment.NewPPMShipmentNewSubmitter(ppmShipmentFetcher, signedCertificationCreator, ppmShipmentRouter)
 	ghcAPI.PpmSubmitPPMShipmentDocumentationHandler = SubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentNewSubmitter}
 
-	ghcAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
-
 	ghcAPI.AddressesSearchCountriesHandler = SearchCountriesHandler{
 		handlerConfig,
 		countrySearcher,
 	}
+
+	ghcAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
 
 	return ghcAPI
 }

@@ -125,7 +125,7 @@ describe('Move task order tag rendering', () => {
 });
 
 describe('Supporting Documents tag rendering', () => {
-  it('should render the Supporting Documents tab container', async () => {
+  it('should render the Supporting Documents tab container without a tag', async () => {
     render(<TXOTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
 
     await waitFor(() => {

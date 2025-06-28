@@ -2905,11 +2905,6 @@
   resolved "https://registry.npmjs.org/@rushstack/eslint-patch/-/eslint-patch-1.1.3.tgz"
   integrity sha512-WiBSI6JBIhC6LRIsB2Kwh8DsGTlbBU+mLRxJmAe3LjHTdkDpwIbEOZgoXBbZilk/vlfjK8i6nKRAvIRn1XaIMw==
 
-"@scarf/scarf@=1.4.0":
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/@scarf/scarf/-/scarf-1.4.0.tgz"
-  integrity sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==
-
 "@sinclair/typebox@^0.24.1":
   version "0.24.51"
   resolved "https://registry.npmjs.org/@sinclair/typebox/-/typebox-0.24.51.tgz"
@@ -16854,12 +16849,10 @@ swagger-client@^3.18.5:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^5.18.2:
-  version "5.20.1"
-  resolved "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-5.20.1.tgz"
-  integrity sha512-qBPCis2w8nP4US7SvUxdJD3OwKcqiWeZmjN2VWhq2v+ESZEXOP/7n4DeiOiiZcGYTKMHAHUUrroHaTsjUWTEGw==
-  dependencies:
-    "@scarf/scarf" "=1.4.0"
+swagger-ui-dist@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.2.0.tgz#175e112b3aea756fdbbbb035d4cffef26ac579d1"
+  integrity sha512-rLvJBgualxNZcwKOmTFzy4zF1nHy+3S0pUDDR/ageDRZgi8aITSe7pVYiAy03xGQZtqEifjwEtHQE+eF14gveg==
 
 swc-loader@^0.2.3:
   version "0.2.3"
@@ -16922,9 +16915,9 @@ tapable@^2.0.0, tapable@^2.1.1, tapable@^2.2.0, tapable@^2.2.1:
   integrity sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==
 
 tar-fs@^2.0.0, tar-fs@^2.1.1:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/tar-fs/-/tar-fs-2.1.3.tgz#fb3b8843a26b6f13a08e606f7922875eb1fbbf92"
-  integrity sha512-090nwYJDmlhwFwEW3QQl+vaNnxsO2yVsd45eTKRBzSzu+hlb1w2K9inVq5b0ngXuLVqQ4ApvsUHHnu/zQNkWAg==
+  version "2.1.2"
+  resolved "https://registry.npmjs.org/tar-fs/-/tar-fs-2.1.2.tgz"
+  integrity sha512-EsaAXwxmx8UB7FRKqeozqEPop69DXcmYwTQwXvyAPF352HJsPdkVhvTaDPYqfNgruveJIJy3TA2l+2zj8LJIJA==
   dependencies:
     chownr "^1.1.1"
     mkdirp-classic "^0.5.2"

@@ -85,9 +85,29 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		return mockUpdater
 	}
 
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		siCreator,
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
 	mockSender := suite.TestNotificationSender()
@@ -98,6 +118,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	var pickupAddress primev2messages.Address
 	var destinationAddress primev2messages.Address
+	var POBoxAddress primev2messages.Address
 
 	setupTestData := func(ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 
@@ -178,8 +199,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
 		}
-		return handler, move
+		newPOBoxAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddressPOBoxCONUS})
+		POBoxAddress = primev2messages.Address{
+			City:           &newPOBoxAddress.City,
+			PostalCode:     &newPOBoxAddress.PostalCode,
+			State:          &newPOBoxAddress.State,
+			StreetAddress1: &newPOBoxAddress.StreetAddress1,
+			StreetAddress2: newPOBoxAddress.StreetAddress2,
+			StreetAddress3: newPOBoxAddress.StreetAddress3,
+		}
 
+		return handler, move
 	}
 
 	suite.Run("Successful POST - Integration Test", func() {
@@ -611,6 +641,37 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// so InvalidFields won't be added to the payload.
 
 		suite.Contains(*unprocessableEntity.Payload.Detail, "PickupAddress is required")
+	})
+
+	suite.Run("POST failure - 422 - invalid input, PO box zip used in address", func() {
+		// Under Test: CreateMTOShipmentHandler
+		// Setup:      Create a shipment with a PO Box only destination address, handler should return unprocessable entity
+		// Expected:   422 Unprocessable Entity Response returned
+
+		handler, move := setupTestData(false)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev2messages.CreateMTOShipment{
+				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
+				PointOfContact:       "John Doe",
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{POBoxAddress},
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		unprocessableEntity := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+
+		suite.Contains(*unprocessableEntity.Payload.Detail, "cannot accept PO Box address")
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {

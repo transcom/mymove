@@ -66,33 +66,45 @@ const mtoShipmentPropsWithGunSafe = {
 
 describe('EstimatedWeightsProGearForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load', async () => {
+    it('renders blank form on load and asterisks for required fields', async () => {
       render(<EstimatedWeightsProGearForm {...defaultProps} />);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
       expect(await screen.getByRole('heading', { level: 2, name: 'PPM' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Pro-gear' })).toBeInTheDocument();
       expect(screen.getByTestId('hasProGearYes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTestId('hasProGearNo')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText(/Estimated weight of this PPM shipment/)).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/Estimated weight of this PPM shipment */)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.queryByText(/Do you have a gun safe that you'll move in this PPM/)).toBeNull();
+      expect(screen.queryByText(/Do you have a gun safe that you'll move in this PPM */)).toBeNull();
       expect(screen.queryByTestId('hasGunSafeYes')).not.toBeInTheDocument();
       expect(screen.queryByTestId('hasGunSafeNo')).not.toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Estimate the full weight of your PPM, including everything you plan to move. If you are moving pro-gear in this PPM, include that weight in this estimate.',
+        ),
+      ).toBeInTheDocument();
     });
 
     it('renders blank form on load with gun safe (ff on)', async () => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
       await render(<EstimatedWeightsProGearForm {...defaultProps} />);
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
       expect(await screen.getByRole('heading', { level: 2, name: 'PPM' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Pro-gear' })).toBeInTheDocument();
       expect(screen.getByTestId('hasProGearYes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTestId('hasProGearNo')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText(/Estimated weight of this PPM shipment/)).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/Estimated weight of this PPM shipment */)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Do you have a gun safe that you'll move in this PPM/)).toBeInTheDocument();
+      expect(screen.getByText(/Do you have a gun safe that you'll move in this PPM */)).toBeInTheDocument();
       expect(screen.getByTestId('hasGunSafeYes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTestId('hasGunSafeNo')).toBeInstanceOf(HTMLInputElement);
       expect(screen.queryByLabelText(/Estimated weight of your gun safe/)).toBeNull();
+      expect(
+        screen.getByText(
+          'Estimate the full weight of your PPM, including everything you plan to move. If you are moving pro-gear and/or a gun safe in this PPM, include that weight in this estimate.',
+        ),
+      ).toBeInTheDocument();
     });
   });
 
@@ -100,13 +112,13 @@ describe('EstimatedWeightsProGearForm component', () => {
     it('displays secondary pro gear weight inputs when hasProGear is true', async () => {
       render(<EstimatedWeightsProGearForm {...defaultProps} />);
       const hasProGear = await screen.getByTestId('hasProGearYes');
-      expect(screen.queryByLabelText(/Estimated weight of your pro-gear/)).toBeNull();
-      expect(screen.queryByLabelText(/Estimated weight of your spouse’s pro-gear/)).toBeNull();
+      expect(screen.queryByLabelText(/Estimated weight of your pro-gear */)).toBeNull();
+      expect(screen.queryByLabelText(/Estimated weight of your spouse’s pro-gear */)).toBeNull();
       await userEvent.click(hasProGear);
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Estimated weight of your pro-gear/)).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByLabelText(/Estimated weight of your spouse’s pro-gear/)).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText(/Estimated weight of your pro-gear */)).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText(/Estimated weight of your spouse’s pro-gear */)).toBeInstanceOf(HTMLInputElement);
       });
     });
 
@@ -115,14 +127,14 @@ describe('EstimatedWeightsProGearForm component', () => {
 
       await render(<EstimatedWeightsProGearForm {...defaultProps} />);
       const hasGunSafe = await screen.getByTestId('hasGunSafeYes');
-      expect(screen.queryByLabelText(/Estimated weight of your gun safe/)).toBeNull();
+      expect(screen.queryByLabelText(/Estimated weight of your gun safe */)).toBeNull();
       await userEvent.click(hasGunSafe);
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Estimated weight of your gun safe/)).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText(/Estimated weight of your gun safe */)).toBeInstanceOf(HTMLInputElement);
         expect(
           screen.queryByText(
-            /The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against the authorized weight entitlement. The weight entitlement is charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks./,
+            /The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against the authorized weight entitlement. The weight entitlement is charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer's overall entitlement is already at the 18,000 lbs maximum./,
           ),
         ).toBeInTheDocument();
       });
@@ -134,11 +146,11 @@ describe('EstimatedWeightsProGearForm component', () => {
       render(<EstimatedWeightsProGearForm {...mtoShipmentProps} />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Estimated weight of this PPM shipment/).value).toBe('4,000');
+        expect(screen.getByLabelText(/Estimated weight of this PPM shipment */).value).toBe('4,000');
       });
       expect(screen.getByTestId('hasProGearYes').value).toBe('true');
-      expect(screen.getByLabelText(/Estimated weight of your pro-gear/).value).toBe('1,000');
-      expect(screen.getByLabelText(/Estimated weight of your spouse’s pro-gear/).value).toBe('100');
+      expect(screen.getByLabelText(/Estimated weight of your pro-gear */).value).toBe('1,000');
+      expect(screen.getByLabelText(/Estimated weight of your spouse’s pro-gear */).value).toBe('100');
     });
 
     it('renders blank form on load with gun safe (ff on)', async () => {
@@ -146,13 +158,13 @@ describe('EstimatedWeightsProGearForm component', () => {
       await render(<EstimatedWeightsProGearForm {...mtoShipmentPropsWithGunSafe} />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Estimated weight of this PPM shipment/).value).toBe('4,000');
+        expect(screen.getByLabelText(/Estimated weight of this PPM shipment */).value).toBe('4,000');
       });
       expect(screen.getByTestId('hasProGearYes').value).toBe('true');
       expect(screen.getByTestId('hasGunSafeYes').value).toBe('true');
-      expect(screen.getByLabelText(/Estimated weight of your pro-gear/).value).toBe('1,000');
-      expect(screen.getByLabelText(/Estimated weight of your spouse’s pro-gear/).value).toBe('100');
-      expect(screen.getByLabelText(/Estimated weight of your gun safe/).value).toBe('500');
+      expect(screen.getByLabelText(/Estimated weight of your pro-gear */).value).toBe('1,000');
+      expect(screen.getByLabelText(/Estimated weight of your spouse’s pro-gear */).value).toBe('100');
+      expect(screen.getByLabelText(/Estimated weight of your gun safe */).value).toBe('500');
     });
   });
 
@@ -179,7 +191,7 @@ describe('EstimatedWeightsProGearForm component', () => {
 
       await userEvent.click(inputHasProGear);
 
-      const selfProGear = screen.getByLabelText(/Estimated weight of your pro-gear/);
+      const selfProGear = screen.getByLabelText(/Estimated weight of your pro-gear */);
 
       await userEvent.click(selfProGear);
       await userEvent.tab();
@@ -204,7 +216,7 @@ describe('EstimatedWeightsProGearForm component', () => {
 
       await userEvent.click(inputHasGunSafe);
 
-      const gunSafeInput = screen.getByLabelText(/Estimated weight of your gun safe/);
+      const gunSafeInput = screen.getByLabelText(/Estimated weight of your gun safe */);
 
       await userEvent.click(gunSafeInput);
       await userEvent.tab();
@@ -227,7 +239,7 @@ describe('EstimatedWeightsProGearForm component', () => {
 
       await userEvent.click(inputHasGunSafe);
 
-      const gunSafeInput = screen.getByLabelText(/Estimated weight of your gun safe/);
+      const gunSafeInput = screen.getByLabelText(/Estimated weight of your gun safe */);
 
       await userEvent.click(gunSafeInput);
       await userEvent.type(gunSafeInput, String(501));

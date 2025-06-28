@@ -217,7 +217,7 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 	// Limitation: once the status code header has been written (first response), we are not able to update the status for subsequent responses.
 	// Standard 200 OK used with common SSE paradigm
 	rw.WriteHeader(http.StatusOK)
-	if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED {
+	if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED || uploadStatus == models.ClamAVStatusCLEAN || uploadStatus == models.ClamAVStatusINFECTED {
 		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
 		o.writeEventStreamMessage(rw, producer, 1, "close", "Connection closed")
 		return // skip notification loop since object already tagged from anti-virus
@@ -299,7 +299,7 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 
 				o.writeEventStreamMessage(rw, producer, id_counter, "message", string(uploadStatus))
 
-				if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED {
+				if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED || uploadStatus == models.ClamAVStatusCLEAN || uploadStatus == models.ClamAVStatusINFECTED {
 					return errors.New("connection_closed")
 				}
 

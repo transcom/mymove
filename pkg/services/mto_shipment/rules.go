@@ -130,6 +130,10 @@ func checkUpdateAllowed() validator {
 				if isTOO {
 					return nil
 				}
+			case models.MTOShipmentStatusDraft:
+				if isServiceCounselor {
+					return nil
+				}
 			default:
 				return err
 			}
@@ -586,7 +590,6 @@ func checkAddressUpdateAllowed() addressUpdateValidator {
 		return nil
 	})
 }
-
 func GetAorAnByShipmentType(shipmentType models.MTOShipmentType) string {
 	switch shipmentType {
 	case models.MTOShipmentTypeHHG,

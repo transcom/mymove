@@ -243,6 +243,11 @@ properties:
       - 'i'
     example: 'd'
     description: 'Single-letter designator for domestic (d) or international (i) shipments'
+  primeAcknowledgedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+    readOnly: true
   terminationComments:
     type: string
     x-nullable: true
@@ -251,8 +256,3 @@ properties:
     format: date-time
     type: string
     x-nullable: true
-  primeAcknowledgedAt:
-    format: date-time
-    type: string
-    x-nullable: true
-    readOnly: true

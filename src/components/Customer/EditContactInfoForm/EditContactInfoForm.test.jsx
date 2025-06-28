@@ -30,7 +30,8 @@ describe('EditContactInfoForm component', () => {
         postalCode: '79936',
       },
       backup_contact: {
-        name: 'Peyton Wing',
+        firstName: 'Peyton',
+        lastName: 'Wing',
         email: 'pw@example.com',
         telephone: '915-555-8761',
       },
@@ -39,7 +40,7 @@ describe('EditContactInfoForm component', () => {
     onCancel: jest.fn(),
   };
 
-  it('renders the form inputs', async () => {
+  it('renders the form inputs and asterisks for required fields', async () => {
     const mockStore = configureStore({});
 
     render(
@@ -48,7 +49,7 @@ describe('EditContactInfoForm component', () => {
       </Provider>,
     );
 
-    const telephoneInput = await screen.findByLabelText(/Best contact phone/);
+    const telephoneInput = await screen.findByLabelText(/Best contact phone */);
 
     expect(telephoneInput).toBeInstanceOf(HTMLInputElement);
 
@@ -60,20 +61,22 @@ describe('EditContactInfoForm component', () => {
 
     expect(secondaryPhoneInput).toHaveValue(testProps.initialValues.secondary_telephone);
 
-    const personalEmailInput = await screen.findByLabelText(/Personal email/);
+    const personalEmailInput = await screen.findByLabelText(/Personal email */);
 
     expect(personalEmailInput).toBeInstanceOf(HTMLInputElement);
 
     expect(personalEmailInput).toHaveValue(testProps.initialValues.personal_email);
 
-    const nameInput = await screen.findByLabelText(/Name/);
+    const firstNameInput = await screen.findByLabelText(/First Name/);
+    expect(firstNameInput).toBeInstanceOf(HTMLInputElement);
+    expect(firstNameInput).toHaveValue(testProps.initialValues.backup_contact.firstName);
 
-    expect(nameInput).toBeInstanceOf(HTMLInputElement);
-
-    expect(nameInput).toHaveValue(testProps.initialValues.backup_contact.name);
+    const lastNameInput = await screen.findByLabelText(/Last Name/);
+    expect(lastNameInput).toBeInstanceOf(HTMLInputElement);
+    expect(lastNameInput).toHaveValue(testProps.initialValues.backup_contact.lastName);
 
     // We have two sets of addresses and the labels are the same across both
-    const address1Inputs = await screen.findAllByLabelText(/Address 1/);
+    const address1Inputs = await screen.findAllByLabelText(/Address 1 */);
 
     expect(address1Inputs.length).toBe(2);
 
@@ -97,7 +100,7 @@ describe('EditContactInfoForm component', () => {
     expect(backupAddress2).toBeInstanceOf(HTMLInputElement);
     expect(backupAddress2).toHaveValue(testProps.initialValues.backup_mailing_address.streetAddress2);
 
-    const cityInputs = screen.getAllByTestId(/City/);
+    const cityInputs = screen.getAllByTestId(/City */);
 
     expect(cityInputs.length).toBe(2);
 
@@ -109,7 +112,7 @@ describe('EditContactInfoForm component', () => {
     expect(backupCity).toBeInstanceOf(HTMLLabelElement);
     expect(backupCity).toHaveTextContent(testProps.initialValues.backup_mailing_address.city);
 
-    const stateInputs = screen.getAllByTestId(/State/);
+    const stateInputs = screen.getAllByTestId(/State */);
 
     expect(stateInputs.length).toBe(2);
 
@@ -121,7 +124,7 @@ describe('EditContactInfoForm component', () => {
     expect(backupState).toBeInstanceOf(HTMLLabelElement);
     expect(backupState).toHaveTextContent(testProps.initialValues.backup_mailing_address.state);
 
-    const zipInputs = screen.getAllByTestId(/ZIP/);
+    const zipInputs = screen.getAllByTestId(/ZIP */);
 
     expect(zipInputs.length).toBe(2);
 
@@ -145,7 +148,7 @@ describe('EditContactInfoForm component', () => {
     );
 
     // These next few have the same label for different field types
-    const phoneInputs = await screen.findAllByLabelText(/Phone/);
+    const phoneInputs = await screen.findAllByLabelText(/Phone */);
 
     expect(phoneInputs.length).toBe(2);
 
@@ -161,7 +164,7 @@ describe('EditContactInfoForm component', () => {
     expect(phoneTextField).toBeInstanceOf(HTMLInputElement);
     expect(phoneTextField).toHaveValue(testProps.initialValues.backup_contact.telephone);
 
-    const emailInputs = await screen.findAllByLabelText(/Email/);
+    const emailInputs = await screen.findAllByLabelText(/Email */);
 
     expect(emailInputs.length).toBe(2);
 
@@ -191,7 +194,7 @@ describe('EditContactInfoForm component', () => {
 
     expect(saveButton).toBeEnabled();
 
-    const emailInput = await screen.findByLabelText(/Personal email/);
+    const emailInput = await screen.findByLabelText(/Personal email */);
 
     await userEvent.clear(emailInput);
     await userEvent.tab();

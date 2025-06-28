@@ -57,7 +57,12 @@ func (h GetLocationByZipCityStateHandler) Handle(params addressop.GetLocationByZ
 				statesToExclude = append(statesToExclude, "HI")
 			}
 
-			locationList, err := h.GetLocationsByZipCityState(appCtx, params.Search, statesToExclude)
+			includePOBoxes := false
+			if params.IncludePOBoxes != nil {
+				includePOBoxes = *params.IncludePOBoxes
+			}
+
+			locationList, err := h.GetLocationsByZipCityState(appCtx, params.Search, statesToExclude, includePOBoxes)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Zip/City/State: ", zap.Error(err))
 				return addressop.NewGetLocationByZipCityStateInternalServerError(), err

@@ -164,7 +164,7 @@ const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
 const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
 
 describe('CreateMoveCustomerInfo Component', () => {
-  it('renders the form inputs', async () => {
+  it('renders the form inputs and asterisks for required fields', async () => {
     render(
       <Provider store={mockStore.store}>
         <AddOrdersForm {...testProps} />
@@ -186,6 +186,8 @@ describe('CreateMoveCustomerInfo Component', () => {
       expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
 
       // check for asterisks on required fields
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
       const formGroups = screen.getAllByTestId('formGroup');
 
       formGroups.forEach((group) => {
@@ -272,7 +274,8 @@ describe('CreateMoveCustomerInfo Component', () => {
 
 describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
   it('submits the form with OCONUS values and accompanied tour selection', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
     render(
       <Provider params={mockParams} store={mockStore.store}>
         <AddOrdersForm {...testProps} />
@@ -285,28 +288,21 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [ORDERS_PAY_GRADE_TYPE.E_5]);
 
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Elmendorf/);
-    await userEvent.click(selectedOptionCurrent);
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB');
+    await userEvent.click(await screen.findByText(/Elmendorf/));
 
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeFalsy();
 
-    // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
-    const selectedOptionNew = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOptionNew);
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB');
+    await userEvent.click(await screen.findByText(/Luke/));
 
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
-
-    // should now see the OCONUS inputs
     await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
     await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '2');
     await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '1');
 
     const nextBtn = screen.getByRole('button', { name: 'Next' });
-    expect(nextBtn).not.toBeDisabled();
     await userEvent.click(nextBtn);
 
     await waitFor(() => {

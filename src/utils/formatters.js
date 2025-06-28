@@ -631,6 +631,22 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
+export const userName = (user) => {
+  let formattedUser = '';
+  if (user.firstName && user.lastName) {
+    formattedUser += `${user.lastName}, `;
+    formattedUser += ` ${user.firstName}`;
+  } else {
+    if (user.firstName) {
+      formattedUser += ` ${user.firstName}`;
+    }
+    if (user.lastName) {
+      formattedUser += ` ${user.lastName}`;
+    }
+  }
+  return formattedUser;
+};
+
 export const formatServiceMemberNameToString = (serviceMember) => {
   let formattedUser = '';
   if (serviceMember.first_name && serviceMember.last_name) {
@@ -686,28 +702,11 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
 
   assignOfficeUser(
     ASSIGNMENT_IDS.TASK_ORDERING_OFFICER_DESTINATION,
-    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.ASSIGNED,
-    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.RE_ASSIGNED,
+    ASSIGNMENT_NAMES.DESTINATION_TASK_ORDERING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.DESTINATION_TASK_ORDERING_OFFICER.RE_ASSIGNED,
   ); // destination request queue
   return newValues;
 };
-
-export const userName = (user) => {
-  let formattedUser = '';
-  if (user.firstName && user.lastName) {
-    formattedUser += `${user.lastName}, `;
-    formattedUser += ` ${user.firstName}`;
-  } else {
-    if (user.firstName) {
-      formattedUser += ` ${user.firstName}`;
-    }
-    if (user.lastName) {
-      formattedUser += ` ${user.lastName}`;
-    }
-  }
-  return formattedUser;
-};
-
 /**
  * @description Converts a string to title case (capitalizes the first letter of each word)
  * @param {string} str - The input string to format.
@@ -756,3 +755,14 @@ export const calculateTotal = (sectionInfo) => {
 
   return formatCents(total);
 };
+
+export function formatLastNameFirstName(firstName, lastName) {
+  const trimmedFirstName = (firstName || '').trim();
+  const trimmedLastName = (lastName || '').trim();
+
+  return (
+    trimmedFirstName.length > 0 || trimmedLastName.length > 0
+      ? trimmedLastName + (trimmedLastName.length > 0 ? ', ' : '') + trimmedFirstName
+      : ''
+  ).trim();
+}

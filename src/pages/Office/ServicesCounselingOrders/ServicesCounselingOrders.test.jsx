@@ -87,7 +87,6 @@ const editMoveStatuses = [
 ];
 
 const disabledMoveStatuses = [
-  MOVE_STATUSES.DRAFT,
   MOVE_STATUSES.SUBMITTED,
   MOVE_STATUSES.APPROVED,
   MOVE_STATUSES.CANCELED,

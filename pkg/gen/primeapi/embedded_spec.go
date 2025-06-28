@@ -88,6 +88,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -326,6 +333,13 @@ func init() {
             "format": "date-time",
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated before this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "before",
             "in": "query"
           },
           {
@@ -1590,9 +1604,13 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
-          "example": "Bob Smith"
+          "example": "Bob"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Smith"
         },
         "phone": {
           "type": "string",
@@ -4843,7 +4861,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -5667,6 +5685,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },
@@ -6025,6 +6044,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -6333,6 +6359,13 @@ func init() {
             "format": "date-time",
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated before this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "before",
             "in": "query"
           },
           {
@@ -7917,9 +7950,13 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
         },
-        "name": {
+        "firstName": {
           "type": "string",
-          "example": "Bob Smith"
+          "example": "Bob"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Smith"
         },
         "phone": {
           "type": "string",
@@ -11160,7 +11197,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -11999,6 +12036,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ]
         },

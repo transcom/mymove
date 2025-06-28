@@ -41,14 +41,6 @@ flags:
       - segment:
           key: mil-app
           value: true
-  - key: move_lock
-    name: Move lock feature flag
-    type: BOOLEAN_FLAG_TYPE
-    enabled: true
-    rollouts:
-      - segment:
-          key: mil-app
-          value: true
   - key: enable_alaska
     name: Enable Alaska feature flag
     type: BOOLEAN_FLAG_TYPE
@@ -251,8 +243,24 @@ flags:
       - segment:
           key: mil-app
           value: false
+  - key: disable_move_approval
+    name: Move approval disabled or not
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
   - key: bluebark_move
     name: Bluebark Move feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: request_account_privileges
+    name: Request account privileges feature flag
     type: BOOLEAN_FLAG_TYPE
     enabled: false
     rollouts:
@@ -267,23 +275,6 @@ flags:
       - segment:
           key: mil-app
           value: false
-  - key: disable_move_approval
-    name: Move approval disabled or not
-    type: BOOLEAN_FLAG_TYPE
-    enabled: true
-    rollouts:
-      - segment:
-          key: mil-app
-          value: true
-  - key: request_account_privileges
-    name: Request account privileges feature flag
-    type: BOOLEAN_FLAG_TYPE
-    enabled: false
-    rollouts:
-      - segment:
-          key: mil-app
-          value: false
-
 segments:
   - key: mil-app
     name: Mil App

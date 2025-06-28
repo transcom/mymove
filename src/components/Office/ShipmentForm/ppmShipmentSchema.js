@@ -3,7 +3,6 @@ import * as Yup from 'yup';
 import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
-import { ADVANCE_STATUSES } from 'constants/ppms';
 import { PPM_TYPES } from 'shared/constants';
 
 function closeoutOfficeSchema(showCloseoutOffice, isAdvancePage) {
@@ -18,8 +17,6 @@ function closeoutOfficeSchema(showCloseoutOffice, isAdvancePage) {
 const ppmShipmentSchema = ({
   estimatedIncentive = 0,
   weightAllotment = {},
-  advanceAmountRequested = 0,
-  hasRequestedAdvance,
   isAdvancePage,
   showCloseoutOffice,
   sitEstimatedWeightMax,
@@ -129,10 +126,8 @@ const ppmShipmentSchema = ({
 
     closeoutOffice: closeoutOfficeSchema(showCloseoutOffice, isAdvancePage),
     counselorRemarks: Yup.string().when(['advance', 'advanceRequested', 'advanceStatus'], {
-      is: (advance, advanceRequested, advanceStatus) =>
-        (isAdvancePage &&
-          (Number(advance) !== advanceAmountRequested / 100 || advanceRequested !== hasRequestedAdvance)) ||
-        (isAdvancePage && ADVANCE_STATUSES[advanceStatus] === ADVANCE_STATUSES.REJECTED),
+      is: (advanceRequested, advanceStatus) =>
+        isAdvancePage || (isAdvancePage && advanceRequested === null) || advanceStatus === 'REJECTED',
       then: (schema) => schema.required('Required'),
     }),
   });

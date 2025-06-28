@@ -1121,7 +1121,7 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
+        "description": "Deletes a single office user (including Roles, and Privileges) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
         "produces": [
           "application/json"
         ],
@@ -1148,6 +1148,9 @@ func init() {
           },
           "404": {
             "description": "Office User not found"
+          },
+          "409": {
+            "description": "User cannot be deleted due to associated data"
           },
           "500": {
             "description": "server error"
@@ -3512,6 +3515,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -5167,7 +5176,7 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
+        "description": "Deletes a single office user (including Roles, and Privileges) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
         "produces": [
           "application/json"
         ],
@@ -5194,6 +5203,9 @@ func init() {
           },
           "404": {
             "description": "Office User not found"
+          },
+          "409": {
+            "description": "User cannot be deleted due to associated data"
           },
           "500": {
             "description": "server error"
@@ -7558,6 +7570,12 @@ func init() {
         },
         "otherUniqueId": {
           "type": "string"
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
         },
         "rejectionReason": {
           "type": "string"

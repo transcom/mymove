@@ -519,7 +519,26 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		queryBuilder := query.NewQueryBuilder()
 		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, shipmentRouter, f.shipmentFetcher, f.addressCreator, f.portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(f.planner, queryBuilder, f.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+			f.planner,
+			queryBuilder,
+			f.moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(),
+		)
 
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
@@ -555,6 +574,22 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		for i, serviceItem := range shipmentDetails.MTOServiceItems {
 			if shipment.MarketCode != models.MarketCodeInternational && shipment.PrimeEstimatedWeight != nil || shipment.MarketCode != models.MarketCodeInternational && shipment.PrimeActualWeight != nil {
 				var updatedServiceItem *models.MTOServiceItem
+
+				// Recalculate pricing if SIT is approved and Service Item is DDD or FSC
+				if shipmentHasApprovedDestSIT && (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC) {
+					sitPricingEstimate, err := serviceItemCreator.FindSITEstimatedPrice(appCtx, &serviceItem, shipment)
+					if err != nil {
+						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+					}
+					updatedServiceItem = &serviceItem
+					updatedServiceItem.PricingEstimate = &sitPricingEstimate
+
+					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItem(appCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt), mtoserviceitem.UpdateMTOServiceItemBasicValidator)
+					if err != nil {
+						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+					}
+				}
+
 				if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
 					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
 					if err != nil {

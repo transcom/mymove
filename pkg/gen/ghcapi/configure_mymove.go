@@ -35,6 +35,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/re_service_items"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/role_privileges"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
@@ -169,6 +170,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
 		})
 	}
+	if api.PpmCreateGunSafeWeightTicketHandler == nil {
+		api.PpmCreateGunSafeWeightTicketHandler = ppm.CreateGunSafeWeightTicketHandlerFunc(func(params ppm.CreateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateGunSafeWeightTicket has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {
 		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
@@ -227,6 +233,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.EvaluationReportsDeleteEvaluationReportHandler == nil {
 		api.EvaluationReportsDeleteEvaluationReportHandler = evaluation_reports.DeleteEvaluationReportHandlerFunc(func(params evaluation_reports.DeleteEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.DeleteEvaluationReport has not yet been implemented")
+		})
+	}
+	if api.PpmDeleteGunSafeWeightTicketHandler == nil {
+		api.PpmDeleteGunSafeWeightTicketHandler = ppm.DeleteGunSafeWeightTicketHandlerFunc(func(params ppm.DeleteGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteGunSafeWeightTicket has not yet been implemented")
 		})
 	}
 	if api.PpmDeleteMovingExpenseHandler == nil {
@@ -369,6 +380,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		})
 	}
+	if api.QueuesGetPPMCloseoutQueueHandler == nil {
+		api.QueuesGetPPMCloseoutQueueHandler = queues.GetPPMCloseoutQueueHandlerFunc(func(params queues.GetPPMCloseoutQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetPPMCloseoutQueue has not yet been implemented")
+		})
+	}
 	if api.PpmGetPPMDocumentsHandler == nil {
 		api.PpmGetPPMDocumentsHandler = ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
@@ -412,6 +428,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ReportViolationsGetReportViolationsByReportIDHandler == nil {
 		api.ReportViolationsGetReportViolationsByReportIDHandler = report_violations.GetReportViolationsByReportIDHandlerFunc(func(params report_violations.GetReportViolationsByReportIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
+		})
+	}
+	if api.RolePrivilegesGetRolesPrivilegesHandler == nil {
+		api.RolePrivilegesGetRolesPrivilegesHandler = role_privileges.GetRolesPrivilegesHandlerFunc(func(params role_privileges.GetRolesPrivilegesParams) middleware.Responder {
+			return middleware.NotImplemented("operation role_privileges.GetRolesPrivileges has not yet been implemented")
 		})
 	}
 	if api.QueuesGetServicesCounselingOriginListHandler == nil {
@@ -607,6 +628,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler == nil {
 		api.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler = customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.UpdateCustomerSupportRemarkForMove has not yet been implemented")
+		})
+	}
+	if api.PpmUpdateGunSafeWeightTicketHandler == nil {
+		api.PpmUpdateGunSafeWeightTicketHandler = ppm.UpdateGunSafeWeightTicketHandlerFunc(func(params ppm.UpdateGunSafeWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateGunSafeWeightTicket has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {

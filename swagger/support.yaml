@@ -1567,7 +1567,7 @@ definitions:
             example: 4000
             description: >-
               Provided by the movers, based on weight tickets. Relevant for
-              shuttling (DDSHUT & DOSHUT) service items.
+              shuttling (IDSHUT & IOSHUT) service items.
             x-nullable: true
             x-omitempty: false
         required:
@@ -2181,6 +2181,7 @@ definitions:
         enum:
           - INFECTED
           - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
       createdAt:
         type: string

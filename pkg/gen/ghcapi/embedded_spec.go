@@ -88,6 +88,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3060,6 +3067,42 @@ func init() {
         }
       }
     },
+    "/open/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "rolePrivileges"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Role"
+              }
+            }
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/open/transportation-offices": {
       "get": {
         "description": "This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.",
@@ -4079,6 +4122,171 @@ func init() {
       "parameters": [
         {
           "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a\ngun safe weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a gun safe weight ticket",
+        "operationId": "createGunSafeWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a gun safe weight line item by ID",
+        "operationId": "deleteGunSafeWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the gun safe weight ticket to be deleted",
+            "name": "gunSafeWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the gun safe weight ticket"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a gun safe weight ticket",
+        "operationId": "updateGunSafeWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "name": "updateGunSafeWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGunSafeWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the gun safe weight ticket",
+          "name": "gunSafeWeightTicketId",
+          "in": "path",
+          "required": true
         }
       ]
     },
@@ -5803,6 +6011,231 @@ func init() {
         }
       }
     },
+    "/queues/ppmCloseout": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. Personally procured moves will show up here once they are pending closeout by the services counselor. The services counselor is the designated role to action the items in this queue.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing PPM closeout by GBLOC origin",
+        "operationId": "getPPMCloseoutQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "requestedMoveDate",
+              "submittedAt",
+              "originGBLOC",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation",
+              "ppmStatus",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "As of right now the only ppm_shipments status is \"NEEDS_CLOSEOUT\". But we allow the frontend to \"filter\" this, it may be useful in the future. For now it'll always just be in need of closeout. If null we still show PPM moves needing closeout. Don't confuse this with the move's status. Move status and ppm shipment status are different.\n",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/prime-moves": {
       "get": {
         "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
@@ -7428,6 +7861,7 @@ func init() {
               "enum": [
                 "INFECTED",
                 "CLEAN",
+                "NO_THREATS_FOUND",
                 "PROCESSING"
               ],
               "readOnly": true
@@ -7888,7 +8322,8 @@ func init() {
     "BackupContact": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "phone"
       ],
@@ -7898,7 +8333,10 @@ func init() {
           "format": "x-email",
           "example": "backupContact@mail.com"
         },
-        "name": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
           "type": "string"
         },
         "phone": {
@@ -10387,6 +10825,121 @@ func init() {
         "$ref": "#/definitions/GSRAppeal"
       }
     },
+    "GunSafeWeightTicket": {
+      "description": "Gun safe associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the gun safe that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the gun safe weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the gun safe weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "The ID of the gun safe weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this gun safe weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the gun safe.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the gun safe.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
+    "GunSafeWeightTickets": {
+      "description": "All gunsafe weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GunSafeWeightTicket"
+      },
+      "x-omitempty": false
+    },
     "InvalidRequestResponsePayload": {
       "type": "object",
       "properties": {
@@ -11807,13 +12360,13 @@ func init() {
         "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TIOAssignedUser": {
-          "$ref": "#/definitions/AssignedOfficeUser"
-        },
-        "TOOAssignedUser": {
+        "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOODestinationAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -12610,6 +13163,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -12701,6 +13260,13 @@ func init() {
           "title": "Office user identifier when EDIPI is not available",
           "x-nullable": true
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          },
+          "x-nullable": false
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -12720,6 +13286,23 @@ func init() {
           "format": "uuid",
           "x-nullable": false,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -13493,6 +14076,9 @@ func init() {
       "description": "All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.",
       "type": "object",
       "properties": {
+        "GunSafeWeightTickets": {
+          "$ref": "#/definitions/GunSafeWeightTickets"
+        },
         "MovingExpenses": {
           "$ref": "#/definitions/MovingExpenses"
         },
@@ -13700,6 +14286,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gunSafeWeightTickets": {
+          "description": "All gun safe weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GunSafeWeightTicket"
+          }
         },
         "hasGunSafe": {
           "description": "Indicates whether PPM shipment has gun safe.\n",
@@ -14443,6 +15036,45 @@ func init() {
         }
       }
     },
+    "Privilege": {
+      "type": "object",
+      "required": [
+        "id",
+        "privilegeType",
+        "privilegeName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
@@ -14616,6 +15248,11 @@ func init() {
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutInitiatedDates": {
+          "description": "comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "closeoutLocation": {
@@ -15059,6 +15696,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roleName": {
           "type": "string",
           "example": "Task Ordering Officer"
@@ -15066,6 +15709,10 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",
@@ -15483,7 +16130,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -16224,6 +16871,30 @@ func init() {
         "content": {
           "type": "string",
           "example": "This is a remark about a move."
+        }
+      }
+    },
+    "UpdateGunSafeWeightTicket": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Description of gun safe included in trips set.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the gun safe contained in the shipment.",
+          "type": "integer"
         }
       }
     },
@@ -16990,6 +17661,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true
@@ -17612,6 +18284,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -21325,6 +22004,42 @@ func init() {
         }
       }
     },
+    "/open/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "rolePrivileges"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Role"
+              }
+            }
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/open/transportation-offices": {
       "get": {
         "description": "This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.",
@@ -22627,6 +23342,247 @@ func init() {
           "format": "uuid",
           "description": "UUID of the PPM shipment",
           "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a\ngun safe weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a gun safe weight ticket",
+        "operationId": "createGunSafeWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a gun safe weight line item by ID",
+        "operationId": "deleteGunSafeWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the gun safe weight ticket to be deleted",
+            "name": "gunSafeWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the gun safe weight ticket"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a gun safe weight ticket",
+        "operationId": "updateGunSafeWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateGunSafeWeightTicket",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateGunSafeWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated gun safe weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/GunSafeWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the gun safe weight ticket",
+          "name": "gunSafeWeightTicketId",
           "in": "path",
           "required": true
         }
@@ -24773,6 +25729,237 @@ func init() {
         }
       }
     },
+    "/queues/ppmCloseout": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. Personally procured moves will show up here once they are pending closeout by the services counselor. The services counselor is the designated role to action the items in this queue.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing PPM closeout by GBLOC origin",
+        "operationId": "getPPMCloseoutQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "requestedMoveDate",
+              "submittedAt",
+              "originGBLOC",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "ppmType",
+              "closeoutInitiated",
+              "closeoutLocation",
+              "ppmStatus",
+              "counselingOffice",
+              "assignedTo"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty location",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "description": "filters the name of the origin duty location on the orders",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the destination duty location on the orders",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "As of right now the only ppm_shipments status is \"NEEDS_CLOSEOUT\". But we allow the frontend to \"filter\" this, it may be useful in the future. For now it'll always just be in need of closeout. If null we still show PPM moves needing closeout. Don't confuse this with the move's status. Move status and ppm shipment status are different.\n",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "FULL",
+              "PARTIAL"
+            ],
+            "type": "string",
+            "description": "filters PPM type",
+            "name": "ppmType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Latest date that closeout was initiated on a PPM on the move",
+            "name": "closeoutInitiated",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "closeout location",
+            "name": "closeoutLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/prime-moves": {
       "get": {
         "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
@@ -26806,6 +27993,7 @@ func init() {
               "enum": [
                 "INFECTED",
                 "CLEAN",
+                "NO_THREATS_FOUND",
                 "PROCESSING"
               ],
               "readOnly": true
@@ -27270,7 +28458,8 @@ func init() {
     "BackupContact": {
       "type": "object",
       "required": [
-        "name",
+        "firstName",
+        "lastName",
         "email",
         "phone"
       ],
@@ -27280,7 +28469,10 @@ func init() {
           "format": "x-email",
           "example": "backupContact@mail.com"
         },
-        "name": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
           "type": "string"
         },
         "phone": {
@@ -29774,6 +30966,123 @@ func init() {
         "$ref": "#/definitions/GSRAppeal"
       }
     },
+    "GunSafeWeightTicket": {
+      "description": "Gun safe associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the gun safe that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the gun safe weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the gun safe weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "The ID of the gun safe weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this gun safe weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the gun safe.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the gun safe.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
+    "GunSafeWeightTickets": {
+      "description": "All gunsafe weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GunSafeWeightTicket"
+      },
+      "x-omitempty": false
+    },
     "InvalidRequestResponsePayload": {
       "type": "object",
       "properties": {
@@ -31194,13 +32503,13 @@ func init() {
         "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
-        "TIOAssignedUser": {
-          "$ref": "#/definitions/AssignedOfficeUser"
-        },
-        "TOOAssignedUser": {
+        "TIOPaymentRequestAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOODestinationAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOTaskOrderAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -31997,6 +33306,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -32088,6 +33403,13 @@ func init() {
           "title": "Office user identifier when EDIPI is not available",
           "x-nullable": true
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          },
+          "x-nullable": false
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -32107,6 +33429,23 @@ func init() {
           "format": "uuid",
           "x-nullable": false,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -32881,6 +34220,9 @@ func init() {
       "description": "All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.",
       "type": "object",
       "properties": {
+        "GunSafeWeightTickets": {
+          "$ref": "#/definitions/GunSafeWeightTickets"
+        },
         "MovingExpenses": {
           "$ref": "#/definitions/MovingExpenses"
         },
@@ -33161,6 +34503,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gunSafeWeightTickets": {
+          "description": "All gun safe weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GunSafeWeightTicket"
+          }
         },
         "hasGunSafe": {
           "description": "Indicates whether PPM shipment has gun safe.\n",
@@ -33904,6 +35253,45 @@ func init() {
         }
       }
     },
+    "Privilege": {
+      "type": "object",
+      "required": [
+        "id",
+        "privilegeType",
+        "privilegeName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
@@ -34079,6 +35467,11 @@ func init() {
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutInitiatedDates": {
+          "description": "comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "closeoutLocation": {
@@ -34522,6 +35915,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roleName": {
           "type": "string",
           "example": "Task Ordering Officer"
@@ -34529,6 +35928,10 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",
@@ -34996,7 +36399,7 @@ func init() {
         "IsPeak",
         "MarketDest",
         "MarketOrigin",
-        "MTOAvailableToPrimeAt",
+        "MTOEarliestRequestedPickup",
         "NTSPackingFactor",
         "NumberDaysSIT",
         "PriceAreaDest",
@@ -35744,6 +37147,31 @@ func init() {
         "content": {
           "type": "string",
           "example": "This is a remark about a move."
+        }
+      }
+    },
+    "UpdateGunSafeWeightTicket": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Description of gun safe included in trips set.",
+          "type": "string"
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.",
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the gun safe contained in the shipment.",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -36515,6 +37943,7 @@ func init() {
           "enum": [
             "INFECTED",
             "CLEAN",
+            "NO_THREATS_FOUND",
             "PROCESSING"
           ],
           "readOnly": true

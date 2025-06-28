@@ -16,6 +16,8 @@ import { phoneSchema, requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
 import Hint from 'components/Hint';
 
+export const backupContactName = 'backup_contact';
+
 const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
     firstName: Yup.string().required('Required'),
@@ -29,16 +31,19 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     secondaryPhone: phoneSchema,
     customerAddress: requiredAddressSchema.required(),
     backupAddress: requiredAddressSchema.required(),
-    name: Yup.string().required('Required'),
-    email: Yup.string()
-      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
-      .required('Required'),
-    telephone: Yup.string()
-      .min(12, 'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.')
-      .required('Required'), // min 12 includes hyphens
     phoneIsPreferred: Yup.boolean(),
     emailIsPreferred: Yup.boolean(),
     cacUser: Yup.boolean().required('Required'),
+    [backupContactName]: Yup.object().shape({
+      firstName: Yup.string().trim().min(1, 'Required').required('Required'),
+      lastName: Yup.string().trim().min(1, 'Required').required('Required'),
+      email: Yup.string()
+        .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
+        .required('Required'),
+      telephone: Yup.string()
+        .min(12, 'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.')
+        .required('Required'), // min 12 includes hyphens
+    }),
   });
 
   return (
@@ -71,8 +76,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h2 className={styles.sectionHeader}>Backup contact</h2>
-
-                    <BackupContactInfoFields />
+                    <BackupContactInfoFields showRequiredAsterisk name={backupContactName} />
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h3>CAC Validation</h3>
@@ -132,11 +136,14 @@ CustomerContactInfoForm.propTypes = {
     suffix: PropTypes.string,
     customerTelephone: PropTypes.string,
     customerEmail: PropTypes.string,
-    name: PropTypes.string,
-    telephone: PropTypes.string,
-    email: PropTypes.string,
     customerAddress: ResidentialAddressShape,
     cacUser: PropTypes.bool,
+    backupContactName: PropTypes.shape({
+      firstName: PropTypes.string,
+      lastName: PropTypes.string,
+      email: PropTypes.string,
+      telephone: PropTypes.string,
+    }),
   }).isRequired,
   onSubmit: PropTypes.func,
   onBack: PropTypes.func,

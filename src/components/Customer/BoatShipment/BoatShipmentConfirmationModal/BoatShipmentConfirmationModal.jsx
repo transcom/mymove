@@ -74,7 +74,7 @@ export const BoatShipmentConfirmationModal = ({
   const { header, message } = boatConfirmationMessage(isDimensionsMeetReq, boatShipmentType, isEditPage);
 
   return (
-    <Modal>
+    <Modal onClose={closeModal}>
       <ModalClose handleClick={closeModal} />
       <ModalTitle>
         <h3>{header}</h3>

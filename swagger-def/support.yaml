@@ -1446,7 +1446,7 @@ definitions:
           actualWeight:
             type: integer
             example: 4000
-            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
             x-nullable: true
             x-omitempty: false
         required:

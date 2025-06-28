@@ -20,9 +20,9 @@ import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { formatPayGradeOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { getPayGradeOptions, showCounselingOffices } from 'services/ghcApi';
 import Hint from 'components/Hint';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
@@ -504,7 +504,6 @@ const AddOrdersForm = ({
                     signed={false}
                     thousandsSeparator=","
                     lazy={false}
-                    labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                     label={
                       <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                         If the customer&apos;s orders specify a UB weight allowance, enter it here.
@@ -538,7 +537,6 @@ const AddOrdersForm = ({
                       signed={false}
                       thousandsSeparator=","
                       lazy={false}
-                      labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                           If the customer&apos;s orders specify a UB weight allowance, enter it here.

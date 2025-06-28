@@ -51,20 +51,20 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		scCloseoutAssignedUser = BuildOfficeUser(db, tempSCCloseoutAssignedUserCustoms, nil)
 	}
 
-	var tooAssignedUser models.OfficeUser
-	tempTOOAssignedUserCustoms := customs
-	tooAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOOAssignedUser)
-	if tooAssignedUserResult != nil {
-		tempTOOAssignedUserCustoms = convertCustomizationInList(tempTOOAssignedUserCustoms, OfficeUsers.TOOAssignedUser, OfficeUser)
-		tooAssignedUser = BuildOfficeUser(db, tempTOOAssignedUserCustoms, nil)
+	var tooTaskOrderAssignedUser models.OfficeUser
+	tempTOOTaskOrderAssignedUserCustoms := customs
+	tooTaskOrderAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOOTaskOrderAssignedUser)
+	if tooTaskOrderAssignedUserResult != nil {
+		tempTOOTaskOrderAssignedUserCustoms = convertCustomizationInList(tempTOOTaskOrderAssignedUserCustoms, OfficeUsers.TOOTaskOrderAssignedUser, OfficeUser)
+		tooTaskOrderAssignedUser = BuildOfficeUser(db, tempTOOTaskOrderAssignedUserCustoms, nil)
 	}
 
-	var tioAssignedUser models.OfficeUser
-	tempTIOAssignedUserCustoms := customs
-	tioAssignedUserResult := findValidCustomization(customs, OfficeUsers.TIOAssignedUser)
-	if tioAssignedUserResult != nil {
-		tempTIOAssignedUserCustoms = convertCustomizationInList(tempTIOAssignedUserCustoms, OfficeUsers.TIOAssignedUser, OfficeUser)
-		tioAssignedUser = BuildOfficeUser(db, tempTIOAssignedUserCustoms, nil)
+	var tioPaymentRequestAssignedUser models.OfficeUser
+	tempTIOPaymentRequestAssignedUserCustoms := customs
+	tioPaymentRequestAssignedUserResult := findValidCustomization(customs, OfficeUsers.TIOPaymentRequestAssignedUser)
+	if tioPaymentRequestAssignedUserResult != nil {
+		tempTIOPaymentRequestAssignedUserCustoms = convertCustomizationInList(tempTIOPaymentRequestAssignedUserCustoms, OfficeUsers.TIOPaymentRequestAssignedUser, OfficeUser)
+		tioPaymentRequestAssignedUser = BuildOfficeUser(db, tempTIOPaymentRequestAssignedUserCustoms, nil)
 	}
 
 	var counselingOffice models.TransportationOffice
@@ -120,14 +120,14 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
 
-	if tooAssignedUserResult != nil {
-		move.TOOAssignedUser = &tooAssignedUser
-		move.TOOAssignedID = &tooAssignedUser.ID
+	if tooTaskOrderAssignedUserResult != nil {
+		move.TOOTaskOrderAssignedUser = &tooTaskOrderAssignedUser
+		move.TOOTaskOrderAssignedID = &tooTaskOrderAssignedUser.ID
 	}
 
-	if tioAssignedUserResult != nil {
-		move.TIOAssignedUser = &tioAssignedUser
-		move.TIOAssignedID = &tioAssignedUser.ID
+	if tioPaymentRequestAssignedUserResult != nil {
+		move.TIOPaymentRequestAssignedUser = &tioPaymentRequestAssignedUser
+		move.TIOPaymentRequestAssignedID = &tioPaymentRequestAssignedUser.ID
 	}
 
 	if counselingOfficeResult != nil {

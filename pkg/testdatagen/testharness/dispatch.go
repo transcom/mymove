@@ -221,6 +221,9 @@ var actionDispatcher = map[string]actionFunc{
 	"ApprovedMoveWithPPMProgearWeightTicketOfficeCivilian": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx)
 	},
+	"ApprovedMoveWithPPMGunSafeWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMGunSafeWeightTicketOffice(appCtx)
+	},
 	"ApprovedMoveWithPPMWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMWeightTicketOffice(appCtx)
 	},
@@ -247,6 +250,9 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"RequestedOfficeUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeRequestedOfficeUserWithTOO(appCtx)
+	},
+	"RequestedOfficeUserWithPrivilege": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeRequestedOfficeUserWithPrivilege(appCtx)
 	},
 	"RejectedOfficeUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeRejectedOfficeUserWithTOO(appCtx)

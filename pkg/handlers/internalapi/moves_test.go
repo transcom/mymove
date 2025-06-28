@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -25,11 +26,14 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	move "github.com/transcom/mymove/pkg/services/move"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/services/upload"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -198,9 +202,16 @@ func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 }
 
 func (suite *HandlerSuite) TestShowMoveHandler() {
+	someTime := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
 
 	// Given: a set of orders, a move, user and servicemember
-	move := factory.BuildMove(suite.DB(), nil, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				LockExpiresAt: &someTime,
+			},
+		},
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -221,6 +232,8 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 	// And: Returned query to include our added move
 	suite.Assertions.Equal(move.OrdersID.String(), okResponse.Payload.OrdersID.String())
 
+	// should have a lockExpiresAt field if passed in by request
+	suite.True(someTime.Equal(handlers.FmtDateTimePtrToPop(&okResponse.Payload.LockExpiresAt)))
 }
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
@@ -547,8 +560,8 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 	suite.Run("Gets all moves belonging to a service member", func() {
 
-		time := time.Now()
-		laterTime := time.AddDate(0, 0, 1)
+		now := time.Now()
+		laterTime := now.AddDate(0, 0, 1)
 		// Given: A servicemember and a user
 		user := factory.BuildDefaultUser(suite.DB())
 
@@ -581,7 +594,23 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			},
 			{
 				Model: models.Move{
-					CreatedAt: time,
+					CreatedAt:     now,
+					LockExpiresAt: &laterTime,
+				},
+			},
+		}, nil)
+
+		hasGunSafe := true
+		gunSafeWeight := unit.Pound(500)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PPMShipment{
+					HasGunSafe:    &hasGunSafe,
+					GunSafeWeight: &gunSafeWeight,
 				},
 			},
 		}, nil)
@@ -617,6 +646,21 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
+		// Turn off gun safe FF
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
 		handler := GetAllMovesHandler{handlerConfig}
 		response := handler.Handle(params)
 
@@ -627,6 +671,10 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 		// should have a move in each array
 		suite.Equal(len(okResponse.Payload.CurrentMove), 1)
 		suite.Equal(len(okResponse.Payload.PreviousMoves), 1)
+
+		// Check that gun safe related values are nil if FF is turned off
+		suite.Nil(okResponse.Payload.CurrentMove[0].MtoShipments[0].PpmShipment.HasGunSafe)
+		suite.Nil(okResponse.Payload.CurrentMove[0].MtoShipments[0].PpmShipment.GunSafeWeight)
 	})
 }
 

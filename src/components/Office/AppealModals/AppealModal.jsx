@@ -28,7 +28,7 @@ export const AppealModal = ({ onClose, onSubmit, selectedReportViolation, isSeri
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.AppealModal}>
+        <Modal className={styles.AppealModal} onClose={onClose}>
           <ModalClose handleClick={onClose} />
           <ModalTitle>
             <h2 className={styles.ModalTitle} data-testid="appealModalTitle">
@@ -78,9 +78,6 @@ export const AppealModal = ({ onClose, onSubmit, selectedReportViolation, isSeri
                     />
                   </Fieldset>
                   <ModalActions>
-                    <Button type="submit" disabled={!isValid}>
-                      Save
-                    </Button>
                     <Button
                       type="button"
                       onClick={() => onClose()}
@@ -89,6 +86,9 @@ export const AppealModal = ({ onClose, onSubmit, selectedReportViolation, isSeri
                       className={styles.CancelButton}
                     >
                       Cancel
+                    </Button>
+                    <Button type="submit" disabled={!isValid}>
+                      Save
                     </Button>
                   </ModalActions>
                 </Form>

@@ -1982,9 +1982,12 @@ definitions:
   BackupContact:
     type: object
     properties:
-      name:
+      firstName:
         type: string
-        example: Bob Smith
+        example: Bob
+      lastName:
+        type: string
+        example: Smith
       phone:
         type: string
         format: telephone
@@ -2244,6 +2247,7 @@ definitions:
         enum:
           - INFECTED
           - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
       createdAt:
         type: string
@@ -2300,7 +2304,7 @@ definitions:
       - IsPeak
       - MarketDest
       - MarketOrigin
-      - MTOAvailableToPrimeAt
+      - MTOEarliestRequestedPickup
       - NTSPackingFactor
       - NumberDaysSIT
       - PriceAreaDest

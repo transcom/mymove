@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import approveShipmentAfterSitExtRemoval from 'constants/MoveHistory/EventTemplates/ApproveShipmentAfterSitExtRemoval/approveShipmentAfterSitExtRemoval';
+import updateShipmentAfterSitExtRemoval from 'constants/MoveHistory/EventTemplates/ApproveShipmentAfterSitExtRemoval/approveShipmentAfterSitExtRemoval';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 
-describe('when given a approveShipmentAfterSitExtRemoval history record', () => {
+describe('when given a updateShipmentAfterSitExtRemoval history record', () => {
   const historyRecord = {
     action: a.UPDATE,
     changedValues: {
@@ -26,11 +26,11 @@ describe('when given a approveShipmentAfterSitExtRemoval history record', () => 
 
   it('matches the template from getTemplate', () => {
     const template = getTemplate(historyRecord);
-    expect(template).toMatchObject(approveShipmentAfterSitExtRemoval);
+    expect(template).toMatchObject(updateShipmentAfterSitExtRemoval);
   });
 
   it('returns the correct event display name', () => {
-    expect(approveShipmentAfterSitExtRemoval.getEventNameDisplay()).toEqual('Updated shipment');
+    expect(updateShipmentAfterSitExtRemoval.getEventNameDisplay()).toEqual('Updated shipment');
   });
 
   it('renders the details via LabeledDetails with merged changed values', () => {

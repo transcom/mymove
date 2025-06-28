@@ -34,7 +34,7 @@ func NewDeleteOfficeUser(ctx *middleware.Context, handler DeleteOfficeUserHandle
 
 # Deletes an Office User
 
-Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.
+Deletes a single office user (including Roles, and Privileges) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.
 */
 type DeleteOfficeUser struct {
 	Context *middleware.Context

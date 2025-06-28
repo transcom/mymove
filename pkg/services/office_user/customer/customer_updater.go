@@ -1,6 +1,8 @@
 package customer
 
 import (
+	"strings"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -31,6 +33,27 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+
+		if customer.ResidentialAddress != nil && strings.TrimSpace(customer.ResidentialAddress.PostalCode) != "" && strings.TrimSpace(customer.ResidentialAddress.City) != "" {
+			usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), customer.ResidentialAddress.PostalCode, strings.ToUpper(customer.ResidentialAddress.City))
+			if err != nil {
+				return err
+			}
+
+			customer.ResidentialAddress.UsPostRegionCity = usprc
+			customer.ResidentialAddress.UsPostRegionCityID = &usprc.ID
+		}
+
+		if customer.BackupMailingAddress != nil && strings.TrimSpace(customer.BackupMailingAddress.PostalCode) != "" && strings.TrimSpace(customer.BackupMailingAddress.City) != "" {
+			usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), customer.BackupMailingAddress.PostalCode, strings.ToUpper(customer.BackupMailingAddress.City))
+			if err != nil {
+				return err
+			}
+
+			customer.BackupMailingAddress.UsPostRegionCity = usprc
+			customer.BackupMailingAddress.UsPostRegionCityID = &usprc.ID
+		}
+
 		if residentialAddress := customer.ResidentialAddress; residentialAddress != nil {
 			if existingCustomer.ResidentialAddress != nil {
 				existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1
@@ -140,13 +163,15 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 		if backupContacts := customer.BackupContacts; len(backupContacts) > 0 {
 			// added this check to prevent crashes when the customer doesn't finish creating their profile
 			if len(existingCustomer.BackupContacts) > 0 {
-				existingCustomer.BackupContacts[0].Name = backupContacts[0].Name
+				existingCustomer.BackupContacts[0].FirstName = backupContacts[0].FirstName
+				existingCustomer.BackupContacts[0].LastName = backupContacts[0].LastName
 				existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
 				existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
 			} else {
 				backupContact, verrs, dbErr := existingCustomer.CreateBackupContact(
 					txnAppCtx.DB(),
-					backupContacts[0].Name,
+					backupContacts[0].FirstName,
+					backupContacts[0].LastName,
 					backupContacts[0].Email,
 					backupContacts[0].Phone,
 					models.BackupContactPermissionNONE,

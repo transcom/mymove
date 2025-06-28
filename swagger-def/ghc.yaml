@@ -104,6 +104,31 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  /open/roles-privileges:
+    get:
+      produces:
+        - application/json
+      summary: Retrieve a list of unique role to privilege mappings.
+      description: >
+        This endpoint returns a list of unique role to privilege mappings.
+      operationId: getRolesPrivileges
+      tags:
+        - rolePrivileges
+      responses:
+        "200":
+          description: Successfully retrieved list of unique role privilege mappings
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Role'
+        "404":
+          description: No role-privilege mapping found
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        "500":
+          description: server error
   /office-users/{officeUserId}:
     patch:
       consumes:
@@ -2142,6 +2167,118 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    post:
+      summary: Creates a gun safe weight ticket
+      description: |
+        Creates a PPM shipment's gun safe weight ticket. This will only contain the minimum necessary fields for a
+        gun safe weight ticket. Data should be filled in using the patch endpoint.
+      operationId: createGunSafeWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: returns a new gun safe weight ticket object
+          schema:
+            $ref: 'definitions/GunSafeWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/gun-safe-weight-tickets/{gunSafeWeightTicketId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - name: gunSafeWeightTicketId
+        in: path
+        type: string
+        format: uuid
+        required: true
+        description: UUID of the gun safe weight ticket
+    patch:
+      summary: Updates a gun safe weight ticket
+      description: |
+        Updates a PPM shipment's gun safe weight ticket with new information. Only some of the fields are editable
+        because some have to be set by the customer, e.g. the description.
+      operationId: updateGunSafeWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ifMatch.yaml'
+        - in: body
+          name: updateGunSafeWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateGunSafeWeightTicket'
+      responses:
+        '200':
+          description: returns an updated gun safe weight ticket object
+          schema:
+            $ref: 'definitions/GunSafeWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a gun safe weight line item by ID
+      description: |
+        Removes a single gun safe weight ticket set from the closeout line items for a PPM shipment. Soft deleted
+        records are not visible in milmove, but are kept in the database.
+      operationId: deleteGunSafeWeightTicket
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - description: ID of the gun safe weight ticket to be deleted
+          in: path
+          name: gunSafeWeightTicketId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the gun safe weight ticket
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/aoa-packet:
     parameters:
       - description: the id for the ppmshipment with aoa to be downloaded
@@ -3944,6 +4081,171 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+  /queues/ppmCloseout:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all customer moves needing PPM closeout by GBLOC origin
+      description: >
+        An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. Personally procured moves will show up here once they are pending closeout by the services counselor.
+        The services counselor is the designated role to action the items in this queue.
+      operationId: getPPMCloseoutQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page number of paginated move results
+        - in: query
+          name: perPage
+          type: integer
+          description: maximum number of moves to show on each page of paginated results
+        - in: query
+          name: sort
+          type: string
+          enum:
+            [
+              customerName,
+              edipi,
+              emplid,
+              branch,
+              locator,
+              status,
+              requestedMoveDate,
+              submittedAt,
+              originGBLOC,
+              originDutyLocation,
+              destinationDutyLocation,
+              ppmType,
+              closeoutInitiated,
+              closeoutLocation,
+              ppmStatus,
+              counselingOffice,
+              assignedTo,
+            ]
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum: [asc, desc]
+          description: direction of sort order if applied
+        - in: query
+          name: branch
+          type: string
+          description: filters by the branch of the move's service member
+        - in: query
+          name: locator
+          type: string
+          description: filters to match the unique move code locator
+        - in: query
+          name: customerName
+          type: string
+          description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
+        - in: query
+          name: edipi
+          type: string
+          description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
+        - in: query
+          name: submittedAt
+          type: string
+          format: date-time
+          description: Start of the submitted at date in the user's local time zone converted to UTC
+        - in: query
+          name: originGBLOC
+          type: string
+          description: filters the GBLOC of the service member's origin duty location
+        - in: query
+          name: originDutyLocation
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
+          description: filters the name of the origin duty location on the orders
+        - in: query
+          name: destinationDutyLocation
+          type: string
+          description: filters the name of the destination duty location on the orders
+        - in: query
+          name: status
+          type: array
+          description: filters the status of the move
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - NEEDS SERVICE COUNSELING
+              - SERVICE COUNSELING COMPLETED
+        - in: query
+          name: needsPPMCloseout
+          type: boolean
+          description: >
+            As of right now the only ppm_shipments status is "NEEDS_CLOSEOUT". But we allow the frontend to "filter" this, it may be useful in the future.
+            For now it'll always just be in need of closeout. If null we still show PPM moves needing closeout.
+            Don't confuse this with the move's status. Move status and ppm shipment status are different.
+        - in: query
+          name: ppmType
+          type: string
+          enum:
+            - FULL
+            - PARTIAL
+          description: filters PPM type
+        - in: query
+          name: closeoutInitiated
+          type: string
+          format: date-time
+          description: Latest date that closeout was initiated on a PPM on the move
+        - in: query
+          name: closeoutLocation
+          type: string
+          description: closeout location
+        - in: query
+          name: orderType
+          type: string
+          description: order type
+        - in: query
+          name: ppmStatus
+          type: string
+          enum:
+            - WAITING_ON_CUSTOMER
+            - NEEDS_CLOSEOUT
+          description: filters the status of the PPM shipment
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/bulk-assignment:
     get:
       produces:
@@ -4710,6 +5012,11 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
@@ -4972,6 +5279,7 @@ paths:
             enum:
               - INFECTED
               - CLEAN
+              - NO_THREATS_FOUND
               - PROCESSING
             readOnly: true
         '400':
@@ -5219,7 +5527,9 @@ definitions:
   BackupContact:
     type: object
     properties:
-      name:
+      firstName:
+        type: string
+      lastName:
         type: string
       email:
         type: string
@@ -5230,7 +5540,8 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
     required:
-      - name
+      - firstName
+      - lastName
       - email
       - phone
   Contractor:
@@ -5257,6 +5568,13 @@ definitions:
       roleName:
         type: string
         example: Task Ordering Officer
+      sort:
+        type: integer
+        format: int32
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -5269,6 +5587,36 @@ definitions:
       - id
       - roleType
       - roleName
+      - createdAt
+      - updatedAt
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      sort:
+        type: integer
+        format: int32
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - privilegeType
+      - privilegeName
       - createdAt
       - updatedAt
   OfficeUser:
@@ -5310,6 +5658,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       edipi:
         type: string
       otherUniqueId:
@@ -5405,6 +5757,11 @@ definitions:
         items:
           $ref: '#/definitions/OfficeUserRole'
         x-nullable: false
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
+        x-nullable: false
     required:
       - firstName
       - lastName
@@ -5435,6 +5792,19 @@ definitions:
         example: 'task_ordering_officer'
         x-nullable: true
         title: roleType
+  OfficeUserPrivilege:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Supervisor
+        x-nullable: true
+        title: name
+      privilegeType:
+        type: string
+        example: supervisor
+        x-nullable: true
+        title: privilegeType
   Customer:
     type: object
     properties:
@@ -5962,9 +6332,9 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TOOAssignedUser:
+      TOOTaskOrderAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TIOAssignedUser:
+      TIOPaymentRequestAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOODestinationAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
@@ -7441,6 +7811,24 @@ definitions:
       description:
         description: Description of pro gear included in trips set.
         type: string
+  UpdateGunSafeWeightTicket:
+    type: object
+    properties:
+      hasWeightTickets:
+        description: Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.
+        type: boolean
+      weight:
+        description: Weight of the gun safe contained in the shipment.
+        type: integer
+        minimum: 0
+      status:
+        $ref: 'definitions/PPMDocumentStatus.yaml'
+      reason:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+      description:
+        description: Description of gun safe included in trips set.
+        type: string
   ApproveShipments:
     type: object
     properties:
@@ -7990,6 +8378,10 @@ definitions:
       requestedMoveDates:
         type: string
         description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
+      closeoutInitiatedDates:
+        type: string
+        description: comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
@@ -8636,6 +9028,10 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  ReServiceItems:
+    type: array
+    items:
+      $ref: 'definitions/ReServiceItem.yaml'
   TransportationOffices:
     type: array
     items:
@@ -8648,10 +9044,6 @@ definitions:
     type: array
     items:
       $ref: 'definitions/Country.yaml'
-  ReServiceItems:
-    type: array
-    items:
-      $ref: 'definitions/ReServiceItem.yaml'
   GBLOCs:
     type: array
     items:

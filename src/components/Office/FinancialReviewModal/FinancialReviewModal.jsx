@@ -10,6 +10,7 @@ import styles from './FinancialReviewModal.module.scss';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const financialReviewSchema = Yup.object().shape({
   remarks: Yup.string().when('flagForReview', {
@@ -25,7 +26,7 @@ function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelect
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.FinancialReviewModal}>
+        <Modal className={styles.FinancialReviewModal} onClose={onClose}>
           <ModalClose handleClick={onClose} />
           <ModalTitle>
             <h2>Does this move need financial review?</h2>
@@ -70,6 +71,9 @@ function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelect
                         />
                       </div>
                     </FormGroup>
+                    <div className="margin-top-2">
+                      <span>{requiredAsteriskMessage}</span>
+                    </div>
                     <Label
                       className={classnames({
                         [styles.RemarksLabelDisabled]: flagForReview !== 'yes',
@@ -77,6 +81,12 @@ function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelect
                       htmlFor="remarks"
                     >
                       Remarks for financial office
+                      {flagForReview === 'yes' && (
+                        <>
+                          {' '}
+                          <RequiredAsterisk />
+                        </>
+                      )}
                     </Label>
                     {/* Need to set remarks to nothing when no is selected */}
                     <Field
@@ -87,13 +97,15 @@ function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelect
                       name="remarks"
                       id="remarks"
                       className={styles.RemarksField}
+                      showRequiredAsterisk={flagForReview === 'yes'}
+                      required={flagForReview === 'yes'}
                     />
                     <ModalActions>
+                      <Button type="button" onClick={onClose} secondary>
+                        Cancel
+                      </Button>
                       <Button type="submit" disabled={!isValid}>
                         Save
-                      </Button>
-                      <Button type="button" onClick={onClose} outline className="usa-button--tertiary">
-                        Cancel
                       </Button>
                     </ModalActions>
                   </Form>

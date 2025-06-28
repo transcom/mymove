@@ -8,15 +8,23 @@ import (
 )
 
 // Deprecated: use factory.BuildEvaluationReport
-func makeEvaluationReport(db *pop.Connection, assertions Assertions) models.EvaluationReport {
+func makeEvaluationReport(db *pop.Connection, assertions Assertions) (models.EvaluationReport, error) {
 	officeUser := assertions.OfficeUser
 	if isZeroUUID(assertions.OfficeUser.ID) {
-		officeUser = MakeOfficeUser(db, assertions)
+		var err error
+		officeUser, err = MakeOfficeUser(db, assertions)
+		if err != nil {
+			return models.EvaluationReport{}, err
+		}
 	}
 
 	move := assertions.Move
 	if isZeroUUID(assertions.Move.ID) {
-		move = makeMove(db, assertions)
+		var err error
+		move, err = makeMove(db, assertions)
+		if err != nil {
+			return models.EvaluationReport{}, err
+		}
 	}
 
 	reportType := assertions.EvaluationReport.Type
@@ -42,5 +50,5 @@ func makeEvaluationReport(db *pop.Connection, assertions Assertions) models.Eval
 	mergeModels(&evaluationReport, assertions.EvaluationReport)
 	mustCreate(db, &evaluationReport, assertions.Stub)
 
-	return evaluationReport
+	return evaluationReport, nil
 }

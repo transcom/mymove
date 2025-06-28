@@ -34,29 +34,24 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import {
   useCustomerSearchQueries,
   useMoveSearchQueries,
-  useServicesCounselingQueuePPMQueries,
+  usePPMQueueQueries,
   useServicesCounselingQueueQueries,
   useUserQueries,
 } from 'hooks/queries';
-import {
-  getServicesCounselingOriginLocations,
-  getServicesCounselingPPMQueue,
-  getServicesCounselingQueue,
-} from 'services/ghcApi';
+import { getServicesCounselingOriginLocations, getPPMCloseoutQueue, getServicesCounselingQueue } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import { selectLoggedInUser } from 'store/entities/selectors';
-import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
-import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { handleQueueAssignment, getQueue } from 'utils/queues';
 import retryPageLoading from 'utils/retryPageLoading';
+import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 export const counselingColumns = (
-  moveLockFlag,
   originLocationList,
   supervisor,
   queueType,
@@ -69,7 +64,7 @@ export const counselingColumns = (
       (row) => {
         const now = new Date();
         // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
           return (
             <div data-testid="lock-icon">
               <FontAwesomeIcon icon="lock" />
@@ -247,7 +242,6 @@ export const counselingColumns = (
   return cols;
 };
 export const closeoutColumns = (
-  moveLockFlag,
   ppmCloseoutGBLOC,
   ppmCloseoutOriginLocationList,
   supervisor,
@@ -261,7 +255,7 @@ export const closeoutColumns = (
       (row) => {
         const now = new Date();
         // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
           return (
             <div id={row.id}>
               <FontAwesomeIcon icon="lock" />
@@ -329,7 +323,8 @@ export const closeoutColumns = (
       },
       {
         id: 'ppmStatus',
-        isFilterable: true,
+        isFilterable: false, // Currently this queue only has one status
+        disableSortBy: true,
         Filter: (props) => (
           // eslint-disable-next-line react/jsx-props-no-spreading
           <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
@@ -339,7 +334,7 @@ export const closeoutColumns = (
     createHeader(
       'Closeout initiated',
       (row) => {
-        return formatDateFromIso(row.closeoutInitiated, DATE_FORMAT_STRING);
+        return row.closeoutInitiatedDates;
       },
       {
         id: 'closeoutInitiated',
@@ -457,8 +452,8 @@ const ServicesCounselingQueue = ({
   isQueueManagementFFEnabled,
   officeUser,
   isBulkAssignmentFFEnabled,
-  setRefetchQueue,
   activeRole,
+  setRefetchQueue,
 }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
@@ -466,7 +461,6 @@ const ServicesCounselingQueue = ({
   const navigate = useNavigate();
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
-  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const [originLocationList, setOriginLocationList] = useState([]);
   const [ppmCloseoutOriginLocationList, setPpmCloseoutOriginLocationList] = useState([]);
@@ -501,8 +495,6 @@ const ServicesCounselingQueue = ({
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
         setisCounselorMoveCreateFFEnabled(isEnabled);
-        const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-        setMoveLockFlag(lockedMoveFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -678,7 +670,6 @@ const ServicesCounselingQueue = ({
           disableMultiSort
           disableSortBy={false}
           columns={closeoutColumns(
-            moveLockFlag,
             inPPMCloseoutGBLOC,
             ppmCloseoutOriginLocationList,
             supervisor,
@@ -688,10 +679,10 @@ const ServicesCounselingQueue = ({
           )}
           title="Moves"
           handleClick={handleClick}
-          useQueries={useServicesCounselingQueuePPMQueries}
+          useQueries={usePPMQueueQueries}
           showCSVExport
           csvExportFileNamePrefix="PPM-Closeout-Queue"
-          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcher={getPPMCloseoutQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
@@ -717,7 +708,6 @@ const ServicesCounselingQueue = ({
           disableMultiSort
           disableSortBy={false}
           columns={counselingColumns(
-            moveLockFlag,
             originLocationList,
             supervisor,
             queueType,
