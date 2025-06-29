@@ -13,11 +13,6 @@ import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { ERROR_RETURN_VALUE, LOADING_RETURN_VALUE, INACCESSIBLE_RETURN_VALUE } from 'utils/test/api';
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
-
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -63,11 +58,6 @@ jest.mock('hooks/queries', () => ({
   ...jest.requireActual('hooks/queries'),
   useTXOMoveInfoQueries: jest.fn(),
   useUserQueries: jest.fn(),
-}));
-
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const basicUseTXOMoveInfoQueriesValue = {

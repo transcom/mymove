@@ -19,7 +19,7 @@ import { formatWeight } from 'utils/formatters';
 import LoadingButton from 'components/LoadingButton/LoadingButton';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
-import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const validationSchema = Yup.object().shape({
   estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
@@ -173,6 +173,11 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 </Hint>
                 {values.hasProGear === 'true' && (
                   <>
+                    <span className="usa-label">
+                      <span>
+                        <RequiredAsterisk /> Enter a weight into at least one pro-gear field.
+                      </span>
+                    </span>
                     <MaskedTextField
                       defaultValue="0"
                       name="proGearWeight"
@@ -249,7 +254,8 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                       <Hint>
                         The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against
                         the authorized weight entitlement. The weight entitlement is charged for any weight over 500
-                        lbs. The gun safe weight cannot be added to overall entitlement for O-6 and higher ranks.
+                        lbs. The additional 500 lbs gun safe weight entitlement cannot be applied if a customer&apos;s
+                        overall entitlement is already at the 18,000 lbs maximum.
                       </Hint>
                     </div>
                   )}

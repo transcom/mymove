@@ -463,12 +463,18 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
     });
 
-    it('verify toggling from Yes to No to Yes restores PPM SIT prefilled values', async () => {
+    it('verify toggling from Yes to No to Yes restores PPM SIT prefilled values and asterisks for required fields', async () => {
       useEditShipmentQueries.mockReturnValue(ppmWithSITUseEditShipmentQueriesReturnValue);
       searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
       renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+
+      expect(document.querySelector('#reqAsteriskMsg')).toHaveTextContent('Fields marked with * are required.');
+
+      expect(screen.getByLabelText('Estimated storage start *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Estimated storage end *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Estimated SIT weight *')).toBeInTheDocument();
 
       expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).toBeInTheDocument();
       expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).toBeInTheDocument();
@@ -494,7 +500,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       });
 
       // Input invalid date format will cause form to be invalid. save must be disabled.
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
+      await userEvent.type(screen.getByLabelText('Estimated storage start *'), 'FOOBAR');
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
@@ -508,7 +514,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       // Verify No is really hiding SIT related inputs
       expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start *' })).not.toBeInTheDocument();
       expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
 
       // Verify clicking Yes again will restore persisted data for each SIT related control.
@@ -568,9 +574,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
           // The test is dependent on the ordering of these three lines, and I'm not sure why.
           // If either of the estimated storage dates is entered last, the test that puts an invalid value
           // in that field will fail. But if the estimated SIT weight comes last, everything works fine.
-          await userEvent.type(screen.getByLabelText('Estimated storage start'), data.sitEstimatedEntryDate);
-          await userEvent.type(screen.getByLabelText('Estimated storage end'), data.sitEstimatedDepartureDate);
-          await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
+          await userEvent.type(screen.getByLabelText('Estimated storage start *'), data.sitEstimatedEntryDate);
+          await userEvent.type(screen.getByLabelText('Estimated storage end *'), data.sitEstimatedDepartureDate);
+          await userEvent.type(screen.getByLabelText('Estimated SIT weight *'), data.sitEstimatedWeight);
           await userEvent.tab();
 
           await waitFor(
@@ -597,9 +603,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       const sitExpected = document.getElementById('sitExpectedYes').parentElement;
       const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
       await userEvent.click(sitExpectedYes);
-      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1050');
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
-      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
+      await userEvent.type(screen.getByLabelText('Estimated SIT weight *'), '1050');
+      await userEvent.type(screen.getByLabelText('Estimated storage start *'), '15 Jun 2022');
+      await userEvent.type(screen.getByLabelText('Estimated storage end *'), '25 Jun 2022');
       await userEvent.tab();
       await userEvent.type(screen.getByLabelText(/Closeout location/), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));
@@ -623,7 +629,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
 
       expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
-      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).toBeInTheDocument();
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
 
       act(() => {
@@ -641,7 +647,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       });
 
       // Input invalid date format will cause form to be invalid. save must be disabled.
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
+      await userEvent.type(screen.getByLabelText('Estimated storage start *'), 'FOOBAR');
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
@@ -655,13 +661,17 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       // Verify No is really hiding SIT related inputs
       expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
+
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start *' })).not.toBeInTheDocument();
       expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
 
       // Verify clicking Yes again will restore persisted data for each SIT related control.
       const sitExpected2 = document.getElementById('sitExpectedYes').parentElement;
       const sitExpectedYes = within(sitExpected2).getByRole('radio', { name: 'Yes' });
       await userEvent.click(sitExpectedYes);
+
+      expect(screen.getByLabelText('Estimated storage start *')).toBeInTheDocument();
+      expect(screen.getByLabelText('Estimated storage end *')).toBeInTheDocument();
 
       // Verify persisted values are restored to expected values.
       expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');

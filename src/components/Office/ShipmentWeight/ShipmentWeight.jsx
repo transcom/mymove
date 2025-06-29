@@ -9,7 +9,7 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
-import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
@@ -95,6 +95,11 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
             </FormGroup>
             {hasProGear && (
               <>
+                <span className="usa-label">
+                  <span>
+                    <RequiredAsterisk /> Enter a weight into at least one pro-gear field.
+                  </span>
+                </span>
                 <MaskedTextField
                   defaultValue="0"
                   name="proGearWeight"
@@ -158,12 +163,13 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                      showRequiredAsterisk
                       required
                     />
                     <Hint>
                       The government authorizes the shipment of a gun safe up to 500 lbs. The weight entitlement is
-                      charged for any weight over 500 lbs. The gun safe weight cannot be added to overall entitlement
-                      for O-6 and higher ranks.
+                      charged for any weight over 500 lbs. The additional 500 lbs gun safe weight entitlement cannot be
+                      applied if a customer&apos;s overall entitlement is already at the 18,000 lbs maximum.
                     </Hint>
                   </>
                 )}

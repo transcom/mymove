@@ -654,32 +654,37 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
 	// also rather basic.
 	if serviceItem.MTOShipmentID == nil {
+		var feeDate *time.Time
+		// we need to know the first shipment's requested pickup date OR a PPM's expected departure date to establish the correct base year for the fee
+		// Loop through shipments to find the first requested pickup date
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
-			// we need to know the first shipment's requested pickup date OR a PPM's expected departure date to establish the correct base year for the fee
-			// Loop through shipments to find the first requested pickup date
-			var feeDate *time.Time
 			for _, shipment := range move.MTOShipments {
-				if shipment.RequestedPickupDate != nil {
-					feeDate = shipment.RequestedPickupDate
-					break
+				if shipment.DeletedAt == nil {
+					if feeDate == nil || shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*feeDate) {
+						feeDate = shipment.RequestedPickupDate
+					}
+
+					if serviceItem.ReService.Code == models.ReServiceCodeCS {
+						if shipment.PPMShipment != nil && !shipment.PPMShipment.ExpectedDepartureDate.IsZero() {
+							feeDate = &shipment.PPMShipment.ExpectedDepartureDate
+						}
+					}
 				}
-				var nilTime time.Time
-				if shipment.PPMShipment != nil && shipment.PPMShipment.ExpectedDepartureDate != nilTime {
-					feeDate = &shipment.PPMShipment.ExpectedDepartureDate
-				}
 			}
-			if feeDate == nil {
-				return nil, nil, apperror.NewNotFoundError(moveID, fmt.Sprintf(
-					"cannot create fee for service item %s: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment in move %s",
-					serviceItem.ReService.Code, moveID.String()))
-			}
-			serviceItem.Status = "APPROVED"
-			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *feeDate)
-			if err != nil {
-				return nil, nil, err
-			}
-			serviceItem.LockedPriceCents = &taskOrderFee.PriceCents
 		}
+
+		if feeDate == nil {
+			return nil, nil, apperror.NewNotFoundError(moveID, fmt.Sprintf(
+				"cannot create fee for service item %s: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment in move %s",
+				serviceItem.ReService.Code, moveID.String()))
+		}
+		serviceItem.Status = "APPROVED"
+		taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *feeDate)
+		if err != nil {
+			return nil, nil, err
+		}
+		serviceItem.LockedPriceCents = &taskOrderFee.PriceCents
+
 		verrs, err = o.builder.CreateOne(appCtx, serviceItem)
 		if verrs != nil {
 			return nil, verrs, nil
