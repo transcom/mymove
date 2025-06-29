@@ -98,3 +98,27 @@ func (h SearchCountriesHandler) Handle(params addressop.SearchCountriesParams) m
 			return addressop.NewSearchCountriesOK().WithPayload(returnPayload), nil
 		})
 }
+
+type GetOconusLocationHandler struct {
+	handlers.HandlerConfig
+	services.VIntlLocation
+}
+
+func (h GetOconusLocationHandler) Handle(params addressop.GetOconusLocationParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeApp() && appCtx.Session().OfficeUserID == uuid.Nil {
+				noOfficeUserIDErr := apperror.NewSessionError("No office user ID")
+				return addressop.NewGetOconusLocationForbidden(), noOfficeUserIDErr
+			}
+
+			locationList, err := h.GetOconusLocations(appCtx, params.Country, params.Search, false)
+			if err != nil {
+				appCtx.Logger().Error("Error searching for OCONUS location: ", zap.Error(err))
+				return addressop.NewGetOconusLocationInternalServerError(), err
+			}
+
+			returnPayload := payloads.VIntlLocations(*locationList)
+			return addressop.NewGetOconusLocationOK().WithPayload(returnPayload), nil
+		})
+}

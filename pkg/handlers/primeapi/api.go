@@ -58,6 +58,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	vLocation := address.NewVLocation()
+	vIntlLocation := address.NewVIntlLocation()
 	countrySearcher := address.NewCountrySearcher()
 	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
 		handlerConfig.HHGPlanner(),
@@ -138,6 +139,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
 		handlerConfig,
 		vLocation,
+	}
+
+	primeAPI.AddressesGetOconusLocationHandler = GetOconusLocationHandler{
+		handlerConfig,
+		vIntlLocation,
 	}
 
 	primeAPI.MtoShipmentUpdateShipmentDestinationAddressHandler = UpdateShipmentDestinationAddressHandler{

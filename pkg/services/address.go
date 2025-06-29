@@ -24,3 +24,8 @@ type VLocation interface {
 type CountrySearcher interface {
 	SearchCountries(appCtx appcontext.AppContext, queryFilter *string) (models.Countries, error)
 }
+
+//go:generate mockery --name VIntlLocation
+type VIntlLocation interface {
+	GetOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch bool) (*models.VIntlLocations, error)
+}

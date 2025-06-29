@@ -3,6 +3,7 @@ package address
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
@@ -115,6 +116,87 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusi
 		err := appCtx.DB().Load(&locationList[i], "State")
 		if err != nil {
 			return locationList, err
+		}
+	}
+	return locationList, nil
+}
+
+type vIntlLocation struct {
+}
+
+func NewVIntlLocation() services.VIntlLocation {
+	return &vIntlLocation{}
+}
+
+func (o vIntlLocation) GetOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch bool) (*models.VIntlLocations, error) {
+
+	locationList, err := FindOconusLocations(appCtx, country, search, exactMatch)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &locationList, apperror.NewNotFoundError(uuid.Nil, "Search string: "+search)
+		default:
+			return &locationList, err
+		}
+	}
+
+	return &locationList, nil
+}
+
+// Returns a VIntlLocation array containing all results for the search for the given country
+// This method expects a comma to be entered after the city name has been entered and is used
+// to determine when the principal division needs to be parsed from the search string
+func FindOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch bool) (models.VIntlLocations, error) {
+	var locationList []models.VIntlLocation
+	searchSlice := strings.Split(search, ",")
+	city := ""
+	principalDivision := ""
+
+	if len(searchSlice) > 1 {
+		city = strings.TrimSpace(searchSlice[0])
+		principalDivision = strings.TrimSpace(searchSlice[1])
+	} else {
+		city = search
+	}
+
+	var queryCondition string
+	if exactMatch {
+		queryCondition = "="
+	} else {
+		queryCondition = "LIKE"
+	}
+
+	sqlQuery := fmt.Sprintf(`
+	    SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id
+	    FROM v_intl_locations vil
+	    WHERE upper(vil.country) %s upper(?)
+	    AND upper(vil.city_name) %s upper(?)
+	    AND upper(vil.country_prn_dv_nm) %s upper(?)
+	    ORDER BY vil.country_prn_dv_nm`,
+		queryCondition, queryCondition, queryCondition,
+	)
+
+	sqlQuery += ` limit 30`
+	var query *pop.Query
+
+	// we only want to add an extra % to the strings if we are using the LIKE in the query
+	if exactMatch {
+		query = appCtx.DB().RawQuery(sqlQuery, country, city, principalDivision)
+	} else {
+		query = appCtx.DB().RawQuery(sqlQuery, fmt.Sprintf("%s%%", country), fmt.Sprintf("%s%%", city), fmt.Sprintf("%s%%", principalDivision))
+	}
+
+	if err := query.All(&locationList); err != nil {
+		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
+			return locationList, err
+		}
+	}
+	for i := range locationList {
+		err := appCtx.DB().Load(&locationList[i], "CityName")
+		if err != nil {
+			log.Printf("Error loading CityName for location %v: %v", locationList[i], err)
+			continue
 		}
 	}
 	return locationList, nil
